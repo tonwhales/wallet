@@ -1,20 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import { enableFreeze, enableScreens } from 'react-native-screens';
+enableScreens();
+enableFreeze();
 
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View } from 'react-native';
+import { Navigation } from './pages/Navigation';
+import { NavigationContainer } from '@react-navigation/native';
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <>
       <StatusBar style="auto" />
-    </View>
+      <View style={styles.container}>
+        <NavigationContainer>
+          <Navigation />
+        </NavigationContainer>
+      </View>
+    </>
+
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexDirection: 'column',
+    backgroundColor: 'purple',
+    alignItems: 'stretch',
     justifyContent: 'center',
   },
 });

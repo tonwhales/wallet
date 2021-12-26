@@ -10,12 +10,26 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-navigation/native": "^6.0.6",
+    "@react-navigation/native-stack": "^6.2.5",
+    "@react-navigation/stack": "^6.0.11",
+    "add": "^2.0.6",
     "expo": "~44.0.0",
+    "expo-asset": "^8.4.5",
+    "expo-splash-screen": "^0.14.1",
     "expo-status-bar": "~1.2.0",
+    "lottie-react-native": "^5.0.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
-    "react-native-web": "0.17.1"
+    "react-native-gesture-handler": "^2.1.0",
+    "react-native-safe-area-context": "^3.3.2",
+    "react-native-screens": "^3.10.1",
+    "react-native-typography": "^1.4.1",
+    "react-native-web": "0.17.1",
+    "react-navigation": "^4.4.4",
+    "recoil": "^0.5.2",
+    "yarn": "^1.22.17"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

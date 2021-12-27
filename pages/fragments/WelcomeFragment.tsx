@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { iOSColors, iOSUIKit } from "react-native-typography";
 import { fragment } from "../fragment";
+import { mnemonicNew, mnemonicToWalletKey } from "ton-crypto";
 
 const WordInput = React.memo((props: { hint: string }) => {
     return (
@@ -33,6 +34,13 @@ const WordInput = React.memo((props: { hint: string }) => {
 });
 
 export const WelcomeFragment = fragment(() => {
+
+    (async () => {
+        let res = await mnemonicNew();
+        let key = await mnemonicToWalletKey(res);
+        console.warn(res);
+        console.warn(key);
+    })()
     return (
         <ScrollView style={{ flexGrow: 1, backgroundColor: 'white' }} contentContainerStyle={{ alignItems: 'center' }}>
             <Text style={[iOSUIKit.largeTitleEmphasized, { alignSelf: 'center', marginTop: 16, marginHorizontal: 16 }]}>24 Secret Words</Text>

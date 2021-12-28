@@ -28,12 +28,17 @@ const WordInput = React.memo((props: { hint: string }) => {
                     fontSize: 18
                 }}
                 returnKeyType="next"
+                autoCompleteType="off"
+                autoCorrect={false}
+                keyboardType="ascii-capable"
+                autoCapitalize="none"
+                inputAccessoryViewID="autocomplete"
             />
         </View>
     )
 });
 
-export const WelcomeFragment = fragment(() => {
+export const WalletImportFragment = fragment(() => {
 
     (async () => {
         let res = await mnemonicNew();

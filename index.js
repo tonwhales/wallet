@@ -1,7 +1,3 @@
-global.Buffer = global.Buffer || require('buffer').Buffer
-import { polyfillWebCrypto } from 'expo-standard-web-crypto';
-polyfillWebCrypto();
-
 import { registerRootComponent } from 'expo';
 
 import App from './App';

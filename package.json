@@ -6,12 +6,14 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "pods": "cd ios && arch -x86_64 pod install",
     "eject": "expo eject"
   },
   "dependencies": {
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@react-navigation/stack": "^6.0.11",
+    "@types/uuid": "^8.3.3",
     "buffer": "^6.0.3",
     "expo": "~44.0.0",
     "expo-asset": "^8.4.5",
@@ -25,6 +27,7 @@
     "react-native": "0.64.3",
     "react-native-fast-pbkdf2": "^0.2.1",
     "react-native-gesture-handler": "^2.1.0",
+    "react-native-mmkv": "^1.5.4",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.1",
     "react-native-typography": "^1.4.1",
@@ -32,7 +35,8 @@
     "react-navigation": "^4.4.4",
     "recoil": "^0.5.2",
     "ton": "^6.3.1",
-    "ton-crypto": "^1.6.0"
+    "ton-crypto": "^1.6.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

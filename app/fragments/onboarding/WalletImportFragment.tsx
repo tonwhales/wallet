@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Text, View } from "react-native";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { iOSColors, iOSUIKit } from "react-native-typography";
-import { fragment } from "../fragment";
+import { fragment } from "../../fragment";
 import { mnemonicNew, mnemonicToWalletKey } from "ton-crypto";
 
 const WordInput = React.memo((props: { hint: string }) => {

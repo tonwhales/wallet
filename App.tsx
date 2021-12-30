@@ -17,12 +17,15 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { Navigation } from './app/Navigation';
 import { NavigationContainer } from '@react-navigation/native';
+import { NavigationTheme } from './app/Theme';
 export default function App() {
   return (
     <>
       <StatusBar style="auto" />
       <View style={styles.container}>
-        <NavigationContainer>
+        <NavigationContainer
+          theme={NavigationTheme}
+        >
           <Navigation />
         </NavigationContainer>
       </View>

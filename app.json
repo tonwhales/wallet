@@ -18,7 +18,7 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.tonwhales.wallet"
+      "bundleIdentifier": "com.tonwhales.app"
     },
     "android": {
       "adaptiveIcon": {

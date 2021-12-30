@@ -1,5 +1,5 @@
 // Crypto
-global.Buffer = global.Buffer || require('buffer').Buffer
+global.Buffer = global.Buffer || require('buffer').Buffer;
 import { polyfillWebCrypto } from 'expo-standard-web-crypto';
 polyfillWebCrypto();
 
@@ -13,12 +13,27 @@ enableFreeze();
 import './app/utils/storage';
 
 // App
+import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { Navigation } from './app/Navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme } from './app/Theme';
-export default function App() {
+import AppLoading from 'expo-app-loading';
+import { boot } from './app/boot';
+
+function Boot() {
+  const [ready, setReady] = React.useState(false);
+  if (!ready) {
+    return (
+      <AppLoading
+        startAsync={boot}
+        onFinish={() => setReady(true)}
+        onError={console.warn}
+      />
+    );
+  }
+
   return (
     <>
       <StatusBar style="auto" />
@@ -30,7 +45,12 @@ export default function App() {
         </NavigationContainer>
       </View>
     </>
+  )
+}
 
+export default function App() {
+  return (
+    <Boot />
   );
 }
 

@@ -10,6 +10,7 @@ import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragm
 import { storage } from './utils/storage';
 import { WalletBackupFragment } from './fragments/onboarding/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
+import { TransferFragment } from './fragments/TransferFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +71,11 @@ export const Navigation = React.memo(() => {
                             name="Home"
                             component={HomeFragment}
                             options={{ title: 'Home' }}
+                        />
+                        <Stack.Screen
+                            name="Transfer"
+                            component={TransferFragment}
+                            options={{ title: 'Transfer' }}
                         />
                     </Stack.Navigator>
                 </RecoilRoot>

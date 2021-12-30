@@ -7,8 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { encryptData } from '../../utils/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
-import { storage } from '../../utils/storage';
+import { getAppState, setAppState, storage } from '../../utils/storage';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { client } from '../../client';
+import { mnemonicToWalletKey } from 'ton-crypto';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption }) => {
     const safeArea = useSafeAreaInsets();
@@ -20,6 +22,8 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
         (async () => {
             setLoading(true);
             try {
+
+                // Persist key
                 if (props.deviceEncryption === 'none') {
                     storage.set('ton-bypass-encryption', true);
                 } else {
@@ -27,6 +31,16 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 }
                 const token = await encryptData(Buffer.from(props.mnemonics));
                 storage.set('ton-mnemonics', token.toString('base64'));
+
+
+                // Resolve address
+                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+                let wallet = await client.openWalletDefaultFromSecretKey({ workchain: 0, secretKey: key.secretKey });
+                const address = wallet.address;
+
+                // Persist state
+                setAppState({ address });
+
                 navigation.navigateAndReplaceAll('WalletCreated');
             } catch (e) {
                 console.warn(e);

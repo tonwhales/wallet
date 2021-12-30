@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { RecoilRoot } from 'recoil';
 import { WelcomeFragment } from './fragments/WelcomeFragment';
 import { WalletImportFragment } from './fragments/WalletImportFragment';
+import { WalletCreateFragment } from './fragments/WalletCreateFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +25,11 @@ export const Navigation = React.memo(() => {
                         <Stack.Screen
                             name="WalletImport"
                             component={WalletImportFragment}
+                            options={{ headerShown: false }}
+                        />
+                         <Stack.Screen
+                            name="WalletCreate"
+                            component={WalletCreateFragment}
                             options={{ headerShown: false }}
                         />
                     </Stack.Navigator>

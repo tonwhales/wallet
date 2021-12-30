@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppLogo } from '../components/AppLogo';
 import { RoundButton } from '../components/RoundButton';
@@ -14,9 +14,11 @@ export const WelcomeFragment = fragment(() => {
             <View style={{ height: 64, marginTop: safeArea.bottom }} />
             <View style={{ flexGrow: 1 }} />
             <AppLogo />
+            <Text style={{ fontSize: 32 }}>Tonton</Text>
+            <Text style={{ fontSize: 18, marginTop: 8 }}>Fast and secure Toncoin Wallet</Text>
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, marginHorizontal: 64, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title="Create wallet" onPress={() => navigation.navigate('WalletImport')} />
+                <RoundButton title="Create wallet" onPress={() => navigation.navigate('WalletCreate')} />
             </View>
         </View>
     );

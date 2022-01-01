@@ -7,7 +7,7 @@ polyfillWebCrypto();
 import 'react-native-gesture-handler';
 import { enableFreeze, enableScreens } from 'react-native-screens';
 enableScreens();
-enableFreeze();
+enableFreeze(false);
 
 // Storage
 import './app/utils/storage';

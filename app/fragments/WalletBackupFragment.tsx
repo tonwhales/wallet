@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import { fragment } from "../../fragment";
-import { Theme } from '../../Theme';
-import { decryptData } from '../../utils/secureStorage';
-import { storage } from '../../utils/storage';
+import { fragment } from "../fragment";
+import { Theme } from '../Theme';
+import { decryptData } from '../utils/secureStorage';
+import { storage } from '../utils/storage';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { RoundButton } from '../../components/RoundButton';
+import { RoundButton } from '../components/RoundButton';
 
 export const WalletBackupFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -42,18 +42,36 @@ export const WalletBackupFragment = fragment(() => {
         )
     }
 
+    let words1: any[] = [];
+    let words2: any[] = [];
+    for (let i = 0; i < 24; i++) {
+        const component = (
+            <View key={'mn-' + i} style={{ flexDirection: 'row' }}>
+                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 18, width: 48, marginRight: 4 }}>{(i + 1) + ': '}</Text>
+                <Text style={{ color: Theme.textColor, fontSize: 18 }}>{mnemonics[i]}</Text>
+            </View>
+        );
+        if (i < 12) {
+            words1.push(component);
+        } else {
+            words2.push(component);
+        }
+    }
+
     return (
         <Animated.View
             style={{ alignItems: 'stretch', justifyContent: 'flex-start', flexGrow: 1 }}
             exiting={FadeIn}
             key={"content"}
         >
-
-            {mnemonics.map((v, i) => (
+            <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
                 <View>
-                    <Text key={'mn-' + i}>{v}</Text>
+                    {words1}
                 </View>
-            ))}
+                <View>
+                    {words2}
+                </View>
+            </View>
 
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, marginHorizontal: 64, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>

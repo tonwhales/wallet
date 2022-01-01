@@ -8,9 +8,10 @@ import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragmen
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
 import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
 import { storage } from './utils/storage';
-import { WalletBackupFragment } from './fragments/onboarding/WalletBackupFragment';
+import { WalletBackupFragment } from './fragments/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { TransferFragment } from './fragments/TransferFragment';
+import { WalletReceiveFragment } from './fragments/WalletReceiveFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -68,9 +69,14 @@ export const Navigation = React.memo(() => {
                             options={{}}
                         />
                         <Stack.Screen
+                            name="WalletReceive"
+                            component={WalletReceiveFragment}
+                            options={{ presentation: 'formSheet' }}
+                        />
+                        <Stack.Screen
                             name="Home"
                             component={HomeFragment}
-                            options={{ title: 'Home' }}
+                            options={{ headerShown: false }}
                         />
                         <Stack.Screen
                             name="Transfer"

@@ -8,10 +8,11 @@ import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragmen
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
 import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
 import { storage } from './utils/storage';
-import { WalletBackupFragment } from './fragments/WalletBackupFragment';
+import { WalletBackupFragment } from './fragments/wallet/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
-import { TransferFragment } from './fragments/TransferFragment';
-import { WalletReceiveFragment } from './fragments/WalletReceiveFragment';
+import { TransferFragment } from './fragments/wallet/TransferFragment';
+import { WalletReceiveFragment } from './fragments/wallet/WalletReceiveFragment';
+import { SettingsFragment } from './fragments/SettingsFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -82,6 +83,11 @@ export const Navigation = React.memo(() => {
                             name="Transfer"
                             component={TransferFragment}
                             options={{ title: 'Transfer' }}
+                        />
+                        <Stack.Screen
+                            name="Settings"
+                            component={SettingsFragment}
+                            options={{ title: 'Settings' }}
                         />
                     </Stack.Navigator>
                 </RecoilRoot>

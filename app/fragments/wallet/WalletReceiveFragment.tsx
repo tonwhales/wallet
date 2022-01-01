@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { fragment } from '../fragment';
-import { getAppState } from '../utils/storage';
+import { fragment } from '../../fragment';
+import { getAppState } from '../../utils/storage';
 import QRCode from 'react-native-qrcode-svg';
 import { Share, Text, View } from 'react-native';
-import { RoundButton } from '../components/RoundButton';
-import { Theme } from '../Theme';
+import { RoundButton } from '../../components/RoundButton';
+import { Theme } from '../../Theme';
 
 export const WalletReceiveFragment = fragment(() => {
     const address = React.useMemo(() => getAppState()!.address, []);

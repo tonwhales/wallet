@@ -4,13 +4,14 @@ import { Text, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
 import { Address, toNano } from 'ton';
 import { mnemonicToWalletKey } from 'ton-crypto';
-import { client } from '../client';
-import { RoundButton } from '../components/RoundButton';
-import { fragment } from "../fragment";
-import { decryptData } from '../utils/secureStorage';
-import { getAppState, storage } from '../utils/storage';
-import { backoff } from '../utils/time';
-import { useTypedNavigation } from '../utils/useTypedNavigation';
+import { client } from '../../client';
+import { ATextInput } from '../../components/ATextInput';
+import { RoundButton } from '../../components/RoundButton';
+import { fragment } from "../../fragment";
+import { decryptData } from '../../utils/secureStorage';
+import { getAppState, storage } from '../../utils/storage';
+import { backoff } from '../../utils/time';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -57,9 +58,9 @@ export const TransferFragment = fragment(() => {
     }, [amount, target]);
     return (
         <View style={{ marginTop: 100 }}>
-            <TextInput value={target} onChangeText={setTarget} style={{ backgroundColor: 'red' }} />
-            <TextInput value={amount} onChangeText={setAmount} style={{ backgroundColor: 'blue' }} />
-            <RoundButton title="Send" action={doSend} />
+            <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+            <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+            <RoundButton title="Send" action={doSend} style={{ marginHorizontal: 16 }} />
         </View>
     );
 });

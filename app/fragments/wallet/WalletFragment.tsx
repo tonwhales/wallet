@@ -12,7 +12,7 @@ import { TransactionView } from '../../components/TransactionView';
 import { useAccountSync } from '../../sync/useAccountSync';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import LottieView from 'lottie-react-native';
 
 export const WalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -62,7 +62,14 @@ export const WalletFragment = fragment(() => {
                 )}
                 {transactions && transactions.length === 0 && (
                     <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
-                        <Text style={{ fontSize: 18, marginBottom: 16 }}>No recent transactions</Text>
+                        <LottieView
+                            source={require('../../../assets/animations/chicken.json')}
+                            autoPlay={true}
+                            loop={false}
+                            progress={0.2}
+                            style={{ width: 200, height: 200, marginBottom: 16 }}
+                        />
+                        {/* <Text style={{ fontSize: 18, marginBottom: 16 }}>Wallet Created</Text> */}
                         <RoundButton title="Receive TONCOIN" size="normal" display="outline" onPress={() => navigation.navigate('WalletReceive')} />
                     </View>
                 )}

@@ -11,6 +11,7 @@ import { getAppState, setAppState, storage } from '../../utils/storage';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { client } from '../../client';
 import { mnemonicToWalletKey } from 'ton-crypto';
+import LottieView from 'lottie-react-native';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption }) => {
     const safeArea = useSafeAreaInsets();
@@ -53,6 +54,12 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
 
     return (
         <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'stretch' }}>
+            <LottieView
+                source={require('../../../assets/animations/lock.json')}
+                autoPlay={true}
+                loop={false}
+                style={{ width: 128, height: 128, marginLeft: 4 }}
+            />
             {props.deviceEncryption === 'none' && (
                 <Text style={{ marginHorizontal: 24, fontSize: 24 }}>
                     Your device is not protected

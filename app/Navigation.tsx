@@ -65,6 +65,11 @@ export const Navigation = React.memo(() => {
                             options={{}}
                         />
                         <Stack.Screen
+                            name="WalletBackupInit"
+                            component={WalletBackupFragment}
+                            options={{}}
+                        />
+                        <Stack.Screen
                             name="WalletBackup"
                             component={WalletBackupFragment}
                             options={{}}

@@ -2961,6 +2961,11 @@ fbjs@^3.0.0:
     setimmediate "^1.0.5"
     ua-parser-js "^0.7.30"
 
+figma-squircle@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/figma-squircle/-/figma-squircle-0.2.0.tgz#7f077549d1591a02ef5f46af51a35876f9032a8f"
+  integrity sha512-vjQ+StXbyGURq7Q1TNrLTWG3oRoc7tV7lcOR/4rhAVqH7R4X8IwslTmKHvultgmcU9qCF9kV4rKiyjYInkJ59w==
+
 fill-range@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/fill-range/-/fill-range-4.0.0.tgz#d544811d428f98eb06a63dc402d2403c328c38f7"
@@ -4891,6 +4896,11 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
+react-native-bouncy-checkbox@^2.1.9:
+  version "2.1.9"
+  resolved "https://registry.yarnpkg.com/react-native-bouncy-checkbox/-/react-native-bouncy-checkbox-2.1.9.tgz#b15db336e3c76d3c2dcb8fb9ba3a98cbf083a7d8"
+  integrity sha512-XPdGLS7/QcfRH7J7dngvh0xzm2o+5V48TP4OJGXPjMPWH7grdXZS3PKOYVTErlZHCbbdm0gE+Iw7aXVSNQnIQQ==
+
 react-native-codegen@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.0.6.tgz#b3173faa879cf71bfade8d030f9c4698388f6909"
@@ -4904,6 +4914,13 @@ react-native-fast-pbkdf2@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/react-native-fast-pbkdf2/-/react-native-fast-pbkdf2-0.2.1.tgz#fa3888a15a100b6960081889a1135bea57b20577"
   integrity sha512-mQHPGi9Z0I6h1GQOn6te6StkwWw8Dm724kkhXkg9wIWXQ3oBOoDuecWyA/8Gbla0oDjTehKtpMQ9Ih4Iv2uNFw==
+
+react-native-figma-squircle@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-figma-squircle/-/react-native-figma-squircle-0.2.0.tgz#4561956d8867cfc333a4dda44347d78a05834a06"
+  integrity sha512-BJK4c1GWwwPNAyu3AVqgh4w8GjqnzcZbR81EzyZwzQnMlvjw3TgOK5UyoUvKg/9MYMn4SfgjO2XXRbclKmMzWQ==
+  dependencies:
+    figma-squircle "^0.2.0"
 
 react-native-gesture-handler@^2.1.0:
   version "2.1.0"

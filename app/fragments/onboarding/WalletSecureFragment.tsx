@@ -58,25 +58,25 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 source={require('../../../assets/animations/lock.json')}
                 autoPlay={true}
                 loop={false}
-                style={{ width: 128, height: 128, marginLeft: 4 }}
+                style={{ width: 128, height: 128, marginLeft: 0 }}
             />
             {props.deviceEncryption === 'none' && (
-                <Text style={{ marginHorizontal: 24, fontSize: 24 }}>
+                <Text style={{ marginHorizontal: 16, fontSize: 24 }}>
                     Your device is not protected
                 </Text>
             )}
             {props.deviceEncryption !== 'none' && (
-                <Text style={{ marginHorizontal: 24, fontSize: 24 }}>
+                <Text style={{ marginHorizontal: 16, fontSize: 24 }}>
                     Protect your wallet
                 </Text>
             )}
             {props.deviceEncryption === 'none' && (
-                <Text style={{ marginHorizontal: 24, marginTop: 8, fontSize: 18 }}>
+                <Text style={{ marginHorizontal: 16, marginTop: 8, fontSize: 18 }}>
                     It is highly recommend to enable passcode on your device to protect your assets.
                 </Text>
             )}
             {props.deviceEncryption !== 'none' && (
-                <Text style={{ marginHorizontal: 24, marginTop: 8, fontSize: 18 }}>
+                <Text style={{ marginHorizontal: 16, marginTop: 8, fontSize: 18 }}>
                     Add an extra layer of security to keep your crypto safe.
                 </Text>
             )}

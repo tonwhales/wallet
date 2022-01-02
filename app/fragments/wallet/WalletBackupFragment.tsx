@@ -49,8 +49,8 @@ export const WalletBackupFragment = fragment(() => {
     for (let i = 0; i < 24; i++) {
         const component = (
             <View key={'mn-' + i} style={{ flexDirection: 'row', height: 26 }}>
-                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 18, width: 48, marginRight: 4 }}>{(i + 1) + ': '}</Text>
-                <Text style={{ color: Theme.textColor, fontSize: 18, width: 90, fontWeight: '600' }}>{mnemonics[i]}</Text>
+                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 18, width: 48, marginRight: 3, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
+                <Text style={{ color: Theme.textColor, fontSize: 18, width: 120, fontWeight: '600' }}>{mnemonics[i]}</Text>
             </View>
         );
         if (i < 12) {
@@ -71,11 +71,11 @@ export const WalletBackupFragment = fragment(() => {
                     source={require('../../../assets/animations/paper.json')}
                     autoPlay={true}
                     loop={false}
-                    style={{ width: 128, height: 128, marginBottom: 8 }}
+                    style={{ width: 100, height: 100, marginBottom: 8 }}
                 />
-                <Text style={{ fontSize: 28 }}>24 Secret Words</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 16 }}>Write down these 24 words in the correct order and store them in a secret place.</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16 }}>Use these secret words to restore access to your wallet if you lose your passcode or device.</Text>
+                <Text style={{ fontSize: 30, fontWeight: '700' }}>24 Secret Words</Text>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 16, fontSize: 15 }}>Write down these 24 words in the correct order and store them in a secret place.</Text>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 16, fontSize: 15 }}>Use these secret words to restore access to your wallet if you lose your passcode or device.</Text>
                 <View style={{ flexDirection: 'row', alignSelf: 'center', marginVertical: 32 }}>
                     <View style={{ marginRight: 16 }}>
                         {words1}
@@ -88,7 +88,7 @@ export const WalletBackupFragment = fragment(() => {
                 <View style={{ flexGrow: 1 }} />
 
             </ScrollView>
-            <View style={{ height: 64, marginHorizontal: 64, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+            <View style={{ height: 64, marginHorizontal: 32, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                 <RoundButton title="Done" onPress={onComplete} />
             </View>
         </Animated.View>

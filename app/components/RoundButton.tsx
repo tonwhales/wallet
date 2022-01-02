@@ -5,7 +5,7 @@ import { Theme } from '../Theme';
 
 export type RoundButtonSize = 'large' | 'normal' | 'small';
 const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hitSlop: number, pad: number } } = {
-    large: { height: 48, fontSize: 21, hitSlop: 0, pad: Platform.OS == 'ios' ? 0 : -1 },
+    large: { height: 50, fontSize: 17, hitSlop: 0, pad: Platform.OS == 'ios' ? 0 : -1 },
     normal: { height: 32, fontSize: 16, hitSlop: 8, pad: Platform.OS == 'ios' ? 1 : -2 },
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
@@ -96,16 +96,19 @@ export const RoundButton = React.memo((props: { size?: RoundButtonSize, display?
             style={(p) => ([
                 {
                     borderWidth: 1,
-                    borderRadius: size.height / 2
-                },
-                p.pressed && {
-                    backgroundColor: display.backgroundPressedColor,
-                    borderColor: display.borderPressedColor,
-                },
-                !p.pressed && {
+                    borderRadius: 10, // size.height / 2
                     backgroundColor: display.backgroundColor,
                     borderColor: display.borderColor,
                 },
+                p.pressed && {
+                    // backgroundColor: display.backgroundPressedColor,
+                    // borderColor: display.borderPressedColor,
+                    opacity: 0.55
+                },
+                // !p.pressed && {
+                //     backgroundColor: display.backgroundColor,
+                //     borderColor: display.borderColor,
+                // },
                 props.style])}
             onPress={doAction}
         >
@@ -116,7 +119,7 @@ export const RoundButton = React.memo((props: { size?: RoundButtonSize, display?
                             <ActivityIndicator color={p.pressed ? display.textPressed : display.textColor} size='small' />
                         </View>
                     )}
-                    <Text style={[iOSUIKit.title3, { marginTop: size.pad, opacity: doLoading ? 0 : 1, color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]} numberOfLines={1}>{props.title}</Text>
+                    <Text style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]} numberOfLines={1}>{props.title}</Text>
                 </View>
             )}
         </Pressable>

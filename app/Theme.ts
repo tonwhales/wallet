@@ -3,9 +3,9 @@ import { DefaultTheme, Theme as ThemeType } from "@react-navigation/native";
 export const Theme = {
     textColor: '#000',
     textSecondary: '#adadad',
-    loader: '#C52929',
+    loader: '#367CDE',
     background: '#fff',
-    accent: '#31A9FF',
+    accent: '#367CDE',
     accentLight: '#DD4242',
     accentDark: '#288FD8',
     divider: '#dddbd9',

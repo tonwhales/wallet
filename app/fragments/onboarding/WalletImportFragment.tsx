@@ -9,9 +9,8 @@ import { RoundButton } from '../../components/RoundButton';
 import { wordlist } from 'ton-crypto/dist/mnemonic/wordlist';
 import { mnemonicValidate } from 'ton-crypto';
 import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncryption';
-import Animated, { FadeOutDown, FadeIn } from 'react-native-reanimated';
+import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 type WordInputRef = {
     focus: () => void;
@@ -24,6 +23,15 @@ const WordInput = React.memo(React.forwardRef((props: {
     next?: React.RefObject<WordInputRef>,
     scroll: React.RefObject<ScrollView>,
 }, ref: React.ForwardedRef<WordInputRef>) => {
+
+    // Shake
+    const translate = useSharedValue(0);
+    const style = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: translate.value }],
+        };
+    }, []);
+
     const vref = React.useRef<View>(null);
     const tref = React.useRef<TextInput>(null);
     React.useImperativeHandle(ref, () => ({
@@ -32,55 +40,71 @@ const WordInput = React.memo(React.forwardRef((props: {
         }
     }));
     const onFocus = React.useCallback(() => {
-        vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
-            props.scroll.current!.scrollTo({ y: top - height / 2, animated: true });
-        }, () => {
-            // Ignore
+        vref.current!.measure((
+            scrollX: number,
+            scrollY: number,
+            scrollWidth: number,
+            scrollHeight: number,
+            scrollPageX: number,
+            scrollPageY: number
+        ) => {
+            vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
+                props.scroll.current!.scrollTo({ y: top - height / 2, animated: true });
+            }, () => {
+                // Ignore
+            });
         });
     }, []);
     const onSubmit = React.useCallback(() => {
         const normalized = props.value.trim().toLowerCase();
         if (!wordlist.find((v) => v === normalized)) {
-            Alert.alert('Secret word is invalid', 'Please, check your input and try again.');
+            translate.value = withSequence(
+                withTiming(-10, { duration: 30 }),
+                withRepeat(withTiming(10, { duration: 30 }), 2, true),
+                withTiming(0, { duration: 30 })
+            );
             return;
         }
         props.next?.current?.focus();
     }, [props.value]);
     return (
-        <View
-            ref={vref}
-            style={{
-                marginVertical: 8,
-                backgroundColor: iOSColors.customGray,
-                height: 50,
-                width: 300,
-                borderRadius: 25,
-                flexDirection: 'row'
-            }}
-        >
-            <Text style={{ alignSelf: 'center', fontSize: 18, width: 40, textAlign: 'right' }}>{props.hint}.</Text>
-            <TextInput
-                ref={tref}
+        <Animated.View style={style}>
+            <View
+                ref={vref}
                 style={{
+                    marginVertical: 8,
+                    backgroundColor: iOSColors.customGray,
                     height: 50,
-                    marginLeft: -20,
-                    paddingLeft: 26,
-                    paddingRight: 48,
-                    flexGrow: 1,
-                    fontSize: 18
+                    width: 300,
+                    borderRadius: 25,
+                    flexDirection: 'row'
                 }}
-                value={props.value}
-                onChangeText={props.setValue}
-                returnKeyType="next"
-                autoCompleteType="off"
-                autoCorrect={false}
-                keyboardType="ascii-capable"
-                autoCapitalize="none"
-                inputAccessoryViewID="autocomplete"
-                onFocus={onFocus}
-                onSubmitEditing={onSubmit}
-            />
-        </View>
+            >
+                <Text style={{ alignSelf: 'center', fontSize: 18, width: 40, textAlign: 'right' }}>{props.hint}.</Text>
+                <TextInput
+                    ref={tref}
+                    style={{
+                        height: 50,
+                        marginLeft: -20,
+                        paddingLeft: 26,
+                        paddingRight: 48,
+                        flexGrow: 1,
+                        fontSize: 18
+                    }}
+                    value={props.value}
+                    onChangeText={props.setValue}
+                    returnKeyType="next"
+                    autoCompleteType="off"
+                    autoCorrect={false}
+                    keyboardType="ascii-capable"
+                    autoCapitalize="none"
+                    inputAccessoryViewID="autocomplete"
+                    onFocus={onFocus}
+                    onSubmitEditing={onSubmit}
+                    blurOnSubmit={false}
+                />
+            </View>
+        </Animated.View>
     )
 }));
 
@@ -156,8 +180,10 @@ function WalletWordsComponent(props: {
     return (
         <ScrollView
             style={{ flexGrow: 1, backgroundColor: 'white' }}
-            contentContainerStyle={{ alignItems: 'center', paddingBottom: keyboard.keyboardShown ? keyboard.keyboardHeight : safeArea.bottom }}
-            keyboardShouldPersistTaps="always"
+            contentContainerStyle={{ alignItems: 'center' }}
+            contentInset={{ bottom: keyboard.keyboardShown ? keyboard.keyboardHeight : safeArea.bottom }}
+            contentInsetAdjustmentBehavior="never"
+            keyboardShouldPersistTaps="handled"
             keyboardDismissMode="none"
             ref={scrollRef}
         >
@@ -187,7 +213,7 @@ function WalletWordsComponent(props: {
             <WordInput ref={w22Ref} next={w23Ref} scroll={scrollRef} hint="22" value={w22} setValue={setW22} />
             <WordInput ref={w23Ref} next={w24Ref} scroll={scrollRef} hint="23" value={w23} setValue={setW23} />
             <WordInput ref={w24Ref} hint="24" scroll={scrollRef} value={w24} setValue={setW24} />
-            <RoundButton title="Continue" action={onSubmit} />
+            <RoundButton title="Continue" action={onSubmit} style={{ alignSelf: 'stretch', marginHorizontal: 64, marginVertical: 32 }} />
         </ScrollView>
     );
 }

@@ -29,7 +29,7 @@ export const WelcomeFragment = fragment(() => {
                     </Pressable>
                 </View>
                 <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 8, height: 34, textAlign: 'center' }}>
-                    Tonton Wallet
+                    Tonhub Wallet
                 </Text>
                 <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8, height: 22 }}>
                     Easiest and secure TON wallet

@@ -16,7 +16,7 @@ export const LegalFragment = fragment(() => {
                 Legal
             </Text>
             <Text style={{ marginHorizontal: 16, marginTop: 12, fontSize: 18 }}>
-                Please review the Tonton Wallet Privacy Policy and Terms of Service.
+                Please review the Tonhub Wallet Privacy Policy and Terms of Service.
             </Text>
             <View style={{ height: 32 }} />
             <GhostButton onClick={() => { }} text="Terms of service" />

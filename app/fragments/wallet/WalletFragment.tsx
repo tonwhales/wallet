@@ -42,7 +42,7 @@ export const WalletFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <ScrollView style={{ flexGrow: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-                <View style={{ alignSelf: 'stretch', backgroundColor: Theme.accentLight, paddingTop: safeArea.top + 1000, marginTop: -1000, alignItems: 'center', justifyContent: 'center', paddingBottom: 16 }}>
+                <View style={{ alignSelf: 'stretch', backgroundColor: 'black', paddingTop: safeArea.top + 1000, marginTop: -1000, alignItems: 'center', justifyContent: 'center', paddingBottom: 16 }}>
                     <Text style={{ marginTop: 12, marginBottom: 24, color: 'white', opacity: 0.8 }}>
                         {loading ? 'Updating...' : 'Up to date'}
                     </Text>
@@ -54,6 +54,9 @@ export const WalletFragment = fragment(() => {
                         <RoundButton title="Send" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 16 }} onPress={() => navigation.navigate('Transfer')} />
                         <RoundButton title="Receive" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 16 }} onPress={() => navigation.navigate('WalletReceive')} />
                     </View>
+                </View>
+                <View style={{ backgroundColor: 'black' }} >
+                    <View style={{ flexDirection: 'column', height: 20, borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: 'white' }} />
                 </View>
                 {!transactions && (
                     <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>

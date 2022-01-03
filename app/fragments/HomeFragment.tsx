@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { WalletFragment } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
+import { StatusBar } from 'expo-status-bar';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -13,6 +14,7 @@ export const HomeFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <View style={{ flexGrow: 1 }} />
+            <StatusBar style={tab === 0 ? 'light' : 'dark'} />
             <View style={{ paddingBottom: safeArea.bottom, height: 52 + safeArea.bottom, backgroundColor: Theme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <Pressable style={{ height: 52, width: 86, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                     <Ionicons name="wallet" size={32} color={tab === 0 ? Theme.accent : Theme.textSecondary} />

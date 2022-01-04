@@ -1,6 +1,7 @@
 import * as React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { RecoilRoot } from 'recoil';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -15,7 +16,63 @@ import { WalletReceiveFragment } from './fragments/wallet/WalletReceiveFragment'
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 
-const Stack = createNativeStackNavigator();
+const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
+
+function fullScreen(name: string, component: React.ComponentType<any>) {
+    return (
+        <Stack.Screen
+            name={name}
+            component={component}
+            options={{ headerShown: false }}
+        />
+    );
+}
+
+function genericScreen(name: string, component: React.ComponentType<any>) {
+    return (
+        <Stack.Screen
+            name={name}
+            component={component}
+        />
+    );
+}
+
+function formSheetScreen(name: string, component: React.ComponentType<any>) {
+    return (
+        <Stack.Screen
+            name={name}
+            component={component}
+            options={{ headerShown: Platform.OS !== 'ios' }}
+        />
+    );
+}
+
+
+function fullScreenModal(name: string, component: React.ComponentType<any>) {
+    return (
+        <Stack.Screen
+            name={name}
+            component={component}
+            options={{ headerShown: false, presentation: 'modal' }}
+        />
+    );
+}
+
+const navigation = [
+    fullScreen('Welcome', WelcomeFragment),
+    fullScreen('Home', HomeFragment),
+    genericScreen('LegalCreate', LegalFragment),
+    genericScreen('LegalImport', LegalFragment),
+    genericScreen('WalletImport', WalletImportFragment),
+    genericScreen('WalletCreate', WalletCreateFragment),
+    genericScreen('WalletCreated', WalletCreatedFragment),
+    genericScreen('WalletBackupInit', WalletBackupFragment),
+    genericScreen('WalletBackup', WalletBackupFragment),
+    genericScreen('Settings', SettingsFragment),
+    formSheetScreen('Transfer', TransferFragment),
+    formSheetScreen('WalletReceive', WalletReceiveFragment),
+    fullScreenModal('Scanner', ScannerFragment)
+];
 
 export const Navigation = React.memo(() => {
 
@@ -32,77 +89,15 @@ export const Navigation = React.memo(() => {
     }, []);
 
     return (
-        <>
-            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-                <RecoilRoot>
-                    <Stack.Navigator
-                        initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false }}
-                    >
-                        <Stack.Screen
-                            name="Welcome"
-                            component={WelcomeFragment}
-                            options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                            name="LegalCreate"
-                            component={LegalFragment}
-                        />
-                        <Stack.Screen
-                            name="LegalImport"
-                            component={LegalFragment}
-                        />
-                        <Stack.Screen
-                            name="WalletImport"
-                            component={WalletImportFragment}
-                        />
-                        <Stack.Screen
-                            name="WalletCreate"
-                            component={WalletCreateFragment}
-                        />
-                        <Stack.Screen
-                            name="WalletCreated"
-                            component={WalletCreatedFragment}
-                            options={{}}
-                        />
-                        <Stack.Screen
-                            name="WalletBackupInit"
-                            component={WalletBackupFragment}
-                            options={{}}
-                        />
-                        <Stack.Screen
-                            name="WalletBackup"
-                            component={WalletBackupFragment}
-                            options={{}}
-                        />
-                        <Stack.Screen
-                            name="WalletReceive"
-                            component={WalletReceiveFragment}
-                            options={{ headerShown: false, presentation: 'formSheet' }}
-                        />
-                        <Stack.Screen
-                            name="Home"
-                            component={HomeFragment}
-                            options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                            name="Transfer"
-                            component={TransferFragment}
-                            options={{ headerShown: false, presentation: 'formSheet' }}
-                        />
-                        <Stack.Screen
-                            name="Scanner"
-                            component={ScannerFragment}
-                            options={{ headerShown: false, presentation: 'fullScreenModal' }}
-                        />
-                        <Stack.Screen
-                            name="Settings"
-                            component={SettingsFragment}
-                            options={{ title: 'Settings' }}
-                        />
-                    </Stack.Navigator>
-                </RecoilRoot>
-            </View>
-        </>
+        <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+            <RecoilRoot>
+                <Stack.Navigator
+                    initialRouteName={initial}
+                    screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
+                >
+                    {navigation}
+                </Stack.Navigator>
+            </RecoilRoot>
+        </View>
     );
 });

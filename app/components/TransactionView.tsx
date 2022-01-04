@@ -1,46 +1,50 @@
+import BN from 'bn.js';
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import { fromNano, RawTransaction } from 'ton';
+import { Address, fromNano, RawTransaction } from 'ton';
+import { format } from 'date-fns';
 
 export function TransactionView(props: { tx: RawTransaction }) {
     const tx = props.tx;
 
-    // Transfer out
-    if (tx.inMessage && tx.inMessage.info.src === null && tx.outMessages.length === 1 && tx.outMessages[0].info.type === 'internal') {
-        return (
-            <View>
-                <View>
-                    <Text style={{ flexGrow: 1 }}><Text style={{ color: 'red', fontWeight: '800' }}>💎-{fromNano(tx.outMessages[0].info.value.coins)}</Text> to</Text>
-                </View>
-                <Text>{tx.outMessages[0].info.dest!.toFriendly()}</Text>
-            </View>
-        );
+    // Fees
+    let fees = tx.fees.coins;
+    if (tx.description.storagePhase) {
+        fees = fees.add(tx.description.storagePhase.storageFeesCollected);
     }
 
-    // Transfer out failed
-    if (tx.inMessage && tx.inMessage.info.src === null && tx.outMessages.length === 0) {
-        return (
-            <View>
-                <Text>TX failed</Text>
-            </View>
-        );
+    // Delta
+    let amount = new BN(0);
+    let address: Address | null = null;
+    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        amount = amount.add(tx.inMessage.info.value.coins);
+        address = tx.inMessage.info.src;
     }
-
-    // Transfer in
-    if (tx.inMessage && tx.inMessage.info.src !== null && tx.inMessage.info.type === 'internal' && tx.outMessages.length === 0) {
-        return (
-            <View>
-                <View>
-                    <Text style={{ flexGrow: 1 }}><Text style={{ color: 'green', fontWeight: '800' }}>💎{fromNano(tx.inMessage.info.value.coins)}</Text> from</Text>
-                </View>
-                <Text>{tx.inMessage.info.src!.toFriendly()}</Text>
-            </View>
-        );
+    for (let out of tx.outMessages) {
+        if (out.info.type === 'internal') {
+            amount = amount.sub(out.info.value.coins);
+            fees = fees.add(out.info.fwdFee);
+            address = out.info.dest;
+        }
     }
 
     return (
-        <View>
-            <Text>TX</Text>
+        <View style={{ alignSelf: 'stretch', flexDirection: 'column', paddingHorizontal: 16, paddingVertical: 4 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                <Text style={{ color: amount.gte(new BN(0)) ? 'green' : 'red', fontWeight: '800', fontSize: 16, marginRight: 4 }}>💎 {fromNano(amount)}</Text>
+                <Text style={{ fontSize: 16, flexGrow: 1, flexBasis: 0 }}>{amount.gte(new BN(0)) ? 'from' : 'to'}</Text>
+                <Text>{format(tx.time * 1000, 'hh:mm bbbb')}</Text>
+            </View>
+            <View>
+                <Text>{address ? address.toFriendly() : '<no address>'}</Text>
+            </View>
+            {fees.gt(new BN(0)) && (
+                <View>
+                    <Text>
+                        -{fromNano(fees)} blockchain fees
+                    </Text>
+                </View>
+            )}
         </View>
     );
 }

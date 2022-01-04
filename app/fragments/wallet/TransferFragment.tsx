@@ -2,12 +2,14 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { Text, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
-import { Address, toNano } from 'ton';
+import { Address, fromNano, toNano } from 'ton';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { client } from '../../client';
 import { ATextInput } from '../../components/ATextInput';
+import { ModalHeader } from '../../components/ModalHeader';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
+import { resolveUrl } from '../../utils/resolveUrl';
 import { decryptData } from '../../utils/secureStorage';
 import { getAppState, storage } from '../../utils/storage';
 import { backoff } from '../../utils/time';
@@ -56,11 +58,24 @@ export const TransferFragment = fragment(() => {
 
         navigation.goBack();
     }, [amount, target]);
+    const onQRCodeRead = React.useCallback((src: string) => {
+        let res = resolveUrl(src);
+        if (res) {
+            setTarget(res.address.toFriendly());
+            if (res.amount) {
+                setAmount(fromNano(res.amount));
+            }
+        }
+    }, [])
     return (
-        <View style={{ marginTop: 100 }}>
-            <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
-            <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />
-            <RoundButton title="Send" action={doSend} style={{ marginHorizontal: 16 }} />
-        </View>
+        <>
+            <ModalHeader />
+            <View style={{ marginTop: 100 }}>
+                <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+                <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+                <RoundButton title="Send" action={doSend} style={{ marginHorizontal: 16 }} />
+                <RoundButton title="Scan" onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} style={{ marginHorizontal: 16 }} />
+            </View>
+        </>
     );
 });

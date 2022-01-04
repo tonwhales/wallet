@@ -13,6 +13,7 @@ import { HomeFragment } from './fragments/HomeFragment';
 import { TransferFragment } from './fragments/wallet/TransferFragment';
 import { WalletReceiveFragment } from './fragments/wallet/WalletReceiveFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
+import { ScannerFragment } from './fragments/utils/ScannerFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -77,7 +78,7 @@ export const Navigation = React.memo(() => {
                         <Stack.Screen
                             name="WalletReceive"
                             component={WalletReceiveFragment}
-                            options={{ presentation: 'formSheet' }}
+                            options={{ headerShown: false, presentation: 'formSheet' }}
                         />
                         <Stack.Screen
                             name="Home"
@@ -87,7 +88,12 @@ export const Navigation = React.memo(() => {
                         <Stack.Screen
                             name="Transfer"
                             component={TransferFragment}
-                            options={{ title: 'Transfer' }}
+                            options={{ headerShown: false, presentation: 'formSheet' }}
+                        />
+                        <Stack.Screen
+                            name="Scanner"
+                            component={ScannerFragment}
+                            options={{ headerShown: false, presentation: 'fullScreenModal' }}
                         />
                         <Stack.Screen
                             name="Settings"

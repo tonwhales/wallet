@@ -18,6 +18,7 @@ import { WalletReceiveComponent } from './WalletReceiveComponent';
 import { Portal } from 'react-native-portalize';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import { TransactionPreview } from './TransactionPreview';
 
 export const WalletFragment = fragment(() => {
     const receiveRef = React.useRef<Modalize>(null);
@@ -72,6 +73,20 @@ export const WalletFragment = fragment(() => {
     }, []);
 
     //
+    // Modal
+    //
+    const [modal, setModal] = React.useState<RawTransaction | null>(null);
+    const txRef = React.useRef<Modalize>(null);
+    React.useEffect(() => {
+        if (modal) {
+            // What a fuck?
+            setTimeout(() => {
+                txRef!.current!.open();
+            }, 10);
+        }
+    }, [modal]);
+
+    //
     // Loading
     //
 
@@ -96,19 +111,6 @@ export const WalletFragment = fragment(() => {
                 scrollEventThrottle={1}
             >
                 <View style={{ height: 300 + safeArea.top }} />
-                {/* <View style={{ alignSelf: 'stretch', backgroundColor: 'black', paddingTop: safeArea.top + 1000, marginTop: -1000, alignItems: 'center', justifyContent: 'center', paddingBottom: 16 }}>
-                    <Text style={{ marginTop: 12, marginBottom: 24, color: 'white', opacity: 0.6, height: 44 }}>
-                        {loading ? 'Updating...' : 'Up to date'}
-                    </Text>
-                    <Text style={{ fontSize: 45, marginTop: 48, fontWeight: '600', color: 'white' }}>
-                        💎 <ValueComponent value={balance} centFontSize={23} />
-                    </Text>
-                    <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>Your balance</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 72, marginHorizontal: 8 }}>
-                        <RoundButton title="Send" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => navigation.navigate('Transfer')} />
-                        <RoundButton title="Receive" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => receiveRef.current!.open()} />
-                    </View>
-                </View> */}
                 <View style={{ backgroundColor: 'black' }} >
                     <View style={{ flexDirection: 'column', height: 20, borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: 'white' }} />
                 </View>
@@ -131,12 +133,11 @@ export const WalletFragment = fragment(() => {
                     </View>
                 )}
                 {transactions && transactions.length > 0 && transactions.map((t, i) => (
-                    <TransactionView tx={t} key={'tx-' + i} />
+                    <TransactionView tx={t} key={'tx-' + i} onPress={setModal} />
                 ))}
             </Animated.ScrollView>
 
             {/* Basic */}
-
             <Animated.View style={[
                 { alignSelf: 'stretch', backgroundColor: 'black', alignItems: 'center', justifyContent: 'center', paddingTop: 1000 + safeArea.top, marginTop: -1000, paddingBottom: 16, position: 'absolute', top: 0, left: 0, right: 0, height: 300 + 1000 + safeArea.top },
                 containerStyle
@@ -164,10 +165,19 @@ export const WalletFragment = fragment(() => {
                 <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>Your balance</Text>
             </Animated.View>
             <Portal>
-                <Modalize ref={receiveRef} adjustToContentHeight={true}>
+                <Modalize ref={receiveRef} adjustToContentHeight={true} withHandle={false}>
                     <WalletReceiveComponent />
                 </Modalize>
             </Portal>
+
+            {modal && (
+                <Portal>
+                    <Modalize ref={txRef} adjustToContentHeight={true} onClosed={() => setModal(null)} withHandle={false}>
+                        <TransactionPreview tx={modal} />
+                    </Modalize>
+                </Portal>
+            )}
+
         </View>
     );
 });

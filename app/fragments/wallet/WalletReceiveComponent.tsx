@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { getAppState } from '../../utils/storage';
 import QRCode from 'react-native-qrcode-svg';
-import { Platform, Pressable, Share, Text, View } from 'react-native';
+import { Platform, Share, Text, View } from 'react-native';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

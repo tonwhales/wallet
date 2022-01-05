@@ -1,11 +1,13 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Address, fromNano, RawTransaction } from 'ton';
 import { format } from 'date-fns';
 import { AddressComponent } from './AddressComponent';
+import { Theme } from '../Theme';
+import { ValueComponent } from './ValueComponent';
 
-export function TransactionView(props: { tx: RawTransaction }) {
+export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawTransaction) => void }) {
     const tx = props.tx;
 
     // Fees
@@ -30,22 +32,23 @@ export function TransactionView(props: { tx: RawTransaction }) {
     }
 
     return (
-        <View style={{ alignSelf: 'stretch', flexDirection: 'column', paddingHorizontal: 16, paddingVertical: 4 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                <Text style={{ color: amount.gte(new BN(0)) ? 'green' : 'red', fontWeight: '800', fontSize: 16, marginRight: 4 }}>💎 {fromNano(amount)}</Text>
-                <Text style={{ fontSize: 16, flexGrow: 1, flexBasis: 0 }}>{amount.gte(new BN(0)) ? 'from' : 'to'}</Text>
-                <Text>{format(tx.time * 1000, 'hh:mm bbbb')}</Text>
+        <Pressable style={{ alignSelf: 'stretch', flexDirection: 'column', paddingHorizontal: 16, marginTop: 4, marginBottom: 4 }} onPress={() => props.onPress(props.tx)}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
+                <Text style={{ color: amount.gte(new BN(0)) ? '#4FAE42' : '#EB4D3D', fontWeight: '700', fontSize: 18, marginRight: 2 }}>💎 <ValueComponent value={amount} centFontSize={15} /></Text>
+                <Text style={{ fontSize: 15, flexGrow: 1, flexBasis: 0, color: Theme.textSecondary, fontWeight: '500' }}>{amount.gte(new BN(0)) ? 'from' : 'to'}</Text>
+                <Text style={{ color: Theme.textSecondary, fontSize: 15 }}>{format(tx.time * 1000, 'hh:mm bb')}</Text>
             </View>
-            <View>
-                <Text>{address ? <AddressComponent address={address} /> : '<no address>'}</Text>
+            <View style={{ marginTop: 4, marginBottom: 4 }}>
+                <Text style={{ color: Theme.textColor, fontSize: 15 }}>{address ? <AddressComponent address={address} /> : '<no address>'}</Text>
             </View>
             {fees.gt(new BN(0)) && (
                 <View>
-                    <Text>
+                    <Text style={{ color: Theme.textSecondary }}>
                         -{fromNano(fees)} blockchain fees
                     </Text>
                 </View>
             )}
-        </View>
+            <View style={{ height: 1, marginTop: 8, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+        </Pressable>
     );
 }

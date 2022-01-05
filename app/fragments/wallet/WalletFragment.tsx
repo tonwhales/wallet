@@ -13,8 +13,11 @@ import { useAccountSync } from '../../sync/useAccountSync';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
+import { Modalize } from 'react-native-modalize';
+import { WalletReceiveFragment } from './WalletReceiveFragment';
 
 export const WalletFragment = fragment(() => {
+    const receiveRef = React.useRef<Modalize>(null);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getAppState()!.address, []);
@@ -41,7 +44,7 @@ export const WalletFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <ScrollView style={{ flexGrow: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView style={{ flexGrow: 1 }} contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}>
                 <View style={{ alignSelf: 'stretch', backgroundColor: 'black', paddingTop: safeArea.top + 1000, marginTop: -1000, alignItems: 'center', justifyContent: 'center', paddingBottom: 16 }}>
                     <Text style={{ marginTop: 12, marginBottom: 24, color: 'white', opacity: 0.8 }}>
                         {loading ? 'Updating...' : 'Up to date'}
@@ -52,7 +55,7 @@ export const WalletFragment = fragment(() => {
                     <Text style={{ color: 'white' }}>Your balance</Text>
                     <View style={{ flexDirection: 'row', marginTop: 32 }}>
                         <RoundButton title="Send" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 16 }} onPress={() => navigation.navigate('Transfer')} />
-                        <RoundButton title="Receive" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 16 }} onPress={() => navigation.navigate('WalletReceive')} />
+                        <RoundButton title="Receive" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 16 }} onPress={() => receiveRef.current!.open()} />
                     </View>
                 </View>
                 <View style={{ backgroundColor: 'black' }} >
@@ -73,13 +76,16 @@ export const WalletFragment = fragment(() => {
                             style={{ width: 200, height: 200, marginBottom: 16 }}
                         />
                         {/* <Text style={{ fontSize: 18, marginBottom: 16 }}>Wallet Created</Text> */}
-                        <RoundButton title="Receive TONCOIN" size="normal" display="outline" onPress={() => navigation.navigate('WalletReceive')} />
+                        <RoundButton title="Receive TONCOIN" size="normal" display="outline" onPress={() => receiveRef.current!.open()} />
                     </View>
                 )}
                 {transactions && transactions.length > 0 && transactions.map((t, i) => (
                     <TransactionView tx={t} key={'tx-' + i} />
                 ))}
             </ScrollView>
+            <Modalize ref={receiveRef} adjustToContentHeight={true}>
+                <WalletReceiveFragment />
+            </Modalize>
         </View>
     );
 });

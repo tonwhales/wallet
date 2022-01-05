@@ -7,6 +7,7 @@ import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
 import { useRoute } from '@react-navigation/native';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { Deferred } from '../../components/Deferred';
 
 export const ScannerFragment = fragment(() => {
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
@@ -40,11 +41,13 @@ export const ScannerFragment = fragment(() => {
     return (
         <View style={styles.container}>
             <StatusBar style="light" />
-            <BarCodeScanner
-                barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                style={StyleSheet.absoluteFillObject}
-            />
+            <Deferred>
+                <BarCodeScanner
+                    barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
+                    onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                    style={StyleSheet.absoluteFillObject}
+                />
+            </Deferred>
             <View style={{ flexDirection: 'column', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <View style={{ alignSelf: 'stretch', flexGrow: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} />
                 <View style={{ flexDirection: 'row', alignSelf: 'stretch' }}>

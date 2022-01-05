@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Text, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
@@ -69,7 +70,7 @@ export const TransferFragment = fragment(() => {
     }, [])
     return (
         <>
-            <ModalHeader />
+            <StatusBar style="dark" />
             <View style={{ marginTop: 100 }}>
                 <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
                 <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />

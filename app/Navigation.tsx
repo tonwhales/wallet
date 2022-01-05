@@ -16,7 +16,7 @@ import { WalletReceiveFragment } from './fragments/wallet/WalletReceiveFragment'
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 
-const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
+const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
 function fullScreen(name: string, component: React.ComponentType<any>) {
     return (
@@ -33,6 +33,7 @@ function genericScreen(name: string, component: React.ComponentType<any>) {
         <Stack.Screen
             name={name}
             component={component}
+            options={{ headerShown: Platform.OS === 'ios' }}
         />
     );
 }
@@ -42,7 +43,7 @@ function formSheetScreen(name: string, component: React.ComponentType<any>) {
         <Stack.Screen
             name={name}
             component={component}
-            options={{ headerShown: Platform.OS !== 'ios' }}
+            options={{ headerShown: false }}
         />
     );
 }
@@ -69,7 +70,7 @@ const navigation = [
     genericScreen('WalletBackupInit', WalletBackupFragment),
     genericScreen('WalletBackup', WalletBackupFragment),
     genericScreen('Settings', SettingsFragment),
-    formSheetScreen('Transfer', TransferFragment),
+    genericScreen('Transfer', TransferFragment),
     formSheetScreen('WalletReceive', WalletReceiveFragment),
     fullScreenModal('Scanner', ScannerFragment)
 ];

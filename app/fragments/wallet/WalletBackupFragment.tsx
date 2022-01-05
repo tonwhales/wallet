@@ -66,7 +66,7 @@ export const WalletBackupFragment = fragment(() => {
             exiting={FadeIn}
             key={"content"}
         >
-            <ScrollView style={{ flexGrow: 1, flexBasis: 0 }} contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
+            <ScrollView style={{ flexGrow: 1, flexBasis: 0 }} contentContainerStyle={{ paddingTop: safeArea.top, flexGrow: 1, alignItems: 'center' }}>
                 <LottieView
                     source={require('../../../assets/animations/paper.json')}
                     autoPlay={true}

@@ -39,7 +39,7 @@ export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawT
                 <Text style={{ color: Theme.textSecondary, fontSize: 15 }}>{format(tx.time * 1000, 'hh:mm bb')}</Text>
             </View>
             <View style={{ marginTop: 4, marginBottom: 4 }}>
-                <Text style={{ color: Theme.textColor, fontSize: 15 }}>{address ? <AddressComponent address={address} /> : '<no address>'}</Text>
+                <Text style={{ color: Theme.textColor, fontSize: 15 }} ellipsizeMode="middle" numberOfLines={1}>{address ? address.toFriendly() : '<no address>'}</Text>
             </View>
             {fees.gt(new BN(0)) && (
                 <View>

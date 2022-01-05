@@ -45,9 +45,8 @@ export function TransactionPreview(props: { tx: RawTransaction }) {
                 💎 <ValueComponent value={amount} centFontSize={24} />
             </Text>
             {address && (
-                <Text selectable={true} style={{ marginTop: 32, marginBottom: 72, width: 265, textAlign: 'center', alignSelf: 'center' }} numberOfLines={2}>
-                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(0, 24)}</Text>
-                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(24, 48)}</Text>
+                <Text selectable={true} style={{ marginTop: 32, marginBottom: 72, width: 265, textAlign: 'center', alignSelf: 'center' }} numberOfLines={1} ellipsizeMode="middle">
+                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly()}</Text>
                 </Text>
             )}
         </View>

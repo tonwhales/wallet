@@ -12,7 +12,6 @@ import { storage } from './utils/storage';
 import { WalletBackupFragment } from './fragments/wallet/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { TransferFragment } from './fragments/wallet/TransferFragment';
-import { WalletReceiveFragment } from './fragments/wallet/WalletReceiveFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 
@@ -71,7 +70,6 @@ const navigation = [
     genericScreen('WalletBackup', WalletBackupFragment),
     genericScreen('Settings', SettingsFragment),
     genericScreen('Transfer', TransferFragment),
-    formSheetScreen('WalletReceive', WalletReceiveFragment),
     fullScreenModal('Scanner', ScannerFragment)
 ];
 

@@ -14,7 +14,8 @@ import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { Modalize } from 'react-native-modalize';
-import { WalletReceiveFragment } from './WalletReceiveFragment';
+import { WalletReceiveComponent } from './WalletReceiveComponent';
+import { Portal } from 'react-native-portalize';
 
 export const WalletFragment = fragment(() => {
     const receiveRef = React.useRef<Modalize>(null);
@@ -83,9 +84,11 @@ export const WalletFragment = fragment(() => {
                     <TransactionView tx={t} key={'tx-' + i} />
                 ))}
             </ScrollView>
-            <Modalize ref={receiveRef} adjustToContentHeight={true}>
-                <WalletReceiveFragment />
-            </Modalize>
+            <Portal>
+                <Modalize ref={receiveRef} adjustToContentHeight={true}>
+                    <WalletReceiveComponent />
+                </Modalize>
+            </Portal>
         </View>
     );
 });

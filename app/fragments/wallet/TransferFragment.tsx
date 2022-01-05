@@ -1,8 +1,10 @@
+import { useAppState } from '@react-native-community/hooks';
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, fromNano, toNano } from 'ton';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { client } from '../../client';
@@ -10,6 +12,7 @@ import { ATextInput } from '../../components/ATextInput';
 import { ModalHeader } from '../../components/ModalHeader';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
+import { useAccountSync } from '../../sync/useAccountSync';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { decryptData } from '../../utils/secureStorage';
 import { getAppState, storage } from '../../utils/storage';
@@ -18,6 +21,10 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const address = React.useMemo(() => getAppState()!.address, []);
+    const [balance, loading] = useAccountSync(address);
+    const safeArea = useSafeAreaInsets();
+
     const [target, setTarget] = React.useState('');
     const [amount, setAmount] = React.useState('');
     const doSend = React.useCallback(async () => {
@@ -71,11 +78,22 @@ export const TransferFragment = fragment(() => {
     return (
         <>
             <StatusBar style="dark" />
-            <View style={{ marginTop: 100 }}>
-                <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+            <View style={{ marginTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16 }}>
+
+                <Text>From account</Text>
+                <View style={{ marginBottom: 16 }}>
+                    <Text>{address.toFriendly()}</Text>
+                    <Text>💎{fromNano(balance || new BN(0))}</Text>
+                </View>
+
+                <Text>Amount</Text>
                 <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />
-                <RoundButton title="Send" action={doSend} style={{ marginHorizontal: 16 }} />
+
+                <Text>To</Text>
                 <RoundButton title="Scan" onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} style={{ marginHorizontal: 16 }} />
+                <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+
+                <RoundButton title="Send" action={doSend} style={{ marginHorizontal: 16, marginTop: 16 }} />
             </View>
         </>
     );

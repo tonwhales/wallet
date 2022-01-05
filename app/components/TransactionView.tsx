@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { Address, fromNano, RawTransaction } from 'ton';
 import { format } from 'date-fns';
+import { AddressComponent } from './AddressComponent';
 
 export function TransactionView(props: { tx: RawTransaction }) {
     const tx = props.tx;
@@ -36,7 +37,7 @@ export function TransactionView(props: { tx: RawTransaction }) {
                 <Text>{format(tx.time * 1000, 'hh:mm bbbb')}</Text>
             </View>
             <View>
-                <Text>{address ? address.toFriendly() : '<no address>'}</Text>
+                <Text>{address ? <AddressComponent address={address} /> : '<no address>'}</Text>
             </View>
             {fees.gt(new BN(0)) && (
                 <View>

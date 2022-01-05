@@ -16,6 +16,7 @@ import LottieView from 'lottie-react-native';
 import { Modalize } from 'react-native-modalize';
 import { WalletReceiveComponent } from './WalletReceiveComponent';
 import { Portal } from 'react-native-portalize';
+import { ValueComponent } from '../../components/ValueComponent';
 
 export const WalletFragment = fragment(() => {
     const receiveRef = React.useRef<Modalize>(null);
@@ -47,16 +48,16 @@ export const WalletFragment = fragment(() => {
         <View style={{ flexGrow: 1 }}>
             <ScrollView style={{ flexGrow: 1 }} contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}>
                 <View style={{ alignSelf: 'stretch', backgroundColor: 'black', paddingTop: safeArea.top + 1000, marginTop: -1000, alignItems: 'center', justifyContent: 'center', paddingBottom: 16 }}>
-                    <Text style={{ marginTop: 12, marginBottom: 24, color: 'white', opacity: 0.8 }}>
+                    <Text style={{ marginTop: 12, marginBottom: 24, color: 'white', opacity: 0.6, height: 44 }}>
                         {loading ? 'Updating...' : 'Up to date'}
                     </Text>
-                    <Text style={{ fontSize: 32, fontWeight: '700', color: 'white' }}>
-                        💎 {fromNano(balance)}
+                    <Text style={{ fontSize: 45, marginTop: 48, fontWeight: '600', color: 'white' }}>
+                        💎 <ValueComponent value={balance} centFontSize={23} />
                     </Text>
-                    <Text style={{ color: 'white' }}>Your balance</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 32 }}>
-                        <RoundButton title="Send" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 16 }} onPress={() => navigation.navigate('Transfer')} />
-                        <RoundButton title="Receive" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 16 }} onPress={() => receiveRef.current!.open()} />
+                    <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>Your balance</Text>
+                    <View style={{ flexDirection: 'row', marginTop: 72, marginHorizontal: 8 }}>
+                        <RoundButton title="Send" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => navigation.navigate('Transfer')} />
+                        <RoundButton title="Receive" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => receiveRef.current!.open()} />
                     </View>
                 </View>
                 <View style={{ backgroundColor: 'black' }} >

@@ -14,19 +14,25 @@ export function WalletReceiveComponent() {
     return (
         <>
             <View style={{ alignSelf: 'stretch', flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center', paddingBottom: safeArea.bottom }}>
+                <View style={{ height: 50, alignItems: 'center', flexDirection: 'row' }}>
+                    <View style={{ flexGrow: 1 }} />
+                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17 }}>Receive Toncoin</Text>
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginRight: 16, flexBasis: 0 }}>
+                        {/* <Text style={{ color: Theme.accent, fontWeight: '600', fontSize: 17 }}>Done</Text> */}
+                    </View>
+                </View>
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, marginVertical: 32 }}>Share this link to receive Toncoin</Text>
-                <Text style={{ fontSize: 16, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginBottom: 32 }} numberOfLines={1}>{link}</Text>
                 <QRCode
-                    size={260}
+                    size={200}
                     ecl="L"
                     value={link}
-                    color={Theme.accent}
+                    color={'black'}
                 />
-                <Pressable onLongPress={() => { }}>
-                    <Text style={{ fontSize: 16, color: Theme.textColor, marginTop: 32, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(0, 24)}</Text>
-                    <Text style={{ fontSize: 16, color: Theme.textColor, marginBottom: 32, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(24, 48)}</Text>
+                <Pressable onLongPress={() => { }} style={{ marginBottom: 72 }}>
+                    <Text style={{ fontSize: 18, color: Theme.textColor, marginTop: 32, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(0, 24)}</Text>
+                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(24, 48)}</Text>
                 </Pressable>
-                <RoundButton title="Share wallet address" onPress={() => Share.share({ url: link })} style={{ marginBottom: 32 }} />
+                <RoundButton title="Share wallet address" onPress={() => Share.share({ url: link })} style={{ marginBottom: 16, alignSelf: 'stretch', marginHorizontal: 16 }} />
             </View>
         </>
     );

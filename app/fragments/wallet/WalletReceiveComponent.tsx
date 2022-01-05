@@ -28,10 +28,10 @@ export function WalletReceiveComponent() {
                     value={link}
                     color={'black'}
                 />
-                <Pressable onLongPress={() => { }} style={{ marginBottom: 72 }}>
-                    <Text style={{ fontSize: 18, color: Theme.textColor, marginTop: 32, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(0, 24)}</Text>
+                <Text selectable={true} style={{ marginTop: 32, marginBottom: 72, width: 265, textAlign: 'center' }} numberOfLines={2}>
+                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(0, 24)}</Text>
                     <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly().slice(24, 48)}</Text>
-                </Pressable>
+                </Text>
                 <RoundButton title="Share wallet address" onPress={() => Share.share({ url: link })} style={{ marginBottom: 16, alignSelf: 'stretch', marginHorizontal: 16 }} />
             </View>
         </>

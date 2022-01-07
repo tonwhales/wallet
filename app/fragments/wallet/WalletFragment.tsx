@@ -17,6 +17,7 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { TransactionPreview } from './TransactionPreview';
 import { useAccount } from '../../sync/useAccount';
+import { format } from 'date-fns';
 
 function padLt(src: string) {
     let res = src;
@@ -39,6 +40,25 @@ export const WalletFragment = fragment(() => {
             return [];
         }
     }, [account]);
+    const transactionsSectioned = React.useMemo(() => {
+        let sections: { title: string, items: RawTransaction[] }[] = [];
+        if (transactions.length > 0) {
+            let lastTime: number = Math.floor(transactions[0].time / (60 * 60 * 24)) * (60 * 60 * 24);
+            let lastSection: RawTransaction[] = [];
+            let title = format(lastTime * 1000, 'MM/dd/yyyy');
+            sections.push({ title, items: lastSection });
+            for (let t of transactions) {
+                let time = Math.floor(t.time / (60 * 60 * 24)) * (60 * 60 * 24);
+                if (lastTime !== time) {
+                    lastSection = [];
+                    title = format(lastTime * 1000, 'MM/dd/yyyy');
+                    sections.push({ title, items: lastSection });
+                }
+                lastSection.push(t);
+            }
+        }
+        return sections;
+    }, [transactions]);
 
     //
     // Animations
@@ -121,7 +141,7 @@ export const WalletFragment = fragment(() => {
                     <View style={{ flexDirection: 'column', height: 20, borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: 'white' }} />
                 </View>
 
-                {transactions.length === 0 && (
+                {transactionsSectioned.length === 0 && (
                     <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
                         <LottieView
                             source={require('../../../assets/animations/chicken.json')}
@@ -134,8 +154,11 @@ export const WalletFragment = fragment(() => {
                         <RoundButton title="Receive TONCOIN" size="normal" display="outline" onPress={() => receiveRef.current!.open()} />
                     </View>
                 )}
-                {transactions.length > 0 && transactions.map((t, i) => (
-                    <TransactionView tx={t} key={'tx-' + i} onPress={setModal} />
+                {transactionsSectioned.length > 0 && transactionsSectioned.map((s, i) => (
+                    <View key={'s-' + i}>
+                        <Text style={{ fontSize: 16, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
+                        {s.items.map((t, i2) => <TransactionView tx={t} key={'tx-' + i2} onPress={setModal} />)}
+                    </View>
                 ))}
             </Animated.ScrollView>
 
@@ -155,7 +178,7 @@ export const WalletFragment = fragment(() => {
             {/* Sync state */}
             <Animated.View style={[{ position: 'absolute', top: safeArea.top, left: 0, right: 0, marginBottom: 24, height: 44, alignItems: 'center', justifyContent: 'center' }, buttonsContainerStyle]}>
                 <Text style={{ color: 'white', opacity: 0.6 }}>
-                    {Date.now() - account.storedAt > 10000  ? 'Updating...' : 'Up to date'}
+                    {Date.now() - account.storedAt > 10000 ? 'Updating...' : 'Up to date'}
                 </Text>
             </Animated.View>
 

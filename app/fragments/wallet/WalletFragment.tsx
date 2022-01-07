@@ -1,15 +1,12 @@
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { Cell, parseTransaction, RawTransaction } from 'ton';
-import { client } from '../../client';
 import { fragment } from "../../fragment";
-import { getAppState } from '../../utils/storage';
-import { backoff } from '../../utils/time';
+import { getAppState, storage } from '../../utils/storage';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { acc, useAnimatedStyle } from 'react-native-reanimated';
 import { TransactionView } from '../../components/TransactionView';
-import { useAccountSync } from '../../sync/useAccountSync';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
@@ -19,27 +16,29 @@ import { Portal } from 'react-native-portalize';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { TransactionPreview } from './TransactionPreview';
+import { useAccount } from '../../sync/useAccount';
+
+function padLt(src: string) {
+    let res = src;
+    while (res.length < 20) {
+        res = '0' + res;
+    }
+    return res;
+}
 
 export const WalletFragment = fragment(() => {
     const receiveRef = React.useRef<Modalize>(null);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getAppState()!.address, []);
-    const [balance, loading] = useAccountSync(address);
-    const [transactions, setTransactions] = React.useState<RawTransaction[] | null>(null);
-    React.useEffect(() => {
-        let end = false;
-        (async () => {
-            backoff(async () => {
-                while (!end) {
-                    let transactions = await client.getTransactions(address, { limit: 100 });
-                    let res = transactions.map((v) => parseTransaction(address.workChain, Cell.fromBoc(Buffer.from(v.data, 'base64'))[0].beginParse()));
-                    setTransactions(res);
-                }
-            })
-        })();
-        return () => { end = true; }
-    }, []);
+    const account = useAccount(address);
+    const transactions = React.useMemo<RawTransaction[]>(() => {
+        if (account) {
+            return account.transactions.map((v) => parseTransaction(0, Cell.fromBoc(Buffer.from(storage.getString('tx_' + address.toFriendly() + '_' + padLt(v))!, 'base64'))[0].beginParse()));
+        } else {
+            return [];
+        }
+    }, [account]);
 
     //
     // Animations
@@ -90,7 +89,7 @@ export const WalletFragment = fragment(() => {
     // Loading
     //
 
-    if (!balance) {
+    if (!account) {
         return (
             <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <ActivityIndicator color={Theme.loader} />
@@ -101,6 +100,13 @@ export const WalletFragment = fragment(() => {
     //
     // Content
     //
+
+    // {!transactions && (
+    //     <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
+    //         <ActivityIndicator />
+    //     </View>
+    // )}
+
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -114,12 +120,8 @@ export const WalletFragment = fragment(() => {
                 <View style={{ backgroundColor: 'black' }} >
                     <View style={{ flexDirection: 'column', height: 20, borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: 'white' }} />
                 </View>
-                {!transactions && (
-                    <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
-                        <ActivityIndicator />
-                    </View>
-                )}
-                {transactions && transactions.length === 0 && (
+
+                {transactions.length === 0 && (
                     <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
                         <LottieView
                             source={require('../../../assets/animations/chicken.json')}
@@ -132,7 +134,7 @@ export const WalletFragment = fragment(() => {
                         <RoundButton title="Receive TONCOIN" size="normal" display="outline" onPress={() => receiveRef.current!.open()} />
                     </View>
                 )}
-                {transactions && transactions.length > 0 && transactions.map((t, i) => (
+                {transactions.length > 0 && transactions.map((t, i) => (
                     <TransactionView tx={t} key={'tx-' + i} onPress={setModal} />
                 ))}
             </Animated.ScrollView>
@@ -153,14 +155,14 @@ export const WalletFragment = fragment(() => {
             {/* Sync state */}
             <Animated.View style={[{ position: 'absolute', top: safeArea.top, left: 0, right: 0, marginBottom: 24, height: 44, alignItems: 'center', justifyContent: 'center' }, buttonsContainerStyle]}>
                 <Text style={{ color: 'white', opacity: 0.6 }}>
-                    {loading ? 'Updating...' : 'Up to date'}
+                    {!account ? 'Updating...' : 'Up to date'}
                 </Text>
             </Animated.View>
 
             {/* Balance */}
             <Animated.View style={[{ position: 'absolute', alignItems: 'center', paddingTop: safeArea.top, left: 0, right: 0, top: 0 }, balanceTransform]}>
                 <Animated.Text style={[{ fontSize: 45, fontWeight: '500', color: 'white' }, balanceFont]}>
-                    💎 <ValueComponent value={balance} centFontSize={20} />
+                    💎 <ValueComponent value={account.balance} centFontSize={20} />
                 </Animated.Text>
                 <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>Your balance</Text>
             </Animated.View>

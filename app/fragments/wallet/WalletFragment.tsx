@@ -51,6 +51,7 @@ export const WalletFragment = fragment(() => {
                 let time = Math.floor(t.time / (60 * 60 * 24)) * (60 * 60 * 24);
                 if (lastTime !== time) {
                     lastSection = [];
+                    lastTime = time;
                     title = format(lastTime * 1000, 'MM/dd/yyyy');
                     sections.push({ title, items: lastSection });
                 }

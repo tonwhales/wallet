@@ -1,10 +1,11 @@
 import { BN } from "bn.js";
 import { Address, TonClient } from "ton";
+import axious from 'axios';
 
 export const client = new TonClient({ endpoint: 'https://scalable-api.tonwhales.com/jsonRPC' });
 
 export async function fetchBalance(address: Address) {
-    // let res = await fetch('https://ton-fast-api-6dza2.ondigitalocean.app/address/' + address.toFriendly());
+    let res = await axious.get('https://ton-storage.tonhub.com/address/' + address.toFriendly(), { timeout: 5000 });
     // if (!res.ok) {
     //     throw Error('Unable to fetch balance');
     // }
@@ -14,5 +15,5 @@ export async function fetchBalance(address: Address) {
     // }
 
     // return new BN(body.state.balance, 10);
-    return await client.getBalance(address);
+    return new BN(res.data.balance, 10);
 }

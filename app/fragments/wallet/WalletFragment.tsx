@@ -155,7 +155,7 @@ export const WalletFragment = fragment(() => {
             {/* Sync state */}
             <Animated.View style={[{ position: 'absolute', top: safeArea.top, left: 0, right: 0, marginBottom: 24, height: 44, alignItems: 'center', justifyContent: 'center' }, buttonsContainerStyle]}>
                 <Text style={{ color: 'white', opacity: 0.6 }}>
-                    {!account ? 'Updating...' : 'Up to date'}
+                    {Date.now() - account.storedAt > 10000  ? 'Updating...' : 'Up to date'}
                 </Text>
             </Animated.View>
 

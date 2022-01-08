@@ -12,7 +12,7 @@ import { ATextInput } from '../../components/ATextInput';
 import { ModalHeader } from '../../components/ModalHeader';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
-import { useAccountSync } from '../../sync/useAccountSync';
+import { useAccount } from '../../sync/useAccount';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { decryptData } from '../../utils/secureStorage';
 import { getAppState, storage } from '../../utils/storage';
@@ -22,7 +22,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getAppState()!.address, []);
-    const [balance, loading] = useAccountSync(address);
+    const account = useAccount(address);
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState('');
@@ -83,7 +83,7 @@ export const TransferFragment = fragment(() => {
                 <Text>From account</Text>
                 <View style={{ marginBottom: 16 }}>
                     <Text>{address.toFriendly()}</Text>
-                    <Text>💎{fromNano(balance || new BN(0))}</Text>
+                    <Text>💎{fromNano(account?.balance || new BN(0))}</Text>
                 </View>
 
                 <Text>Amount</Text>

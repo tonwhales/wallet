@@ -9,7 +9,7 @@ export async function fetchBalance(address: Address) {
 }
 
 export async function fetchAccountState(address: Address) {
-    let res = await axios.get('https://ton-storage.tonhub.com/address/' + address.toFriendly(), { timeout: 5000 });
+    let res = await axios.get('https://raw.tonhubapi.com/address/' + address.toFriendly(), { timeout: 5000 });
     let data = res.data as {
         address: string,
         balance: string,

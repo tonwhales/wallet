@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
-import { decryptData } from '../../utils/secureStorage';
 import { storage } from '../../utils/storage';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -10,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { loadWalletKeys } from '../../utils/walletKeys';
 
 export const WalletBackupFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -21,15 +21,13 @@ export const WalletBackupFragment = fragment(() => {
     }, []);
     React.useEffect(() => {
         (async () => {
-            let plainText: Buffer;
             try {
-                const cypherData = Buffer.from(storage.getString('ton-mnemonics')!, 'base64');
-                plainText = await decryptData(cypherData);
+                let keys = await loadWalletKeys();
+                setMnemonics(keys.mnemonics);
             } catch (e) {
                 navigation.goBack();
                 return;
             }
-            setMnemonics(plainText.toString().split(' '));
         })();
     }, []);
     if (!mnemonics) {

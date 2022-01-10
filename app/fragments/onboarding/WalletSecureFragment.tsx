@@ -40,7 +40,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 const address = wallet.address;
 
                 // Persist state
-                setAppState({ address });
+                setAppState({ address, publicKey: key.publicKey });
 
                 navigation.navigateAndReplaceAll('WalletCreated');
             } catch (e) {

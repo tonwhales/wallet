@@ -18,6 +18,7 @@ import { decryptData } from '../../utils/secureStorage';
 import { getAppState, storage } from '../../utils/storage';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { loadWalletKeys, WalletKeys } from '../../utils/walletKeys';
 
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -39,27 +40,24 @@ export const TransferFragment = fragment(() => {
         }
 
         // Read key
-        let plainText: Buffer;
+        let walletKeys: WalletKeys;
         try {
-            const cypherData = Buffer.from(storage.getString('ton-mnemonics')!, 'base64');
-            plainText = await decryptData(cypherData);
+            walletKeys = await loadWalletKeys();
         } catch (e) {
             navigation.goBack();
             return;
         }
-        let walletKey = await mnemonicToWalletKey(plainText.toString().split(' '));
-
 
         // Transfer
         let wallet = await client.openWalletFromAddress({ source: state.address });
-        await wallet.prepare(0, walletKey.publicKey);
+        await wallet.prepare(0, walletKeys.keyPair.publicKey);
         let seqno = await wallet.getSeqNo();
         await backoff(async () => {
             await wallet.transfer({
                 seqno,
                 to: address,
                 value,
-                secretKey: walletKey.secretKey,
+                secretKey: walletKeys.keyPair.secretKey,
                 bounce: false
             });
         });

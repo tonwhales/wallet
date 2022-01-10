@@ -24,6 +24,7 @@ export const SettingsFragment = fragment(() => {
             <View style={{ height: safeArea.top }} />
             <ItemHeader title="Settings" />
             <ItemButton title="Backup keys" onPress={() => navigation.navigate('WalletBackup')} />
+            <ItemButton title="Migrate old wallets" onPress={() => navigation.navigate('Migration')} />
             <ItemButton title="Sign out" onPress={doSignout} />
         </ScrollView>
     );

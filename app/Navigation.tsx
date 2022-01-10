@@ -14,6 +14,7 @@ import { HomeFragment } from './fragments/HomeFragment';
 import { TransferFragment } from './fragments/wallet/TransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
+import { MigrationFragment } from './fragments/wallet/MigrationFragment';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -70,6 +71,7 @@ const navigation = [
     genericScreen('WalletBackup', WalletBackupFragment),
     genericScreen('Settings', SettingsFragment),
     genericScreen('Transfer', TransferFragment),
+    genericScreen('Migration', MigrationFragment),
     fullScreenModal('Scanner', ScannerFragment)
 ];
 

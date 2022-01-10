@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Platform, Text, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, fromNano, toNano } from 'ton';
+import { Address, CommonMessageInfo, EmptyMessage, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { client } from '../../client';
 import { ATextInput } from '../../components/ATextInput';
@@ -13,6 +13,7 @@ import { ModalHeader } from '../../components/ModalHeader';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useAccount } from '../../sync/useAccount';
+import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { decryptData } from '../../utils/secureStorage';
 import { getAppState, storage } from '../../utils/storage';
@@ -49,18 +50,30 @@ export const TransferFragment = fragment(() => {
         }
 
         // Transfer
-        let wallet = await client.openWalletFromAddress({ source: state.address });
-        await wallet.prepare(0, walletKeys.keyPair.publicKey);
-        let seqno = await wallet.getSeqNo();
-        await backoff(async () => {
-            await wallet.transfer({
-                seqno,
+
+        const contract = await contractFromPublicKey(walletKeys.keyPair.publicKey); // TODO Perform before key loading
+
+        // Fetch seqno
+        let seqno = await backoff(() => contract.getSeqNo(client));
+
+        // Create transfer
+        let transfer = await contract.createTransfer({
+            seqno,
+            walletId: contract.source.walletId,
+            secretKey: walletKeys.keyPair.secretKey,
+            sendMode: SendMode.IGNORE_ERRORS,
+            order: new InternalMessage({
                 to: address,
                 value,
-                secretKey: walletKeys.keyPair.secretKey,
-                bounce: false
-            });
-        });
+                bounce: false,
+                body: new CommonMessageInfo({
+                    body: new EmptyMessage()
+                })
+            })
+        })
+
+        // Sending transfer
+        await backoff(() => client.sendExternalMessage(contract, transfer));
 
         navigation.goBack();
     }, [amount, target]);

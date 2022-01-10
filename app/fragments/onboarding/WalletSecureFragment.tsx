@@ -9,9 +9,9 @@ import { encryptData } from '../../utils/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
 import { getAppState, setAppState, storage } from '../../utils/storage';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { client } from '../../client';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import LottieView from 'lottie-react-native';
+import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption }) => {
     const safeArea = useSafeAreaInsets();
@@ -33,14 +33,14 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 const token = await encryptData(Buffer.from(props.mnemonics));
                 storage.set('ton-mnemonics', token.toString('base64'));
 
-
-                // Resolve address
+                // Resolve key
                 const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
-                let wallet = await client.openWalletDefaultFromSecretKey({ workchain: 0, secretKey: key.secretKey });
-                const address = wallet.address;
+
+                // Resolve contract
+                const contract = await contractFromPublicKey(key.publicKey);
 
                 // Persist state
-                setAppState({ address, publicKey: key.publicKey });
+                setAppState({ address: contract.address, publicKey: key.publicKey });
 
                 navigation.navigateAndReplaceAll('WalletCreated');
             } catch (e) {

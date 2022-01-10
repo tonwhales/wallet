@@ -1704,6 +1704,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@openland/patterns@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@openland/patterns/-/patterns-0.0.2.tgz#ada0417c4e72aeeb461bf9d8759ecd9ca1ebf51d"
+  integrity sha512-ttgJELwtG8cIER1JeWjkIMg3e+MlAL6n4wFPSNPoBCl+5t3G/HIz9kolvxBmN5/3RXEgh68NnePzGiUBaUHmRQ==
+
 "@react-native-community/cli-debugger-ui@^5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-5.0.1.tgz#6b1f3367b8e5211e899983065ea2e72c1901d75f"
@@ -7555,6 +7560,13 @@ toidentifier@1.0.1:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
 
+ton-contracts@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/ton-contracts/-/ton-contracts-2.3.2.tgz#cb9f130f1fb4cb1af3a35f04d1fd00b9100663a1"
+  integrity sha512-O8DVQ1180Zx2m6D0SVluny4rjWhChLpo41WwmnDejPKd0Ip1s8lI/vACjS4oewkEPvZG1stIsrAWpLHyW94y6A==
+  dependencies:
+    "@openland/patterns" "^0.0.2"
+
 ton-crypto@1.7.0, ton-crypto@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/ton-crypto/-/ton-crypto-1.7.0.tgz#f0f1eadffd0b1d25186d09cfe26662ee8c711a16"
@@ -7563,10 +7575,10 @@ ton-crypto@1.7.0, ton-crypto@^1.7.0:
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-ton@^6.4.1:
-  version "6.4.1"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-6.4.1.tgz#1f1d2192255360c82920d129858a4efb9968d764"
-  integrity sha512-DBa1Q6l/0IDDD7PWQBm5TnuWIBGCpfE1tNaDNej6TiG2JAjRGDFz8s70kVOy20akcJ86+neiGf4v3krKcKYwXA==
+ton@^6.7.0:
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-6.7.0.tgz#b4bee6792d55f61375bb9076f38accdb6b32acf0"
+  integrity sha512-2Jm2Ii/hptry6Iq/wrS8XpeyAJb3WBx7ugsgAc6mwt3AoPlSws+zmbOmqEdyFRWjmgB9hYRnwLoMvSYErHnlkw==
   dependencies:
     bn.js "5.2.0"
     dataloader "^2.0.0"

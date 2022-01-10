@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { delay } from 'teslabot';
-import { WalletContractType } from 'ton';
+import { SendMode, WalletContractType } from 'ton';
 import { client } from '../../client';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
@@ -11,6 +11,7 @@ import { fragment } from "../../fragment";
 import { loadWalletKeys, WalletKeys } from '../../utils/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 
 const MigrationProcessFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -29,6 +30,7 @@ const MigrationProcessFragment = fragment(() => {
                 navigation.goBack();
                 return;
             }
+            let targetContract = await contractFromPublicKey(key.keyPair.publicKey);
 
             // Check possible addresses
             const legacyTypes: WalletContractType[] = [
@@ -52,7 +54,27 @@ const MigrationProcessFragment = fragment(() => {
                 const state = await backoff(() => client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
                     setStatus('Tranfer funds from ' + wallet.address.toFriendly() + '...');
-                    await delay(10000);
+                    await wallet.prepare(0, key.keyPair.publicKey, type);
+
+                    // Seqno
+                    const seqno = await backoff(() => wallet.getSeqNo());
+
+                    // Transfer
+                    await backoff(() => wallet.transfer({
+                        seqno,
+                        to: targetContract.address,
+                        value: new BN(0),
+                        sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE,
+                        secretKey: key.keyPair.secretKey,
+                        bounce: false
+                    }));
+
+                    while (!ended) {
+                        let s = await backoff(() => wallet.getSeqNo());
+                        if (s > seqno) {
+                            break;
+                        }
+                    }
                 }
             }
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { ActivityIndicator, Alert, Image, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme } from '../../Theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -96,17 +96,38 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 >
                     {props.deviceEncryption === 'face' && (
                         <>
-                            <Image source={require('../../../assets/face_id.png')} style={{ marginVertical: 16, marginHorizontal: 16, width: 32, height: 32 }} />
+                            <Image
+                                source={
+                                    Platform.OS === 'ios'
+                                        ? require('../../../assets/face_id.png')
+                                        : require('../../../assets/and_touch_id.png')
+                                }
+                                style={{ marginVertical: 16, marginHorizontal: 16, width: 32, height: 32 }}
+                            />
                             <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                Protect with Face ID
+                                {
+                                    Platform.OS === 'ios'
+                                        ? 'Protect with Face ID'
+                                        : 'Protect with biometrics'
+                                }
                             </Text>
                         </>
                     )}
                     {props.deviceEncryption === 'fingerprint' && (
                         <>
-                            <Image source={require('../../../assets/touch_id.png')} style={{ marginVertical: 16, marginHorizontal: 16, width: 32, height: 32 }} />
+                            <Image source={
+                                Platform.OS === 'ios'
+                                    ? require('../../../assets/face_id.png')
+                                    : require('../../../assets/and_touch_id.png')
+                            }
+                                style={{ marginVertical: 16, marginHorizontal: 16, width: 32, height: 32 }}
+                            />
                             <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                Protect with Touch ID
+                                {
+                                    Platform.OS === 'ios'
+                                        ? 'Protect with Touch ID'
+                                        : 'Protect with biometrics'
+                                }
                             </Text>
                         </>
                     )}

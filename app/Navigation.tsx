@@ -21,6 +21,7 @@ const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNati
 function fullScreen(name: string, component: React.ComponentType<any>) {
     return (
         <Stack.Screen
+            key={`fullScreen-${name}`}
             name={name}
             component={component}
             options={{ headerShown: false }}
@@ -31,6 +32,7 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
 function genericScreen(name: string, component: React.ComponentType<any>) {
     return (
         <Stack.Screen
+            key={`genericScreen-${name}`}
             name={name}
             component={component}
             options={{ headerShown: Platform.OS === 'ios' }}
@@ -41,6 +43,7 @@ function genericScreen(name: string, component: React.ComponentType<any>) {
 function formSheetScreen(name: string, component: React.ComponentType<any>) {
     return (
         <Stack.Screen
+            key={`formSheetScreen-${name}`}
             name={name}
             component={component}
             options={{ headerShown: false }}
@@ -52,6 +55,7 @@ function formSheetScreen(name: string, component: React.ComponentType<any>) {
 function fullScreenModal(name: string, component: React.ComponentType<any>) {
     return (
         <Stack.Screen
+            key={`fullScreenModal-${name}`}
             name={name}
             component={component}
             options={{ headerShown: false, presentation: 'modal' }}

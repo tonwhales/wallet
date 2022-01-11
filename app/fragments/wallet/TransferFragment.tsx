@@ -2,7 +2,8 @@ import { useAppState } from '@react-native-community/hooks';
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View } from "react-native";
+import { useTranslation } from 'react-i18next';
+import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, CommonMessageInfo, EmptyMessage, fromNano, InternalMessage, SendMode, toNano } from 'ton';
@@ -21,7 +22,13 @@ import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../utils/walletKeys';
 
+const labelStyle: StyleProp<TextStyle> = {
+    fontWeight: '600',
+    marginLeft: 16
+};
+
 export const TransferFragment = fragment(() => {
+    const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getAppState()!.address, []);
     const account = useAccount(address);
@@ -91,20 +98,35 @@ export const TransferFragment = fragment(() => {
             <StatusBar style="dark" />
             <View style={{ marginTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16 }}>
 
-                <Text>From account</Text>
-                <View style={{ marginBottom: 16 }}>
-                    <Text>{address.toFriendly()}</Text>
-                    <Text>💎{fromNano(account?.balance || new BN(0))}</Text>
+                <Text style={labelStyle}>{t("From account")}</Text>
+                <View style={{ marginBottom: 16, marginHorizontal: 16 }}>
+                    <Text style={{
+                        fontWeight: '300',
+                    }}>
+                        {address.toFriendly()}
+                    </Text>
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 18
+                    }}>
+                        💎{fromNano(account?.balance || new BN(0))}
+                    </Text>
                 </View>
 
-                <Text>Amount</Text>
-                <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+                <Text style={labelStyle}>{t("Amount")}</Text>
+                <ATextInput
+                    value={amount}
+                    onValueChange={setAmount}
+                    placeholder={t("Amount")}
+                    keyboardType="numeric"
+                    style={{ marginHorizontal: 16, marginVertical: 8 }}
+                />
 
-                <Text>To</Text>
-                <RoundButton title="Scan" onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} style={{ marginHorizontal: 16 }} />
-                <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+                <Text style={[labelStyle, { marginBottom: 8 }]}>{t("To")}</Text>
+                <RoundButton title={t("Scan")} onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} style={{ marginHorizontal: 16 }} />
+                <ATextInput value={target} onValueChange={setTarget} placeholder={t("Address")} keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
 
-                <RoundButton title="Send" action={doSend} style={{ marginHorizontal: 16, marginTop: 16 }} />
+                <RoundButton title={t("Send")} action={doSend} style={{ marginHorizontal: 16, marginTop: 16 }} />
             </View>
         </>
     );

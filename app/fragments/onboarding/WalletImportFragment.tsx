@@ -11,6 +11,7 @@ import { mnemonicValidate } from 'ton-crypto';
 import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
+import { useTranslation } from 'react-i18next';
 
 type WordInputRef = {
     focus: () => void;
@@ -114,6 +115,7 @@ function WalletWordsComponent(props: {
         deviceEncryption: DeviceEncryption
     }) => void
 }) {
+    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
     const scrollRef = React.useRef<ScrollView>(null);
@@ -170,7 +172,7 @@ function WalletWordsComponent(props: {
         const words = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w17, w18, w19, w20, w21, w22, w23, w24];
         let isValid = await mnemonicValidate(words);
         if (!isValid) {
-            Alert.alert('Incorrect words', 'You have entered incorrect secret words. Please, double ckeck your input and try again.');
+            Alert.alert(t('Incorrect words'), 'You have entered incorrect secret words. Please, double ckeck your input and try again.');
             return;
         }
         const deviceEncryption = await getDeviceEncryption();
@@ -187,8 +189,10 @@ function WalletWordsComponent(props: {
             keyboardDismissMode="none"
             ref={scrollRef}
         >
-            <Text style={[iOSUIKit.largeTitleEmphasized, { alignSelf: 'center', marginTop: 16, marginHorizontal: 16 }]}>24 Secret Words</Text>
-            <Text style={[iOSUIKit.body, { alignSelf: 'center', textAlign: 'center', marginTop: 16, marginHorizontal: 16, marginBottom: 16 }]}>Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.</Text>
+            <Text style={[iOSUIKit.largeTitleEmphasized, { alignSelf: 'center', marginTop: 16, marginHorizontal: 16 }]}>{t("24 Secret Words")}</Text>
+            <Text style={[iOSUIKit.body, { alignSelf: 'center', textAlign: 'center', marginTop: 16, marginHorizontal: 16, marginBottom: 16 }]}>
+                {t("Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.")}
+            </Text>
             <WordInput ref={w1Ref} next={w2Ref} scroll={scrollRef} hint="1" value={w1} setValue={setW1} />
             <WordInput ref={w2Ref} next={w3Ref} scroll={scrollRef} hint="2" value={w2} setValue={setW2} />
             <WordInput ref={w3Ref} next={w4Ref} scroll={scrollRef} hint="3" value={w3} setValue={setW3} />
@@ -213,7 +217,7 @@ function WalletWordsComponent(props: {
             <WordInput ref={w22Ref} next={w23Ref} scroll={scrollRef} hint="22" value={w22} setValue={setW22} />
             <WordInput ref={w23Ref} next={w24Ref} scroll={scrollRef} hint="23" value={w23} setValue={setW23} />
             <WordInput ref={w24Ref} hint="24" scroll={scrollRef} value={w24} setValue={setW24} />
-            <RoundButton title="Continue" action={onSubmit} style={{ alignSelf: 'stretch', marginHorizontal: 64, marginVertical: 32 }} />
+            <RoundButton title={t("Continue")} action={onSubmit} style={{ alignSelf: 'stretch', marginHorizontal: 64, marginVertical: 32 }} />
         </ScrollView>
     );
 }

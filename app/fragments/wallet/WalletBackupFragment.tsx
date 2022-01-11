@@ -10,8 +10,10 @@ import { RoundButton } from '../../components/RoundButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { loadWalletKeys } from '../../utils/walletKeys';
+import { useTranslation } from 'react-i18next';
 
 export const WalletBackupFragment = fragment(() => {
+    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
@@ -71,9 +73,13 @@ export const WalletBackupFragment = fragment(() => {
                     loop={false}
                     style={{ width: 100, height: 100, marginBottom: 8 }}
                 />
-                <Text style={{ fontSize: 30, fontWeight: '700' }}>24 Secret Words</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 16, fontSize: 15 }}>Write down these 24 words in the correct order and store them in a secret place.</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 16, fontSize: 15 }}>Use these secret words to restore access to your wallet if you lose your passcode or device.</Text>
+                <Text style={{ fontSize: 30, fontWeight: '700' }}>{t("24 Secret Words")}</Text>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 16, fontSize: 15 }}>
+                    {t("Write down these 24 words in the correct order and store them in a secret place.")}
+                </Text>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 16, fontSize: 15 }}>
+                    {t("Use these secret words to restore access to your wallet if you lose your passcode or device.")}
+                </Text>
                 <View style={{ flexDirection: 'row', alignSelf: 'center', marginVertical: 32 }}>
                     <View style={{ marginRight: 16 }}>
                         {words1}
@@ -87,7 +93,7 @@ export const WalletBackupFragment = fragment(() => {
 
             </ScrollView>
             <View style={{ height: 64, marginHorizontal: 32, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title="Done" onPress={onComplete} />
+                <RoundButton title={t("Done")} onPress={onComplete} />
             </View>
         </Animated.View>
     );

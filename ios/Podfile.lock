@@ -246,7 +246,10 @@ PODS:
     - React-jsi (= 0.64.3)
     - React-perflogger (= 0.64.3)
   - React-jsinspector (0.64.3)
-  - react-native-fast-pbkdf2 (0.2.1):
+  - react-native-fast-animations (0.0.4):
+    - React
+    - SwiftyJSON
+  - react-native-fast-pbkdf2 (0.3.1):
     - React-Core
   - react-native-mmkv (1.5.4):
     - MMKV
@@ -352,6 +355,7 @@ PODS:
     - React-RCTImage
   - RNSVG (12.1.1):
     - React
+  - SwiftyJSON (5.0.1)
   - Yoga (1.14.0)
   - ZXingObjC/Core (3.6.5)
   - ZXingObjC/OneD (3.6.5):
@@ -393,6 +397,7 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-fast-animations (from `../node_modules/react-native-fast-animations`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -420,6 +425,7 @@ SPEC REPOS:
     - lottie-ios
     - MMKV
     - MMKVCore
+    - SwiftyJSON
     - ZXingObjC
 
 EXTERNAL SOURCES:
@@ -485,6 +491,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-fast-animations:
+    :path: "../node_modules/react-native-fast-animations"
   react-native-fast-pbkdf2:
     :path: "../node_modules/react-native-fast-pbkdf2"
   react-native-mmkv:
@@ -545,7 +553,7 @@ SPEC CHECKSUMS:
   EXSecureStore: fa0fdde1c81ceee2a3cb0519e649feae42767969
   EXSplashScreen: 7872675b95bb07c25f922b3d3dfae70c76fb5a00
   FBLazyVector: c71c5917ec0ad2de41d5d06a5855f6d5eda06971
-  FBReactNativeSpec: b24b5e4345d68f43846ff40a124404d09a0c86aa
+  FBReactNativeSpec: 8c1507493e069a9193b6968b876173b0c34f1de6
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
   lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
@@ -562,7 +570,8 @@ SPEC CHECKSUMS:
   React-jsi: a8b09c29521c798f1783348b37b511ba7b3dbeb3
   React-jsiexecutor: df6abc9fafbecb8e5b7a5fbc5e6d4bd017d594d5
   React-jsinspector: 34e23860273a23695342f58eed3ffd3ba10c31e0
-  react-native-fast-pbkdf2: 3ca76fc16532849d723148bcfca78b4a073767ea
+  react-native-fast-animations: 23e8aa365e97ef3013bf0ac5219701cefb6578ff
+  react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-mmkv: 01fb2fcc0853b25607bd35c9ce132e73756df52b
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   React-perflogger: cc76a4254d19640f1d8ad1c66fdee800414b805c
@@ -581,9 +590,10 @@ SPEC CHECKSUMS:
   RNReanimated: 7f143675d94978c3555345d5bfa8ed6ae800c5d3
   RNScreens: 522705f2e5c9d27efb17f24aceb2bf8335bc7b8e
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
+  SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   Yoga: e6ecf3fa25af9d4c87e94ad7d5d292eedef49749
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
 PODFILE CHECKSUM: f3468c1a1c02c316c73c8a895c056363e598e9db
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.10.2

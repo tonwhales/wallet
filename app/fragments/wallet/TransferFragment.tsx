@@ -2,7 +2,7 @@ import { useAppState } from '@react-native-community/hooks';
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, CommonMessageInfo, EmptyMessage, fromNano, InternalMessage, SendMode, toNano } from 'ton';
@@ -20,6 +20,11 @@ import { getAppState, storage } from '../../utils/storage';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../utils/walletKeys';
+
+const labelStyle: StyleProp<TextStyle> = {
+    fontWeight: '600',
+    marginLeft: 16
+};
 
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -91,16 +96,25 @@ export const TransferFragment = fragment(() => {
             <StatusBar style="dark" />
             <View style={{ marginTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16 }}>
 
-                <Text>From account</Text>
-                <View style={{ marginBottom: 16 }}>
-                    <Text>{address.toFriendly()}</Text>
-                    <Text>💎{fromNano(account?.balance || new BN(0))}</Text>
+                <Text style={labelStyle}>From account</Text>
+                <View style={{ marginBottom: 16, marginHorizontal: 16 }}>
+                    <Text style={{
+                        fontWeight: '300',
+                    }}>
+                        {address.toFriendly()}
+                    </Text>
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 18
+                    }}>
+                        💎{fromNano(account?.balance || new BN(0))}
+                    </Text>
                 </View>
 
-                <Text>Amount</Text>
+                <Text style={labelStyle}>Amount</Text>
                 <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />
 
-                <Text>To</Text>
+                <Text style={[labelStyle, { marginBottom: 8 }]}>To</Text>
                 <RoundButton title="Scan" onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} style={{ marginHorizontal: 16 }} />
                 <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
 

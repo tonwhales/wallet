@@ -18,6 +18,7 @@ import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimate
 import { TransactionPreview } from './TransactionPreview';
 import { useAccount } from '../../sync/useAccount';
 import { format } from 'date-fns';
+import { useTranslation } from "react-i18next";
 
 function padLt(src: string) {
     let res = src;
@@ -28,6 +29,7 @@ function padLt(src: string) {
 }
 
 export const WalletFragment = fragment(() => {
+    const { t } = useTranslation();
     const receiveRef = React.useRef<Modalize>(null);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -152,7 +154,12 @@ export const WalletFragment = fragment(() => {
                             style={{ width: 200, height: 200, marginBottom: 16 }}
                         />
                         {/* <Text style={{ fontSize: 18, marginBottom: 16 }}>Wallet Created</Text> */}
-                        <RoundButton title="Receive TONCOIN" size="normal" display="outline" onPress={() => receiveRef.current!.open()} />
+                        <RoundButton
+                            title={t("Receive TONCOIN")}
+                            size="normal"
+                            display="outline"
+                            onPress={() => receiveRef.current!.open()}
+                        />
                     </View>
                 )}
                 {transactionsSectioned.length > 0 && transactionsSectioned.map((s, i) => (
@@ -171,15 +178,15 @@ export const WalletFragment = fragment(() => {
                 <View style={{ flexGrow: 1 }} />
 
                 <Animated.View style={[{ flexDirection: 'row', marginTop: 72, marginHorizontal: 8 }, buttonsContainerStyle]}>
-                    <RoundButton title="Send" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => navigation.navigate('Transfer')} />
-                    <RoundButton title="Receive" style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => receiveRef.current!.open()} />
+                    <RoundButton title={t("Send")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => navigation.navigate('Transfer')} />
+                    <RoundButton title={t("Receive")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => receiveRef.current!.open()} />
                 </Animated.View>
             </Animated.View>
 
             {/* Sync state */}
             <Animated.View style={[{ position: 'absolute', top: safeArea.top, left: 0, right: 0, marginBottom: 24, height: 44, alignItems: 'center', justifyContent: 'center' }, buttonsContainerStyle]}>
                 <Text style={{ color: 'white', opacity: 0.6 }}>
-                    {Date.now() - account.storedAt > 10000 ? 'Updating...' : 'Up to date'}
+                    {Date.now() - account.storedAt > 10000 ? t('Updating...') : t('Up to date')}
                 </Text>
             </Animated.View>
 
@@ -188,7 +195,9 @@ export const WalletFragment = fragment(() => {
                 <Animated.Text style={[{ fontSize: 45, fontWeight: '500', color: 'white' }, balanceFont]}>
                     💎 <ValueComponent value={account.balance} centFontSize={20} />
                 </Animated.Text>
-                <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>Your balance</Text>
+                <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>
+                    {t('Your balance')}
+                </Text>
             </Animated.View>
             <Portal>
                 <Modalize ref={receiveRef} adjustToContentHeight={true} withHandle={false}>

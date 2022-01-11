@@ -1,5 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, RawTransaction } from 'ton';
@@ -7,6 +8,7 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { Theme } from '../../Theme';
 
 export function TransactionPreview(props: { tx: RawTransaction }) {
+    const { t } = useTranslation();
 
     const safeArea = useSafeAreaInsets();
     const tx = props.tx;
@@ -36,7 +38,7 @@ export function TransactionPreview(props: { tx: RawTransaction }) {
         <View style={{ paddingBottom: safeArea.bottom }}>
             <View style={{ height: 50, alignItems: 'center', flexDirection: 'row' }}>
                 <View style={{ flexGrow: 1 }} />
-                <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17 }}>Transaction</Text>
+                <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17 }}>{t('Transaction')}</Text>
                 <View style={{ flexGrow: 1, alignItems: 'flex-end', marginRight: 16, flexBasis: 0 }}>
                     {/* <Text style={{ color: Theme.accent, fontWeight: '600', fontSize: 17 }}>Done</Text> */}
                 </View>

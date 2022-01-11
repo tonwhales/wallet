@@ -12,10 +12,12 @@ import { loadWalletKeys, WalletKeys } from '../../utils/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
+import { useTranslation } from 'react-i18next';
 
 const MigrationProcessFragment = fragment(() => {
+    const { t } = useTranslation();
     const navigation = useTypedNavigation();
-    const [status, setStatus] = React.useState('Migrating old wallets...');
+    const [status, setStatus] = React.useState<string>(t('Migrating old wallets...'));
 
     React.useEffect(() => {
         let ended = false;
@@ -49,11 +51,11 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                setStatus('Checking ' + wallet.address.toFriendly() + '...');
+                setStatus(t('Checking ') + wallet.address.toFriendly() + '...');
 
                 const state = await backoff(() => client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
-                    setStatus('Tranfer funds from ' + wallet.address.toFriendly() + '...');
+                    setStatus(t('Tranfer funds from ') + wallet.address.toFriendly() + '...');
                     await wallet.prepare(0, key.keyPair.publicKey, type);
 
                     // Seqno
@@ -97,13 +99,14 @@ const MigrationProcessFragment = fragment(() => {
 export const MigrationFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
+    const { t } = useTranslation();
 
     if (!confirm) {
         return (
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 <View style={{ flexGrow: 1 }} />
                 <View style={{ marginHorizontal: 16 }}>
-                    <RoundButton title="Proceed" onPress={() => setConfirm(true)} />
+                    <RoundButton title={t("Proceed")} onPress={() => setConfirm(true)} />
                 </View>
             </View>
         );

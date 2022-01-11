@@ -2,6 +2,7 @@ import { useAppState } from '@react-native-community/hooks';
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +28,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 export const TransferFragment = fragment(() => {
+    const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getAppState()!.address, []);
     const account = useAccount(address);
@@ -96,7 +98,7 @@ export const TransferFragment = fragment(() => {
             <StatusBar style="dark" />
             <View style={{ marginTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16 }}>
 
-                <Text style={labelStyle}>From account</Text>
+                <Text style={labelStyle}>{t("From account")}</Text>
                 <View style={{ marginBottom: 16, marginHorizontal: 16 }}>
                     <Text style={{
                         fontWeight: '300',
@@ -111,14 +113,20 @@ export const TransferFragment = fragment(() => {
                     </Text>
                 </View>
 
-                <Text style={labelStyle}>Amount</Text>
-                <ATextInput value={amount} onValueChange={setAmount} placeholder="Amount" keyboardType="numeric" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+                <Text style={labelStyle}>{t("Amount")}</Text>
+                <ATextInput
+                    value={amount}
+                    onValueChange={setAmount}
+                    placeholder={t("Amount")}
+                    keyboardType="numeric"
+                    style={{ marginHorizontal: 16, marginVertical: 8 }}
+                />
 
-                <Text style={[labelStyle, { marginBottom: 8 }]}>To</Text>
-                <RoundButton title="Scan" onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} style={{ marginHorizontal: 16 }} />
-                <ATextInput value={target} onValueChange={setTarget} placeholder="Address" keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
+                <Text style={[labelStyle, { marginBottom: 8 }]}>{t("To")}</Text>
+                <RoundButton title={t("Scan")} onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} style={{ marginHorizontal: 16 }} />
+                <ATextInput value={target} onValueChange={setTarget} placeholder={t("Address")} keyboardType="ascii-capable" style={{ marginHorizontal: 16, marginVertical: 8 }} />
 
-                <RoundButton title="Send" action={doSend} style={{ marginHorizontal: 16, marginTop: 16 }} />
+                <RoundButton title={t("Send")} action={doSend} style={{ marginHorizontal: 16, marginTop: 16 }} />
             </View>
         </>
     );

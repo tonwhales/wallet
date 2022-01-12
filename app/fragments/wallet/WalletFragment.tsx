@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { t } from 'i18next';
 import { formatDate } from '../../utils/formatDate';
 import { BlurView } from 'expo-blur';
-import { showModal } from 'react-native-fast-modal';
+import { showModal } from '../../components/FastModal/showModal';
 
 function padLt(src: string) {
     let res = src;

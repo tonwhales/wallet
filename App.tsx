@@ -23,7 +23,7 @@ import AppLoading from 'expo-app-loading';
 import { boot } from './app/boot';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ModalProvider } from 'react-native-fast-modal';
+import { ModalProvider } from './app/components/FastModal/ModalProvider';
 
 function Boot() {
   const [ready, setReady] = React.useState(false);

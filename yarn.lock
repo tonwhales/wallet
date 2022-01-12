@@ -2245,10 +2245,10 @@
   resolved "https://registry.yarnpkg.com/@types/url-parse/-/url-parse-1.4.6.tgz#46b044f24ee5200c3b1ef6a98214d1d451f4dab8"
   integrity sha512-Xo6pU78oG9NNk5UJaumUXzrwu9hPiVN2N83mcdXQ1C3/R037fMPlVCh+LqP/2BELXMnlQH0sKec0u33ZnktqHQ==
 
-"@types/uuid@^8.3.3":
-  version "8.3.3"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.3.tgz#c6a60686d953dbd1b1d45e66f4ecdbd5d471b4d0"
-  integrity sha512-0LbEEx1zxrYB3pgpd1M5lEhLcXjKJnYghvhTRgaBeUivLHMDM1TzF3IJ6hXU2+8uA4Xz+5BA63mtZo5DjVT8iA==
+"@types/uuid@^8.3.4":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
+  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
 
 "@types/yargs-parser@*":
   version "20.2.1"
@@ -6731,13 +6731,6 @@ react-native-fast-animations@^0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/react-native-fast-animations/-/react-native-fast-animations-0.0.4.tgz#b02ab18ebdb338cb1f5934b533d087ece9c5ca5a"
   integrity sha512-mh0BgE9KK9T/Seci5Nj71iR7jPvMFw7nu3xJHbsH1RSVUeshD20vdUziIwX1qeeAi19X5E7d7T+J2HKNYtGXPQ==
-  dependencies:
-    uuid "^3.4.0"
-
-react-native-fast-modal@^0.0.13:
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/react-native-fast-modal/-/react-native-fast-modal-0.0.13.tgz#9501da75a65d6760887e1967779d1e51e5cf2bca"
-  integrity sha512-ayFTCfqQ3EQ1SDGaXpe3mdvtY5lmSBzG7vMcV62CEfYvp7tH2brZvtF1lHnHnKVw8iMPzY2nieL2xsDsx+7dlw==
   dependencies:
     uuid "^3.4.0"
 

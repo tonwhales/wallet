@@ -1,10 +1,11 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { Address, fromNano, parseMessage, RawTransaction } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/formatTime';
+import FastImage from 'react-native-fast-image';
 
 export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawTransaction) => void }) {
     const tx = props.tx;
@@ -53,7 +54,15 @@ export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawT
 
     return (
         <Pressable style={(s) => ({ alignSelf: 'stretch', flexDirection: 'row', height: 66, backgroundColor: s.pressed ? Theme.divider : 'white' })} onPress={() => props.onPress(props.tx)}>
-            <View style={{ width: 44, height: 44, backgroundColor: '#303757', borderRadius: 22, marginVertical: 11, marginLeft: 16, marginRight: 16 }} />
+            <View style={{ width: 44, height: 44, borderRadius: 22, marginVertical: 11, marginLeft: 16, marginRight: 16 }}>
+                <Image
+                    source={{
+                        uri: 'https://source.boringavatars.com/marble/120/Maria%20Mitchell?colors=264653,2a9d8f,e9c46a,f4a261,e76f51'
+                    }}
+                    style={{ width: 44, height: 44, backgroundColor: '#303757', borderRadius: 22 }}
+                    resizeMode="cover"
+                />
+            </View>
             <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 11, marginRight: 14 }}>
                     <Text style={{ color: Theme.textColor, fontSize: 17, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{address ? address.toFriendly() : '<no address>'}</Text>

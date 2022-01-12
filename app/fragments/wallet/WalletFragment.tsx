@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { t } from 'i18next';
 import { formatDate } from '../../utils/formatDate';
 import { BlurView } from 'expo-blur';
+import { showModal } from 'react-native-fast-modal';
 
 function padLt(src: string) {
     let res = src;
@@ -28,6 +29,21 @@ function padLt(src: string) {
         res = '0' + res;
     }
     return res;
+}
+
+const modalConfig = {
+    containerStyle: {
+        margin: 0,
+        marginBottom: 0,
+        padding: 0,
+        borderBottomEndRadius: Platform.OS === 'android' ? 0 : undefined,
+        borderBottomStartRadius: Platform.OS === 'android' ? 0 : undefined,
+    },
+    backgroundStyle: {
+        marginBottom: 0,
+        padding: 0,
+        paddingBottom: 0,
+    }
 }
 
 export const WalletFragment = fragment(() => {
@@ -103,14 +119,38 @@ export const WalletFragment = fragment(() => {
 
     const scrollViewRef = React.useRef<ScrollView>(null);
 
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         scrollViewRef?.current?.scrollTo({ y: -(safeArea.top) });
         return () => {
         };
     }, [scrollViewRef]);
 
+    const openReceiveModal = React.useCallback(
+        () => {
+            showModal(({ hide }) => {
+                return (
+                    <WalletReceiveComponent />
+                );
+            }, modalConfig);
+        },
+        [modalConfig],
+    );
+
+    const openTransactionModal = React.useCallback(
+        (transaction: RawTransaction | null) => {
+            if (transaction) {
+                showModal(({ hide }) => {
+                    return (
+                        <TransactionPreview tx={transaction} />
+                    );
+                }, modalConfig);
+            }
+        },
+        [modalConfig],
+    );
+
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}>
             <ScrollView
                 ref={scrollViewRef}
                 contentContainerStyle={{
@@ -119,6 +159,7 @@ export const WalletFragment = fragment(() => {
                         ? safeArea.top + 44
                         : undefined,
                 }}
+                contentInset={{ top: safeArea.top }}
                 scrollToOverflowEnabled={true}
                 overScrollMode={'always'}
             >
@@ -135,7 +176,8 @@ export const WalletFragment = fragment(() => {
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     <Pressable
                         style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: 'white', borderRadius: 14 }}
-                        onPress={() => receiveRef.current!.open()}
+                        // onPress={() => receiveRef.current!.open()}
+                        onPress={openReceiveModal}
                     >
                         <Text style={{ fontSize: 18, color: '#1C8FE3' }}>{t("Receive")}</Text>
                     </Pressable>
@@ -162,7 +204,8 @@ export const WalletFragment = fragment(() => {
                                 title={t("Receive TONCOIN")}
                                 size="normal"
                                 display="outline"
-                                onPress={() => receiveRef.current!.open()}
+                                onPress={openReceiveModal}
+                            // onPress={() => receiveRef.current!.open()}
                             />
                         </View>
                     )
@@ -174,7 +217,7 @@ export const WalletFragment = fragment(() => {
                                 <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
                             </View>,
                             <View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false}>
-                                {s.items.map((t) => <TransactionView tx={t} key={'tx-' + t.lt.toString()} onPress={setModal} />)}
+                                {s.items.map((t) => <TransactionView tx={t} key={'tx-' + t.lt.toString()} onPress={openTransactionModal} />)}
                             </View>
                         ]
                     ))
@@ -186,28 +229,28 @@ export const WalletFragment = fragment(() => {
                 { alignSelf: 'stretch', backgroundColor: 'black', alignItems: 'center', justifyContent: 'center', paddingTop: 1000 + safeArea.top, marginTop: -1000, paddingBottom: 16, position: 'absolute', top: 0, left: 0, right: 0, height: 300 + 1000 + safeArea.top },
                 containerStyle
             ]}>
-                <View style={{ flexGrow: 1 }} />
-
-                <Animated.View style={[{ flexDirection: 'row', marginTop: 72, marginHorizontal: 8 }, buttonsContainerStyle]}>
-                    <RoundButton title={t("Send")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => navigation.navigate('Transfer')} />
-                    <RoundButton title={t("Receive")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => receiveRef.current!.open()} />
-                </Animated.View>
+            <View style={{ flexGrow: 1 }} />
+            
+            <Animated.View style={[{ flexDirection: 'row', marginTop: 72, marginHorizontal: 8 }, buttonsContainerStyle]}>
+            <RoundButton title={t("Send")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => navigation.navigate('Transfer')} />
+            <RoundButton title={t("Receive")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => receiveRef.current!.open()} />
             </Animated.View>
-
+            </Animated.View>
+            
             <Animated.View style={[{ position: 'absolute', top: safeArea.top, left: 0, right: 0, marginBottom: 24, height: 44, alignItems: 'center', justifyContent: 'center' }, buttonsContainerStyle]}>
-                <Text style={{ color: 'white', opacity: 0.6 }}>
-                    {Date.now() - account.storedAt > 10000 ? t('Updating...') : t('Up to date')}
-                </Text>
+            <Text style={{ color: 'white', opacity: 0.6 }}>
+            {Date.now() - account.storedAt > 10000 ? t('Updating...') : t('Up to date')}
+            </Text>
             </Animated.View>
-
+            
             <Animated.View style={[{ position: 'absolute', alignItems: 'center', paddingTop: safeArea.top, left: 0, right: 0, top: 0 }, balanceTransform]}>
-                <Animated.Text style={[{ fontSize: 45, fontWeight: '500', color: 'white' }, balanceFont]}>
-                    💎 <ValueComponent value={account.balance} centFontSize={20} />
-                </Animated.Text>
-                <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>
-                    {t('Your balance')}
-                </Text>
-            </Animated.View> */}
+            <Animated.Text style={[{ fontSize: 45, fontWeight: '500', color: 'white' }, balanceFont]}>
+            💎 <ValueComponent value={account.balance} centFontSize={20} />
+            </Animated.Text>
+            <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>
+            {t('Your balance')}
+            </Text>
+        </Animated.View> */}
 
             {Platform.OS === 'android' && (
                 <View style={{
@@ -258,7 +301,6 @@ export const WalletFragment = fragment(() => {
                     </Portal>
                 )
             }
-
         </View >
     );
 });

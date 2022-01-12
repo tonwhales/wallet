@@ -1,10 +1,11 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { Address, fromNano, parseMessage, RawTransaction } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/formatTime';
+const Avatar = require('react-native-boring-avatars').default;
 
 export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawTransaction) => void }) {
     const tx = props.tx;
@@ -53,7 +54,15 @@ export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawT
 
     return (
         <Pressable style={(s) => ({ alignSelf: 'stretch', flexDirection: 'row', height: 66, backgroundColor: s.pressed ? Theme.divider : 'white' })} onPress={() => props.onPress(props.tx)}>
-            <View style={{ width: 44, height: 44, backgroundColor: '#303757', borderRadius: 22, marginVertical: 11, marginLeft: 16, marginRight: 16 }} />
+            <View style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 0, marginVertical: 11, marginLeft: 16, marginRight: 16 }}>
+                <Avatar
+                    size={44}
+                    name={address ? address.toFriendly() : '<no address>'}
+                    variant="ring"
+                    colors={['#000000', '#1693A5', '#D8D8C0', '#F0F0D8', '#FFFFFF']}
+                />
+
+            </View>
             <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 11, marginRight: 14 }}>
                     <Text style={{ color: Theme.textColor, fontSize: 17, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{address ? address.toFriendly() : '<no address>'}</Text>

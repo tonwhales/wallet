@@ -24,6 +24,7 @@ target 'WhalesApp' do
 
   post_install do |installer|
     react_native_post_install(installer)
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
     # Workaround `Cycle inside FBReactNativeSpec` error for react-native 0.64
     # Reference: https://github.com/software-mansion/react-native-screens/issues/842#issuecomment-812543933
@@ -43,5 +44,4 @@ target 'WhalesApp' do
   # post_integrate do |installer|
   #   expo_patch_react_imports!(installer)
   # end
-
 end

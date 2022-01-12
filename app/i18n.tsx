@@ -3,6 +3,8 @@ import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'react-native-localize';
 
 import translationRU from './../assets/translations/ru.json';
+import translationKO from './../assets/translations/ko.json';
+import translationZH from './../assets/translations/zh.json';
 // import translationDE from './assets/translations/de.json';
 // import translationES from './assets/translations/es.json';
 // import translationFR from './assets/translations/fr.json';
@@ -12,6 +14,12 @@ const resources = {
   ru: {
     translation: translationRU
   },
+  ko: {
+    translation: translationKO
+  },
+  zh: {
+    translation: translationZH
+  }
   // de: {
   //   translation: translationDE
   // },

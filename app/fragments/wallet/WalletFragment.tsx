@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { Cell, parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState, storage } from '../../utils/storage';
@@ -20,6 +20,7 @@ import { format, formatDistance, formatDistanceStrict, isThisYear, isToday, isYe
 import { useTranslation } from "react-i18next";
 import { t } from 'i18next';
 import { formatDate } from '../../utils/formatDate';
+import { BlurView } from 'expo-blur';
 
 function padLt(src: string) {
     let res = src;
@@ -100,26 +101,28 @@ export const WalletFragment = fragment(() => {
     //     </View>
     // )}
 
+    const scrollViewRef = React.useRef<ScrollView>(null);
+
+    React.useLayoutEffect(() => {
+        scrollViewRef?.current?.scrollTo({ y: -(safeArea.top) });
+        return () => {
+        };
+    }, [scrollViewRef]);
 
     return (
         <View style={{ flexGrow: 1 }}>
             <ScrollView
+                ref={scrollViewRef}
                 contentContainerStyle={{
-                    marginTop: safeArea.top + 44
+                    flexGrow: 1,
+                    paddingTop: Platform.OS === 'android'
+                        ? safeArea.top + 44
+                        : undefined,
                 }}
                 scrollToOverflowEnabled={true}
                 overScrollMode={'always'}
             >
-                {/* 
-                <Animated.ScrollView
-                    style={{ flexGrow: 1 }}
-                    contentInset={{ top: safeArea.top + 44 }}
-                    contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}
-                    scrollEventThrottle={1}
-                    snapToStart={true}
-                    stickyHeaderIndices={transactionsSectioned.map((v, i) => i * 2 + 2)}
-                > 
-                */}
+                {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
                 <View style={{ marginHorizontal: 16, marginVertical: 16, height: 196, backgroundColor: '#303757', borderRadius: 14 }} collapsable={false}>
                     <Text style={{ fontSize: 14, color: 'white', opacity: 0.6, marginTop: 22, marginLeft: 22 }}>{t('Wallet balance')}</Text>
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800' }}><ValueComponent value={account.balance} centFontSize={22} /></Text>
@@ -177,7 +180,6 @@ export const WalletFragment = fragment(() => {
                     ))
                 }
                 {transactionsSectioned.length > 0 && <View style={{ height: 56 }} />}
-                {/* </Animated.ScrollView > */}
             </ScrollView>
 
             {/* <Animated.View style={[
@@ -207,19 +209,39 @@ export const WalletFragment = fragment(() => {
                 </Text>
             </Animated.View> */}
 
-            < View style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: safeArea.top + 44,
-                backgroundColor: Theme.background,
-                paddingTop: safeArea.top,
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{ fontSize: 22, color: Theme.textColor }}>Tonhub</Text>
-            </View >
+            {Platform.OS === 'android' && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: safeArea.top + 44,
+                    backgroundColor: Theme.background,
+                    paddingTop: safeArea.top,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
+                >
+                    <Text style={{ fontSize: 22, color: Theme.textColor }}>Tonhub</Text>
+                </View>
+            )}
+            {Platform.OS === 'ios' && (
+                <BlurView style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: safeArea.top + 44,
+                    // backgroundColor: Theme.background,
+                    paddingTop: safeArea.top,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
+                    intensity={100}
+                >
+                    <Text style={{ fontSize: 22, color: Theme.textColor }}>Tonhub</Text>
+                </BlurView>
+            )}
 
             <Portal>
                 <Modalize ref={receiveRef} adjustToContentHeight={true} withHandle={false}>

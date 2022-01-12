@@ -5,7 +5,7 @@ import { Address, fromNano, parseMessage, RawTransaction } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/formatTime';
-import FastImage from 'react-native-fast-image';
+const Avatar = require('react-native-boring-avatars').default;
 
 export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawTransaction) => void }) {
     const tx = props.tx;
@@ -54,14 +54,14 @@ export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawT
 
     return (
         <Pressable style={(s) => ({ alignSelf: 'stretch', flexDirection: 'row', height: 66, backgroundColor: s.pressed ? Theme.divider : 'white' })} onPress={() => props.onPress(props.tx)}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, marginVertical: 11, marginLeft: 16, marginRight: 16 }}>
-                <Image
-                    source={{
-                        uri: 'https://source.boringavatars.com/marble/120/Maria%20Mitchell?colors=264653,2a9d8f,e9c46a,f4a261,e76f51'
-                    }}
-                    style={{ width: 44, height: 44, backgroundColor: '#303757', borderRadius: 22 }}
-                    resizeMode="cover"
+            <View style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 0, marginVertical: 11, marginLeft: 16, marginRight: 16 }}>
+                <Avatar
+                    size={44}
+                    name={address ? address.toFriendly() : '<no address>'}
+                    variant="ring"
+                    colors={['#000000', '#1693A5', '#D8D8C0', '#F0F0D8', '#FFFFFF']}
                 />
+
             </View>
             <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 11, marginRight: 14 }}>

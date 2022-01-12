@@ -68,7 +68,7 @@ export const TransferFragment = fragment(() => {
             seqno,
             walletId: contract.source.walletId,
             secretKey: walletKeys.keyPair.secretKey,
-            sendMode: SendMode.IGNORE_ERRORS,
+            sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
             order: new InternalMessage({
                 to: address,
                 value,

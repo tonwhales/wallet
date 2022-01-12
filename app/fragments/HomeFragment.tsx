@@ -23,7 +23,7 @@ export const HomeFragment = fragment(() => {
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
                 <SettingsFragment />
             </View>
-            <View style={{ paddingBottom: safeArea.bottom, height: 52 + safeArea.bottom, marginHorizontal: 16, backgroundColor: Theme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ paddingBottom: safeArea.bottom, height: 52 + safeArea.bottom, paddingHorizontal: 16, backgroundColor: Theme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                     <Ionicons name="wallet" size={24} color={tab === 0 ? Theme.accent : Theme.textSecondary} />
                     <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 0 ? Theme.accent : Theme.textSecondary }}>{t('Home')}</Text>

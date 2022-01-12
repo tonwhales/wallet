@@ -7,8 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { WalletFragment } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
 import { StatusBar } from 'expo-status-bar';
+import { useTranslation } from 'react-i18next';
 
 export const HomeFragment = fragment(() => {
+    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
     return (
@@ -24,11 +26,11 @@ export const HomeFragment = fragment(() => {
             <View style={{ paddingBottom: safeArea.bottom, height: 52 + safeArea.bottom, marginHorizontal: 16, backgroundColor: Theme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                     <Ionicons name="wallet" size={24} color={tab === 0 ? Theme.accent : Theme.textSecondary} />
-                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 0 ? Theme.accent : Theme.textSecondary }}>Home</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 0 ? Theme.accent : Theme.textSecondary }}>{t('Home')}</Text>
                 </Pressable>
                 <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                     <Ionicons name="cog" size={24} color={tab === 1 ? Theme.accent : Theme.textSecondary} />
-                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 1 ? Theme.accent : Theme.textSecondary }}>Settings</Text>
+                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 1 ? Theme.accent : Theme.textSecondary }}>{t('Settings')}</Text>
                 </Pressable>
             </View>
         </View>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Cell, parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState, storage } from '../../utils/storage';
@@ -103,14 +103,23 @@ export const WalletFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <Animated.ScrollView
-                style={{ flexGrow: 1 }}
-                contentInset={{ top: safeArea.top + 44 }}
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}
-                scrollEventThrottle={1}
-                snapToStart={true}
-                stickyHeaderIndices={transactionsSectioned.map((v, i) => i * 2 + 2)}
+            <ScrollView
+                contentContainerStyle={{
+                    marginTop: safeArea.top + 44
+                }}
+                scrollToOverflowEnabled={true}
+                overScrollMode={'always'}
             >
+                {/* 
+                <Animated.ScrollView
+                    style={{ flexGrow: 1 }}
+                    contentInset={{ top: safeArea.top + 44 }}
+                    contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}
+                    scrollEventThrottle={1}
+                    snapToStart={true}
+                    stickyHeaderIndices={transactionsSectioned.map((v, i) => i * 2 + 2)}
+                > 
+                */}
                 <View style={{ marginHorizontal: 16, marginVertical: 16, height: 196, backgroundColor: '#303757', borderRadius: 14 }} collapsable={false}>
                     <Text style={{ fontSize: 14, color: 'white', opacity: 0.6, marginTop: 22, marginLeft: 22 }}>{t('Wallet balance')}</Text>
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800' }}><ValueComponent value={account.balance} centFontSize={22} /></Text>
@@ -168,7 +177,8 @@ export const WalletFragment = fragment(() => {
                     ))
                 }
                 {transactionsSectioned.length > 0 && <View style={{ height: 56 }} />}
-            </Animated.ScrollView >
+                {/* </Animated.ScrollView > */}
+            </ScrollView>
 
             {/* <Animated.View style={[
                 { alignSelf: 'stretch', backgroundColor: 'black', alignItems: 'center', justifyContent: 'center', paddingTop: 1000 + safeArea.top, marginTop: -1000, paddingBottom: 16, position: 'absolute', top: 0, left: 0, right: 0, height: 300 + 1000 + safeArea.top },

@@ -25,7 +25,7 @@ export function WalletReceiveComponent() {
                         {/* <Text style={{ color: Theme.accent, fontWeight: '600', fontSize: 17 }}>Done</Text> */}
                     </View>
                 </View>
-                <Text style={{ fontSize: 16, color: Theme.textSecondary, marginVertical: 32 }}>
+                <Text style={{ fontSize: 16, color: Theme.textSecondary, marginVertical: 32, textAlign: 'center' }}>
                     {t("Share this link to receive Toncoin")}
                 </Text>
                 <QRCode

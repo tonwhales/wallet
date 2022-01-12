@@ -8,6 +8,8 @@ PODS:
     - ExpoModulesCore
     - ZXingObjC/OneD
     - ZXingObjC/PDF417
+  - EXBlur (11.0.0):
+    - ExpoModulesCore
   - EXConstants (13.0.0):
     - ExpoModulesCore
   - EXDevice (4.1.0):
@@ -415,6 +417,7 @@ DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXBarCodeScanner (from `../node_modules/expo-barcode-scanner/ios`)
+  - EXBlur (from `../node_modules/expo-blur/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXDevice (from `../node_modules/expo-device/ios`)
   - EXErrorRecovery (from `../node_modules/expo-error-recovery/ios`)
@@ -496,6 +499,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-application/ios"
   EXBarCodeScanner:
     :path: "../node_modules/expo-barcode-scanner/ios"
+  EXBlur:
+    :path: "../node_modules/expo-blur/ios"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
   EXDevice:
@@ -608,6 +613,7 @@ SPEC CHECKSUMS:
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
   EXApplication: bdc8dc27713235565da1029a34385229f31b8e08
   EXBarCodeScanner: 7deeeb35f396ce9a13434a75b581c19fc2564205
+  EXBlur: 82055865de17cf2cf797ff064c50fb59fcbe703f
   EXConstants: 5d18484e38e8eacef7695a82214b6ac90133dedf
   EXDevice: 7de98d8f97088fad9c01e9a68abad07e501208b2
   EXErrorRecovery: deea88a01d38f8b1c1181b4e1d179b0ba0e4bb5b
@@ -675,4 +681,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 315b1700c05191c8a1ac693cd7784f59cb78ed23
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.10.2

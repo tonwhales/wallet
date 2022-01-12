@@ -3703,6 +3703,11 @@ expo-barcode-scanner@~11.2.0:
     "@expo/config-plugins" "^4.0.2"
     expo-image-loader "~3.1.0"
 
+expo-blur@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-11.0.0.tgz#3542afed5c0037554657d98c31a5933dd78098dd"
+  integrity sha512-EmIYXFwaqvVDhV4JnG9+nENU7FGZkCcuYZhoOOHjnHyADCGNsT6LIVv9/Q/rO0+qWJJxlUG6bziPHC2wbWcC9A==
+
 expo-constants@~13.0.0:
   version "13.0.0"
   resolved "https://registry.yarnpkg.com/expo-constants/-/expo-constants-13.0.0.tgz#e167b0e4d064029e53a0bc89c8cffcb7cb8f2a0a"
@@ -6726,6 +6731,13 @@ react-native-fast-animations@^0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/react-native-fast-animations/-/react-native-fast-animations-0.0.4.tgz#b02ab18ebdb338cb1f5934b533d087ece9c5ca5a"
   integrity sha512-mh0BgE9KK9T/Seci5Nj71iR7jPvMFw7nu3xJHbsH1RSVUeshD20vdUziIwX1qeeAi19X5E7d7T+J2HKNYtGXPQ==
+  dependencies:
+    uuid "^3.4.0"
+
+react-native-fast-modal@^0.0.13:
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/react-native-fast-modal/-/react-native-fast-modal-0.0.13.tgz#9501da75a65d6760887e1967779d1e51e5cf2bca"
+  integrity sha512-ayFTCfqQ3EQ1SDGaXpe3mdvtY5lmSBzG7vMcV62CEfYvp7tH2brZvtF1lHnHnKVw8iMPzY2nieL2xsDsx+7dlw==
   dependencies:
     uuid "^3.4.0"
 

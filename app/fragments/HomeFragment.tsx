@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { fragment } from "../fragment";
 import { Theme } from '../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,19 +14,21 @@ export const HomeFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <View style={{ flexGrow: 1 }} />
-            <StatusBar style={tab === 0 ? 'light' : 'dark'} />
+            <StatusBar style={'dark'} />
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
                 <WalletFragment />
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
                 <SettingsFragment />
             </View>
-            <View style={{ paddingBottom: safeArea.bottom, height: 52 + safeArea.bottom, backgroundColor: Theme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <Pressable style={{ height: 52, width: 86, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                    <Ionicons name="wallet" size={32} color={tab === 0 ? Theme.accent : Theme.textSecondary} />
+            <View style={{ paddingBottom: safeArea.bottom, height: 52 + safeArea.bottom, marginHorizontal: 16, backgroundColor: Theme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
+                    <Ionicons name="wallet" size={24} color={tab === 0 ? Theme.accent : Theme.textSecondary} />
+                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 0 ? Theme.accent : Theme.textSecondary }}>Home</Text>
                 </Pressable>
-                <Pressable style={{ height: 52, width: 86, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                    <Ionicons name="cog" size={32} color={tab === 1 ? Theme.accent : Theme.textSecondary} />
+                <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
+                    <Ionicons name="cog" size={24} color={tab === 1 ? Theme.accent : Theme.textSecondary} />
+                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 1 ? Theme.accent : Theme.textSecondary }}>Settings</Text>
                 </Pressable>
             </View>
         </View>

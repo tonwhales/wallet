@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { Cell, parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState, storage } from '../../utils/storage';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import Animated, { acc, useAnimatedStyle } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { TransactionView } from '../../components/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,11 +14,12 @@ import { Modalize } from 'react-native-modalize';
 import { WalletReceiveComponent } from './WalletReceiveComponent';
 import { Portal } from 'react-native-portalize';
 import { ValueComponent } from '../../components/ValueComponent';
-import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { TransactionPreview } from './TransactionPreview';
 import { useAccount } from '../../sync/useAccount';
-import { format } from 'date-fns';
+import { format, formatDistance, formatDistanceStrict, isThisYear, isToday, isYesterday } from 'date-fns';
 import { useTranslation } from "react-i18next";
+import { t } from 'i18next';
+import { formatDate } from '../../utils/formatDate';
 
 function padLt(src: string) {
     let res = src;
@@ -47,14 +48,14 @@ export const WalletFragment = fragment(() => {
         if (transactions.length > 0) {
             let lastTime: number = Math.floor(transactions[0].time / (60 * 60 * 24)) * (60 * 60 * 24);
             let lastSection: RawTransaction[] = [];
-            let title = format(lastTime * 1000, 'MM/dd/yyyy');
+            let title = formatDate(lastTime);
             sections.push({ title, items: lastSection });
             for (let t of transactions) {
                 let time = Math.floor(t.time / (60 * 60 * 24)) * (60 * 60 * 24);
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
-                    title = format(lastTime * 1000, 'MM/dd/yyyy');
+                    title = formatDate(lastTime);
                     sections.push({ title, items: lastSection });
                 }
                 lastSection.push(t);
@@ -62,37 +63,6 @@ export const WalletFragment = fragment(() => {
         }
         return sections;
     }, [transactions]);
-
-    //
-    // Animations
-    //
-    const scrollOffset = useSharedValue(0);
-    const scrollHandler = useAnimatedScrollHandler({
-        onScroll: (event) => {
-            scrollOffset.value = event.contentOffset.y;
-        },
-    });
-    const containerStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ translateY: -Math.min(scrollOffset.value, 340 - safeArea.top - 44) }]
-        }
-    }, []);
-    const buttonsContainerStyle = useAnimatedStyle(() => {
-        return {
-            opacity: (160 - Math.min(Math.max(scrollOffset.value, 0), 160)) / 160
-        }
-    }, []);
-    const balanceTransform = useAnimatedStyle(() => {
-        return {
-            transform: [{ translateY: Math.max(0, -Math.min(scrollOffset.value, 300 - safeArea.top - 44) / 2 + 100) }]
-        }
-    }, []);
-    const balanceFont = useAnimatedStyle(() => {
-        const progress = Math.min(Math.max(0, -Math.min(scrollOffset.value, 300 - safeArea.top - 44) / 2 + 100), 100) / 100;
-        return {
-            fontSize: 45 * progress + (1 - progress) * 20
-        }
-    }, []);
 
     //
     // Modal
@@ -134,44 +104,73 @@ export const WalletFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <Animated.ScrollView
-                onScroll={scrollHandler}
                 style={{ flexGrow: 1 }}
+                contentInset={{ top: safeArea.top + 44 }}
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}
                 scrollEventThrottle={1}
+                snapToStart={true}
+                stickyHeaderIndices={transactionsSectioned.map((v, i) => i * 2 + 2)}
             >
-                <View style={{ height: 300 + safeArea.top }} />
-                <View style={{ backgroundColor: 'black' }} >
-                    <View style={{ flexDirection: 'column', height: 20, borderTopLeftRadius: 10, borderTopRightRadius: 10, backgroundColor: 'white' }} />
+                <View style={{ marginHorizontal: 16, marginVertical: 16, height: 196, backgroundColor: '#303757', borderRadius: 14 }} collapsable={false}>
+                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.6, marginTop: 22, marginLeft: 22 }}>{t('Wallet balance')}</Text>
+                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800' }}><ValueComponent value={account.balance} centFontSize={22} /></Text>
+                    <View style={{ flexGrow: 1 }}>
+
+                    </View>
+                    <Text style={{ color: 'white', marginLeft: 22, marginBottom: 22, marginRight: 86, fontWeight: '600' }} numberOfLines={1} ellipsizeMode="middle">{address.toFriendly()}</Text>
                 </View>
 
-                {transactionsSectioned.length === 0 && (
-                    <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
-                        <LottieView
-                            source={require('../../../assets/animations/chicken.json')}
-                            autoPlay={true}
-                            loop={false}
-                            progress={0.2}
-                            style={{ width: 200, height: 200, marginBottom: 16 }}
-                        />
-                        {/* <Text style={{ fontSize: 18, marginBottom: 16 }}>Wallet Created</Text> */}
-                        <RoundButton
-                            title={t("Receive TONCOIN")}
-                            size="normal"
-                            display="outline"
-                            onPress={() => receiveRef.current!.open()}
-                        />
-                    </View>
-                )}
-                {transactionsSectioned.length > 0 && transactionsSectioned.map((s, i) => (
-                    <View key={'s-' + i}>
-                        <Text style={{ fontSize: 16, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
-                        {s.items.map((t, i2) => <TransactionView tx={t} key={'tx-' + i2} onPress={setModal} />)}
-                    </View>
-                ))}
-            </Animated.ScrollView>
+                <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
+                    <Pressable
+                        style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: 'white', borderRadius: 14 }}
+                        onPress={() => receiveRef.current!.open()}
+                    >
+                        <Text style={{ fontSize: 18, color: '#1C8FE3' }}>{t("Receive")}</Text>
+                    </Pressable>
+                    <Pressable
+                        style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: 'white', borderRadius: 14 }}
+                        onPress={() => navigation.navigate('Transfer')}
+                    >
+                        <Text style={{ fontSize: 18, color: '#1C8FE3' }}>{t("Send")}</Text>
+                    </Pressable>
+                </View>
 
-            {/* Basic */}
-            <Animated.View style={[
+                {
+                    transactionsSectioned.length === 0 && (
+                        <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
+                            <LottieView
+                                source={require('../../../assets/animations/chicken.json')}
+                                autoPlay={true}
+                                loop={false}
+                                progress={0.2}
+                                style={{ width: 200, height: 200, marginBottom: 16 }}
+                            />
+                            {/* <Text style={{ fontSize: 18, marginBottom: 16 }}>Wallet Created</Text> */}
+                            <RoundButton
+                                title={t("Receive TONCOIN")}
+                                size="normal"
+                                display="outline"
+                                onPress={() => receiveRef.current!.open()}
+                            />
+                        </View>
+                    )
+                }
+                {
+                    transactionsSectioned.length > 0 && transactionsSectioned.map((s, i) => (
+                        [
+                            <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                                <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
+                            </View>,
+                            <View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false}>
+                                {s.items.map((t) => <TransactionView tx={t} key={'tx-' + t.lt.toString()} onPress={setModal} />)}
+                            </View>
+                        ]
+                    ))
+                }
+                {transactionsSectioned.length > 0 && <View style={{ height: 56 }} />}
+            </Animated.ScrollView >
+
+            {/* <Animated.View style={[
                 { alignSelf: 'stretch', backgroundColor: 'black', alignItems: 'center', justifyContent: 'center', paddingTop: 1000 + safeArea.top, marginTop: -1000, paddingBottom: 16, position: 'absolute', top: 0, left: 0, right: 0, height: 300 + 1000 + safeArea.top },
                 containerStyle
             ]}>
@@ -183,14 +182,12 @@ export const WalletFragment = fragment(() => {
                 </Animated.View>
             </Animated.View>
 
-            {/* Sync state */}
             <Animated.View style={[{ position: 'absolute', top: safeArea.top, left: 0, right: 0, marginBottom: 24, height: 44, alignItems: 'center', justifyContent: 'center' }, buttonsContainerStyle]}>
                 <Text style={{ color: 'white', opacity: 0.6 }}>
                     {Date.now() - account.storedAt > 10000 ? t('Updating...') : t('Up to date')}
                 </Text>
             </Animated.View>
 
-            {/* Balance */}
             <Animated.View style={[{ position: 'absolute', alignItems: 'center', paddingTop: safeArea.top, left: 0, right: 0, top: 0 }, balanceTransform]}>
                 <Animated.Text style={[{ fontSize: 45, fontWeight: '500', color: 'white' }, balanceFont]}>
                     💎 <ValueComponent value={account.balance} centFontSize={20} />
@@ -198,21 +195,38 @@ export const WalletFragment = fragment(() => {
                 <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>
                     {t('Your balance')}
                 </Text>
-            </Animated.View>
+            </Animated.View> */}
+
+            < View style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: safeArea.top + 44,
+                backgroundColor: Theme.background,
+                paddingTop: safeArea.top,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{ fontSize: 22, color: Theme.textColor }}>Tonhub</Text>
+            </View >
+
             <Portal>
                 <Modalize ref={receiveRef} adjustToContentHeight={true} withHandle={false}>
                     <WalletReceiveComponent />
                 </Modalize>
             </Portal>
 
-            {modal && (
-                <Portal>
-                    <Modalize ref={txRef} adjustToContentHeight={true} onClosed={() => setModal(null)} withHandle={false}>
-                        <TransactionPreview tx={modal} />
-                    </Modalize>
-                </Portal>
-            )}
+            {
+                modal && (
+                    <Portal>
+                        <Modalize ref={txRef} adjustToContentHeight={true} onClosed={() => setModal(null)} withHandle={false}>
+                            <TransactionPreview tx={modal} />
+                        </Modalize>
+                    </Portal>
+                )
+            }
 
-        </View>
+        </View >
     );
 });

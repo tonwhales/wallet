@@ -29,5 +29,7 @@
     "Write down these 24 words in the correct order and store them in a secret place.": " 이 24개의 단어를 올바른 순서로 적어서 비밀 장소에 보관하십시오.",
     "Use these secret words to restore access to your wallet if you lose your passcode or device.": " 암호나 장치를 분실한 경우 이 비밀 단어를 사용하여 지갑에 대한 액세스를 복원하십시오.",
     "Done": " 완료",
-    "Home": "홈페이지"
+    "Home": "홈페이지",
+    "Create my wallet":"내 지갑 만들기",
+    "Import existing wallet": "기존 지갑 가져오기"
   }

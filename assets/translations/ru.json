@@ -29,5 +29,7 @@
     "Write down these 24 words in the correct order and store them in a secret place.": "Запишите эти 24 слова в правильном порядке и сохраните их в секретном месте.",
     "Use these secret words to restore access to your wallet if you lose your passcode or device.": "Используйте эти секретные слова, чтобы восстановить доступ к вашему кошельку, если вы потеряете пароль или устройство.",
     "Done": "Готово",
-    "Home": "Главная"
+    "Home": "Главная",
+    "Create my wallet":"Создать мой кошелёк",
+    "Import existing wallet": "Импортировать существующий"
 }

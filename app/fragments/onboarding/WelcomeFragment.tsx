@@ -7,8 +7,10 @@ import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { Theme } from '../../Theme';
 import LottieView from 'lottie-react-native';
+import { useTranslation } from 'react-i18next';
 
 export const WelcomeFragment = fragment(() => {
+    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ref = React.useRef<LottieView>(null);
@@ -37,8 +39,8 @@ export const WelcomeFragment = fragment(() => {
             </View>
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 128, marginHorizontal: 64, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title="Create my wallet" onPress={() => navigation.navigate('LegalCreate')} />
-                <RoundButton title="Import existing wallet" onPress={() => navigation.navigate('LegalImport')} display="inverted" size="normal" style={{ marginTop: 16 }} />
+                <RoundButton title={t("Create my wallet")} onPress={() => navigation.navigate('LegalCreate')} />
+                <RoundButton title={t("Import existing wallet")} onPress={() => navigation.navigate('LegalImport')} display="inverted" size="normal" style={{ marginTop: 16 }} />
             </View>
         </View>
     );

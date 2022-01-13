@@ -20,6 +20,8 @@ import { formatDate } from '../../utils/formatDate';
 import { BlurView } from 'expo-blur';
 import { showModal } from '../../components/FastModal/showModal';
 import { AddressComponent } from '../../components/AddressComponent';
+import { registerForPushNotificationsAsync, registerPushToken } from '../../utils/registerPushNotifications';
+import { backoff } from '../../utils/time';
 
 function padLt(src: string) {
     let res = src;
@@ -137,6 +139,16 @@ export const WalletFragment = fragment(() => {
     );
 
     const window = useWindowDimensions();
+
+    // Register token
+    React.useEffect(() => {
+        (async () => {
+            const token = await backoff(() => registerForPushNotificationsAsync());
+            if (token) {
+                await backoff(() => registerPushToken(token, address));
+            }
+        })();
+    }, []);
 
     //
     // Loading

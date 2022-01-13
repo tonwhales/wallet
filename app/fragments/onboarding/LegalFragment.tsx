@@ -11,7 +11,7 @@ export const LegalFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const route = useRoute();
     return (
-        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'stretch' }}>
+        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'stretch', backgroundColor: 'white' }}>
             <Text style={{ marginHorizontal: 16, marginTop: 16, fontSize: 24 }}>
                 Legal
             </Text>

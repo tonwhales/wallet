@@ -35,7 +35,7 @@ export const WalletCreateFragment = fragment(() => {
         <>
             {!state && (
                 <Animated.View
-                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
+                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: 'white' }}
                     key="loading"
                     exiting={FadeOutDown}
                 >
@@ -45,7 +45,7 @@ export const WalletCreateFragment = fragment(() => {
             )}
             {state && (
                 <Animated.View
-                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
+                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: 'white' }}
                     key="content"
                     entering={FadeIn}
                 >

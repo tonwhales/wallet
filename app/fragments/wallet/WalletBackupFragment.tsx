@@ -62,7 +62,7 @@ export const WalletBackupFragment = fragment(() => {
 
     return (
         <Animated.View
-            style={{ alignItems: 'center', justifyContent: 'flex-start', flexGrow: 1 }}
+            style={{ alignItems: 'center', justifyContent: 'flex-start', flexGrow: 1, backgroundColor: 'white' }}
             exiting={FadeIn}
             key={"content"}
         >

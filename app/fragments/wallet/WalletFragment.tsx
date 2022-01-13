@@ -93,17 +93,6 @@ export const WalletFragment = fragment(() => {
         }
     }, [modal]);
 
-    //
-    // Loading
-    //
-
-    if (!account) {
-        return (
-            <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <ActivityIndicator color={Theme.loader} />
-            </View>
-        )
-    }
 
     //
     // Content
@@ -148,6 +137,18 @@ export const WalletFragment = fragment(() => {
     );
 
     const window = useWindowDimensions();
+
+    //
+    // Loading
+    //
+
+    if (!account) {
+        return (
+            <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator color={Theme.loader} />
+            </View>
+        )
+    }
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}>

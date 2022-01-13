@@ -53,7 +53,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
     }, []);
 
     return (
-        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'stretch' }}>
+        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'stretch', backgroundColor: 'white' }}>
             <LottieView
                 source={require('../../../assets/animations/lock.json')}
                 autoPlay={true}

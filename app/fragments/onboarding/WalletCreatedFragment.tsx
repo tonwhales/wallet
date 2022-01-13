@@ -10,7 +10,7 @@ export const WalletCreatedFragment = fragment(() => {
     const navigation = useTypedNavigation();
 
     return (
-        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center' }}>
+        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: 'white' }}>
             <View style={{ flexGrow: 1 }} />
             <LottieView
                 source={require('../../../assets/animations/folders.json')}

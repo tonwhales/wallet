@@ -12,10 +12,12 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import LottieView from 'lottie-react-native';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
+import { useTranslation } from 'react-i18next';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption }) => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const { t } = useTranslation();
 
     // Action
     const [loading, setLoading] = React.useState(false);
@@ -45,7 +47,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 navigation.navigateAndReplaceAll('WalletCreated');
             } catch (e) {
                 console.warn(e);
-                Alert.alert('Secure storage error', 'Unfortunatelly we are unable to save data. Please, restart your phone.');
+                Alert.alert(t('Secure storage error'), t('Unfortunatelly we are unable to save data. Please, restart your phone.'));
             } finally {
                 setLoading(false);
             }
@@ -62,22 +64,22 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
             />
             {props.deviceEncryption === 'none' && (
                 <Text style={{ marginHorizontal: 16, fontSize: 24 }}>
-                    Your device is not protected
+                    {t('Your device is not protected')}
                 </Text>
             )}
             {props.deviceEncryption !== 'none' && (
                 <Text style={{ marginHorizontal: 16, fontSize: 24 }}>
-                    Protect your wallet
+                    {t('Protect your wallet')}
                 </Text>
             )}
             {props.deviceEncryption === 'none' && (
                 <Text style={{ marginHorizontal: 16, marginTop: 8, fontSize: 18 }}>
-                    It is highly recommend to enable passcode on your device to protect your assets.
+                    {t('It is highly recommend to enable passcode on your device to protect your assets.')}
                 </Text>
             )}
             {props.deviceEncryption !== 'none' && (
                 <Text style={{ marginHorizontal: 16, marginTop: 8, fontSize: 18 }}>
-                    Add an extra layer of security to keep your crypto safe.
+                    {t('Add an extra layer of security to keep your crypto safe.')}
                 </Text>
             )}
             <View style={{ flexGrow: 1 }} />
@@ -107,8 +109,8 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                             <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
                                 {
                                     Platform.OS === 'ios'
-                                        ? 'Protect with Face ID'
-                                        : 'Protect with biometrics'
+                                        ? t('Protect with Face ID')
+                                        : t('Protect with biometrics')
                                 }
                             </Text>
                         </>
@@ -125,8 +127,8 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                             <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
                                 {
                                     Platform.OS === 'ios'
-                                        ? 'Protect with Touch ID'
-                                        : 'Protect with biometrics'
+                                        ? t('Protect with Touch ID')
+                                        : t('Protect with biometrics')
                                 }
                             </Text>
                         </>
@@ -137,7 +139,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                                 <Ionicons name="keypad" size={32} color="black" />
                             </View>
                             <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                Protect with Passcode
+                                {t('Protect with Passcode')}
                             </Text>
                         </>
                     )}
@@ -147,7 +149,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                                 <Ionicons name="lock-open-outline" size={32} color="black" />
                             </View>
                             <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                Continue anyway
+                                {t('Continue anyway')}
                             </Text>
                         </>
                     )}

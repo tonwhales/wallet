@@ -32,7 +32,18 @@
   "Use these secret words to restore access to your wallet if you lose your passcode or device.": "如果你丢失了你的密码或设备，请使用这些密语来恢复对你的钱包的访问。",
   "Done": "完成",
   "Home": "主页",
-  "Create my wallet":"創建我的錢包",
+  "Create my wallet": "創建我的錢包",
   "Import existing wallet": "導入現有錢包",
-  "Wallet": "錢包"
+  "Wallet": "錢包",
+  "Secure storage error": "安全存儲錯誤",
+  "Unfortunatelly we are unable to save data. Please, restart your phone.": "很遺憾，我們無法保存數據。 請重啟你的手機。",
+  "Your device is not protected": "您的設備不受保護",
+  "Protect your wallet": "保護你的錢包",
+  "It is highly recommend to enable passcode on your device to protect your assets.": "強烈建議在您的設備上啟用密碼以保護您的資產。",
+  "Add an extra layer of security to keep your crypto safe.": "添加額外的安全層以確保您的加密貨幣安全。",
+  "Protect with Face ID": "使用面容 ID 進行保護",
+  "Protect with biometrics": "使用生物識別技術進行保護",
+  "Protect with Touch ID": "使用 Touch ID 進行保護",
+  "Protect with Passcode": "使用密碼保護",
+  "Continue anyway": "還是繼續"
 }

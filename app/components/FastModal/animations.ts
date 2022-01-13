@@ -11,7 +11,7 @@ export const animations = {
         }
     },
     defaultModalHideAnimation: (contentHeight: number, views: { background: string, container: string }) => {
-        SAnimated.timing(views.background, { property: 'opacity', from: 1, to: 0, duration: 0.05 });
-        SAnimated.timing(views.container, { property: 'translateY', easing: { bezier: [0.23, 1, 0.32, 1] }, from: 0, to: contentHeight, duration: 0.35 });
+        SAnimated.timing(views.background, { property: 'opacity', from: 1, to: 0, duration: 0.1 });
+        SAnimated.timing(views.container, { property: 'translateY', easing: { bezier: [0.23, 1, 0.32, 1] }, from: 0, to: contentHeight, duration: 0.1 });
     }
 };

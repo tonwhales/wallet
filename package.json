@@ -6,7 +6,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "pods": "cd ios && pod install --repo-update",
+    "pods": "cd ios && arch -x86_64 pod install --repo-update",
     "eject": "expo eject",
     "postinstall": "patch-package"
   },

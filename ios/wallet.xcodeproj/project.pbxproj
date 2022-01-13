@@ -176,7 +176,7 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = 4U94RALTCW;
+						DevelopmentTeam = ZLY9DP39MF;
 						LastSwiftMigration = 1250;
 					};
 				};
@@ -331,7 +331,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 22;
-				DEVELOPMENT_TEAM = 4U94RALTCW;
+				DEVELOPMENT_TEAM = ZLY9DP39MF;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -364,7 +364,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 22;
-				DEVELOPMENT_TEAM = 4U94RALTCW;
+				DEVELOPMENT_TEAM = ZLY9DP39MF;
 				INFOPLIST_FILE = wallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

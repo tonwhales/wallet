@@ -1,7 +1,9 @@
 {
     "Your balance": "Ваш баланс",
     "Send": "Отправить",
+    "send": "отправить",
     "Receive": "Получить",
+    "receive": "получить",
     "Updating...": "Обновляем...",
     "Up to date": "Обновлено",
     "Receive Toncoin": "Получить Toncoin",
@@ -31,5 +33,6 @@
     "Done": "Готово",
     "Home": "Главная",
     "Create my wallet":"Создать мой кошелёк",
-    "Import existing wallet": "Импортировать существующий"
+    "Import existing wallet": "Импортировать существующий",
+    "Wallet": "Кошелёк"
 }

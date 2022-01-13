@@ -1,7 +1,9 @@
 {
   "Your balance": "您的余额",
   "Send": "发送",
+  "send": "发送",
   "Receive": "接收",
+  "receive": "接收",
   "Updating...": "更新...",
   "Up to date": "最新情况",
   "Receive Toncoin": "接收通币",
@@ -31,5 +33,6 @@
   "Done": "完成",
   "Home": "主页",
   "Create my wallet":"創建我的錢包",
-  "Import existing wallet": "導入現有錢包"
+  "Import existing wallet": "導入現有錢包",
+  "Wallet": "錢包"
 }

@@ -1,7 +1,9 @@
 {
     "Your balance": "잔액",
     "Send": " 보내다",
+    "send": " 보내다",
     "Receive": " 받다",
+    "receive": " 받다",
     "Updating...": " 업데이트 중...",
     "Up to date": " 최신 정보",
     "Receive Toncoin": " 톤코인 받기",
@@ -31,5 +33,6 @@
     "Done": " 완료",
     "Home": "홈페이지",
     "Create my wallet":"내 지갑 만들기",
-    "Import existing wallet": "기존 지갑 가져오기"
+    "Import existing wallet": "기존 지갑 가져오기",
+    "Wallet": "지갑"
   }

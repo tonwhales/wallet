@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, CommentMessage, CommonMessageInfo, EmptyMessage, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { client } from '../../client';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { ModalHeader } from '../../components/ModalHeader';
 import { RoundButton } from '../../components/RoundButton';
@@ -98,7 +99,7 @@ export const TransferFragment = fragment(() => {
         <>
             <StatusBar style="dark" />
             <View style={{ marginTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16 }}>
-
+                <AndroidToolbar />
                 <Text style={labelStyle}>{t("From account")}</Text>
                 <View style={{ marginBottom: 16, marginHorizontal: 16 }}>
                     <Text style={{

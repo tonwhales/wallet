@@ -106,12 +106,6 @@ export const WalletFragment = fragment(() => {
 
     const scrollViewRef = React.useRef<ScrollView>(null);
 
-    React.useEffect(() => {
-        scrollViewRef?.current?.scrollTo({ y: -(safeArea.top) });
-        return () => {
-        };
-    }, [scrollViewRef]);
-
     const openReceiveModal = React.useCallback(
         () => {
             showModal(({ hide }) => {
@@ -160,9 +154,8 @@ export const WalletFragment = fragment(() => {
                         ? safeArea.top + 44
                         : undefined,
                 }}
-                contentInset={{ top: safeArea.top }}
-                scrollToOverflowEnabled={true}
-                overScrollMode={'always'}
+                contentInset={{ top: 44 }}
+                contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
                 <View style={{ marginHorizontal: 16, marginVertical: 16, height: Math.floor((window.width / (358 + 32)) * 196) }} collapsable={false}>
@@ -245,40 +238,6 @@ export const WalletFragment = fragment(() => {
                 {transactionsSectioned.length > 0 && <View style={{ height: 56 }} />}
             </ScrollView>
 
-            {Platform.OS === 'android' && (
-                <View style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: safeArea.top + 44,
-                    backgroundColor: Theme.background,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}
-                >
-                    <Text style={{ fontSize: 22, color: Theme.textColor }}>Tonhub</Text>
-                </View>
-            )}
-            {Platform.OS === 'ios' && (
-                <BlurView style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: safeArea.top + 44,
-                    // backgroundColor: Theme.background,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}
-                    intensity={100}
-                >
-                    <Text style={{ fontSize: 22, color: Theme.textColor }}>Tonhub</Text>
-                </BlurView>
-            )}
-
             <Portal>
                 <Modalize ref={receiveRef} adjustToContentHeight={true} withHandle={false}>
                     <WalletReceiveComponent />
@@ -292,6 +251,41 @@ export const WalletFragment = fragment(() => {
                             <TransactionPreview tx={modal} />
                         </Modalize>
                     </Portal>
+                )
+            }
+            {
+                Platform.OS === 'ios' && (
+                    <View style={{
+                        position: 'absolute',
+                        top: 0, left: 0, right: 0,
+                        height: safeArea.top + 44,
+                    }}>
+                        <View style={{ backgroundColor: Theme.background, opacity: 0.5, flexGrow: 1 }} />
+                        <BlurView style={{
+                            position: 'absolute',
+                            top: 0, left: 0, right: 0, bottom: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingTop: safeArea.top
+                        }}
+                        >
+                            <Text style={{ fontSize: 22, color: Theme.textColor, fontWeight: '700' }}>Tonhub</Text>
+                        </BlurView>
+                    </View>
+                )
+            }
+            {
+                Platform.OS === 'android' && (
+                    <View style={{
+                        position: 'absolute',
+                        top: 0, left: 0, right: 0,
+                        height: safeArea.top + 44,
+                        backgroundColor: Theme.background,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{ fontSize: 22, color: Theme.textColor, fontWeight: '700' }}>Tonhub</Text>
+                    </View>
                 )
             }
         </View >

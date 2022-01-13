@@ -29,5 +29,7 @@
   "Write down these 24 words in the correct order and store them in a secret place.": "按照正确的顺序写下这24个单词，并把它们存放在一个秘密的地方。",
   "Use these secret words to restore access to your wallet if you lose your passcode or device.": "如果你丢失了你的密码或设备，请使用这些密语来恢复对你的钱包的访问。",
   "Done": "完成",
-  "Home": "主页"
+  "Home": "主页",
+  "Create my wallet":"創建我的錢包",
+  "Import existing wallet": "導入現有錢包"
 }

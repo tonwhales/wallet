@@ -2194,6 +2194,13 @@
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
 
+"@types/murmurhash@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/murmurhash/-/murmurhash-2.0.0.tgz#31de9549153d1a43bb32c3f0a02dbb2c657644a6"
+  integrity sha512-AYKjtkyGM6Stia77QpgOwmxJs4cPhFr2/pjufU7aiOkhd81tfBcPyW35gT2OpBLJiZePoJc4dsQ1pYFaUt26xQ==
+  dependencies:
+    murmurhash "*"
+
 "@types/node@*":
   version "17.0.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.5.tgz#57ca67ec4e57ad9e4ef5a6bab48a15387a1c83e0"
@@ -6044,6 +6051,11 @@ ms@2.1.3:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
+
+murmurhash@*, murmurhash@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/murmurhash/-/murmurhash-2.0.0.tgz#556779daf7c39a0d2a3f5a9d080d84bf4833f9ee"
+  integrity sha512-Uo7ZHw+PLe2Q8/qbPIVYxAaoi+TYGZwu1a8ryeeASRXJLRSaLCblAGfjh02eu4+/9aUJBpkHXZv42AXmzOW2kw==
 
 mz@^2.7.0:
   version "2.7.0"

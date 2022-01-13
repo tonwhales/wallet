@@ -44,7 +44,7 @@ export function TransactionPreview(props: { tx: RawTransaction }) {
                 </View>
             </View>
             <Text style={{ fontSize: 48, color: amount.gte(new BN(0)) ? '#4FAE42' : '#EB4D3D', fontWeight: '700', alignSelf: 'center', marginHorizontal: 16 }}>
-                💎 <ValueComponent value={amount} centFontSize={24} />
+                💎 <ValueComponent value={amount} centFontStyle={{ fontSize: 24 }} />
             </Text>
             {address && (
                 <Text selectable={true} style={{ marginTop: 32, marginBottom: 72, width: 265, textAlign: 'center', alignSelf: 'center' }} numberOfLines={1} ellipsizeMode="middle">

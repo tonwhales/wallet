@@ -11,6 +11,7 @@ export const Theme = {
     divider: '#E4E4E5',
     warningText: '#DE641F',
     scoreGold: '#DAA520',
+    selector: 'rgba(179, 179, 193, 0.3)',
 
     shadows: {
         1: {

@@ -1,13 +1,14 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { Address, fromNano, parseMessage, RawTransaction } from 'ton';
+import { Address, parseMessage, RawTransaction } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/formatTime';
-const Avatar = require('react-native-boring-avatars').default;
+import { avatarHash } from '../utils/avatarHash';
+import { AddressComponent } from './AddressComponent';
 
-export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawTransaction) => void }) {
+export function TransactionView(props: { own: Address, tx: RawTransaction, separator: boolean, onPress: (src: RawTransaction) => void }) {
     const tx = props.tx;
 
     // Fees
@@ -52,38 +53,47 @@ export function TransactionView(props: { tx: RawTransaction, onPress: (src: RawT
         }
     }
 
-    return (
-        <Pressable style={(s) => ({ alignSelf: 'stretch', flexDirection: 'row', height: 66, backgroundColor: s.pressed ? Theme.divider : 'white' })} onPress={() => props.onPress(props.tx)}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 0, marginVertical: 11, marginLeft: 16, marginRight: 16 }}>
-                <Avatar
-                    size={44}
-                    name={address ? address.toFriendly() : '<no address>'}
-                    variant="ring"
-                    colors={['#000000', '#1693A5', '#D8D8C0', '#F0F0D8', '#FFFFFF']}
-                />
+    // Avatar
+    let avatarImage = require('../../assets/avatar_own.png');
+    if (address && !address.equals(props.own)) {
+        const avatars = [
+            require('../../assets/avatar_1.png'),
+            require('../../assets/avatar_2.png'),
+            require('../../assets/avatar_3.png'),
+            require('../../assets/avatar_4.png'),
+            require('../../assets/avatar_5.png'),
+            require('../../assets/avatar_6.png'),
+            require('../../assets/avatar_7.png'),
+            require('../../assets/avatar_8.png')
+        ];
+        avatarImage = avatars[avatarHash(address.toFriendly(), avatars.length)];
+    }
 
+    // Transaction type
+    let transactionType = 'Transfer';
+    if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
+        transactionType = 'Send';
+    }
+    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        transactionType = 'Receive';
+    }
+
+    return (
+        <Pressable style={(s) => ({ alignSelf: 'stretch', flexDirection: 'row', height: 62, backgroundColor: s.pressed ? Theme.selector : 'white' })} onPress={() => props.onPress(props.tx)}>
+            <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+                <Image source={avatarImage} style={{ width: 42, height: 42, borderRadius: 21 }} />
             </View>
             <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 11, marginRight: 14 }}>
-                    <Text style={{ color: Theme.textColor, fontSize: 17, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{address ? address.toFriendly() : '<no address>'}</Text>
-                    <Text style={{ color: amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 17, marginRight: 2 }}><ValueComponent value={amount} /></Text>
-                    {/* <Text style={{ color: amount.gte(new BN(0)) ? '#4FAE42' : '#EB4D3D', fontWeight: '700', fontSize: 18, marginRight: 2 }}>💎 <ValueComponent value={amount} centFontSize={15} /></Text>
-                    <Text style={{ fontSize: 15, flexGrow: 1, flexBasis: 0, color: Theme.textSecondary, fontWeight: '500' }}>{amount.gte(new BN(0)) ? 'from' : 'to'}</Text>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 15 }}>{format(tx.time * 1000, 'hh:mm bb')}</Text> */}
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
+                    <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="middle" numberOfLines={1}>{transactionType}</Text>
+                    <Text style={{ color: amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={amount} /></Text>
                 </View>
-                {/* <View style={{ marginTop: 4, marginBottom: 4 }}>
-                    <Text style={{ color: Theme.textColor, fontSize: 15 }} ellipsizeMode="middle" numberOfLines={1}>{address ? address.toFriendly() : '<no address>'}</Text>
-                </View> */}
-                {/* {fees.gt(new BN(0)) && (
-                    <View>
-                        <Text style={{ color: Theme.textSecondary }}>
-                            -{fromNano(fees)} blockchain fees
-                        </Text>
-                    </View>
-                )} */}
-                <Text style={{ color: Theme.textSecondary, fontSize: 15, marginTop: 4 }}>{formatTime(tx.time)}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
+                    <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{address ? <AddressComponent address={address} /> : 'no address'}</Text>
+                    <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(tx.time)}</Text>
+                </View>
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+                {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
             </View>
         </Pressable>
     );

@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Cell, parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState, storage } from '../../utils/storage';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import Animated from 'react-native-reanimated';
 import { TransactionView } from '../../components/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,12 +15,11 @@ import { Portal } from 'react-native-portalize';
 import { ValueComponent } from '../../components/ValueComponent';
 import { TransactionPreview } from './TransactionPreview';
 import { useAccount } from '../../sync/useAccount';
-import { format, formatDistance, formatDistanceStrict, isThisYear, isToday, isYesterday } from 'date-fns';
 import { useTranslation } from "react-i18next";
-import { t } from 'i18next';
 import { formatDate } from '../../utils/formatDate';
 import { BlurView } from 'expo-blur';
 import { showModal } from '../../components/FastModal/showModal';
+import { AddressComponent } from '../../components/AddressComponent';
 
 function padLt(src: string) {
     let res = src;
@@ -149,6 +147,8 @@ export const WalletFragment = fragment(() => {
         [modalConfig],
     );
 
+    const window = useWindowDimensions();
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}>
             <ScrollView
@@ -164,28 +164,47 @@ export const WalletFragment = fragment(() => {
                 overScrollMode={'always'}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-                <View style={{ marginHorizontal: 16, marginVertical: 16, height: 196, backgroundColor: '#303757', borderRadius: 14 }} collapsable={false}>
-                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.6, marginTop: 22, marginLeft: 22 }}>{t('Wallet balance')}</Text>
-                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800' }}><ValueComponent value={account.balance} centFontSize={22} /></Text>
+                <View style={{ marginHorizontal: 16, marginVertical: 16, height: Math.floor((window.width / (358 + 32)) * 196) }} collapsable={false}>
+                    <Image
+                        source={require('../../../assets/wallet_card.png')}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: Math.floor((window.width / (358 + 32)) * 196),
+                            width: window.width - 32
+                        }}
+                        resizeMode="stretch"
+                        resizeMethod="resize"
+                    />
+
+                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Toncoin balance')}</Text>
+                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
                     <View style={{ flexGrow: 1 }}>
 
                     </View>
-                    <Text style={{ color: 'white', marginLeft: 22, marginBottom: 22, marginRight: 86, fontWeight: '600' }} numberOfLines={1} ellipsizeMode="middle">{address.toFriendly()}</Text>
+                    <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
+                        <AddressComponent address={address} />
+                    </Text>
                 </View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     <Pressable
-                        style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: 'white', borderRadius: 14 }}
+                        style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
                         // onPress={() => receiveRef.current!.open()}
                         onPress={openReceiveModal}
                     >
-                        <Text style={{ fontSize: 18, color: '#1C8FE3' }}>{t("Receive")}</Text>
+                        <Image source={require('../../../assets/receive.png')} />
+                        <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>
                     </Pressable>
                     <Pressable
-                        style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: 'white', borderRadius: 14 }}
+                        style={(p) => ({ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
                         onPress={() => navigation.navigate('Transfer')}
                     >
-                        <Text style={{ fontSize: 18, color: '#1C8FE3' }}>{t("Send")}</Text>
+                        <Image source={require('../../../assets/send.png')} />
+                        <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send")}</Text>
                     </Pressable>
                 </View>
 
@@ -217,40 +236,13 @@ export const WalletFragment = fragment(() => {
                                 <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
                             </View>,
                             <View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false}>
-                                {s.items.map((t) => <TransactionView tx={t} key={'tx-' + t.lt.toString()} onPress={openTransactionModal} />)}
+                                {s.items.map((t, i) => <TransactionView own={address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.lt.toString()} onPress={openTransactionModal} />)}
                             </View>
                         ]
                     ))
                 }
                 {transactionsSectioned.length > 0 && <View style={{ height: 56 }} />}
             </ScrollView>
-
-            {/* <Animated.View style={[
-                { alignSelf: 'stretch', backgroundColor: 'black', alignItems: 'center', justifyContent: 'center', paddingTop: 1000 + safeArea.top, marginTop: -1000, paddingBottom: 16, position: 'absolute', top: 0, left: 0, right: 0, height: 300 + 1000 + safeArea.top },
-                containerStyle
-            ]}>
-            <View style={{ flexGrow: 1 }} />
-            
-            <Animated.View style={[{ flexDirection: 'row', marginTop: 72, marginHorizontal: 8 }, buttonsContainerStyle]}>
-            <RoundButton title={t("Send")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => navigation.navigate('Transfer')} />
-            <RoundButton title={t("Receive")} style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 8 }} onPress={() => receiveRef.current!.open()} />
-            </Animated.View>
-            </Animated.View>
-            
-            <Animated.View style={[{ position: 'absolute', top: safeArea.top, left: 0, right: 0, marginBottom: 24, height: 44, alignItems: 'center', justifyContent: 'center' }, buttonsContainerStyle]}>
-            <Text style={{ color: 'white', opacity: 0.6 }}>
-            {Date.now() - account.storedAt > 10000 ? t('Updating...') : t('Up to date')}
-            </Text>
-            </Animated.View>
-            
-            <Animated.View style={[{ position: 'absolute', alignItems: 'center', paddingTop: safeArea.top, left: 0, right: 0, top: 0 }, balanceTransform]}>
-            <Animated.Text style={[{ fontSize: 45, fontWeight: '500', color: 'white' }, balanceFont]}>
-            💎 <ValueComponent value={account.balance} centFontSize={20} />
-            </Animated.Text>
-            <Text style={{ color: 'white', opacity: 0.6, marginTop: 2 }}>
-            {t('Your balance')}
-            </Text>
-        </Animated.View> */}
 
             {Platform.OS === 'android' && (
                 <View style={{

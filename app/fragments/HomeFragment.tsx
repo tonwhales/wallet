@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { fragment } from "../fragment";
 import { Theme } from '../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,12 +25,12 @@ export const HomeFragment = fragment(() => {
             </View>
             <View style={{ paddingBottom: safeArea.bottom, height: 52 + safeArea.bottom, paddingHorizontal: 16, backgroundColor: Theme.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                    <Ionicons name="wallet" size={24} color={tab === 0 ? Theme.accent : Theme.textSecondary} />
-                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 0 ? Theme.accent : Theme.textSecondary }}>{t('Home')}</Text>
+                    <Image source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')} />
+                    <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}>{t('Wallet')}</Text>
                 </Pressable>
                 <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                    <Ionicons name="cog" size={24} color={tab === 1 ? Theme.accent : Theme.textSecondary} />
-                    <Text style={{ fontSize: 10, fontWeight: '600', color: tab === 1 ? Theme.accent : Theme.textSecondary }}>{t('Settings')}</Text>
+                    <Image source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')} />
+                    <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>{t('Settings')}</Text>
                 </Pressable>
             </View>
         </View>

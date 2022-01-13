@@ -1,61 +1,20 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { Address, parseMessage, RawTransaction } from 'ton';
+import { Address, RawTransaction } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/formatTime';
 import { avatarHash } from '../utils/avatarHash';
 import { AddressComponent } from './AddressComponent';
+import { parseWalletTransaction } from '../sync/parseWalletTransaction';
 
 export function TransactionView(props: { own: Address, tx: RawTransaction, separator: boolean, onPress: (src: RawTransaction) => void }) {
-    const tx = props.tx;
-
-    // Fees
-    let fees = tx.fees.coins;
-    if (tx.description.storagePhase) {
-        fees = fees.add(tx.description.storagePhase.storageFeesCollected);
-    }
-
-    // Delta
-    let amount = new BN(0);
-    let address: Address | null = null;
-    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        amount = amount.add(tx.inMessage.info.value.coins);
-        address = tx.inMessage.info.src;
-    }
-    if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
-        const parse = tx.inMessage.body.beginParse();
-
-        parse.skip(512 + 32 + 32); // Signature + wallet_id + timeout
-        const seqno = parse.readUintNumber(32);
-        const op = parse.readUintNumber(8);
-
-        console.log(seqno + ': ' + op);
-
-        if (op === 0) {
-            const sendMode = parse.readUintNumber(8);
-            const msg = parseMessage(parse.readRef());
-            if (msg.info.type === 'internal') {
-                if (msg.info.dest) {
-                    address = msg.info.dest;
-                }
-            }
-            // console.warn(msg);
-            // Simple transfer
-        }
-    }
-    for (let out of tx.outMessages) {
-        if (out.info.type === 'internal') {
-            amount = amount.sub(out.info.value.coins);
-            fees = fees.add(out.info.fwdFee);
-            address = out.info.dest;
-        }
-    }
+    const parsed = parseWalletTransaction(props.tx);
 
     // Avatar
     let avatarImage = require('../../assets/avatar_own.png');
-    if (address && !address.equals(props.own)) {
+    if (parsed.address && !parsed.address.equals(props.own)) {
         const avatars = [
             require('../../assets/avatar_1.png'),
             require('../../assets/avatar_2.png'),
@@ -66,16 +25,16 @@ export function TransactionView(props: { own: Address, tx: RawTransaction, separ
             require('../../assets/avatar_7.png'),
             require('../../assets/avatar_8.png')
         ];
-        avatarImage = avatars[avatarHash(address.toFriendly(), avatars.length)];
+        avatarImage = avatars[avatarHash(parsed.address.toFriendly(), avatars.length)];
     }
 
     // Transaction type
     let transactionType = 'Transfer';
-    if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
-        transactionType = 'Send';
+    if (parsed.kind === 'out') {
+        transactionType = 'Sent #' + parsed.seqno!;
     }
-    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        transactionType = 'Receive';
+    if (parsed.kind === 'in') {
+        transactionType = 'Received';
     }
 
     return (
@@ -86,11 +45,16 @@ export function TransactionView(props: { own: Address, tx: RawTransaction, separ
             <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
                     <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="middle" numberOfLines={1}>{transactionType}</Text>
-                    <Text style={{ color: amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={amount} /></Text>
+                    {parsed.status === 'failed' ? (
+                        <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
+                    ) : (
+                        <Text style={{ color: parsed.amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={parsed.amount} /></Text>
+                    )}
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
-                    <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{address ? <AddressComponent address={address} /> : 'no address'}</Text>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(tx.time)}</Text>
+                    <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{parsed.address ? <AddressComponent address={parsed.address} /> : 'no address'}</Text>
+                    {parsed.body ? <Image source={require('../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
+                    <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
                 </View>
                 <View style={{ flexGrow: 1 }} />
                 {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
@@ -98,3 +62,4 @@ export function TransactionView(props: { own: Address, tx: RawTransaction, separ
         </Pressable>
     );
 }
+TransactionView.displayName = 'TransactionView';

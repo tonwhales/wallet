@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
 import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, CommonMessageInfo, EmptyMessage, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { Address, CommentMessage, CommonMessageInfo, EmptyMessage, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { client } from '../../client';
 import { ATextInput } from '../../components/ATextInput';
@@ -35,6 +35,7 @@ export const TransferFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState('');
+    const [comment, setComment] = React.useState('');
     const [amount, setAmount] = React.useState('');
     const doSend = React.useCallback(async () => {
         const state = getAppState()!;
@@ -74,7 +75,7 @@ export const TransferFragment = fragment(() => {
                 value,
                 bounce: false,
                 body: new CommonMessageInfo({
-                    body: new EmptyMessage()
+                    body: new CommentMessage(comment)
                 })
             })
         })
@@ -83,7 +84,7 @@ export const TransferFragment = fragment(() => {
         await backoff(() => client.sendExternalMessage(contract, transfer));
 
         navigation.goBack();
-    }, [amount, target]);
+    }, [amount, target, comment]);
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
         if (res) {
@@ -119,6 +120,16 @@ export const TransferFragment = fragment(() => {
                     onValueChange={setAmount}
                     placeholder={t("Amount")}
                     keyboardType="numeric"
+                    style={{ marginHorizontal: 16, marginVertical: 8 }}
+                />
+
+                <Text style={labelStyle}>{t("Comment")}</Text>
+                <ATextInput
+                    value={comment}
+                    onValueChange={setComment}
+                    placeholder={t("Comment")}
+                    keyboardType="default"
+                    autoCapitalize="sentences"
                     style={{ marginHorizontal: 16, marginVertical: 8 }}
                 />
 

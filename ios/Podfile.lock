@@ -289,7 +289,7 @@ PODS:
     - SwiftyJSON
   - react-native-fast-pbkdf2 (0.3.1):
     - React-Core
-  - react-native-mmkv (1.5.4):
+  - react-native-mmkv (1.6.3):
     - MMKV
     - React-Core
   - react-native-safe-area-context (3.3.2):
@@ -664,7 +664,7 @@ SPEC CHECKSUMS:
   React-logger: 933f80c97c633ee8965d609876848148e3fef438
   react-native-fast-animations: 23e8aa365e97ef3013bf0ac5219701cefb6578ff
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
-  react-native-mmkv: 01fb2fcc0853b25607bd35c9ce132e73756df52b
+  react-native-mmkv: 6d019cdfab9c197e10561a58ef4096b49bc9ecce
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   React-perflogger: 93075d8931c32cd1fce8a98c15d2d5ccc4d891bd
   React-RCTActionSheet: 7d3041e6761b4f3044a37079ddcb156575fb6d89

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Text, View } from "react-native";
+import { Alert, Platform, Text, View } from "react-native";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { iOSColors, iOSUIKit } from "react-native-typography";
@@ -12,6 +12,8 @@ import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncr
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
 import { useTranslation } from 'react-i18next';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { Theme } from '../../Theme';
 
 type WordInputRef = {
     focus: () => void;
@@ -227,14 +229,20 @@ export const WalletImportFragment = fragment(() => {
         mnemonics: string,
         deviceEncryption: DeviceEncryption
     } | null>(null);
+    const safeArea = useSafeAreaInsets();
     return (
         <>
             {!state && (
                 <Animated.View
-                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
+                    style={{
+                        alignItems: 'center', justifyContent: 'center', flexGrow: 1,
+                        paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
+                        backgroundColor: Platform.OS === 'android' ? 'white' : undefined
+                    }}
                     key="loading"
                     exiting={FadeOutDown}
                 >
+                    <AndroidToolbar />
                     <WalletWordsComponent onComplete={setState} />
                 </Animated.View>
             )}

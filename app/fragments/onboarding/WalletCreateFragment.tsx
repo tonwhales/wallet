@@ -1,14 +1,19 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { Text } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { mnemonicNew } from 'ton-crypto';
 import { minimumDelay } from 'teslabot';
 import { WalletSecureFragment } from './WalletSecureFragment';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 
 export const WalletCreateFragment = fragment(() => {
+    const { t } = useTranslation();
+    const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
@@ -35,17 +40,27 @@ export const WalletCreateFragment = fragment(() => {
         <>
             {!state && (
                 <Animated.View
-                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: 'white' }}
+                    style={{
+                        flexGrow: 1, backgroundColor: 'white',
+                        paddingTop: Platform.OS === 'android' ? safeArea.top : 0
+                    }}
                     key="loading"
                     exiting={FadeOutDown}
                 >
-                    <LoadingIndicator />
-                    <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16 }}>Creating secure wallet...</Text>
+                    <AndroidToolbar />
+                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                        <LoadingIndicator />
+                        <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16 }}>{t("Creating secure wallet...")}</Text>
+                    </View>
                 </Animated.View>
             )}
             {state && (
                 <Animated.View
-                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: 'white' }}
+                    style={{
+                        alignItems: 'center', justifyContent: 'center',
+                        flexGrow: 1, backgroundColor: 'white',
+                        paddingTop: Platform.OS === 'android' ? safeArea.top : 0
+                    }}
                     key="content"
                     entering={FadeIn}
                 >

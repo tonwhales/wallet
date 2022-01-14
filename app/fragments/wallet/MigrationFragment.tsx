@@ -13,6 +13,7 @@ import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 
 const MigrationProcessFragment = fragment(() => {
     const { t } = useTranslation();
@@ -103,7 +104,8 @@ export const MigrationFragment = fragment(() => {
 
     if (!confirm) {
         return (
-            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom, paddingTop: safeArea.top }}>
+                <AndroidToolbar />
                 <View style={{ flexGrow: 1 }} />
                 <View style={{ marginHorizontal: 16 }}>
                     <RoundButton title={t("Proceed")} onPress={() => setConfirm(true)} />

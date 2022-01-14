@@ -1,7 +1,9 @@
 {
     "Your balance": "잔액",
     "Send": " 보내다",
+    "send": " 보내다",
     "Receive": " 받다",
+    "receive": " 받다",
     "Updating...": " 업데이트 중...",
     "Up to date": " 최신 정보",
     "Receive Toncoin": " 톤코인 받기",
@@ -31,5 +33,17 @@
     "Done": " 완료",
     "Home": "홈페이지",
     "Create my wallet":"내 지갑 만들기",
-    "Import existing wallet": "기존 지갑 가져오기"
+    "Import existing wallet": "기존 지갑 가져오기",
+    "Wallet": "지갑",
+    "Secure storage error": "보안 저장 오류",
+    "Unfortunatelly we are unable to save data. Please, restart your phone.": "안타깝게도 데이터를 저장할 수 없습니다. 휴대전화를 다시 시작하세요.",
+    "Your device is not protected": "기기가 보호되지 않습니다",
+    "Protect your wallet": "지갑을 보호하세요",
+    "It is highly recommend to enable passcode on your device to protect your assets.": "자산을 보호하기 위해 장치에서 암호를 활성화하는 것이 좋습니다.",
+    "Add an extra layer of security to keep your crypto safe.": "암호화폐를 안전하게 보호하기 위해 보안 계층을 추가하십시오.",
+    "Protect with Face ID": "Face ID로 보호",
+    "Protect with biometrics": "생체 인식으로 보호",
+    "Protect with Touch ID": "Touch ID로 보호",
+    "Protect with Passcode": "암호로 보호",
+    "Continue anyway": "계속"
   }

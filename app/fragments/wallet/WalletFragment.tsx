@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Image, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Cell, parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState, storage } from '../../utils/storage';
@@ -43,8 +43,11 @@ const modalConfig = {
         marginBottom: 0,
         padding: 0,
         paddingBottom: 0,
-    }
+    },
+    disableBottomSafeArea: true
 }
+
+console.disableYellowBox = true;
 
 export const WalletFragment = fragment(() => {
     const { t } = useTranslation();
@@ -156,8 +159,36 @@ export const WalletFragment = fragment(() => {
         )
     }
 
+    // Animating wallet card
+    const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
+    const cardOpacity = React.useRef(new Animated.Value(1)).current;
+    const smallCardOpacity = React.useRef(new Animated.Value(0)).current;
+    const titleOpacity = React.useRef(new Animated.Value(1)).current;
+    const smallCardY = React.useRef(new Animated.Value(Math.floor(cardHeight * 0.15))).current;
+
+    const onScroll = React.useCallback(
+        (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+            if ((event.nativeEvent.contentOffset.y + 28 - cardHeight) >= 0) { // Fully scrolled
+                Animated.parallel([
+                    Animated.timing(cardOpacity, { toValue: 0, duration: 200, useNativeDriver: true }),
+                    Animated.timing(smallCardOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+                    Animated.timing(titleOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
+                    Animated.timing(smallCardY, { toValue: - Math.floor(cardHeight * 0.15), duration: 250, useNativeDriver: true }),
+                ]).start();
+            } else { // Visible
+                Animated.parallel([
+                    Animated.timing(cardOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+                    Animated.timing(smallCardOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+                    Animated.timing(titleOpacity, { toValue: 1, duration: 150, useNativeDriver: true }),
+                    Animated.timing(smallCardY, { toValue: Math.floor(cardHeight * 0.15), duration: 250, useNativeDriver: true }),
+                ]).start();
+            }
+        },
+        [cardOpacity, smallCardOpacity],
+    );
+
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom + 52 }}>
+        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <ScrollView
                 ref={scrollViewRef}
                 contentContainerStyle={{
@@ -166,11 +197,24 @@ export const WalletFragment = fragment(() => {
                         ? safeArea.top + 44
                         : undefined,
                 }}
-                contentInset={{ top: 44 }}
+                contentInset={{ top: 44, bottom: 52 }}
                 contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
+                onScroll={onScroll}
+                scrollEventThrottle={16}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-                <View style={{ marginHorizontal: 16, marginVertical: 16, height: Math.floor((window.width / (358 + 32)) * 196) }} collapsable={false}>
+                <Animated.View
+                    style={[
+                        {
+                            marginHorizontal: 16, marginVertical: 16,
+                            height: cardHeight
+                        },
+                        {
+                            opacity: cardOpacity
+                        }
+                    ]}
+                    collapsable={false}
+                >
                     <Image
                         source={require('../../../assets/wallet_card.png')}
                         style={{
@@ -179,7 +223,7 @@ export const WalletFragment = fragment(() => {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            height: Math.floor((window.width / (358 + 32)) * 196),
+                            height: cardHeight,
                             width: window.width - 32
                         }}
                         resizeMode="stretch"
@@ -194,12 +238,11 @@ export const WalletFragment = fragment(() => {
                     <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
                         <AddressComponent address={address} />
                     </Text>
-                </View>
+                </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        // onPress={() => receiveRef.current!.open()}
                         onPress={openReceiveModal}
                     >
                         <Image source={require('../../../assets/receive.png')} />
@@ -216,21 +259,22 @@ export const WalletFragment = fragment(() => {
 
                 {
                     transactionsSectioned.length === 0 && (
-                        <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: window.height * 0.095 }}>
                             <LottieView
-                                source={require('../../../assets/animations/chicken.json')}
+                                source={require('../../../assets/animations/duck.json')}
                                 autoPlay={true}
                                 loop={false}
                                 progress={0.2}
-                                style={{ width: 200, height: 200, marginBottom: 16 }}
+                                style={{ width: window.height * 0.15, height: window.height * 0.15, marginBottom: window.height * 0.1 * 0.3 }}
                             />
-                            {/* <Text style={{ fontSize: 18, marginBottom: 16 }}>Wallet Created</Text> */}
+                            <Text style={{ fontSize: 16, marginBottom: window.height * 0.1 * 0.3, color: '#7D858A' }}>
+                                {t('You have no transactions')}
+                            </Text>
                             <RoundButton
                                 title={t("Receive TONCOIN")}
                                 size="normal"
-                                display="outline"
+                                display="text"
                                 onPress={openReceiveModal}
-                            // onPress={() => receiveRef.current!.open()}
                             />
                         </View>
                     )
@@ -278,11 +322,71 @@ export const WalletFragment = fragment(() => {
                             top: 0, left: 0, right: 0, bottom: 0,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            paddingTop: safeArea.top
+                            paddingTop: safeArea.top,
+                            flexDirection: 'row'
                         }}
                         >
-                            <Text style={{ fontSize: 22, color: Theme.textColor, fontWeight: '700' }}>Tonhub</Text>
+                            <Animated.View
+                                style={[
+                                    {
+                                        height: cardHeight,
+                                        width: window.width - 32
+                                    },
+                                    {
+                                        opacity: smallCardOpacity,
+                                        transform: [
+                                            { scale: 0.15 },
+                                            { translateY: smallCardY },
+                                            { translateX: -Math.floor(((window.width - 300) * 0.15) / 2) }
+                                        ]
+                                    }
+                                ]}
+                                collapsable={false}
+                            >
+                                <Image
+                                    source={require('../../../assets/wallet_card.png')}
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        height: cardHeight,
+                                        width: window.width - 32
+                                    }}
+                                    resizeMode="stretch"
+                                    resizeMethod="resize"
+                                />
+
+                                <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Toncoin balance')}</Text>
+                                <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
+                                <View style={{ flexGrow: 1 }}>
+
+                                </View>
+                                <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
+                                    <AddressComponent address={address} />
+                                </Text>
+                            </Animated.View>
+
+                            <Animated.View style={{ opacity: titleOpacity, position: 'absolute', bottom: 8 }}>
+                                <Text style={{ fontSize: 22, color: Theme.textColor, fontWeight: '700' }}>Tonhub</Text>
+                            </Animated.View>
+                            <Image
+                                style={{
+                                    position: 'absolute',
+                                    right: 13, bottom: 11
+                                }}
+                                source={require('../../../assets/ic_qr.png')}
+                            />
                         </BlurView>
+                        <View style={{
+                            position: 'absolute',
+                            bottom: 0.5, left: 0, right: 0,
+                            height: 0.5,
+                            width: '100%',
+                            backgroundColor: '#000',
+                            opacity: 0.08
+                        }} />
                     </View>
                 )
             }
@@ -293,10 +397,26 @@ export const WalletFragment = fragment(() => {
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
                         backgroundColor: Theme.background,
+                        paddingTop: safeArea.top,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
                         <Text style={{ fontSize: 22, color: Theme.textColor, fontWeight: '700' }}>Tonhub</Text>
+                        <Image
+                            style={{
+                                position: 'absolute',
+                                right: 13, bottom: 11
+                            }}
+                            source={require('../../../assets/ic_qr.png')}
+                        />
+                        <View style={{
+                            position: 'absolute',
+                            bottom: 0.5, left: 0, right: 0,
+                            height: 0.5,
+                            width: '100%',
+                            backgroundColor: '#000',
+                            opacity: 0.08
+                        }} />
                     </View>
                 )
             }

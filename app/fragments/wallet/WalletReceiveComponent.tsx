@@ -7,13 +7,13 @@ import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from "react-i18next";
 import Clipboard from '@react-native-clipboard/clipboard';
+import { CloseButton } from '../../components/CloseButton';
 
 export function WalletReceiveComponent(props: { onHide?: () => void }) {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const address = React.useMemo(() => getAppState()!.address, []);
     const link = 'https://tonhub.com/transfer/' + address.toFriendly();
-    const [closePressedIn, setClosePressedIn] = React.useState(false);
 
     const onCopy = React.useCallback(
         () => {
@@ -47,14 +47,10 @@ export function WalletReceiveComponent(props: { onHide?: () => void }) {
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, textAlign: 'center', marginBottom: 72, marginTop: 6 }}>
                     {t("Wallet address")}
                 </Text>
-                <Pressable
-                    onPressIn={() => setClosePressedIn(true)}
-                    onPressOut={() => setClosePressedIn(false)}
-                    style={{ position: 'absolute', top: 12, right: 10, opacity: closePressedIn ? 0.5 : 1 }}
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
                     onPress={props.onHide}
-                >
-                    <Image source={require('../../../assets/ic_close.png')} />
-                </Pressable>
+                />
                 <View style={{
                     flex: 2,
                     flexDirection: 'row',

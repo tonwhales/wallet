@@ -74,7 +74,7 @@ const navigation = [
     genericScreen('WalletBackupInit', WalletBackupFragment),
     genericScreen('WalletBackup', WalletBackupFragment),
     genericScreen('Settings', SettingsFragment),
-    genericScreen('Transfer', TransferFragment),
+    fullScreenModal('Transfer', TransferFragment),
     genericScreen('Migration', MigrationFragment),
     fullScreenModal('Scanner', ScannerFragment)
 ];

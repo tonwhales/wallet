@@ -111,11 +111,6 @@ export const TransferFragment = fragment(() => {
                         alignItems: 'center',
                         padding: 22
                     }}>
-                        {/* <Text style={{
-                        fontWeight: '300',
-                    }}>
-                        {address.toFriendly()}
-                    </Text> */}
                         <ATextInput
                             value={amount}
                             onValueChange={setAmount}
@@ -183,7 +178,11 @@ export const TransferFragment = fragment(() => {
                 <RoundButton
                     title={t("Send")}
                     action={doSend}
-                    style={{ marginHorizontal: 16, marginTop: 16, position: 'absolute', bottom: keyBoardHeight ? keyBoardHeight + 16 : safeArea.bottom, left: 16, right: 16 }}
+                    style={{
+                        marginHorizontal: 16, marginTop: 16,
+                        position: 'absolute',
+                        bottom: keyBoardHeight ? keyBoardHeight + 16 : safeArea.bottom ? safeArea.bottom : 16, left: 16, right: 16
+                    }}
                 />
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

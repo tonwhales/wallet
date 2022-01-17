@@ -34,7 +34,7 @@ export const HomeFragment = fragment(() => {
                         <View style={{
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             backgroundColor: Theme.background,
-                            opacity: 0.5
+                            opacity: 0.9
                         }} />
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')} />

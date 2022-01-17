@@ -12,6 +12,8 @@ export const Theme = {
     warningText: '#DE641F',
     scoreGold: '#DAA520',
     selector: 'rgba(179, 179, 193, 0.3)',
+    secondaryButton: '#E5E5E7',
+    secondaryButtonText: '#798287',
 
     shadows: {
         1: {

@@ -114,7 +114,7 @@ export const WalletFragment = fragment(() => {
         () => {
             showModal(({ hide }) => {
                 return (
-                    <WalletReceiveComponent />
+                    <WalletReceiveComponent onHide={hide} />
                 );
             }, modalConfig);
         },
@@ -378,7 +378,7 @@ export const WalletFragment = fragment(() => {
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
                     }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.5, flexGrow: 1 }} />
+                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
                         <BlurView style={{
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
@@ -470,7 +470,7 @@ export const WalletFragment = fragment(() => {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                             <Animated.Text style={[
                                 { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
                                 { position: 'relative', ...titleOpacityStyle },

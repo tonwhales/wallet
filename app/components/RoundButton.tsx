@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleProp, Text, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleProp, Text, TextProps, View, ViewStyle } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
 import { Theme } from '../Theme';
 
@@ -10,7 +10,7 @@ const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hit
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
 
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram';
+export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary';
 const displays: { [key in RoundButtonDisplay]: {
     textColor: string,
     textPressed: string,
@@ -27,6 +27,15 @@ const displays: { [key in RoundButtonDisplay]: {
         backgroundPressedColor: Theme.accentDark,
         borderPressedColor: Theme.accentDark,
         textPressed: '#fff',
+    },
+    secondary: {
+        backgroundColor: Theme.secondaryButton,
+        borderColor: Theme.secondaryButton,
+        textColor: Theme.secondaryButtonText,
+
+        backgroundPressedColor: Theme.selector,
+        borderPressedColor: Theme.selector,
+        textPressed: Theme.secondaryButtonText,
     },
     pro: {
         backgroundColor: 'black',
@@ -59,6 +68,15 @@ const displays: { [key in RoundButtonDisplay]: {
         backgroundColor: 'white',
         borderColor: 'white',
         textColor: Theme.accent,
+
+        backgroundPressedColor: Theme.divider,
+        borderPressedColor: Theme.divider,
+        textPressed: Theme.accent,
+    },
+    text: {
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+        textColor: '#1C8FE3',
 
         backgroundPressedColor: Theme.divider,
         borderPressedColor: Theme.divider,
@@ -119,7 +137,13 @@ export const RoundButton = React.memo((props: { size?: RoundButtonSize, display?
                             <ActivityIndicator color={p.pressed ? display.textPressed : display.textColor} size='small' />
                         </View>
                     )}
-                    <Text style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]} numberOfLines={1}>{props.title}</Text>
+                    <Text
+                        style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
+                        numberOfLines={1}
+                        ellipsizeMode='tail'
+                    >
+                        {props.title}
+                    </Text>
                 </View>
             )}
         </Pressable>

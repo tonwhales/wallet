@@ -58,7 +58,14 @@ export interface ATextInputProps {
     | 'newPassword'
     | 'oneTimeCode';
 
-    prefix?: string
+    prefix?: string;
+    textAlign?: 'left' | 'center' | 'right' | undefined,
+    fontWeight?: 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | undefined;
+    fontSize?: number | undefined;
+    lineHeight?: number | undefined;
+    preventDefaultHeight?: boolean,
+    preventDefaultValuePadding?: boolean
+    actionButtonRight?: any
 }
 
 export const ATextInput = React.memo((props: ATextInputProps) => {
@@ -85,15 +92,20 @@ export const ATextInput = React.memo((props: ATextInputProps) => {
             )}
             <TextInput
                 style={{
-                    height: props.multiline ? 44 * 3 : 48,
+                    height: props.preventDefaultHeight
+                        ? undefined
+                        : props.multiline ? 44 * 3 : 48,
                     paddingTop: props.multiline ? 12 : 10,
-                    paddingBottom: props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10),
+                    paddingBottom: props.preventDefaultValuePadding
+                        ? undefined
+                        : props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10),
                     flexGrow: 1,
-                    fontSize: 17,
-                    lineHeight: 22,
-                    fontWeight: '400',
+                    fontSize: props.fontSize ? props.fontSize : 17,
+                    lineHeight: props.lineHeight ? props.lineHeight : 22,
+                    fontWeight: props.fontWeight ? props.fontWeight : '400',
                     textAlignVertical: props.multiline ? 'top' : 'center'
                 }}
+                textAlign={props.textAlign}
                 autoFocus={props.autoFocus}
                 placeholder={props.placeholder}
                 placeholderTextColor="#9D9FA3"
@@ -108,6 +120,9 @@ export const ATextInput = React.memo((props: ATextInputProps) => {
                 textContentType={props.textContentType}
                 onChangeText={props.onValueChange}
             />
+            {props.actionButtonRight && !props.value && (
+                props.actionButtonRight
+            )}
         </View>
     )
 });

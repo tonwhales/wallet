@@ -127,7 +127,8 @@ const BaseModalComponent = React.memo((props: { children?: any, props: ModalProp
                             style={[
                                 {
                                     backgroundColor: 'white',
-                                    borderRadius: 18,
+                                    borderTopLeftRadius: 18,
+                                    borderTopRightRadius: 18,
                                     padding: 8,
                                     paddingBottom: props.config.disableBottomSafeArea ? safeArea.bottom : 8,
                                 },

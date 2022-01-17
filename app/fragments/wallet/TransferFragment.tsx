@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleProp, Text, TextStyle, View, Image, Pressable } from "react-native";
+import { ScrollView } from 'react-native-gesture-handler';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { client } from '../../client';
@@ -31,6 +33,7 @@ export const TransferFragment = fragment(() => {
     const address = React.useMemo(() => getAppState()!.address, []);
     const account = useAccount(address);
     const safeArea = useSafeAreaInsets();
+    const scrollRef = React.useRef<ScrollView>(null);
 
     const [target, setTarget] = React.useState('');
     const [comment, setComment] = React.useState('');
@@ -94,13 +97,38 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
-    const keyBoardHeight = useKeyboard().keyboardHeight;
+    const keyboardHeight = useKeyboard().keyboardHeight;
+    const keyboardShown = useKeyboard().keyboardShown;
+    console.log('sendButtonAnimatedStyle', keyboardHeight);
+
+    const sendButtonAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{
+                translateY: withTiming(
+                    (
+                        keyboardShown
+                            ? - keyboardHeight
+                            : 0
+                    ),
+                    {
+                        duration: 200,
+                        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+                    })
+            }],
+        };
+    }, [keyboardHeight, keyboardShown, safeArea, scrollRef]);
 
     return (
         <>
             <View style={{ flexGrow: 1 }}>
                 <StatusBar style="dark" />
-                <View style={{ marginTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16, paddingHorizontal: 16 }}>
+                <ScrollView
+                    ref={scrollRef}
+                    style={{ marginTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16, paddingHorizontal: 16 }}
+                    contentInset={{
+                        bottom: keyboardShown ? keyboardHeight : undefined
+                    }}
+                >
                     <AndroidToolbar />
                     <Text style={[labelStyle, { textAlign: 'center' }]}>{t("Send Toncoin")}</Text>
                     <View style={{
@@ -139,7 +167,8 @@ export const TransferFragment = fragment(() => {
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        paddingHorizontal: 16
+                        paddingHorizontal: 16,
+                        flexShrink: 1,
                     }}>
                         <ATextInput
                             value={target}
@@ -174,16 +203,25 @@ export const TransferFragment = fragment(() => {
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0 }}
                         />
                     </View>
-                </View>
-                <RoundButton
-                    title={t("Send")}
-                    action={doSend}
-                    style={{
+                    {keyboardShown && keyboardHeight && (
+                        <View style={{
+                            height: keyboardHeight
+                        }} />
+                    )}
+                </ScrollView>
+                <Animated.View style={[
+                    {
                         marginHorizontal: 16, marginTop: 16,
                         position: 'absolute',
-                        bottom: keyBoardHeight ? keyBoardHeight + 16 : safeArea.bottom ? safeArea.bottom : 16, left: 16, right: 16
-                    }}
-                />
+                        bottom: safeArea.bottom ? (keyboardShown ? 16 : safeArea.bottom) : 16, left: 16, right: 16,
+                    },
+                    sendButtonAnimatedStyle
+                ]}>
+                    <RoundButton
+                        title={t("Send")}
+                        action={doSend}
+                    />
+                </Animated.View>
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}
                     onPress={navigation.goBack}

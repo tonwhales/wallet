@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { getAppState } from '../../utils/storage';
+import { getAppState } from '../../storage/appState';
 import QRCode from 'react-native-qrcode-svg';
 import { Platform, Pressable, Share, Text, View, Image } from 'react-native';
 import { RoundButton } from '../../components/RoundButton';

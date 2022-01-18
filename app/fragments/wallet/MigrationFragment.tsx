@@ -8,7 +8,7 @@ import { client } from '../../client';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
-import { loadWalletKeys, WalletKeys } from '../../utils/walletKeys';
+import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';

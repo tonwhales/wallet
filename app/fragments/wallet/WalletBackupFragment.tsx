@@ -2,14 +2,14 @@ import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
-import { storage } from '../../utils/storage';
+import { storage } from '../../storage/appState';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { loadWalletKeys } from '../../utils/walletKeys';
+import { loadWalletKeys } from '../../storage/walletKeys';
 import { useTranslation } from 'react-i18next';
 
 export const WalletBackupFragment = fragment(() => {

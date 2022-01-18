@@ -17,10 +17,10 @@ import { fragment } from "../../fragment";
 import { useAccount } from '../../sync/useAccount';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { getAppState } from '../../utils/storage';
+import { getAppState } from '../../storage/appState';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { loadWalletKeys, WalletKeys } from '../../utils/walletKeys';
+import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

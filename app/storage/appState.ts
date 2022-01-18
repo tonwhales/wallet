@@ -1,6 +1,5 @@
-import { MMKV } from 'react-native-mmkv'
 import { Address } from 'ton';
-export const storage = new MMKV();
+import { storage } from './storage';
 
 type AppState = {
     address: Address,

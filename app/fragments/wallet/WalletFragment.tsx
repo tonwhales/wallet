@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ActivityIndicator, Image, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Cell, parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
-import { getAppState, storage } from '../../utils/storage';
+import { getAppState, storage } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from '../../components/TransactionView';

@@ -10,33 +10,20 @@ import 'react-native-gesture-handler';
 // enableFreeze(false);
 
 // Storage
-import './app/utils/storage';
+import './app/storage/appState';
 
 // App
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Navigation } from './app/Navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme, Theme } from './app/Theme';
-import AppLoading from 'expo-app-loading';
-import { boot } from './app/boot';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
 
 function Boot() {
-  const [ready, setReady] = React.useState(false);
-  if (!ready) {
-    return (
-      <AppLoading
-        startAsync={boot}
-        onFinish={() => setReady(true)}
-        onError={console.warn}
-      />
-    );
-  }
-
   return (
     <>
       <StatusBar style="auto" />

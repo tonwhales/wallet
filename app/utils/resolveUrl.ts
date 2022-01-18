@@ -1,11 +1,12 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address, Cell } from "ton";
 import Url from 'url-parse';
 
 export function resolveUrl(src: string): {
     address: Address,
     comment: string | null,
-    amount: BN | null
+    amount: BN | null,
+    payload: Cell | null
 } | null {
 
     // Try address parsing
@@ -14,7 +15,8 @@ export function resolveUrl(src: string): {
         return {
             address: res.address,
             comment: null,
-            amount: null
+            amount: null,
+            payload: null
         };
     } catch (e) {
         // Ignore
@@ -29,6 +31,7 @@ export function resolveUrl(src: string): {
             let address = Address.parseFriendly(url.pathname.slice(1)).address;
             let comment: string | null = null;
             let amount: BN | null = null;
+            let payload: Cell | null = null;
             if (url.query) {
                 for (let key in url.query) {
                     if (key.toLowerCase() === 'text') {
@@ -37,12 +40,16 @@ export function resolveUrl(src: string): {
                     if (key.toLowerCase() === 'amount') {
                         amount = new BN(url.query[key]!, 10);
                     }
+                    if (key.toLowerCase() === 'bin') {
+                        payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                    }
                 }
             }
             return {
                 address,
                 comment,
-                amount
+                amount,
+                payload
             }
         }
 
@@ -53,6 +60,7 @@ export function resolveUrl(src: string): {
             let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
             let comment: string | null = null;
             let amount: BN | null = null;
+            let payload: Cell | null = null;
             if (url.query) {
                 for (let key in url.query) {
                     if (key.toLowerCase() === 'text') {
@@ -61,12 +69,16 @@ export function resolveUrl(src: string): {
                     if (key.toLowerCase() === 'amount') {
                         amount = new BN(url.query[key]!, 10);
                     }
+                    if (key.toLowerCase() === 'bin') {
+                        payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                    }
                 }
             }
             return {
                 address,
                 comment,
-                amount
+                amount,
+                payload
             }
         }
 

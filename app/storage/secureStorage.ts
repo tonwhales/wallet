@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
-import { storage } from './storage';
+import { storage } from '../storage/appState';
 
 const TOKEN_KEY = 'ton-application-key-v5';
 async function getApplicationKey() {

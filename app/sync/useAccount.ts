@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import { Address } from "ton";
 import React from 'react';
-import { storage } from "../utils/storage";
+import { storage } from "../storage/storage";
 import { fetchAccountState, fetchAccountTransactions, SimpleTransaction } from "../client";
 import { backoff } from "../utils/time";
 import { delay } from "teslabot";

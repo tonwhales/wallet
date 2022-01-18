@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { encryptData } from '../../utils/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
-import { getAppState, setAppState, storage } from '../../utils/storage';
+import { getAppState, setAppState, storage } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import LottieView from 'lottie-react-native';

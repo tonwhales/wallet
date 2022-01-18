@@ -1,4 +1,4 @@
-package com.tonwhales.wallet;
+package com.tonhub.wallet;
 
 import android.os.Build;
 import android.os.Bundle;

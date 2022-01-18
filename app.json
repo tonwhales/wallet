@@ -25,7 +25,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.tonwhales.wallet"
+      "package": "com.tonhub.wallet"
     },
     "web": {
       "favicon": "./assets/favicon.png"

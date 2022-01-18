@@ -1,4 +1,4 @@
-package com.tonwhales.wallet;
+package com.tonhub.wallet;
 
 import com.facebook.react.bridge.JSIModuleSpec;
 import com.facebook.react.bridge.JavaScriptContextHolder;

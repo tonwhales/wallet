@@ -16,8 +16,6 @@ export const WelcomeFragment = fragment(() => {
     const ref = React.useRef<LottieView>(null);
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: '#fff' }}>
-            <View style={{ height: 128, marginTop: safeArea.bottom }} />
-            <View style={{ flexGrow: 1 }} />
             <View style={{ alignItems: 'center', height: 416, marginTop: 22 + 8 + 34 + 8 }}>
                 <View style={{ width: 210, height: 210, marginTop: -14 }}>
                     <Pressable onPress={() => ref.current!.play()}>
@@ -31,14 +29,13 @@ export const WelcomeFragment = fragment(() => {
                     </Pressable>
                 </View>
                 <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 8, height: 34, textAlign: 'center' }}>
-                    Tonhub Wallet
+                    {t('Tonhub Wallet')}
                 </Text>
                 <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8, height: 22 }}>
-                    Easiest and secure TON wallet
+                    {t('Easiest and secure TON wallet')}
                 </Text>
             </View>
-            <View style={{ flexGrow: 1 }} />
-            <View style={{ height: 128, marginHorizontal: 64, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+            <View style={{ height: 128 + safeArea.bottom + 16, position: 'absolute', bottom: 0, width: '100%', paddingHorizontal: 64, justifyContent: 'center' }}>
                 <RoundButton title={t("Create my wallet")} onPress={() => navigation.navigate('LegalCreate')} />
                 <RoundButton title={t("Import existing wallet")} onPress={() => navigation.navigate('LegalImport')} display="inverted" size="normal" style={{ marginTop: 16 }} />
             </View>

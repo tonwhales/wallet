@@ -107,7 +107,7 @@ export const MigrationFragment = fragment(() => {
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom, paddingTop: safeArea.top }}>
                 <AndroidToolbar />
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ marginHorizontal: 16 }}>
+                <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
                     <RoundButton title={t("Proceed")} onPress={() => setConfirm(true)} />
                 </View>
             </View>

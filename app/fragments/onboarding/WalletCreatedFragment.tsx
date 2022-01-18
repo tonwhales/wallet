@@ -4,10 +4,12 @@ import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
+import { useTranslation } from "react-i18next";
 
 export const WalletCreatedFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const { t } = useTranslation();
 
     return (
         <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: 'white' }}>
@@ -40,7 +42,7 @@ export const WalletCreatedFragment = fragment(() => {
                 </Text>
             </View>
             <View style={{ height: 64, marginHorizontal: 64, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title="Back up now" onPress={() => navigation.navigate('WalletBackupInit')} />
+                <RoundButton title={t("Back up now")} onPress={() => navigation.navigate('WalletBackupInit')} />
             </View>
         </View>
     );

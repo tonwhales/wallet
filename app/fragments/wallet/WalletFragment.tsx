@@ -304,7 +304,8 @@ export const WalletFragment = fragment(() => {
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={openReceiveModal}
+                        onPress={() => navigation.navigate('Receive')}
+                    // onPress={openReceiveModal}
                     >
                         <Image source={require('../../../assets/receive.png')} />
                         <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>

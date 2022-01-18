@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, View } from 'react-native';
 import { RecoilRoot } from 'recoil';
@@ -15,6 +14,7 @@ import { TransferFragment } from './fragments/wallet/TransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/wallet/MigrationFragment';
+import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -75,6 +75,7 @@ const navigation = [
     genericScreen('WalletBackup', WalletBackupFragment),
     genericScreen('Settings', SettingsFragment),
     fullScreenModal('Transfer', TransferFragment),
+    fullScreenModal('Receive', ReceiveFragment),
     genericScreen('Migration', MigrationFragment),
     fullScreenModal('Scanner', ScannerFragment)
 ];

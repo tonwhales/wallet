@@ -15,6 +15,7 @@ import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useAccount } from '../../sync/useAccount';
+import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { getAppState } from '../../utils/storage';
@@ -194,6 +195,7 @@ export const TransferFragment = fragment(() => {
                                 </Pressable>
                             }
                         />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
                         <ATextInput
                             value={comment}
                             onValueChange={setComment}

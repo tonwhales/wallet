@@ -1,4 +1,5 @@
-import { getAppState, storage } from "./appState";
+import { getAppState } from "./appState";
+import { storage } from "./storage";
 import { needUpgrade } from "./needUpgrade";
 
 export function resolveOnboarding(): 'backup' | 'sync' | 'home' | 'welcome' {

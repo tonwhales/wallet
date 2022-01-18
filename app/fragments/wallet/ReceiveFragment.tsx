@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { getAppState } from "../../utils/storage";
+import { getAppState } from "../../storage/appState";
 import Clipboard from '@react-native-clipboard/clipboard';
 import { View, Platform, Share, Text } from "react-native";
 import QRCode from "react-native-qrcode-svg";

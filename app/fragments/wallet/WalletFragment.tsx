@@ -218,10 +218,23 @@ export const WalletFragment = fragment(() => {
         };
     });
 
-    const onQRCodeRead = React.useCallback((src: string) => {
-        let res = resolveUrl(src);
-        // TODO qrCode logic
-    }, []);
+    const onQRCodeRead = (src: string) => {
+        try {
+            let res = resolveUrl(src);
+            if (res) {
+                // if QR is valid navigate to transfer fragment
+                console.log('[onQRCodeRead] navigating with', res.address.toFriendly(), '...');
+                navigation.navigate('Transfer', {
+                    target: res.address.toFriendly(),
+                    comment: res.comment,
+                    amount: res.amount
+                })
+            }
+
+        } catch (error) {
+            // Ignore
+        }
+    };
 
     //
     // Loading

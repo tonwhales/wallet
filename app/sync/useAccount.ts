@@ -181,12 +181,12 @@ export function useAccount(address: Address) {
                     // Fetch diff
                     let updated: { status: AccountStatus, txs: SimpleTransaction[] };
                     if (ex) {
-                        console.log('Fetching update...');
+                        // console.log('Fetching update...');
                         let status = parseStatus(ex);
                         updated = await getAccountStatusUpdate(address, status);
                     } else {
                         // Fetching initial
-                        console.log('Fetching initial...');
+                        // console.log('Fetching initial...');
                         updated = await getAccountStatusInitial(address);
                     }
 
@@ -196,7 +196,7 @@ export function useAccount(address: Address) {
                     }
                     storage.set('account_' + address.toFriendly(), serializeStatus(updated.status));
                     setState(updated.status);
-                    console.log('Updated', updated);
+                    // console.log('Updated', updated);
 
                     await delay(5000);
                 }

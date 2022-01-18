@@ -20,6 +20,7 @@ import { getAppState } from '../../storage/appState';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { useRoute } from '@react-navigation/native';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -29,14 +30,21 @@ const labelStyle: StyleProp<TextStyle> = {
 export const TransferFragment = fragment(() => {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
+    const params: {
+        target?: string,
+        comment?: string | null,
+        amount?: BN | null,
+    } | undefined = useRoute().params;
     const address = React.useMemo(() => getAppState()!.address, []);
     const account = useAccount(address);
     const safeArea = useSafeAreaInsets();
     const scrollRef = React.useRef<ScrollView>(null);
 
-    const [target, setTarget] = React.useState('');
-    const [comment, setComment] = React.useState('');
-    const [amount, setAmount] = React.useState('0');
+    console.log('[TransferFragment]', params);
+
+    const [target, setTarget] = React.useState(params?.target || '');
+    const [comment, setComment] = React.useState(params?.comment || '');
+    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
     const doSend = React.useCallback(async () => {
         const state = getAppState()!;
         let address: Address;
@@ -98,13 +106,13 @@ export const TransferFragment = fragment(() => {
 
     return (
         <>
+            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Send Toncoin")} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flexGrow: 1, paddingTop: (Platform.OS === 'android' ? safeArea.top : 0) + 16 }}
+                style={{ flexGrow: 1, paddingTop: 16 }}
                 keyboardVerticalOffset={16}
             >
                 <StatusBar style="dark" />
-                <AndroidToolbar pageTitle={t("Send Toncoin")} />
                 <ScrollView
                     style={{ paddingHorizontal: 16, flex: 1 }}
                 >

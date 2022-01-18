@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, View, Text } from 'react-native';
+import { Alert, View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
@@ -9,6 +9,7 @@ import { fragment } from '../fragment';
 import { Theme } from '../Theme';
 import { storage } from '../storage/storage';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
+import { BlurView } from 'expo-blur';
 
 export const SettingsFragment = fragment(() => {
     const { t } = useTranslation();
@@ -28,21 +29,56 @@ export const SettingsFragment = fragment(() => {
         <View style={{
             flexGrow: 1,
         }}>
-            <View style={{
-                height: safeArea.top + 44,
-                paddingTop: safeArea.top,
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
-                <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={[
-                        { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
-                    ]}>
-                        {t("Settings")}
-                    </Text>
+            {Platform.OS === 'ios' && (
+                <BlurView style={{
+                    height: safeArea.top + 44,
+                    paddingTop: safeArea.top,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={[
+                            { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
+                        ]}>
+                            {t("Settings")}
+                        </Text>
+                    </View>
+                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                    <View style={{
+                        position: 'absolute',
+                        bottom: 0.5, left: 0, right: 0,
+                        height: 0.5,
+                        width: '100%',
+                        backgroundColor: '#000',
+                        opacity: 0.08
+                    }} />
+                </BlurView>
+            )}
+            {Platform.OS === 'android' && (
+                <View style={{
+                    height: safeArea.top + 44,
+                    paddingTop: safeArea.top,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={[
+                            { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
+                        ]}>
+                            {t("Settings")}
+                        </Text>
+                    </View>
+                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                    <View style={{
+                        position: 'absolute',
+                        bottom: 0.5, left: 0, right: 0,
+                        height: 0.5,
+                        width: '100%',
+                        backgroundColor: '#000',
+                        opacity: 0.08
+                    }} />
                 </View>
-                <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-            </View>
+            )}
             <ScrollView
                 style={{
                     flexGrow: 1,

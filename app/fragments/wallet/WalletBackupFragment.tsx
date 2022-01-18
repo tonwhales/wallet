@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import { storage } from '../../storage/storage';
@@ -11,6 +11,7 @@ import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { loadWalletKeys } from '../../storage/walletKeys';
 import { useTranslation } from 'react-i18next';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 
 export const WalletBackupFragment = fragment(() => {
     const { t } = useTranslation();
@@ -62,11 +63,12 @@ export const WalletBackupFragment = fragment(() => {
 
     return (
         <Animated.View
-            style={{ alignItems: 'center', justifyContent: 'flex-start', flexGrow: 1, backgroundColor: 'white' }}
+            style={{ alignItems: 'center', justifyContent: 'flex-start', flexGrow: 1, backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? safeArea.top : undefined, }}
             exiting={FadeIn}
             key={"content"}
         >
-            <ScrollView style={{ flexGrow: 1, flexBasis: 0 }} contentContainerStyle={{ paddingTop: safeArea.top, flexGrow: 1, alignItems: 'center' }}>
+            <AndroidToolbar />
+            <ScrollView style={{ flexGrow: 1, flexBasis: 0 }} contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
                 <LottieView
                     source={require('../../../assets/animations/paper.json')}
                     autoPlay={true}

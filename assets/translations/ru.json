@@ -8,7 +8,7 @@
     "Up to date": "Обновлено",
     "Receive Toncoin": "Получить Toncoin",
     "Receive TONCOIN": "Получить TONCOIN",
-    "Share this link to receive Toncoin": "Поделтесь данной ссылкой, чтобы получить Toncoin",
+    "Share this link to receive Toncoin": "Поделитесь данной ссылкой, чтобы получить Toncoin",
     "Share wallet address": "Поделиться адресом кошелька",
     "Settings": "Настройки",
     "Backup keys": "Резервные ключи",
@@ -45,5 +45,7 @@
     "Protect with biometrics": "Защитить с помощью биометрии",
     "Protect with Touch ID": "Защитить с помощью Touch ID",
     "Protect with Passcode": "Защитить паролем",
-    "Continue anyway": "Продолжить в любом случае"
+    "Continue anyway": "Продолжить в любом случае",
+    "Terms of service": "Условия использования",
+    "Privacy policy": "Политика конфиденциальности"
 }

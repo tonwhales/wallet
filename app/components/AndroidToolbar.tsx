@@ -18,7 +18,7 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
                 flexDirection: 'row',
                 padding: 16,
                 alignItems: 'center',
-                width: '100%'
+                width: '100%',
             },
             props.style
         ]}>
@@ -26,7 +26,7 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
                 <Pressable
                     onPressIn={() => setBackPressedIn(true)}
                     onPressOut={() => setBackPressedIn(false)}
-                    style={{ height: 24, width: 24, alignItems: 'center', justifyContent: 'center', }}
+                    style={{ height: 28, width: 28, alignItems: 'center', justifyContent: 'center', }}
                     onPress={() => navigation.goBack()}
                 >
                     <Image source={
@@ -41,7 +41,7 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
                     style={{
                         fontSize: 22, color: Theme.textColor, fontWeight: '700',
                         flexGrow: 1,
-                        marginLeft: 32
+                        marginLeft: 32,
                     }}
                     numberOfLines={1}
                     ellipsizeMode={"tail"}

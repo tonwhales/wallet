@@ -24,6 +24,7 @@ import { AddressComponent } from '../../components/AddressComponent';
 import { registerForPushNotificationsAsync, registerPushToken } from '../../utils/registerPushNotifications';
 import { backoff } from '../../utils/time';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { resolveUrl } from '../../utils/resolveUrl';
 
 function padLt(src: string) {
     let res = src;
@@ -145,18 +146,6 @@ export const WalletFragment = fragment(() => {
         })();
     }, []);
 
-    //
-    // Loading
-    //
-
-    if (!account) {
-        return (
-            <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <ActivityIndicator color={Theme.loader} />
-            </View>
-        )
-    }
-
     // Animating wallet card
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
 
@@ -164,27 +153,6 @@ export const WalletFragment = fragment(() => {
     const smallCardOpacity = useSharedValue(0);
     const titleOpacity = useSharedValue(1);
     const smallCardY = useSharedValue(Math.floor(cardHeight * 0.15));
-
-    // const onScroll = React.useCallback(
-    //     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    //         if ((event.nativeEvent.contentOffset.y + 28 - cardHeight) >= 0) { // Fully scrolled
-    //             Animated.block([
-    //                 Animated.timing(cardOpacity, { toValue: 0, duration: 200, easing: Easing.inOut(Easing.ease) }).start(),
-    //                 Animated.timing(smallCardOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-    //                 Animated.timing(titleOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
-    //                 Animated.timing(smallCardY, { toValue: - Math.floor(cardHeight * 0.15), duration: 250, useNativeDriver: true }),
-    //             ]);
-    //         } else { // Visible
-    //             Animated.parallel([
-    //                 Animated.timing(cardOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
-    //                 Animated.timing(smallCardOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-    //                 Animated.timing(titleOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
-    //                 Animated.timing(smallCardY, { toValue: Math.floor(cardHeight * 0.25), duration: 250, useNativeDriver: true }),
-    //             ]).start();
-    //         }
-    //     },
-    //     [cardOpacity, smallCardOpacity],
-    // );
 
     const onScroll = useAnimatedScrollHandler((event) => {
         if ((event.contentOffset.y + 28 - cardHeight) >= 0) { // Fully scrolled
@@ -239,7 +207,7 @@ export const WalletFragment = fragment(() => {
                 }
             ],
         };
-    });
+    }, [cardHeight, window]);
 
     const titleOpacityStyle = useAnimatedStyle(() => {
         return {
@@ -249,6 +217,23 @@ export const WalletFragment = fragment(() => {
             }),
         };
     });
+
+    const onQRCodeRead = React.useCallback((src: string) => {
+        let res = resolveUrl(src);
+        // TODO qrCode logic
+    }, []);
+
+    //
+    // Loading
+    //
+
+    if (!account) {
+        return (
+            <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator color={Theme.loader} />
+            </View>
+        );
+    }
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -438,13 +423,15 @@ export const WalletFragment = fragment(() => {
                                         </Text>
                                     </View>
                                 </Animated.View>
-                                <Image
+                                <Pressable
                                     style={{
                                         position: 'absolute',
                                         right: 13,
                                     }}
-                                    source={require('../../../assets/ic_qr.png')}
-                                />
+                                    onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                >
+                                    <Image source={require('../../../assets/ic_qr.png')} />
+                                </Pressable>
                             </View>
                         </BlurView>
                         <View style={{
@@ -521,13 +508,15 @@ export const WalletFragment = fragment(() => {
                                     </Text>
                                 </View>
                             </Animated.View>
-                            <Image
+                            <Pressable
                                 style={{
                                     position: 'absolute',
                                     right: 13,
                                 }}
-                                source={require('../../../assets/ic_qr.png')}
-                            />
+                                onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                            >
+                                <Image source={require('../../../assets/ic_qr.png')} />
+                            </Pressable>
                         </View>
                         <View style={{
                             position: 'absolute',

@@ -6,12 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
 import { ItemHeader } from '../components/ItemHeader';
 import { fragment } from '../fragment';
-<<<<<<< HEAD
 import { Theme } from '../Theme';
-import { storage } from '../utils/storage';
-=======
 import { storage } from '../storage/storage';
->>>>>>> pr/1
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 
 export const SettingsFragment = fragment(() => {

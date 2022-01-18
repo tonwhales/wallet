@@ -13,14 +13,11 @@ import { TransferFragment } from './fragments/wallet/TransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/wallet/MigrationFragment';
-<<<<<<< HEAD
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 import { PrivacyFragment } from './fragments/PrivacyFragment';
 import { TermsFragment } from './fragments/TermsFragment';
-=======
 import { SyncFragment } from './fragments/onboarding/SyncFragment';
 import { resolveOnboarding } from './storage/resolveOnboarding';
->>>>>>> pr/1
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 

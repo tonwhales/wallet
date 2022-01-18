@@ -132,7 +132,7 @@ android {
     }
 
     defaultConfig {
-        applicationId 'com.tonwhales.wallet'
+        applicationId 'com.tonhub.wallet'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -7,16 +7,20 @@ import { WalletImportFragment } from './fragments/onboarding/WalletImportFragmen
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
 import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
-import { storage } from './utils/storage';
 import { WalletBackupFragment } from './fragments/wallet/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { TransferFragment } from './fragments/wallet/TransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/wallet/MigrationFragment';
+<<<<<<< HEAD
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 import { PrivacyFragment } from './fragments/PrivacyFragment';
 import { TermsFragment } from './fragments/TermsFragment';
+=======
+import { SyncFragment } from './fragments/onboarding/SyncFragment';
+import { resolveOnboarding } from './storage/resolveOnboarding';
+>>>>>>> pr/1
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -68,6 +72,7 @@ function fullScreenModal(name: string, component: React.ComponentType<any>) {
 const navigation = [
     fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
+    fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment),
     genericScreen('LegalImport', LegalFragment),
     genericScreen('WalletImport', WalletImportFragment),
@@ -87,14 +92,17 @@ const navigation = [
 export const Navigation = React.memo(() => {
 
     const initial = React.useMemo(() => {
-        if (storage.getString('ton-mnemonics')) {
-            if (storage.getBoolean('ton-backup-completed')) {
-                return 'Home';
-            } else {
-                return 'WalletCreated';
-            }
-        } else {
+        const onboarding = resolveOnboarding();
+        if (onboarding === 'backup') {
+            return 'WalletCreated';
+        } else if (onboarding === 'home') {
+            return 'Home';
+        } else if (onboarding === 'sync') {
+            return 'Sync';
+        } else if (onboarding === 'welcome') {
             return 'Welcome';
+        } else {
+            throw Error('Invalid onboarding state');
         }
     }, []);
 

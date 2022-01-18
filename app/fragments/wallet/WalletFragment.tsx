@@ -48,8 +48,6 @@ const modalConfig = {
     disableBottomSafeArea: true
 }
 
-console.disableYellowBox = true;
-
 export const WalletFragment = fragment(() => {
     const { t } = useTranslation();
     const receiveRef = React.useRef<Modalize>(null);

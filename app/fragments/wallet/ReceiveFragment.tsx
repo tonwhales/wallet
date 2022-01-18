@@ -33,12 +33,14 @@ export const ReceiveFragment = fragment(() => {
             backgroundColor: Theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined
         }}>
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} />
+            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t("Receive Toncoin")} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
-                    {t("Receive Toncoin")}
-                </Text>
-                <Text style={{ fontSize: 16, color: Theme.textSecondary, marginTop: 7, paddingHorizontal: 32, textAlign: 'center' }}>
+                {Platform.OS === 'ios' && (
+                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
+                        {t("Receive Toncoin")}
+                    </Text>
+                )}
+                <Text style={{ fontSize: 16, color: Theme.textSecondary, marginTop: Platform.OS === 'android' ? 7 + 56 : 7, paddingHorizontal: 32, textAlign: 'center' }}>
                     {t("Share this link to receive Toncoin")}
                 </Text>
             </View>
@@ -60,7 +62,7 @@ export const ReceiveFragment = fragment(() => {
                     logoBackgroundColor='transparent'
                 />
                 <Text selectable={true} style={{ marginTop: 25, width: 265, textAlign: 'center' }} numberOfLines={1} ellipsizeMode="middle">
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'monospace' }}>{address.toFriendly()}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly()}</Text>
                 </Text>
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>
                     {t("Wallet address")}
@@ -68,7 +70,7 @@ export const ReceiveFragment = fragment(() => {
             </View>
             <View style={{
                 flexDirection: 'row',
-                paddingHorizontal: 16, marginBottom: safeArea.bottom + 8,
+                paddingHorizontal: 16, marginBottom: safeArea.bottom + 16,
                 justifyContent: 'space-evenly',
                 // position: 'absolute', bottom: 0,
                 alignContent: 'stretch'

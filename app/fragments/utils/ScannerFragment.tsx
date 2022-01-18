@@ -25,10 +25,10 @@ export const ScannerFragment = fragment(() => {
 
     const handleBarCodeScanned = (params: BarCodeEvent) => {
         setScanned(true);
+        navigation.goBack();
         if (route && (route as any).callback) {
             (route as any).callback(params.data);
         }
-        navigation.goBack();
     };
 
     if (hasPermission === null) {

@@ -137,14 +137,14 @@ export const WalletFragment = fragment(() => {
     const window = useWindowDimensions();
 
     // Register token
-    React.useEffect(() => {
-        (async () => {
-            const token = await backoff(() => registerForPushNotificationsAsync());
-            if (token) {
-                await backoff(() => registerPushToken(token, address));
-            }
-        })();
-    }, []);
+    // React.useEffect(() => {
+    //     (async () => {
+    //         const token = await backoff(() => registerForPushNotificationsAsync());
+    //         if (token) {
+    //             await backoff(() => registerPushToken(token, address));
+    //         }
+    //     })();
+    // }, []);
 
     // Animating wallet card
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
@@ -218,10 +218,23 @@ export const WalletFragment = fragment(() => {
         };
     });
 
-    const onQRCodeRead = React.useCallback((src: string) => {
-        let res = resolveUrl(src);
-        // TODO qrCode logic
-    }, []);
+    const onQRCodeRead = (src: string) => {
+        try {
+            let res = resolveUrl(src);
+            if (res) {
+                // if QR is valid navigate to transfer fragment
+                console.log('[onQRCodeRead] navigating with', res.address.toFriendly(), '...');
+                navigation.navigate('Transfer', {
+                    target: res.address.toFriendly(),
+                    comment: res.comment,
+                    amount: res.amount
+                })
+            }
+
+        } catch (error) {
+            // Ignore
+        }
+    };
 
     //
     // Loading

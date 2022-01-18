@@ -82,7 +82,7 @@ export const ReceiveFragment = fragment(() => {
                     display={'secondary'}
                 />
                 <RoundButton
-                    title={t("Share QR code")}
+                    title={t("Share")}
                     onPress={() => Share.share({ url: link })}
                     style={{ flex: 2, alignSelf: 'stretch' }}
                 />

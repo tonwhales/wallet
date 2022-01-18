@@ -137,14 +137,14 @@ export const WalletFragment = fragment(() => {
     const window = useWindowDimensions();
 
     // Register token
-    // React.useEffect(() => {
-    //     (async () => {
-    //         const token = await backoff(() => registerForPushNotificationsAsync());
-    //         if (token) {
-    //             await backoff(() => registerPushToken(token, address));
-    //         }
-    //     })();
-    // }, []);
+    React.useEffect(() => {
+        (async () => {
+            const token = await backoff(() => registerForPushNotificationsAsync());
+            if (token) {
+                await backoff(() => registerPushToken(token, address));
+            }
+        })();
+    }, []);
 
     // Animating wallet card
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);

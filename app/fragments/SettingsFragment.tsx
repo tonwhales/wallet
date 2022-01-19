@@ -118,6 +118,20 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton leftIcon={require('../../assets/ic_privacy.png')} title={t("Privacy policy")} onPress={() => navigation.navigate('Privacy')} />
                     </View>
                 </View>
+
+                <View style={{
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: "white",
+                    borderRadius: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t("Developer Tools")} onPress={() => navigation.navigate('DeveloperTools')} />
+                    </View>
+                </View>
+
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: "white",

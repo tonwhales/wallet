@@ -18,6 +18,7 @@ import { PrivacyFragment } from './fragments/PrivacyFragment';
 import { TermsFragment } from './fragments/TermsFragment';
 import { SyncFragment } from './fragments/onboarding/SyncFragment';
 import { resolveOnboarding } from './storage/resolveOnboarding';
+import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -83,7 +84,8 @@ const navigation = [
     fullScreenModal('Transfer', TransferFragment),
     fullScreenModal('Receive', ReceiveFragment),
     genericScreen('Migration', MigrationFragment),
-    fullScreenModal('Scanner', ScannerFragment)
+    fullScreenModal('Scanner', ScannerFragment),
+    genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
 
 export const Navigation = React.memo(() => {

@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 
 export const ScannerFragment = fragment(() => {
@@ -103,18 +104,19 @@ export const ScannerFragment = fragment(() => {
     return (
         <View style={styles.container}>
             <StatusBar style="auto" />
-            <Deferred>
-                {device && (
-                    <Camera
-                        style={StyleSheet.absoluteFill}
-                        device={device}
-                        isActive={!scanned}
-                        frameProcessor={frameProcessor}
-                        frameProcessorFps={5}
-                        torch={flashOn ? 'on' : 'off'}
-                    />
-                )}
-            </Deferred>
+            {!device && (
+                <LoadingIndicator simple />
+            )}
+            {device && (
+                <Camera
+                    style={StyleSheet.absoluteFill}
+                    device={device}
+                    isActive={!scanned}
+                    frameProcessor={frameProcessor}
+                    frameProcessorFps={5}
+                    torch={flashOn ? 'on' : 'off'}
+                />
+            )}
             <View style={{ flexDirection: 'column', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
                 <View style={{ flexDirection: 'row', alignSelf: 'stretch' }}>

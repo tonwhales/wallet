@@ -9,7 +9,9 @@ import { useRoute } from '@react-navigation/native';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { Deferred } from '../../components/Deferred';
 import { useTranslation } from 'react-i18next';
-import { Camera } from 'expo-camera';
+import { Camera } from 'react-native-vision-camera';
+import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
+import { useCameraDevices } from 'react-native-vision-camera';
 
 
 export const ScannerFragment = fragment(() => {
@@ -21,6 +23,10 @@ export const ScannerFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
     const navigation = useTypedNavigation();
+    const devices = useCameraDevices();
+    const device = devices.back;
+
+    const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
 
     useEffect(() => {
         (async () => {
@@ -29,13 +35,19 @@ export const ScannerFragment = fragment(() => {
         })();
     }, []);
 
-    const handleBarCodeScanned = (params: BarCodeEvent) => {
-        setScanned(true);
-        navigation.goBack();
-        if (route && (route as any).callback) {
-            (route as any).callback(params.data);
+    useEffect(() => {
+        if (barcodes && barcodes.length > 0 && barcodes[0]) {
+            setScanned(true);
+            if (route && (route as any).callback) {
+                navigation.goBack();
+                if (barcodes[0].content.type === BarcodeValueType.URL) {
+                    (route as any).callback(barcodes[0].content.data.url);
+                } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
+                    (route as any).callback(barcodes[0].content.data);
+                }
+            }
         }
-    };
+    }, [barcodes]);
 
     if (hasPermission === null) {
         return (
@@ -92,16 +104,16 @@ export const ScannerFragment = fragment(() => {
         <View style={styles.container}>
             <StatusBar style="auto" />
             <Deferred>
-                <Camera
-                    style={Platform.OS === 'ios' ? StyleSheet.absoluteFillObject : { width: window.width, aspectRatio: 3 / 4 }}
-                    barCodeScannerSettings={{
-                        barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
-                    }}
-                    flashMode={flashOn ? 'torch' : 'off'}
-                    type={'back'}
-                    onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                    ratio='3:4'
-                />
+                {device && (
+                    <Camera
+                        style={StyleSheet.absoluteFill}
+                        device={device}
+                        isActive={!scanned}
+                        frameProcessor={frameProcessor}
+                        frameProcessorFps={5}
+                        torch={flashOn ? 'on' : 'off'}
+                    />
+                )}
             </Deferred>
             <View style={{ flexDirection: 'column', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />

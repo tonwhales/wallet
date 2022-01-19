@@ -15,12 +15,13 @@ import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/wallet/MigrationFragment';
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';
-import { TermsFragment } from './fragments/TermsFragment';
-import { SyncFragment } from './fragments/onboarding/SyncFragment';
+import { TermsFragment } from './fragments/onboarding/TermsFragment';
+import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme } from './Theme';
+import { getAppState } from './storage/appState';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -108,19 +109,16 @@ export const Navigation = React.memo(() => {
     }, []);
 
     return (
+    
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-            <RecoilRoot>
-                <NavigationContainer
-                    theme={NavigationTheme}
+            <NavigationContainer theme={NavigationTheme}>
+                <Stack.Navigator
+                    initialRouteName={initial}
+                    screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
                 >
-                    <Stack.Navigator
-                        initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
-                    >
-                        {navigation}
-                    </Stack.Navigator>
-                </NavigationContainer>
-            </RecoilRoot>
+                    {navigation}
+                </Stack.Navigator>
+            </NavigationContainer>
         </View>
     );
 });

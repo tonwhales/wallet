@@ -1,15 +1,22 @@
 import { delay } from "teslabot";
 import { AppState } from "../storage/appState";
-import { storage } from "../storage/storage";
+import { mainnetCache, testnetCache } from "./cache";
 
 export function needSync(state: AppState) {
-    if (!storage.getBoolean('need-sync')) {
-        return true;
-    }
+    // const cache = state.testnet ? testnetCache : mainnetCache;
+    // const accountState = cache.loadState(state.address);
+    // if (!accountState) {
+    //     return true;
+    // }
+
     return false;
 }
 
-export async function doInitialSync() {
+export async function doInitialSync(state: AppState) {
+    if (!needSync(state)) {
+        return;
+    }
+
+    
     await delay(1000);
-    storage.set('need-sync', true);
 }

@@ -3,7 +3,6 @@ import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { fragment } from "../fragment";
 import { Theme } from '../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { WalletFragment } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
 import { StatusBar } from 'expo-status-bar';

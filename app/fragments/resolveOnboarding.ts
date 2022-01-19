@@ -1,11 +1,11 @@
 import { getAppState } from "../storage/appState";
-import { needSync } from "../sync/initialSync";
+import { Engine } from "../sync/Engine";
 
-export function resolveOnboarding(): 'backup' | 'sync' | 'home' | 'welcome' {
+export function resolveOnboarding(engine: Engine | null): 'backup' | 'sync' | 'home' | 'welcome' {
     const state = getAppState();
     if (state) {
         if (state.backupCompleted) {
-            if (needSync(state)) {
+            if (engine && !engine.ready) {
                 return 'sync';
             } else {
                 return 'home';

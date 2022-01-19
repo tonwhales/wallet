@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, View } from 'react-native';
-import { RecoilRoot } from 'recoil';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -23,6 +22,9 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme } from './Theme';
 import { getAppState } from './storage/appState';
+import { Engine, EngineContext } from './sync/Engine';
+import { storageMainnet, storageTestnet } from './storage/storage';
+import { createSimpleConnector } from './sync/Connector';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -95,8 +97,21 @@ const navigation = [
 
 export const Navigation = React.memo(() => {
 
+    const engine = React.useMemo(() => {
+        let state = getAppState();
+        if (state) {
+            return new Engine(
+                state.address,
+                state.testnet ? storageTestnet : storageMainnet,
+                createSimpleConnector(state.testnet ? 'https://testnet.toncenter.com/api/v2' : 'https://toncenter.com/api/v2')
+            );
+        } else {
+            return null;
+        }
+    }, []);
+
     const initial = React.useMemo(() => {
-        const onboarding = resolveOnboarding();
+        const onboarding = resolveOnboarding(engine);
         if (onboarding === 'backup') {
             return 'WalletCreated';
         } else if (onboarding === 'home') {
@@ -111,16 +126,17 @@ export const Navigation = React.memo(() => {
     }, []);
 
     return (
-
-        <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-            <NavigationContainer theme={NavigationTheme}>
-                <Stack.Navigator
-                    initialRouteName={initial}
-                    screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
-                >
-                    {navigation}
-                </Stack.Navigator>
-            </NavigationContainer>
-        </View>
+        <EngineContext.Provider value={engine}>
+            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+                <NavigationContainer theme={NavigationTheme}>
+                    <Stack.Navigator
+                        initialRouteName={initial}
+                        screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
+                    >
+                        {navigation}
+                    </Stack.Navigator>
+                </NavigationContainer>
+            </View>
+        </EngineContext.Provider>
     );
 });

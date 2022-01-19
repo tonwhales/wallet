@@ -1,5 +1,4 @@
 import { Address, Cell } from "ton";
-import { storageMainnet, storageTestnet } from "./storage";
 import * as t from 'io-ts';
 import BN from "bn.js";
 import { isLeft } from "fp-ts/lib/Either";
@@ -14,7 +13,7 @@ function padLt(src: string) {
 }
 
 const stateStorage = t.type({
-    version: t.literal(1),
+    version: t.literal(2),
     balance: t.string,
     state: t.union([t.literal('active'), t.literal('uninitialized'), t.literal('frozen')]),
     seqno: t.number,
@@ -28,7 +27,7 @@ const stateStorage = t.type({
 
 function serializeStatus(account: AccountStatus): t.TypeOf<typeof stateStorage> {
     return {
-        version: 1,
+        version: 2,
         balance: account.balance.toString(10),
         state: account.state,
         seqno: account.seqno,
@@ -73,7 +72,7 @@ export type AccountStatus = {
     transactions: string[]
 };
 
-function createCache(store: MMKV) {
+export function createCache(store: MMKV) {
     return {
         storeTransaction: (address: Address, lt: string, data: string) => {
             store.set('tx_' + address.toFriendly() + '_' + padLt(lt), data);
@@ -93,13 +92,10 @@ function createCache(store: MMKV) {
         loadState: (address: Address) => {
             let s = store.getString('account_' + address.toFriendly());
             if (s) {
-                return parseStatus(s);
+                return parseStatus(JSON.parse(s));
             } else {
                 return null;
             }
         }
     };
 }
-
-export const mainnetCache = createCache(storageMainnet);
-export const testnetCache = createCache(storageTestnet);

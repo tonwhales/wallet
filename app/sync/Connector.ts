@@ -70,7 +70,7 @@ export function createSimpleConnector(endpoint: string): Connector {
 
     // Fetch transactions
     const fetchTransactions: (address: Address, from: { lt: string, hash: string }) => Promise<ConnectorTransaction[]> = async (address, from) => {
-        let res = await axios.get(endpoint + 'getTransactions?address=' + address.toFriendly() + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'));
+        let res = await axios.get(endpoint + '/getTransactions?address=' + address.toFriendly() + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'));
         if (!res.data.ok) {
             throw Error('Server error');
         }

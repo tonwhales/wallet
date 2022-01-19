@@ -4,18 +4,18 @@ import { Text, View } from 'react-native';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { fragment } from '../fragment';
 import { useReboot } from '../Root';
-import { getAppState } from '../storage/appState';
-import { doInitialSync } from '../sync/initialSync';
+import { EngineContext } from '../sync/Engine';
 
 export const SyncFragment = fragment(() => {
     const reboot = useReboot();
+    const engine = React.useContext(EngineContext)!
     React.useEffect(() => {
         let ended = false;
         (async () => {
             if (ended) {
                 return;
             }
-            await doInitialSync(getAppState()!);
+            await engine.awaitReady();
             if (ended) {
                 return;
             }

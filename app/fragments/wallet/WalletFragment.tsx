@@ -25,6 +25,7 @@ import { registerForPushNotificationsAsync, registerPushToken } from '../../util
 import { backoff } from '../../utils/time';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
+import { EngineContext } from '../../sync/Engine';
 
 function padLt(src: string) {
     let res = src;
@@ -56,13 +57,16 @@ export const WalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getAppState()!.address, []);
-    const account = useAccount(address);
+    const engine = React.useContext(EngineContext)!;
+    const account = engine.useState();
+    // const account = useAccount(address);
     const transactions = React.useMemo<RawTransaction[]>(() => {
-        if (account) {
-            return account.transactions.map((v) => parseTransaction(0, Cell.fromBoc(Buffer.from(storage.getString('tx_' + address.toFriendly() + '_' + padLt(v))!, 'base64'))[0].beginParse()));
-        } else {
-            return [];
-        }
+        // if (account) {
+        //     return account.transactions.map((v) => parseTransaction(0, Cell.fromBoc(Buffer.from(storage.getString('tx_' + address.toFriendly() + '_' + padLt(v))!, 'base64'))[0].beginParse()));
+        // } else {
+        //     return [];
+        // }
+        return account.transactions.map((v) => parseTransaction(0, engine.cache.loadTransaction(engine.address, v)!.beginParse()))
     }, [account]);
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: RawTransaction[] }[] = [];
@@ -240,18 +244,6 @@ export const WalletFragment = fragment(() => {
             // Ignore
         }
     };
-
-    //
-    // Loading
-    //
-
-    if (!account) {
-        return (
-            <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <ActivityIndicator color={Theme.loader} />
-            </View>
-        );
-    }
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>

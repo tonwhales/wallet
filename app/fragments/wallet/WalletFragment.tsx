@@ -297,7 +297,8 @@ export const WalletFragment = fragment(() => {
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>
-                    <View style={{
+                    {/* TODO: add value in USD */}
+                    {/* <View style={{
                         backgroundColor: Theme.accent,
                         borderRadius: 9,
                         height: 24,
@@ -313,10 +314,9 @@ export const WalletFragment = fragment(() => {
                             textAlign: "center",
                             lineHeight: 16
                         }}>
-                            {/* TODO fix this when quering exchange rates gets implemented*/}
                             {`$ ${(parseFloat(fromNano(account.balance)) * 3.2).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`}
                         </Text>
-                    </View>
+                    </View> */}
                     <View style={{ flexGrow: 1 }} />
                     <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
                         <AddressComponent address={address} />

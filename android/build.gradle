@@ -34,6 +34,10 @@ allprojects {
             url(new File(["node", "--print", "require.resolve('jsc-android/package.json')"].execute(null, rootDir).text.trim(), "../dist"))
         }
 
+        maven {
+            url "$rootDir/../node_modules/expo-camera/android/maven"
+        }
+
         google()
         mavenCentral()
         jcenter()

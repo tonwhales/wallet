@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ActivityIndicator, Image, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
-import { Cell, parseTransaction, RawTransaction } from 'ton';
+import { Cell, fromNano, parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState } from '../../storage/appState';
 import { storage } from '../../storage/storage';
@@ -125,17 +125,22 @@ export const WalletFragment = fragment(() => {
         [modalConfig],
     );
 
-    const openTransactionModal = React.useCallback(
+    const openTransactionFragment = React.useCallback(
         (transaction: RawTransaction | null) => {
             if (transaction) {
-                showModal(({ hide }) => {
-                    return (
-                        <TransactionPreview tx={transaction} />
-                    );
-                }, modalConfig);
+                navigation.navigate('Transaction', {
+                    transaction: {
+                        ...transaction
+                    }
+                });
+                // showModal(({ hide }) => {
+                //     return (
+                //         <TransactionPreview tx={transaction} />
+                //     );
+                // }, modalConfig);
             }
         },
-        [modalConfig],
+        [navigation],
     );
 
     const window = useWindowDimensions();
@@ -281,10 +286,30 @@ export const WalletFragment = fragment(() => {
                     />
 
                     <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Toncoin balance')}</Text>
-                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
-                    <View style={{ flexGrow: 1 }}>
-
-                    </View>
+                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
+                        <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
+                    </Text>
+                    {/* TODO: add value in USD */}
+                    {/* <View style={{
+                        backgroundColor: Theme.accent,
+                        borderRadius: 9,
+                        height: 24,
+                        marginHorizontal: 22, marginTop: 6,
+                        justifyContent: 'center',
+                        alignItems: 'flex-start',
+                        alignSelf: 'flex-start',
+                        paddingVertical: 4, paddingHorizontal: 8
+                    }}>
+                        <Text style={{
+                            color: 'white',
+                            fontSize: 14, fontWeight: '600',
+                            textAlign: "center",
+                            lineHeight: 16
+                        }}>
+                            {`$ ${(parseFloat(fromNano(account.balance)) * 3.2).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`}
+                        </Text>
+                    </View> */}
+                    <View style={{ flexGrow: 1 }} />
                     <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
                         <AddressComponent address={address} />
                     </Text>
@@ -337,7 +362,7 @@ export const WalletFragment = fragment(() => {
                                 <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
                             </View>,
                             <View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false}>
-                                {s.items.map((t, i) => <TransactionView own={address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.lt.toString()} onPress={openTransactionModal} />)}
+                                {s.items.map((t, i) => <TransactionView own={address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.lt.toString()} onPress={openTransactionFragment} />)}
                             </View>
                         ]
                     ))

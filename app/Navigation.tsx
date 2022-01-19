@@ -13,6 +13,7 @@ import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/wallet/MigrationFragment';
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
+import { TransactionPreviewFragment } from './fragments/wallet/TransactionPreviewFragment';
 import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';
 import { TermsFragment } from './fragments/onboarding/TermsFragment';
 import { SyncFragment } from './fragments/SyncFragment';
@@ -88,8 +89,9 @@ const navigation = [
     genericScreen('Terms', TermsFragment),
     fullScreenModal('Transfer', TransferFragment),
     fullScreenModal('Receive', ReceiveFragment),
+    fullScreenModal('Transaction', TransactionPreviewFragment),
     genericScreen('Migration', MigrationFragment),
-    fullScreenModal('Scanner', ScannerFragment),
+    fullScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
 

@@ -73,6 +73,7 @@
     "react-native-screens": "^3.10.1",
     "react-native-svg": "^12.1.1",
     "react-native-typography": "^1.4.1",
+    "react-native-vision-camera": "^2.12.0",
     "react-native-web": "0.17.1",
     "react-native-webview": "^11.16.0",
     "react-navigation": "^4.4.4",
@@ -82,7 +83,8 @@
     "ton-contracts": "^2.3.2",
     "ton-crypto": "^1.7.0",
     "url-parse": "^1.5.4",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "vision-camera-code-scanner": "^0.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.16.5",

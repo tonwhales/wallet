@@ -29,17 +29,6 @@ export const ScannerFragment = fragment(() => {
         })();
     }, []);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                Torch.switchState(flashOn);
-            } catch (error) {
-                console.log('[ScannerFragment]', error);
-            }
-        })
-
-    }, [flashOn]);
-
     const handleBarCodeScanned = (params: BarCodeEvent) => {
         setScanned(true);
         navigation.goBack();

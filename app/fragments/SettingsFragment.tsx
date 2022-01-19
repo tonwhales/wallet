@@ -10,17 +10,19 @@ import { Theme } from '../Theme';
 import { storage } from '../storage/storage';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
+import { useReboot } from '../Root';
 
 export const SettingsFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const reboot = useReboot();
 
     const doSignout = React.useCallback(() => {
         Alert.alert('Are your sure want to signout?', '', [{
             text: 'Log out', style: 'destructive', onPress: () => {
                 storage.clearAll();
-                navigation.navigateAndReplaceAll('Welcome');
+                reboot();
             }
         }, { text: 'Cancel' }])
     }, []);

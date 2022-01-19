@@ -12,6 +12,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { loadWalletKeys } from '../../storage/walletKeys';
 import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { getAppState, setAppState } from '../../storage/appState';
 
 export const WalletBackupFragment = fragment(() => {
     const { t } = useTranslation();
@@ -19,7 +20,11 @@ export const WalletBackupFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const onComplete = React.useCallback(() => {
-        storage.set('ton-backup-completed', true);
+        let state = getAppState();
+        if (!state) {
+            throw Error('Invalid state');
+        }
+        setAppState({ ...state, backupCompleted: true });
         navigation.navigateAndReplaceAll('Home');
     }, []);
     React.useEffect(() => {

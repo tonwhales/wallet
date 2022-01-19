@@ -1,12 +1,11 @@
-import { getAppState } from "./appState";
-import { storage } from "./storage";
-import { needUpgrade } from "./needUpgrade";
+import { getAppState } from "../storage/appState";
+import { needSync } from "../sync/initialSync";
 
 export function resolveOnboarding(): 'backup' | 'sync' | 'home' | 'welcome' {
     const state = getAppState();
     if (state) {
-        if (storage.getBoolean('ton-backup-completed')) {
-            if (needUpgrade()) {
+        if (state.backupCompleted) {
+            if (needSync(state)) {
                 return 'sync';
             } else {
                 return 'home';

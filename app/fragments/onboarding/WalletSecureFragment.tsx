@@ -7,18 +7,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { encryptData } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
-import { getAppState, setAppState } from '../../storage/appState';
+import { setAppState } from '../../storage/appState';
 import { storage } from '../../storage/storage';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import LottieView from 'lottie-react-native';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
+import { useReboot } from '../../Root';
 
-export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption }) => {
+export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { t } = useTranslation();
+    const reboot = useReboot();
 
     // Action
     const [loading, setLoading] = React.useState(false);
@@ -43,9 +45,10 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 const contract = await contractFromPublicKey(key.publicKey);
 
                 // Persist state
-                setAppState({ address: contract.address, publicKey: key.publicKey });
+                setAppState({ address: contract.address, publicKey: key.publicKey, testnet: false, backupCompleted: props.import });
 
-                navigation.navigateAndReplaceAll('WalletCreated');
+                // Navigate next
+                reboot();
             } catch (e) {
                 console.warn(e);
                 Alert.alert(t('Secure storage error'), t('Unfortunatelly we are unable to save data. Please, restart your phone.'));

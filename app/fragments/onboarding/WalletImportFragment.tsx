@@ -255,6 +255,7 @@ export const WalletImportFragment = fragment(() => {
                     <WalletSecureFragment
                         mnemonics={state.mnemonics}
                         deviceEncryption={state.deviceEncryption}
+                        import={true}
                     />
                 </Animated.View>
             )}

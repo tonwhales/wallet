@@ -18,6 +18,7 @@ import { PrivacyFragment } from './fragments/PrivacyFragment';
 import { TermsFragment } from './fragments/TermsFragment';
 import { SyncFragment } from './fragments/onboarding/SyncFragment';
 import { resolveOnboarding } from './storage/resolveOnboarding';
+import { TransactionPreviewFragment } from './fragments/wallet/TransactionPreviewFragment';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -82,6 +83,7 @@ const navigation = [
     genericScreen('Terms', TermsFragment),
     fullScreenModal('Transfer', TransferFragment),
     fullScreenModal('Receive', ReceiveFragment),
+    fullScreenModal('Transaction', TransactionPreviewFragment),
     genericScreen('Migration', MigrationFragment),
     fullScreenModal('Scanner', ScannerFragment)
 ];

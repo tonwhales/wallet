@@ -89,7 +89,7 @@ const navigation = [
     fullScreenModal('Receive', ReceiveFragment),
     fullScreenModal('Transaction', TransactionPreviewFragment),
     genericScreen('Migration', MigrationFragment),
-    fullScreenModal('Scanner', ScannerFragment),
+    fullScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
 

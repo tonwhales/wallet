@@ -22,6 +22,7 @@ import { NavigationTheme, Theme } from './app/Theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
+import { Root } from './app/Root';
 
 function Boot() {
   return (
@@ -29,11 +30,7 @@ function Boot() {
       <StatusBar style="auto" />
       <SafeAreaProvider>
         <GestureHandlerRootView style={styles.container}>
-          <NavigationContainer
-            theme={NavigationTheme}
-          >
-            <Navigation />
-          </NavigationContainer>
+          <Root />
         </GestureHandlerRootView>
         <ModalProvider />
       </SafeAreaProvider>

@@ -14,11 +14,13 @@ import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/wallet/MigrationFragment';
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
-import { PrivacyFragment } from './fragments/PrivacyFragment';
+import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';
 import { TermsFragment } from './fragments/TermsFragment';
 import { SyncFragment } from './fragments/onboarding/SyncFragment';
-import { resolveOnboarding } from './storage/resolveOnboarding';
+import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
+import { NavigationContainer } from '@react-navigation/native';
+import { NavigationTheme } from './Theme';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -108,12 +110,16 @@ export const Navigation = React.memo(() => {
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
             <RecoilRoot>
-                <Stack.Navigator
-                    initialRouteName={initial}
-                    screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
+                <NavigationContainer
+                    theme={NavigationTheme}
                 >
-                    {navigation}
-                </Stack.Navigator>
+                    <Stack.Navigator
+                        initialRouteName={initial}
+                        screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
+                    >
+                        {navigation}
+                    </Stack.Navigator>
+                </NavigationContainer>
             </RecoilRoot>
         </View>
     );

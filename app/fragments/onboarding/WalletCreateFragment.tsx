@@ -67,6 +67,7 @@ export const WalletCreateFragment = fragment(() => {
                     <WalletSecureFragment
                         mnemonics={state.mnemonics}
                         deviceEncryption={state.deviceEncryption}
+                        import={false}
                     />
                 </Animated.View>
             )}

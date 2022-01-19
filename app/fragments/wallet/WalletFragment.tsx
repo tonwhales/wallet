@@ -89,42 +89,6 @@ export const WalletFragment = fragment(() => {
         return sections;
     }, [transactions]);
 
-    //
-    // Modal
-    //
-    const [modal, setModal] = React.useState<RawTransaction | null>(null);
-    const txRef = React.useRef<Modalize>(null);
-    React.useEffect(() => {
-        if (modal) {
-            // What a fuck?
-            setTimeout(() => {
-                txRef!.current!.open();
-            }, 10);
-        }
-    }, [modal]);
-
-
-    //
-    // Content
-    //
-
-    // {!transactions && (
-    //     <View style={{ alignItems: 'center', flexGrow: 1, justifyContent: 'center' }}>
-    //         <ActivityIndicator />
-    //     </View>
-    // )}
-
-    const openReceiveModal = React.useCallback(
-        () => {
-            showModal(({ hide }) => {
-                return (
-                    <WalletReceiveComponent onHide={hide} />
-                );
-            }, modalConfig);
-        },
-        [modalConfig],
-    );
-
     const openTransactionFragment = React.useCallback(
         (transaction: RawTransaction | null) => {
             if (transaction) {
@@ -133,11 +97,6 @@ export const WalletFragment = fragment(() => {
                         ...transaction
                     }
                 });
-                // showModal(({ hide }) => {
-                //     return (
-                //         <TransactionPreview tx={transaction} />
-                //     );
-                // }, modalConfig);
             }
         },
         [navigation],
@@ -350,7 +309,7 @@ export const WalletFragment = fragment(() => {
                                 title={t("Receive TONCOIN")}
                                 size="normal"
                                 display="text"
-                                onPress={openReceiveModal}
+                                onPress={() => navigation.navigate('Receive')}
                             />
                         </View>
                     )
@@ -369,22 +328,6 @@ export const WalletFragment = fragment(() => {
                 }
                 {transactionsSectioned.length > 0 && <View style={{ height: 56 }} />}
             </Animated.ScrollView>
-
-            <Portal>
-                <Modalize ref={receiveRef} adjustToContentHeight={true} withHandle={false}>
-                    <WalletReceiveComponent />
-                </Modalize>
-            </Portal>
-
-            {
-                modal && (
-                    <Portal>
-                        <Modalize ref={txRef} adjustToContentHeight={true} onClosed={() => setModal(null)} withHandle={false}>
-                            <TransactionPreview tx={modal} />
-                        </Modalize>
-                    </Portal>
-                )
-            }
             {/* iOS Toolbar */}
             {
                 Platform.OS === 'ios' && (

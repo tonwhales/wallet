@@ -65,7 +65,7 @@ export const TransactionPreviewFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
             paddingHorizontal: 16
         }}>
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t("Receive Toncoin")} />
+            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t(transactionType)} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
                     <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>

@@ -1,8 +1,9 @@
 import { Address, Cell } from "ton";
-import { cacheMainnet, cacheTestnet } from "../storage/storage";
+import { storageMainnet, storageTestnet } from "./storage";
 import * as t from 'io-ts';
 import BN from "bn.js";
 import { isLeft } from "fp-ts/lib/Either";
+import { MMKV } from "react-native-mmkv";
 
 function padLt(src: string) {
     let res = src;
@@ -72,15 +73,13 @@ export type AccountStatus = {
     transactions: string[]
 };
 
-function createCache(testnet: boolean) {
-    const mmkv = testnet ? cacheTestnet : cacheMainnet;
-
+function createCache(store: MMKV) {
     return {
         storeTransaction: (address: Address, lt: string, data: string) => {
-            mmkv.set('tx_' + address.toFriendly() + '_' + padLt(lt), data);
+            store.set('tx_' + address.toFriendly() + '_' + padLt(lt), data);
         },
         loadTransaction: (address: Address, lt: string) => {
-            let data = mmkv.getString('tx_' + address.toFriendly() + '_' + padLt(lt));
+            let data = store.getString('tx_' + address.toFriendly() + '_' + padLt(lt));
             if (data) {
                 return Cell.fromBoc(Buffer.from(data, 'base64'))[0];
             } else {
@@ -89,10 +88,10 @@ function createCache(testnet: boolean) {
         },
         storeState: (address: Address, state: AccountStatus) => {
             const serialized = JSON.stringify(serializeStatus(state));
-            mmkv.set('account_' + address.toFriendly(), serialized);
+            store.set('account_' + address.toFriendly(), serialized);
         },
         loadState: (address: Address) => {
-            let s = mmkv.getString('account_' + address.toFriendly());
+            let s = store.getString('account_' + address.toFriendly());
             if (s) {
                 return parseStatus(s);
             } else {
@@ -102,5 +101,5 @@ function createCache(testnet: boolean) {
     };
 }
 
-export const mainnetCache = createCache(false);
-export const testnetCache = createCache(true);
+export const mainnetCache = createCache(storageMainnet);
+export const testnetCache = createCache(storageTestnet);

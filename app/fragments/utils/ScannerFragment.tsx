@@ -15,12 +15,13 @@ export const ScannerFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
     const navigation = useNavigation();
-    const devices = useCameraDevices();
-    const device = devices.back;
 
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
+
+    const devices = useCameraDevices();
+    const device = isActive ? devices.back : undefined;
 
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
 

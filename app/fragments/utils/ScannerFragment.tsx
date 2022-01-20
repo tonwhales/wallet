@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, Pressable } from 'react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Text, View, StyleSheet, Image, Pressable, ScrollView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
 export const ScannerFragment = fragment(() => {
     const { t } = useTranslation();
@@ -20,31 +21,38 @@ export const ScannerFragment = fragment(() => {
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
 
+    const isFocused = useIsFocused();
     const devices = useCameraDevices();
-    const device = isActive ? devices.back : undefined;
+    const device = devices.back;
 
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
+
+    const handleBarCodeScanned = useCallback(
+        ({ data }) => {
+            if (route && (route as any).callback && data) {
+                setActive(false);
+                setTimeout(() => {
+                    navigation.goBack();
+                    (route as any).callback(data);
+                }, 500);
+            }
+        },
+        [route, navigation],
+    )
 
     useEffect(() => {
         (async () => {
             const status = await Camera.requestCameraPermission();
             setHasPermission(status === 'authorized');
         })();
-
-        const unsubscribe = navigation.addListener('beforeRemove', () => {
-            console.log('[ScannerFragment]: onBeforeRemove');
-            setActive(false);
-        });
-
-        return unsubscribe;
-
-    }, [navigation]);
+    }, []);
 
     useEffect(() => {
+        if (Platform.OS === 'ios') return;
         if (barcodes && barcodes.length > 0 && barcodes[0]) {
             if (route && (route as any).callback) {
+                setActive(false);
                 navigation.goBack();
-
                 if (barcodes[0].content.type === BarcodeValueType.URL) {
                     (route as any).callback(barcodes[0].content.data.url);
                 } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
@@ -52,7 +60,7 @@ export const ScannerFragment = fragment(() => {
                 }
             }
         }
-    }, [barcodes]);
+    }, [barcodes, route]);
 
     if (hasPermission === null) {
         return (
@@ -108,18 +116,26 @@ export const ScannerFragment = fragment(() => {
 
     return (
         <View style={styles.container}>
-            <StatusBar style="auto" />
-            {!device && (
+            <StatusBar style='light' />
+            {(!device || !isActive) && (
                 <LoadingIndicator simple />
             )}
-            {device && (
+            {device && isActive && Platform.OS === 'android' && (
                 <Camera
                     style={StyleSheet.absoluteFill}
                     device={device}
-                    isActive={isActive}
+                    isActive={isActive && isFocused}
                     frameProcessor={frameProcessor}
-                    frameProcessorFps={5}
+                    frameProcessorFps={2}
                     torch={flashOn ? 'on' : 'off'}
+                />
+            )}
+            {Platform.OS === 'ios' && isActive && (
+                <BarCodeScanner
+                    onBarCodeScanned={!isActive ? undefined : handleBarCodeScanned}
+                    style={StyleSheet.absoluteFillObject}
+                    barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
+                    type={'back'}
                 />
             )}
             <View style={{ flexDirection: 'column', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
@@ -131,18 +147,20 @@ export const ScannerFragment = fragment(() => {
                 </View>
                 <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
             </View>
-            <Pressable style={(props) => {
-                return {
-                    position: 'absolute', bottom: safeArea.bottom + 86,
-                    alignSelf: 'center',
-                    height: 61, width: 61,
-                    opacity: props.pressed ? 0.5 : 1,
-                }
-            }}
-                onPress={() => { setFlashOn(!flashOn); }}
-            >
-                <Image height={61} width={61} source={flashOn ? require('../../../assets/ic_flash_on.png') : require('../../../assets/ic_flash.png')} />
-            </Pressable>
+            {Platform.OS === 'android' && (
+                <Pressable style={(props) => {
+                    return {
+                        position: 'absolute', bottom: safeArea.bottom + 86,
+                        alignSelf: 'center',
+                        height: 61, width: 61,
+                        opacity: props.pressed ? 0.5 : 1,
+                    }
+                }}
+                    onPress={() => { setFlashOn(!flashOn); }}
+                >
+                    <Image height={61} width={61} source={flashOn ? require('../../../assets/ic_flash_on.png') : require('../../../assets/ic_flash.png')} />
+                </Pressable>
+            )}
             <View style={{
                 position: 'absolute', top: safeArea.top + 77,
                 alignSelf: 'center',

@@ -13,9 +13,9 @@ export interface ConnectorAccountState {
 }
 
 export interface ConnectorTransaction {
-    utime: number,
-    id: { lt: string, hash: string },
-    data: string
+    utime: number;
+    id: { lt: string, hash: string };
+    data: string;
 }
 
 export interface Connector {

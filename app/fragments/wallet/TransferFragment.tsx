@@ -6,21 +6,19 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, Pressable, KeyboardA
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
-import { client } from '../../client';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
-import { useAccount } from '../../sync/useAccount';
 import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { getAppState } from '../../storage/appState';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
+import { useAccount } from '../../sync/Engine';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -35,18 +33,13 @@ export const TransferFragment = fragment(() => {
         comment?: string | null,
         amount?: BN | null,
     } | undefined = useRoute().params;
-    const address = React.useMemo(() => getAppState()!.address, []);
-    const account = useAccount(address);
+    const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
-    const scrollRef = React.useRef<ScrollView>(null);
-
-    console.log('[TransferFragment]', params);
 
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
     const doSend = React.useCallback(async () => {
-        const state = getAppState()!;
         let address: Address;
         let value: BN;
         try {
@@ -65,16 +58,12 @@ export const TransferFragment = fragment(() => {
             return;
         }
 
-        // Transfer
-
-        const contract = await contractFromPublicKey(walletKeys.keyPair.publicKey); // TODO Perform before key loading
-
-        // Fetch seqno
-        let seqno = await backoff(() => contract.getSeqNo(client));
+        // Load contract
+        const contract = await contractFromPublicKey(walletKeys.keyPair.publicKey);
 
         // Create transfer
         let transfer = await contract.createTransfer({
-            seqno,
+            seqno: account.seqno,
             walletId: contract.source.walletId,
             secretKey: walletKeys.keyPair.secretKey,
             sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
@@ -89,10 +78,10 @@ export const TransferFragment = fragment(() => {
         })
 
         // Sending transfer
-        await backoff(() => client.sendExternalMessage(contract, transfer));
+        await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
 
         navigation.goBack();
-    }, [amount, target, comment]);
+    }, [amount, target, comment, account.seqno]);
 
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);

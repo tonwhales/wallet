@@ -8101,18 +8101,26 @@ ton-contracts@^2.3.2:
   dependencies:
     "@openland/patterns" "^0.0.2"
 
-ton-crypto@1.7.0, ton-crypto@^1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/ton-crypto/-/ton-crypto-1.7.0.tgz#f0f1eadffd0b1d25186d09cfe26662ee8c711a16"
-  integrity sha512-lim85tHr5bg1mTBGbC2fznlbXXusP7cgwtXIA7z3/nQ72h00IZRLWNetAozvf6sZAhn7WQzm9mRPFrcL2jXoAg==
+ton-crypto-primitives@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ton-crypto-primitives/-/ton-crypto-primitives-2.0.0.tgz#e85cd68c0d523f6bdf3f306201a76e51b7e9312e"
+  integrity sha512-K+qKjpS0h9sPW6oExcpxnzuQ7nEgHEiDKwIqE/jWD25o8iFGe3FWj1gKxFNbKE9wwYKc5IV8FwrU+raF0KO5nQ==
   dependencies:
     jssha "3.2.0"
+
+ton-crypto@2.0.2, ton-crypto@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/ton-crypto/-/ton-crypto-2.0.2.tgz#dec9db4560a2905065d140f2bb3fac36df2a63aa"
+  integrity sha512-gG4iA7yKPQiiZWDbZoKJcWWuxrq/Ja4sK2T1D191G/n4/xWMhaiPBDmZKO8rChl6x/FMymqkBqPXPguMrVBmHg==
+  dependencies:
+    jssha "3.2.0"
+    ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton@^6.9.0:
-  version "6.9.0"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-6.9.0.tgz#c9d103e145aa57f8d242e57f3c569cc14abaea95"
-  integrity sha512-J5KRIQKkblvoQM9X/mvi/pqYXmzZXAQYbd4nVKTxGtpkxnwIWnXDtN4RHUmRTwaRxpGjfbyW7dKn/Kq3VgjKpA==
+ton@^6.12.3:
+  version "6.12.3"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-6.12.3.tgz#2b9a5d8a1248acd0c443e46b62cfa158cf7deb67"
+  integrity sha512-3FgsjwL1lI9GK80Kp0YOhWPB+CDQ1B2qtwCdcObFtXi9ks0fBsF0C0U7KhNT1VcVK642vQfhX3DJTkDgNMe/Xg==
   dependencies:
     bn.js "5.2.0"
     dataloader "^2.0.0"
@@ -8123,7 +8131,7 @@ ton@^6.9.0:
     isomorphic-unfetch "3.1.0"
     symbol.inspect "1.0.1"
     teslabot "^1.3.0"
-    ton-crypto "1.7.0"
+    ton-crypto "2.0.2"
     tweetnacl "1.0.3"
 
 tough-cookie@^4.0.0:

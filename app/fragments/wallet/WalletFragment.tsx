@@ -234,7 +234,8 @@ export const WalletFragment = fragment(() => {
                 navigation.navigate('Transfer', {
                     target: res.address.toFriendly(),
                     comment: res.comment,
-                    amount: res.amount
+                    amount: res.amount,
+                    payload: res.payload
                 })
             }
 

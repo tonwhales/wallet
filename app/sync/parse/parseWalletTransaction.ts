@@ -1,7 +1,6 @@
 import { BN } from "bn.js";
 import { Address, parseMessage, RawTransaction, Slice } from "ton";
-
-type Body = { comment: string };
+import { Body, Transaction } from "../Transaction";
 
 function parseBody(slice: Slice): Body | null {
     if (slice.remaining < 32) {
@@ -22,7 +21,7 @@ function parseBody(slice: Slice): Body | null {
     return null;
 }
 
-export function parseWalletTransaction(tx: RawTransaction) {
+export function parseWalletTransaction(tx: RawTransaction): Transaction {
 
     //
     // Resolve fees

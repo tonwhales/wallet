@@ -33,6 +33,7 @@ export const TransferFragment = fragment(() => {
         comment?: string | null,
         amount?: BN | null,
         payload?: Cell | null,
+        stateInit?: Cell | null,
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
@@ -41,6 +42,7 @@ export const TransferFragment = fragment(() => {
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
     const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
+    const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const doSend = React.useCallback(async () => {
         let address: Address;
         let value: BN;
@@ -83,7 +85,7 @@ export const TransferFragment = fragment(() => {
         await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
 
         navigation.goBack();
-    }, [amount, target, comment, account.seqno, payload]);
+    }, [amount, target, comment, account.seqno, payload, stateInit]);
 
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
@@ -99,6 +101,11 @@ export const TransferFragment = fragment(() => {
                 setPayload(res.payload);
             } else {
                 setPayload(null);
+            }
+            if (res.stateInit){
+                setStateInit(res.stateInit);
+            } else {
+                setStateInit(null);
             }
         }
     }, []);

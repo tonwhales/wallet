@@ -235,7 +235,8 @@ export const WalletFragment = fragment(() => {
                     target: res.address.toFriendly(),
                     comment: res.comment,
                     amount: res.amount,
-                    payload: res.payload
+                    payload: res.payload,
+                    stateInit: res.stateInit
                 })
             }
 

@@ -207,9 +207,14 @@ export class Engine {
             if (newState.lastTransaction !== null && currentStatus.lastTransaction !== null && (newState.lastTransaction.lt !== currentStatus.lastTransaction.lt)) {
                 changed = true;
             }
+            let seqno = 0;
+            if (newState.data) {
+                seqno = extractSeqno(Cell.fromBoc(newState.data)[0]);
+            }
             if (!changed) {
                 this._account = {
                     ...currentStatus,
+                    seqno,
                     storedAt: Date.now()
                 };
                 this.cache.storeState(this.address, this._account!);
@@ -301,7 +306,8 @@ export class Engine {
                 syncTime: newState.timestamp,
                 storedAt: Date.now(),
                 transactions,
-                transactionCursor
+                transactionCursor,
+                seqno
             };
             this.cache.storeState(this.address, this._account!);
             this._eventEmitter.emit('updated');

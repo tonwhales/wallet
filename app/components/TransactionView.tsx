@@ -7,7 +7,7 @@ import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/formatTime';
 import { avatarHash } from '../utils/avatarHash';
 import { AddressComponent } from './AddressComponent';
-import { parseWalletTransaction } from '../sync/parseWalletTransaction';
+import { parseWalletTransaction } from '../sync/parse/parseWalletTransaction';
 
 export function TransactionView(props: { own: Address, tx: RawTransaction, separator: boolean, onPress: (src: RawTransaction) => void }) {
     const parsed = parseWalletTransaction(props.tx);

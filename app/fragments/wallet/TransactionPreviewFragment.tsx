@@ -10,7 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { fromNano, RawTransaction } from "ton";
-import { parseWalletTransaction } from "../../sync/parseWalletTransaction";
+import { parseWalletTransaction } from "../../sync/parse/parseWalletTransaction";
 import { avatarHash } from "../../utils/avatarHash";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";

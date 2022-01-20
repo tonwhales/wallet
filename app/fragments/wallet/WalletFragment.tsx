@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { ActivityIndicator, Image, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
-import { Cell, fromNano, parseTransaction, RawTransaction } from 'ton';
+import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState } from '../../storage/appState';
-import { storage } from '../../storage/storage';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from '../../components/TransactionView';
@@ -15,7 +14,6 @@ import { WalletReceiveComponent } from './WalletReceiveComponent';
 import { Portal } from 'react-native-portalize';
 import { ValueComponent } from '../../components/ValueComponent';
 import { TransactionPreview } from './TransactionPreview';
-import { useAccount } from '../../sync/useAccount';
 import { useTranslation } from "react-i18next";
 import { formatDate } from '../../utils/formatDate';
 import { BlurView } from 'expo-blur';
@@ -25,7 +23,7 @@ import { registerForPushNotificationsAsync, registerPushToken } from '../../util
 import { backoff } from '../../utils/time';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { EngineContext } from '../../sync/Engine';
+import { EngineContext, useAccount } from '../../sync/Engine';
 
 function padLt(src: string) {
     let res = src;
@@ -57,8 +55,8 @@ export const WalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getAppState()!.address, []);
-    const engine = React.useContext(EngineContext)!;
-    const account = engine.useState();
+    const [account, engine] = useAccount();
+
     // const account = useAccount(address);
     const transactions = React.useMemo<RawTransaction[]>(() => {
         // if (account) {

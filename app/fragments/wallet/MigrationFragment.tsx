@@ -4,7 +4,6 @@ import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { delay } from 'teslabot';
 import { SendMode, WalletContractType } from 'ton';
-import { client } from '../../client';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
@@ -14,11 +13,13 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { useAccount } from '../../sync/Engine';
 
 const MigrationProcessFragment = fragment(() => {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('Migrating old wallets...'));
+    const [account, engine] = useAccount();
 
     React.useEffect(() => {
         let ended = false;
@@ -48,13 +49,13 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                let wallet = await client.openWalletFromSecretKey({ workchain: 0, secretKey: key.keyPair.secretKey, type });
+                let wallet = await engine.connector.client.openWalletFromSecretKey({ workchain: 0, secretKey: key.keyPair.secretKey, type });
                 if (ended) {
                     return;
                 }
                 setStatus(t('Checking ') + wallet.address.toFriendly() + '...');
 
-                const state = await backoff(() => client.getContractState(wallet.address));
+                const state = await backoff(() => engine.connector.client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
                     setStatus(t('Tranfer funds from ') + wallet.address.toFriendly() + '...');
                     await wallet.prepare(0, key.keyPair.publicKey, type);

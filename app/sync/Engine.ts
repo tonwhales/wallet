@@ -1,11 +1,27 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
-import { Address } from "ton";
-import { SimpleTransaction } from "../client";
+import { Address, Cell, parseTransaction } from "ton";
 import { AccountStatus, createCache } from "../storage/cache";
 import { backoff } from "../utils/time";
 import { Connector } from "./Connector";
 import { EventEmitter } from 'events';
+import BN from 'bn.js';
+
+function extractSeqno(data: Cell) {
+    const slice = data.beginParse();
+    return slice.readUintNumber(32);
+}
+
+function hasPreviousTransaction(src: Buffer) {
+    const lastTx = parseTransaction(0, Cell.fromBoc(src)[0].beginParse());
+    return !lastTx.prevTransaction.lt.eq(new BN(0));
+}
+
+export type SimpleTransaction = {
+    utime: number,
+    id: { lt: string, hash: string },
+    data: string
+}
 
 export class Engine {
     readonly address: Address;
@@ -50,13 +66,25 @@ export class Engine {
         const [state, setState] = React.useState(this.state);
         React.useEffect(() => {
 
+            let ended = false;
+
             // Just in case of race conditions
             if (state !== this.state) {
                 setState(this.state);
             }
 
-            return () => {
+            // Update handler
+            const handler = () => {
+                if (ended) {
+                    return;
+                }
+                setState(this.state);
+            }
 
+            this._eventEmitter.on('updated', handler);
+            return () => {
+                ended = true;
+                this._eventEmitter.off('updated', handler);
             };
         }, []);
         return state;
@@ -74,34 +102,74 @@ export class Engine {
     private start() {
         if (!this._account) {
             backoff(async () => {
-                // Fetch initial
-                const initial = await fetchAccountStateInitial(this.address, this.connector);
+
+                // Fetch initial state
+                const initialState = await backoff(async () => {
+                    if (this._destroyed) {
+                        return null;
+                    }
+                    return await this.connector.fetchAccountState(this.address)
+                });
+                if (!initialState) {
+                    return;
+                }
                 if (this._destroyed) {
                     return;
                 }
 
+                // Fetch initial transactions
+                let txs: SimpleTransaction[] = [];
+                let transactionCursor: { lt: string, hash: string } | null = null;
+                const last = initialState.lastTransaction;
+                if (last) {
+                    let t = await backoff(async () => {
+                        if (this._destroyed) {
+                            return null;
+                        }
+                        return await this.connector.fetchTransactions(this.address, last);
+                    });
+                    if (!t) {
+                        return;
+                    }
+                    if (this._destroyed) {
+                        return;
+                    }
+                    txs = t;
+                }
+
+                // Resolve cursor
+                if (txs.length > 0) {
+                    if (hasPreviousTransaction(Buffer.from(txs[txs.length - 1].data, 'base64'))) {
+                        transactionCursor = txs[txs.length - 1].id;
+                    }
+                }
+
                 // Persist transactions
-                for (let tx of initial.txs) {
+                for (let tx of txs) {
                     this.cache.storeTransaction(this.address, tx.id.lt, tx.data);
+                }
+
+                // Extract seqno
+                let seqno = 0;
+                if (initialState.data) {
+                    seqno = extractSeqno(Cell.fromBoc(initialState.data)[0]);
                 }
 
                 // Convert values
                 const status: AccountStatus = {
-                    balance: initial.status.balance,
-                    state: initial.status.state,
-                    syncTime: initial.status.timestamp,
+                    balance: initialState.balance,
+                    state: initialState.state,
+                    syncTime: initialState.timestamp,
                     storedAt: Date.now(),
-                    lastTransaction: initial.status.lastTransaction,
-                    seqno: 0, // TODO
-                    transactionCursor: initial.txs.length > 0 ? initial.txs[initial.txs.length - 1].id : null,
-                    transactions: initial.txs.map((v) => v.id.lt)
+                    lastTransaction: initialState.lastTransaction,
+                    seqno,
+                    transactionCursor: txs.length > 0 ? txs[txs.length - 1].id : null,
+                    transactions: txs.map((v) => v.id.lt)
                 }
 
-                // Update in memory
+                // Persist account state
                 this._account = status;
-                // Update storage
                 this.cache.storeState(this.address, status);
-                // Notify ready
                 this._eventEmitter.emit('ready');
 
                 // Start sync
@@ -154,18 +222,30 @@ export class Engine {
             let transactions: string[] = currentStatus.transactions;
 
             // Got first transaction: reset to zero
-            if (newState.lastTransaction && !currentStatus.lastTransaction) {
-                txs = await backoff(() => this.connector.fetchTransactions(this.address, newState.lastTransaction!));
-                if (txs.length < 100) {
-                    transactionCursor = txs[txs.length - 1].id;
-                } else {
-                    transactionCursor = null;
+            if (!currentStatus.lastTransaction && !!newState.lastTransaction) {
+                let t = await backoff(async () => {
+                    if (this._destroyed) {
+                        return null;
+                    }
+                    return await this.connector.fetchTransactions(this.address, newState.lastTransaction!);
+                });
+                if (!t) {
+                    return;
                 }
+                if (this._destroyed) {
+                    return;
+                }
+                txs = t;
                 transactions = txs.map((v) => v.id.lt);
+                if (txs.length > 0) {
+                    if (hasPreviousTransaction(Buffer.from(txs[txs.length - 1].data, 'base64'))) {
+                        transactionCursor = txs[txs.length - 1].id;
+                    }
+                }
             }
 
             // Lost last transaction: got frozen?
-            if (!newState.lastTransaction && !!currentStatus.lastTransaction) {
+            if (!!currentStatus.lastTransaction && !newState.lastTransaction) {
                 txs = [];
                 transactions = [];
                 transactionCursor = null;
@@ -174,7 +254,6 @@ export class Engine {
             // Updated transactions
             if (!!newState.lastTransaction && !!currentStatus.lastTransaction && (newState.lastTransaction.lt !== currentStatus.lastTransaction.lt)) {
                 let found = false;
-
                 let ttxs = await backoff(() => this.connector.fetchTransactions(this.address, newState.lastTransaction!));
                 for (let t of ttxs) {
                     if (t.id.lt === currentStatus.lastTransaction.lt) {
@@ -186,12 +265,26 @@ export class Engine {
 
                 // Apply update
                 if (!found) {
-                    transactionCursor = ttxs[ttxs.length - 1].id;
-                    transactions = ttxs.map((v) => v.id.lt);
+                    if (ttxs.length > 0) {
+                        transactions = ttxs.map((v) => v.id.lt);
+                        transactionCursor = ttxs[ttxs.length - 1].id;
+                    } else {
+                        if (hasPreviousTransaction(Buffer.from(ttxs[ttxs.length - 1].data, 'base64'))) {
+                            transactionCursor = ttxs[ttxs.length - 1].id;
+                        } else {
+                            transactionCursor = null;
+                        }
+                        transactions = ttxs.map((v) => v.id.lt);
+                    }
                 } else {
                     transactionCursor = currentStatus.transactionCursor;
                     transactions = [...txs.map((v) => v.id.lt), ...currentStatus.transactions];
                 }
+            }
+
+            // Skip if destroyed
+            if (this._destroyed) {
+                return;
             }
 
             // Persist transactions
@@ -199,41 +292,28 @@ export class Engine {
                 this.cache.storeTransaction(this.address, t.id.lt, t.data);
             }
 
-            // Apply
-            // this._account = {
-            //     balance: newState.balance,
-            //     ...currentStatus,
-            //     storedAt: Date.now()
-            // };
-            // this.cache.storeState(this.address, this._account!);
-            // this._eventEmitter.emit('updated');
-
-            // status: {
-            //     balance: res.balance,
-            //     state: res.state,
-            //     lastTransaction: res.lastTransaction,
-            //     syncTime: res.timestamp,
-            //     storedAt: Date.now(),
-            //     transactionCursor,
-            //     loadedTransactions,
-            //     transactions
-            // }
+            // Persist account
+            this._account = {
+                ...currentStatus,
+                balance: newState.balance,
+                state: newState.state,
+                lastTransaction: newState.lastTransaction,
+                syncTime: newState.timestamp,
+                storedAt: Date.now(),
+                transactions,
+                transactionCursor
+            };
+            this.cache.storeState(this.address, this._account!);
+            this._eventEmitter.emit('updated');
         });
     }
 }
 
-async function fetchAccountStateInitial(address: Address, connector: Connector) {
-    const status = await backoff(() => connector.fetchAccountState(address));
-    let txs: SimpleTransaction[] = [];
-    const last = status.lastTransaction;
-    if (last) {
-        txs = await backoff(() => connector.fetchTransactions(address, last));
-    }
-    return {
-        txs,
-        status
-    };
-}
-
 // Context
 export const EngineContext = React.createContext<Engine | null>(null);
+
+// Account
+export function useAccount(): [AccountStatus, Engine] {
+    const engine = React.useContext(EngineContext)!
+    return [engine.useState(), engine];
+}

@@ -61,6 +61,16 @@ function formSheetScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
+function modalScreen(name: string, component: React.ComponentType<any>) {
+    return (
+        <Stack.Screen
+            key={`modalScreen-${name}`}
+            name={name}
+            component={component}
+            options={{ presentation: 'modal', headerShown: false }}
+        />
+    );
+}
 
 function fullScreenModal(name: string, component: React.ComponentType<any>) {
     return (
@@ -68,7 +78,7 @@ function fullScreenModal(name: string, component: React.ComponentType<any>) {
             key={`fullScreenModal-${name}`}
             name={name}
             component={component}
-            options={{ headerShown: false, presentation: 'modal' }}
+            options={{ presentation: 'fullScreenModal', headerShown: false }}
         />
     );
 }
@@ -87,11 +97,11 @@ const navigation = [
     genericScreen('Settings', SettingsFragment),
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
-    fullScreenModal('Transfer', TransferFragment),
-    fullScreenModal('Receive', ReceiveFragment),
-    fullScreenModal('Transaction', TransactionPreviewFragment),
+    modalScreen('Transfer', TransferFragment),
+    modalScreen('Receive', ReceiveFragment),
+    modalScreen('Transaction', TransactionPreviewFragment),
     genericScreen('Migration', MigrationFragment),
-    fullScreen('Scanner', ScannerFragment),
+    modalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
 
@@ -131,7 +141,7 @@ export const Navigation = React.memo(() => {
                 <NavigationContainer theme={NavigationTheme}>
                     <Stack.Navigator
                         initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' }, }}
+                        screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
                     >
                         {navigation}
                     </Stack.Navigator>

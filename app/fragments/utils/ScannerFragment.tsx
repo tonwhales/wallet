@@ -1,46 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button, Image, Pressable, Platform, useWindowDimensions } from 'react-native';
-import { BarCodeScanner, BarCodeEvent } from 'expo-barcode-scanner';
-import { ModalHeader } from '../../components/ModalHeader';
+import { Text, View, StyleSheet, Image, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
-import { useRoute } from '@react-navigation/native';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { Deferred } from '../../components/Deferred';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 
-
 export const ScannerFragment = fragment(() => {
     const { t } = useTranslation();
-    const window = useWindowDimensions();
-    const [hasPermission, setHasPermission] = useState<null | boolean>(null);
-    const [scanned, setScanned] = useState(false);
-    const [flashOn, setFlashOn] = useState(false);
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
-    const navigation = useTypedNavigation();
+    const navigation = useNavigation();
     const devices = useCameraDevices();
     const device = devices.back;
+
+    const [hasPermission, setHasPermission] = useState<null | boolean>(null);
+    const [isActive, setActive] = useState(true);
+    const [flashOn, setFlashOn] = useState(false);
 
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
 
     useEffect(() => {
         (async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
-            setHasPermission(status === 'granted');
+            const status = await Camera.requestCameraPermission();
+            setHasPermission(status === 'authorized');
         })();
-    }, []);
+
+        const unsubscribe = navigation.addListener('beforeRemove', () => {
+            console.log('[ScannerFragment]: onBeforeRemove');
+            setActive(false);
+        });
+
+        return unsubscribe;
+
+    }, [navigation]);
 
     useEffect(() => {
         if (barcodes && barcodes.length > 0 && barcodes[0]) {
-            setScanned(true);
             if (route && (route as any).callback) {
                 navigation.goBack();
+
                 if (barcodes[0].content.type === BarcodeValueType.URL) {
                     (route as any).callback(barcodes[0].content.data.url);
                 } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
@@ -75,6 +78,7 @@ export const ScannerFragment = fragment(() => {
             </View>
         );
     }
+
     if (hasPermission === false) {
         return (
             <View style={styles.container}>
@@ -85,7 +89,7 @@ export const ScannerFragment = fragment(() => {
                     borderRadius: 16,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 17,
-                    paddingVertical: 16
+                    paddingVertical: 16,
                 }}>
                     <Text style={{
                         fontWeight: '500',
@@ -111,7 +115,7 @@ export const ScannerFragment = fragment(() => {
                 <Camera
                     style={StyleSheet.absoluteFill}
                     device={device}
-                    isActive={!scanned}
+                    isActive={isActive}
                     frameProcessor={frameProcessor}
                     frameProcessorFps={5}
                     torch={flashOn ? 'on' : 'off'}

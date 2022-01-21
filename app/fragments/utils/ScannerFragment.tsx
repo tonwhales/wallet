@@ -50,13 +50,16 @@ export const ScannerFragment = fragment(() => {
         if (barcodes && barcodes.length > 0 && barcodes[0]) {
             if (route && (route as any).callback) {
                 setActive(false);
-                navigation.goBack();
-                console.log(barcodes);
-                if (barcodes[0].content.type === BarcodeValueType.URL) {
-                    (route as any).callback(barcodes[0].content.data.url);
-                } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
-                    (route as any).callback(barcodes[0].content.data);
-                }
+
+                setTimeout(() => {
+                    navigation.goBack();
+                    console.log(barcodes);
+                    if (barcodes[0].content.type === BarcodeValueType.URL) {
+                        (route as any).callback(barcodes[0].content.data.url);
+                    } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
+                        (route as any).callback(barcodes[0].content.data);
+                    }
+                }, 100);
             }
         }
     }, [barcodes, route]);

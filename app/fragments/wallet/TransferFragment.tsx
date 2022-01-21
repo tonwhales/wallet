@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Platform, StyleProp, Text, TextStyle, View, Image, Pressable, KeyboardAvoidingView } from "react-native";
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -32,6 +32,7 @@ export const TransferFragment = fragment(() => {
         target?: string,
         comment?: string | null,
         amount?: BN | null,
+        payload?: Cell | null,
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
@@ -39,6 +40,7 @@ export const TransferFragment = fragment(() => {
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
+    const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const doSend = React.useCallback(async () => {
         let address: Address;
         let value: BN;
@@ -72,7 +74,7 @@ export const TransferFragment = fragment(() => {
                 value,
                 bounce: false,
                 body: new CommonMessageInfo({
-                    body: new CommentMessage(comment)
+                    body: payload ? new CellMessage(payload) : new CommentMessage(comment)
                 })
             })
         })
@@ -81,7 +83,7 @@ export const TransferFragment = fragment(() => {
         await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
 
         navigation.goBack();
-    }, [amount, target, comment, account.seqno]);
+    }, [amount, target, comment, account.seqno, payload]);
 
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
@@ -89,6 +91,14 @@ export const TransferFragment = fragment(() => {
             setTarget(res.address.toFriendly());
             if (res.amount) {
                 setAmount(fromNano(res.amount));
+            }
+            if (res.comment) {
+                setComment(res.comment);
+            }
+            if (res.payload) {
+                setPayload(res.payload);
+            } else {
+                setPayload(null);
             }
         }
     }, []);
@@ -126,6 +136,7 @@ export const TransferFragment = fragment(() => {
                             lineHeight={41}
                             preventDefaultHeight
                             preventDefaultValuePadding
+                            enabled={!payload}
                         />
                         <Text style={{
                             fontWeight: '600',
@@ -167,6 +178,7 @@ export const TransferFragment = fragment(() => {
                                     />
                                 </Pressable>
                             }
+                            enabled={!payload}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
                         <ATextInput
@@ -176,6 +188,7 @@ export const TransferFragment = fragment(() => {
                             keyboardType="default"
                             autoCapitalize="sentences"
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
+                            enabled={!payload}
                         />
                     </View>
                 </ScrollView>

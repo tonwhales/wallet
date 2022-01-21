@@ -216,7 +216,9 @@ export const TransferFragment = fragment(() => {
                 {Platform.OS === 'ios' && (
                     <CloseButton
                         style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={navigation.goBack}
+                        onPress={() => {
+                            navigation.goBack();
+                        }}
                     />
                 )}
             </KeyboardAvoidingView>

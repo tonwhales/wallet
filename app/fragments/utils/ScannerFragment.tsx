@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Text, View, StyleSheet, Image, Pressable, ScrollView, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, StyleSheet, Image, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
@@ -9,7 +9,6 @@ import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { BarCodeScanner } from 'expo-barcode-scanner';
 
 export const ScannerFragment = fragment(() => {
     const { t } = useTranslation();
@@ -48,7 +47,6 @@ export const ScannerFragment = fragment(() => {
     }, []);
 
     useEffect(() => {
-        if (Platform.OS === 'ios') return;
         if (barcodes && barcodes.length > 0 && barcodes[0]) {
             if (route && (route as any).callback) {
                 setActive(false);
@@ -120,7 +118,7 @@ export const ScannerFragment = fragment(() => {
             {(!device || !isActive) && (
                 <LoadingIndicator simple />
             )}
-            {device && isActive && Platform.OS === 'android' && (
+            {device && isActive && (
                 <Camera
                     style={StyleSheet.absoluteFill}
                     device={device}
@@ -128,14 +126,6 @@ export const ScannerFragment = fragment(() => {
                     frameProcessor={frameProcessor}
                     frameProcessorFps={2}
                     torch={flashOn ? 'on' : 'off'}
-                />
-            )}
-            {Platform.OS === 'ios' && isActive && (
-                <BarCodeScanner
-                    onBarCodeScanned={!isActive ? undefined : handleBarCodeScanned}
-                    style={StyleSheet.absoluteFillObject}
-                    barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
-                    type={'back'}
                 />
             )}
             <View style={{ flexDirection: 'column', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
@@ -147,20 +137,18 @@ export const ScannerFragment = fragment(() => {
                 </View>
                 <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
             </View>
-            {Platform.OS === 'android' && (
-                <Pressable style={(props) => {
-                    return {
-                        position: 'absolute', bottom: safeArea.bottom + 86,
-                        alignSelf: 'center',
-                        height: 61, width: 61,
-                        opacity: props.pressed ? 0.5 : 1,
-                    }
-                }}
-                    onPress={() => { setFlashOn(!flashOn); }}
-                >
-                    <Image height={61} width={61} source={flashOn ? require('../../../assets/ic_flash_on.png') : require('../../../assets/ic_flash.png')} />
-                </Pressable>
-            )}
+            <Pressable style={(props) => {
+                return {
+                    position: 'absolute', bottom: safeArea.bottom + 86,
+                    alignSelf: 'center',
+                    height: 61, width: 61,
+                    opacity: props.pressed ? 0.5 : 1,
+                }
+            }}
+                onPress={() => { setFlashOn(!flashOn); }}
+            >
+                <Image height={61} width={61} source={flashOn ? require('../../../assets/ic_flash_on.png') : require('../../../assets/ic_flash.png')} />
+            </Pressable>
             <View style={{
                 position: 'absolute', top: safeArea.top + 77,
                 alignSelf: 'center',

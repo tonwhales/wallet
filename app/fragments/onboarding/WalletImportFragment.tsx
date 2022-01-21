@@ -58,6 +58,7 @@ const WordInput = React.memo(React.forwardRef((props: {
             });
         });
     }, []);
+
     const onSubmit = React.useCallback(() => {
         const normalized = props.value.trim().toLowerCase();
         if (!wordlist.find((v) => v === normalized)) {
@@ -70,6 +71,26 @@ const WordInput = React.memo(React.forwardRef((props: {
         }
         props.next?.current?.focus();
     }, [props.value]);
+
+    const onTextChange = React.useCallback((value: string) => {
+        if (value.length >= 3) {
+            const autocomplite = wordlist.find((w) => w.startsWith(value));
+            if (autocomplite && autocomplite !== props.value) {
+                props.setValue(autocomplite);
+                setTimeout(() => {
+                    tref.current?.setNativeProps({
+                        selection: {
+                            start: value.length,
+                            end: autocomplite.length
+                        },
+                    })
+                }, 10);
+            }
+        } else {
+            props.setValue(value);
+        }
+    }, [tref]);
+
     return (
         <Animated.View style={style}>
             <View
@@ -95,7 +116,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                         fontSize: 18
                     }}
                     value={props.value}
-                    onChangeText={props.setValue}
+                    onChangeText={onTextChange}
                     returnKeyType="next"
                     autoCompleteType="off"
                     autoCorrect={false}

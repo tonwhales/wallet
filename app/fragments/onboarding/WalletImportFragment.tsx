@@ -52,7 +52,7 @@ const WordInput = React.memo(React.forwardRef((props: {
             scrollPageY: number
         ) => {
             vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
-                props.scroll.current!.scrollTo({ y: top - height / 2, animated: true });
+                props.scroll.current!.scrollTo({ y: top - height / 2 - 58, animated: true });
             }, () => {
                 // Ignore
             });

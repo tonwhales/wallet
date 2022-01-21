@@ -1,29 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button, Image, Pressable, Platform, useWindowDimensions } from 'react-native';
-import { BarCodeScanner, BarCodeEvent } from 'expo-barcode-scanner';
-import { ModalHeader } from '../../components/ModalHeader';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, StyleSheet, Image, Pressable, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
-import { useRoute } from '@react-navigation/native';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { Deferred } from '../../components/Deferred';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-
+import { CloseButton } from '../../components/CloseButton';
 
 export const ScannerFragment = fragment(() => {
     const { t } = useTranslation();
-    const window = useWindowDimensions();
-    const [hasPermission, setHasPermission] = useState<null | boolean>(null);
-    const [scanned, setScanned] = useState(false);
-    const [flashOn, setFlashOn] = useState(false);
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
-    const navigation = useTypedNavigation();
+    const navigation = useNavigation();
+
+    const [hasPermission, setHasPermission] = useState<null | boolean>(null);
+    const [isActive, setActive] = useState(true);
+    const [flashOn, setFlashOn] = useState(false);
+
+    const isFocused = useIsFocused();
     const devices = useCameraDevices();
     const device = devices.back;
 
@@ -31,24 +29,28 @@ export const ScannerFragment = fragment(() => {
 
     useEffect(() => {
         (async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
-            setHasPermission(status === 'granted');
+            const status = await Camera.requestCameraPermission();
+            setHasPermission(status === 'authorized');
         })();
     }, []);
 
     useEffect(() => {
         if (barcodes && barcodes.length > 0 && barcodes[0]) {
-            setScanned(true);
             if (route && (route as any).callback) {
-                navigation.goBack();
-                if (barcodes[0].content.type === BarcodeValueType.URL) {
-                    (route as any).callback(barcodes[0].content.data.url);
-                } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
-                    (route as any).callback(barcodes[0].content.data);
-                }
+                setActive(false);
+
+                setTimeout(() => {
+                    navigation.goBack();
+                    console.log(barcodes);
+                    if (barcodes[0].content.type === BarcodeValueType.URL) {
+                        (route as any).callback(barcodes[0].content.data.url);
+                    } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
+                        (route as any).callback(barcodes[0].content.data);
+                    }
+                }, 10);
             }
         }
-    }, [barcodes]);
+    }, [barcodes, route]);
 
     if (hasPermission === null) {
         return (
@@ -75,6 +77,7 @@ export const ScannerFragment = fragment(() => {
             </View>
         );
     }
+
     if (hasPermission === false) {
         return (
             <View style={styles.container}>
@@ -85,7 +88,7 @@ export const ScannerFragment = fragment(() => {
                     borderRadius: 16,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 17,
-                    paddingVertical: 16
+                    paddingVertical: 16,
                 }}>
                     <Text style={{
                         fontWeight: '500',
@@ -103,17 +106,17 @@ export const ScannerFragment = fragment(() => {
 
     return (
         <View style={styles.container}>
-            <StatusBar style="auto" />
-            {!device && (
+            <StatusBar style='light' />
+            {(!device || !isActive) && (
                 <LoadingIndicator simple />
             )}
-            {device && (
+            {device && isActive && (
                 <Camera
                     style={StyleSheet.absoluteFill}
                     device={device}
-                    isActive={!scanned}
+                    isActive={isActive && isFocused}
                     frameProcessor={frameProcessor}
-                    frameProcessorFps={5}
+                    frameProcessorFps={2}
                     torch={flashOn ? 'on' : 'off'}
                 />
             )}
@@ -155,6 +158,14 @@ export const ScannerFragment = fragment(() => {
                     {'Scan QR code'}
                 </Text>
             </View>
+            <CloseButton
+                style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}
+                onPress={() => {
+                    setActive(false);
+                    setTimeout(navigation.goBack, 10);
+                }}
+                dark
+            />
         </View>
     );
 });

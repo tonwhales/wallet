@@ -72,6 +72,17 @@ function modalScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
+function lockedModalScreen(name: string, component: React.ComponentType<any>) {
+    return (
+        <Stack.Screen
+            key={`modalScreen-${name}`}
+            name={name}
+            component={component}
+            options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }}
+        />
+    );
+}
+
 function fullScreenModal(name: string, component: React.ComponentType<any>) {
     return (
         <Stack.Screen
@@ -101,7 +112,7 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     genericScreen('Migration', MigrationFragment),
-    modalScreen('Scanner', ScannerFragment),
+    lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
 

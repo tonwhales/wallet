@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, StyleSheet, Image, Pressable } from 'react-native';
+import { Text, View, StyleSheet, Image, Pressable, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
@@ -9,6 +9,7 @@ import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { CloseButton } from '../../components/CloseButton';
 
 export const ScannerFragment = fragment(() => {
     const { t } = useTranslation();
@@ -25,19 +26,6 @@ export const ScannerFragment = fragment(() => {
     const device = devices.back;
 
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
-
-    const handleBarCodeScanned = useCallback(
-        ({ data }) => {
-            if (route && (route as any).callback && data) {
-                setActive(false);
-                setTimeout(() => {
-                    navigation.goBack();
-                    (route as any).callback(data);
-                }, 500);
-            }
-        },
-        [route, navigation],
-    )
 
     useEffect(() => {
         (async () => {
@@ -59,7 +47,7 @@ export const ScannerFragment = fragment(() => {
                     } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
                         (route as any).callback(barcodes[0].content.data);
                     }
-                }, 100);
+                }, 10);
             }
         }
     }, [barcodes, route]);
@@ -170,6 +158,14 @@ export const ScannerFragment = fragment(() => {
                     {'Scan QR code'}
                 </Text>
             </View>
+            <CloseButton
+                style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}
+                onPress={() => {
+                    setActive(false);
+                    setTimeout(navigation.goBack, 10);
+                }}
+                dark
+            />
         </View>
     );
 });

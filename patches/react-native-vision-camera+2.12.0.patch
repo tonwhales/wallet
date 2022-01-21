@@ -1,11 +1,42 @@
+diff --git a/node_modules/react-native-vision-camera/.DS_Store b/node_modules/react-native-vision-camera/.DS_Store
+new file mode 100644
+index 0000000..e69de29
 diff --git a/node_modules/react-native-vision-camera/ios/CameraView.swift b/node_modules/react-native-vision-camera/ios/CameraView.swift
-index 93a9f7c..8f91684 100644
+index 93a9f7c..9c77e18 100644
 --- a/node_modules/react-native-vision-camera/ios/CameraView.swift
 +++ b/node_modules/react-native-vision-camera/ios/CameraView.swift
-@@ -170,6 +170,7 @@ public final class CameraView: UIView {
+@@ -9,6 +9,7 @@
+ import AVFoundation
+ import Foundation
+ import UIKit
++import os
+ 
+ //
+ // TODOs for the CameraView which are currently too hard to implement either because of AVFoundation's limitations, or my brain capacity
+@@ -158,6 +159,13 @@ public final class CameraView: UIView {
+   }
+ 
+   deinit {
++      if #available(iOS 14.0, *) {
++          let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
++          logger.log("deinit is called")
++      } else {
++          // Fallback on earlier versions
++      }
++    
+     NotificationCenter.default.removeObserver(self,
+                                               name: .AVCaptureSessionRuntimeError,
+                                               object: captureSession)
+@@ -170,6 +178,13 @@ public final class CameraView: UIView {
      NotificationCenter.default.removeObserver(self,
                                                name: UIDevice.orientationDidChangeNotification,
                                                object: nil)
++      if #available(iOS 14.0, *) {
++          let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
++          logger.log("captureSession.stopRunning")
++      } else {
++          // Fallback on earlier versions
++      }
 +    self.captureSession.stopRunning()
    }
  

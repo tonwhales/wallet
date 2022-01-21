@@ -76,6 +76,7 @@ export const TransferFragment = fragment(() => {
                 value,
                 bounce: false,
                 body: new CommonMessageInfo({
+                    stateInit: stateInit ? new CellMessage(stateInit) : null,
                     body: payload ? new CellMessage(payload) : new CommentMessage(comment)
                 })
             })
@@ -102,7 +103,7 @@ export const TransferFragment = fragment(() => {
             } else {
                 setPayload(null);
             }
-            if (res.stateInit){
+            if (res.stateInit) {
                 setStateInit(res.stateInit);
             } else {
                 setStateInit(null);

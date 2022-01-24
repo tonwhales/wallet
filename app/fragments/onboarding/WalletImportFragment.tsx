@@ -29,6 +29,10 @@ const WordInput = React.memo(React.forwardRef((props: {
 
     // Shake
     const translate = useSharedValue(0);
+    const [selection, setSelection] = React.useState<{
+        start: number;
+        end: number;
+    }>();
     const style = useAnimatedStyle(() => {
         return {
             transform: [{ translateX: translate.value }],
@@ -74,22 +78,28 @@ const WordInput = React.memo(React.forwardRef((props: {
 
     const onTextChange = React.useCallback((value: string) => {
         if (value.length >= 3) {
+            console.log('[onTextChange] looking for autocomplite');
             const autocomplite = wordlist.find((w) => w.startsWith(value));
+            console.log('[onTextChange] found', autocomplite);
             if (autocomplite && autocomplite !== props.value) {
                 props.setValue(autocomplite);
                 setTimeout(() => {
+                    const selection = {
+                        start: value.length,
+                        end: autocomplite.length
+                    }
+                    setSelection(selection)
                     tref.current?.setNativeProps({
-                        selection: {
-                            start: value.length,
-                            end: autocomplite.length
-                        },
+                        selection: selection,
                     })
                 }, 10);
+            } else {
+                props.setValue(value);
             }
         } else {
             props.setValue(value);
         }
-    }, [tref]);
+    }, [tref, props.value]);
 
     return (
         <Animated.View style={style}>
@@ -117,6 +127,17 @@ const WordInput = React.memo(React.forwardRef((props: {
                     }}
                     value={props.value}
                     onChangeText={onTextChange}
+                    onKeyPress={(event) => {
+                        if (event.nativeEvent.key === 'Backspace') {
+                            event.preventDefault();
+                        }
+                    }}
+                    onSelectionChange={(e) => {
+                        if (e.nativeEvent.selection) {
+                            console.log('[onSelectionChange] new selection', e.nativeEvent.selection);
+                            setSelection(e.nativeEvent.selection);
+                        }
+                    }}
                     returnKeyType="next"
                     autoCompleteType="off"
                     autoCorrect={false}

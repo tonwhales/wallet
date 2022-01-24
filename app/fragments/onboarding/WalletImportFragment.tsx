@@ -78,9 +78,7 @@ const WordInput = React.memo(React.forwardRef((props: {
 
     const onTextChange = React.useCallback((value: string) => {
         if (value.length >= 3) {
-            console.log('[onTextChange] looking for autocomplite');
             const autocomplite = wordlist.find((w) => w.startsWith(value));
-            console.log('[onTextChange] found', autocomplite);
             if (autocomplite && autocomplite !== props.value) {
                 props.setValue(autocomplite);
                 setTimeout(() => {
@@ -91,13 +89,25 @@ const WordInput = React.memo(React.forwardRef((props: {
                     setSelection(selection)
                     tref.current?.setNativeProps({
                         selection: selection,
-                    })
-                }, 10);
+                    });
+                }, 1);
             } else {
                 props.setValue(value);
+                tref.current?.setNativeProps({
+                    selection: {
+                        start: value.length,
+                        end: value.length
+                    },
+                });
             }
         } else {
             props.setValue(value);
+            tref.current?.setNativeProps({
+                selection: {
+                    start: value.length,
+                    end: value.length
+                },
+            });
         }
     }, [tref, props.value]);
 
@@ -134,7 +144,6 @@ const WordInput = React.memo(React.forwardRef((props: {
                     }}
                     onSelectionChange={(e) => {
                         if (e.nativeEvent.selection) {
-                            console.log('[onSelectionChange] new selection', e.nativeEvent.selection);
                             setSelection(e.nativeEvent.selection);
                         }
                     }}

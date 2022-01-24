@@ -55,7 +55,7 @@ export const WelcomeFragment = fragment(() => {
                 </Text>
             </View>
             <View style={{ height: 128 + safeArea.bottom + 16, position: 'absolute', bottom: 0, width: '100%', paddingHorizontal: 16, justifyContent: 'center' }}>
-                <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('LegalCreate')} />
+                <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('WalletCreate')} />
                 <Text style={{
                     textAlign: 'center',
                     color: '#8E979D',

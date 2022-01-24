@@ -26,6 +26,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     next?: React.RefObject<WordInputRef>,
     scroll: React.RefObject<ScrollView>,
 }, ref: React.ForwardedRef<WordInputRef>) => {
+    const keyboard = useKeyboard();
 
     // Shake
     const translate = useSharedValue(0);
@@ -56,12 +57,17 @@ const WordInput = React.memo(React.forwardRef((props: {
             scrollPageY: number
         ) => {
             vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
-                props.scroll.current!.scrollTo({ y: top - height / 2 - 58, animated: true });
+                console.log('[onFocus]', top, height);
+                // props.scroll.current!.scrollTo({ y: top - height / 2 - 58, animated: true });
+                if (top) {
+
+                }
+                props.scroll.current!.scrollTo({ y: top - 24 - height - keyboard.keyboardHeight, animated: true });
             }, () => {
                 // Ignore
             });
         });
-    }, []);
+    }, [keyboard]);
 
     const onSubmit = React.useCallback(() => {
         const normalized = props.value.trim().toLowerCase();

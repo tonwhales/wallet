@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, Text, View } from "react-native";
+import { Alert, InputAccessoryView, Platform, Pressable, Text, View } from "react-native";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { iOSColors, iOSUIKit } from "react-native-typography";
@@ -25,8 +25,10 @@ const WordInput = React.memo(React.forwardRef((props: {
     setValue: (src: string) => void,
     next?: React.RefObject<WordInputRef>,
     scroll: React.RefObject<ScrollView>,
+    inputAccessoryViewID?: string
 }, ref: React.ForwardedRef<WordInputRef>) => {
     const keyboard = useKeyboard();
+    const inputAccessoryViewID = `id-${props.hint}-${props.inputAccessoryViewID}`
 
     // Shake
     const translate = useSharedValue(0);
@@ -83,7 +85,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     }, [props.value]);
 
     const onTextChange = React.useCallback((value: string) => {
-        if (value.length >= 3) {
+        if (value.length >= 4) {
             const autocomplite = wordlist.find((w) => w.startsWith(value));
             if (autocomplite && autocomplite !== props.value) {
                 props.setValue(autocomplite);
@@ -158,11 +160,55 @@ const WordInput = React.memo(React.forwardRef((props: {
                     autoCorrect={false}
                     keyboardType="ascii-capable"
                     autoCapitalize="none"
-                    inputAccessoryViewID="autocomplete"
                     onFocus={onFocus}
                     onSubmitEditing={onSubmit}
                     blurOnSubmit={false}
+                    inputAccessoryViewID={inputAccessoryViewID}
                 />
+                {Platform.OS === 'ios' && (
+
+                    <InputAccessoryView nativeID={inputAccessoryViewID}>
+                        <ScrollView
+                            style={{
+                                height: 50,
+                                backgroundColor: iOSColors.customGray
+                            }}
+                            horizontal
+                            contentContainerStyle={{
+                                paddingHorizontal: 4,
+                                paddingVertical: 4
+                            }}
+                        >
+                            {props.value.length > 0 && wordlist.filter((w) => w.startsWith(props.value)).map((w) => {
+                                return (
+                                    <Pressable
+                                        key={w}
+                                        style={({ pressed }) => {
+                                            return {
+                                                marginRight: 2,
+                                                backgroundColor: iOSColors.customGray,
+                                                borderRadius: 16,
+                                                paddingHorizontal: 16,
+                                                paddingVertical: 8,
+                                                opacity: pressed ? 0.5 : 1
+                                            }
+                                        }}
+                                        onPress={() => {
+                                            props.setValue(w);
+                                            onSubmit();
+                                        }}
+                                    >
+                                        <Text style={{
+                                            fontSize: 22
+                                        }}>
+                                            {w}
+                                        </Text>
+                                    </Pressable>
+                                )
+                            })}
+                        </ScrollView>
+                    </InputAccessoryView>
+                )}
             </View>
         </Animated.View>
     )

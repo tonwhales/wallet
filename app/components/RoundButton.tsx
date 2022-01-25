@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleProp, Text, TextProps, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, ImageSourcePropType, Platform, Pressable, StyleProp, Text, TextProps, View, ViewStyle, Image } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
 import { Theme } from '../Theme';
 
@@ -84,7 +84,18 @@ const displays: { [key in RoundButtonDisplay]: {
     }
 }
 
-export const RoundButton = React.memo((props: { size?: RoundButtonSize, display?: RoundButtonDisplay, title?: string, style?: StyleProp<ViewStyle>, disabled?: boolean, loading?: boolean, onPress?: () => void, action?: () => Promise<any> }) => {
+export const RoundButton = React.memo((props: {
+    size?: RoundButtonSize,
+    display?: RoundButtonDisplay,
+    title?: string,
+    style?: StyleProp<ViewStyle>,
+    disabled?: boolean,
+    loading?: boolean,
+    onPress?: () => void,
+    action?: () => Promise<any>,
+    iconImage?: ImageSourcePropType
+    icon?: any
+}) => {
     const [loading, setLoading] = React.useState(false);
     const doLoading = props.loading !== undefined ? props.loading : loading;
     const doAction = React.useCallback(() => {
@@ -137,13 +148,27 @@ export const RoundButton = React.memo((props: { size?: RoundButtonSize, display?
                             <ActivityIndicator color={p.pressed ? display.textPressed : display.textColor} size='small' />
                         </View>
                     )}
-                    <Text
-                        style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
-                        numberOfLines={1}
-                        ellipsizeMode='tail'
-                    >
-                        {props.title}
-                    </Text>
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+
+                        {props.iconImage && (
+                            <Image
+                                source={props.iconImage}
+                                style={{ marginRight: 10, width: 20, height: 20 }}
+                            />
+                        )}
+                        {props.icon && (<View style={{ marginRight: 10 }}>{props.icon}</View>)}
+                        <Text
+                            style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
+                            numberOfLines={1}
+                            ellipsizeMode='tail'
+                        >
+                            {props.title}
+                        </Text>
+                    </View>
                 </View>
             )}
         </Pressable>

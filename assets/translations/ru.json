@@ -58,5 +58,8 @@
     "Create wallet": "Создать кошелёк",
     "By creating a wallet you agree to the Tonhub ": "Создавая кошелек, вы соглашаетесь с Tonhub ",
     " and ": " и ",
-    "Creating secure wallet...": "Создание безопасного кошелька..."
+    "Creating secure wallet...": "Создание безопасного кошелька...",
+    "If I lose recovery phrase, my funds will be lost forever.": "Если я потеряю фразу восстановления, мои средства будут потеряны навсегда.",
+    "If I expose or share my recovery phrase to anybody, my funds can be stolen.": "Если я раскрою или передам кому-либо свою фразу восстановления, мои средства могут быть украдены.",
+    "It is my full responsibility to keep my recovery phrase secure.": "Я несу полную ответственность за сохранность моей фразы восстановления."
 }

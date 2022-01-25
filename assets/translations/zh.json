@@ -58,5 +58,8 @@
   "Create wallet": "創建錢包",
   "By creating a wallet you agree to the Tonhub ": "創建錢包即表示您同意 Tonhub ",
   " and ": " 和 ",
-  "Creating secure wallet...": "創建安全錢包..."
+  "Creating secure wallet...": "創建安全錢包...",
+  "If I lose recovery phrase, my funds will be lost forever.": "如果我丟失了恢復短語，我的資金將永遠丟失。",
+  "If I expose or share my recovery phrase to anybody, my funds can be stolen.": "如果我向任何人公開或分享我的恢復短語，我的資金可能會被盜。",
+  "It is my full responsibility to keep my recovery phrase secure.": "確保我的恢復短語安全是我的全部責任。"
 }

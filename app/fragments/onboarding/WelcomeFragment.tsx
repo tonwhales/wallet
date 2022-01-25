@@ -47,7 +47,7 @@ export const WelcomeFragment = fragment(() => {
                         source={require('../../../assets/ic_diamond.png')}
                     />
                 </View>
-                <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 8, height: 34, textAlign: 'center' }}>
+                <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 30, height: 34, textAlign: 'center' }}>
                     {t('Tonhub Wallet')}
                 </Text>
                 <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8, height: 22 }}>

@@ -66,7 +66,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
     switch (props.deviceEncryption) {
         case 'face':
             iconImage = Platform.OS === 'ios'
-                ? require('../../../assets/face_id.png')
+                ? require('../../../assets/ic_face_id.png')
                 : require('../../../assets/ic_and_touch.png');
             title = Platform.OS === 'ios'
                 ? t('Protect with Face ID')
@@ -74,7 +74,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
             break;
         case 'fingerprint':
             iconImage = Platform.OS === 'ios'
-                ? require('../../../assets/ic_face_id.png')
+                ? require('../../../assets/ic_touch_id.png')
                 : require('../../../assets/ic_and_touch.png');
             title = Platform.OS === 'ios'
                 ? t('Protect with Touch ID')

@@ -51,9 +51,13 @@ export const WalletCreateFragment = fragment(() => {
                 >
                     <AndroidToolbar />
                     <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                        <View style={{ alignItems: 'center', height: 416, marginTop: 22 + 8 + 34 + 8 }}>
+                        <View style={{ alignItems: 'center', height: 416, marginTop: 8 + 34 + 8 }}>
                             <LoadingIndicator />
-                            <Text style={{ fontWeight: '800', marginTop: 16, fontSize: 26, marginHorizontal: 16 }}>{t("Creating secure wallet...")}</Text>
+                            <Text style={{
+                                fontWeight: '800',
+                                marginTop: 16, fontSize: 26,
+                                marginHorizontal: 16, textAlign: 'center'
+                            }}>{t("Creating secure wallet...")}</Text>
                         </View>
                     </View>
                 </Animated.View>

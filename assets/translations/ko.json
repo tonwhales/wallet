@@ -46,12 +46,16 @@
   "Protect with Touch ID": "Touch ID로 보호",
   "Protect with Passcode": "암호로 보호",
   "Continue anyway": "계속",
-  "Terms of service": "서비스 약관",
+  "Terms of Service": "서비스 약관",
   "Privacy policy": "개인 정보 정책",
   "Copy": "복사",
   "Share": "공유하다",
   "Easiest and secure TON wallet": "가장 쉽고 안전한 TON 지갑",
   "Back up now": "백업 지금",
   "Wallet address": "지갑 주소",
-  "Toncoin balance": "잔액 Toncoin"
+  "Toncoin balance": "잔액 Toncoin",
+  "Blockchain fee": "블록체인 수수료",
+  "Create wallet": "지갑 생성",
+  "By creating a wallet you agree to the Tonhub ": "지갑을 생성하면 Tonhub에 동의하는 것입니다 ",
+  " and ": " 과 "
 }

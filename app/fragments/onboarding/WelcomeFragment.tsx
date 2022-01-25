@@ -31,7 +31,7 @@ export const WelcomeFragment = fragment(() => {
                         fontWeight: '400',
                         color: 'rgba(66, 163, 235, 1)'
                     }}>
-                        {'Import existing wallet'}
+                        {t('Import existing wallet')}
                     </Text>
                 </Pressable>
             ),
@@ -50,7 +50,7 @@ export const WelcomeFragment = fragment(() => {
                 <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 30, height: 34, textAlign: 'center' }}>
                     {t('Tonhub Wallet')}
                 </Text>
-                <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8, height: 22 }}>
+                <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8 }}>
                     {t('Easiest and secure TON wallet')}
                 </Text>
             </View>
@@ -63,10 +63,10 @@ export const WelcomeFragment = fragment(() => {
                     marginTop: 14,
                     marginHorizontal: 35
                 }}>
-                    {'By creating a wallet you agree to the Tonhub '}
-                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Terms')}>{'Terms of Service'}</Text>
-                    {' and '}
-                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Privacy')}>{'Privacy policy'}</Text>
+                    {t('By creating a wallet you agree to the Tonhub ')}
+                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Terms')}>{t('Terms of Service')}</Text>
+                    {t(' and ')}
+                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Privacy')}>{t('Privacy policy')}</Text>
                 </Text>
             </View>
         </View>

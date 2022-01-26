@@ -83,7 +83,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     const onBlur = React.useCallback(() => {
         const normalized = props.value.trim().toLowerCase();
         if (Platform.OS === 'android') setCurrent(undefined);
-        if (!wordlist.find((v) => v === normalized)) {
+        if (!wordlist.find((v) => v === normalized) && normalized.length > 0) {
             setIsWrong(true);
         }
     }, [props.value]);

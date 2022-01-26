@@ -74,6 +74,14 @@ export const ScannerFragment = fragment(() => {
                         {t("Requesting for camera permission...")}
                     </Text>
                 </View>
+                <CloseButton
+                    style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}
+                    onPress={() => {
+                        setActive(false);
+                        setTimeout(navigation.goBack, 10);
+                    }}
+                    dark
+                />
             </View>
         );
     }
@@ -100,6 +108,14 @@ export const ScannerFragment = fragment(() => {
                         {t("No access to camera")}
                     </Text>
                 </View>
+                <CloseButton
+                    style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}
+                    onPress={() => {
+                        setActive(false);
+                        setTimeout(navigation.goBack, 10);
+                    }}
+                    dark
+                />
             </View>
         );
     }

@@ -10,10 +10,12 @@ import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncr
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const WalletCreateFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
@@ -42,15 +44,21 @@ export const WalletCreateFragment = fragment(() => {
                 <Animated.View
                     style={{
                         flexGrow: 1, backgroundColor: 'white',
-                        paddingTop: Platform.OS === 'android' ? safeArea.top : 0
+                        paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key="loading"
                     exiting={FadeOutDown}
                 >
                     <AndroidToolbar />
                     <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                        <LoadingIndicator />
-                        <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16 }}>{t("Creating secure wallet...")}</Text>
+                        <View style={{ alignItems: 'center', height: 416, marginTop: 8 + 34 + 8 }}>
+                            <LoadingIndicator />
+                            <Text style={{
+                                fontWeight: '800',
+                                marginTop: 16, fontSize: 26,
+                                marginHorizontal: 16, textAlign: 'center'
+                            }}>{t("Creating secure wallet...")}</Text>
+                        </View>
                     </View>
                 </Animated.View>
             )}

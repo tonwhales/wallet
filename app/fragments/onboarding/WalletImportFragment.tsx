@@ -67,7 +67,7 @@ const WordInput = React.memo(React.forwardRef((props: {
             vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
                 props.scroll.current!.scrollResponderScrollNativeHandleToKeyboard(
                     findNodeHandle(vref.current),
-                    height * 2 + 50 + 64 + 2
+                    height * 2 + 50
                 );
             }, () => {
                 // Ignore

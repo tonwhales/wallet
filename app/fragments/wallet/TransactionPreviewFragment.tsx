@@ -55,8 +55,6 @@ export const TransactionPreviewFragment = fragment(() => {
         transactionType = 'Received';
     }
 
-    console.log('[TransactionPreviewFragment] transaction', transaction);
-
     return (
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,

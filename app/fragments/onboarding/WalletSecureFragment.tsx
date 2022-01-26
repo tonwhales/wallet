@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { ActivityIndicator, Alert, Image, Platform, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ImageSourcePropType, Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme } from '../../Theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +15,7 @@ import LottieView from 'lottie-react-native';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
 import { useReboot } from '../../Root';
+import { RoundButton } from '../../components/RoundButton';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
@@ -58,110 +59,123 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
         })();
     }, []);
 
+    let iconImage: ImageSourcePropType | undefined;
+    let icon: any | undefined;
+    let title = '';
+
+    switch (props.deviceEncryption) {
+        case 'face':
+            iconImage = Platform.OS === 'ios'
+                ? require('../../../assets/ic_face_id.png')
+                : require('../../../assets/ic_and_touch.png');
+            title = Platform.OS === 'ios'
+                ? t('Protect with Face ID')
+                : t('Protect with biometrics');
+            break;
+        case 'fingerprint':
+            iconImage = Platform.OS === 'ios'
+                ? require('../../../assets/ic_touch_id.png')
+                : require('../../../assets/ic_and_touch.png');
+            title = Platform.OS === 'ios'
+                ? t('Protect with Touch ID')
+                : t('Protect with biometrics');
+            break;
+        case 'passcode':
+            icon = <Ionicons
+                name="keypad"
+                size={20}
+                color="white"
+            />;
+            title = t('Protect with Passcode');
+            break;
+        case 'none':
+            icon = <Ionicons
+                name="lock-open-outline"
+                size={20}
+                color="white"
+            />;
+            title = t('Continue anyway');
+            break;
+
+        default:
+            break;
+    }
+
+    console.log('iconImage', iconImage);
+
     return (
-        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'stretch', backgroundColor: 'white' }}>
-            <LottieView
-                source={require('../../../assets/animations/lock.json')}
-                autoPlay={true}
-                loop={false}
-                style={{ width: 128, height: 128, marginLeft: 0 }}
-            />
-            {props.deviceEncryption === 'none' && (
-                <Text style={{ marginHorizontal: 16, fontSize: 24 }}>
-                    {t('Your device is not protected')}
-                </Text>
-            )}
-            {props.deviceEncryption !== 'none' && (
-                <Text style={{ marginHorizontal: 16, fontSize: 24 }}>
-                    {t('Protect your wallet')}
-                </Text>
-            )}
-            {props.deviceEncryption === 'none' && (
-                <Text style={{ marginHorizontal: 16, marginTop: 8, fontSize: 18 }}>
-                    {t('It is highly recommend to enable passcode on your device to protect your assets.')}
-                </Text>
-            )}
-            {props.deviceEncryption !== 'none' && (
-                <Text style={{ marginHorizontal: 16, marginTop: 8, fontSize: 18 }}>
-                    {t('Add an extra layer of security to keep your crypto safe.')}
-                </Text>
-            )}
-            <View style={{ flexGrow: 1 }} />
-            <TouchableOpacity onPress={onClick}>
-                <View
-                    style={{
-                        marginBottom: safeArea.bottom + 16,
-                        marginHorizontal: 16,
-                        borderRadius: 18,
-                        borderWidth: 1,
-                        borderColor: Theme.divider,
-                        alignSelf: 'stretch',
-                        flexDirection: 'row',
-                        alignItems: 'center'
-                    }}
-                >
-                    {props.deviceEncryption === 'face' && (
-                        <>
-                            <Image
-                                source={
-                                    Platform.OS === 'ios'
-                                        ? require('../../../assets/face_id.png')
-                                        : require('../../../assets/and_touch_id.png')
-                                }
-                                style={{ marginVertical: 16, marginHorizontal: 16, width: 32, height: 32 }}
-                            />
-                            <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                {
-                                    Platform.OS === 'ios'
-                                        ? t('Protect with Face ID')
-                                        : t('Protect with biometrics')
-                                }
-                            </Text>
-                        </>
+        <View style={{
+            flexGrow: 1,
+            alignSelf: 'stretch', alignItems: 'stretch',
+            backgroundColor: 'white',
+            justifyContent: 'center',
+            alignContent: 'center'
+        }}>
+            <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                <View style={{ alignItems: 'center', height: 416, marginTop: 8 + 34 + 8 }}>
+                    <LottieView
+                        source={require('../../../assets/animations/lock.json')}
+                        autoPlay={true}
+                        loop={false}
+                        style={{ width: 140, height: 140 }}
+                    />
+                    {props.deviceEncryption === 'none' && (
+                        <Text style={{
+                            marginHorizontal: 26,
+                            fontSize: 24,
+                            fontWeight: '800',
+                            marginTop: 16,
+                            textAlign: 'center'
+                        }}>
+                            {t('Your device is not protected')}
+                        </Text>
                     )}
-                    {props.deviceEncryption === 'fingerprint' && (
-                        <>
-                            <Image source={
-                                Platform.OS === 'ios'
-                                    ? require('../../../assets/face_id.png')
-                                    : require('../../../assets/and_touch_id.png')
-                            }
-                                style={{ marginVertical: 16, marginHorizontal: 16, width: 32, height: 32 }}
-                            />
-                            <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                {
-                                    Platform.OS === 'ios'
-                                        ? t('Protect with Touch ID')
-                                        : t('Protect with biometrics')
-                                }
-                            </Text>
-                        </>
-                    )}
-                    {props.deviceEncryption === 'passcode' && (
-                        <>
-                            <View style={{ marginVertical: 16, marginHorizontal: 16 }}>
-                                <Ionicons name="keypad" size={32} color="black" />
-                            </View>
-                            <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                {t('Protect with Passcode')}
-                            </Text>
-                        </>
+                    {props.deviceEncryption !== 'none' && (
+                        <Text style={{
+                            marginHorizontal: 26,
+                            fontSize: 24,
+                            fontWeight: '800',
+                            marginTop: 16,
+                            textAlign: 'center'
+                        }}>
+                            {t('Protect your wallet')}
+                        </Text>
                     )}
                     {props.deviceEncryption === 'none' && (
-                        <>
-                            <View style={{ marginVertical: 16, marginHorizontal: 16 }}>
-                                <Ionicons name="lock-open-outline" size={32} color="black" />
-                            </View>
-                            <Text style={{ fontSize: 18, flexGrow: 1, flexBasis: 0 }}>
-                                {t('Continue anyway')}
-                            </Text>
-                        </>
+                        <Text style={{
+                            marginHorizontal: 25,
+                            fontSize: 16,
+                            fontWeight: '400',
+                            marginTop: 11,
+                            textAlign: 'center'
+                        }}>
+                            {t('It is highly recommend to enable passcode on your device to protect your assets.')}
+                        </Text>
                     )}
-                    <View style={{ marginRight: 16 }}>
-                        {loading && (<ActivityIndicator color={Theme.loader} />)}
-                    </View>
+                    {props.deviceEncryption !== 'none' && (
+                        <Text style={{
+                            marginHorizontal: 25,
+                            fontSize: 16,
+                            fontWeight: '400',
+                            marginTop: 11,
+                            textAlign: 'center'
+                        }}>
+                            {t('Add an extra layer of security to keep your crypto safe.')}
+                        </Text>
+                    )}
                 </View>
-            </TouchableOpacity>
+            </View>
+            <RoundButton
+                style={{
+                    position: 'absolute',
+                    bottom: safeArea.bottom + 16, left: 16, right: 16
+                }}
+                onPress={onClick}
+                title={title}
+                loading={loading}
+                iconImage={iconImage}
+                icon={icon}
+            />
         </View>
     );
 });

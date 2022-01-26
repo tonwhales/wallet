@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, InputAccessoryView, Platform, Pressable, Text, View } from "react-native";
+import { Alert, findNodeHandle, InputAccessoryView, Platform, Pressable, Text, View } from "react-native";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { iOSColors, iOSUIKit } from "react-native-typography";
@@ -65,7 +65,10 @@ const WordInput = React.memo(React.forwardRef((props: {
             scrollPageY: number
         ) => {
             vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
-                props.scroll.current!.scrollTo({ y: top + 50 - 24 - height - keyboard.keyboardHeight, animated: true });
+                props.scroll.current!.scrollResponderScrollNativeHandleToKeyboard(
+                    findNodeHandle(vref.current),
+                    height * 2 + 50 + 64 + 2
+                );
             }, () => {
                 // Ignore
             });

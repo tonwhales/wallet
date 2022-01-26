@@ -8098,7 +8098,7 @@ toidentifier@1.0.1:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
 
-ton-contracts@^2.3.2:
+ton-contracts@2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/ton-contracts/-/ton-contracts-2.3.2.tgz#cb9f130f1fb4cb1af3a35f04d1fd00b9100663a1"
   integrity sha512-O8DVQ1180Zx2m6D0SVluny4rjWhChLpo41WwmnDejPKd0Ip1s8lI/vACjS4oewkEPvZG1stIsrAWpLHyW94y6A==
@@ -8112,7 +8112,7 @@ ton-crypto-primitives@2.0.0:
   dependencies:
     jssha "3.2.0"
 
-ton-crypto@2.0.2, ton-crypto@^2.0.2:
+ton-crypto@2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/ton-crypto/-/ton-crypto-2.0.2.tgz#dec9db4560a2905065d140f2bb3fac36df2a63aa"
   integrity sha512-gG4iA7yKPQiiZWDbZoKJcWWuxrq/Ja4sK2T1D191G/n4/xWMhaiPBDmZKO8rChl6x/FMymqkBqPXPguMrVBmHg==
@@ -8121,10 +8121,10 @@ ton-crypto@2.0.2, ton-crypto@^2.0.2:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton@^7.14.0:
-  version "7.14.0"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-7.14.0.tgz#e324eec3eb61538254c1320629450e9fa7e6bb68"
-  integrity sha512-yOH7kZ4FOTZvnpLUXpwMYZOhfDIHWT4N9fNmps+6eMOwSjRHVsGLqRKeBybkMXyoWQUc7eFrT1XUZ3YFT0Zw0g==
+ton@8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-8.0.0.tgz#f71569a71ade6976a92cfde4216d007467bf4a30"
+  integrity sha512-2vq2kqGT4L2Dhhj72D53S+R0y63Xna80BVRPwOKiqnZl/pIK2mFfMGrNW9KXZjKymh4/snNnAI941Xrgr816sg==
   dependencies:
     axios "^0.25.0"
     bn.js "5.2.0"

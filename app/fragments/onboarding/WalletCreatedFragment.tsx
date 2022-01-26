@@ -5,6 +5,8 @@ import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
 import { useTranslation } from "react-i18next";
+import React from "react";
+import { Ionicons } from '@expo/vector-icons';
 
 export const WalletCreatedFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -21,27 +23,85 @@ export const WalletCreatedFragment = fragment(() => {
                 style={{ width: 128, height: 128, marginBottom: 8 }}
             />
             <Text style={{ marginHorizontal: 24, fontSize: 30, fontWeight: '700' }}>
-                Backup your wallet
+                {t('Back up your wallet')}
             </Text>
-            <Text style={{ marginHorizontal: 24, marginTop: 8, fontSize: 16, textAlign: 'center' }}>
-                You will be shown a secret recovery phrase on the next screen. The recovery phrase is the only key to your wallet.
+            <Text style={{
+                marginHorizontal: 32, marginTop: 11, fontSize: 16,
+                fontWeight: '400',
+                textAlign: 'center'
+            }}>
+                {t('You will be shown a secret recovery phrase on the next screen. The recovery phrase is the only key to your wallet. It will allow you to recover access to your wallet if your phone is lost or stolen.')}
             </Text>
-            <Text style={{ marginHorizontal: 24, marginTop: 8, fontSize: 16, textAlign: 'center' }}>
-                It will allow you to recover access to your wallet if your phone is lost or stolen.
-            </Text>
-            <View style={{ flexGrow: 1 }} />
-            <View style={{ marginHorizontal: 24, marginBottom: 32 }}>
-                <Text style={{ fontSize: 18, marginVertical: 4 }}>
-                    ⚠️ If I lose revovery phase, my funds will be lost forever.
-                </Text>
-                <Text style={{ fontSize: 18, marginVertical: 4 }}>
-                    ⚠️ If I expose or share my revovery phrase to anybody, my funds can be stolen.
-                </Text>
-                <Text style={{ fontSize: 18, marginVertical: 4 }}>
-                    ⚠️ It is my full responsibility to keep my revovery phrase secure.
-                </Text>
+            <View
+                style={{
+                    marginHorizontal: 20,
+                    marginBottom: 32,
+                    marginTop: 20,
+                    borderRadius: 14,
+                    backgroundColor: '#F2F2F6',
+                    paddingVertical: 15,
+                    paddingHorizontal: 16,
+                }}
+            >
+                <View style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    marginBottom: 14
+                }}>
+                    <Ionicons
+                        name="checkmark-circle-outline"
+                        size={20}
+                        color="black"
+                        style={{
+                            marginRight: 11,
+                            marginLeft: 1
+                        }}
+                    />
+                    <Text style={{ fontSize: 16, fontWeight: '400' }}>
+                        {t('If I lose recovery phrase, my funds will be lost forever.')}
+                    </Text>
+                </View>
+                <View style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    marginBottom: 14
+                }}>
+
+                    <Ionicons
+                        name="checkmark-circle-outline"
+                        size={20}
+                        color="black"
+                        style={{
+                            marginRight: 11,
+                            marginLeft: 1
+                        }}
+                    />
+                    <Text style={{ fontSize: 16, fontWeight: '400' }}>
+                        {t('If I expose or share my recovery phrase to anybody, my funds can be stolen.')}
+                    </Text>
+                </View>
+                <View style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                }}>
+
+                    <Ionicons
+                        name="checkmark-circle-outline"
+                        size={20}
+                        color="black"
+                        style={{
+                            marginRight: 11,
+                            marginLeft: 1
+                        }}
+                    />
+                    <Text style={{ fontSize: 16, fontWeight: '400' }}>
+                        {t('It is my full responsibility to keep my recovery phrase secure.')}
+                    </Text>
+                </View>
             </View>
-            <View style={{ height: 64, marginHorizontal: 64, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+            <View style={{ flexGrow: 1 }} />
+
+            <View style={{ height: 64, marginHorizontal: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                 <RoundButton title={t("Back up now")} onPress={() => navigation.navigate('WalletBackupInit')} />
             </View>
         </View>

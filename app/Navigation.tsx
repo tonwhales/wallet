@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform, View } from 'react-native';
+import { Platform, Pressable, View, Text } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -95,7 +95,7 @@ function fullScreenModal(name: string, component: React.ComponentType<any>) {
 }
 
 const navigation = [
-    fullScreen('Welcome', WelcomeFragment),
+    genericScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
     fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment),

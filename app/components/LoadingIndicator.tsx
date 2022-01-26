@@ -10,7 +10,7 @@ export function LoadingIndicator(props: { simple?: boolean, style?: StyleProp<Vi
         <View style={props.style}>
             <LottieView
                 source={require('../../assets/animations/clock.json')}
-                style={{ width: 100, height: 100 }}
+                style={{ width: 140, height: 140 }}
                 autoPlay={true}
             />
         </View>

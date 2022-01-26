@@ -14,30 +14,60 @@ export const WelcomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ref = React.useRef<LottieView>(null);
+
+    React.useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <Pressable
+                    onPress={() => navigation.navigate('WalletImport')}
+                    style={({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.5 : 1
+                        }
+                    }}
+                >
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: '400',
+                        color: 'rgba(66, 163, 235, 1)'
+                    }}>
+                        {t('Import existing wallet')}
+                    </Text>
+                </Pressable>
+            ),
+        })
+    }, []);
+
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: '#fff' }}>
             <View style={{ alignItems: 'center', height: 416, marginTop: 22 + 8 + 34 + 8 }}>
-                <View style={{ width: 210, height: 210, marginTop: -14 }}>
-                    <Pressable onPress={() => ref.current!.play()}>
-                        <LottieView
-                            ref={ref}
-                            source={require('../../../assets/animations/chiken_standing.json')}
-                            style={{ width: 210, height: 210 }}
-                            autoPlay={true}
-                            loop={false}
-                        />
-                    </Pressable>
+                <View style={{ width: 140, height: 126, marginTop: -14 }}>
+                    <Image
+                        style={{ width: 140, height: 126 }}
+                        source={require('../../../assets/ic_diamond.png')}
+                    />
                 </View>
-                <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 8, height: 34, textAlign: 'center' }}>
+                <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 30, height: 34, textAlign: 'center' }}>
                     {t('Tonhub Wallet')}
                 </Text>
-                <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8, height: 22 }}>
+                <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8 }}>
                     {t('Easiest and secure TON wallet')}
                 </Text>
             </View>
-            <View style={{ height: 128 + safeArea.bottom + 16, position: 'absolute', bottom: 0, width: '100%', paddingHorizontal: 64, justifyContent: 'center' }}>
-                <RoundButton title={t("Create my wallet")} onPress={() => navigation.navigate('LegalCreate')} />
-                <RoundButton title={t("Import existing wallet")} onPress={() => navigation.navigate('LegalImport')} display="inverted" size="normal" style={{ marginTop: 16 }} />
+            <View style={{ height: 128 + safeArea.bottom + 16, position: 'absolute', bottom: 0, width: '100%', paddingHorizontal: 16, justifyContent: 'center' }}>
+                <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('WalletCreate')} />
+                <Text style={{
+                    textAlign: 'center',
+                    color: '#8E979D',
+                    fontSize: 14,
+                    marginTop: 14,
+                    marginHorizontal: 35
+                }}>
+                    {t('By creating a wallet you agree to the Tonhub ')}
+                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Terms')}>{t('Terms of Service')}</Text>
+                    {t(' and ')}
+                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Privacy')}>{t('Privacy policy')}</Text>
+                </Text>
             </View>
         </View>
     );

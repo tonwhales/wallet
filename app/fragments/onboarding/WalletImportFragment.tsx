@@ -38,6 +38,7 @@ const WordInput = React.memo(React.forwardRef((props: {
 
     // Shake
     const translate = useSharedValue(0);
+    const [isWrong, setIsWrong] = React.useState(false);
     const [selection, setSelection] = React.useState<{
         start: number;
         end: number;
@@ -84,6 +85,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                 withRepeat(withTiming(10, { duration: 30 }), 2, true),
                 withTiming(0, { duration: 30 })
             );
+            setIsWrong(true);
             return;
         }
         if (Platform.OS === 'android') setCurrent(undefined);
@@ -91,6 +93,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     }, [props.value]);
 
     const onTextChange = React.useCallback((value: string) => {
+        setIsWrong(false);
         if (value.length >= 4) {
             const autocomplite = wordlist.find((w) => w.startsWith(value));
             if (autocomplite && autocomplite !== props.value) {
@@ -142,8 +145,10 @@ const WordInput = React.memo(React.forwardRef((props: {
                     alignSelf: 'center',
                     fontSize: 16, width: 40,
                     textAlign: 'right',
-                    color: 'rgba(142, 151, 157, 1)'
-                }}>{props.hint}.</Text>
+                    color: !isWrong ? '#8E979D' : '#FF274E'
+                }}>
+                    {props.hint}.
+                </Text>
                 <TextInput
                     ref={tref}
                     style={{
@@ -151,7 +156,8 @@ const WordInput = React.memo(React.forwardRef((props: {
                         paddingLeft: 26,
                         paddingRight: 48,
                         flexGrow: 1,
-                        fontSize: 16
+                        fontSize: 16,
+                        color: !isWrong ? '#000' : '#FF274E'
                     }}
                     value={props.value}
                     onChangeText={onTextChange}

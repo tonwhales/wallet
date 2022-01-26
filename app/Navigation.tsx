@@ -124,7 +124,7 @@ export const Navigation = React.memo(() => {
             return new Engine(
                 state.address,
                 state.testnet ? storageTestnet : storageMainnet,
-                createSimpleConnector(state.testnet ? 'https://testnet.toncenter.com/api/v2' : 'https://toncenter.com/api/v2')
+                createSimpleConnector(state.testnet ? 'https://testnet.toncenter.com/api/v2' : 'https://mainnet.tonhubapi.com')
             );
         } else {
             return null;

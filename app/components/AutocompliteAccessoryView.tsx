@@ -41,7 +41,7 @@ export const AutocompliteAccessoryView = React.memo((props: {
                             }}
                         >
                             <Text style={{
-                                fontSize: 22
+                                fontSize: 16
                             }}>
                                 {suggestions[1]}
                             </Text>
@@ -66,7 +66,7 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                 }}
                             >
                                 <Text style={{
-                                    fontSize: 22
+                                    fontSize: 16
                                 }}>
                                     {suggestions[0]}
                                 </Text>
@@ -91,7 +91,7 @@ export const AutocompliteAccessoryView = React.memo((props: {
                             }}
                         >
                             <Text style={{
-                                fontSize: 22
+                                fontSize: 16
                             }}>
                                 {suggestions[2]}
                             </Text>

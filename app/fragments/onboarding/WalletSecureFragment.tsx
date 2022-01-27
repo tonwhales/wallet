@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme } from '../../Theme';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { encryptData } from '../../storage/secureStorage';
+import { encryptData, ensureKeystoreReady } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
 import { setAppState } from '../../storage/appState';
 import { storage } from '../../storage/storage';
@@ -31,6 +31,9 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
         (async () => {
             setLoading(true);
             try {
+
+                // Ensure keystore is ok
+                ensureKeystoreReady();
 
                 // Persist key
                 if (props.deviceEncryption === 'none') {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { ActivityIndicator, Alert, Image, ImageSourcePropType, Platform, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ImageSourcePropType, Platform, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme } from '../../Theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +22,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
     const navigation = useTypedNavigation();
     const { t } = useTranslation();
     const reboot = useReboot();
+    const { height } = useWindowDimensions();
 
     // Action
     const [loading, setLoading] = React.useState(false);
@@ -110,12 +111,12 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
             alignContent: 'center'
         }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                <View style={{ alignItems: 'center', height: 416, marginTop: 8 + 34 + 8 }}>
+                <View style={{ alignItems: 'center', height: 416, marginTop: 116 }}>
                     <LottieView
                         source={require('../../../assets/animations/lock.json')}
                         autoPlay={true}
                         loop={false}
-                        style={{ width: 140, height: 140 }}
+                        style={{ width: height * 0.15, height: height * 0.15 }}
                     />
                     {props.deviceEncryption === 'none' && (
                         <Text style={{
@@ -162,18 +163,17 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                         </Text>
                     )}
                 </View>
+                <View style={{ flexGrow: 1 }} />
+                <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                    <RoundButton
+                        onPress={onClick}
+                        title={title}
+                        loading={loading}
+                        iconImage={iconImage}
+                        icon={icon}
+                    />
+                </View>
             </View>
-            <RoundButton
-                style={{
-                    position: 'absolute',
-                    bottom: safeArea.bottom + 16, left: 16, right: 16
-                }}
-                onPress={onClick}
-                title={title}
-                loading={loading}
-                iconImage={iconImage}
-                icon={icon}
-            />
         </View>
     );
 });

@@ -67,5 +67,6 @@
     "Cancel": "Отмена",
     "Log out": "Выйти",
     "Back up your wallet": "Создайте резервную копию своего кошелька",
-    "You will be shown a secret recovery phrase on the next screen. The recovery phrase is the only key to your wallet. It will allow you to recover access to your wallet if your phone is lost or stolen.": "На следующем экране вам будет показана секретная фраза восстановления. Фраза восстановления — единственный ключ к вашему кошельку. Она позволит вам восстановить доступ к вашему кошельку, если ваш телефон потерян или украден."
+    "You will be shown a secret recovery phrase on the next screen. The recovery phrase is the only key to your wallet. It will allow you to recover access to your wallet if your phone is lost or stolen.": "На следующем экране вам будет показана секретная фраза восстановления. Фраза восстановления — единственный ключ к вашему кошельку. Она позволит вам восстановить доступ к вашему кошельку, если ваш телефон потерян или украден.",
+    "Please review the Tonhub Wallet ": "Пожалуйста, ознакомьтесь с Tonhub Wallet "
 }

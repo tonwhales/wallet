@@ -19,7 +19,7 @@ export const WelcomeFragment = fragment(() => {
         navigation.setOptions({
             headerRight: () => (
                 <Pressable
-                    onPress={() => navigation.navigate('WalletImport')}
+                    onPress={() => navigation.navigate('LegalImport')}
                     style={({ pressed }) => {
                         return {
                             opacity: pressed ? 0.5 : 1
@@ -39,9 +39,9 @@ export const WelcomeFragment = fragment(() => {
     }, []);
 
     return (
-        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: '#fff' }}>
-            <View style={{ alignItems: 'center', height: 416, marginTop: 22 + 8 + 34 + 8 }}>
-                <View style={{ width: 140, height: 126, marginTop: -14 }}>
+        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: '#fff', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
+            <View style={{ alignItems: 'center', height: 416, marginTop: 116 }}>
+                <View style={{ width: 140, height: 126 }}>
                     <Image
                         style={{ width: 140, height: 126 }}
                         source={require('../../../assets/ic_diamond.png')}
@@ -50,28 +50,17 @@ export const WelcomeFragment = fragment(() => {
                 <Text style={{ fontSize: 30, fontWeight: '700', marginTop: 30, height: 34, textAlign: 'center' }}>
                     {t('Tonhub Wallet')}
                 </Text>
-                <Text style={{ fontSize: 18, color: Theme.textColor, textAlign: 'center', marginHorizontal: 16, marginTop: 8 }}>
+                <Text style={{ fontSize: 16, textAlign: 'center', marginHorizontal: 48, marginTop: 8, color: '#6D6D71' }}>
                     {t('Easiest and secure TON wallet')}
                 </Text>
             </View>
-            <View style={{ height: 128 + safeArea.bottom + 16, position: 'absolute', bottom: 0, width: '100%', paddingHorizontal: 16, justifyContent: 'center' }}>
-                <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('WalletCreate')} />
-                <Text style={{
-                    textAlign: 'center',
-                    color: '#8E979D',
-                    fontSize: 14,
-                    marginTop: 14,
-                    marginHorizontal: 35
-                }}>
-                    {t('By creating a wallet you agree to the Tonhub ')}
-                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Terms')}>{t('Terms of Service')}</Text>
-                    {t(' and ')}
-                    <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Privacy')}>{t('Privacy policy')}</Text>
-                </Text>
+            <View style={{ flex: 1 }} />
+            <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('LegalCreate')} />
             </View>
             {Platform.OS === 'android' && (
                 <Pressable
-                    onPress={() => navigation.navigate('WalletImport')}
+                    onPress={() => navigation.navigate('LegalImport')}
                     style={({ pressed }) => {
                         return {
                             opacity: pressed ? 0.5 : 1,

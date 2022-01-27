@@ -28,8 +28,7 @@
     "Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.": "Пожалуйста, восстановите доступ к вашему кошельку, введя 24 секретных слова, которые вы записали при создании кошелька.",
     "Continue": "Продолжить",
     "Incorrect words": "Неправильные слова",
-    "Write down these 24 words in the correct order and store them in a secret place.": "Запишите эти 24 слова в правильном порядке и сохраните их в секретном месте.",
-    "Use these secret words to restore access to your wallet if you lose your passcode or device.": "Используйте эти секретные слова, чтобы восстановить доступ к вашему кошельку, если вы потеряете пароль или устройство.",
+    "Write down these 24 words in the correct order and store them in a secret place. Use these secret words to restore access to your wallet if you lose your passcode or device.": "Запишите эти 24 слова в правильном порядке и сохраните их в секретном месте. Используйте эти секретные слова, чтобы восстановить доступ к вашему кошельку, если вы потеряете пароль или устройство.",
     "Done": "Готово",
     "Home": "Главная",
     "Import existing wallet": "Импортировать кошелёк",
@@ -51,7 +50,7 @@
     "Copy": "Скопировать",
     "Share": "Поделиться",
     "Easiest and secure TON wallet": "Самый простой и безопасный кошелек TON",
-    "Back up now": "Сделать резервную копию",
+    "Back up now": "Создать резервную копию",
     "Wallet address": "Адрес кошелька",
     "Toncoin balance": "Баланс Toncoin",
     "Blockchain fee": "Комиссия",
@@ -61,5 +60,10 @@
     "Creating secure wallet...": "Создание безопасного кошелька...",
     "If I lose recovery phrase, my funds will be lost forever.": "Если я потеряю фразу восстановления, мои средства будут потеряны навсегда.",
     "If I expose or share my recovery phrase to anybody, my funds can be stolen.": "Если я раскрою или передам кому-либо свою фразу восстановления, мои средства могут быть украдены.",
-    "It is my full responsibility to keep my recovery phrase secure.": "Я несу полную ответственность за сохранность моей фразы восстановления."
+    "It is my full responsibility to keep my recovery phrase secure.": "Я несу полную ответственность за сохранность моей фразы восстановления.",
+    "Your recovery phrase": "Фраза восстановления",
+    "You have no transactions": "У вас нет транзакций",
+    "Are you sure want to log out?": "Вы уверены, что хотите выйти?",
+    "Cancel": "Отмена",
+    "Log out": "Выйти"
 }

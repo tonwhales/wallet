@@ -28,8 +28,7 @@
   "Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.": " 지갑 생성 시 적어둔 24개의 비밀번호를 입력하여 지갑 접근 권한을 복구해주세요.",
   "Continue": " 계속하다",
   "Incorrect words": " 잘못된 단어",
-  "Write down these 24 words in the correct order and store them in a secret place.": " 이 24개의 단어를 올바른 순서로 적어서 비밀 장소에 보관하십시오.",
-  "Use these secret words to restore access to your wallet if you lose your passcode or device.": " 암호나 장치를 분실한 경우 이 비밀 단어를 사용하여 지갑에 대한 액세스를 복원하십시오.",
+  "Write down these 24 words in the correct order and store them in a secret place. Use these secret words to restore access to your wallet if you lose your passcode or device.": "이 24개의 단어를 올바른 순서로 적어서 비밀 장소에 보관하십시오. 암호나 장치를 분실한 경우 이 비밀 단어를 사용하여 지갑에 대한 액세스를 복원하십시오.",
   "Done": " 완료",
   "Home": "홈페이지",
   "Create my wallet": "내 지갑 만들기",
@@ -61,5 +60,10 @@
   "Creating secure wallet...": "보안 지갑 생성 중...",
   "If I lose recovery phrase, my funds will be lost forever.": "복구 문구를 분실하면 내 자금은 영원히 손실됩니다.",
   "If I expose or share my recovery phrase to anybody, my funds can be stolen.": "내 복구 문구를 다른 사람에게 노출하거나 공유하면 내 자금이 도난당할 수 있습니다.",
-  "It is my full responsibility to keep my recovery phrase secure.": "복구 문구를 안전하게 유지하는 것은 전적으로 제 책임입니다."
+  "It is my full responsibility to keep my recovery phrase secure.": "복구 문구를 안전하게 유지하는 것은 전적으로 제 책임입니다.",
+  "Your recovery phrase": "당신의 회복 문구",
+  "You have no transactions": "거래가 없습니다.",
+  "Are you sure want to log out?": "로그아웃하시겠습니까?",
+  "Cancel": "취소",
+  "Log out": "로그 아웃"
 }

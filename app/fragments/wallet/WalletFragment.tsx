@@ -185,7 +185,6 @@ export const WalletFragment = fragment(() => {
             let res = resolveUrl(src);
             if (res) {
                 // if QR is valid navigate to transfer fragment
-                console.log('[onQRCodeRead] navigating with', res.address.toFriendly(), '...');
                 navigation.navigate('Transfer', {
                     target: res.address.toFriendly(),
                     comment: res.comment,

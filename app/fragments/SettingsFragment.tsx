@@ -19,12 +19,12 @@ export const SettingsFragment = fragment(() => {
     const reboot = useReboot();
 
     const doSignout = React.useCallback(() => {
-        Alert.alert('Are your sure want to signout?', '', [{
-            text: 'Log out', style: 'destructive', onPress: () => {
+        Alert.alert(t('Are you sure want to log out?'), '', [{
+            text: t('Log out'), style: 'destructive', onPress: () => {
                 storage.clearAll();
                 reboot();
             }
-        }, { text: 'Cancel' }])
+        }, { text: t('Cancel') }])
     }, []);
 
     return (
@@ -113,7 +113,7 @@ export const SettingsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t("Terms of service")} onPress={() => navigation.navigate('Terms')} />
+                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t("Terms of Service")} onPress={() => navigation.navigate('Terms')} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>

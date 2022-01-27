@@ -28,8 +28,7 @@
   "Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.": "请输入你在创建钱包时写下的24个密语，以恢复对钱包的访问。",
   "Continue": "继续",
   "Incorrect words": "不正确的词",
-  "Write down these 24 words in the correct order and store them in a secret place.": "按照正确的顺序写下这24个单词，并把它们存放在一个秘密的地方。",
-  "Use these secret words to restore access to your wallet if you lose your passcode or device.": "如果你丢失了你的密码或设备，请使用这些密语来恢复对你的钱包的访问。",
+  "Write down these 24 words in the correct order and store them in a secret place. Use these secret words to restore access to your wallet if you lose your passcode or device.": "按照正確的順序寫下這 24 個單詞，並將它們存放在一個秘密的地方。 如果您丟失密碼或設備，請使用這些密碼恢復對您錢包的訪問。",
   "Done": "完成",
   "Home": "主页",
   "Create my wallet": "創建我的錢包",
@@ -61,5 +60,10 @@
   "Creating secure wallet...": "創建安全錢包...",
   "If I lose recovery phrase, my funds will be lost forever.": "如果我丟失了恢復短語，我的資金將永遠丟失。",
   "If I expose or share my recovery phrase to anybody, my funds can be stolen.": "如果我向任何人公開或分享我的恢復短語，我的資金可能會被盜。",
-  "It is my full responsibility to keep my recovery phrase secure.": "確保我的恢復短語安全是我的全部責任。"
+  "It is my full responsibility to keep my recovery phrase secure.": "確保我的恢復短語安全是我的全部責任。",
+  "Your recovery phrase": "您的恢復短語",
+  "You have no transactions": "您沒有交易",
+  "Are you sure want to log out?": "您確定要退出嗎？",
+  "Cancel": "取消",
+  "Log out": "登出"
 }

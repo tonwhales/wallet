@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppLogo } from '../../components/AppLogo';
 import { RoundButton } from '../../components/RoundButton';
@@ -69,6 +69,26 @@ export const WelcomeFragment = fragment(() => {
                     <Text style={{ color: '#1C8FE3' }} onPress={() => navigation.navigate('Privacy')}>{t('Privacy policy')}</Text>
                 </Text>
             </View>
+            {Platform.OS === 'android' && (
+                <Pressable
+                    onPress={() => navigation.navigate('WalletImport')}
+                    style={({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.5 : 1,
+                            position: 'absolute',
+                            top: safeArea.top + 16, right: 16
+                        }
+                    }}
+                >
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: '400',
+                        color: 'rgba(66, 163, 235, 1)'
+                    }}>
+                        {t('Import existing wallet')}
+                    </Text>
+                </Pressable>
+            )}
         </View>
     );
 });

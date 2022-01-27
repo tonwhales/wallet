@@ -101,8 +101,6 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
             break;
     }
 
-    console.log('iconImage', iconImage);
-
     return (
         <View style={{
             flexGrow: 1,

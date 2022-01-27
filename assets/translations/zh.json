@@ -65,5 +65,9 @@
   "You have no transactions": "您沒有交易",
   "Are you sure want to log out?": "您確定要退出嗎？",
   "Cancel": "取消",
-  "Log out": "登出"
+  "Log out": "登出",
+  "Back up your wallet": "備份你的錢包",
+  "You will be shown a secret recovery phrase on the next screen. The recovery phrase is the only key to your wallet. It will allow you to recover access to your wallet if your phone is lost or stolen.": "您將在下一個屏幕上看到一個秘密的恢復短語。 恢復短語是您錢包的唯一鑰匙。 如果您的手機丟失或被盜，它將允許您恢復對錢包的訪問。",
+  "Write down these 24 words in the order given below and store them in a secret, safe place.": "按照下面給出的順序寫下這 24 個單詞，並將它們存放在一個秘密、安全的地方。",
+  "In the next step you will see 24 secret words that allows you to recover a wallet":"在下一步中，您將看到 24 個密碼，可讓您恢復錢包."
 }

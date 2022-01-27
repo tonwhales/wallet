@@ -115,11 +115,14 @@ export const TransactionPreviewFragment = fragment(() => {
                 width: '100%'
             }}>
                 <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 16,
-                        lineHeight: 20
-                    }}>
+                    <Text
+                        style={{
+                            fontWeight: '600',
+                            fontSize: 16,
+                            lineHeight: 20
+                        }}
+                        selectable={true}
+                    >
                         {transaction.address?.toFriendly()}
                     </Text>
                     <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
@@ -140,7 +143,6 @@ export const TransactionPreviewFragment = fragment(() => {
                         fontSize: 16,
                         lineHeight: 20,
                     }}>
-                        {/* TODO calculated fee */}
                         {fromNano(transaction.fees)}
                     </Text>
                 </View>

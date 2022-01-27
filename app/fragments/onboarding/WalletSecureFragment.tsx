@@ -16,6 +16,7 @@ import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
 import { useReboot } from '../../Root';
 import { RoundButton } from '../../components/RoundButton';
+import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
@@ -62,14 +63,16 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
 
     let iconImage: ImageSourcePropType | undefined;
     let icon: any | undefined;
-    let title = '';
+    let buttonText = '';
+    let title = t('Protect your wallet');
+    let text = t('Add an extra layer of security to keep your crypto safe.');
 
     switch (props.deviceEncryption) {
         case 'face':
             iconImage = Platform.OS === 'ios'
                 ? require('../../../assets/ic_face_id.png')
                 : require('../../../assets/ic_and_touch.png');
-            title = Platform.OS === 'ios'
+            buttonText = Platform.OS === 'ios'
                 ? t('Protect with Face ID')
                 : t('Protect with biometrics');
             break;
@@ -77,7 +80,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
             iconImage = Platform.OS === 'ios'
                 ? require('../../../assets/ic_touch_id.png')
                 : require('../../../assets/ic_and_touch.png');
-            title = Platform.OS === 'ios'
+            buttonText = Platform.OS === 'ios'
                 ? t('Protect with Touch ID')
                 : t('Protect with biometrics');
             break;
@@ -87,7 +90,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 size={20}
                 color="white"
             />;
-            title = t('Protect with Passcode');
+            buttonText = t('Protect with Passcode');
             break;
         case 'none':
             icon = <Ionicons
@@ -95,7 +98,9 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 size={20}
                 color="white"
             />;
-            title = t('Continue anyway');
+            buttonText = t('Continue anyway');
+            title = t('Your device is not protected');
+            text = t('It is highly recommend to enable passcode on your device to protect your assets.')
             break;
 
         default:
@@ -111,63 +116,16 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
             alignContent: 'center'
         }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                <View style={{ alignItems: 'center', height: 416, marginTop: 116 }}>
-                    <LottieView
-                        source={require('../../../assets/animations/lock.json')}
-                        autoPlay={true}
-                        loop={false}
-                        style={{ width: height * 0.15, height: height * 0.15 }}
-                    />
-                    {props.deviceEncryption === 'none' && (
-                        <Text style={{
-                            marginHorizontal: 26,
-                            fontSize: 24,
-                            fontWeight: '800',
-                            marginTop: 16,
-                            textAlign: 'center'
-                        }}>
-                            {t('Your device is not protected')}
-                        </Text>
-                    )}
-                    {props.deviceEncryption !== 'none' && (
-                        <Text style={{
-                            marginHorizontal: 26,
-                            fontSize: 24,
-                            fontWeight: '800',
-                            marginTop: 16,
-                            textAlign: 'center'
-                        }}>
-                            {t('Protect your wallet')}
-                        </Text>
-                    )}
-                    {props.deviceEncryption === 'none' && (
-                        <Text style={{
-                            marginHorizontal: 25,
-                            fontSize: 16,
-                            fontWeight: '400',
-                            marginTop: 11,
-                            textAlign: 'center'
-                        }}>
-                            {t('It is highly recommend to enable passcode on your device to protect your assets.')}
-                        </Text>
-                    )}
-                    {props.deviceEncryption !== 'none' && (
-                        <Text style={{
-                            marginHorizontal: 25,
-                            fontSize: 16,
-                            fontWeight: '400',
-                            marginTop: 11,
-                            textAlign: 'center'
-                        }}>
-                            {t('Add an extra layer of security to keep your crypto safe.')}
-                        </Text>
-                    )}
-                </View>
+                <FragmentMediaContent
+                    animation={require('../../../assets/animations/lock.json')}
+                    title={title}
+                    text={text}
+                />
                 <View style={{ flexGrow: 1 }} />
                 <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                     <RoundButton
                         onPress={onClick}
-                        title={title}
+                        title={buttonText}
                         loading={loading}
                         iconImage={iconImage}
                         icon={icon}

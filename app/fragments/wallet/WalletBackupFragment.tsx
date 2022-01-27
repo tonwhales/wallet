@@ -57,8 +57,8 @@ export const WalletBackupFragment = fragment(() => {
     let words2: any[] = [];
     for (let i = 0; i < 24; i++) {
         const component = (
-            <View key={'mn-' + i} style={{ flexDirection: 'row', height: 26, marginBottom: height < 800 ? 6 : 12 }}>
-                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 16, width: 24, marginRight: 24, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
+            <View key={'mn-' + i} style={{ flexDirection: 'row', marginBottom: height > 800 ? 16 : 12 }}>
+                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 16, width: 24, marginRight: 23, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
                 <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '400' }}>{mnemonics[i]}</Text>
             </View>
         );
@@ -76,17 +76,17 @@ export const WalletBackupFragment = fragment(() => {
             key={"content"}
         >
             <AndroidToolbar />
-            <View style={{ flexGrow: 1 }} />
-            <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center' }}>{t("Your recovery phrase")}</Text>
-            <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: height < 800 ? 6 : 16, fontSize: 16, color: '#6D6D71' }}>
-                {t("Write down these 24 words in the correct order and store them in a secret place. Use these secret words to restore access to your wallet if you lose your passcode or device.")}
+            <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 21 }}>{t("Your recovery phrase")}</Text>
+            <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: '#6D6D71' }}>
+                {t("Write down these 24 words in the order given below and store them in a secret, safe place.")}
             </Text>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                marginHorizontal: 16,
-                marginTop: 16,
-                alignSelf: 'stretch'
+                marginHorizontal: 35,
+                marginTop: 43,
+                alignSelf: 'stretch',
+                paddingHorizontal: 10
             }}>
                 <View>
                     {words1}

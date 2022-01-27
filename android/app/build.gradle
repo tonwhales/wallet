@@ -135,8 +135,8 @@ android {
         applicationId 'com.tonhub.wallet'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 38
-        versionName "1.0.38"
+        versionCode 39
+        versionName "1.0.39"
     }
     splits {
         abi {

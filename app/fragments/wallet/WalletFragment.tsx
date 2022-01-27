@@ -53,7 +53,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
         components.push(
             < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
             } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.lt.toString()} onPress={props.onPress} />)}
+                {s.items.map((t, i) => <TransactionView own={props.address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
             </View >
         );
     }
@@ -68,8 +68,9 @@ export const WalletFragment = fragment(() => {
     const address = React.useMemo(() => getAppState()!.address, []);
     const [account, engine] = useAccount();
     const transactions = React.useMemo<Transaction[]>(() => {
-        return account.transactions.map((v) => engine.getTransaction(v))
-    }, [account.transactions]);
+        let txs = account.transactions.map((v) => engine.getTransaction(v));
+        return [...account.pending, ...txs];
+    }, [account.transactions, account.pending]);
 
     const openTransactionFragment = React.useCallback(
         (transaction: Transaction | null) => {

@@ -54,8 +54,7 @@ function parseStatus(src: any): AccountStatus | null {
         syncTime: stored.syncTime,
         storedAt: stored.storedAt,
         transactionCursor: stored.transactionCursor,
-        transactions: stored.transactions,
-        pending: []
+        transactions: stored.transactions
     };
 }
 
@@ -71,10 +70,7 @@ export type AccountStatus = {
 
     // Transactions
     transactionCursor: { lt: string, hash: string } | null,
-    transactions: string[],
-
-    // Pending
-    pending: Transaction[]
+    transactions: string[]
 };
 
 export function createCache(store: MMKV) {

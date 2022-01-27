@@ -82,6 +82,9 @@ export function createSimpleConnector(endpoint: string): Connector {
             },
             data: string
         }[];
+        if (!data.find((v) => v.transaction_id.lt == from.lt)) {
+            throw Error('Unable to find transaction');
+        }
 
         return data.map((d) => ({
             id: { hash: d.transaction_id.hash, lt: d.transaction_id.lt },

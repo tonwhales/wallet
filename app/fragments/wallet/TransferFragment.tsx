@@ -85,6 +85,20 @@ export const TransferFragment = fragment(() => {
         // Sending transfer
         await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
 
+        // Notify
+        engine.registerPending({
+            id: 'pending-' + account.seqno,
+            lt: null,
+            fees: new BN(0),
+            amount: value.mul(new BN(-1)),
+            address,
+            seqno: account.seqno,
+            kind: 'out',
+            body: null,
+            status: 'pending',
+            time: Math.floor(Date.now() / 1000)
+        });
+
         navigation.goBack();
     }, [amount, target, comment, account.seqno, payload, stateInit]);
 

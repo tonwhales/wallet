@@ -31,7 +31,11 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     // Transaction type
     let transactionType = 'Transfer';
     if (parsed.kind === 'out') {
-        transactionType = 'Sent #' + parsed.seqno!;
+        if (parsed.status === 'pending') {
+            transactionType = 'Sending #' + parsed.seqno!;
+        } else {
+            transactionType = 'Sent #' + parsed.seqno!;
+        }
     }
     if (parsed.kind === 'in') {
         transactionType = 'Received';

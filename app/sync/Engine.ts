@@ -25,34 +25,77 @@ export type SimpleTransaction = {
     data: string
 }
 
+export type AccountState = {
+    // State
+    balance: BN,
+    state: 'active' | 'uninitialized' | 'frozen',
+    seqno: number,
+    lastTransaction: { lt: string, hash: string } | null,
+    syncTime: number,
+    storedAt: number,
+
+    // Transactions
+    transactionCursor: { lt: string, hash: string } | null,
+    transactions: string[],
+
+    // Pending
+    pending: Transaction[]
+};
+
 export class Engine {
     readonly address: Address;
     readonly cache;
     readonly connector: Connector;
+    private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
     private _watched: (() => void) | null = null;
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _txs = new Map<string, Transaction>();
+    private _pending: Transaction[] = [];
 
     constructor(address: Address, cache: MMKV, connector: Connector) {
         this.cache = createCache(cache);
         this.address = address;
         this.connector = connector;
         this._account = this.cache.loadState(address);
+        this._state = this._account ? { ...this._account, pending: [] } : null;
         this._destroyed = false;
         this.start();
     }
 
     get ready() {
-        return !!this._account;
+        return !!this._state;
     }
 
     get state() {
-        if (!this._account) {
+        if (!this._state) {
             throw Error('Not ready');
         }
-        return this._account;
+        return this._state;
+    }
+
+    registerPending(src: Transaction) {
+        if (!this._account) {
+            console.warn('no account');
+            return;
+        }
+        if (!src.seqno) {
+            console.warn('no seqno');
+            return;
+        }
+        if (src.seqno < this._account!.seqno) {
+            console.warn('old seqno');
+            return;
+        }
+        if (src.status !== 'pending') {
+            console.warn('not pending');
+            return;
+        }
+        console.warn('updated');
+        this._pending = [src, ...this._pending];
+        this._state = { ...this._account, pending: this._pending };
+        this._eventEmitter.emit('updated');
     }
 
     getTransaction(lt: string) {
@@ -178,12 +221,12 @@ export class Engine {
                     lastTransaction: initialState.lastTransaction,
                     seqno,
                     transactionCursor: txs.length > 0 ? txs[txs.length - 1].id : null,
-                    transactions: txs.map((v) => v.id.lt),
-                    pending: []
+                    transactions: txs.map((v) => v.id.lt)
                 }
 
                 // Persist account state
                 this._account = status;
+                this._state = { ...status, pending: [] };
                 this.cache.storeState(this.address, status);
                 this._eventEmitter.emit('ready');
 
@@ -236,8 +279,7 @@ export class Engine {
                     ...currentStatus,
                     seqno,
                     syncTime: newState.timestamp,
-                    storedAt: Date.now(),
-                    pending: currentStatus.pending.filter((v) => v.seqno !== null && v.seqno >= seqno)
+                    storedAt: Date.now()
                 };
                 this.cache.storeState(this.address, this._account!);
                 this._eventEmitter.emit('updated');
@@ -329,20 +371,33 @@ export class Engine {
                 storedAt: Date.now(),
                 transactions,
                 transactionCursor,
-                seqno,
-                pending: currentStatus.pending.filter((v) => v.seqno !== null && v.seqno >= seqno)
+                seqno
             };
             this.cache.storeState(this.address, this._account!);
+
+            // Update pending
+            this._updatePendingIfNeeded();
+
+            // Update state
+            this._state = { ...this._account, pending: this._pending };
+
+            // Emit event
             this._eventEmitter.emit('updated');
         });
     }
+
+    private _updatePendingIfNeeded = () => {
+        if (this._pending.find((v) => v.seqno! < this._account!.seqno)) {
+            this._pending = this._pending.filter((v) => v.seqno! >= this._account!.seqno);
+        }
+    };
 }
 
 // Context
 export const EngineContext = React.createContext<Engine | null>(null);
 
 // Account
-export function useAccount(): [AccountStatus, Engine] {
+export function useAccount(): [AccountState, Engine] {
     const engine = React.useContext(EngineContext)!
     return [engine.useState(), engine];
 }

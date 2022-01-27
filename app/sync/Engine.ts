@@ -77,22 +77,17 @@ export class Engine {
 
     registerPending(src: Transaction) {
         if (!this._account) {
-            console.warn('no account');
             return;
         }
         if (!src.seqno) {
-            console.warn('no seqno');
             return;
         }
         if (src.seqno < this._account!.seqno) {
-            console.warn('old seqno');
             return;
         }
         if (src.status !== 'pending') {
-            console.warn('not pending');
             return;
         }
-        console.warn('updated');
         this._pending = [src, ...this._pending];
         this._state = { ...this._account, pending: this._pending };
         this._eventEmitter.emit('updated');

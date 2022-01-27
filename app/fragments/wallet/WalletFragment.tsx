@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
@@ -10,20 +9,17 @@ import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { Modalize } from 'react-native-modalize';
-import { WalletReceiveComponent } from './WalletReceiveComponent';
-import { Portal } from 'react-native-portalize';
 import { ValueComponent } from '../../components/ValueComponent';
-import { TransactionPreview } from './TransactionPreview';
 import { useTranslation } from "react-i18next";
 import { formatDate } from '../../utils/formatDate';
 import { BlurView } from 'expo-blur';
-import { showModal } from '../../components/FastModal/showModal';
 import { AddressComponent } from '../../components/AddressComponent';
 import { registerForPushNotificationsAsync, registerPushToken } from '../../utils/registerPushNotifications';
 import { backoff } from '../../utils/time';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { EngineContext, useAccount } from '../../sync/Engine';
+import { Transaction } from '../../sync/Transaction';
 
 function padLt(src: string) {
     let res = src;
@@ -58,19 +54,19 @@ export const WalletFragment = fragment(() => {
     const [account, engine] = useAccount();
 
     // const account = useAccount(address);
-    const transactions = React.useMemo<RawTransaction[]>(() => {
+    const transactions = React.useMemo<Transaction[]>(() => {
         // if (account) {
         //     return account.transactions.map((v) => parseTransaction(0, Cell.fromBoc(Buffer.from(storage.getString('tx_' + address.toFriendly() + '_' + padLt(v))!, 'base64'))[0].beginParse()));
         // } else {
         //     return [];
         // }
-        return account.transactions.map((v) => parseTransaction(0, engine.cache.loadTransaction(engine.address, v)!.beginParse()))
+        return account.transactions.map((v) => engine.getTransaction(v))
     }, [account]);
     const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: RawTransaction[] }[] = [];
+        let sections: { title: string, items: Transaction[] }[] = [];
         if (transactions.length > 0) {
             let lastTime: number = Math.floor(transactions[0].time / (60 * 60 * 24)) * (60 * 60 * 24);
-            let lastSection: RawTransaction[] = [];
+            let lastSection: Transaction[] = [];
             let title = formatDate(lastTime);
             sections.push({ title, items: lastSection });
             for (let t of transactions) {
@@ -88,7 +84,7 @@ export const WalletFragment = fragment(() => {
     }, [transactions]);
 
     const openTransactionFragment = React.useCallback(
-        (transaction: RawTransaction | null) => {
+        (transaction: Transaction | null) => {
             if (transaction) {
                 navigation.navigate('Transaction', {
                     transaction: {

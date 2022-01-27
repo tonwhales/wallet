@@ -4,6 +4,7 @@ import { Address } from "ton";
 export type Body = { comment: string };
 
 export type Transaction = {
+    lt: string;
     fees: BN;
     amount: BN;
     address: Address | null;

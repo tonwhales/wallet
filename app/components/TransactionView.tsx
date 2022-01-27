@@ -1,16 +1,16 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { Address, RawTransaction } from 'ton';
+import { Address } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/formatTime';
 import { avatarHash } from '../utils/avatarHash';
 import { AddressComponent } from './AddressComponent';
-import { parseWalletTransaction } from '../sync/parse/parseWalletTransaction';
+import { Transaction } from '../sync/Transaction';
 
-export function TransactionView(props: { own: Address, tx: RawTransaction, separator: boolean, onPress: (src: RawTransaction) => void }) {
-    const parsed = parseWalletTransaction(props.tx);
+export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
+    const parsed = props.tx;
 
     // Avatar
     let avatarImage = require('../../assets/avatar_own.png');

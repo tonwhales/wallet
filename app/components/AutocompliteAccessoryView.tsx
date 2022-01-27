@@ -4,13 +4,10 @@ import { wordlist } from "ton-crypto/dist/mnemonic/wordlist";
 import { Theme } from "../Theme";
 
 export const AutocompliteAccessoryView = React.memo((props: {
-    value?: string,
+    suggestions?: string[],
     setValue: (newValue: string) => void
     inputAccessoryViewID: string
 }) => {
-    const suggestions = (props.value && props.value?.length > 0)
-        ? wordlist.filter((w) => w.startsWith(props.value!))
-        : [];
 
     if (Platform.OS === 'ios') {
         return (
@@ -24,9 +21,9 @@ export const AutocompliteAccessoryView = React.memo((props: {
                         alignItems: 'center'
                     }}
                 >
-                    {suggestions.length >= 2 && (
+                    {props.suggestions && props.suggestions.length >= 2 && (
                         <Pressable
-                            key={suggestions[1]}
+                            key={props.suggestions[1]}
                             style={({ pressed }) => {
                                 return {
                                     marginRight: 2,
@@ -37,21 +34,21 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                 }
                             }}
                             onPress={() => {
-                                props.setValue(suggestions[1]);
+                                props.setValue(props.suggestions![1]);
                             }}
                         >
                             <Text style={{
-                                fontSize: 22
+                                fontSize: 16
                             }}>
-                                {suggestions[1]}
+                                {props.suggestions[1]}
                             </Text>
                         </Pressable>
                     )}
-                    {suggestions.length >= 1 && (
+                    {props.suggestions && props.suggestions.length >= 1 && (
                         <View style={{ flexDirection: 'row' }}>
-                            {suggestions.length >= 2 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
+                            {props.suggestions.length >= 2 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
                             <Pressable
-                                key={suggestions[0]}
+                                key={props.suggestions[0]}
                                 style={({ pressed }) => {
                                     return {
                                         marginRight: 2,
@@ -62,21 +59,21 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                     }
                                 }}
                                 onPress={() => {
-                                    props.setValue(suggestions[0]);
+                                    props.setValue(props.suggestions![0]);
                                 }}
                             >
                                 <Text style={{
-                                    fontSize: 22
+                                    fontSize: 16
                                 }}>
-                                    {suggestions[0]}
+                                    {props.suggestions[0]}
                                 </Text>
                             </Pressable>
-                            {suggestions.length >= 3 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
+                            {props.suggestions.length >= 3 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
                         </View>
                     )}
-                    {suggestions.length >= 3 && (
+                    {props.suggestions && props.suggestions.length >= 3 && (
                         <Pressable
-                            key={suggestions[2]}
+                            key={props.suggestions[2]}
                             style={({ pressed }) => {
                                 return {
                                     marginRight: 2,
@@ -87,13 +84,13 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                 }
                             }}
                             onPress={() => {
-                                props.setValue(suggestions[2]);
+                                props.setValue(props.suggestions![2]);
                             }}
                         >
                             <Text style={{
-                                fontSize: 22
+                                fontSize: 16
                             }}>
-                                {suggestions[2]}
+                                {props.suggestions[2]}
                             </Text>
                         </Pressable>
                     )}

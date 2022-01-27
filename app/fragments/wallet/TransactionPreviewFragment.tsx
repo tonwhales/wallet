@@ -9,12 +9,10 @@ import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { fromNano } from "ton";
-import { parseWalletTransaction } from "../../sync/parse/parseWalletTransaction";
 import { avatarHash } from "../../utils/avatarHash";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
-import { formatTime } from "../../utils/formatTime";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Transaction } from "../../sync/Transaction";
 

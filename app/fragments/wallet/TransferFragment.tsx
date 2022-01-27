@@ -19,6 +19,8 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
 import { useAccount } from '../../sync/Engine';
+import { AsyncLock } from 'teslabot';
+import { getAppState } from '../../storage/appState';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -43,6 +45,7 @@ export const TransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
     const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
+    const [estimation, setEstimation] = React.useState<BN | null>(null);
     const doSend = React.useCallback(async () => {
         let address: Address;
         let value: BN;
@@ -114,6 +117,86 @@ export const TransferFragment = fragment(() => {
         });
 
         navigation.goBack();
+    }, [amount, target, comment, account.seqno, payload, stateInit]);
+
+    // Estimate fee
+    const lock = React.useMemo(() => {
+        return new AsyncLock();
+    }, []);
+    React.useEffect(() => {
+        let ended = false;
+        lock.inLock(async () => {
+            await backoff(async () => {
+                if (ended) {
+                    return;
+                }
+
+                // Load app state
+                const appState = getAppState();
+                if (!appState) {
+                    return;
+                }
+
+                // Parse address and value
+                let address: Address;
+                let value: BN;
+                try {
+                    address = Address.parseFriendly(target).address;
+                    value = toNano(amount);
+                } catch (e) {
+                    address = appState.address;
+                    value = new BN(0);
+                }
+
+                // Load contract
+                const contract = await contractFromPublicKey(appState.publicKey);
+                if (ended) {
+                    return;
+                }
+
+                // Create transfer
+                let transfer = await contract.createTransfer({
+                    seqno: account.seqno,
+                    walletId: contract.source.walletId,
+                    secretKey: null,
+                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                    order: new InternalMessage({
+                        to: address,
+                        value,
+                        bounce: false,
+                        body: new CommonMessageInfo({
+                            stateInit: stateInit ? new CellMessage(stateInit) : null,
+                            body: payload ? new CellMessage(payload) : new CommentMessage(comment)
+                        })
+                    })
+                });
+                if (ended) {
+                    return;
+                }
+
+                // Check fees
+                const fees = await engine.connector.client.estimateExternalMessageFee(contract.address, {
+                    body: transfer,
+                    initCode: account.seqno === 0 ? contract.source.initialCode : null,
+                    initData: account.seqno === 0 ? contract.source.initialData : null,
+                    ignoreSignature: true
+                });
+                if (ended) {
+                    return;
+                }
+
+                // Fee
+                let fee = new BN(0);
+                fee = fee.add(new BN(fees.source_fees.fwd_fee));
+                fee = fee.add(new BN(fees.source_fees.gas_fee));
+                fee = fee.add(new BN(fees.source_fees.in_fwd_fee));
+                fee = fee.add(new BN(fees.source_fees.storage_fee));
+                setEstimation(fee);
+            });
+        });
+        return () => {
+            ended = true;
+        }
     }, [amount, target, comment, account.seqno, payload, stateInit]);
 
     const onQRCodeRead = React.useCallback((src: string) => {
@@ -227,6 +310,7 @@ export const TransferFragment = fragment(() => {
                             enabled={!payload}
                         />
                     </View>
+                    <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>Blockchain fees: {estimation ? fromNano(estimation) : '...'}</Text>
                 </ScrollView>
                 <View style={[
                     {

@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useTranslation } from "react-i18next";
-import { formatDate } from '../../utils/formatDate';
+import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import { registerForPushNotificationsAsync, registerPushToken } from '../../utils/registerPushNotifications';
@@ -25,16 +25,16 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: Transaction[] }[] = [];
         if (props.txs.length > 0) {
-            let lastTime: number = Math.floor(props.txs[0].time / (60 * 60 * 24)) * (60 * 60 * 24);
+            let lastTime: string = getDateKey(props.txs[0].time);
             let lastSection: Transaction[] = [];
-            let title = formatDate(lastTime);
+            let title = formatDate(props.txs[0].time);
             sections.push({ title, items: lastSection });
             for (let t of props.txs) {
-                let time = Math.floor(t.time / (60 * 60 * 24)) * (60 * 60 * 24);
+                let time = getDateKey(t.time);
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
-                    title = formatDate(lastTime);
+                    title = formatDate(props.txs[0].time);
                     sections.push({ title, items: lastSection });
                 }
                 lastSection.push(t);
@@ -125,7 +125,7 @@ export const WalletFragment = fragment(() => {
                 easing: Easing.bezier(0.25, 0.1, 0.25, 1),
             }),
         };
-    });
+    }, []);
 
     const smallCardStyle = useAnimatedStyle(() => {
         return {
@@ -166,7 +166,7 @@ export const WalletFragment = fragment(() => {
                 easing: Easing.bezier(0.25, 0.1, 0.25, 1),
             }),
         };
-    });
+    }, []);
 
     const onQRCodeRead = (src: string) => {
         try {

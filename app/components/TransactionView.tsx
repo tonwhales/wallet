@@ -4,7 +4,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { Address } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
-import { formatTime } from '../utils/formatTime';
+import { formatTime } from '../utils/dates';
 import { avatarHash } from '../utils/avatarHash';
 import { AddressComponent } from './AddressComponent';
 import { Transaction } from '../sync/Transaction';

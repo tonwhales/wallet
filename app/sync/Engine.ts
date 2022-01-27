@@ -178,7 +178,8 @@ export class Engine {
                     lastTransaction: initialState.lastTransaction,
                     seqno,
                     transactionCursor: txs.length > 0 ? txs[txs.length - 1].id : null,
-                    transactions: txs.map((v) => v.id.lt)
+                    transactions: txs.map((v) => v.id.lt),
+                    pending: []
                 }
 
                 // Persist account state
@@ -235,7 +236,8 @@ export class Engine {
                     ...currentStatus,
                     seqno,
                     syncTime: newState.timestamp,
-                    storedAt: Date.now()
+                    storedAt: Date.now(),
+                    pending: currentStatus.pending.filter((v) => v.seqno !== null && v.seqno >= seqno)
                 };
                 this.cache.storeState(this.address, this._account!);
                 this._eventEmitter.emit('updated');
@@ -327,7 +329,8 @@ export class Engine {
                 storedAt: Date.now(),
                 transactions,
                 transactionCursor,
-                seqno
+                seqno,
+                pending: currentStatus.pending.filter((v) => v.seqno !== null && v.seqno >= seqno)
             };
             this.cache.storeState(this.address, this._account!);
             this._eventEmitter.emit('updated');

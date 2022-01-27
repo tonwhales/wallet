@@ -3,6 +3,7 @@ import * as t from 'io-ts';
 import BN from "bn.js";
 import { isLeft } from "fp-ts/lib/Either";
 import { MMKV } from "react-native-mmkv";
+import { Transaction } from "../sync/Transaction";
 
 function padLt(src: string) {
     let res = src;
@@ -53,7 +54,8 @@ function parseStatus(src: any): AccountStatus | null {
         syncTime: stored.syncTime,
         storedAt: stored.storedAt,
         transactionCursor: stored.transactionCursor,
-        transactions: stored.transactions
+        transactions: stored.transactions,
+        pending: []
     };
 }
 
@@ -69,7 +71,10 @@ export type AccountStatus = {
 
     // Transactions
     transactionCursor: { lt: string, hash: string } | null,
-    transactions: string[]
+    transactions: string[],
+
+    // Pending
+    pending: Transaction[]
 };
 
 export function createCache(store: MMKV) {

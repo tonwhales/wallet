@@ -203,6 +203,11 @@ export class Engine {
         // Start sync
         this._watched = this.connector.watchAccountState(this.address, async (newState) => {
 
+            // Check if state is new
+            if (newState.timestamp <= this._account!.syncTime) {
+                return;
+            }
+
             // Check if changed
             const currentStatus = this._account!
             let changed = false;
@@ -229,6 +234,7 @@ export class Engine {
                 this._account = {
                     ...currentStatus,
                     seqno,
+                    syncTime: newState.timestamp,
                     storedAt: Date.now()
                 };
                 this.cache.storeState(this.address, this._account!);

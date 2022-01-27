@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Alert, findNodeHandle, InputAccessoryView, Platform, Pressable, Text, View } from "react-native";
+import { Alert, findNodeHandle, Platform, Text, View } from "react-native";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { iOSColors, iOSUIKit } from "react-native-typography";
 import { fragment } from "../../fragment";
 import { useKeyboard } from '@react-native-community/hooks';
 import { RoundButton } from '../../components/RoundButton';
@@ -68,7 +67,7 @@ const WordInput = React.memo(React.forwardRef((props: {
             vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
                 props.scroll.current!.scrollResponderScrollNativeHandleToKeyboard(
                     findNodeHandle(vref.current),
-                    height * 2 + 50 + 64 + 2
+                    height * 2 + 50
                 );
             }, () => {
                 // Ignore
@@ -77,7 +76,25 @@ const WordInput = React.memo(React.forwardRef((props: {
         });
     }, [keyboard]);
 
+    const suggestions = (props.value && props.value?.length > 0)
+        ? wordlist.filter((w) => w.startsWith(props.value!))
+        : [];
+
+    const onBlur = React.useCallback(() => {
+        const normalized = props.value.trim().toLowerCase();
+        if (Platform.OS === 'android') setCurrent(undefined);
+        if (!wordlist.find((v) => v === normalized) && normalized.length > 0) {
+            setIsWrong(true);
+        }
+    }, [props.value]);
+
     const onSubmit = React.useCallback((value?: string) => {
+        if (suggestions.length >= 1) {
+            props.setValue(suggestions[0]);
+            if (Platform.OS === 'android') setCurrent(undefined);
+            props.next?.current?.focus();
+            return;
+        }
         const normalized = value ? value.trim().toLowerCase() : props.value.trim().toLowerCase();
         if (!wordlist.find((v) => v === normalized)) {
             translate.value = withSequence(
@@ -90,7 +107,7 @@ const WordInput = React.memo(React.forwardRef((props: {
         }
         if (Platform.OS === 'android') setCurrent(undefined);
         props.next?.current?.focus();
-    }, [props.value]);
+    }, [props.value, suggestions]);
 
     const onTextChange = React.useCallback((value: string) => {
         setIsWrong(false);
@@ -135,23 +152,26 @@ const WordInput = React.memo(React.forwardRef((props: {
         <Animated.View style={style}>
             <View
                 ref={vref}
-                style={{
-                    marginVertical: 16,
-                    borderRadius: 25,
-                    flexDirection: 'row'
-                }}
+                style={{ flexDirection: 'row' }}
             >
-                <Text style={{
-                    alignSelf: 'center',
-                    fontSize: 16, width: 40,
-                    textAlign: 'right',
-                    color: !isWrong ? '#8E979D' : '#FF274E'
-                }}>
+                <Text
+                    style={{
+                        alignSelf: 'center',
+                        fontSize: 16, width: 40,
+                        paddingVertical: 16,
+                        textAlign: 'right',
+                        color: !isWrong ? '#8E979D' : '#FF274E',
+                    }}
+                    onPress={() => {
+                        tref.current?.focus();
+                    }}
+                >
                     {props.hint}.
                 </Text>
                 <TextInput
                     ref={tref}
                     style={{
+                        paddingVertical: 16,
                         marginLeft: -16,
                         paddingLeft: 26,
                         paddingRight: 48,
@@ -171,6 +191,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                             setSelection(e.nativeEvent.selection);
                         }
                     }}
+                    onBlur={onBlur}
                     returnKeyType="next"
                     autoCompleteType="off"
                     autoCorrect={false}
@@ -182,7 +203,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                     inputAccessoryViewID={inputAccessoryViewID}
                 />
                 <AutocompliteAccessoryView
-                    value={props.value}
+                    suggestions={suggestions}
                     setValue={props.setValue}
                     inputAccessoryViewID={inputAccessoryViewID}
                 />

@@ -20,6 +20,7 @@ import { resolveUrl } from '../../utils/resolveUrl';
 import { useAccount } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
 import { Address } from 'ton';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -259,21 +260,22 @@ export const WalletFragment = fragment(() => {
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
-                    <Pressable
-                        style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={() => navigation.navigate('Receive')}
-                    // onPress={openReceiveModal}
-                    >
-                        <Image source={require('../../../assets/receive.png')} />
-                        <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>
-                    </Pressable>
-                    <Pressable
-                        style={(p) => ({ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={() => navigation.navigate('Transfer')}
-                    >
-                        <Image source={require('../../../assets/send.png')} />
-                        <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send")}</Text>
-                    </Pressable>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                <Image source={require('../../../assets/receive.png')} />
+                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Transfer')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                <Image source={require('../../../assets/send.png')} />
+                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send")}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
                 </View>
 
                 {

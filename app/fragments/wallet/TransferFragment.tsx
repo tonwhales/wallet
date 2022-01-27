@@ -80,16 +80,30 @@ export const TransferFragment = fragment(() => {
                     body: payload ? new CellMessage(payload) : new CommentMessage(comment)
                 })
             })
-        })
+        });
+
+
+        // Resolve fees
+        const fees = await backoff(() => engine.connector.client.estimateExternalMessageFee(contract.address, {
+            body: transfer,
+            initCode: account.seqno === 0 ? contract.source.initialCode : null,
+            initData: account.seqno === 0 ? contract.source.initialData : null,
+            ignoreSignature: true
+        }));
+        let fee = new BN(0);
+        fee = fee.add(new BN(fees.source_fees.fwd_fee));
+        fee = fee.add(new BN(fees.source_fees.gas_fee));
+        fee = fee.add(new BN(fees.source_fees.in_fwd_fee));
+        fee = fee.add(new BN(fees.source_fees.storage_fee));
 
         // Sending transfer
         await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
 
-        // Notify
+        // // Notify
         engine.registerPending({
             id: 'pending-' + account.seqno,
             lt: null,
-            fees: new BN(0),
+            fees: fee,
             amount: value.mul(new BN(-1)),
             address,
             seqno: account.seqno,

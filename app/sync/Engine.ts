@@ -6,6 +6,8 @@ import { backoff } from "../utils/time";
 import { Connector } from "./Connector";
 import { EventEmitter } from 'events';
 import BN from 'bn.js';
+import { Transaction } from './Transaction';
+import { parseWalletTransaction } from './parse/parseWalletTransaction';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -31,6 +33,7 @@ export class Engine {
     private _destroyed: boolean;
     private _watched: (() => void) | null = null;
     private _eventEmitter: EventEmitter = new EventEmitter();
+    private _txs = new Map<string, Transaction>();
 
     constructor(address: Address, cache: MMKV, connector: Connector) {
         this.cache = createCache(cache);
@@ -50,6 +53,17 @@ export class Engine {
             throw Error('Not ready');
         }
         return this._account;
+    }
+
+    getTransaction(lt: string) {
+        let ex = this._txs.get(lt);
+        if (ex) {
+            return ex;
+        }
+        let parsed = parseTransaction(0, this.cache.loadTransaction(this.address, lt)!.beginParse());
+        let parsed2 = parseWalletTransaction(parsed);
+        this._txs.set(lt, parsed2);
+        return parsed2;
     }
 
     awaitReady() {
@@ -189,6 +203,11 @@ export class Engine {
         // Start sync
         this._watched = this.connector.watchAccountState(this.address, async (newState) => {
 
+            // Check if state is new
+            if (newState.timestamp <= this._account!.syncTime) {
+                return;
+            }
+
             // Check if changed
             const currentStatus = this._account!
             let changed = false;
@@ -215,6 +234,7 @@ export class Engine {
                 this._account = {
                     ...currentStatus,
                     seqno,
+                    syncTime: newState.timestamp,
                     storedAt: Date.now()
                 };
                 this.cache.storeState(this.address, this._account!);

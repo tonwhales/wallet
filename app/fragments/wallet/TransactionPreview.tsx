@@ -3,36 +3,36 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, RawTransaction } from 'ton';
 import { ValueComponent } from '../../components/ValueComponent';
+import { Transaction } from '../../sync/Transaction';
 import { Theme } from '../../Theme';
 
-export function TransactionPreview(props: { tx: RawTransaction }) {
+export function TransactionPreview(props: { tx: Transaction }) {
     const { t } = useTranslation();
 
     const safeArea = useSafeAreaInsets();
     const tx = props.tx;
 
     // Fees
-    let fees = tx.fees.coins;
-    if (tx.description.storagePhase) {
-        fees = fees.add(tx.description.storagePhase.storageFeesCollected);
-    }
+    // let fees = tx.fees.coins;
+    // if (tx.description.storagePhase) {
+    //     fees = fees.add(tx.description.storagePhase.storageFeesCollected);
+    // }
 
-    // Delta
-    let amount = new BN(0);
-    let address: Address | null = null;
-    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        amount = amount.add(tx.inMessage.info.value.coins);
-        address = tx.inMessage.info.src;
-    }
-    for (let out of tx.outMessages) {
-        if (out.info.type === 'internal') {
-            amount = amount.sub(out.info.value.coins);
-            fees = fees.add(out.info.fwdFee);
-            address = out.info.dest;
-        }
-    }
+    // // Delta
+    // let amount = new BN(0);
+    // let address: Address | null = null;
+    // if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+    //     amount = amount.add(tx.inMessage.info.value.coins);
+    //     address = tx.inMessage.info.src;
+    // }
+    // for (let out of tx.outMessages) {
+    //     if (out.info.type === 'internal') {
+    //         amount = amount.sub(out.info.value.coins);
+    //         fees = fees.add(out.info.fwdFee);
+    //         address = out.info.dest;
+    //     }
+    // }
 
     return (
         <View style={{ paddingBottom: safeArea.bottom }}>
@@ -43,12 +43,12 @@ export function TransactionPreview(props: { tx: RawTransaction }) {
                     {/* <Text style={{ color: Theme.accent, fontWeight: '600', fontSize: 17 }}>Done</Text> */}
                 </View>
             </View>
-            <Text style={{ fontSize: 48, color: amount.gte(new BN(0)) ? '#4FAE42' : '#EB4D3D', fontWeight: '700', alignSelf: 'center', marginHorizontal: 16 }}>
-                💎 <ValueComponent value={amount} centFontStyle={{ fontSize: 24 }} />
+            <Text style={{ fontSize: 48, color: tx.amount.gte(new BN(0)) ? '#4FAE42' : '#EB4D3D', fontWeight: '700', alignSelf: 'center', marginHorizontal: 16 }}>
+                💎 <ValueComponent value={tx.amount} centFontStyle={{ fontSize: 24 }} />
             </Text>
-            {address && (
+            {tx.address && (
                 <Text selectable={true} style={{ marginTop: 32, marginBottom: 72, width: 265, textAlign: 'center', alignSelf: 'center' }} numberOfLines={1} ellipsizeMode="middle">
-                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly()}</Text>
+                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{tx.address.toFriendly()}</Text>
                 </Text>
             )}
         </View>

@@ -6,10 +6,9 @@ import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
 import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
-import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { fromNano, RawTransaction } from "ton";
+import { fromNano } from "ton";
 import { parseWalletTransaction } from "../../sync/parse/parseWalletTransaction";
 import { avatarHash } from "../../utils/avatarHash";
 import BN from "bn.js";
@@ -17,22 +16,22 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { formatTime } from "../../utils/formatTime";
 import { formatDate } from "../../utils/formatDate";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { Transaction } from "../../sync/Transaction";
 
 export const TransactionPreviewFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const { transaction } = useParams<{ transaction?: RawTransaction | null }>();
+    const { transaction } = useParams<{ transaction?: Transaction | null }>();
     const address = React.useMemo(() => getAppState()!.address, []);
-    const parsed = transaction ? parseWalletTransaction(transaction) : undefined;
 
-    if (!parsed) {
+    if (!transaction) {
         return <Text>{t('Error parsing transaction')}</Text>
     }
 
     // Avatar
     let avatarImage = require('../../../assets/avatar_own.png');
-    if (parsed.address && !parsed.address.equals(address)) {
+    if (transaction.address && !transaction.address.equals(address)) {
         const avatars = [
             require('../../../assets/avatar_1.png'),
             require('../../../assets/avatar_2.png'),
@@ -43,15 +42,15 @@ export const TransactionPreviewFragment = fragment(() => {
             require('../../../assets/avatar_7.png'),
             require('../../../assets/avatar_8.png')
         ];
-        avatarImage = avatars[avatarHash(parsed.address.toFriendly(), avatars.length)];
+        avatarImage = avatars[avatarHash(transaction.address.toFriendly(), avatars.length)];
     }
 
     // Transaction type
     let transactionType = 'Transfer';
-    if (parsed.kind === 'out') {
-        transactionType = 'Sent #' + parsed.seqno!;
+    if (transaction.kind === 'out') {
+        transactionType = 'Sent #' + transaction.seqno!;
     }
-    if (parsed.kind === 'in') {
+    if (transaction.kind === 'in') {
         transactionType = 'Received';
     }
 
@@ -77,26 +76,26 @@ export const TransactionPreviewFragment = fragment(() => {
                 <Image source={avatarImage} style={{ width: 84, height: 84, borderRadius: 100 }} />
             </View>
             <View style={{ marginTop: 34 }}>
-                {parsed.status === 'failed' ? (
+                {transaction.status === 'failed' ? (
                     <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                 ) : (
-                    <Text style={{ color: parsed.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }}>
-                        <ValueComponent value={parsed.amount} />
+                    <Text style={{ color: transaction.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }}>
+                        <ValueComponent value={transaction.amount} />
                         {' TON'}
                     </Text>
                 )}
             </View>
             <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 10 }}>
-                {`${formatDate(parsed.time, 'dd.MM.yyyy')} ${formatTime(parsed.time)}`}
+                {`${formatDate(transaction.time, 'dd.MM.yyyy')} ${formatTime(transaction.time)}`}
             </Text>
             <View style={{ flexDirection: 'row', marginTop: 39 }} collapsable={false}>
-                {parsed.kind === 'out' && (
+                {transaction.kind === 'out' && (
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
                         onPress={() => navigation.navigate('Transfer', {
-                            target: parsed?.address?.toFriendly(),
-                            comment: parsed?.body?.comment,
-                            amount: parsed.amount.neg()
+                            target: transaction?.address?.toFriendly(),
+                            comment: transaction?.body?.comment,
+                            amount: transaction.amount.neg()
                         })}
                     >
                         <Image source={require('../../../assets/ic_repeat.png')} />
@@ -125,7 +124,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         fontSize: 16,
                         lineHeight: 20
                     }}>
-                        {parsed.address?.toFriendly()}
+                        {transaction.address?.toFriendly()}
                     </Text>
                     <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
                         {t('Wallet address')}
@@ -146,7 +145,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         lineHeight: 20,
                     }}>
                         {/* TODO calculated fee */}
-                        {fromNano(parsed.fees)}
+                        {fromNano(transaction.fees)}
                     </Text>
                 </View>
             </View>

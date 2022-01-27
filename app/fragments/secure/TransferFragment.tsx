@@ -87,17 +87,7 @@ export const TransferFragment = fragment(() => {
 
 
         // Resolve fees
-        const fees = await backoff(() => engine.connector.client.estimateExternalMessageFee(contract.address, {
-            body: transfer,
-            initCode: account.seqno === 0 ? contract.source.initialCode : null,
-            initData: account.seqno === 0 ? contract.source.initialData : null,
-            ignoreSignature: true
-        }));
-        let fee = new BN(0);
-        fee = fee.add(new BN(fees.source_fees.fwd_fee));
-        fee = fee.add(new BN(fees.source_fees.gas_fee));
-        fee = fee.add(new BN(fees.source_fees.in_fwd_fee));
-        fee = fee.add(new BN(fees.source_fees.storage_fee));
+        const fee = await backoff(() => engine.connector.estimateExternalMessageFee(contract, transfer));
 
         // Sending transfer
         await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
@@ -175,22 +165,10 @@ export const TransferFragment = fragment(() => {
                 }
 
                 // Check fees
-                const fees = await engine.connector.client.estimateExternalMessageFee(contract.address, {
-                    body: transfer,
-                    initCode: account.seqno === 0 ? contract.source.initialCode : null,
-                    initData: account.seqno === 0 ? contract.source.initialData : null,
-                    ignoreSignature: true
-                });
+                const fee = await engine.connector.estimateExternalMessageFee(contract, transfer);
                 if (ended) {
                     return;
                 }
-
-                // Fee
-                let fee = new BN(0);
-                fee = fee.add(new BN(fees.source_fees.fwd_fee));
-                fee = fee.add(new BN(fees.source_fees.gas_fee));
-                fee = fee.add(new BN(fees.source_fees.in_fwd_fee));
-                fee = fee.add(new BN(fees.source_fees.storage_fee));
                 setEstimation(fee);
             });
         });

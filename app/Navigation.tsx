@@ -6,9 +6,9 @@ import { WalletImportFragment } from './fragments/onboarding/WalletImportFragmen
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
 import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
-import { WalletBackupFragment } from './fragments/wallet/WalletBackupFragment';
+import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
-import { TransferFragment } from './fragments/wallet/TransferFragment';
+import { TransferFragment } from './fragments/secure/TransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/wallet/MigrationFragment';
@@ -124,7 +124,13 @@ export const Navigation = React.memo(() => {
             return new Engine(
                 state.address,
                 state.testnet ? storageTestnet : storageMainnet,
-                createSimpleConnector(state.testnet ? 'https://testnet.toncenter.com/api/v2' : 'https://mainnet.tonhubapi.com')
+                createSimpleConnector(!state.testnet ? {
+                    main: 'https://mainnet.tonhubapi.com',
+                    estimate: 'https://wallet.toncenter.com/api/v2'
+                } : {
+                    main: 'https://testnet.toncenter.com/api/v2'
+                }),
+                state.testnet
             );
         } else {
             return null;

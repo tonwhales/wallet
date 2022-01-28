@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, TonClient } from "ton";
+import { Address, Cell, Contract, TonClient } from "ton";
 import { InvalidateSync } from "teslabot";
 import axios from "axios";
 
@@ -23,16 +23,21 @@ export interface Connector {
     fetchAccountState(address: Address): Promise<ConnectorAccountState>;
     watchAccountState(address: Address, handler: (state: ConnectorAccountState) => Promise<void> | void): () => void;
     fetchTransactions(address: Address, from: { lt: string, hash: string }): Promise<ConnectorTransaction[]>;
+
+    sendExternalMessage(contract: Contract, src: Cell): Promise<void>;
+    estimateExternalMessageFee(contract: Contract, src: Cell): Promise<BN>;
 }
 
 //
 // Mainnet Connector
 //
 
-export function createSimpleConnector(endpoint: string): Connector {
+export function createSimpleConnector(endpoints: { main: string, estimate?: string, sender?: string }): Connector {
 
     // Client
-    const client = new TonClient({ endpoint: endpoint + '/jsonRPC' });
+    const client = new TonClient({ endpoint: endpoints.main + '/jsonRPC' });
+    const senderClient = new TonClient({ endpoint: (endpoints.sender || endpoints.main) + '/jsonRPC' });
+    const estimateClient = new TonClient({ endpoint: (endpoints.estimate || endpoints.main) + '/jsonRPC' });
 
     // Account state
     const fetchAccountState: (address: Address) => Promise<ConnectorAccountState> = async (address) => {
@@ -70,7 +75,7 @@ export function createSimpleConnector(endpoint: string): Connector {
 
     // Fetch transactions
     const fetchTransactions: (address: Address, from: { lt: string, hash: string }) => Promise<ConnectorTransaction[]> = async (address, from) => {
-        let res = await axios.get(endpoint + '/getTransactions?address=' + address.toFriendly() + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'));
+        let res = await axios.get(endpoints.main + '/getTransactions?address=' + address.toFriendly() + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'));
         if (!res.data.ok) {
             throw Error('Server error');
         }
@@ -82,6 +87,9 @@ export function createSimpleConnector(endpoint: string): Connector {
             },
             data: string
         }[];
+        if (!data.find((v) => v.transaction_id.lt == from.lt)) {
+            throw Error('Unable to find transaction');
+        }
 
         return data.map((d) => ({
             id: { hash: d.transaction_id.hash, lt: d.transaction_id.lt },
@@ -90,10 +98,34 @@ export function createSimpleConnector(endpoint: string): Connector {
         }));
     }
 
+    // Send
+    const sendExternalMessage: (contract: Contract, src: Cell) => Promise<void> = (contract, src) => {
+        return senderClient.sendExternalMessage(contract, src);
+    };
+
+    const estimateExternalMessageFee: (contract: Contract, src: Cell) => Promise<BN> = async (contract, src) => {
+        const deployed = await client.isContractDeployed(contract.address);
+        const fees = await estimateClient.estimateExternalMessageFee(contract.address, {
+            body: src,
+            initCode: !deployed ? contract.source.initialCode : null,
+            initData: !deployed ? contract.source.initialData : null,
+            ignoreSignature: true
+        });
+        let fee = new BN(0);
+        fee = fee.add(new BN(fees.source_fees.fwd_fee));
+        fee = fee.add(new BN(fees.source_fees.gas_fee));
+        fee = fee.add(new BN(fees.source_fees.in_fwd_fee));
+        fee = fee.add(new BN(fees.source_fees.storage_fee));
+        return fee;
+    }
+
+
     return {
         client,
         fetchAccountState,
         watchAccountState,
-        fetchTransactions
+        fetchTransactions,
+        sendExternalMessage,
+        estimateExternalMessageFee
     };
 }

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { parseTransaction, RawTransaction } from 'ton';
 import { fragment } from "../../fragment";
 import { getAppState } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
@@ -9,86 +8,73 @@ import { TransactionView } from '../../components/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
-import { Modalize } from 'react-native-modalize';
-import { WalletReceiveComponent } from './WalletReceiveComponent';
-import { Portal } from 'react-native-portalize';
 import { ValueComponent } from '../../components/ValueComponent';
-import { TransactionPreview } from './TransactionPreview';
 import { useTranslation } from "react-i18next";
-import { formatDate } from '../../utils/formatDate';
+import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
-import { showModal } from '../../components/FastModal/showModal';
 import { AddressComponent } from '../../components/AddressComponent';
 import { registerForPushNotificationsAsync, registerPushToken } from '../../utils/registerPushNotifications';
 import { backoff } from '../../utils/time';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { EngineContext, useAccount } from '../../sync/Engine';
+import { useAccount } from '../../sync/Engine';
+import { Transaction } from '../../sync/Transaction';
+import { Address } from 'ton';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
-function padLt(src: string) {
-    let res = src;
-    while (res.length < 20) {
-        res = '0' + res;
-    }
-    return res;
-}
-
-const modalConfig = {
-    containerStyle: {
-        margin: 0,
-        marginBottom: 0,
-        padding: 0,
-        borderBottomEndRadius: Platform.OS === 'android' ? 0 : undefined,
-        borderBottomStartRadius: Platform.OS === 'android' ? 0 : undefined,
-    },
-    backgroundStyle: {
-        marginBottom: 0,
-        padding: 0,
-        paddingBottom: 0,
-    },
-    disableBottomSafeArea: true
-}
-
-export const WalletFragment = fragment(() => {
-    const { t } = useTranslation();
-    const receiveRef = React.useRef<Modalize>(null);
-    const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getAppState()!.address, []);
-    const [account, engine] = useAccount();
-
-    // const account = useAccount(address);
-    const transactions = React.useMemo<RawTransaction[]>(() => {
-        // if (account) {
-        //     return account.transactions.map((v) => parseTransaction(0, Cell.fromBoc(Buffer.from(storage.getString('tx_' + address.toFriendly() + '_' + padLt(v))!, 'base64'))[0].beginParse()));
-        // } else {
-        //     return [];
-        // }
-        return account.transactions.map((v) => parseTransaction(0, engine.cache.loadTransaction(engine.address, v)!.beginParse()))
-    }, [account]);
+const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: RawTransaction[] }[] = [];
-        if (transactions.length > 0) {
-            let lastTime: number = Math.floor(transactions[0].time / (60 * 60 * 24)) * (60 * 60 * 24);
-            let lastSection: RawTransaction[] = [];
-            let title = formatDate(lastTime);
+        let sections: { title: string, items: Transaction[] }[] = [];
+        if (props.txs.length > 0) {
+            let lastTime: string = getDateKey(props.txs[0].time);
+            let lastSection: Transaction[] = [];
+            let title = formatDate(props.txs[0].time);
             sections.push({ title, items: lastSection });
-            for (let t of transactions) {
-                let time = Math.floor(t.time / (60 * 60 * 24)) * (60 * 60 * 24);
+            for (let t of props.txs) {
+                let time = getDateKey(t.time);
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
-                    title = formatDate(lastTime);
+                    title = formatDate(props.txs[0].time);
                     sections.push({ title, items: lastSection });
                 }
                 lastSection.push(t);
             }
         }
         return sections;
-    }, [transactions]);
+    }, [props.txs]);
+
+    const components: any[] = [];
+    for (let s of transactionsSectioned) {
+        components.push(
+            <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
+            </View>
+        );
+        components.push(
+            < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
+            } collapsable={false} >
+                {s.items.map((t, i) => <TransactionView own={props.address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
+            </View >
+        );
+    }
+
+    return <>{components}</>;
+})
+
+export const WalletFragment = fragment(() => {
+    const { t } = useTranslation();
+    const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
+    const address = React.useMemo(() => getAppState()!.address, []);
+    const [account, engine] = useAccount();
+    const transactions = React.useMemo<Transaction[]>(() => {
+        let txs = account.transactions.map((v) => engine.getTransaction(v));
+        return [...account.pending, ...txs];
+    }, [account.transactions, account.pending]);
 
     const openTransactionFragment = React.useCallback(
-        (transaction: RawTransaction | null) => {
+        (transaction: Transaction | null) => {
             if (transaction) {
                 navigation.navigate('Transaction', {
                     transaction: {
@@ -141,7 +127,7 @@ export const WalletFragment = fragment(() => {
                 easing: Easing.bezier(0.25, 0.1, 0.25, 1),
             }),
         };
-    });
+    }, []);
 
     const smallCardStyle = useAnimatedStyle(() => {
         return {
@@ -182,14 +168,13 @@ export const WalletFragment = fragment(() => {
                 easing: Easing.bezier(0.25, 0.1, 0.25, 1),
             }),
         };
-    });
+    }, []);
 
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src);
             if (res) {
                 // if QR is valid navigate to transfer fragment
-                console.log('[onQRCodeRead] navigating with', res.address.toFriendly(), '...');
                 navigation.navigate('Transfer', {
                     target: res.address.toFriendly(),
                     comment: res.comment,
@@ -275,25 +260,26 @@ export const WalletFragment = fragment(() => {
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
-                    <Pressable
-                        style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={() => navigation.navigate('Receive')}
-                    // onPress={openReceiveModal}
-                    >
-                        <Image source={require('../../../assets/receive.png')} />
-                        <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>
-                    </Pressable>
-                    <Pressable
-                        style={(p) => ({ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={() => navigation.navigate('Transfer')}
-                    >
-                        <Image source={require('../../../assets/send.png')} />
-                        <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send")}</Text>
-                    </Pressable>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                <Image source={require('../../../assets/receive.png')} />
+                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Transfer')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                <Image source={require('../../../assets/send.png')} />
+                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send")}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
                 </View>
 
                 {
-                    transactionsSectioned.length === 0 && (
+                    transactions.length === 0 && (
                         <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: window.height * 0.095 }}>
                             <LottieView
                                 source={require('../../../assets/animations/duck.json')}
@@ -315,18 +301,15 @@ export const WalletFragment = fragment(() => {
                     )
                 }
                 {
-                    transactionsSectioned.length > 0 && transactionsSectioned.map((s, i) => (
-                        [
-                            <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                                <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
-                            </View>,
-                            <View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false}>
-                                {s.items.map((t, i) => <TransactionView own={address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.lt.toString()} onPress={openTransactionFragment} />)}
-                            </View>
-                        ]
-                    ))
+                    transactions.length > 0 && (
+                        <WalletTransactions
+                            txs={transactions}
+                            address={address}
+                            onPress={openTransactionFragment}
+                        />
+                    )
                 }
-                {transactionsSectioned.length > 0 && <View style={{ height: 56 }} />}
+                {transactions.length > 0 && <View style={{ height: 56 }} />}
             </Animated.ScrollView>
             {/* iOS Toolbar */}
             {

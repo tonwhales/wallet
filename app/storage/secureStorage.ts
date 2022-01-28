@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
 
@@ -24,6 +25,17 @@ async function getApplicationKey() {
             } else {
                 return Buffer.from(ex, 'base64');
             }
+        }
+    }
+}
+
+export async function ensureKeystoreReady() {
+    if (Platform.OS === 'android') {
+        try {
+            await SecureStore.getItemAsync(TOKEN_KEY);
+        } catch (e) {
+            console.warn('Resetting keystore');
+            await SecureStore.deleteItemAsync(TOKEN_KEY);
         }
     }
 }

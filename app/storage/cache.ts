@@ -3,6 +3,7 @@ import * as t from 'io-ts';
 import BN from "bn.js";
 import { isLeft } from "fp-ts/lib/Either";
 import { MMKV } from "react-native-mmkv";
+import { Transaction } from "../sync/Transaction";
 
 function padLt(src: string) {
     let res = src;

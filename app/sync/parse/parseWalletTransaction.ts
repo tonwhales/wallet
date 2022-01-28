@@ -110,6 +110,8 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
     }
 
     return {
+        id: 'chain:' + tx.lt.toString(10),
+        lt: tx.lt.toString(10),
         fees,
         amount,
         address,

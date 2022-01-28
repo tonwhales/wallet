@@ -6,6 +6,8 @@ import { backoff } from "../utils/time";
 import { Connector } from "./Connector";
 import { EventEmitter } from 'events';
 import BN from 'bn.js';
+import { Transaction } from './Transaction';
+import { parseWalletTransaction } from './parse/parseWalletTransaction';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -23,33 +25,85 @@ export type SimpleTransaction = {
     data: string
 }
 
+export type AccountState = {
+    // State
+    balance: BN,
+    state: 'active' | 'uninitialized' | 'frozen',
+    seqno: number,
+    lastTransaction: { lt: string, hash: string } | null,
+    syncTime: number,
+    storedAt: number,
+
+    // Transactions
+    transactionCursor: { lt: string, hash: string } | null,
+    transactions: string[],
+
+    // Pending
+    pending: Transaction[]
+};
+
 export class Engine {
     readonly address: Address;
     readonly cache;
     readonly connector: Connector;
+    readonly testnet: boolean;
+    private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
     private _watched: (() => void) | null = null;
     private _eventEmitter: EventEmitter = new EventEmitter();
+    private _txs = new Map<string, Transaction>();
+    private _pending: Transaction[] = [];
 
-    constructor(address: Address, cache: MMKV, connector: Connector) {
+    constructor(address: Address, cache: MMKV, connector: Connector, testnet: boolean) {
+        this.testnet = testnet;
         this.cache = createCache(cache);
         this.address = address;
         this.connector = connector;
         this._account = this.cache.loadState(address);
+        this._state = this._account ? { ...this._account, pending: [] } : null;
         this._destroyed = false;
         this.start();
     }
 
     get ready() {
-        return !!this._account;
+        return !!this._state;
     }
 
     get state() {
-        if (!this._account) {
+        if (!this._state) {
             throw Error('Not ready');
         }
-        return this._account;
+        return this._state;
+    }
+
+    registerPending(src: Transaction) {
+        if (!this._account) {
+            return;
+        }
+        if (!src.seqno) {
+            return;
+        }
+        if (src.seqno < this._account!.seqno) {
+            return;
+        }
+        if (src.status !== 'pending') {
+            return;
+        }
+        this._pending = [src, ...this._pending];
+        this._state = { ...this._account, pending: this._pending };
+        this._eventEmitter.emit('updated');
+    }
+
+    getTransaction(lt: string) {
+        let ex = this._txs.get(lt);
+        if (ex) {
+            return ex;
+        }
+        let parsed = parseTransaction(0, this.cache.loadTransaction(this.address, lt)!.beginParse());
+        let parsed2 = parseWalletTransaction(parsed);
+        this._txs.set(lt, parsed2);
+        return parsed2;
     }
 
     awaitReady() {
@@ -169,6 +223,7 @@ export class Engine {
 
                 // Persist account state
                 this._account = status;
+                this._state = { ...status, pending: [] };
                 this.cache.storeState(this.address, status);
                 this._eventEmitter.emit('ready');
 
@@ -188,6 +243,11 @@ export class Engine {
 
         // Start sync
         this._watched = this.connector.watchAccountState(this.address, async (newState) => {
+
+            // Check if state is new
+            if (newState.timestamp <= this._account!.syncTime) {
+                return;
+            }
 
             // Check if changed
             const currentStatus = this._account!
@@ -215,6 +275,7 @@ export class Engine {
                 this._account = {
                     ...currentStatus,
                     seqno,
+                    syncTime: newState.timestamp,
                     storedAt: Date.now()
                 };
                 this.cache.storeState(this.address, this._account!);
@@ -310,16 +371,30 @@ export class Engine {
                 seqno
             };
             this.cache.storeState(this.address, this._account!);
+
+            // Update pending
+            this._updatePendingIfNeeded();
+
+            // Update state
+            this._state = { ...this._account, pending: this._pending };
+
+            // Emit event
             this._eventEmitter.emit('updated');
         });
     }
+
+    private _updatePendingIfNeeded = () => {
+        if (this._pending.find((v) => v.seqno! < this._account!.seqno)) {
+            this._pending = this._pending.filter((v) => v.seqno! >= this._account!.seqno);
+        }
+    };
 }
 
 // Context
 export const EngineContext = React.createContext<Engine | null>(null);
 
 // Account
-export function useAccount(): [AccountStatus, Engine] {
+export function useAccount(): [AccountState, Engine] {
     const engine = React.useContext(EngineContext)!
     return [engine.useState(), engine];
 }

@@ -17,7 +17,6 @@ export const TermsFragment = fragment(() => {
             <AndroidToolbar />
             <WebView
                 source={{ uri: 'https://tonhub.com/legal/terms' }}
-                onLoadEnd={(res) => console.log('[TermsFragment]', res)}
             />
         </View>
     );

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useBootMounted } from '../../bootContext';
+import { StatusBar } from 'expo-status-bar';
 
 export const WelcomeFragment = fragment(() => {
     const { t } = useTranslation();
@@ -19,9 +20,8 @@ export const WelcomeFragment = fragment(() => {
         <View style={{
             alignItems: 'center', justifyContent: 'center',
             flexGrow: 1,
-            paddingTop: safeArea.top - 4,
-            paddingBottom: safeArea.bottom,
         }}>
+            <StatusBar style='dark' />
             <View style={{
                 height: 416,
                 alignItems: 'center',

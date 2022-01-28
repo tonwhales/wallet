@@ -73,8 +73,6 @@ export const Root = React.memo(() => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 backgroundColor: 'white',
-                paddingBottom: safeArea.bottom,
-                paddingTop: safeArea.top
             }}
             pointerEvents={'none'}
         >

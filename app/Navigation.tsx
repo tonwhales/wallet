@@ -95,7 +95,7 @@ function fullScreenModal(name: string, component: React.ComponentType<any>) {
 }
 
 const navigation = [
-    genericScreen('Welcome', WelcomeFragment),
+    fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
     fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment),

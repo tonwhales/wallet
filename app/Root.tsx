@@ -8,6 +8,7 @@ import { Theme } from './Theme';
 import { View, Image, useWindowDimensions, Platform } from 'react-native';
 import { BootContext } from './bootContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AndroidToolbar } from './components/AndroidToolbar';
 
 const RebootContext = React.createContext<() => void>(() => { });
 const IsTestnetContext = React.createContext(false);
@@ -57,7 +58,9 @@ export const Root = React.memo(() => {
                 }).start(() => {
                     setSplashVisible(false);
                 });
-            SplashScreen.hideAsync();
+            setTimeout(() => {
+                SplashScreen.hideAsync();
+            }, 30);
         }
     }, [splashVisible]);
 
@@ -67,27 +70,26 @@ export const Root = React.memo(() => {
             style={{
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                 opacity: splashOpacity,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'white',
+                paddingBottom: safeArea.bottom,
+                paddingTop: safeArea.top
             }}
             pointerEvents={'none'}
         >
             <View style={{
-                alignItems: 'center', justifyContent: 'center',
-                flexGrow: 1,
-                backgroundColor: 'blue',
-                paddingTop: safeArea.top
+                width: 256, height: 416,
+                alignItems: 'center',
             }}>
-                <View style={{
-                    width: 256, height: 416,
-                    justifyContent: 'center', alignItems: 'center',
-                }}>
-                    <Image style={{
-                        width: 256, height: 256,
-                    }} source={require('../assets/splash_icon.png')} />
-                </View>
-                <View style={{ flexGrow: 1 }} />
+                <Image style={{
+                    width: 256, height: 256,
+                }} source={require('../assets/splash_icon.png')} />
             </View>
         </Animated.View>
-    )), [splashVisible]);
+    )), [splashVisible, safeArea]);
+
+    console.log('safe area', { height, safeArea, newHeight: height - safeArea.top - safeArea.bottom });
 
     return (
         <BootContext.Provider value={onMounted}>

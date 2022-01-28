@@ -16,13 +16,16 @@ import './app/storage/appState';
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
-import { Navigation } from './app/Navigation';
-import { NavigationContainer } from '@react-navigation/native';
-import { NavigationTheme, Theme } from './app/Theme';
+import { Theme } from './app/Theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
 import { Root } from './app/Root';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync()
+  .then(result => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
+  .catch(console.warn);
 
 function Boot() {
   return (

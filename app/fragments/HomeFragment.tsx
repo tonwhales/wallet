@@ -8,11 +8,13 @@ import { SettingsFragment } from './SettingsFragment';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import { BlurView } from 'expo-blur';
+import { useBootMounted } from '../bootContext';
 
 export const HomeFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
+    useBootMounted();
     return (
         <View style={{ flexGrow: 1 }}>
             <View style={{ flexGrow: 1 }} />

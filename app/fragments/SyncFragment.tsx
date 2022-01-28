@@ -1,6 +1,7 @@
 import { t } from 'i18next';
 import * as React from 'react';
 import { Text, View } from 'react-native';
+import { useBootMounted } from '../bootContext';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { fragment } from '../fragment';
 import { useReboot } from '../Root';
@@ -25,6 +26,9 @@ export const SyncFragment = fragment(() => {
             ended = true;
         };
     }, []);
+
+    useBootMounted();
+
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
             <LoadingIndicator />

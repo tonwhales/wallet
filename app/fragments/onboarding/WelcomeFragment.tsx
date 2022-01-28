@@ -9,56 +9,31 @@ import { Theme } from '../../Theme';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 
 export const WelcomeFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const ref = React.useRef<LottieView>(null);
-    const { height } = useWindowDimensions();
-
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-                <Pressable
-                    onPress={() => navigation.navigate('LegalImport')}
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1
-                        }
-                    }}
-                >
-                    <Text style={{
-                        fontSize: 17,
-                        fontWeight: '400',
-                        color: 'rgba(66, 163, 235, 1)'
-                    }}>
-                        {t('Import existing wallet')}
-                    </Text>
-                </Pressable>
-            ),
-        })
-    }, []);
 
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: '#fff', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
+            <AndroidToolbar />
             <FragmentMediaContent
                 image={require('../../../assets/ic_diamond.png')}
                 title={t('Tonhub Wallet')}
                 text={t('Easiest and secure TON wallet')}
             />
             <View style={{ flex: 1 }} />
-            <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+            <View style={{ height: 128, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                 <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('LegalCreate')} />
-            </View>
-            {Platform.OS === 'android' && (
                 <Pressable
                     onPress={() => navigation.navigate('LegalImport')}
                     style={({ pressed }) => {
                         return {
                             opacity: pressed ? 0.5 : 1,
-                            position: 'absolute',
-                            top: safeArea.top + 16, right: 16
+                            alignSelf: 'center',
+                            marginTop: 26
                         }
                     }}
                 >
@@ -70,7 +45,7 @@ export const WelcomeFragment = fragment(() => {
                         {t('Import existing wallet')}
                     </Text>
                 </Pressable>
-            )}
+            </View>
         </View>
     );
 });

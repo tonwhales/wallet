@@ -51,8 +51,6 @@ export const WalletBackupFragment = fragment(() => {
         )
     }
 
-    console.log('height', height);
-
     let words1: any[] = [];
     let words2: any[] = [];
     for (let i = 0; i < 24; i++) {

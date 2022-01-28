@@ -24,7 +24,6 @@ export const FragmentMediaContent = React.memo((props: {
     children?: any
 }) => {
     const { height } = useWindowDimensions();
-    console.log('height', height);
 
     return (
         <View style={[{
@@ -48,6 +47,7 @@ export const FragmentMediaContent = React.memo((props: {
                 <Text style={{
                     fontSize: 30, fontWeight: '700',
                     textAlign: 'center',
+                    marginTop: 26
                 }}>
                     {props.title}
                 </Text>

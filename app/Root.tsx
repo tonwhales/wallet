@@ -53,7 +53,7 @@ export const Root = React.memo(() => {
             Animated.timing(splashOpacity,
                 {
                     toValue: 0,
-                    duration: 500,
+                    duration: 200,
                     easing: EasingNode.ease
                 }).start(() => {
                     setSplashVisible(false);

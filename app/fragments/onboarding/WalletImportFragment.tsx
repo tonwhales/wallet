@@ -287,9 +287,9 @@ function WalletWordsComponent(props: {
             <FocusedInputLoader>
                 <StatusBar style='dark' />
                 <ScrollView
-                    style={{ flexGrow: 1, backgroundColor: Theme.background }}
+                    style={{ flexGrow: 1, backgroundColor: Theme.background, alignSelf: 'stretch' }}
                     contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                    contentInset={{ bottom: keyboard.keyboardShown ? keyboard.keyboardHeight : safeArea.bottom + 30 }}
+                    contentInset={{ bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - safeArea.bottom - 30 : safeArea.bottom + 30 }}
                     contentInsetAdjustmentBehavior="never"
                     keyboardShouldPersistTaps="handled"
                     keyboardDismissMode="none"

@@ -9,6 +9,7 @@ import { Theme } from '../../Theme';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 
 export const WelcomeFragment = fragment(() => {
     const { t } = useTranslation();
@@ -42,6 +43,7 @@ export const WelcomeFragment = fragment(() => {
 
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: '#fff', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
+            <AndroidToolbar />
             <FragmentMediaContent
                 image={require('../../../assets/ic_diamond.png')}
                 title={t('Tonhub Wallet')}

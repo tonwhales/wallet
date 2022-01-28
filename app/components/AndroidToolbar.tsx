@@ -39,14 +39,18 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
             {props.pageTitle && (
                 <Text
                     style={{
+                        alignItems: 'center',
                         fontSize: 22, color: Theme.textColor, fontWeight: '700',
                         flexGrow: 1,
                         marginLeft: 32,
+                        height: 56,
+                        includeFontPadding: false,
+                        textAlignVertical: 'center',
                     }}
                     numberOfLines={1}
                     ellipsizeMode={"tail"}
                 >
-                    {props.pageTitle}
+                    {`${props.pageTitle}`}
                 </Text>
             )}
         </View>

@@ -35,7 +35,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
-                    title = formatDate(props.txs[0].time);
+                    title = formatDate(t.time);
                     sections.push({ title, items: lastSection });
                 }
                 lastSection.push(t);

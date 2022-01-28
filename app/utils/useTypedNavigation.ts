@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
-import { randomKey } from './randomKey';
 
 type Base = NavigationProp<ParamListBase>;
 
 export function typedNavigate(src: Base, name: string, params?: any) {
-    src.navigate({ name, params: { ...params }, key: randomKey() });
+    src.navigate({ name, params: { ...params } });
 }
 
 export function typedReplace(src: Base, name: string, params?: any) {

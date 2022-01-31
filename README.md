@@ -4,7 +4,7 @@ New user friendly wallet for TONCOIN written in Typescript and React Native buil
 
 * 🏎 Fast and can work offline. Wallet syncs state and persists everything in the phone with immediate app startup.
 * 🔐 Secure. Security features are implemented the same way as original TONCOIN Wallet built by Telegram's team.
-* 🚀 Modern. Uses Wallet v4 from the begninig with ability to move funds from outdated wallets.
+* 🚀 Modern. Uses Wallet v4 from the beginning with ability to move funds from outdated wallets.
 
 # License
 

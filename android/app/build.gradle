@@ -123,6 +123,11 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
+// Load versions
+def packageJson = packageSlurper.parse file('../../package.json')
+def packageVersion = packageJson.version
+def versionCodeValue = Integer.parseInt(new File('../../VERSION_CODE').text)
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -135,8 +140,8 @@ android {
         applicationId 'com.tonhub.wallet'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 42
-        versionName "1.0.42"
+        versionCode versionCodeValue
+        versionName packageVersion
     }
     splits {
         abi {

@@ -176,7 +176,7 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = ZLY9DP39MF;
+						DevelopmentTeam = 4CFQ3FG324;
 						LastSwiftMigration = 1250;
 					};
 				};
@@ -331,7 +331,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 42;
-				DEVELOPMENT_TEAM = ZLY9DP39MF;
+				DEVELOPMENT_TEAM = 4CFQ3FG324;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -346,7 +346,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonwhales.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app;
 				PRODUCT_NAME = WhalesApp;
 				SWIFT_OBJC_BRIDGING_HEADER = "wallet/wallet-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -364,7 +364,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 42;
-				DEVELOPMENT_TEAM = ZLY9DP39MF;
+				DEVELOPMENT_TEAM = 4CFQ3FG324;
 				INFOPLIST_FILE = wallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -374,7 +374,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonwhales.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app;
 				PRODUCT_NAME = WhalesApp;
 				SWIFT_OBJC_BRIDGING_HEADER = "wallet/wallet-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

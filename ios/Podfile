@@ -7,6 +7,10 @@ platform :ios, '12.0'
 require 'json'
 podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
 
+project 'wallet',
+        'Debug Testnet' => :debug,
+        'Release Testnet' => :release
+
 target 'WhalesApp' do
   use_expo_modules!
   config = use_native_modules!

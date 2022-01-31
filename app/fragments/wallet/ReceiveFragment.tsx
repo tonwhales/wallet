@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { getAppState } from "../../storage/appState";
+import { getCurrentAddress } from "../../storage/appState";
 import Clipboard from '@react-native-clipboard/clipboard';
 import { View, Platform, Share, Text } from "react-native";
 import QRCode from "react-native-qrcode-svg";
@@ -11,13 +11,14 @@ import { RoundButton } from "../../components/RoundButton";
 import { Theme } from "../../Theme";
 import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AppConfig } from "../../AppConfig";
 
 export const ReceiveFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
-    const address = React.useMemo(() => getAppState()!.address, []);
-    const link = 'https://tonhub.com/transfer/' + address.toFriendly();
+    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const link = AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/' + address.toFriendly({ testOnly: AppConfig.isTestnet });
 
     const onCopy = React.useCallback(
         () => {

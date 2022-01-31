@@ -1,17 +1,14 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { ActivityIndicator, Alert, Image, ImageSourcePropType, Platform, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, ImageSourcePropType, Platform, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Theme } from '../../Theme';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { encryptData, ensureKeystoreReady } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
-import { setAppState } from '../../storage/appState';
+import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
 import { storage } from '../../storage/storage';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
-import LottieView from 'lottie-react-native';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
 import { useReboot } from '../../Root';
@@ -42,7 +39,6 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                     storage.set('ton-bypass-encryption', false);
                 }
                 const token = await encryptData(Buffer.from(props.mnemonics));
-                storage.set('ton-mnemonics', token.toString('base64'));
 
                 // Resolve key
                 const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
@@ -51,7 +47,23 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 const contract = await contractFromPublicKey(key.publicKey);
 
                 // Persist state
-                setAppState({ address: contract.address, publicKey: key.publicKey, testnet: false, backupCompleted: props.import });
+                const state = getAppState();
+                setAppState({
+                    addresses: [
+                        ...state.addresses,
+                        {
+                            address: contract.address,
+                            publicKey: key.publicKey,
+                            secretKeyEnc: token
+                        }
+                    ],
+                    selected: state.addresses.length
+                });
+
+                // Persist secured flag
+                if (props.import) {
+                    markAddressSecured(contract.address);
+                }
 
                 // Navigate next
                 reboot();

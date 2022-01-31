@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import axios from 'axios';
 import { Address } from 'ton';
+import { AppConfig } from '../AppConfig';
 
 export const registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
@@ -21,5 +22,5 @@ export const registerForPushNotificationsAsync = async () => {
 };
 
 export async function registerPushToken(token: string, address: Address) {
-    await axios.post('https://connect.tonhubapi.com/push/register', { token, addresses: [address.toFriendly()] }, { method: 'POST' });
+    await axios.post('https://connect.tonhubapi.com/push/register', { token, addresses: [address.toFriendly({ testOnly: AppConfig.isTestnet })] }, { method: 'POST' });
 }

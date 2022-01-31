@@ -1,20 +1,16 @@
 import * as React from 'react';
-import { Platform, Pressable, Text, View, Image } from 'react-native';
+import { Pressable, Text, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useTranslation } from 'react-i18next';
-import { FragmentMediaContent } from '../../components/FragmentMediaContent';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { useBootMounted } from '../../bootContext';
 import { StatusBar } from 'expo-status-bar';
 
 export const WelcomeFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    useBootMounted();
 
     return (
         <View style={{

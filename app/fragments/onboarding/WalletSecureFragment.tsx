@@ -113,7 +113,6 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
     return (
         <View style={{
             flexGrow: 1,
-            alignSelf: 'stretch', alignItems: 'stretch',
             backgroundColor: 'white',
             justifyContent: 'center',
             alignContent: 'center'

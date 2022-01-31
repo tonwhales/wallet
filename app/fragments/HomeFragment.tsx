@@ -25,23 +25,41 @@ export const HomeFragment = fragment(() => {
             </View>
             <View style={{ height: 52 + safeArea.bottom, }}>
                 {Platform.OS === 'ios' && (
-                    <BlurView style={{
-                        height: 52 + safeArea.bottom,
-                        paddingBottom: safeArea.bottom, paddingHorizontal: 16,
-                        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                        <View style={{
-                            position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            backgroundColor: Theme.background,
-                            opacity: 0.9
-                        }} />
+                    <BlurView
+                        style={{
+                            height: 52 + safeArea.bottom,
+                            paddingBottom: safeArea.bottom, paddingHorizontal: 16,
+                            flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                        }}
+                    >
+                        <View
+                            style={{
+                                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                                backgroundColor: Theme.background,
+                                opacity: 0.9
+                            }}
+                        />
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')} />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}>{t('Wallet')}</Text>
+                            <Image
+                                source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
+                                style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                            />
+                            <Text
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                            >
+                                {t('Wallet')}
+                            </Text>
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')} />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>{t('Settings')}</Text>
+                            <Image
+                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                            />
+                            <Text
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                            >
+                                {t('Settings')}
+                            </Text>
                         </Pressable>
                     </BlurView>
                 )}
@@ -53,23 +71,35 @@ export const HomeFragment = fragment(() => {
                         backgroundColor: 'white'
                     }}>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')} />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}>{t('Wallet')}</Text>
+                            <Image
+                                source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
+                                style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                            />
+                            <Text
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                            >
+                                {t('Wallet')}
+                            </Text>
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')} />
+                            <Image
+                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                            />
                             <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>{t('Settings')}</Text>
                         </Pressable>
                     </View>
                 )}
-                <View style={{
-                    position: 'absolute',
-                    top: 0.5, left: 0, right: 0,
-                    height: 0.5,
-                    width: '100%',
-                    backgroundColor: '#000',
-                    opacity: 0.08
-                }} />
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0.5, left: 0, right: 0,
+                        height: 0.5,
+                        width: '100%',
+                        backgroundColor: '#000',
+                        opacity: 0.08
+                    }}
+                />
             </View>
         </View>
     );

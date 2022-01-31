@@ -46,7 +46,6 @@ export class Engine {
     readonly address: Address;
     readonly cache;
     readonly connector: Connector;
-    readonly testnet: boolean;
     private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
@@ -55,8 +54,7 @@ export class Engine {
     private _txs = new Map<string, Transaction>();
     private _pending: Transaction[] = [];
 
-    constructor(address: Address, cache: MMKV, connector: Connector, testnet: boolean) {
-        this.testnet = testnet;
+    constructor(address: Address, cache: MMKV, connector: Connector) {
         this.cache = createCache(cache);
         this.address = address;
         this.connector = connector;

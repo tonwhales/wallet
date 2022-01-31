@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, Text, View, Image } from 'react-native';
+import { Platform, Pressable, Text, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";

@@ -9,6 +9,7 @@ import { avatarHash } from '../utils/avatarHash';
 import { AddressComponent } from './AddressComponent';
 import { Transaction } from '../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { AppConfig } from '../AppConfig';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
@@ -26,7 +27,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
             require('../../assets/avatar_7.png'),
             require('../../assets/avatar_8.png')
         ];
-        avatarImage = avatars[avatarHash(parsed.address.toFriendly(), avatars.length)];
+        avatarImage = avatars[avatarHash(parsed.address.toFriendly({ testOnly: AppConfig.isTestnet }), avatars.length)];
     }
 
     // Transaction type

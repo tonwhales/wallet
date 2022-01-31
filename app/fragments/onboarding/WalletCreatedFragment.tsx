@@ -1,9 +1,8 @@
-import { Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import LottieView from 'lottie-react-native';
 import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { Ionicons } from '@expo/vector-icons';

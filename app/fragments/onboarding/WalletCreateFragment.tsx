@@ -10,13 +10,11 @@ import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncr
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 
 export const WalletCreateFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption

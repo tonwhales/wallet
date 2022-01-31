@@ -3,18 +3,19 @@ import { t } from "i18next";
 import { View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { fragment } from "../../fragment";
-import { useReboot, useTestnet } from "../../Root";
+import { useReboot } from "../../Root";
 import { Theme } from "../../Theme";
-import { getAppState, setAppState } from '../../storage/appState';
+import { Item } from '../../components/Item';
+import { AppConfig } from '../../AppConfig';
 
 export const DeveloperToolsFragment = fragment(() => {
     const reboot = useReboot();
-    const isTestNet = useTestnet();
-    const switchNetwork = React.useCallback(() => {
-        let state = (getAppState())!;
-        setAppState({ ...state, testnet: !state.testnet });
-        reboot();
-    }, []);
+    // const isTestNet = useTestnet();
+    // const switchNetwork = React.useCallback(() => {
+    //     let state = (getAppState())!;
+    //     setAppState({ ...state, testnet: !state.testnet });
+    //     reboot();
+    // }, []);
     return (
         <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16 }}>
             <View style={{
@@ -25,11 +26,14 @@ export const DeveloperToolsFragment = fragment(() => {
                 alignItems: 'center',
                 flexShrink: 1,
             }}>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
+                {/* <View style={{ marginHorizontal: 16, width: '100%' }}>
                     <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={t(isTestNet ? 'Switch to mainnet' : 'Switch to testnet')} onPress={switchNetwork} />
-                </View>
+                </View> */}
                 <View style={{ marginHorizontal: 16, width: '100%' }}>
                     <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={t("Restart app")} onPress={reboot} />
+                </View>
+                <View style={{ marginHorizontal: 16, width: '100%' }}>
+                    <Item title="Version" hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                 </View>
             </View>
         </View>

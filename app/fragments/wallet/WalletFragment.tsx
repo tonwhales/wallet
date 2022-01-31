@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { fragment } from "../../fragment";
-import { getAppState } from '../../storage/appState';
+import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from '../../components/TransactionView';
@@ -21,6 +21,7 @@ import { useAccount } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { AppConfig } from '../../AppConfig';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -66,7 +67,7 @@ export const WalletFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getAppState()!.address, []);
+    const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.getTransaction(v));
@@ -176,7 +177,7 @@ export const WalletFragment = fragment(() => {
             if (res) {
                 // if QR is valid navigate to transfer fragment
                 navigation.navigate('Transfer', {
-                    target: res.address.toFriendly(),
+                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     comment: res.comment,
                     amount: res.amount,
                     payload: res.payload,

@@ -3,7 +3,7 @@ import { View, Platform, Text, Image, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { getAppState } from "../../storage/appState";
+import { getCurrentAddress } from "../../storage/appState";
 import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -15,13 +15,14 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Transaction } from "../../sync/Transaction";
+import { AppConfig } from "../../AppConfig";
 
 export const TransactionPreviewFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { transaction } = useParams<{ transaction?: Transaction | null }>();
-    const address = React.useMemo(() => getAppState()!.address, []);
+    const address = React.useMemo(() => getCurrentAddress().address, []);
 
     if (!transaction) {
         return <Text>{t('Error parsing transaction')}</Text>
@@ -40,7 +41,7 @@ export const TransactionPreviewFragment = fragment(() => {
             require('../../../assets/avatar_7.png'),
             require('../../../assets/avatar_8.png')
         ];
-        avatarImage = avatars[avatarHash(transaction.address.toFriendly(), avatars.length)];
+        avatarImage = avatars[avatarHash(transaction.address.toFriendly({ testOnly: AppConfig.isTestnet }), avatars.length)];
     }
 
     // Transaction type
@@ -89,7 +90,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
                         onPress={() => navigation.navigate('Transfer', {
-                            target: transaction?.address?.toFriendly(),
+                            target: transaction?.address?.toFriendly({ testOnly: AppConfig.isTestnet }),
                             comment: transaction?.body?.comment,
                             amount: transaction.amount.neg()
                         })}
@@ -123,7 +124,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         }}
                         selectable={true}
                     >
-                        {transaction.address?.toFriendly()}
+                        {transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet })}
                     </Text>
                     <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
                         {t('Wallet address')}

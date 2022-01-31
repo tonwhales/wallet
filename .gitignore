@@ -74,3 +74,5 @@ dist/
 
 # @end expo-cli
 android/app/release
+android/app/netmain
+android/app/nettest

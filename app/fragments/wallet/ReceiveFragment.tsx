@@ -63,7 +63,7 @@ export const ReceiveFragment = fragment(() => {
                     logoBackgroundColor='transparent'
                 />
                 <Text selectable={true} style={{ marginTop: 25, width: 265, textAlign: 'center' }} numberOfLines={1} ellipsizeMode="middle">
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly()}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly({ testOnly: AppConfig.isTestnet })}</Text>
                 </Text>
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>
                     {t("Wallet address")}

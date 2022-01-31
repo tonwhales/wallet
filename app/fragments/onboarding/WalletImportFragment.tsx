@@ -113,7 +113,6 @@ const WordInput = React.memo(React.forwardRef((props: {
         }
         const normalized = value ? value.trim().toLowerCase() : props.value.trim().toLowerCase();
         if (!wordlist.find((v) => v === normalized)) {
-            const vibroPattern = [400, 0, 400];
             translate.value = withSequence(
                 withTiming(-10, { duration: 30 }),
                 withRepeat(withTiming(10, { duration: 30 }), 2, true),

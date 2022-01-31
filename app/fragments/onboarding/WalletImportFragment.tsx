@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Alert, findNodeHandle, Platform, Text, View } from "react-native";
+import * as Haptics from 'expo-haptics';
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from "../../fragment";
@@ -27,9 +28,11 @@ const WordInput = React.memo(React.forwardRef((props: {
     hint: string,
     value: string,
     setValue: (src: string) => void,
+    onSubmit?: (value?: string) => void,
     next?: React.RefObject<WordInputRef>,
     scroll: React.RefObject<ScrollView>,
-    inputAccessoryViewID?: string
+    inputAccessoryViewID?: string,
+    contentOffsetY: number
 }, ref: React.ForwardedRef<WordInputRef>) => {
     const keyboard = useKeyboard();
     const inputAccessoryViewID = `id-${props.hint}-${props.inputAccessoryViewID}`;
@@ -64,17 +67,30 @@ const WordInput = React.memo(React.forwardRef((props: {
             scrollPageX: number,
             scrollPageY: number
         ) => {
-            vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, height: number) => {
-                props.scroll.current!.scrollResponderScrollNativeHandleToKeyboard(
-                    findNodeHandle(vref.current),
-                    height * 2 + 50
-                );
+            props.scroll.current
+            vref.current!.measureLayout(props.scroll.current! as any, (left: number, top: number, width: number, viewHeight: number) => {
+                // Viewbox is within margin values, 
+                // from top: viewHeight & from bottom: keyboardHeight + accessoryViews height
+
+                // Input is out of 'viewbox' bound from top
+                if (top - viewHeight - props.contentOffsetY < 0) {
+                    props.scroll.current!.scrollTo({
+                        y: top - viewHeight,
+                        animated: true
+                    });
+                } else if (top - props.contentOffsetY - keyboard.keyboardHeight - 50 > 0) {
+                    // Input is out of 'viewbox' bound from bottom
+                    props.scroll.current!.scrollResponderScrollNativeHandleToKeyboard(
+                        findNodeHandle(vref.current),
+                        viewHeight * 2 + 50
+                    );
+                }
             }, () => {
                 // Ignore
             });
             if (Platform.OS === 'android') setCurrent({ value: props.value, onSetValue: props.setValue });
         });
-    }, [keyboard]);
+    }, [keyboard, props.contentOffsetY]);
 
     const suggestions = (props.value && props.value?.length > 0)
         ? wordlist.filter((w) => w.startsWith(props.value!))
@@ -89,7 +105,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     }, [props.value]);
 
     const onSubmit = React.useCallback((value?: string) => {
-        if (suggestions.length >= 1) {
+        if (suggestions.length >= 1 && !value) {
             props.setValue(suggestions[0]);
             if (Platform.OS === 'android') setCurrent(undefined);
             props.next?.current?.focus();
@@ -97,17 +113,24 @@ const WordInput = React.memo(React.forwardRef((props: {
         }
         const normalized = value ? value.trim().toLowerCase() : props.value.trim().toLowerCase();
         if (!wordlist.find((v) => v === normalized)) {
+            const vibroPattern = [400, 0, 400];
             translate.value = withSequence(
                 withTiming(-10, { duration: 30 }),
                 withRepeat(withTiming(10, { duration: 30 }), 2, true),
                 withTiming(0, { duration: 30 })
             );
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             setIsWrong(true);
             return;
         }
+        props.setValue(normalized);
         if (Platform.OS === 'android') setCurrent(undefined);
         props.next?.current?.focus();
-    }, [props.value, suggestions]);
+        if (props.onSubmit) {
+            console.log('onSubmit');
+            props.onSubmit();
+        }
+    }, [props.value, suggestions, props.onSubmit]);
 
     const onTextChange = React.useCallback((value: string) => {
         setIsWrong(false);
@@ -204,7 +227,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                 />
                 <AutocompliteAccessoryView
                     suggestions={suggestions}
-                    setValue={props.setValue}
+                    setValue={onSubmit}
                     inputAccessoryViewID={inputAccessoryViewID}
                 />
             </View>
@@ -218,6 +241,7 @@ function WalletWordsComponent(props: {
         deviceEncryption: DeviceEncryption
     }) => void
 }) {
+    const [contentOffsetY, setContentOffsetY] = React.useState(0);
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
@@ -294,6 +318,8 @@ function WalletWordsComponent(props: {
                     keyboardShouldPersistTaps="handled"
                     keyboardDismissMode="none"
                     ref={scrollRef}
+                    scrollEventThrottle={16}
+                    onScroll={(event) => { setContentOffsetY(event.nativeEvent.contentOffset.y); }}
                 >
                     <Text style={{ alignSelf: 'center', marginTop: 16, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
                         {t("24 Secret Words")}
@@ -313,53 +339,53 @@ function WalletWordsComponent(props: {
                         borderRadius: 14,
                         width: '100%',
                     }}>
-                        <WordInput ref={w1Ref} next={w2Ref} scroll={scrollRef} hint="1" value={w1} setValue={setW1} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w1Ref} next={w2Ref} scroll={scrollRef} hint="1" value={w1} setValue={setW1} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w2Ref} next={w3Ref} scroll={scrollRef} hint="2" value={w2} setValue={setW2} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w2Ref} next={w3Ref} scroll={scrollRef} hint="2" value={w2} setValue={setW2} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w3Ref} next={w4Ref} scroll={scrollRef} hint="3" value={w3} setValue={setW3} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w3Ref} next={w4Ref} scroll={scrollRef} hint="3" value={w3} setValue={setW3} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w4Ref} next={w5Ref} scroll={scrollRef} hint="4" value={w4} setValue={setW4} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w4Ref} next={w5Ref} scroll={scrollRef} hint="4" value={w4} setValue={setW4} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w5Ref} next={w6Ref} scroll={scrollRef} hint="5" value={w5} setValue={setW5} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w5Ref} next={w6Ref} scroll={scrollRef} hint="5" value={w5} setValue={setW5} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w6Ref} next={w7Ref} scroll={scrollRef} hint="6" value={w6} setValue={setW6} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w6Ref} next={w7Ref} scroll={scrollRef} hint="6" value={w6} setValue={setW6} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w7Ref} next={w8Ref} scroll={scrollRef} hint="7" value={w7} setValue={setW7} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w7Ref} next={w8Ref} scroll={scrollRef} hint="7" value={w7} setValue={setW7} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w8Ref} next={w9Ref} scroll={scrollRef} hint="8" value={w8} setValue={setW8} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w8Ref} next={w9Ref} scroll={scrollRef} hint="8" value={w8} setValue={setW8} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w9Ref} next={w10Ref} scroll={scrollRef} hint="9" value={w9} setValue={setW9} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w9Ref} next={w10Ref} scroll={scrollRef} hint="9" value={w9} setValue={setW9} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w10Ref} next={w11Ref} scroll={scrollRef} hint="10" value={w10} setValue={setW10} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w10Ref} next={w11Ref} scroll={scrollRef} hint="10" value={w10} setValue={setW10} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w11Ref} next={w12Ref} scroll={scrollRef} hint="11" value={w11} setValue={setW11} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w11Ref} next={w12Ref} scroll={scrollRef} hint="11" value={w11} setValue={setW11} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w12Ref} next={w13Ref} scroll={scrollRef} hint="12" value={w12} setValue={setW12} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w12Ref} next={w13Ref} scroll={scrollRef} hint="12" value={w12} setValue={setW12} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w13Ref} next={w14Ref} scroll={scrollRef} hint="13" value={w13} setValue={setW13} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w13Ref} next={w14Ref} scroll={scrollRef} hint="13" value={w13} setValue={setW13} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w14Ref} next={w15Ref} scroll={scrollRef} hint="14" value={w14} setValue={setW14} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w14Ref} next={w15Ref} scroll={scrollRef} hint="14" value={w14} setValue={setW14} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w15Ref} next={w16Ref} scroll={scrollRef} hint="15" value={w15} setValue={setW15} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w15Ref} next={w16Ref} scroll={scrollRef} hint="15" value={w15} setValue={setW15} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w16Ref} next={w17Ref} scroll={scrollRef} hint="16" value={w16} setValue={setW16} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w16Ref} next={w17Ref} scroll={scrollRef} hint="16" value={w16} setValue={setW16} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w17Ref} next={w18Ref} scroll={scrollRef} hint="17" value={w17} setValue={setW17} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w17Ref} next={w18Ref} scroll={scrollRef} hint="17" value={w17} setValue={setW17} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w18Ref} next={w19Ref} scroll={scrollRef} hint="18" value={w18} setValue={setW18} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w18Ref} next={w19Ref} scroll={scrollRef} hint="18" value={w18} setValue={setW18} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w19Ref} next={w20Ref} scroll={scrollRef} hint="19" value={w19} setValue={setW19} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w19Ref} next={w20Ref} scroll={scrollRef} hint="19" value={w19} setValue={setW19} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w20Ref} next={w21Ref} scroll={scrollRef} hint="20" value={w20} setValue={setW20} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w20Ref} next={w21Ref} scroll={scrollRef} hint="20" value={w20} setValue={setW20} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w21Ref} next={w22Ref} scroll={scrollRef} hint="21" value={w21} setValue={setW21} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w21Ref} next={w22Ref} scroll={scrollRef} hint="21" value={w21} setValue={setW21} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w22Ref} next={w23Ref} scroll={scrollRef} hint="22" value={w22} setValue={setW22} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w22Ref} next={w23Ref} scroll={scrollRef} hint="22" value={w22} setValue={setW22} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w23Ref} next={w24Ref} scroll={scrollRef} hint="23" value={w23} setValue={setW23} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w23Ref} next={w24Ref} scroll={scrollRef} hint="23" value={w23} setValue={setW23} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput ref={w24Ref} hint="24" scroll={scrollRef} value={w24} setValue={setW24} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w24Ref} hint="24" scroll={scrollRef} value={w24} setValue={setW24} onSubmit={onSubmit} />
                     </View>
                     <RoundButton
                         title={t("Continue")}

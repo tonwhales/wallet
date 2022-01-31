@@ -31,6 +31,8 @@ PODS:
     - ExpoModulesCore
   - Expo (44.0.1):
     - ExpoModulesCore
+  - ExpoHaptics (11.1.0):
+    - ExpoModulesCore
   - ExpoModulesCore (0.6.3):
     - React-Core
     - ReactCommon/turbomodule/core
@@ -500,6 +502,7 @@ DEPENDENCIES:
   - EXLocalAuthentication (from `../node_modules/expo-local-authentication/ios`)
   - EXNotifications (from `../node_modules/expo-notifications/ios`)
   - Expo (from `../node_modules/expo/ios`)
+  - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - EXRandom (from `../node_modules/expo-random/ios`)
   - EXSecureStore (from `../node_modules/expo-secure-store/ios`)
@@ -612,6 +615,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-notifications/ios"
   Expo:
     :path: "../node_modules/expo/ios"
+  ExpoHaptics:
+    :path: "../node_modules/expo-haptics/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core/ios"
   EXRandom:
@@ -727,6 +732,7 @@ SPEC CHECKSUMS:
   EXLocalAuthentication: 4c7166ed3133d2c75586093833936652e7d2c7fc
   EXNotifications: d5b454a2363c8743aa9b2888cc0df70a1d9ee816
   Expo: f8cd8811d9aee5bc651a3285e1101358db610e0d
+  ExpoHaptics: c62a5fc7bba0184d0165d559fc2b0fc46168ef40
   ExpoModulesCore: d04e519b3e8e21523b195bb21a40144e30f1e163
   EXRandom: 06978dcf45075f3c9e17ae5e726b887316ee9877
   EXSecureStore: fa0fdde1c81ceee2a3cb0519e649feae42767969

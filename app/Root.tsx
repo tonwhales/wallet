@@ -87,8 +87,6 @@ export const Root = React.memo(() => {
         </Animated.View>
     )), [splashVisible, safeArea]);
 
-    console.log('safe area', { height, safeArea, newHeight: height - safeArea.top - safeArea.bottom });
-
     return (
         <BootContext.Provider value={onMounted}>
             <Animated.View

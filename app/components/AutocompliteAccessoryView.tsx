@@ -1,5 +1,5 @@
 import React from "react";
-import { InputAccessoryView, Pressable, View, Text, Platform } from "react-native";
+import { InputAccessoryView, Pressable, View, Text, Platform, FlatList, useWindowDimensions } from "react-native";
 import { wordlist } from "ton-crypto/dist/mnemonic/wordlist";
 import { Theme } from "../Theme";
 
@@ -8,94 +8,92 @@ export const AutocompliteAccessoryView = React.memo((props: {
     setValue: (newValue: string) => void
     inputAccessoryViewID: string
 }) => {
+    const { width } = useWindowDimensions();
     if (Platform.OS === 'ios') {
         return (
             <InputAccessoryView nativeID={props.inputAccessoryViewID}>
-                {(props.suggestions?.length ? props.suggestions?.length : 0 > 0) && (
-                    <View
-                        style={{
-                            height: 50,
-                            backgroundColor: 'white',
-                            flexDirection: 'row',
-                            justifyContent: 'space-evenly',
-                            alignItems: 'center'
-                        }}
-                    >
-                        {props.suggestions && props.suggestions.length >= 2 && (
-                            <Pressable
-                                key={props.suggestions[1]}
-                                style={({ pressed }) => {
-                                    return {
-                                        marginRight: 2,
-                                        borderRadius: 16,
-                                        paddingHorizontal: 16,
-                                        paddingVertical: 8,
-                                        opacity: pressed ? 0.5 : 1
-                                    }
-                                }}
-                                onPress={() => {
-                                    props.setValue(props.suggestions![1]);
-                                }}
-                            >
-                                <Text style={{
-                                    fontSize: 16
-                                }}>
-                                    {props.suggestions[1]}
-                                </Text>
-                            </Pressable>
-                        )}
-                        {props.suggestions && props.suggestions.length >= 1 && (
-                            <View style={{ flexDirection: 'row' }}>
-                                {props.suggestions.length >= 2 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
-                                <Pressable
-                                    key={props.suggestions[0]}
-                                    style={({ pressed }) => {
-                                        return {
-                                            marginRight: 2,
-                                            borderRadius: 16,
-                                            paddingHorizontal: 24,
-                                            paddingVertical: 8,
-                                            opacity: pressed ? 0.5 : 1
-                                        }
-                                    }}
-                                    onPress={() => {
-                                        props.setValue(props.suggestions![0]);
-                                    }}
-                                >
-                                    <Text style={{
-                                        fontSize: 16
-                                    }}>
-                                        {props.suggestions[0]}
-                                    </Text>
-                                </Pressable>
-                                {props.suggestions.length >= 3 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
-                            </View>
-                        )}
-                        {props.suggestions && props.suggestions.length >= 3 && (
-                            <Pressable
-                                key={props.suggestions[2]}
-                                style={({ pressed }) => {
-                                    return {
-                                        marginRight: 2,
-                                        borderRadius: 16,
-                                        paddingHorizontal: 16,
-                                        paddingVertical: 8,
-                                        opacity: pressed ? 0.5 : 1
-                                    }
-                                }}
-                                onPress={() => {
-                                    props.setValue(props.suggestions![2]);
-                                }}
-                            >
-                                <Text style={{
-                                    fontSize: 16
-                                }}>
-                                    {props.suggestions[2]}
-                                </Text>
-                            </Pressable>
-                        )}
-                    </View>
-                )}
+                {props.suggestions && props.suggestions.length > 0 &&
+                    (
+                        <View
+                            style={{
+                                height: 50,
+                                backgroundColor: 'white',
+                                flexDirection: 'row',
+                                flexGrow: 1,
+                                paddingVertical: 4
+                            }}
+                        >
+                            {props.suggestions.length > 1 &&
+                                props.suggestions.map((item, index) => {
+                                    if (index > 2) { return undefined; }
+                                    return (
+                                        <>
+                                            <Pressable
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        width: (width - 20) / 3,
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        paddingVertical: 8,
+                                                        opacity: pressed ? 0.5 : 1,
+                                                        marginLeft: index === 0 ? 5 : 0,
+                                                        marginRight: index === 2 ? 5 : 0,
+                                                        borderRadius: 8,
+                                                        backgroundColor: index === 0 ? Theme.divider : undefined
+                                                    }
+                                                }}
+                                                onPress={() => { props.setValue(item); }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 16
+                                                }}>
+                                                    {item}
+                                                </Text>
+                                            </Pressable>
+                                            {index < 2 && (<View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />)}
+                                        </>
+                                    )
+                                })
+                            }
+                            {props.suggestions.length === 1 && (
+                                <>
+                                    <Pressable
+                                        key={props.suggestions[0]}
+                                        style={({ pressed }) => {
+                                            return {
+                                                width: (width - 20) / 3,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                backgroundColor: Theme.divider,
+                                                paddingVertical: 8,
+                                                opacity: pressed ? 0.5 : 1,
+                                                marginLeft: 5,
+                                                borderRadius: 8
+                                            }
+                                        }}
+                                        onPress={() => { props.setValue(props.suggestions![0]); }}
+                                    >
+                                        <Text style={{
+                                            fontSize: 16
+                                        }}>
+                                            {props.suggestions[0]}
+                                        </Text>
+                                    </Pressable>
+                                    <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                                    <View
+                                        key={'filler-0'}
+                                        style={{ width: (width - 20) / 3 }}
+                                    />
+                                    <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                                    <View
+                                        key={'filler-1'}
+                                        style={{ width: (width - 20) / 3 }}
+                                    />
+                                </>
+                            )}
+                        </View>
+                    )
+                }
             </InputAccessoryView>
         );
     }

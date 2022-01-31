@@ -382,8 +382,12 @@ export const WalletImportFragment = fragment(() => {
     const navigation = useTypedNavigation();
 
     React.useLayoutEffect(() => {
-        navigation.setOptions({ headerStyle: { backgroundColor: Theme.background } })
-    }, [navigation]);
+        if (!state) {
+            navigation.setOptions({ headerStyle: { backgroundColor: Theme.background } });
+        } else {
+            navigation.setOptions({ headerStyle: { backgroundColor: 'white' } });
+        }
+    }, [navigation, state]);
 
     return (
         <>
@@ -403,7 +407,7 @@ export const WalletImportFragment = fragment(() => {
             )}
             {state && (
                 <Animated.View
-                    style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
+                    style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
                     key="content"
                     entering={FadeIn}
                 >

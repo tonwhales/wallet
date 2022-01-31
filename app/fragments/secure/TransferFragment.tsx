@@ -76,7 +76,9 @@ export const TransferFragment = fragment(() => {
             seqno: account.seqno,
             walletId: contract.source.walletId,
             secretKey: walletKeys.keyPair.secretKey,
-            sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+            sendMode: value === account.balance
+                ? SendMode.CARRRY_ALL_REMAINING_BALANCE
+                : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
             order: new InternalMessage({
                 to: address,
                 value,
@@ -100,7 +102,7 @@ export const TransferFragment = fragment(() => {
             id: 'pending-' + account.seqno,
             lt: null,
             fees: fee,
-            amount: value.mul(new BN(-1)),
+            amount: value === account.balance ? toNano(0) : value.mul(new BN(-1)),
             address,
             seqno: account.seqno,
             kind: 'out',

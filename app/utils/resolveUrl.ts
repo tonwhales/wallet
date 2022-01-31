@@ -62,7 +62,7 @@ export function resolveUrl(src: string): {
 
         // HTTP(s) url
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com')
+            && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com' || url.host.toLowerCase() === 'test.tonhub.com')
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
             let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
             let comment: string | null = null;

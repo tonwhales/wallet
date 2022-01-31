@@ -1,12 +1,9 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppLogo } from '../../components/AppLogo';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { Theme } from '../../Theme';
-import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { AndroidToolbar } from '../../components/AndroidToolbar';

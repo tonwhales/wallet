@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform, Pressable, View, Text } from 'react-native';
+import { Platform, View } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -23,8 +23,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme } from './Theme';
 import { getAppState } from './storage/appState';
 import { Engine, EngineContext } from './sync/Engine';
-import { storageMainnet, storageTestnet } from './storage/storage';
+import { storageCache } from './storage/storage';
 import { createSimpleConnector } from './sync/Connector';
+import { AppConfig } from './AppConfig';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -120,17 +121,17 @@ export const Navigation = React.memo(() => {
 
     const engine = React.useMemo(() => {
         let state = getAppState();
-        if (state) {
+        if (0 <= state.selected && state.selected < state.addresses.length) {
+            const ex = state.addresses[state.selected];
             return new Engine(
-                state.address,
-                state.testnet ? storageTestnet : storageMainnet,
-                createSimpleConnector(!state.testnet ? {
+                ex.address,
+                storageCache,
+                createSimpleConnector(!AppConfig.isTestnet ? {
                     main: 'https://mainnet.tonhubapi.com',
                     estimate: 'https://wallet.toncenter.com/api/v2'
                 } : {
                     main: 'https://testnet.toncenter.com/api/v2'
-                }),
-                state.testnet
+                })
             );
         } else {
             return null;

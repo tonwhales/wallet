@@ -1,13 +1,12 @@
 import { useRoute } from "@react-navigation/native";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Platform, Text, useWindowDimensions, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import LottieView from 'lottie-react-native';
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 
 export const LegalFragment = fragment(() => {
@@ -15,7 +14,6 @@ export const LegalFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
-    const { height } = useWindowDimensions();
     return (
         <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
             <AndroidToolbar pageTitle={t('Legal')} />

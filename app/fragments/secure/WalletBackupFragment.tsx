@@ -2,17 +2,14 @@ import * as React from 'react';
 import { ActivityIndicator, Platform, Text, View, useWindowDimensions } from 'react-native';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
-import { storage } from '../../storage/storage';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import LottieView from 'lottie-react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 import { loadWalletKeys } from '../../storage/walletKeys';
 import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { getAppState, setAppState } from '../../storage/appState';
+import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 
 export const WalletBackupFragment = fragment(() => {
     const { t } = useTranslation();
@@ -20,18 +17,19 @@ export const WalletBackupFragment = fragment(() => {
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
+    const address = React.useMemo(() => getCurrentAddress(), []);
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
         }
-        setAppState({ ...state, backupCompleted: true });
+        markAddressSecured(address.address);
         navigation.navigateAndReplaceAll('Home');
     }, []);
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await loadWalletKeys();
+                let keys = await loadWalletKeys(address.secretKeyEnc);
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 navigation.goBack();

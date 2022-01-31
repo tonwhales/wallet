@@ -2,7 +2,6 @@ import { BN } from 'bn.js';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { delay } from 'teslabot';
 import { SendMode, WalletContractType } from 'ton';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
@@ -14,12 +13,15 @@ import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useAccount } from '../../sync/Engine';
+import { AppConfig } from '../../AppConfig';
+import { getCurrentAddress } from '../../storage/appState';
 
 const MigrationProcessFragment = fragment(() => {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('Migrating old wallets...'));
     const [account, engine] = useAccount();
+    const acc = React.useMemo(() => getCurrentAddress(), []);
 
     React.useEffect(() => {
         let ended = false;
@@ -29,7 +31,7 @@ const MigrationProcessFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                key = await loadWalletKeys();
+                key = await loadWalletKeys(acc.secretKeyEnc);
             } catch (e) {
                 navigation.goBack();
                 return;
@@ -53,11 +55,11 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                setStatus(t('Checking ') + wallet.address.toFriendly() + '...');
+                setStatus(t('Checking ') + wallet.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '...');
 
                 const state = await backoff(() => engine.connector.client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
-                    setStatus(t('Tranfer funds from ') + wallet.address.toFriendly() + '...');
+                    setStatus(t('Tranfer funds from ') + wallet.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '...');
                     await wallet.prepare(0, key.keyPair.publicKey, type);
 
                     // Seqno

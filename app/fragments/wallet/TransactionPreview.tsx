@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppConfig } from '../../AppConfig';
 import { ValueComponent } from '../../components/ValueComponent';
 import { Transaction } from '../../sync/Transaction';
 import { Theme } from '../../Theme';
@@ -48,7 +49,7 @@ export function TransactionPreview(props: { tx: Transaction }) {
             </Text>
             {tx.address && (
                 <Text selectable={true} style={{ marginTop: 32, marginBottom: 72, width: 265, textAlign: 'center', alignSelf: 'center' }} numberOfLines={1} ellipsizeMode="middle">
-                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{tx.address.toFriendly()}</Text>
+                    <Text style={{ fontSize: 18, color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{tx.address.toFriendly({ testOnly: AppConfig.isTestnet })}</Text>
                 </Text>
             )}
         </View>

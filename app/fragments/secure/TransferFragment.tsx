@@ -20,7 +20,8 @@ import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
 import { useAccount } from '../../sync/Engine';
 import { AsyncLock } from 'teslabot';
-import { getAppState } from '../../storage/appState';
+import { getAppState, getCurrentAddress } from '../../storage/appState';
+import { AppConfig } from '../../AppConfig';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -47,6 +48,7 @@ export const TransferFragment = fragment(() => {
     const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
+    const acc = React.useMemo(() => getCurrentAddress(), []);
     const doSend = React.useCallback(async () => {
         let address: Address;
         let value: BN;
@@ -60,7 +62,7 @@ export const TransferFragment = fragment(() => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys();
+            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
         } catch (e) {
             navigation.goBack();
             return;
@@ -123,7 +125,7 @@ export const TransferFragment = fragment(() => {
                 }
 
                 // Load app state
-                const appState = getAppState();
+                const appState = getCurrentAddress();
                 if (!appState) {
                     return;
                 }
@@ -181,7 +183,7 @@ export const TransferFragment = fragment(() => {
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
         if (res) {
-            setTarget(res.address.toFriendly());
+            setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
             if (res.amount) {
                 setAmount(fromNano(res.amount));
             }

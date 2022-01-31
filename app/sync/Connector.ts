@@ -2,6 +2,7 @@ import BN from "bn.js";
 import { Address, Cell, Contract, TonClient } from "ton";
 import { InvalidateSync } from "teslabot";
 import axios from "axios";
+import { AppConfig } from "../AppConfig";
 
 export interface ConnectorAccountState {
     balance: BN;
@@ -75,7 +76,7 @@ export function createSimpleConnector(endpoints: { main: string, estimate?: stri
 
     // Fetch transactions
     const fetchTransactions: (address: Address, from: { lt: string, hash: string }) => Promise<ConnectorTransaction[]> = async (address, from) => {
-        let res = await axios.get(endpoints.main + '/getTransactions?address=' + address.toFriendly() + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'));
+        let res = await axios.get(endpoints.main + '/getTransactions?address=' + address.toFriendly({ testOnly: AppConfig.isTestnet }) + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'));
         if (!res.data.ok) {
             throw Error('Server error');
         }

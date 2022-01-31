@@ -332,7 +332,9 @@
 			baseConfigurationReference = 2DA025F7D1CC346FE41EC0AC /* Pods-WhalesApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_ID_SUFFIX = .debug;
+				BUNDLE_LINK_SCHEMA = ton;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 42;
@@ -366,7 +368,9 @@
 			baseConfigurationReference = DE2C3FD8B78129F6D6359E29 /* Pods-WhalesApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_ID_SUFFIX = "";
+				BUNDLE_LINK_SCHEMA = ton;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 42;
@@ -561,7 +565,9 @@
 			baseConfigurationReference = 288921B06F60144D2EEF6BD5 /* Pods-WhalesApp.debug testnet.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_ID_SUFFIX = .debug.testnet;
+				BUNDLE_LINK_SCHEMA = "ton-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 42;
@@ -646,7 +652,9 @@
 			baseConfigurationReference = 9087C8FB77D8AA4F4EECA1D3 /* Pods-WhalesApp.release testnet.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_ID_SUFFIX = .testnet;
+				BUNDLE_LINK_SCHEMA = "ton-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CURRENT_PROJECT_VERSION = 42;

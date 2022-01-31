@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform, View } from 'react-native';
+import { Platform, View, Image } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -26,6 +26,9 @@ import { Engine, EngineContext } from './sync/Engine';
 import { storageCache } from './storage/storage';
 import { createSimpleConnector } from './sync/Connector';
 import { AppConfig } from './AppConfig';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { EasingNode } from 'react-native-reanimated';
+import * as SplashScreen from 'expo-splash-screen';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -96,7 +99,7 @@ function fullScreenModal(name: string, component: React.ComponentType<any>) {
 }
 
 const navigation = [
-    genericScreen('Welcome', WelcomeFragment),
+    fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
     fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment),
@@ -118,6 +121,7 @@ const navigation = [
 ];
 
 export const Navigation = React.memo(() => {
+    const safeArea = useSafeAreaInsets();
 
     const engine = React.useMemo(() => {
         let state = getAppState();
@@ -153,10 +157,63 @@ export const Navigation = React.memo(() => {
         }
     }, []);
 
+    // Splash
+    const [splashVisible, setSplashVisible] = React.useState(true);
+
+    const splashOpacity = React.useMemo(() => {
+        return new Animated.Value(1);
+    }, [splashVisible]);
+
+    const onMounted = React.useMemo(() => {
+        return () => {
+            if (!splashVisible) {
+                SplashScreen.hideAsync();
+                return;
+            }
+            Animated.timing(splashOpacity,
+                {
+                    toValue: 0,
+                    duration: 200,
+                    easing: EasingNode.ease
+                }).start(() => {
+                    setSplashVisible(false);
+                });
+            setTimeout(() => {
+                SplashScreen.hideAsync();
+            }, 30);
+        }
+    }, [splashVisible]);
+
+    let splash = React.useMemo(() => (splashVisible && (
+        <Animated.View
+            key="splash"
+            style={{
+                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                opacity: splashOpacity,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'white',
+            }}
+            pointerEvents={'none'}
+        >
+            <View style={{
+                width: 256, height: 416,
+                alignItems: 'center',
+            }}>
+                <Image style={{
+                    width: 256, height: 256,
+                }} source={require('../assets/splash_icon.png')} />
+            </View>
+        </Animated.View>
+    )), [splashVisible, safeArea]);
+
     return (
         <EngineContext.Provider value={engine}>
             <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-                <NavigationContainer theme={NavigationTheme}>
+                <NavigationContainer
+                    theme={NavigationTheme}
+                    onReady={onMounted}
+                >
                     <Stack.Navigator
                         initialRouteName={initial}
                         screenOptions={{ headerBackTitle: 'Back', title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
@@ -164,6 +221,7 @@ export const Navigation = React.memo(() => {
                         {navigation}
                     </Stack.Navigator>
                 </NavigationContainer>
+                {splash}
             </View>
         </EngineContext.Provider>
     );

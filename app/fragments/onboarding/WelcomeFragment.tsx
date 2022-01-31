@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useTranslation } from 'react-i18next';
-import { FragmentMediaContent } from '../../components/FragmentMediaContent';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { StatusBar } from 'expo-status-bar';
 
 export const WelcomeFragment = fragment(() => {
     const { t } = useTranslation();
@@ -14,15 +13,39 @@ export const WelcomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
 
     return (
-        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: '#fff', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
-            <AndroidToolbar />
-            <FragmentMediaContent
-                image={require('../../../assets/ic_diamond.png')}
-                title={t('Tonhub Wallet')}
-                text={t('Easiest and secure TON wallet')}
-            />
-            <View style={{ flex: 1 }} />
-            <View style={{ height: 128, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+        <View style={{
+            alignItems: 'center', justifyContent: 'center',
+            flexGrow: 1,
+        }}>
+            <StatusBar style='dark' />
+            <View style={{
+                height: 416,
+                alignItems: 'center',
+            }}>
+                <View style={{
+                    width: 256, height: 256,
+                    justifyContent: 'center', alignItems: 'center',
+                }}>
+                    <Image source={require('../../../assets/ic_diamond.png')} />
+                </View>
+                <Text style={{
+                    fontSize: 30, fontWeight: '700',
+                    marginTop: -42,
+                    textAlign: 'center',
+                }}>
+                    {t('Tonhub Wallet')}
+                </Text>
+                <Text style={{
+                    textAlign: 'center',
+                    color: '#8E979D',
+                    fontSize: 14,
+                    marginTop: 14,
+                    flexShrink: 1,
+                }}>
+                    {t('Easiest and secure TON wallet')}
+                </Text>
+            </View>
+            <View style={{ height: 128, position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
                 <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('LegalCreate')} />
                 <Pressable
                     onPress={() => navigation.navigate('LegalImport')}

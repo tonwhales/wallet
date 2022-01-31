@@ -25,6 +25,7 @@ export const SyncFragment = fragment(() => {
             ended = true;
         };
     }, []);
+
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
             <LoadingIndicator />

@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleProp, Text, TextStyle, View, Image, Pressable, KeyboardAvoidingView } from "react-native";
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
@@ -25,6 +25,7 @@ import { getAppState } from '../../storage/appState';
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
     marginLeft: 17,
+    fontSize: 17
 };
 
 export const TransferFragment = fragment(() => {
@@ -200,21 +201,32 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
+    const onAddAll = React.useCallback(() => {
+        setAmount(fromNano(account.balance));
+    }, [setAmount, account]);
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Send Toncoin")} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flexGrow: 1, paddingTop: 16 }}
+                style={{ flexGrow: 1 }}
                 keyboardVerticalOffset={16}
             >
                 <StatusBar style="dark" />
+                {Platform.OS === 'ios' && (
+                    <View style={{
+                        paddingTop: 12,
+                        paddingBottom: 17
+                    }}>
+                        <Text style={[labelStyle, { textAlign: 'center' }]}>{t("Send Toncoin")}</Text>
+                    </View>
+                )}
                 <ScrollView
                     style={{ paddingHorizontal: 16, flex: 1 }}
                 >
-                    {Platform.OS === 'ios' && (<Text style={[labelStyle, { textAlign: 'center' }]}>{t("Send Toncoin")}</Text>)}
                     <View style={{
-                        marginBottom: 16, marginTop: 17,
+                        marginBottom: 16,
                         backgroundColor: "white",
                         borderRadius: 14,
                         justifyContent: 'center',
@@ -225,7 +237,7 @@ export const TransferFragment = fragment(() => {
                             value={amount}
                             onValueChange={setAmount}
                             placeholder={t("Amount")}
-                            keyboardType={"decimal-pad"}
+                            keyboardType={'numeric'}
                             textAlign={'center'}
                             style={{ marginBottom: 20, backgroundColor: 'transparent' }}
                             fontWeight={'800'}
@@ -243,38 +255,40 @@ export const TransferFragment = fragment(() => {
                             {fromNano(account?.balance || new BN(0))} TON
                         </Text>
                     </View>
-                    <Text style={{ fontWeight: '700', fontSize: 20 }}>{t("Send to")}</Text>
+                    <View style={{ flexDirection: 'row' }} collapsable={false}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                            <TouchableHighlight onPress={onAddAll} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                    <Image source={require('../../../assets/ic_all_coins.png')} />
+                                    <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Add all coins")}</Text>
+                                </View>
+                            </TouchableHighlight>
+                        </View>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                            <TouchableHighlight onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                    <Image source={require('../../../assets/ic_scan_qr.png')} />
+                                    <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Scan QR code")}</Text>
+                                </View>
+                            </TouchableHighlight>
+                        </View>
+                    </View>
+                    <Text style={{ fontWeight: '700', fontSize: 20, marginTop: 13 }}>{t("Send to")}</Text>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
                         backgroundColor: "white",
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        // paddingHorizontal: 16,
                     }}>
                         <ATextInput
                             value={target}
                             onValueChange={setTarget}
                             placeholder={t("Wallet adress")}
                             keyboardType="ascii-capable"
+                            preventDefaultHeight
+                            multiline
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            actionButtonRight={
-                                <Pressable
-                                    style={{
-                                        position: 'absolute',
-                                        right: -3, top: 13, bottom: 13
-                                    }}
-                                    onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                >
-                                    <Image
-                                        style={{
-                                            height: 24,
-                                            width: 24
-                                        }}
-                                        source={require('../../../assets/ic_qr.png')}
-                                    />
-                                </Pressable>
-                            }
                             enabled={!payload}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
@@ -286,6 +300,8 @@ export const TransferFragment = fragment(() => {
                             autoCapitalize="sentences"
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
                             enabled={!payload}
+                            preventDefaultHeight
+                            multiline
                         />
                     </View>
                     <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>Blockchain fees: {estimation ? fromNano(estimation) : '...'}</Text>
@@ -294,8 +310,6 @@ export const TransferFragment = fragment(() => {
                     {
                         marginHorizontal: 16, marginTop: 16,
                         paddingBottom: safeArea.bottom + 16
-                        // position: 'absolute',
-                        // bottom: safeArea.bottom + 16, left: 16, right: 16,
                     },
                 ]}>
                     <RoundButton

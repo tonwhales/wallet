@@ -120,7 +120,7 @@ export const ATextInput = React.memo((props: ATextInputProps) => {
                 textContentType={props.textContentType}
                 onChangeText={props.onValueChange}
             />
-            {props.actionButtonRight && !props.value && (
+            {props.actionButtonRight && (
                 props.actionButtonRight
             )}
         </View>

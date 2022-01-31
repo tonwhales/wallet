@@ -8,7 +8,7 @@ export const CloseButton = React.memo((props: { onPress?: () => void, style?: St
             style={({ pressed }) => { return [props.style, { opacity: pressed ? 0.5 : 1 }] }}
             onPress={props.onPress}
         >
-            <Image source={props.dark ? require('../../assets/ic_close.png'): require('../../assets/ic_close_dark.png')} />
+            <Image source={!props.dark ? require('../../assets/ic_close.png'): require('../../assets/ic_close_dark.png')} />
         </Pressable>
     )
 })

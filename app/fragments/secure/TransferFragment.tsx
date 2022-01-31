@@ -76,12 +76,12 @@ export const TransferFragment = fragment(() => {
             seqno: account.seqno,
             walletId: contract.source.walletId,
             secretKey: walletKeys.keyPair.secretKey,
-            sendMode: value === account.balance
+            sendMode: value.eq(account.balance)
                 ? SendMode.CARRRY_ALL_REMAINING_BALANCE
                 : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
             order: new InternalMessage({
                 to: address,
-                value,
+                value: value.eq(account.balance) ? toNano('0') : value,
                 bounce: false,
                 body: new CommonMessageInfo({
                     stateInit: stateInit ? new CellMessage(stateInit) : null,
@@ -102,7 +102,7 @@ export const TransferFragment = fragment(() => {
             id: 'pending-' + account.seqno,
             lt: null,
             fees: fee,
-            amount: value === account.balance ? toNano(0) : value.mul(new BN(-1)),
+            amount: value.mul(new BN(-1)),
             address,
             seqno: account.seqno,
             kind: 'out',
@@ -264,7 +264,7 @@ export const TransferFragment = fragment(() => {
                             <TouchableHighlight onPress={onAddAll} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                                 <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                     <Image source={require('../../../assets/ic_all_coins.png')} />
-                                    <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Add all coins")}</Text>
+                                    <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Add all coin")}</Text>
                                 </View>
                             </TouchableHighlight>
                         </View>

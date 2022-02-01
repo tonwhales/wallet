@@ -9,7 +9,7 @@ export const Theme = {
 
     accent: AppConfig.isTestnet ? '#F69F1B' : '#47A9F1',
     accentDark: AppConfig.isTestnet ? '#F69F1B' : '#288FD8',
-    accentText: AppConfig.isTestnet ? '#F69F1B' : '#1C8FE3',
+    accentText: AppConfig.isTestnet ? '#E89A03' : '#1C8FE3',
 
     divider: '#E4E4E5',
     warningText: '#DE641F',

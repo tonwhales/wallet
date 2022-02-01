@@ -13,8 +13,6 @@ import { useTranslation } from "react-i18next";
 import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import { registerForPushNotificationsAsync, registerPushToken } from '../../utils/registerPushNotifications';
-import { backoff } from '../../utils/time';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { useAccount } from '../../sync/Engine';
@@ -88,16 +86,6 @@ export const WalletFragment = fragment(() => {
     );
 
     const window = useWindowDimensions();
-
-    // Register token
-    React.useEffect(() => {
-        (async () => {
-            const token = await backoff(() => registerForPushNotificationsAsync());
-            if (token) {
-                await backoff(() => registerPushToken(token, address));
-            }
-        })();
-    }, []);
 
     // Animating wallet card
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);

@@ -8,11 +8,33 @@ import { SettingsFragment } from './SettingsFragment';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import { BlurView } from 'expo-blur';
+import { CachedLinking } from '../utils/CachedLinking';
+import { resolveUrl } from '../utils/resolveUrl';
+import { useTypedNavigation } from '../utils/useTypedNavigation';
+import { AppConfig } from '../AppConfig';
 
 export const HomeFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
+    const navigation = useTypedNavigation();
+
+    // Subscribe for links
+    React.useEffect(() => {
+        return CachedLinking.setListener((link: string) => {
+            let resolved = resolveUrl(link);
+            if (resolved) {
+                navigation.navigate('Transfer', {
+                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    comment: resolved.comment,
+                    amount: resolved.amount,
+                    payload: resolved.payload,
+                    stateInit: resolved.stateInit
+                });
+            }
+        });
+    }, []);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <View style={{ flexGrow: 1 }} />

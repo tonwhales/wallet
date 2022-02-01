@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { CloseButton } from '../../components/CloseButton';
 
 export const ScannerFragment = fragment(() => {

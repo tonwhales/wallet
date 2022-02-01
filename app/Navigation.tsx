@@ -29,6 +29,8 @@ import { AppConfig } from './AppConfig';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import * as SplashScreen from 'expo-splash-screen';
+import { backoff } from './utils/time';
+import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -206,6 +208,29 @@ export const Navigation = React.memo(() => {
             </View>
         </Animated.View>
     )), [splashVisible, safeArea]);
+
+    // Register token
+    React.useEffect(() => {
+        const state = getAppState();
+        let ended = false;
+        (async () => {
+            const token = await backoff(() => registerForPushNotificationsAsync());
+            if (token) {
+                if (ended) {
+                    return;
+                }
+                await backoff(async () => {
+                    if (ended) {
+                        return;
+                    }
+                    await registerPushToken(token, state.addresses.map((v) => v.address));
+                });
+            }
+        })();
+        return () => {
+            ended = true;
+        };
+    }, []);
 
     return (
         <EngineContext.Provider value={engine}>

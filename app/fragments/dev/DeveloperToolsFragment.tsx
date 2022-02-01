@@ -3,10 +3,10 @@ import { t } from "i18next";
 import { View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { fragment } from "../../fragment";
-import { useReboot } from "../../Root";
 import { Theme } from "../../Theme";
 import { Item } from '../../components/Item';
 import { AppConfig } from '../../AppConfig';
+import { useReboot } from '../../utils/RebootContext';
 
 export const DeveloperToolsFragment = fragment(() => {
     const reboot = useReboot();

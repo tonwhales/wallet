@@ -11,9 +11,9 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
-import { useReboot } from '../../Root';
 import { RoundButton } from '../../components/RoundButton';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
+import { useReboot } from '../../utils/RebootContext';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();

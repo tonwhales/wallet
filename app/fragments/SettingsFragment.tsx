@@ -10,7 +10,7 @@ import { Theme } from '../Theme';
 import { storage } from '../storage/storage';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
-import { useReboot } from '../Root';
+import { useReboot } from '../utils/RebootContext';
 
 export const SettingsFragment = fragment(() => {
     const { t } = useTranslation();

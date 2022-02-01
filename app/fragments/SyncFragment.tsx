@@ -3,8 +3,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { fragment } from '../fragment';
-import { useReboot } from '../Root';
 import { EngineContext } from '../sync/Engine';
+import { useReboot } from '../utils/RebootContext';
 
 export const SyncFragment = fragment(() => {
     const reboot = useReboot();

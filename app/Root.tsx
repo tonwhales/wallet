@@ -2,12 +2,7 @@ import * as React from 'react';
 import { Navigation } from './Navigation';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { RecoilRoot } from 'recoil';
-
-const RebootContext = React.createContext<() => void>(() => { });
-
-export function useReboot() {
-    return React.useContext(RebootContext);
-}
+import { RebootContext } from './utils/RebootContext';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);

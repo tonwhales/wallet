@@ -6,6 +6,8 @@ import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useTranslation } from 'react-i18next';
 import { StatusBar } from 'expo-status-bar';
+import { Theme } from '../../Theme';
+import { AppConfig } from '../../AppConfig';
 
 export const WelcomeFragment = fragment(() => {
     const { t } = useTranslation();
@@ -33,7 +35,7 @@ export const WelcomeFragment = fragment(() => {
                     marginTop: -42,
                     textAlign: 'center',
                 }}>
-                    {t('Tonhub Wallet')}
+                    {AppConfig.isTestnet ? t('Ton Development Wallet') : t('Tonhub Wallet')}
                 </Text>
                 <Text style={{
                     textAlign: 'center',
@@ -42,7 +44,7 @@ export const WelcomeFragment = fragment(() => {
                     marginTop: 14,
                     flexShrink: 1,
                 }}>
-                    {t('Easiest and secure TON wallet')}
+                    {AppConfig.isTestnet ? t('TON wallet for developers') : t('Simple and secure TON wallet')}
                 </Text>
             </View>
             <View style={{ height: 128, position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
@@ -60,7 +62,7 @@ export const WelcomeFragment = fragment(() => {
                     <Text style={{
                         fontSize: 17,
                         fontWeight: '400',
-                        color: 'rgba(66, 163, 235, 1)'
+                        color: Theme.accentText
                     }}>
                         {t('Import existing wallet')}
                     </Text>

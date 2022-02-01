@@ -264,16 +264,16 @@ export const WalletFragment = fragment(() => {
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <Image source={require('../../../assets/receive.png')} />
-                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>
+                                <Image source={require('../../../assets/receive.png')} style={{ tintColor: Theme.accent }} />
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("receive")}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Transfer')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <Image source={require('../../../assets/send.png')} />
-                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send")}</Text>
+                                <Image source={require('../../../assets/send.png')} style={{ tintColor: Theme.accent }} />
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("send")}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
@@ -387,7 +387,7 @@ export const WalletFragment = fragment(() => {
                                     }}
                                     onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                                 >
-                                    <Image source={require('../../../assets/ic_qr.png')} />
+                                    <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
                                 </Pressable>
                             </View>
                         </BlurView>
@@ -472,7 +472,7 @@ export const WalletFragment = fragment(() => {
                                 }}
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                             >
-                                <Image source={require('../../../assets/ic_qr.png')} />
+                                <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
                             </Pressable>
                         </View>
                         <View style={{

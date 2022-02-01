@@ -271,7 +271,8 @@ export const TransferFragment = fragment(() => {
                                     <Image
                                         style={{
                                             height: 24,
-                                            width: 24
+                                            width: 24,
+                                            tintColor: Theme.accent
                                         }}
                                         source={require('../../../assets/ic_qr.png')}
                                     />

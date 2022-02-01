@@ -31,6 +31,8 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 import * as SplashScreen from 'expo-splash-screen';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
+import * as Notifications from 'expo-notifications';
+import { PermissionStatus } from 'expo-modules-core';
 
 const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
@@ -214,17 +216,20 @@ export const Navigation = React.memo(() => {
         const state = getAppState();
         let ended = false;
         (async () => {
-            const token = await backoff(() => registerForPushNotificationsAsync());
-            if (token) {
-                if (ended) {
-                    return;
-                }
-                await backoff(async () => {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            if (existingStatus === PermissionStatus.GRANTED || state.addresses.length > 0) {
+                const token = await backoff(() => registerForPushNotificationsAsync());
+                if (token) {
                     if (ended) {
                         return;
                     }
-                    await registerPushToken(token, state.addresses.map((v) => v.address));
-                });
+                    await backoff(async () => {
+                        if (ended) {
+                            return;
+                        }
+                        await registerPushToken(token, state.addresses.map((v) => v.address));
+                    });
+                }
             }
         })();
         return () => {

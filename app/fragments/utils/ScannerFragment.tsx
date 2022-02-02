@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, Pressable, Platform } from 'react-native';
+import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { CloseButton } from '../../components/CloseButton';
 
 export const ScannerFragment = fragment(() => {
@@ -123,7 +122,7 @@ export const ScannerFragment = fragment(() => {
         <View style={styles.container}>
             <StatusBar style='light' />
             {(!device || !isActive) && (
-                <LoadingIndicator simple />
+                <ActivityIndicator color={'white'} />
             )}
             {device && isActive && (
                 <Camera

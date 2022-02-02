@@ -6,9 +6,11 @@ export const Theme = {
     textSecondary: '#8E8E92',
     loader: '#367CDE',
     background: '#F2F2F6',
-    accent: AppConfig.isTestnet ? 'red' : '#47A9F1',
-    accentLight: AppConfig.isTestnet ? 'red' : '#DD4242',
-    accentDark: AppConfig.isTestnet ? 'red' : '#288FD8',
+
+    accent: AppConfig.isTestnet ? '#F3A203' : '#47A9F1',
+    accentDark: AppConfig.isTestnet ? '#F3A203' : '#288FD8',
+    accentText: AppConfig.isTestnet ? '#E99A02' : '#1C8FE3',
+
     divider: '#E4E4E5',
     warningText: '#DE641F',
     scoreGold: '#DAA520',

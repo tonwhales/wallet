@@ -10,7 +10,7 @@ import { Theme } from '../Theme';
 import { storage } from '../storage/storage';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
-import { useReboot } from '../Root';
+import { useReboot } from '../utils/RebootContext';
 
 export const SettingsFragment = fragment(() => {
     const { t } = useTranslation();
@@ -121,18 +121,20 @@ export const SettingsFragment = fragment(() => {
                     </View>
                 </View>
 
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: "white",
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t("Developer Tools")} onPress={() => navigation.navigate('DeveloperTools')} />
+                {__DEV__ && (
+                    <View style={{
+                        marginBottom: 16, marginTop: 17,
+                        backgroundColor: "white",
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t("Developer Tools")} onPress={() => navigation.navigate('DeveloperTools')} />
+                        </View>
                     </View>
-                </View>
+                )}
 
                 <View style={{
                     marginBottom: 16, marginTop: 17,

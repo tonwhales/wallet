@@ -13,8 +13,6 @@ import { useTranslation } from "react-i18next";
 import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import { registerForPushNotificationsAsync, registerPushToken } from '../../utils/registerPushNotifications';
-import { backoff } from '../../utils/time';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { useAccount } from '../../sync/Engine';
@@ -88,16 +86,6 @@ export const WalletFragment = fragment(() => {
     );
 
     const window = useWindowDimensions();
-
-    // Register token
-    React.useEffect(() => {
-        (async () => {
-            const token = await backoff(() => registerForPushNotificationsAsync());
-            if (token) {
-                await backoff(() => registerPushToken(token, address));
-            }
-        })();
-    }, []);
 
     // Animating wallet card
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
@@ -264,16 +252,20 @@ export const WalletFragment = fragment(() => {
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <Image source={require('../../../assets/receive.png')} />
-                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("receive")}</Text>
+                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Image source={require('../../../assets/ic_receive.png')} />
+                                </View>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("receive")}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Transfer')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <Image source={require('../../../assets/send.png')} />
-                                <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send")}</Text>
+                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Image source={require('../../../assets/ic_send.png')} />
+                                </View>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("send")}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
@@ -387,7 +379,7 @@ export const WalletFragment = fragment(() => {
                                     }}
                                     onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                                 >
-                                    <Image source={require('../../../assets/ic_qr.png')} />
+                                    <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
                                 </Pressable>
                             </View>
                         </BlurView>
@@ -472,7 +464,7 @@ export const WalletFragment = fragment(() => {
                                 }}
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                             >
-                                <Image source={require('../../../assets/ic_qr.png')} />
+                                <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
                             </Pressable>
                         </View>
                         <View style={{

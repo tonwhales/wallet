@@ -21,6 +21,6 @@ export const registerForPushNotificationsAsync = async () => {
     }
 };
 
-export async function registerPushToken(token: string, address: Address) {
-    await axios.post('https://connect.tonhubapi.com/push/register', { token, addresses: [address.toFriendly({ testOnly: AppConfig.isTestnet })] }, { method: 'POST' });
+export async function registerPushToken(token: string, addresses: Address[]) {
+    await axios.post('https://connect.tonhubapi.com/push/register', { token, addresses: addresses.map((v) => v.toFriendly({ testOnly: AppConfig.isTestnet })) }, { method: 'POST' });
 }

@@ -18,14 +18,11 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const link = AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/' + address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
 
-    const onCopy = React.useCallback(
-        () => {
-            Clipboard.setString(link);
-        },
-        [link],
-    );
+    const onCopy = React.useCallback(() => {
+        Clipboard.setString(link);
+    }, [link]);
 
     return (
         <View style={{

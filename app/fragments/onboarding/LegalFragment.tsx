@@ -8,6 +8,7 @@ import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
+import { Theme } from "../../Theme";
 
 export const LegalFragment = fragment(() => {
     const { t } = useTranslation();
@@ -35,7 +36,7 @@ export const LegalFragment = fragment(() => {
                     <Text
                         style={{
                             textAlign: 'center',
-                            fontSize: 14, color: '#1C8FE3'
+                            fontSize: 14, color: Theme.accentText
                         }}
                         onPress={() => navigation.navigate('Privacy')}>
                         {t('Privacy policy')}
@@ -50,7 +51,7 @@ export const LegalFragment = fragment(() => {
                     <Text style={{
                         textAlign: 'center',
                         fontSize: 14,
-                        color: '#1C8FE3'
+                        color: Theme.accentText
                     }}
                         onPress={() => navigation.navigate('Terms')}>
                         {t('Terms of Service')}

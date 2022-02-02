@@ -5,7 +5,7 @@ export function resolveOnboarding(engine: Engine | null): 'backup' | 'sync' | 'h
     const state = getAppState();
     if (state.selected >= 0) {
         const address = getCurrentAddress();
-        if (!isAddressSecured(address.address)) {
+        if (isAddressSecured(address.address)) {
             if (engine && !engine.ready) {
                 return 'sync';
             } else {

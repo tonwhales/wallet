@@ -76,7 +76,7 @@ const displays: { [key in RoundButtonDisplay]: {
     text: {
         backgroundColor: 'transparent',
         borderColor: 'transparent',
-        textColor: '#1C8FE3',
+        textColor: Theme.accentText,
 
         backgroundPressedColor: Theme.divider,
         borderPressedColor: Theme.divider,

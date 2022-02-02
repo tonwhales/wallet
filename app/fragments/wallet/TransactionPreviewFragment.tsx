@@ -96,7 +96,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         })}
                     >
                         <Image source={require('../../../assets/ic_repeat.png')} />
-                        <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("send again")}</Text>
+                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("send again")}</Text>
                     </Pressable>
                     // TODO: add transaction to favorites
                     // {/* <Pressable

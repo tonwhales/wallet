@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
+import groovy.json.JsonSlurper
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -123,6 +124,12 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
+// Load versions
+def packageSlurper = new JsonSlurper()
+def packageJson = packageSlurper.parse file('../../package.json')
+def packageVersion = packageJson.version
+def versionCodeValue = Integer.parseInt(file('../../VERSION_CODE').text)
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -135,9 +142,27 @@ android {
         applicationId 'com.tonhub.wallet'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 42
-        versionName "1.0.42"
+        versionCode versionCodeValue
+        versionName packageVersion
     }
+
+    flavorDimensions "version"
+
+    productFlavors {
+        netmain {
+            applicationId 'com.tonhub.wallet'
+        }
+        nettest {
+            applicationId 'com.tonhub.wallet.testnet'
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+
     splits {
         abi {
             reset()

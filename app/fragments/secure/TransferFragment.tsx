@@ -54,7 +54,8 @@ export const TransferFragment = fragment(() => {
         let value: BN;
         try {
             address = Address.parseFriendly(target).address;
-            value = toNano(amount);
+            const validAmount = amount.replace(',', '.');
+            value = toNano(validAmount);
         } catch (e) {
             return;
         }

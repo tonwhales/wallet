@@ -162,15 +162,25 @@ export const WalletFragment = fragment(() => {
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src);
+            // if QR is valid navigate to transfer fragment
             if (res) {
-                // if QR is valid navigate to transfer fragment
+                // if has payload navigate to Action
+                if (res.payload) {
+                    navigation.navigate('Action', {
+                        target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        comment: res.comment,
+                        amount: res.amount,
+                        payload: res.payload,
+                        stateInit: res.stateInit
+                    });
+                    return;
+                }
                 navigation.navigate('Transfer', {
                     target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     comment: res.comment,
                     amount: res.amount,
-                    payload: res.payload,
                     stateInit: res.stateInit
-                })
+                });
             }
 
         } catch (error) {

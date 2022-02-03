@@ -2,58 +2,55 @@ import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, StyleProp, Text, TextStyle, View, Image, Pressable, KeyboardAvoidingView } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Alert } from "react-native";
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { AsyncLock } from 'teslabot';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
-import { fragment } from "../../fragment";
+import { getCurrentAddress } from '../../storage/appState';
+import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
+import { useAccount } from '../../sync/Engine';
 import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
-import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { fragment } from '../../fragment';
 import { useRoute } from '@react-navigation/native';
-import { useAccount } from '../../sync/Engine';
-import { AsyncLock } from 'teslabot';
-import { getAppState, getCurrentAddress } from '../../storage/appState';
-import { AppConfig } from '../../AppConfig';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
     marginLeft: 17,
 };
 
-export const TransferFragment = fragment(() => {
+export const ActionFragment = fragment(() => {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
-    const params: {
-        target?: string,
+    const safeArea = useSafeAreaInsets();
+    const props: {
+        target?: Address,
         comment?: string | null,
         amount?: BN | null,
         payload?: Cell | null,
         stateInit?: Cell | null,
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
-    const safeArea = useSafeAreaInsets();
-
-    const [target, setTarget] = React.useState(params?.target || '');
-    const [comment, setComment] = React.useState(params?.comment || '');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
-    const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
-    const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
+
     const doSend = React.useCallback(async () => {
+        if (!props?.target) {
+            Alert.alert(t('Wrong address'), t('Please check the address'));
+            return;
+        }
         let address: Address;
         let value: BN;
         try {
-            address = Address.parseFriendly(target).address;
-            value = toNano(amount);
+            address = props?.target;
+            value = props?.amount ? props.amount : toNano('0');
         } catch (e) {
             return;
         }
@@ -81,8 +78,8 @@ export const TransferFragment = fragment(() => {
                 value,
                 bounce: false,
                 body: new CommonMessageInfo({
-                    stateInit: stateInit ? new CellMessage(stateInit) : null,
-                    body: payload ? new CellMessage(payload) : new CommentMessage(comment)
+                    stateInit: props?.stateInit ? new CellMessage(props.stateInit) : null,
+                    body: props?.payload ? new CellMessage(props?.payload) : null
                 })
             })
         });
@@ -109,7 +106,7 @@ export const TransferFragment = fragment(() => {
         });
 
         navigation.goBack();
-    }, [amount, target, comment, account.seqno, payload, stateInit]);
+    }, [account.seqno, props]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -119,7 +116,7 @@ export const TransferFragment = fragment(() => {
         let ended = false;
         lock.inLock(async () => {
             await backoff(async () => {
-                if (ended) {
+                if (ended || !props?.target) {
                     return;
                 }
 
@@ -132,9 +129,10 @@ export const TransferFragment = fragment(() => {
                 // Parse address and value
                 let address: Address;
                 let value: BN;
+
                 try {
-                    address = Address.parseFriendly(target).address;
-                    value = toNano(amount);
+                    address = props.target;
+                    value = props.amount ? props.amount : toNano('0');
                 } catch (e) {
                     address = appState.address;
                     value = new BN(0);
@@ -157,8 +155,8 @@ export const TransferFragment = fragment(() => {
                         value,
                         bounce: false,
                         body: new CommonMessageInfo({
-                            stateInit: stateInit ? new CellMessage(stateInit) : null,
-                            body: payload ? new CellMessage(payload) : new CommentMessage(comment)
+                            stateInit: props.stateInit ? new CellMessage(props.stateInit) : null,
+                            body: props.payload ? new CellMessage(props.payload) : undefined
                         })
                     })
                 });
@@ -177,34 +175,11 @@ export const TransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [amount, target, comment, account.seqno, payload, stateInit]);
-
-    const onQRCodeRead = React.useCallback((src: string) => {
-        let res = resolveUrl(src);
-        if (res) {
-            setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            if (res.amount) {
-                setAmount(fromNano(res.amount));
-            }
-            if (res.comment) {
-                setComment(res.comment);
-            }
-            if (res.payload) {
-                setPayload(res.payload);
-            } else {
-                setPayload(null);
-            }
-            if (res.stateInit) {
-                setStateInit(res.stateInit);
-            } else {
-                setStateInit(null);
-            }
-        }
-    }, []);
+    }, [account.seqno, props]);
 
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Send Toncoin")} />
+            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Action")} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flexGrow: 1, paddingTop: 16 }}
@@ -214,84 +189,81 @@ export const TransferFragment = fragment(() => {
                 <ScrollView
                     style={{ paddingHorizontal: 16, flex: 1 }}
                 >
-                    {Platform.OS === 'ios' && (<Text style={[labelStyle, { textAlign: 'center' }]}>{t("Send Toncoin")}</Text>)}
+                    {Platform.OS === 'ios' && (<Text style={[labelStyle, { textAlign: 'center' }]}>{t("Action")}</Text>)}
                     <View style={{
                         marginBottom: 16, marginTop: 17,
                         backgroundColor: "white",
                         borderRadius: 14,
                         justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 22
+                        paddingVertical: 19,
+                        paddingHorizontal: 16
                     }}>
-                        <ATextInput
-                            value={amount}
-                            onValueChange={setAmount}
-                            placeholder={t("Amount")}
-                            keyboardType={"decimal-pad"}
-                            textAlign={'center'}
-                            style={{ marginBottom: 20, backgroundColor: 'transparent' }}
-                            fontWeight={'800'}
-                            fontSize={38}
-                            lineHeight={41}
-                            preventDefaultHeight
-                            preventDefaultValuePadding
-                            enabled={!payload}
-                        />
                         <Text style={{
-                            fontWeight: '600',
                             fontSize: 16,
-                            color: '#6D6D71'
+                            color: '#6D6D71',
+                            marginBottom: 4,
                         }}>
-                            {fromNano(account?.balance || new BN(0))} TON
+                            {t('Amount')}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '800',
+                            fontSize: 38,
+                            color: Theme.accent
+                        }}>
+                            {props?.amount ? fromNano(props?.amount) : '0'}
                         </Text>
                     </View>
-                    <Text style={{ fontWeight: '700', fontSize: 20 }}>{t("Send to")}</Text>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
                         backgroundColor: "white",
                         borderRadius: 14,
                         justifyContent: 'center',
-                        alignItems: 'center',
-                        // paddingHorizontal: 16,
+                        paddingVertical: 10
                     }}>
-                        <ATextInput
-                            value={target}
-                            onValueChange={setTarget}
-                            placeholder={t("Wallet adress")}
-                            keyboardType="ascii-capable"
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            actionButtonRight={
-                                <Pressable
-                                    style={{
-                                        position: 'absolute',
-                                        right: -3, top: 13, bottom: 13
-                                    }}
-                                    onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                >
-                                    <Image
-                                        style={{
-                                            height: 24,
-                                            width: 24,
-                                            tintColor: Theme.accent
-                                        }}
-                                        source={require('../../../assets/ic_qr.png')}
-                                    />
-                                </Pressable>
-                            }
-                            enabled={!payload}
-                        />
+                        <Text style={{
+                            fontSize: 12,
+                            color: '#6D6D71',
+                            marginBottom: 4,
+                            marginHorizontal: 16
+                        }}>
+                            {t('Wallet address')}
+                        </Text>
+                        <Text style={{
+                            fontSize: 16,
+                            marginBottom: 10,
+                            marginHorizontal: 16
+                        }}>
+                            {props?.target?.toFriendly()}
+                        </Text>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
-                        <ATextInput
-                            value={comment}
-                            onValueChange={setComment}
-                            placeholder={t("Message to recipient (optional)")}
-                            keyboardType="default"
-                            autoCapitalize="sentences"
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!payload}
-                        />
+                        {props?.comment && (
+                            <>
+                                <Text style={{
+                                    fontSize: 12,
+                                    color: '#6D6D71',
+                                    marginBottom: 4,
+                                    marginHorizontal: 16
+                                }}>
+                                    {t('Purpose of transaction')}
+                                </Text>
+                                <Text style={{
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    marginBottom: 10,
+                                    marginHorizontal: 16
+                                }}>
+                                    {props.comment}
+                                </Text>
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                            </>
+                        )}
+                        <Text style={{ color: '#6D6D71', marginBottom: 4, marginLeft: 16, marginTop: 10, fontSize: 12 }}>
+                            {t('Blockchain fee')}
+                        </Text>
+                        <Text style={{ marginLeft: 16, fontSize: 16 }}>
+                            {estimation ? fromNano(estimation!) : '...'}
+                        </Text>
                     </View>
-                    <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>Blockchain fees: {estimation ? fromNano(estimation) : '...'}</Text>
                 </ScrollView>
                 <View style={[
                     {

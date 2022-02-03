@@ -24,11 +24,20 @@ export const HomeFragment = fragment(() => {
         return CachedLinking.setListener((link: string) => {
             let resolved = resolveUrl(link);
             if (resolved) {
+                if (resolved.payload) {
+                    navigation.navigate('Action', {
+                        target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        comment: resolved.comment,
+                        amount: resolved.amount,
+                        payload: resolved.payload,
+                        stateInit: resolved.stateInit
+                    });
+                    return;
+                }
                 navigation.navigate('Transfer', {
                     target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     comment: resolved.comment,
                     amount: resolved.amount,
-                    payload: resolved.payload,
                     stateInit: resolved.stateInit
                 });
             }

@@ -569,7 +569,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 288921B06F60144D2EEF6BD5 /* Pods-WhalesApp.debug testnet.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
 				CLANG_ENABLE_MODULES = YES;
@@ -658,7 +658,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9087C8FB77D8AA4F4EECA1D3 /* Pods-WhalesApp.release testnet.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
 				CLANG_ENABLE_MODULES = YES;

@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleProp, Text, TextStyle, View, Image, Pressable, KeyboardAvoidingView } from "react-native";
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
@@ -26,6 +26,7 @@ import { AppConfig } from '../../AppConfig';
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
     marginLeft: 17,
+    fontSize: 17
 };
 
 export const TransferFragment = fragment(() => {
@@ -53,7 +54,8 @@ export const TransferFragment = fragment(() => {
         let value: BN;
         try {
             address = Address.parseFriendly(target).address;
-            value = toNano(amount);
+            const validAmount = amount.replace(',', '.');
+            value = toNano(validAmount);
         } catch (e) {
             return;
         }
@@ -75,10 +77,12 @@ export const TransferFragment = fragment(() => {
             seqno: account.seqno,
             walletId: contract.source.walletId,
             secretKey: walletKeys.keyPair.secretKey,
-            sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+            sendMode: value.eq(account.balance)
+                ? SendMode.CARRRY_ALL_REMAINING_BALANCE
+                : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
             order: new InternalMessage({
                 to: address,
-                value,
+                value: value.eq(account.balance) ? toNano('0') : value,
                 bounce: false,
                 body: new CommonMessageInfo({
                     stateInit: stateInit ? new CellMessage(stateInit) : null,
@@ -202,103 +206,202 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
+    const onAddAll = React.useCallback(() => {
+        setAmount(fromNano(account.balance));
+    }, [setAmount, account]);
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Send Toncoin")} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flexGrow: 1, paddingTop: 16 }}
+                style={{ flexGrow: 1 }}
                 keyboardVerticalOffset={16}
             >
                 <StatusBar style="dark" />
+                {Platform.OS === 'ios' && (
+                    <View style={{
+                        paddingTop: 12,
+                        paddingBottom: 17
+                    }}>
+                        <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? "Action" : "Send Toncoin")}</Text>
+                    </View>
+                )}
                 <ScrollView
                     style={{ paddingHorizontal: 16, flex: 1 }}
                 >
-                    {Platform.OS === 'ios' && (<Text style={[labelStyle, { textAlign: 'center' }]}>{t("Send Toncoin")}</Text>)}
-                    <View style={{
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: "white",
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 22
-                    }}>
-                        <ATextInput
-                            value={amount}
-                            onValueChange={setAmount}
-                            placeholder={t("Amount")}
-                            keyboardType={"decimal-pad"}
-                            textAlign={'center'}
-                            style={{ marginBottom: 20, backgroundColor: 'transparent' }}
-                            fontWeight={'800'}
-                            fontSize={38}
-                            lineHeight={41}
-                            preventDefaultHeight
-                            preventDefaultValuePadding
-                            enabled={!payload}
-                        />
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: '#6D6D71'
+                    {payload && (
+                        <View style={{
+                            marginBottom: 14,
+                            backgroundColor: "white",
+                            borderRadius: 14,
+                            justifyContent: 'center',
+                            paddingHorizontal: 16,
+                            paddingVertical: 19
                         }}>
-                            {fromNano(account?.balance || new BN(0))} TON
-                        </Text>
-                    </View>
-                    <Text style={{ fontWeight: '700', fontSize: 20 }}>{t("Send to")}</Text>
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 16,
+                                color: '#8E979D'
+                            }}>
+                                {t('Amount')}
+                            </Text>
+                            <Text style={{
+                                fontWeight: '800',
+                                fontSize: 38,
+                                color: Theme.accent,
+                                marginTop: 4
+                            }}>
+                                {amount}
+                            </Text>
+                        </View>
+                    )}
+                    {!payload && (
+                        <>
+                            <View style={{
+                                marginBottom: 16,
+                                backgroundColor: "white",
+                                borderRadius: 14,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                padding: 22
+                            }}>
+                                <ATextInput
+                                    value={amount}
+                                    onValueChange={setAmount}
+                                    placeholder={t("Amount")}
+                                    keyboardType={'numeric'}
+                                    textAlign={'center'}
+                                    style={{ marginBottom: 20, backgroundColor: 'transparent' }}
+                                    fontWeight={'800'}
+                                    fontSize={38}
+                                    lineHeight={41}
+                                    preventDefaultHeight
+                                    preventDefaultValuePadding
+                                />
+                                <Text style={{
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    color: '#6D6D71'
+                                }}>
+                                    {fromNano(account?.balance || new BN(0))} TON
+                                </Text>
+                            </View>
+                            <View style={{ flexDirection: 'row' }} collapsable={false}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                    <TouchableHighlight onPress={onAddAll} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={require('../../../assets/ic_all_coins.png')} />
+                                            </View>
+                                            <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Send all")}</Text>
+                                        </View>
+                                    </TouchableHighlight>
+                                </View>
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                    <TouchableHighlight onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={require('../../../assets/ic_scan_qr.png')} />
+                                            </View>
+                                            <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Scan QR code")}</Text>
+                                        </View>
+                                    </TouchableHighlight>
+                                </View>
+                            </View>
+                            <Text style={{ fontWeight: '700', fontSize: 20, marginTop: 13 }}>{t("Send to")}</Text>
+                        </>
+                    )}
                     <View style={{
-                        marginBottom: 16, marginTop: 17,
+                        marginBottom: 16, marginTop: payload ? 0 : 17,
                         backgroundColor: "white",
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        // paddingHorizontal: 16,
                     }}>
+                        {payload && (
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 16,
+                                color: '#8E979D',
+                                alignSelf: 'flex-start',
+                                marginTop: 10,
+                                marginLeft: 16
+                            }}>
+                                {t('Wallet adress')}
+                            </Text>
+                        )}
                         <ATextInput
                             value={target}
                             onValueChange={setTarget}
                             placeholder={t("Wallet adress")}
                             keyboardType="ascii-capable"
+                            preventDefaultHeight
+                            multiline
+                            inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            actionButtonRight={
-                                <Pressable
-                                    style={{
-                                        position: 'absolute',
-                                        right: -3, top: 13, bottom: 13
-                                    }}
-                                    onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                >
-                                    <Image
-                                        style={{
-                                            height: 24,
-                                            width: 24,
-                                            tintColor: Theme.accent
-                                        }}
-                                        source={require('../../../assets/ic_qr.png')}
-                                    />
-                                </Pressable>
-                            }
                             enabled={!payload}
+                            editable={!payload}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                        {payload && (
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 16,
+                                color: '#8E979D',
+                                alignSelf: 'flex-start',
+                                marginTop: 10,
+                                marginLeft: 16
+                            }}>
+                                {t('Purpose of transaction')}
+                            </Text>
+                        )}
                         <ATextInput
                             value={comment}
                             onValueChange={setComment}
                             placeholder={t("Message to recipient (optional)")}
                             keyboardType="default"
                             autoCapitalize="sentences"
+                            inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
                             enabled={!payload}
+                            editable={!payload}
+                            preventDefaultHeight
+                            multiline
                         />
+                        {payload && (
+                            <>
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    color: '#8E979D',
+                                    alignSelf: 'flex-start',
+                                    marginTop: 10,
+                                    marginLeft: 16
+                                }}>
+                                    {t('Fee')}
+                                </Text>
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    alignSelf: 'flex-start',
+                                    marginLeft: 16,
+                                    marginTop: 4,
+                                    marginBottom: 10
+                                }}>
+                                    {estimation ? fromNano(estimation) : '...'}
+                                </Text>
+                            </>
+
+                        )}
                     </View>
-                    <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>Blockchain fees: {estimation ? fromNano(estimation) : '...'}</Text>
+                    {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>Blockchain fees: {estimation ? fromNano(estimation) : '...'}</Text>)}
                 </ScrollView>
                 <View style={[
                     {
                         marginHorizontal: 16, marginTop: 16,
                         paddingBottom: safeArea.bottom + 16
-                        // position: 'absolute',
-                        // bottom: safeArea.bottom + 16, left: 16, right: 16,
                     },
                 ]}>
                     <RoundButton

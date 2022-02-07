@@ -320,7 +320,7 @@ function WalletWordsComponent(props: {
                     scrollEventThrottle={16}
                     onScroll={(event) => { setContentOffsetY(event.nativeEvent.contentOffset.y); }}
                 >
-                    <Text style={{ alignSelf: 'center', marginTop: 16, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
+                    <Text style={{ alignSelf: 'center', marginTop: 92, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
                         {t("24 Secret Words")}
                     </Text>
                     <Text style={{

@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text } from 'react-native';
+import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 
 export interface ATextInputProps {
     style?: StyleProp<ViewStyle>;
+    inputStyle?: StyleProp<TextStyle>;
     placeholder?: string;
     autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
     autoCorrect?: boolean;
@@ -28,6 +29,7 @@ export interface ATextInputProps {
     autoFocus?: boolean;
     multiline?: boolean;
     enabled?: boolean;
+    editable?: boolean;
     textContentType?:
     | 'none'
     | 'URL'
@@ -91,7 +93,7 @@ export const ATextInput = React.memo((props: ATextInputProps) => {
                 </Text>
             )}
             <TextInput
-                style={{
+                style={[{
                     height: props.preventDefaultHeight
                         ? undefined
                         : props.multiline ? 44 * 3 : 48,
@@ -104,7 +106,7 @@ export const ATextInput = React.memo((props: ATextInputProps) => {
                     lineHeight: props.lineHeight ? props.lineHeight : 22,
                     fontWeight: props.fontWeight ? props.fontWeight : '400',
                     textAlignVertical: props.multiline ? 'top' : 'center'
-                }}
+                }, props.inputStyle]}
                 textAlign={props.textAlign}
                 autoFocus={props.autoFocus}
                 placeholder={props.placeholder}
@@ -116,6 +118,7 @@ export const ATextInput = React.memo((props: ATextInputProps) => {
                 autoCompleteType={props.autoCompleteType}
                 multiline={props.multiline}
                 enabled={props.enabled}
+                editable={props.editable}
                 value={props.value}
                 textContentType={props.textContentType}
                 onChangeText={props.onValueChange}

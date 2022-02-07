@@ -28,7 +28,11 @@ export const WelcomeFragment = fragment(() => {
                     width: 256, height: 256,
                     justifyContent: 'center', alignItems: 'center',
                 }}>
-                    <Image source={require('../../../assets/ic_diamond.png')} />
+                    <Image source={
+                        AppConfig.isTestnet
+                            ? require('../../../assets/ic_diamond_test.png')
+                            : require('../../../assets/ic_diamond.png')}
+                    />
                 </View>
                 <Text style={{
                     fontSize: 30, fontWeight: '700',

@@ -42,6 +42,8 @@ export const ScannerFragment = fragment(() => {
                     navigation.goBack();
                     if (barcodes[0].content.type === BarcodeValueType.URL) {
                         (route as any).callback(barcodes[0].content.data.url);
+                    } else if (barcodes[0].content.type === BarcodeValueType.TEXT) {
+                        (route as any).callback(barcodes[0].content.data);
                     } else if (barcodes[0].content.type === BarcodeValueType.UNKNOWN) {
                         (route as any).callback(barcodes[0].content.data);
                     }

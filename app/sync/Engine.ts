@@ -79,7 +79,7 @@ export class Engine {
         if (!this._account) {
             return;
         }
-        if (!src.seqno) {
+        if (src.seqno === null) {
             return;
         }
         if (src.seqno < this._account!.seqno) {

@@ -294,7 +294,7 @@ export const TransferFragment = fragment(() => {
                                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../../assets/ic_all_coins.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Send all")}</Text>
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("Send all")}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
@@ -304,7 +304,7 @@ export const TransferFragment = fragment(() => {
                                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../../assets/ic_scan_qr.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("Scan QR code")}</Text>
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("Scan QR code")}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>

@@ -12,7 +12,7 @@ import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
-import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
+import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';

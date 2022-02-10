@@ -8,6 +8,9 @@ import { EventEmitter } from 'events';
 import BN from 'bn.js';
 import { Transaction } from './Transaction';
 import { parseWalletTransaction } from './parse/parseWalletTransaction';
+import { OldWalletsProduct } from './products/OldWalletsProduct';
+import { AddressProduct } from './products/AddressProduct';
+import { AppConfig } from '../AppConfig';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -31,8 +34,8 @@ export type AccountState = {
     state: 'active' | 'uninitialized' | 'frozen',
     seqno: number,
     lastTransaction: { lt: string, hash: string } | null,
-    syncTime: number,
-    storedAt: number,
+    syncTime: number, // Account sync time
+    storedAt: number, // When it was updated in the store
 
     // Transactions
     transactionCursor: { lt: string, hash: string } | null,
@@ -44,8 +47,10 @@ export type AccountState = {
 
 export class Engine {
     readonly address: Address;
+    readonly publicKey: Buffer;
     readonly cache;
     readonly connector: Connector;
+    readonly products;
     private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
@@ -53,19 +58,53 @@ export class Engine {
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _txs = new Map<string, Transaction>();
     private _pending: Transaction[] = [];
+    private _products = new Map<string, AddressProduct>();
 
-    constructor(address: Address, cache: MMKV, connector: Connector) {
+    constructor(
+        address: Address,
+        publicKey: Buffer,
+        cache: MMKV,
+        connector: Connector
+    ) {
         this.cache = createCache(cache);
         this.address = address;
+        this.publicKey = publicKey;
         this.connector = connector;
         this._account = this.cache.loadState(address);
         this._state = this._account ? { ...this._account, pending: [] } : null;
         this._destroyed = false;
         this.start();
+
+        this.products = {
+            oldWallets: new OldWalletsProduct(this)
+        };
     }
 
     get ready() {
-        return !!this._state;
+        console.log('ready');
+        if (!this._state) {
+            return false;
+        }
+        for (let p of this._products.values()) {
+            if (!p.ready) {
+                return false;
+            }
+        }
+        console.log('ok');
+        return true;
+    }
+
+    async awaitReady() {
+        await new Promise<void>((resolve) => {
+            if (this.ready) {
+                resolve();
+            } else {
+                this._eventEmitter.once('ready', resolve);
+            }
+        });
+        for (let p of this._products.values()) {
+            await p.awaitReady();
+        }
     }
 
     get state() {
@@ -73,6 +112,17 @@ export class Engine {
             throw Error('Not ready');
         }
         return this._state;
+    }
+
+    createAddressProduct(address: Address) {
+        const key = address.toFriendly({ testOnly: AppConfig.isTestnet });
+        let ex = this._products.get(key);
+        if (ex) {
+            return ex;
+        }
+        let n = new AddressProduct(address, this);
+        this._products.set(key, n);
+        return n;
     }
 
     registerPending(src: Transaction) {
@@ -102,16 +152,6 @@ export class Engine {
         let parsed2 = parseWalletTransaction(parsed);
         this._txs.set(lt, parsed2);
         return parsed2;
-    }
-
-    awaitReady() {
-        return new Promise<void>((resolve) => {
-            if (this.ready) {
-                resolve();
-            } else {
-                this._eventEmitter.once('ready', resolve);
-            }
-        });
     }
 
     useState() {

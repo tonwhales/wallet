@@ -8117,19 +8117,19 @@ ton-crypto-primitives@2.0.0:
   dependencies:
     jssha "3.2.0"
 
-ton-crypto@2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/ton-crypto/-/ton-crypto-2.0.2.tgz#dec9db4560a2905065d140f2bb3fac36df2a63aa"
-  integrity sha512-gG4iA7yKPQiiZWDbZoKJcWWuxrq/Ja4sK2T1D191G/n4/xWMhaiPBDmZKO8rChl6x/FMymqkBqPXPguMrVBmHg==
+ton-crypto@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/ton-crypto/-/ton-crypto-2.1.0.tgz#10b1de64a9cd92bde5a8a6678f952f49335c7e9a"
+  integrity sha512-PZnmCOShfgq9tCRM8E7hG8nCkpkOyZvDLPXmZN92ZEBrfTT0NKKf0imndkxG5DkgWMjc6IKfgpnEaJDH9qN6ZQ==
   dependencies:
     jssha "3.2.0"
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton@8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-8.1.0.tgz#be1c2288812d60cf4b6d11aaa2991e3e7baf3e19"
-  integrity sha512-VoW3IbJy7OaYzaHSXftS+KQ2KQ/5LPZe5JMZlUdkHQhTKT56ueT5LZ2qlzbaRgq/BCZgjwDCnagRTG357qRIZQ==
+ton@9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-9.0.1.tgz#78700c626448ba8608ee5f04aaacb346a896edef"
+  integrity sha512-677G+D5pGnmNmOfzO3OMFvV+khOlY8+/huamOkeRR2WoLCRQwW1zgIXxtLSkEt7PEA6M5CdV1ostAA3jixi7gw==
   dependencies:
     axios "^0.25.0"
     bn.js "5.2.0"
@@ -8140,7 +8140,7 @@ ton@8.1.0:
     io-ts-reporters "^2.0.0"
     symbol.inspect "1.0.1"
     teslabot "^1.3.0"
-    ton-crypto "2.0.2"
+    ton-crypto "2.1.0"
     tweetnacl "1.0.3"
 
 tough-cookie@^4.0.0:

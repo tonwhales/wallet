@@ -20,6 +20,7 @@ import { Transaction } from '../../sync/Transaction';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
+import { BN } from 'bn.js';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -67,6 +68,7 @@ export const WalletFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
+    const oldWalletsBalance = engine.products.oldWallets.useState();
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.getTransaction(v));
         return [...account.pending, ...txs];
@@ -270,6 +272,17 @@ export const WalletFragment = fragment(() => {
                         </TouchableHighlight>
                     </View>
                 </View>
+
+                {oldWalletsBalance.gt(new BN(0)) && (
+                    <View style={{ backgroundColor: 'white', borderRadius: 14, marginHorizontal: 16, marginVertical: 16 }}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Migration')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                <Text><ValueComponent value={oldWalletsBalance} /></Text>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("migrate old wallets")}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                )}
 
                 {
                     transactions.length === 0 && (

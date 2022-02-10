@@ -33,7 +33,11 @@ export interface Connector {
 // Mainnet Connector
 //
 
-export function createSimpleConnector(endpoints: { main: string, estimate?: string, sender?: string }): Connector {
+export function createSimpleConnector(endpoints: {
+    main: string,
+    estimate?: string,
+    sender?: string
+}): Connector {
 
     // Client
     const client = new TonClient({ endpoint: endpoints.main + '/jsonRPC' });

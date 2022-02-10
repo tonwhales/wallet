@@ -9,7 +9,7 @@ import { fragment } from "../../fragment";
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
+import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useAccount } from '../../sync/Engine';

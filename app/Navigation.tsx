@@ -119,7 +119,7 @@ const navigation = [
     modalScreen('Transfer', TransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
-    genericScreen('Migration', MigrationFragment),
+    modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
@@ -133,6 +133,7 @@ export const Navigation = React.memo(() => {
             const ex = state.addresses[state.selected];
             return new Engine(
                 ex.address,
+                ex.publicKey,
                 storageCache,
                 createSimpleConnector(!AppConfig.isTestnet ? {
                     main: 'https://mainnet.tonhubapi.com',

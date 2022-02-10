@@ -4,6 +4,7 @@ import BN from "bn.js";
 import { isLeft } from "fp-ts/lib/Either";
 import { MMKV } from "react-native-mmkv";
 import { AppConfig } from "../AppConfig";
+import { AccountState } from "../sync/Engine";
 
 function padLt(src: string) {
     let res = src;
@@ -12,6 +13,10 @@ function padLt(src: string) {
     }
     return res;
 }
+
+//
+// Account State (Address + Transactions)
+//
 
 const stateStorage = t.type({
     version: t.literal(2),
@@ -58,6 +63,51 @@ function parseStatus(src: any): AccountStatus | null {
     };
 }
 
+const addressStateStorage = t.type({
+    version: t.literal(1),
+    balance: t.string,
+    state: t.union([t.literal('active'), t.literal('uninitialized'), t.literal('frozen')]),
+    lastTransaction: t.union([t.null, t.type({ lt: t.string, hash: t.string })]),
+    code: t.union([t.string, t.null]),
+    data: t.union([t.string, t.null]),
+    syncTime: t.number,
+    storedAt: t.number
+});
+
+function serializeAddressState(state: AddressState): t.TypeOf<typeof addressStateStorage> {
+    return {
+        version: 1,
+        balance: state.balance.toString(10),
+        state: state.state,
+        lastTransaction: state.lastTransaction,
+        syncTime: state.syncTime,
+        storedAt: state.storedAt,
+        code: state.code ? state.code.toBoc({ idx: false }).toString('base64') : null,
+        data: state.data ? state.data.toBoc({ idx: false }).toString('base64') : null
+    }
+}
+
+function parseAddressState(src: any): AddressState | null {
+    const parsed = addressStateStorage.decode(src);
+    if (isLeft(parsed)) {
+        return null;
+    }
+    const stored = parsed.right;
+    return {
+        balance: new BN(stored.balance, 10),
+        state: stored.state,
+        lastTransaction: stored.lastTransaction,
+        syncTime: stored.syncTime,
+        storedAt: stored.storedAt,
+        code: stored.code ? Cell.fromBoc(Buffer.from(stored.code, 'base64'))[0] : null,
+        data: stored.data ? Cell.fromBoc(Buffer.from(stored.data, 'base64'))[0] : null
+    };
+}
+
+//
+// Public
+//
+
 export type AccountStatus = {
 
     // State
@@ -71,6 +121,16 @@ export type AccountStatus = {
     // Transactions
     transactionCursor: { lt: string, hash: string } | null,
     transactions: string[]
+};
+
+export type AddressState = {
+    balance: BN,
+    state: 'active' | 'uninitialized' | 'frozen',
+    lastTransaction: { lt: string, hash: string } | null,
+    code: Cell | null,
+    data: Cell | null,
+    syncTime: number,
+    storedAt: number,
 };
 
 export function createCache(store: MMKV) {
@@ -94,6 +154,33 @@ export function createCache(store: MMKV) {
             let s = store.getString('account_' + address.toFriendly({ testOnly: AppConfig.isTestnet }));
             if (s) {
                 return parseStatus(JSON.parse(s));
+            } else {
+                return null;
+            }
+        },
+        storeAddressState: (address: Address, state: AddressState) => {
+            const serialized = JSON.stringify(serializeAddressState(state));
+            store.set('address_' + address.toFriendly({ testOnly: AppConfig.isTestnet }), serialized);
+        },
+        loadAddressState: (address: Address) => {
+            let s = store.getString('address_' + address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            if (s) {
+                return parseAddressState(JSON.parse(s));
+            } else {
+                return null;
+            }
+        },
+        storeCoin: (name: string, value: BN | null) => {
+            if (value) {
+                store.set('coin_' + name, value.toString(10))
+            } else {
+                store.delete('coin_' + name);
+            }
+        },
+        loadCoin: (name: string) => {
+            let ex = store.getString('coin_' + name);
+            if (ex) {
+                return new BN(ex, 10);
             } else {
                 return null;
             }

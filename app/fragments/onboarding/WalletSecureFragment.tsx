@@ -9,7 +9,7 @@ import { getAppState, markAddressSecured, setAppState } from '../../storage/appS
 import { storage } from '../../storage/storage';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
-import { contractFromPublicKey } from '../../utils/contractFromPublicKey';
+import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { useTranslation } from 'react-i18next';
 import { RoundButton } from '../../components/RoundButton';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';

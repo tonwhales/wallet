@@ -9,7 +9,8 @@
     "pods": "cd ios && arch -x86_64 pod install --repo-update",
     "eject": "expo eject",
     "postinstall": "patch-package",
-    "version": "node configure.js"
+    "version": "node configure.js",
+    "adb": "adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.16.7",

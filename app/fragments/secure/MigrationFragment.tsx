@@ -15,6 +15,9 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useAccount } from '../../sync/Engine';
 import { AppConfig } from '../../AppConfig';
 import { getCurrentAddress } from '../../storage/appState';
+import { AddressComponent } from '../../components/AddressComponent';
+import { ValueComponent } from '../../components/ValueComponent';
+import { Theme } from '../../Theme';
 
 const MigrationProcessFragment = fragment(() => {
     const { t } = useTranslation();
@@ -104,14 +107,35 @@ export const MigrationFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
     const { t } = useTranslation();
+    const [account, engine] = useAccount();
+    const state = engine.products.oldWallets.useStateFull();
+    let s = new BN(0);
+    for (let w of state) {
+        s = s.add(w.balance);
+    }
 
     if (!confirm) {
         return (
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom, paddingTop: safeArea.top }}>
                 <AndroidToolbar />
+                <View style={{ marginHorizontal: 16 }}>
+                    {state.map((v) => (
+                        <View key={v.address.toFriendly()}>
+                            <Text
+                                style={{
+                                    fontSize: 21,
+                                    color: Theme.textColor,
+                                    opacity: v.balance.gt(new BN(0)) ? 1 : 0.3
+                                }}
+                            >
+                                <AddressComponent address={v.address} />: <ValueComponent value={v.balance} />
+                            </Text>
+                        </View>
+                    ))}
+                </View>
                 <View style={{ flexGrow: 1 }} />
                 <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
-                    <RoundButton title={t("Proceed")} onPress={() => setConfirm(true)} />
+                    <RoundButton title={t("Proceed")} onPress={() => setConfirm(true)} disabled={s.lte(new BN(0))} />
                 </View>
             </View>
         );

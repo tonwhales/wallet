@@ -34,4 +34,12 @@ export class OldWalletsProduct {
         }
         return b;
     }
+
+    useStateFull() {
+        let wallets: { address: Address, balance: BN }[] = [];
+        for (let w of this.wallets) {
+            wallets.push({ address: w.address, balance: w.useState().balance });
+        }
+        return wallets;
+    }
 }

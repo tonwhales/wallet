@@ -73,12 +73,12 @@ export const ReceiveFragment = fragment(() => {
                 // position: 'absolute', bottom: 0,
                 alignContent: 'stretch'
             }}>
-                <RoundButton
+                {/* <RoundButton
                     title={t("Copy")}
                     onPress={onCopy}
                     style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
                     display={'secondary'}
-                />
+                /> */}
                 <RoundButton
                     title={t("Share")}
                     onPress={() => Share.share({ url: link })}

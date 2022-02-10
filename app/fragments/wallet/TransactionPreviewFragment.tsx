@@ -95,7 +95,9 @@ export const TransactionPreviewFragment = fragment(() => {
                             amount: transaction.amount.neg()
                         })}
                     >
-                        <Image source={require('../../../assets/ic_repeat.png')} />
+                        <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                            <Image source={require('../../../assets/ic_change.png')} />
+                        </View>
                         <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("send again")}</Text>
                     </Pressable>
                     // TODO: add transaction to favorites

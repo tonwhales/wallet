@@ -44,6 +44,10 @@ export class TypedNavigation {
     dismiss = () => {
         this.base.dangerouslyGetParent()?.goBack();
     }
+
+    popToTop = () => {
+        this.base.popToTop();
+    }
 }
 
 export function useTypedNavigation() {

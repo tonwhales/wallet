@@ -2,7 +2,7 @@ import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, StyleProp, Text, TextStyle, View, Image, Pressable, KeyboardAvoidingView } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard } from "react-native";
 import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
@@ -20,7 +20,7 @@ import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
 import { useAccount } from '../../sync/Engine';
 import { AsyncLock } from 'teslabot';
-import { getAppState, getCurrentAddress } from '../../storage/appState';
+import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
 
 const labelStyle: StyleProp<TextStyle> = {
@@ -98,7 +98,7 @@ export const TransferFragment = fragment(() => {
         // Sending transfer
         await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
 
-        // // Notify
+        // Notify
         engine.registerPending({
             id: 'pending-' + account.seqno,
             lt: null,
@@ -112,7 +112,13 @@ export const TransferFragment = fragment(() => {
             time: Math.floor(Date.now() / 1000)
         });
 
-        navigation.goBack();
+        // Dismiss keyboard for iOS
+        if (Platform.OS === 'ios') {
+            Keyboard.dismiss();
+        }
+
+        // Reset stack to root
+        navigation.popToTop();
     }, [amount, target, comment, account.seqno, payload, stateInit]);
 
     // Estimate fee

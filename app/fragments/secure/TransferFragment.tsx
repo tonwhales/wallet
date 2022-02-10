@@ -2,7 +2,7 @@ import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert } from "react-native";
 import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
@@ -60,6 +60,25 @@ export const TransferFragment = fragment(() => {
             return;
         }
 
+        // Load contract
+        const contract = await contractFromPublicKey(acc.publicKey);
+
+        // Check if same address
+        if (address.equals(contract.address)) {
+            Alert.alert(t('You can\'t send coins to yourself'));
+            return;
+        }
+
+        // Check amount
+        if (!value.eq(account.balance) && account.balance.lt(value)) {
+            Alert.alert(t('Unfortunatelly you don\'t have enougth coins for this transaction'));
+            return;
+        }
+        if (value.eq(new BN(0))) {
+            Alert.alert(t('Unfortunatelly you can\'t send zero coins'));
+            return;
+        }
+
         // Read key
         let walletKeys: WalletKeys;
         try {
@@ -68,9 +87,6 @@ export const TransferFragment = fragment(() => {
             navigation.goBack();
             return;
         }
-
-        // Load contract
-        const contract = await contractFromPublicKey(walletKeys.keyPair.publicKey);
 
         // Create transfer
         let transfer = await contract.createTransfer({
@@ -90,7 +106,6 @@ export const TransferFragment = fragment(() => {
                 })
             })
         });
-
 
         // Resolve fees
         const fee = await backoff(() => engine.connector.estimateExternalMessageFee(contract, transfer));

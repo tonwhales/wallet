@@ -11,7 +11,7 @@ import { HomeFragment } from './fragments/HomeFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
-import { MigrationFragment } from './fragments/wallet/MigrationFragment';
+import { MigrationFragment } from './fragments/secure/MigrationFragment';
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 import { TransactionPreviewFragment } from './fragments/wallet/TransactionPreviewFragment';
 import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';

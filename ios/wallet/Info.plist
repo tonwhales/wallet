@@ -61,7 +61,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to the camera to be able to scan QR Code</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Enable Face ID for secure wallet key storage</string>
+	<string>We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

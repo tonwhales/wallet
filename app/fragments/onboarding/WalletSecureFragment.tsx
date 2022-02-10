@@ -80,7 +80,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
     let icon: any | undefined;
     let buttonText = '';
     let title = t('Protect your wallet');
-    let text = t('Add an extra layer of security to keep your crypto safe.');
+    let text = t('We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.');
 
     switch (props.deviceEncryption) {
         case 'face':

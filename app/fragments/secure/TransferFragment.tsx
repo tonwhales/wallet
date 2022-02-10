@@ -51,10 +51,32 @@ export const TransferFragment = fragment(() => {
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const doSend = React.useCallback(async () => {
+
+        async function confirm(title: string) {
+            return await new Promise<boolean>(resolve => {
+                Alert.alert(title, t('Are you sure want to proceed?'), [{
+                    text: t('Yes'),
+                    style: 'destructive',
+                    onPress: () => {
+                        resolve(true)
+                    }
+                }, {
+                    text: t('No'),
+                    onPress: () => {
+                        resolve(false);
+                    }
+                }])
+            });
+        }
+
+
         let address: Address;
+        let isTestnet: boolean;
         let value: BN;
         try {
-            address = Address.parseFriendly(target).address;
+            let parsed = Address.parseFriendly(target);
+            address = parsed.address;
+            isTestnet = parsed.isTestOnly;
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
         } catch (e) {
@@ -80,12 +102,35 @@ export const TransferFragment = fragment(() => {
             return;
         }
 
+        // Check if trying to send to testnet
+        if (!AppConfig.isTestnet && isTestnet) {
+            let cont = await confirm('This address is for testnet');
+            if (!cont) {
+                return;
+            }
+        }
+
         // Check against config
         const config = await backoff(() => fetchConfig());
         for (let restricted of config.wallets.restrict_send) {
             if (Address.parse(restricted).equals(address)) {
-                Alert.alert(t('This address can\'t receive payments. Please, check your input and try again'));
-                return;
+                let cont = await confirm('This address can\'t receive payments');
+                if (!cont) {
+                    return;
+                }
+                break;
+            }
+        }
+
+        // Check bounce flag
+        let bounce = true;
+        if (!(await engine.connector.client.isContractDeployed(address))) {
+            bounce = false;
+            if ((await engine.connector.client.getBalance(address)).eq(new BN(0))) {
+                let cont = await confirm('This address does not active');
+                if (!cont) {
+                    return;
+                }
             }
         }
 
@@ -109,7 +154,7 @@ export const TransferFragment = fragment(() => {
             order: new InternalMessage({
                 to: address,
                 value: value.eq(account.balance) ? toNano('0') : value,
-                bounce: false,
+                bounce,
                 body: new CommonMessageInfo({
                     stateInit: stateInit ? new CellMessage(stateInit) : null,
                     body: payload ? new CellMessage(payload) : new CommentMessage(comment)

@@ -19,12 +19,15 @@ export const SettingsFragment = fragment(() => {
     const reboot = useReboot();
 
     const doSignout = React.useCallback(() => {
-        Alert.alert(t('Are you sure want to log out?'), '', [{
-            text: t('Log out'), style: 'destructive', onPress: () => {
-                storage.clearAll();
-                reboot();
-            }
-        }, { text: t('Cancel') }])
+        Alert.alert(
+            t('Are you sure want to log out?'),
+            t('This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.'),
+            [{
+                text: t('Log out'), style: 'destructive', onPress: () => {
+                    storage.clearAll();
+                    reboot();
+                }
+            }, { text: t('Cancel') }])
     }, []);
 
     return (
@@ -145,7 +148,7 @@ export const SettingsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t("Sign out")} onPress={doSignout} />
+                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t("Log out")} onPress={doSignout} />
                     </View>
                 </View>
             </ScrollView>

@@ -70,8 +70,8 @@ export class AddressProduct {
         }
     }
 
-    awaitReady() {
-        return new Promise<void>((resolve) => {
+    async awaitReady() {
+        await new Promise<void>((resolve) => {
             if (this.ready) {
                 resolve();
             } else {
@@ -109,6 +109,7 @@ export class AddressProduct {
                     data: initialState.data ? Cell.fromBoc(initialState.data)[0] : null,
                 };
                 this.engine.cache.storeAddressState(this.address, this._state);
+                console.log('emit ready: ' + this.address.toFriendly())
                 this._eventEmitter.emit('ready');
 
                 // Start sync

@@ -81,7 +81,6 @@ export class Engine {
     }
 
     get ready() {
-        console.log('ready');
         if (!this._state) {
             return false;
         }
@@ -90,13 +89,12 @@ export class Engine {
                 return false;
             }
         }
-        console.log('ok');
         return true;
     }
 
     async awaitReady() {
         await new Promise<void>((resolve) => {
-            if (this.ready) {
+            if (this._state) {
                 resolve();
             } else {
                 this._eventEmitter.once('ready', resolve);

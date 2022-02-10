@@ -22,6 +22,7 @@ import { useAccount } from '../../sync/Engine';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
+import { fetchConfig } from '../../sync/fetchConfig';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -77,6 +78,15 @@ export const TransferFragment = fragment(() => {
         if (value.eq(new BN(0))) {
             Alert.alert(t('Unfortunatelly you can\'t send zero coins'));
             return;
+        }
+
+        // Check against config
+        const config = await backoff(() => fetchConfig());
+        for (let restricted of config.wallets.restrict_send) {
+            if (Address.parse(restricted).equals(address)) {
+                Alert.alert(t('This address can\'t receive payments. Please, check your input and try again'));
+                return;
+            }
         }
 
         // Read key

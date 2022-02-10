@@ -288,7 +288,7 @@ export const TransferFragment = fragment(() => {
 
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Send Toncoin")} />
+            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Send Ton")} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flexGrow: 1 }}
@@ -300,7 +300,7 @@ export const TransferFragment = fragment(() => {
                         paddingTop: 12,
                         paddingBottom: 17
                     }}>
-                        <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? "Action" : "Send Toncoin")}</Text>
+                        <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? "Action" : "Send Ton")}</Text>
                     </View>
                 )}
                 <ScrollView

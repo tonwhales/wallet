@@ -220,7 +220,7 @@ export const WalletFragment = fragment(() => {
                         resizeMethod="resize"
                     />
 
-                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Toncoin balance')}</Text>
+                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Ton balance')}</Text>
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>
@@ -298,7 +298,7 @@ export const WalletFragment = fragment(() => {
                                 {t('You have no transactions')}
                             </Text>
                             <RoundButton
-                                title={t("Receive TONCOIN")}
+                                title={t("Receive TON")}
                                 size="normal"
                                 display="text"
                                 onPress={() => navigation.navigate('Receive')}
@@ -375,7 +375,7 @@ export const WalletFragment = fragment(() => {
                                             resizeMethod="resize"
                                         />
 
-                                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Toncoin balance')}</Text>
+                                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Ton balance')}</Text>
                                         <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
                                         <View style={{ flexGrow: 1 }}>
 
@@ -460,7 +460,7 @@ export const WalletFragment = fragment(() => {
                                         resizeMethod="resize"
                                     />
 
-                                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Toncoin balance')}</Text>
+                                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Ton balance')}</Text>
                                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
                                     <View style={{ flexGrow: 1 }}>
 

@@ -31,15 +31,15 @@ export const ReceiveFragment = fragment(() => {
             backgroundColor: Theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined
         }}>
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t("Receive Toncoin")} />
+            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t("Receive Ton")} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
                     <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
-                        {t("Receive Toncoin")}
+                        {t("Receive Ton")}
                     </Text>
                 )}
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, marginTop: Platform.OS === 'android' ? 7 + 56 : 7, paddingHorizontal: 32, textAlign: 'center' }}>
-                    {t("Share this link to receive Toncoin")}
+                    {t("Share this link to receive Ton")}
                 </Text>
             </View>
             <View style={{

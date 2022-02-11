@@ -22,7 +22,15 @@ export const ReceiveFragment = fragment(() => {
 
     const onCopy = React.useCallback(() => {
         Clipboard.setString(link);
-    }, [link]);
+    }, []);
+
+    const onShare = React.useCallback(() => {
+        if (Platform.OS === 'ios') {
+            Share.share({ title: t('My Tonhub Address'), url: link });
+        } else {
+            Share.share({ title: t('My Tonhub Address'), message: link });
+        }
+    }, []);
 
     return (
         <View style={{
@@ -73,15 +81,15 @@ export const ReceiveFragment = fragment(() => {
                 // position: 'absolute', bottom: 0,
                 alignContent: 'stretch'
             }}>
-                {/* <RoundButton
+                <RoundButton
                     title={t("Copy")}
                     onPress={onCopy}
                     style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
                     display={'secondary'}
-                /> */}
+                />
                 <RoundButton
                     title={t("Share")}
-                    onPress={() => Share.share({ url: link })}
+                    onPress={onShare}
                     style={{ flex: 2, alignSelf: 'stretch' }}
                 />
             </View>

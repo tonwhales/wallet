@@ -66,7 +66,7 @@ export const WalletBackupFragment = fragment(() => {
     for (let i = 0; i < 24; i++) {
         const component = (
             <View key={'mn-' + i} style={{ flexDirection: 'row', marginBottom: i === 11 || i === 23 ? undefined : height > 800 ? 19 : 12 }}>
-                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 16, minWidth: 24, marginRight: 20, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
+                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 16, minWidth: 24, marginRight: 20, fontWeight: '400' }}>{(i + 1) + '.'}</Text>
                 <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '400' }}>{mnemonics[i]}</Text>
             </View>
         );

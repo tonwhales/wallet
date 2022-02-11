@@ -4,7 +4,9 @@ import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@rea
 type Base = NavigationProp<ParamListBase>;
 
 export function typedNavigate(src: Base, name: string, params?: any) {
-    src.navigate({ name, params: { ...params } });
+    setTimeout(() => {
+        src.navigate({ name, params: { ...params } });
+    }, src.isFocused() ? 0 : 300);
 }
 
 export function typedReplace(src: Base, name: string, params?: any) {

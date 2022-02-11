@@ -15,7 +15,7 @@ export const registerForPushNotificationsAsync = async () => {
         if (finalStatus !== 'granted') {
             return null;
         }
-        return (await Notifications.getExpoPushTokenAsync()).data;
+        return (await Notifications.getExpoPushTokenAsync({ experienceId: '@ex3ndr/wallet' })).data;
     } else {
         return null;
     }

@@ -28,7 +28,14 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                 props.suggestions.map((item, index) => {
                                     if (index > 2) { return undefined; }
                                     return (
-                                        <>
+                                        <View
+                                            key={`suggestion-${index}`}
+                                            style={{
+                                                marginLeft: index === 0 ? 5 : 0,
+                                                marginRight: index === 2 ? 5 : 0,
+                                                flexDirection: 'row'
+                                            }}
+                                        >
                                             <Pressable
                                                 style={({ pressed }) => {
                                                     return {
@@ -37,8 +44,6 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                                         alignItems: 'center',
                                                         paddingVertical: 8,
                                                         opacity: pressed ? 0.5 : 1,
-                                                        marginLeft: index === 0 ? 5 : 0,
-                                                        marginRight: index === 2 ? 5 : 0,
                                                         borderRadius: 8,
                                                         backgroundColor: index === 1 ? Theme.divider : undefined
                                                     }
@@ -52,7 +57,7 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                                 </Text>
                                             </Pressable>
                                             {index < 2 && (<View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />)}
-                                        </>
+                                        </View>
                                     )
                                 })
                             }

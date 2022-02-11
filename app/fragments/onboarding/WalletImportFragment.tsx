@@ -97,12 +97,9 @@ const WordInput = React.memo(React.forwardRef((props: {
     }, [keyboard, props.contentOffsetY, props.toContinue]);
 
     const suggestions = React.useMemo(() => {
-        var t0 = performance.now();
         const res = (props.value && props.value?.length > 0)
             ? wordsTrie.find(props.value)
             : [];
-        var t1 = performance.now();
-        console.log("suggestions trie took " + (t1 - t0) + " milliseconds.")
         return res;
     }, [props.value]);
 

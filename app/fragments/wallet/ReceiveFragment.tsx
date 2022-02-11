@@ -68,7 +68,9 @@ export const ReceiveFragment = fragment(() => {
                     logoSize={40}
                     logoBackgroundColor='transparent'
                 />
-                <WalletAddress address={address.toFriendly({ testOnly: AppConfig.isTestnet })} />
+                <WalletAddress address={address.toFriendly({ testOnly: AppConfig.isTestnet })} textStyle={{
+                    fontFamily: 'Courier'
+                }} />
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>
                     {t("Wallet address")}
                 </Text>

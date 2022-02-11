@@ -21,6 +21,7 @@ import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
 import { BN } from 'bn.js';
+import { WalletAddress } from '../../components/WalletAddress';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -245,9 +246,24 @@ export const WalletFragment = fragment(() => {
                         </Text>
                     </View> */}
                     <View style={{ flexGrow: 1 }} />
-                    <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
-                        <AddressComponent address={address} />
-                    </Text>
+                    <WalletAddress
+                        address={
+                            address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 10)
+                            + '...'
+                            + address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
+                        }
+                        style={{
+                            marginLeft: 22,
+                            marginBottom: 24,
+                            alignSelf: 'flex-start',
+                        }}
+                        textStyle={{
+                            textAlign: 'left',
+                            color: 'white',
+                            fontWeight: '500',
+                            fontFamily: undefined
+                        }}
+                    />
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>

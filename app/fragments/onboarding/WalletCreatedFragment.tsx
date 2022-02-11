@@ -117,7 +117,7 @@ export const WalletCreatedFragment = fragment(() => {
                     display={(loose && share && responsibility) ? 'default' : 'secondary'}
                     disabled={!(loose && share && responsibility)}
                     title={t("Back up now")}
-                    onPress={() => navigation.navigate('WalletBackupInit')}
+                    onPress={() => navigation.navigate('WalletBackupInit', { dark: true })}
                 />
             </View>
         </View>

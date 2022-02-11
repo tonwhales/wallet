@@ -19,6 +19,9 @@ import { AutocompliteAccessoryView } from '../../components/AutocompliteAccessor
 import { FocusedInputLoader, useFocusedInput } from '../../components/AndroidInputAccessoryView/hooks/useFocusedInput';
 import { AndroidInputAccessoryView } from '../../components/AndroidInputAccessoryView/AndroidInputAccessoryView';
 import { StatusBar } from 'expo-status-bar';
+import { WordsListTrie } from '../../utils/wordsListTrie';
+
+const wordsTrie = WordsListTrie();
 
 type WordInputRef = {
     focus: () => void;
@@ -32,7 +35,8 @@ const WordInput = React.memo(React.forwardRef((props: {
     next?: React.RefObject<WordInputRef>,
     scroll: React.RefObject<ScrollView>,
     inputAccessoryViewID?: string,
-    contentOffsetY: number
+    contentOffsetY: number,
+    toContinue?: number
 }, ref: React.ForwardedRef<WordInputRef>) => {
     const keyboard = useKeyboard();
     const inputAccessoryViewID = `id-${props.hint}-${props.inputAccessoryViewID}`;
@@ -82,7 +86,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                     // Input is out of 'viewbox' bound from bottom
                     props.scroll.current!.scrollResponderScrollNativeHandleToKeyboard(
                         findNodeHandle(vref.current),
-                        viewHeight * 2 + 50
+                        viewHeight * (props.toContinue ? props.toContinue + 3 : 2) + 50
                     );
                 }
             }, () => {
@@ -90,11 +94,17 @@ const WordInput = React.memo(React.forwardRef((props: {
             });
             if (Platform.OS === 'android') setCurrent({ value: props.value, onSetValue: props.setValue });
         });
-    }, [keyboard, props.contentOffsetY]);
+    }, [keyboard, props.contentOffsetY, props.toContinue]);
 
-    const suggestions = (props.value && props.value?.length > 0)
-        ? wordlist.filter((w) => w.startsWith(props.value!))
-        : [];
+    const suggestions = React.useMemo(() => {
+        var t0 = performance.now();
+        const res = (props.value && props.value?.length > 0)
+            ? wordsTrie.find(props.value)
+            : [];
+        var t1 = performance.now();
+        console.log("suggestions trie took " + (t1 - t0) + " milliseconds.")
+        return res;
+    }, [props.value]);
 
     const onBlur = React.useCallback(() => {
         const normalized = props.value.trim().toLowerCase();
@@ -106,7 +116,7 @@ const WordInput = React.memo(React.forwardRef((props: {
 
     const onSubmit = React.useCallback((value?: string) => {
         if (suggestions.length >= 1 && !value) {
-            props.setValue(suggestions[0]);
+            props.setValue(suggestions.length === 1 ? suggestions[0] : suggestions[1]);
             if (Platform.OS === 'android') setCurrent(undefined);
             props.next?.current?.focus();
             return;
@@ -380,11 +390,11 @@ function WalletWordsComponent(props: {
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
                         <WordInput contentOffsetY={contentOffsetY} ref={w21Ref} next={w22Ref} scroll={scrollRef} hint="21" value={w21} setValue={setW21} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput contentOffsetY={contentOffsetY} ref={w22Ref} next={w23Ref} scroll={scrollRef} hint="22" value={w22} setValue={setW22} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w22Ref} next={w23Ref} scroll={scrollRef} hint="22" value={w22} setValue={setW22} toContinue={3} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput contentOffsetY={contentOffsetY} ref={w23Ref} next={w24Ref} scroll={scrollRef} hint="23" value={w23} setValue={setW23} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w23Ref} next={w24Ref} scroll={scrollRef} hint="23" value={w23} setValue={setW23} toContinue={2} />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />
-                        <WordInput contentOffsetY={contentOffsetY} ref={w24Ref} hint="24" scroll={scrollRef} value={w24} setValue={setW24} onSubmit={onSubmit} />
+                        <WordInput contentOffsetY={contentOffsetY} ref={w24Ref} hint="24" scroll={scrollRef} value={w24} setValue={setW24} onSubmit={onSubmit} toContinue={1} />
                     </View>
                     <RoundButton
                         title={t("Continue")}

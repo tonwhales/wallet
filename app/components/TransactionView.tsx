@@ -10,10 +10,12 @@ import { AddressComponent } from './AddressComponent';
 import { Transaction } from '../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../AppConfig';
+import { useTranslation } from 'react-i18next';
 import { Avatar } from './Avatar';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
+    const { t } = useTranslation();
 
     // Avatar
     let avatarId = props.own.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -25,13 +27,13 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     let transactionType = 'Transfer';
     if (parsed.kind === 'out') {
         if (parsed.status === 'pending') {
-            transactionType = 'Sending #' + parsed.seqno!;
+            transactionType = t('Sending #') + parsed.seqno!;
         } else {
-            transactionType = 'Sent #' + parsed.seqno!;
+            transactionType = t('Sent #') + parsed.seqno!;
         }
     }
     if (parsed.kind === 'in') {
-        transactionType = 'Received';
+        transactionType = t('Received');
     }
 
     return (

@@ -10,24 +10,15 @@ import { AddressComponent } from './AddressComponent';
 import { Transaction } from '../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../AppConfig';
+import { Avatar } from './Avatar';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
 
     // Avatar
-    let avatarImage = require('../../assets/avatar_own.png');
+    let avatarId = props.own.toFriendly({ testOnly: AppConfig.isTestnet });
     if (parsed.address && !parsed.address.equals(props.own)) {
-        const avatars = [
-            require('../../assets/avatar_1.png'),
-            require('../../assets/avatar_2.png'),
-            require('../../assets/avatar_3.png'),
-            require('../../assets/avatar_4.png'),
-            require('../../assets/avatar_5.png'),
-            require('../../assets/avatar_6.png'),
-            require('../../assets/avatar_7.png'),
-            require('../../assets/avatar_8.png')
-        ];
-        avatarImage = avatars[avatarHash(parsed.address.toFriendly({ testOnly: AppConfig.isTestnet }), avatars.length)];
+        avatarId = parsed.address.toFriendly({ testOnly: AppConfig.isTestnet });
     }
 
     // Transaction type
@@ -47,7 +38,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    <Image source={avatarImage} style={{ width: 42, height: 42, borderRadius: 21 }} />
+                    <Avatar id={avatarId} size={42} />
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>

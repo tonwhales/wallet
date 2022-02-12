@@ -75,7 +75,7 @@
     "react-native-reanimated": "~2.3.1",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.1",
-    "react-native-svg": "^12.1.1",
+    "react-native-svg": "12.1.1",
     "react-native-typography": "^1.4.1",
     "react-native-vision-camera": "^2.12.0",
     "react-native-web": "0.17.1",
@@ -96,6 +96,7 @@
     "@types/react": "~17.0.21",
     "@types/react-native": "~0.64.12",
     "metro-react-native-babel-preset": "^0.66.2",
+    "react-native-svg-transformer": "^1.0.0",
     "typescript": "~4.3.5"
   },
   "private": true

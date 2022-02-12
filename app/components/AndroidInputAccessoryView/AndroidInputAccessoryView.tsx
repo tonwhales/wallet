@@ -4,25 +4,32 @@ import {
     Platform,
     Pressable,
     Text,
+    useWindowDimensions,
     View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { wordlist } from 'ton-crypto/dist/mnemonic/wordlist';
 import { Theme } from '../../Theme';
+import { WordsListTrie } from '../../utils/wordsListTrie';
 import { useFocusedInput } from './hooks/useFocusedInput';
 
+const wordsTrie = WordsListTrie();
 
 export const AndroidInputAccessoryView = React.memo(() => {
     if (Platform.OS !== 'android') return null;
     const { keyboardShown, keyboardHeight } = useKeyboard();
     const safeArea = useSafeAreaInsets();
     const { current } = useFocusedInput();
+    const { width } = useWindowDimensions();
+
+    const suggestions = React.useMemo(() => {
+        const res = (current?.value && current.value.length > 0)
+            ? wordsTrie.find(current.value)
+            : [];
+        return res;
+    }, [current?.value]);
 
     if (!current || !keyboardShown || !current.value) return null;
-
-    const suggestions = (current?.value && current.value.length > 0)
-        ? wordlist.filter((w) => w.startsWith(current.value!))
-        : [];
 
     return (
         <View
@@ -37,79 +44,93 @@ export const AndroidInputAccessoryView = React.memo(() => {
                 left: 0, right: 0
             }}
         >
-            {suggestions.length >= 2 && (
-                <Pressable
-                    key={suggestions[1]}
-                    style={({ pressed }) => {
-                        return {
-                            marginRight: 2,
-                            borderRadius: 16,
-                            paddingHorizontal: 16,
-                            paddingVertical: 8,
-                            opacity: pressed ? 0.5 : 1
-                        }
-                    }}
-                    onPress={() => {
-                        current?.onSetValue(suggestions[1]);
-                    }}
-                >
-                    <Text style={{
-                        fontSize: 22
-                    }}>
-                        {suggestions[1]}
-                    </Text>
-                </Pressable>
-            )}
-            {suggestions.length >= 1 && (
-                <View style={{ flexDirection: 'row' }}>
-                    {suggestions.length >= 2 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
-                    <Pressable
-                        key={suggestions[0]}
-                        style={({ pressed }) => {
-                            return {
-                                marginRight: 2,
-                                borderRadius: 16,
-                                paddingHorizontal: 24,
-                                paddingVertical: 8,
-                                opacity: pressed ? 0.5 : 1
-                            }
-                        }}
-                        onPress={() => {
-                            current?.onSetValue(suggestions[0]);
+            {suggestions && suggestions.length > 0 &&
+                (
+                    <View
+                        style={{
+                            height: 50,
+                            backgroundColor: 'white',
+                            flexDirection: 'row',
+                            flexGrow: 1,
+                            paddingVertical: 4
                         }}
                     >
-                        <Text style={{
-                            fontSize: 22
-                        }}>
-                            {suggestions[0]}
-                        </Text>
-                    </Pressable>
-                    {suggestions.length >= 3 && (<View style={{ width: 1, backgroundColor: Theme.divider }} />)}
-                </View>
-            )}
-            {suggestions.length >= 3 && (
-                <Pressable
-                    key={suggestions[2]}
-                    style={({ pressed }) => {
-                        return {
-                            marginRight: 2,
-                            borderRadius: 16,
-                            paddingHorizontal: 16,
-                            paddingVertical: 8,
-                            opacity: pressed ? 0.5 : 1
+                        {suggestions.length > 1 &&
+                            suggestions.map((item, index) => {
+                                if (index > 2) { return undefined; }
+                                return (
+                                    <View
+                                        key={`suggestion-${index}`}
+                                        style={{
+                                            marginLeft: index === 0 ? 5 : 0,
+                                            marginRight: index === 2 ? 5 : 0,
+                                            flexDirection: 'row'
+                                        }}
+                                    >
+                                        <Pressable
+                                            style={({ pressed }) => {
+                                                return {
+                                                    width: (width - 20) / 3,
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    paddingVertical: 8,
+                                                    opacity: pressed ? 0.5 : 1,
+                                                    borderRadius: 8,
+                                                    backgroundColor: index === 1 ? Theme.divider : undefined
+                                                }
+                                            }}
+                                            onPress={() => { current.onSetValue(item); }}
+                                        >
+                                            <Text style={{
+                                                fontSize: 16
+                                            }}>
+                                                {item}
+                                            </Text>
+                                        </Pressable>
+                                        {index < 2 && (<View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />)}
+                                    </View>
+                                )
+                            })
                         }
-                    }}
-                    onPress={() => {
-                        current?.onSetValue(suggestions[2]);
-                    }}
-                >
-                    <Text style={{
-                        fontSize: 22
-                    }}>
-                        {suggestions[2]}
-                    </Text>
-                </Pressable>
-            )}
+                        {suggestions.length === 1 && (
+                            <>
+                                <View
+                                    key={'filler-0'}
+                                    style={{ width: (width - 20) / 3 }}
+                                />
+                                <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                                <Pressable
+                                    key={suggestions[0]}
+                                    style={({ pressed }) => {
+                                        return {
+                                            width: (width - 20) / 3,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            backgroundColor: Theme.divider,
+                                            paddingVertical: 8,
+                                            opacity: pressed ? 0.5 : 1,
+                                            marginHorizontal: 5,
+                                            borderRadius: 8
+                                        }
+                                    }}
+                                    onPress={() => { current.onSetValue(suggestions![0]); }}
+                                >
+                                    <Text style={{
+                                        fontSize: 16
+                                    }}>
+                                        {suggestions[0]}
+                                    </Text>
+                                </Pressable>
+                                <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                                <View
+                                    key={'filler-1'}
+                                    style={{ width: (width - 20) / 3 }}
+                                />
+                            </>
+                        )}
+                    </View>
+                )
+            }
         </View>
     )
 }

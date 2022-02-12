@@ -12,6 +12,7 @@ import { Theme } from "../../Theme";
 import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { AppConfig } from "../../AppConfig";
+import { WalletAddress } from "../../components/WalletAddress";
 
 export const ReceiveFragment = fragment(() => {
     const { t } = useTranslation();
@@ -67,9 +68,9 @@ export const ReceiveFragment = fragment(() => {
                     logoSize={40}
                     logoBackgroundColor='transparent'
                 />
-                <Text selectable={true} style={{ marginTop: 25, width: 265, textAlign: 'center' }} numberOfLines={1} ellipsizeMode="middle">
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: Theme.textColor, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>{address.toFriendly({ testOnly: AppConfig.isTestnet })}</Text>
-                </Text>
+                <WalletAddress address={address.toFriendly({ testOnly: AppConfig.isTestnet })} textStyle={{
+                    fontFamily: 'Courier'
+                }} />
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>
                     {t("Wallet address")}
                 </Text>

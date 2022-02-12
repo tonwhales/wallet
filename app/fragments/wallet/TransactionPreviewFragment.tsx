@@ -16,6 +16,7 @@ import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Transaction } from "../../sync/Transaction";
 import { AppConfig } from "../../AppConfig";
+import { WalletAddress } from "../../components/WalletAddress";
 import AntImage from '../../../assets/images/img_ant.svg';
 import { Avatar } from "../../components/Avatar";
 import { useAccount } from "../../sync/Engine";
@@ -112,16 +113,20 @@ export const TransactionPreviewFragment = fragment(() => {
                 width: '100%'
             }}>
                 <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                    <Text
-                        style={{
+                    <WalletAddress
+                        address={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        textProps={{ numberOfLines: undefined }}
+                        textStyle={{
+                            textAlign: 'left',
                             fontWeight: '600',
                             fontSize: 16,
                             lineHeight: 20
                         }}
-                        selectable={true}
-                    >
-                        {transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet })}
-                    </Text>
+                        style={{
+                            width: undefined,
+                            marginTop: undefined
+                        }}
+                    />
                     <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
                         {t('Wallet address')}
                     </Text>

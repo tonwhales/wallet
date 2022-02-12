@@ -169,9 +169,10 @@ export const ScannerFragment = fragment(() => {
                 <Text style={{
                     fontWeight: '500',
                     fontSize: 17,
-                    color: 'white'
+                    color: 'white',
+                    textAlign: 'center'
                 }}>
-                    {'Scan QR code'}
+                    {t('Scan QR code')}
                 </Text>
             </View>
             <CloseButton

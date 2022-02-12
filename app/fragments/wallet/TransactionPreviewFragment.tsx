@@ -17,6 +17,9 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Transaction } from "../../sync/Transaction";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
+import AntImage from '../../../assets/images/img_ant.svg';
+import { Avatar } from "../../components/Avatar";
+import { useAccount } from "../../sync/Engine";
 
 export const TransactionPreviewFragment = fragment(() => {
     const { t } = useTranslation();
@@ -24,25 +27,16 @@ export const TransactionPreviewFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { transaction } = useParams<{ transaction?: Transaction | null }>();
     const address = React.useMemo(() => getCurrentAddress().address, []);
+    const [account, engine] = useAccount();
 
     if (!transaction) {
         return <Text>{t('Error parsing transaction')}</Text>
     }
 
     // Avatar
-    let avatarImage = require('../../../assets/avatar_own.png');
+    let avatarId = engine.address.toFriendly({ testOnly: AppConfig.isTestnet });
     if (transaction.address && !transaction.address.equals(address)) {
-        const avatars = [
-            require('../../../assets/avatar_1.png'),
-            require('../../../assets/avatar_2.png'),
-            require('../../../assets/avatar_3.png'),
-            require('../../../assets/avatar_4.png'),
-            require('../../../assets/avatar_5.png'),
-            require('../../../assets/avatar_6.png'),
-            require('../../../assets/avatar_7.png'),
-            require('../../../assets/avatar_8.png')
-        ];
-        avatarImage = avatars[avatarHash(transaction.address.toFriendly({ testOnly: AppConfig.isTestnet }), avatars.length)];
+        avatarId = transaction.address.toFriendly({ testOnly: AppConfig.isTestnet });
     }
 
     // Transaction type
@@ -70,8 +64,8 @@ export const TransactionPreviewFragment = fragment(() => {
                     </Text>
                 )}
             </View>
-            <View style={{ width: 84, height: 84, borderRadius: 100, borderWidth: 0, marginTop: 24 }}>
-                <Image source={avatarImage} style={{ width: 84, height: 84, borderRadius: 100 }} />
+            <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, marginTop: 24, backgroundColor: '#5fbed5', alignItems: 'center', justifyContent: 'center' }}>
+                <Avatar id={avatarId} size={84} />
             </View>
             <View style={{ marginTop: 34 }}>
                 {transaction.status === 'failed' ? (

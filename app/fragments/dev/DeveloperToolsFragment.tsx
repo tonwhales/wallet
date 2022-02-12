@@ -33,7 +33,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={t("Restart app")} onPress={reboot} />
                 </View>
                 <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title="Version" hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                    <Item title={t("Version")} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                 </View>
             </View>
         </View>

@@ -9,6 +9,7 @@ export const AutocompliteAccessoryView = React.memo((props: {
     inputAccessoryViewID: string
 }) => {
     const { width } = useWindowDimensions();
+
     if (Platform.OS === 'ios') {
         return (
             <InputAccessoryView nativeID={props.inputAccessoryViewID}>
@@ -27,7 +28,14 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                 props.suggestions.map((item, index) => {
                                     if (index > 2) { return undefined; }
                                     return (
-                                        <>
+                                        <View
+                                            key={`suggestion-${index}`}
+                                            style={{
+                                                marginLeft: index === 0 ? 5 : 0,
+                                                marginRight: index === 2 ? 5 : 0,
+                                                flexDirection: 'row'
+                                            }}
+                                        >
                                             <Pressable
                                                 style={({ pressed }) => {
                                                     return {
@@ -36,10 +44,8 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                                         alignItems: 'center',
                                                         paddingVertical: 8,
                                                         opacity: pressed ? 0.5 : 1,
-                                                        marginLeft: index === 0 ? 5 : 0,
-                                                        marginRight: index === 2 ? 5 : 0,
                                                         borderRadius: 8,
-                                                        backgroundColor: index === 0 ? Theme.divider : undefined
+                                                        backgroundColor: index === 1 ? Theme.divider : undefined
                                                     }
                                                 }}
                                                 onPress={() => { props.setValue(item); }}
@@ -51,12 +57,17 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                                 </Text>
                                             </Pressable>
                                             {index < 2 && (<View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />)}
-                                        </>
+                                        </View>
                                     )
                                 })
                             }
                             {props.suggestions.length === 1 && (
                                 <>
+                                    <View
+                                        key={'filler-0'}
+                                        style={{ width: (width - 20) / 3 }}
+                                    />
+                                    <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />
                                     <Pressable
                                         key={props.suggestions[0]}
                                         style={({ pressed }) => {
@@ -67,7 +78,7 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                                 backgroundColor: Theme.divider,
                                                 paddingVertical: 8,
                                                 opacity: pressed ? 0.5 : 1,
-                                                marginLeft: 5,
+                                                marginHorizontal: 5,
                                                 borderRadius: 8
                                             }
                                         }}
@@ -79,11 +90,6 @@ export const AutocompliteAccessoryView = React.memo((props: {
                                             {props.suggestions[0]}
                                         </Text>
                                     </Pressable>
-                                    <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />
-                                    <View
-                                        key={'filler-0'}
-                                        style={{ width: (width - 20) / 3 }}
-                                    />
                                     <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4 }} />
                                     <View
                                         key={'filler-1'}

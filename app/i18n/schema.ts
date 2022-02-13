@@ -21,7 +21,9 @@ export type LocalizationSchema = {
         send: string,
         yes: string,
         no: string,
-        amount: string
+        amount: string,
+        today: string,
+        yesterday: string
     }
     home: {
         wallet: string,
@@ -36,6 +38,7 @@ export type LocalizationSchema = {
         developerTools: string
     },
     wallet: {
+        sync: string,
         balanceTitle: string,
         actions: {
             receive: string,

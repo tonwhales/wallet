@@ -19,7 +19,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         send: 'Отправить',
         yes: 'Да',
         no: 'Нет',
-        amount: 'Количество'
+        amount: 'Количество',
+        today: 'Сегодня',
+        yesterday: 'Вчера'
     },
     home: {
         wallet: 'Кошелек',
@@ -34,6 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         developerTools: 'Инструменты разработчика'
     },
     wallet: {
+        sync: 'Синхронизация кошелька',
         balanceTitle: 'Баланс Ton',
         actions: {
             receive: 'получить',

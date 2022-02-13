@@ -1,21 +1,29 @@
-import { endOfDay, format, isThisYear, isToday, isYesterday } from "date-fns";
-import { t } from "i18next";
+import { endOfDay, format, isThisYear, isToday, isYesterday, Locale } from "date-fns";
+import { t } from "../i18n/t";
+import { ru } from 'date-fns/locale';
+import * as RNLocalize from 'react-native-localize';
+
+const is24Hour = RNLocalize.uses24HourClock();
+let locale: Locale | undefined = undefined;
+if (t('lang') === 'ru') {
+    locale = ru;
+}
 
 export function formatDate(src: number, dateFormat?: string) {
     if (isToday(src * 1000)) {
-        return t('Today');
+        return t('common.today');
     }
     if (isYesterday(src * 1000)) {
-        return t('Yesterday');
+        return t('common.yesterday');
     }
     if (isThisYear(src * 1000)) {
-        return format(src * 1000, dateFormat || 'd MMMM')
+        return format(src * 1000, dateFormat || 'd MMMM', { locale })
     }
-    return format(src * 1000, 'PPP')
+    return format(src * 1000, 'PPP', { locale })
 }
 
 export function formatTime(src: number) {
-    return format(src * 1000, 'hh:mm aa');
+    return format(src * 1000, is24Hour ? 'HH:mm' : 'hh:mm aa', { locale });
 }
 
 export function getDateKey(src: number) {

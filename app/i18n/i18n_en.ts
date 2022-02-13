@@ -19,7 +19,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         send: 'Send',
         yes: 'Yes',
         no: 'No',
-        amount: 'Amount'
+        amount: 'Amount',
+        today: 'Today',
+        yesterday: 'Yesterday'
     },
     home: {
         wallet: 'Wallet',
@@ -34,6 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         developerTools: 'Developer Tools'
     },
     wallet: {
+        sync: 'Downloading wallet data',
         balanceTitle: 'Ton balance',
         actions: {
             receive: 'receive',

@@ -117,7 +117,7 @@ const WordInput = React.memo(React.forwardRef((props: {
 
     return (
         <Animated.View style={style}>
-            <View ref={props.innerRef} style={{ flexDirection: 'row' }}>
+            <View ref={props.innerRef} style={{ flexDirection: 'row' }} collapsable={false}>
                 <Text
                     style={{
                         alignSelf: 'center',
@@ -232,7 +232,9 @@ function WalletWordsComponent(props: {
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
     React.useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
-        runOnUI(scrollToInput)(selectedWord);
+        if (keyboard.keyboardShown) {
+            runOnUI(scrollToInput)(selectedWord);
+        }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedWord]);
 
     //
@@ -247,8 +249,9 @@ function WalletWordsComponent(props: {
         let measured = measure(ref);
         let scroll = translationY.value;
 
+        let containerHeight = Platform.OS === 'ios' ? (container.height - keyboardHeight.value) : container.height;
         let relativeTop = measured.pageY - container.pageY;
-        let relativeBottom = (container.height - keyboardHeight.value) - (relativeTop + measured.height);
+        let relativeBottom = containerHeight - (relativeTop + measured.height);
 
         // If one of the last
         if (index > 20) {
@@ -331,7 +334,7 @@ function WalletWordsComponent(props: {
     return (
         <>
             <StatusBar style='dark' />
-            <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }} ref={containerRef}>
+            <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }} ref={containerRef} collapsable={false}>
                 <Animated.ScrollView
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                     contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}

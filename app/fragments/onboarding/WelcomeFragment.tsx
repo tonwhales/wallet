@@ -18,6 +18,7 @@ export const WelcomeFragment = fragment(() => {
         <View style={{
             alignItems: 'center', justifyContent: 'center',
             flexGrow: 1,
+            backgroundColor: 'white'
         }}>
             <StatusBar style='dark' />
             <View style={{

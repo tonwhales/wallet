@@ -335,15 +335,16 @@ function WalletWordsComponent(props: {
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                contentInset={{ bottom: keyboard.keyboardShown ? keyboard.keyboardHeight : 0 }}
+                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0, top: 0 }}
                 contentInsetAdjustmentBehavior="never"
                 keyboardShouldPersistTaps="always"
                 keyboardDismissMode="none"
+                automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
             >
-                <Text style={{ alignSelf: 'center', marginTop: 92, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
+                <Text style={{ alignSelf: 'center', marginTop: 5, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
                     {t("24 Secret Words")}
                 </Text>
                 <Text style={{
@@ -366,7 +367,7 @@ function WalletWordsComponent(props: {
                 <RoundButton
                     title={t("Continue")}
                     action={onSubmitEnd}
-                    style={{ alignSelf: 'stretch', marginBottom: 16, marginTop: 30 }}
+                    style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
                 />
             </Animated.ScrollView>
 

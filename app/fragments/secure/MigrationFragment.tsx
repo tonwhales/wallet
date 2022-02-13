@@ -10,18 +10,17 @@ import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
-import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useAccount } from '../../sync/Engine';
 import { AppConfig } from '../../AppConfig';
 import { getCurrentAddress } from '../../storage/appState';
-import { AddressComponent } from '../../components/AddressComponent';
 import { ValueComponent } from '../../components/ValueComponent';
 import { Theme } from '../../Theme';
 import { WalletAddress } from '../../components/WalletAddress';
 import { CloseButton } from '../../components/CloseButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { t } from '../../i18n/t';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -30,10 +29,9 @@ function ellipsiseAddress(src: string) {
 }
 
 const MigrationProcessFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const [status, setStatus] = React.useState<string>(t('Migrating old wallets...'));
+    const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
     const [account, engine] = useAccount();
     const acc = React.useMemo(() => getCurrentAddress(), []);
 
@@ -69,11 +67,11 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                setStatus(t('Checking ') + ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) + '...');
+                setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
 
                 const state = await backoff(() => engine.connector.client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
-                    setStatus(t('Tranfer funds from ') + ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) + '...');
+                    setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
                     wallet.prepare(0, key.keyPair.publicKey, type);
 
                     // Seqno
@@ -120,7 +118,6 @@ const MigrationProcessFragment = fragment(() => {
 export const MigrationFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
-    const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const [account, engine] = useAccount();
     const state = engine.products.oldWallets.useStateFull();
@@ -142,7 +139,7 @@ export const MigrationFragment = fragment(() => {
                             fontWeight: '600',
                             marginLeft: 17,
                             fontSize: 17
-                        }, { textAlign: 'center' }]}>{t('Migrate old wallets')}</Text>
+                        }, { textAlign: 'center' }]}>{t('migrate.title')}</Text>
                     </View>
                 )}
                 <ScrollView
@@ -172,7 +169,7 @@ export const MigrationFragment = fragment(() => {
                             color: Theme.textColor
                         }}
                     >
-                        {t('Migrate old wallets')}
+                        {t('migrate.title')}
                     </Text>
                     <Text
                         style={{
@@ -183,8 +180,7 @@ export const MigrationFragment = fragment(() => {
                             color: Theme.textColor
                         }}
                     >
-                        If you have been using obsolete wallets, you can automatically move all funds from
-                        your old addresses.
+                        {t('migrate.subtitle')}
                     </Text>
 
                     <View style={{ flexGrow: 1 }} />
@@ -219,7 +215,7 @@ export const MigrationFragment = fragment(() => {
                     <View style={{ flexGrow: 1 }} />
                 </ScrollView>
                 <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                    <RoundButton title={t("Start")} onPress={() => setConfirm(true)} disabled={s.lte(new BN(0))} display={s.lte(new BN(0)) ? 'secondary' : 'default'} />
+                    <RoundButton title={t('common.start')} onPress={() => setConfirm(true)} disabled={s.lte(new BN(0))} display={s.lte(new BN(0)) ? 'secondary' : 'default'} />
                 </View>
                 {Platform.OS === 'ios' && (
                     <CloseButton

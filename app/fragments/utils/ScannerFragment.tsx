@@ -4,14 +4,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { useCameraDevices } from 'react-native-vision-camera';
 import { CloseButton } from '../../components/CloseButton';
+import { t } from '../../i18n/t';
 
 export const ScannerFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
     const navigation = useNavigation();
@@ -71,7 +70,7 @@ export const ScannerFragment = fragment(() => {
                         textAlign: 'center'
                     }}
                     >
-                        {t("Requesting for camera permission...")}
+                        {t('qr.requestingPermission')}
                     </Text>
                 </View>
                 <CloseButton
@@ -105,7 +104,7 @@ export const ScannerFragment = fragment(() => {
                         textAlign: 'center'
                     }}
                     >
-                        {t("No access to camera")}
+                        {t('qr.noPermission')}
                     </Text>
                 </View>
                 <CloseButton
@@ -172,7 +171,7 @@ export const ScannerFragment = fragment(() => {
                     color: 'white',
                     textAlign: 'center'
                 }}>
-                    {t('Scan QR code')}
+                    {t('qr.title')}
                 </Text>
             </View>
             <CloseButton

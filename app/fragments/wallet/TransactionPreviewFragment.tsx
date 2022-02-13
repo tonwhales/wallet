@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Platform, Text, Image, Pressable } from "react-native";
-import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -18,9 +17,9 @@ import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { useAccount } from "../../sync/Engine";
+import { t } from "../../i18n/t";
 
 export const TransactionPreviewFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { transaction } = useParams<{ transaction?: Transaction | null }>();
@@ -28,7 +27,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const [account, engine] = useAccount();
 
     if (!transaction) {
-        return <Text>{t('Error parsing transaction')}</Text>
+        throw Error('Unable to load transaction');
     }
 
     // Avatar
@@ -38,12 +37,11 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     // Transaction type
-    let transactionType = 'Transfer';
+    let transactionType: string;
     if (transaction.kind === 'out') {
-        transactionType = 'Sent #' + transaction.seqno!;
-    }
-    if (transaction.kind === 'in') {
-        transactionType = 'Received';
+        transactionType = t('tx.sent', { id: transaction.seqno! });
+    } else {
+        transactionType = t('tx.received');
     }
 
     return (
@@ -54,11 +52,11 @@ export const TransactionPreviewFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
             paddingHorizontal: 16
         }}>
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={t(transactionType)} />
+            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={transactionType} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
                     <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
-                        {t(transactionType)}
+                        {transactionType}
                     </Text>
                 )}
             </View>
@@ -69,9 +67,9 @@ export const TransactionPreviewFragment = fragment(() => {
                 {transaction.status === 'failed' ? (
                     <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                 ) : (
-                    <Text style={{ color: transaction.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }}>
-                        <ValueComponent value={transaction.amount} />
-                        {' TON'}
+                    <Text style={{ color: transaction.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
+                        <ValueComponent value={transaction.amount} centFontStyle={{ fontSize: 30, fontWeight: '400' }} />
+                        {/* {' TON'} */}
                     </Text>
                 )}
             </View>
@@ -91,7 +89,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                             <Image source={require('../../../assets/ic_change.png')} />
                         </View>
-                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("send again")}</Text>
+                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('txPreview.sendAgain')}</Text>
                     </Pressable>
                     // TODO: add transaction to favorites
                     // {/* <Pressable
@@ -126,7 +124,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         }}
                     />
                     <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
-                        {t('Wallet address')}
+                        {t('common.walletAddress')}
                     </Text>
                 </View>
                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
@@ -136,7 +134,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         fontSize: 16,
                         lineHeight: 20,
                     }}>
-                        {t('Blockchain fee')}
+                        {t('txPreview.blockchainFee')}
                     </Text>
                     <Text style={{
                         fontWeight: '600',

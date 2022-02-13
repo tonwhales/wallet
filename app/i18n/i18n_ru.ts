@@ -10,7 +10,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         continueAnyway: 'Продолжить все равно',
         back: 'Назад',
         logout: 'Выйти',
-        cancel: 'Отменить'
+        cancel: 'Отменить',
+        balance: 'Баланс',
+        walletAddress: 'Адрес кошелька',
+        copy: 'Скопировать',
+        copied: 'Скопировано в буфер обмена',
+        share: 'Поделиться',
+        send: 'Отправить',
+        yes: 'Да',
+        no: 'Нет',
+        amount: 'Количество'
     },
     home: {
         wallet: 'Кошелек',
@@ -35,10 +44,54 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             receive: 'Получить TON'
         }
     },
+    receive: {
+        title: 'Получить Ton',
+        subtitle: 'Поделитесь данной ссылкой, чтобы получить Ton',
+        share: {
+            title: 'My Tonhub Address'
+        }
+    },
+    transfer: {
+        title: 'Отправить Ton',
+        titleAction: 'Действие',
+        confirm: 'Вы уверены что хотите продолжить?',
+        error: {
+            invalidAddress: 'Неверный адрес',
+            invalidAmount: 'Неверное количество',
+            sendingToYourself: 'Вы не можете отправлять монеты сами себе',
+            zeroCoins: 'К сожалению, вы не можете отправить ноль монет',
+            notEnoughCoins: 'К сожалению, на кошельке не достаточно монет для совершения транзакции',
+            addressIsForTestnet: 'Этот адрес для тестовой сети',
+            addressCantReceive: 'Этот адрес не может принимать монеты',
+            addressIsNotActive: 'Этот адрес не активен'
+        },
+        sendAll: 'отправить все',
+        scanQR: 'считать QR код',
+        sendTo: 'Получатель',
+        fee: 'Комиссия сети: {{fee}}',
+        purpose: 'Цель транзакции',
+        comment: 'Сообщение получателю (необязательное)'
+    },
+    migrate: {
+        title: 'Перенос старых кошельков',
+        subtitle: 'Если вы пользовались устаревшими кошельками вы можете автоматически перевести все ваши средства со старых адресов.',
+        inProgress: 'Перенос старых кошельков...',
+        transfer: 'Переводим монеты с адреса {{address}}',
+        check: 'Проверяем адрес {{address}}'
+    },
     tx: {
         sending: 'Отправка #{{id}}',
         sent: 'Отправлено #{{id}}',
         received: 'Получено'
+    },
+    txPreview: {
+        sendAgain: 'повторить',
+        blockchainFee: 'Комиссия сети'
+    },
+    qr: {
+        title: 'Отсканируйте QR-код',
+        requestingPermission: 'Запрашиваем доступ к камере...',
+        noPermission: 'Нет доступа к камере'
     },
     products: {
         oldWallets: {

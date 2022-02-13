@@ -1,18 +1,16 @@
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Pressable, StyleProp, ViewStyle, ToastAndroid, Platform, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { MenuView } from '@react-native-menu/menu';
 import * as Haptics from 'expo-haptics';
+import { t } from '../i18n/t';
 
 export function CopyView(props: { content: string, children?: any, style?: StyleProp<ViewStyle> }) {
-
-    const { t } = useTranslation();
 
     if (Platform.OS === 'android') {
         const onPress = React.useCallback(() => {
             Clipboard.setString(props.content);
-            ToastAndroid.show(t('Copied to clipboard'), ToastAndroid.SHORT);
+            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }, [props.content]);
         return (
@@ -31,7 +29,7 @@ export function CopyView(props: { content: string, children?: any, style?: Style
                 }
             }}
             actions={[
-                { title: t('Copy'), id: 'copy' }
+                { title: t('common.copy'), id: 'copy' }
             ]}
             style={props.style}
         >

@@ -1,11 +1,11 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
 import { SvgProps } from 'react-native-svg';
+import { t } from '../../../i18n/t';
 
 export function ProductButton(props: {
     name: string,
@@ -14,7 +14,6 @@ export function ProductButton(props: {
     value: BN,
     onPress: () => void
 }) {
-    const { t } = useTranslation();
     const Icon = props.icon;
     return (
         <TouchableHighlight
@@ -40,8 +39,8 @@ export function ProductButton(props: {
                         <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} /></Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
-                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{props.subtitle}</Text>
-                        <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{t('Balance')}</Text>
+                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
+                        {/* <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{t('common.balance')}</Text> */}
                     </View>
                     <View style={{ flexGrow: 1 }} />
                 </View>

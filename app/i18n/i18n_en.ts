@@ -10,7 +10,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         continueAnyway: 'Continue anyway',
         back: 'Back',
         logout: 'Logout',
-        cancel: 'Cancel'
+        cancel: 'Cancel',
+        balance: 'Balance',
+        walletAddress: 'Wallet address',
+        copy: 'Copy',
+        copied: 'Copied to clipboard',
+        share: 'Share',
+        send: 'Send',
+        yes: 'Yes',
+        no: 'No',
+        amount: 'Amount'
     },
     home: {
         wallet: 'Wallet',
@@ -39,6 +48,50 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         sending: 'Sending #{{id}}',
         sent: 'Sent #{{id}}',
         received: 'Received'
+    },
+    txPreview: {
+        sendAgain: 'send again',
+        blockchainFee: 'Blockchain fee'
+    },
+    receive: {
+        title: 'Receive Ton',
+        subtitle: 'Share this link to receive Ton',
+        share: {
+            title: 'My Tonhub Address'
+        }
+    },
+    transfer: {
+        title: 'Send Ton',
+        titleAction: 'Action',
+        confirm: 'Are you sure want to proceed?',
+        error: {
+            invalidAddress: 'Invalid address',
+            invalidAmount: 'Invalid amount',
+            sendingToYourself: 'You can\'t send coins to yourself',
+            zeroCoins: 'Unfortunatelly you can\'t send zero coins',
+            notEnoughCoins: 'Unfortunatelly you don\'t have enougth coins for this transaction',
+            addressIsForTestnet: 'This address is for testnet',
+            addressCantReceive: 'This address can\'t receive coins',
+            addressIsNotActive: 'This address does not active'
+        },
+        sendAll: 'send all',
+        scanQR: 'scan qr code',
+        sendTo: 'Send to',
+        fee: 'Blockchain fee: {{fee}}',
+        purpose: 'Purpose of transaction',
+        comment: 'Message to recipient (optional)'
+    },
+    migrate: {
+        title: 'Migrate old wallets',
+        subtitle: 'If you have been using obsolete wallets, you can automatically move all funds from your old addresses.',
+        inProgress: 'Migrating old wallets...',
+        transfer: 'Transfering coins from {{address}}',
+        check: 'Checking address {{address}}'
+    },
+    qr: {
+        title: 'Scan QR code',
+        requestingPermission: 'Requesting for camera permission...',
+        noPermission: 'No access to camera'
     },
     products: {
         oldWallets: {

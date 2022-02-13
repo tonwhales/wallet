@@ -12,7 +12,16 @@ export type LocalizationSchema = {
         continueAnyway: string,
         back: string,
         logout: string,
-        cancel: string
+        cancel: string,
+        balance: string,
+        walletAddress: string,
+        copy: string,
+        copied: string,
+        share: string,
+        send: string,
+        yes: string,
+        no: string,
+        amount: string
     }
     home: {
         wallet: string,
@@ -41,7 +50,51 @@ export type LocalizationSchema = {
         sending: string,
         sent: string,
         received: string
-    }
+    },
+    txPreview: {
+        sendAgain: string,
+        blockchainFee: string
+    },
+    receive: {
+        title: string,
+        subtitle: string,
+        share: {
+            title: string
+        }
+    },
+    transfer: {
+        title: string,
+        titleAction: string,
+        confirm: string,
+        error: {
+            invalidAddress: string,
+            invalidAmount: string,
+            sendingToYourself: string,
+            zeroCoins: string,
+            notEnoughCoins: string,
+            addressIsForTestnet: string,
+            addressCantReceive: string,
+            addressIsNotActive: string
+        },
+        sendAll: string,
+        scanQR: string,
+        sendTo: string,
+        fee: string,
+        purpose: string,
+        comment: string
+    },
+    migrate: {
+        title: string,
+        subtitle: string,
+        inProgress: string,
+        transfer: string,
+        check: string
+    },
+    qr: {
+        title: string,
+        requestingPermission: string,
+        noPermission: string
+    },
     products: {
         oldWallets: {
             title: string,

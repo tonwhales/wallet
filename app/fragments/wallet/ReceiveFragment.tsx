@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -13,9 +12,9 @@ import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
+import { t } from "../../i18n/t";
 
 export const ReceiveFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
@@ -27,9 +26,9 @@ export const ReceiveFragment = fragment(() => {
 
     const onShare = React.useCallback(() => {
         if (Platform.OS === 'ios') {
-            Share.share({ title: t('My Tonhub Address'), url: link });
+            Share.share({ title: t('receive.share.title'), url: link });
         } else {
-            Share.share({ title: t('My Tonhub Address'), message: link });
+            Share.share({ title: t('receive.share.title'), message: link });
         }
     }, []);
 
@@ -40,15 +39,15 @@ export const ReceiveFragment = fragment(() => {
             backgroundColor: Theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined
         }}>
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t("Receive Ton")} />
+            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t('receive.title')} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
                     <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
-                        {t("Receive Ton")}
+                        {t('receive.title')}
                     </Text>
                 )}
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, marginTop: Platform.OS === 'android' ? 7 + 56 : 7, paddingHorizontal: 32, textAlign: 'center' }}>
-                    {t("Share this link to receive Ton")}
+                    {t('receive.subtitle')}
                 </Text>
             </View>
             <View style={{
@@ -73,7 +72,7 @@ export const ReceiveFragment = fragment(() => {
                     style={{ marginTop: 16 }}
                 />
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>
-                    {t("Wallet address")}
+                    {t('common.walletAddress')}
                 </Text>
             </View>
             <View style={{
@@ -84,13 +83,13 @@ export const ReceiveFragment = fragment(() => {
                 alignContent: 'stretch'
             }}>
                 <RoundButton
-                    title={t("Copy")}
+                    title={t('common.copy')}
                     onPress={onCopy}
                     style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
                     display={'secondary'}
                 />
                 <RoundButton
-                    title={t("Share")}
+                    title={t('common.share')}
                     onPress={onShare}
                     style={{ flex: 2, alignSelf: 'stretch' }}
                 />

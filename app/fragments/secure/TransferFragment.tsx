@@ -1,7 +1,6 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert } from "react-native";
 import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +22,8 @@ import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
+import { t } from '../../i18n/t';
+import { LocalizedResources } from '../../i18n/schema';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -31,7 +32,6 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 export const TransferFragment = fragment(() => {
-    const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const params: {
         target?: string,
@@ -52,16 +52,16 @@ export const TransferFragment = fragment(() => {
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const doSend = React.useCallback(async () => {
 
-        async function confirm(title: string) {
+        async function confirm(title: LocalizedResources) {
             return await new Promise<boolean>(resolve => {
-                Alert.alert(title, t('Are you sure want to proceed?'), [{
-                    text: t('Yes'),
+                Alert.alert(t(title), t('transfer.confirm'), [{
+                    text: t('common.yes'),
                     style: 'destructive',
                     onPress: () => {
                         resolve(true)
                     }
                 }, {
-                    text: t('No'),
+                    text: t('common.no'),
                     onPress: () => {
                         resolve(false);
                     }
@@ -73,13 +73,21 @@ export const TransferFragment = fragment(() => {
         let address: Address;
         let isTestnet: boolean;
         let value: BN;
+
         try {
             let parsed = Address.parseFriendly(target);
             address = parsed.address;
             isTestnet = parsed.isTestOnly;
+        } catch (e) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+
+        try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
         } catch (e) {
+            Alert.alert(t('transfer.error.invalidAmount'));
             return;
         }
 
@@ -88,23 +96,23 @@ export const TransferFragment = fragment(() => {
 
         // Check if same address
         if (address.equals(contract.address)) {
-            Alert.alert(t('You can\'t send coins to yourself'));
+            Alert.alert(t('transfer.error.sendingToYourself'));
             return;
         }
 
         // Check amount
         if (!value.eq(account.balance) && account.balance.lt(value)) {
-            Alert.alert(t('Unfortunatelly you don\'t have enougth coins for this transaction'));
+            Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
         if (value.eq(new BN(0))) {
-            Alert.alert(t('Unfortunatelly you can\'t send zero coins'));
+            Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
 
         // Check if trying to send to testnet
         if (!AppConfig.isTestnet && isTestnet) {
-            let cont = await confirm('This address is for testnet');
+            let cont = await confirm('transfer.error.addressIsForTestnet');
             if (!cont) {
                 return;
             }
@@ -114,7 +122,7 @@ export const TransferFragment = fragment(() => {
         const config = await backoff(() => fetchConfig());
         for (let restricted of config.wallets.restrict_send) {
             if (Address.parse(restricted).equals(address)) {
-                let cont = await confirm('This address can\'t receive payments');
+                let cont = await confirm('transfer.error.addressCantReceive');
                 if (!cont) {
                     return;
                 }
@@ -127,7 +135,7 @@ export const TransferFragment = fragment(() => {
         if (!(await engine.connector.client.isContractDeployed(address))) {
             bounce = false;
             if ((await engine.connector.client.getBalance(address)).eq(new BN(0))) {
-                let cont = await confirm('This address does not active');
+                let cont = await confirm('transfer.error.addressIsNotActive');
                 if (!cont) {
                     return;
                 }
@@ -288,7 +296,7 @@ export const TransferFragment = fragment(() => {
 
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t("Send Ton")} />
+            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flexGrow: 1 }}
@@ -300,7 +308,7 @@ export const TransferFragment = fragment(() => {
                         paddingTop: 12,
                         paddingBottom: 17
                     }}>
-                        <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? "Action" : "Send Ton")}</Text>
+                        <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? 'transfer.titleAction' : 'transfer.title')}</Text>
                     </View>
                 )}
                 <ScrollView
@@ -320,7 +328,7 @@ export const TransferFragment = fragment(() => {
                                 fontSize: 16,
                                 color: '#8E979D'
                             }}>
-                                {t('Amount')}
+                                {t('common.amount')}
                             </Text>
                             <Text style={{
                                 fontWeight: '800',
@@ -345,7 +353,7 @@ export const TransferFragment = fragment(() => {
                                 <ATextInput
                                     value={amount}
                                     onValueChange={setAmount}
-                                    placeholder={t("Amount")}
+                                    placeholder={'0'}
                                     keyboardType={'numeric'}
                                     textAlign={'center'}
                                     style={{ marginBottom: 20, backgroundColor: 'transparent' }}
@@ -370,7 +378,7 @@ export const TransferFragment = fragment(() => {
                                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../../assets/ic_all_coins.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("Send all")}</Text>
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
@@ -380,12 +388,12 @@ export const TransferFragment = fragment(() => {
                                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../../assets/ic_scan_qr.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("Scan QR code")}</Text>
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
                             </View>
-                            <Text style={{ fontWeight: '700', fontSize: 20, marginTop: 13 }}>{t("Send to")}</Text>
+                            <Text style={{ fontWeight: '700', fontSize: 20, marginTop: 13 }}>{t('transfer.sendTo')}</Text>
                         </>
                     )}
                     <View style={{
@@ -404,13 +412,13 @@ export const TransferFragment = fragment(() => {
                                 marginTop: 10,
                                 marginLeft: 16
                             }}>
-                                {t('Wallet adress')}
+                                {t('common.walletAddress')}
                             </Text>
                         )}
                         <ATextInput
                             value={target}
                             onValueChange={setTarget}
-                            placeholder={t("Wallet adress")}
+                            placeholder={t('common.walletAddress')}
                             keyboardType="ascii-capable"
                             preventDefaultHeight
                             multiline
@@ -429,13 +437,13 @@ export const TransferFragment = fragment(() => {
                                 marginTop: 10,
                                 marginLeft: 16
                             }}>
-                                {t('Purpose of transaction')}
+                                {t('transfer.purpose')}
                             </Text>
                         )}
                         <ATextInput
                             value={comment}
                             onValueChange={setComment}
-                            placeholder={t("Message to recipient (optional)")}
+                            placeholder={t('transfer.comment')}
                             keyboardType="default"
                             autoCapitalize="sentences"
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
@@ -456,23 +464,13 @@ export const TransferFragment = fragment(() => {
                                     marginTop: 10,
                                     marginLeft: 16
                                 }}>
-                                    {t('Fee')}
-                                </Text>
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 16,
-                                    alignSelf: 'flex-start',
-                                    marginLeft: 16,
-                                    marginTop: 4,
-                                    marginBottom: 10
-                                }}>
-                                    {estimation ? fromNano(estimation) : '...'}
+                                    {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
                                 </Text>
                             </>
 
                         )}
                     </View>
-                    {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>Blockchain fees: {estimation ? fromNano(estimation) : '...'}</Text>)}
+                    {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>)}
                 </ScrollView>
                 <View style={[
                     {
@@ -481,7 +479,7 @@ export const TransferFragment = fragment(() => {
                     },
                 ]}>
                     <RoundButton
-                        title={t("Send")}
+                        title={t('common.send')}
                         action={doSend}
                     />
                 </View>

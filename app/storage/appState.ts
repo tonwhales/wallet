@@ -113,3 +113,11 @@ export function markAddressSecured(src: Address) {
 export function isAddressSecured(src: Address) {
     return storage.getBoolean('backup_' + src.toFriendly({ testOnly: AppConfig.isTestnet }));
 }
+
+export function markAsTermsAccepted() {
+    storage.set('terms_accepted', true);
+}
+
+export function isTermsAccepted() {
+    return storage.getBoolean('terms_accepted');
+}

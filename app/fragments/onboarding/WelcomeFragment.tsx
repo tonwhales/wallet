@@ -8,11 +8,26 @@ import { useTranslation } from 'react-i18next';
 import { StatusBar } from 'expo-status-bar';
 import { Theme } from '../../Theme';
 import { AppConfig } from '../../AppConfig';
+import { isTermsAccepted } from '../../storage/appState';
 
 export const WelcomeFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const onImportPressed = React.useCallback(() => {
+        if (isTermsAccepted()) {
+            navigation.navigate('WalletImport');
+        } else {
+            navigation.navigate('LegalImport');
+        }
+    }, []);
+    const onCreatePressed = React.useCallback(() => {
+        if (isTermsAccepted()) {
+            navigation.navigate('WalletCreate');
+        } else {
+            navigation.navigate('LegalCreate');
+        }
+    }, []);
 
     return (
         <View style={{
@@ -53,9 +68,9 @@ export const WelcomeFragment = fragment(() => {
                 </Text>
             </View>
             <View style={{ height: 128, position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
-                <RoundButton title={t("Create wallet")} onPress={() => navigation.navigate('LegalCreate')} />
+                <RoundButton title={t("Create wallet")} onPress={onCreatePressed} />
                 <Pressable
-                    onPress={() => navigation.navigate('LegalImport')}
+                    onPress={onImportPressed}
                     style={({ pressed }) => {
                         return {
                             opacity: pressed ? 0.5 : 1,

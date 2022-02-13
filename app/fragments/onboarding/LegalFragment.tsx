@@ -9,12 +9,21 @@ import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { Theme } from "../../Theme";
+import { markAsTermsAccepted } from "../../storage/appState";
 
 export const LegalFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
+    const onAccept = React.useCallback(() => {
+        markAsTermsAccepted()
+        if (route.name === 'LegalCreate') {
+            navigation.replace('WalletCreate');
+        } else {
+            navigation.replace('WalletImport');
+        }
+    }, []);
     return (
         <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
             <AndroidToolbar pageTitle={t('Legal')} />
@@ -60,7 +69,7 @@ export const LegalFragment = fragment(() => {
             </FragmentMediaContent >
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title={t("Accept")} onPress={() => route.name === 'LegalCreate' ? navigation.replace('WalletCreate') : navigation.replace('WalletImport')} />
+                <RoundButton title={t("Accept")} onPress={onAccept} />
             </View>
         </View >
     );

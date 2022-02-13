@@ -335,7 +335,7 @@ function WalletWordsComponent(props: {
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0, top: 0 }}
+                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentInsetAdjustmentBehavior="never"
                 keyboardShouldPersistTaps="always"
                 keyboardDismissMode="none"

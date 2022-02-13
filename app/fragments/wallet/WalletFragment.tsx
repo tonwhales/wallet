@@ -9,7 +9,6 @@ import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { ValueComponent } from '../../components/ValueComponent';
-import { useTranslation } from "react-i18next";
 import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
@@ -24,6 +23,7 @@ import { BN } from 'bn.js';
 import { WalletAddress } from '../../components/WalletAddress';
 import { ProductButton } from './products/ProductButton';
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
+import { t } from '../../i18n/t';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -66,7 +66,6 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
 })
 
 export const WalletFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
@@ -223,7 +222,7 @@ export const WalletFragment = fragment(() => {
                         resizeMethod="resize"
                     />
 
-                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Ton balance')}</Text>
+                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>
@@ -276,7 +275,7 @@ export const WalletFragment = fragment(() => {
                                 <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_receive.png')} />
                                 </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("receive")}</Text>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('wallet.actions.receive')}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
@@ -286,7 +285,7 @@ export const WalletFragment = fragment(() => {
                                 <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_send.png')} />
                                 </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("send")}</Text>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('wallet.actions.send')}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
@@ -294,8 +293,8 @@ export const WalletFragment = fragment(() => {
 
                 {oldWalletsBalance.gt(new BN(0)) && (
                     <ProductButton
-                        name={t('Old wallets')}
-                        subtitle={t("Press to migrate old wallets")}
+                        name={t('products.oldWallets.title')}
+                        subtitle={t("products.oldWallets.subtitle")}
                         icon={OldWalletIcon}
                         value={oldWalletsBalance}
                         onPress={() => navigation.navigate('Migration')}
@@ -313,10 +312,10 @@ export const WalletFragment = fragment(() => {
                                 style={{ width: window.height * 0.15, height: window.height * 0.15, marginBottom: window.height * 0.1 * 0.3 }}
                             />
                             <Text style={{ fontSize: 16, marginBottom: window.height * 0.1 * 0.3, color: '#7D858A' }}>
-                                {t('You have no transactions')}
+                                {t('wallet.empty.message')}
                             </Text>
                             <RoundButton
-                                title={t("Receive TON")}
+                                title={t('wallet.empty.receive')}
                                 size="normal"
                                 display="text"
                                 onPress={() => navigation.navigate('Receive')}
@@ -393,7 +392,7 @@ export const WalletFragment = fragment(() => {
                                             resizeMethod="resize"
                                         />
 
-                                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Ton balance')}</Text>
+                                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
                                         <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
                                         <View style={{ flexGrow: 1 }}>
 
@@ -478,7 +477,7 @@ export const WalletFragment = fragment(() => {
                                         resizeMethod="resize"
                                     />
 
-                                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('Ton balance')}</Text>
+                                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
                                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
                                     <View style={{ flexGrow: 1 }}>
 

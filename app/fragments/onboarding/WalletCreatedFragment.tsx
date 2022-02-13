@@ -1,18 +1,17 @@
-import { Pressable, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { Theme } from "../../Theme";
+import { t } from "../../i18n/t";
 
 export const WalletCreatedFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const { t } = useTranslation();
     const [loose, setLoose] = useState(false);
     const [share, setShare] = useState(false);
     const [responsibility, setResponsibility] = useState(false);
@@ -29,8 +28,8 @@ export const WalletCreatedFragment = fragment(() => {
             <FragmentMediaContent
                 style={{ paddingHorizontal: 0 }}
                 animation={require('../../../assets/animations/folders.json')}
-                title={t('Back up your wallet')}
-                text={t('In the next step you will see 24 secret words that allows you to recover a wallet')}
+                title={t('backupIntro.title')}
+                text={t('backupIntro.subtitle')}
             >
                 <View
                     style={{
@@ -63,7 +62,7 @@ export const WalletCreatedFragment = fragment(() => {
                             }}
                         />
                         <Text style={{ fontSize: 14, fontWeight: '400', flexShrink: 1 }}>
-                            {t('If I lose recovery phrase, my funds will be lost forever.')}
+                            {t('backupIntro.clause1')}
                         </Text>
                     </Pressable>
                     <Pressable
@@ -86,7 +85,7 @@ export const WalletCreatedFragment = fragment(() => {
                             }}
                         />
                         <Text style={{ fontSize: 14, fontWeight: '400', flexShrink: 1 }}>
-                            {t('If I expose or share my recovery phrase to anybody, my funds can be stolen.')}
+                            {t('backupIntro.clause2')}
                         </Text>
                     </Pressable>
                     <Pressable
@@ -108,7 +107,7 @@ export const WalletCreatedFragment = fragment(() => {
                             }}
                         />
                         <Text style={{ fontSize: 14, fontWeight: '400', flexShrink: 1 }}>
-                            {t('It is my full responsibility to keep my recovery phrase secure.')}
+                            {t('backupIntro.clause3')}
                         </Text>
                     </Pressable>
                 </View>
@@ -118,7 +117,7 @@ export const WalletCreatedFragment = fragment(() => {
                 <RoundButton
                     display={(loose && share && responsibility) ? 'default' : 'secondary'}
                     disabled={!(loose && share && responsibility)}
-                    title={t("Back up now")}
+                    title={t('common.accept')}
                     onPress={() => navigation.navigate('WalletBackupInit')}
                 />
             </View>

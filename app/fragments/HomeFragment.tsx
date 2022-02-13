@@ -6,15 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WalletFragment } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
 import { StatusBar } from 'expo-status-bar';
-import { useTranslation } from 'react-i18next';
 import { BlurView } from 'expo-blur';
 import { CachedLinking } from '../utils/CachedLinking';
 import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { AppConfig } from '../AppConfig';
+import { t } from '../i18n/t';
 
 export const HomeFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
@@ -69,7 +68,7 @@ export const HomeFragment = fragment(() => {
                             <Text
                                 style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
                             >
-                                {t('Wallet')}
+                                {t('home.wallet')}
                             </Text>
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
@@ -80,7 +79,7 @@ export const HomeFragment = fragment(() => {
                             <Text
                                 style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}
                             >
-                                {t('Settings')}
+                                {t('home.settings')}
                             </Text>
                         </Pressable>
                     </BlurView>
@@ -100,7 +99,7 @@ export const HomeFragment = fragment(() => {
                             <Text
                                 style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
                             >
-                                {t('Wallet')}
+                                {t('home.wallet')}
                             </Text>
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
@@ -108,7 +107,9 @@ export const HomeFragment = fragment(() => {
                                 source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
                                 style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
                             />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>{t('Settings')}</Text>
+                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>
+                                {t('home.settings')}
+                            </Text>
                         </Pressable>
                     </View>
                 )}

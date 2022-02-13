@@ -34,7 +34,6 @@ import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
-import { useTranslation } from 'react-i18next';
 import { t } from './i18n/t';
 
 const Stack = createNativeStackNavigator();

@@ -7,12 +7,11 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { loadWalletKeys } from '../../storage/walletKeys';
-import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
+import { t } from '../../i18n/t';
 
 export const WalletBackupFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();
@@ -72,9 +71,9 @@ export const WalletBackupFragment = fragment(() => {
             key={"content"}
         >
             <AndroidToolbar />
-            <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 21 }}>{t("Your recovery phrase")}</Text>
+            <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 21 }}>{t('backup.title')}</Text>
             <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: '#6D6D71' }}>
-                {t("Write down these 24 words in the order given below and store them in a secret, safe place.")}
+                {t('backup.subtitle')}
             </Text>
             <View style={{
                 flexDirection: 'row',
@@ -93,7 +92,7 @@ export const WalletBackupFragment = fragment(() => {
             </View>
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, marginHorizontal: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title={t("Done")} onPress={onComplete} />
+                <RoundButton title={t('common.continue')} onPress={onComplete} />
             </View>
         </Animated.View>
     );

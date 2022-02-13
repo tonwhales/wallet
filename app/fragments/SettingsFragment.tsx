@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Alert, View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
-import { ItemHeader } from '../components/ItemHeader';
 import { fragment } from '../fragment';
 import { Theme } from '../Theme';
 import { storage } from '../storage/storage';
@@ -12,23 +10,23 @@ import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
 import { useReboot } from '../utils/RebootContext';
 import { AppConfig } from '../AppConfig';
+import { t } from '../i18n/t';
 
 export const SettingsFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
 
     const doSignout = React.useCallback(() => {
         Alert.alert(
-            t('Are you sure want to log out?'),
-            t('This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.'),
+            t('confirm.logout.title'),
+            t('confirm.logout.message'),
             [{
-                text: t('Log out'), style: 'destructive', onPress: () => {
+                text: t('common.logout'), style: 'destructive', onPress: () => {
                     storage.clearAll();
                     reboot();
                 }
-            }, { text: t('Cancel') }])
+            }, { text: t('common.cancel') }])
     }, []);
 
     return (
@@ -46,7 +44,7 @@ export const SettingsFragment = fragment(() => {
                         <Text style={[
                             { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
                         ]}>
-                            {t("Settings")}
+                            {t('settings.title')}
                         </Text>
                     </View>
                     <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
@@ -71,7 +69,7 @@ export const SettingsFragment = fragment(() => {
                         <Text style={[
                             { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
                         ]}>
-                            {t("Settings")}
+                            {t('settings.title')}
                         </Text>
                     </View>
                     <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
@@ -104,11 +102,11 @@ export const SettingsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t("Backup keys")} onPress={() => navigation.navigate('WalletBackup')} />
+                        <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup')} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t("Migrate old wallets")} onPress={() => navigation.navigate('Migration')} />
+                        <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
                     </View>
                 </View>
                 <View style={{
@@ -120,11 +118,11 @@ export const SettingsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t("Terms of Service")} onPress={() => navigation.navigate('Terms')} />
+                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t('settings.termsOfService')} onPress={() => navigation.navigate('Terms')} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_privacy.png')} title={t("Privacy policy")} onPress={() => navigation.navigate('Privacy')} />
+                        <ItemButton leftIcon={require('../../assets/ic_privacy.png')} title={t('settings.privacyPolicy')} onPress={() => navigation.navigate('Privacy')} />
                     </View>
                 </View>
 
@@ -138,7 +136,7 @@ export const SettingsFragment = fragment(() => {
                         flexShrink: 1,
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t("Developer Tools")} onPress={() => navigation.navigate('DeveloperTools')} />
+                            <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t('settings.developerTools')} onPress={() => navigation.navigate('DeveloperTools')} />
                         </View>
                     </View>
                 )}
@@ -152,7 +150,7 @@ export const SettingsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t("Log out")} onPress={doSignout} />
+                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={doSignout} />
                     </View>
                 </View>
                 <View style={{ flexGrow: 1 }} />

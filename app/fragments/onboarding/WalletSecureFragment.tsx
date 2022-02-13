@@ -1,26 +1,22 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Alert, ImageSourcePropType, Platform, useWindowDimensions, View } from 'react-native';
+import { Alert, ImageSourcePropType, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { encryptData, ensureKeystoreReady } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
 import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
 import { storage } from '../../storage/storage';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
-import { useTranslation } from 'react-i18next';
 import { RoundButton } from '../../components/RoundButton';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { useReboot } from '../../utils/RebootContext';
+import { t } from '../../i18n/t';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
-    const { t } = useTranslation();
     const reboot = useReboot();
-    const { height } = useWindowDimensions();
 
     // Action
     const [loading, setLoading] = React.useState(false);
@@ -69,7 +65,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 reboot();
             } catch (e) {
                 console.warn(e);
-                Alert.alert(t('Secure storage error'), t('Unfortunatelly we are unable to save data. Please, restart your phone.'));
+                Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
             } finally {
                 setLoading(false);
             }
@@ -79,8 +75,8 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
     let iconImage: ImageSourcePropType | undefined;
     let icon: any | undefined;
     let buttonText = '';
-    let title = t('Protect your wallet');
-    let text = t('We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.');
+    let title = t('secure.title');
+    let text = t('secure.subtitle');
 
     switch (props.deviceEncryption) {
         case 'face':
@@ -88,16 +84,16 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 ? require('../../../assets/ic_face_id.png')
                 : require('../../../assets/ic_and_touch.png');
             buttonText = Platform.OS === 'ios'
-                ? t('Protect with Face ID')
-                : t('Protect with biometrics');
+                ? t('secure.protectFaceID')
+                : t('secure.protectBiometrics');
             break;
         case 'fingerprint':
             iconImage = Platform.OS === 'ios'
                 ? require('../../../assets/ic_touch_id.png')
                 : require('../../../assets/ic_and_touch.png');
             buttonText = Platform.OS === 'ios'
-                ? t('Protect with Touch ID')
-                : t('Protect with biometrics');
+                ? t('secure.protectTouchID')
+                : t('secure.protectBiometrics');
             break;
         case 'passcode':
             icon = <Ionicons
@@ -105,7 +101,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 size={20}
                 color="white"
             />;
-            buttonText = t('Protect with Passcode');
+            buttonText = t('secure.protectPasscode');
             break;
         case 'none':
             icon = <Ionicons
@@ -113,9 +109,9 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 size={20}
                 color="white"
             />;
-            buttonText = t('Continue anyway');
-            title = t('Your device is not protected');
-            text = t('It is highly recommend to enable passcode on your device to protect your assets.')
+            buttonText = t('common.continueAnyway');
+            title = t('secure.titleUnprotected');
+            text = t('secure.subtitleUnprotected');
             break;
 
         default:

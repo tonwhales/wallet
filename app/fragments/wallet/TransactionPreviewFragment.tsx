@@ -9,7 +9,6 @@ import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { fromNano } from "ton";
-import { avatarHash } from "../../utils/avatarHash";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -17,7 +16,6 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Transaction } from "../../sync/Transaction";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
-import AntImage from '../../../assets/images/img_ant.svg';
 import { Avatar } from "../../components/Avatar";
 import { useAccount } from "../../sync/Engine";
 

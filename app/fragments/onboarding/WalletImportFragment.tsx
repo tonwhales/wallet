@@ -10,13 +10,13 @@ import { mnemonicValidate } from 'ton-crypto';
 import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
-import { useTranslation } from 'react-i18next';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { AutocompleteView } from '../../components/AutocompleteView';
+import { t } from '../../i18n/t';
 
 const wordsTrie = WordsListTrie();
 
@@ -168,7 +168,6 @@ function WalletWordsComponent(props: {
         deviceEncryption: DeviceEncryption
     }) => void
 }) {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
 
@@ -208,7 +207,7 @@ function WalletWordsComponent(props: {
         let wordsLocal = wordsRef.current;
         let isValid = await mnemonicValidate(wordsLocal);
         if (!isValid) {
-            Alert.alert(t('Incorrect words'), 'You have entered incorrect secret words. Please, double ckeck your input and try again.');
+            Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
             return;
         }
         const deviceEncryption = await getDeviceEncryption();
@@ -348,7 +347,7 @@ function WalletWordsComponent(props: {
                     scrollEventThrottle={16}
                 >
                     <Text style={{ alignSelf: 'center', marginTop: 5, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
-                        {t("24 Secret Words")}
+                        {t('import.title')}
                     </Text>
                     <Text style={{
                         alignSelf: 'center', textAlign: 'center',
@@ -358,7 +357,7 @@ function WalletWordsComponent(props: {
                         fontWeight: '400', fontSize: 16,
                         color: 'rgba(109, 109, 113, 1)'
                     }}>
-                        {t("Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.")}
+                        {t('import.subtitle')}
                     </Text>
                     <View style={{
                         backgroundColor: 'white',
@@ -368,7 +367,7 @@ function WalletWordsComponent(props: {
                         {wordComponents}
                     </View>
                     <RoundButton
-                        title={t("Continue")}
+                        title={t('common.continue')}
                         action={onSubmitEnd}
                         style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
                     />

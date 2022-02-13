@@ -1,21 +1,19 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { Address } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/dates';
-import { avatarHash } from '../utils/avatarHash';
 import { AddressComponent } from './AddressComponent';
 import { Transaction } from '../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../AppConfig';
-import { useTranslation } from 'react-i18next';
 import { Avatar } from './Avatar';
+import { t } from '../i18n/t';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
-    const { t } = useTranslation();
 
     // Avatar
     let avatarId = props.own.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -27,13 +25,13 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     let transactionType = 'Transfer';
     if (parsed.kind === 'out') {
         if (parsed.status === 'pending') {
-            transactionType = t('Sending #') + parsed.seqno!;
+            transactionType = t('tx.sending', { id: parsed.seqno! });
         } else {
-            transactionType = t('Sent #') + parsed.seqno!;
+            transactionType = t('tx.sent', { id: parsed.seqno! });
         }
     }
     if (parsed.kind === 'in') {
-        transactionType = t('Received');
+        transactionType = t('tx.received');
     }
 
     return (

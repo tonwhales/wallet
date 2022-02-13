@@ -40,7 +40,7 @@ export const WalletBackupFragment = fragment(() => {
     if (!mnemonics) {
         return (
             <Animated.View
-                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
+                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: 'white' }}
                 exiting={FadeOutDown}
                 key={"loader"}
             >

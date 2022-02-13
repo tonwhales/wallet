@@ -1,19 +1,17 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { Platform, Text, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { mnemonicNew } from 'ton-crypto';
 import { minimumDelay } from 'teslabot';
 import { WalletSecureFragment } from './WalletSecureFragment';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncryption';
-import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
+import { t } from '../../i18n/t';
 
 export const WalletCreateFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<{
         mnemonics: string,
@@ -53,7 +51,7 @@ export const WalletCreateFragment = fragment(() => {
                         <View style={{ flexGrow: 1 }} />
                         <FragmentMediaContent
                             animation={require('../../../assets/animations/clock.json')}
-                            title={t("Creating...")}
+                            title={t('create.inProgress')}
                         />
                         <View style={{ flexGrow: 1 }} />
                     </View>

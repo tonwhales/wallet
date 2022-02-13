@@ -8,7 +8,7 @@ LogBox.ignoreLogs([
 ]);
 
 // Load i18n
-import './app/i18n';
+import './app/i18n/i18n';
 
 // Load app
 import { registerRootComponent } from 'expo';

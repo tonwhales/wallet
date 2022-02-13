@@ -35,6 +35,7 @@ import { registerForPushNotificationsAsync, registerPushToken } from './utils/re
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { useTranslation } from 'react-i18next';
+import { t } from './i18n/t';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -129,7 +130,6 @@ const navigation = [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
-    const { t } = useTranslation();
 
     const engine = React.useMemo(() => {
         let state = getAppState();
@@ -251,7 +251,7 @@ export const Navigation = React.memo(() => {
                 >
                     <Stack.Navigator
                         initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: t('Back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+                        screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
                     >
                         {navigation}
                     </Stack.Navigator>

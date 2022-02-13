@@ -1,17 +1,16 @@
 import * as React from 'react';
-import { Platform, Pressable, Text, View, Image } from 'react-native';
+import { Pressable, Text, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useTranslation } from 'react-i18next';
 import { StatusBar } from 'expo-status-bar';
 import { Theme } from '../../Theme';
 import { AppConfig } from '../../AppConfig';
 import { isTermsAccepted } from '../../storage/appState';
+import { t } from '../../i18n/t';
 
 export const WelcomeFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const onImportPressed = React.useCallback(() => {
@@ -55,7 +54,7 @@ export const WelcomeFragment = fragment(() => {
                     marginTop: -42,
                     textAlign: 'center',
                 }}>
-                    {AppConfig.isTestnet ? t('Ton Development Wallet') : t('Tonhub Wallet')}
+                    {AppConfig.isTestnet ? t('welcome.titleDev') : t('welcome.title')}
                 </Text>
                 <Text style={{
                     textAlign: 'center',
@@ -64,11 +63,11 @@ export const WelcomeFragment = fragment(() => {
                     marginTop: 14,
                     flexShrink: 1,
                 }}>
-                    {AppConfig.isTestnet ? t('TON wallet for developers') : t('Simple and secure TON wallet')}
+                    {AppConfig.isTestnet ? t('welcome.subtitleDev') : t('welcome.subtitle')}
                 </Text>
             </View>
             <View style={{ height: 128, position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
-                <RoundButton title={t("Create wallet")} onPress={onCreatePressed} />
+                <RoundButton title={t('welcome.createWallet')} onPress={onCreatePressed} />
                 <Pressable
                     onPress={onImportPressed}
                     style={({ pressed }) => {
@@ -84,7 +83,7 @@ export const WelcomeFragment = fragment(() => {
                         fontWeight: '400',
                         color: Theme.accentText
                     }}>
-                        {t('Import existing wallet')}
+                        {t('welcome.importWallet')}
                     </Text>
                 </Pressable>
             </View>

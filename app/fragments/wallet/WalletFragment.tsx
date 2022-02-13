@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { fragment } from "../../fragment";
-import { getAppState, getCurrentAddress } from '../../storage/appState';
+import { getCurrentAddress } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from '../../components/TransactionView';
@@ -22,6 +22,8 @@ import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
 import { BN } from 'bn.js';
 import { WalletAddress } from '../../components/WalletAddress';
+import { ProductButton } from './products/ProductButton';
+import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -291,14 +293,13 @@ export const WalletFragment = fragment(() => {
                 </View>
 
                 {oldWalletsBalance.gt(new BN(0)) && (
-                    <View style={{ backgroundColor: 'white', borderRadius: 14, marginHorizontal: 16, marginVertical: 16 }}>
-                        <TouchableHighlight onPress={() => navigation.navigate('Migration')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <Text><ValueComponent value={oldWalletsBalance} /></Text>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t("migrate old wallets")}</Text>
-                            </View>
-                        </TouchableHighlight>
-                    </View>
+                    <ProductButton
+                        name={t('Old wallets')}
+                        subtitle={t("Press to migrate old wallets")}
+                        icon={OldWalletIcon}
+                        value={oldWalletsBalance}
+                        onPress={() => navigation.navigate('Migration')}
+                    />
                 )}
 
                 {

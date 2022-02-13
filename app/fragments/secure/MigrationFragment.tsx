@@ -18,6 +18,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { AddressComponent } from '../../components/AddressComponent';
 import { ValueComponent } from '../../components/ValueComponent';
 import { Theme } from '../../Theme';
+import { WalletAddress } from '../../components/WalletAddress';
 
 const MigrationProcessFragment = fragment(() => {
     const { t } = useTranslation();
@@ -120,16 +121,21 @@ export const MigrationFragment = fragment(() => {
                 <AndroidToolbar />
                 <View style={{ marginHorizontal: 16 }}>
                     {state.map((v) => (
-                        <View key={v.address.toFriendly()}>
-                            <Text
+                        <View key={v.address.toFriendly()} style={{ flexDirection: 'row', alignSelf: 'flex-start' }}>
+                            {/* <Text
                                 style={{
                                     fontSize: 21,
                                     color: Theme.textColor,
                                     opacity: v.balance.gt(new BN(0)) ? 1 : 0.3
                                 }}
                             >
-                                <AddressComponent address={v.address} />: <ValueComponent value={v.balance} />
+                                <WalletAddress address={v.address.toFriendly({ testOnly: AppConfig.isTestnet })} />: <ValueComponent value={v.balance} />
+                            </Text> */}
+                            <WalletAddress address={v.address.toFriendly({ testOnly: AppConfig.isTestnet })} style={{ flexGrow: 1, flexBasis: 0 }} />
+                            <Text>
+                                : 💎 <ValueComponent value={v.balance} />
                             </Text>
+                            {/* <ValueComponent value={v.balance} /> */}
                         </View>
                     ))}
                 </View>

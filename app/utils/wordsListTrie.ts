@@ -31,10 +31,12 @@ export class TrieNode {
 }
 
 export class Trie {
-    root: TrieNode
+    root: TrieNode;
+    allWords: Set<string>;
 
     constructor() {
         this.root = new TrieNode(null);
+        this.allWords = new Set();
     }
 
     insert(word: string) {
@@ -60,20 +62,21 @@ export class Trie {
     }
 
     contains(word: string) {
-        var node = this.root;
+        return this.allWords.has(word);
+        // var node = this.root;
 
-        // for every char in the word
-        for (var i = 0; i < word.length; i++) {
-            // check if character node exists
-            if (node.children[word[i]]) {
-                // if it exists, go to the next layer
-                node = node.children[word[i]];
-            } else {
-                // not a valid word
-                return false;
-            }
-        }
-        return node.end;
+        // // for every char in the word
+        // for (var i = 0; i < word.length; i++) {
+        //     // check if character node exists
+        //     if (node.children[word[i]]) {
+        //         // if it exists, go to the next layer
+        //         node = node.children[word[i]];
+        //     } else {
+        //         // not a valid word
+        //         return false;
+        //     }
+        // }
+        // return node.end;
     };
 
     find(prefix: string) {

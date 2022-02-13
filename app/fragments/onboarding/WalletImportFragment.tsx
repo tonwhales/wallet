@@ -220,6 +220,7 @@ function WalletWordsComponent(props: {
     //
 
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
+    const containerRef = useAnimatedRef<View>();
     const translationY = useSharedValue(0);
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -231,45 +232,43 @@ function WalletWordsComponent(props: {
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
     React.useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
-    }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0]);
+        runOnUI(scrollToInput)(selectedWord);
+    }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedWord]);
 
     //
     // Scrolling to active input
     //
 
-    const topOffset = (Platform.OS == 'ios' ? 44 : 56) + safeArea.top;
-    const bottomOffset = safeArea.bottom;
-    const topPadding = 0;
-    const bottomPadding = 0;
     const scrollToInput = React.useCallback((index: number) => {
         'worklet';
 
         let ref = animatedRefs[index];
-        let container = measure(scrollRef);
+        let container = measure(containerRef);
         let measured = measure(ref);
-
-        let relativeY = measured.pageY - container.pageY;
-
-        let pageTop = relativeY - topOffset;
-        // (keyboard.keyboardShown ? keyboard.keyboardHeight : safeArea.bottom) + 52;
-        let pageYBottom = container.height - (relativeY + measured.height);
-        let pageBottom = container.height - relativeY - measured.height - (
-            52 + (keyboardHeight.value > 0 ? 0 : bottomOffset)
-        );
         let scroll = translationY.value;
 
-        console.log(container);
-        console.log(measured);
-        console.log({ pageTop, pageYBottom, pageBottom, scroll, bottomOffset, keyboard: keyboardHeight.value });
+        let relativeTop = measured.pageY - container.pageY;
+        let relativeBottom = (container.height - keyboardHeight.value) - (relativeTop + measured.height);
 
-        if (pageTop < topPadding) {
-            let delta = topPadding - pageTop;
-            scrollTo(scrollRef, 0, scroll - delta, true);
-        } else if (pageBottom < bottomPadding) {
-            let delta = bottomPadding - pageBottom;
-            scrollTo(scrollRef, 0, scroll + delta, true);
+        // If one of the last
+        if (index > 20) {
+            scrollTo(scrollRef, 0, 100000 /* Scroll to bottom */, true);
+            return;
         }
-    }, [topOffset, bottomOffset]);
+
+        // If is behind top edge
+        if (relativeTop < 0) {
+            scrollTo(scrollRef, 0, scroll + relativeTop - 16 /* Scroll a little from the top */, true);
+            return;
+        }
+
+        // If behind bottom edge
+        if (relativeBottom < 0) {
+            scrollTo(scrollRef, 0, scroll - relativeBottom + 16 /* Scroll a little from the top */, true);
+            return;
+        }
+
+    }, []);
 
     //
     // Callbacks
@@ -332,44 +331,46 @@ function WalletWordsComponent(props: {
     return (
         <>
             <StatusBar style='dark' />
-            <Animated.ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
-                contentInsetAdjustmentBehavior="never"
-                keyboardShouldPersistTaps="always"
-                keyboardDismissMode="none"
-                automaticallyAdjustContentInsets={false}
-                ref={scrollRef}
-                onScroll={scrollHandler}
-                scrollEventThrottle={16}
-            >
-                <Text style={{ alignSelf: 'center', marginTop: 5, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
-                    {t("24 Secret Words")}
-                </Text>
-                <Text style={{
-                    alignSelf: 'center', textAlign: 'center',
-                    marginTop: 15,
-                    marginBottom: 37,
-                    marginHorizontal: 37,
-                    fontWeight: '400', fontSize: 16,
-                    color: 'rgba(109, 109, 113, 1)'
-                }}>
-                    {t("Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.")}
-                </Text>
-                <View style={{
-                    backgroundColor: 'white',
-                    borderRadius: 14,
-                    width: '100%',
-                }}>
-                    {wordComponents}
-                </View>
-                <RoundButton
-                    title={t("Continue")}
-                    action={onSubmitEnd}
-                    style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
-                />
-            </Animated.ScrollView>
+            <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }} ref={containerRef}>
+                <Animated.ScrollView
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                    contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                    contentInsetAdjustmentBehavior="never"
+                    keyboardShouldPersistTaps="always"
+                    keyboardDismissMode="none"
+                    automaticallyAdjustContentInsets={false}
+                    ref={scrollRef}
+                    onScroll={scrollHandler}
+                    scrollEventThrottle={16}
+                >
+                    <Text style={{ alignSelf: 'center', marginTop: 5, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
+                        {t("24 Secret Words")}
+                    </Text>
+                    <Text style={{
+                        alignSelf: 'center', textAlign: 'center',
+                        marginTop: 15,
+                        marginBottom: 37,
+                        marginHorizontal: 37,
+                        fontWeight: '400', fontSize: 16,
+                        color: 'rgba(109, 109, 113, 1)'
+                    }}>
+                        {t("Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.")}
+                    </Text>
+                    <View style={{
+                        backgroundColor: 'white',
+                        borderRadius: 14,
+                        width: '100%',
+                    }}>
+                        {wordComponents}
+                    </View>
+                    <RoundButton
+                        title={t("Continue")}
+                        action={onSubmitEnd}
+                        style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
+                    />
+                </Animated.ScrollView>
+            </View>
 
             {Platform.OS === 'android' && (
                 <View style={{ paddingBottom: safeArea.bottom, flexDirection: 'column', alignSelf: 'stretch' }}>
@@ -380,7 +381,7 @@ function WalletWordsComponent(props: {
                 </View>
             )}
             {Platform.OS === 'ios' && (
-                <InputAccessoryView nativeID={'suggestions'} >
+                <InputAccessoryView nativeID={'suggestions'}>
                     <View style={{ flexDirection: 'column', alignSelf: 'stretch' }}>
                         <AutocompleteView
                             suggestions={suggestions}

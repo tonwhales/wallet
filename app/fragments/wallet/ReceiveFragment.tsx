@@ -54,7 +54,7 @@ export const ReceiveFragment = fragment(() => {
             <View style={{
                 justifyContent: 'center', alignItems: 'center',
                 backgroundColor: 'white', borderRadius: 36,
-                paddingHorizontal: 50, paddingTop: 50, paddingBottom: 25,
+                paddingHorizontal: 16, paddingTop: 50, paddingBottom: 25,
                 marginHorizontal: 45,
                 width: 300, height: 344
             }}>
@@ -68,9 +68,10 @@ export const ReceiveFragment = fragment(() => {
                     logoSize={40}
                     logoBackgroundColor='transparent'
                 />
-                <WalletAddress address={address.toFriendly({ testOnly: AppConfig.isTestnet })} textStyle={{
-                    fontFamily: 'Courier'
-                }} />
+                <WalletAddress
+                    address={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                    style={{ marginTop: 16 }}
+                />
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>
                     {t("Wallet address")}
                 </Text>

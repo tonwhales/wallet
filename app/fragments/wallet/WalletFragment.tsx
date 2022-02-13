@@ -247,6 +247,7 @@ export const WalletFragment = fragment(() => {
                     </View> */}
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
+                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         address={
                             address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 10)
                             + '...'

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Platform, View, Image } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -35,7 +36,8 @@ import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { useTranslation } from 'react-i18next';
 
-const Stack = createNativeStackNavigator();// Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
+const Stack = createNativeStackNavigator();
+// const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
 function fullScreen(name: string, component: React.ComponentType<any>) {
     return (
@@ -92,16 +94,16 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-function fullScreenModal(name: string, component: React.ComponentType<any>) {
-    return (
-        <Stack.Screen
-            key={`fullScreenModal-${name}`}
-            name={name}
-            component={component}
-            options={{ presentation: 'fullScreenModal', headerShown: false }}
-        />
-    );
-}
+// function fullScreenModal(name: string, component: React.ComponentType<any>) {
+//     return (
+//         <Stack.Screen
+//             key={`fullScreenModal-${name}`}
+//             name={name}
+//             component={component}
+//             options={{ presentation: 'fullScreenModal', headerShown: false }}
+//         />
+//     );
+// }
 
 const navigation = [
     fullScreen('Welcome', WelcomeFragment),

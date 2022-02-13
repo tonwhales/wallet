@@ -1,6 +1,7 @@
 import React from "react"
 import { ImageSourcePropType, StyleProp, View, ViewStyle, Text, useWindowDimensions, Image } from "react-native";
 import LottieView from 'lottie-react-native';
+import { Theme } from "../Theme";
 
 interface AnimationObject {
     v: string;
@@ -47,7 +48,8 @@ export const FragmentMediaContent = React.memo((props: {
                 <Text style={{
                     fontSize: 30, fontWeight: '700',
                     textAlign: 'center',
-                    marginTop: 26
+                    marginTop: 26,
+                    color: Theme.textColor
                 }}>
                     {props.title}
                 </Text>

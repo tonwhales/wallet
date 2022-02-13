@@ -130,6 +130,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
             alignContent: 'center'
         }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                <View style={{ flexGrow: 1 }} />
                 <FragmentMediaContent
                     animation={require('../../../assets/animations/lock.json')}
                     title={title}

@@ -50,9 +50,10 @@ export const WalletCreateFragment = fragment(() => {
                 >
                     <AndroidToolbar />
                     <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                        <View style={{ flexGrow: 1 }} />
                         <FragmentMediaContent
                             animation={require('../../../assets/animations/clock.json')}
-                            title={t("Creating secure wallet...")}
+                            title={t("Creating...")}
                         />
                         <View style={{ flexGrow: 1 }} />
                     </View>

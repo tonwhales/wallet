@@ -27,6 +27,7 @@ export const LegalFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
             <AndroidToolbar pageTitle={t('Legal')} />
+            <View style={{ flexGrow: 1 }} />
             <FragmentMediaContent
                 animation={require('../../../assets/animations/paper.json')}
                 title={t('Legal')}

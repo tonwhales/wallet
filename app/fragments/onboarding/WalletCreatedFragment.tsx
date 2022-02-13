@@ -13,7 +13,6 @@ export const WalletCreatedFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { t } = useTranslation();
-    const { height } = useWindowDimensions();
     const [loose, setLoose] = useState(false);
     const [share, setShare] = useState(false);
     const [responsibility, setResponsibility] = useState(false);
@@ -28,7 +27,7 @@ export const WalletCreatedFragment = fragment(() => {
         }}>
             <View style={{ flexGrow: 1 }} />
             <FragmentMediaContent
-                style={{ paddingHorizontal: 0, marginTop: height > 800 ? height * 0.13 : 50 }}
+                style={{ paddingHorizontal: 0 }}
                 animation={require('../../../assets/animations/folders.json')}
                 title={t('Back up your wallet')}
                 text={t('In the next step you will see 24 secret words that allows you to recover a wallet')}

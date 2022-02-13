@@ -11,6 +11,7 @@ import { storage } from '../storage/storage';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
 import { useReboot } from '../utils/RebootContext';
+import { AppConfig } from '../AppConfig';
 
 export const SettingsFragment = fragment(() => {
     const { t } = useTranslation();
@@ -85,8 +86,11 @@ export const SettingsFragment = fragment(() => {
                 </View>
             )}
             <ScrollView
+                alwaysBounceVertical={false}
+                contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom + 52 }}
                 style={{
                     flexGrow: 1,
+                    flexBasis: 0,
                     backgroundColor: Theme.background,
                     paddingHorizontal: 16,
                 }}
@@ -151,6 +155,8 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t("Log out")} onPress={doSignout} />
                     </View>
                 </View>
+                <View style={{ flexGrow: 1 }} />
+                <Text style={{ color: Theme.textSecondary, alignSelf: 'center', paddingBottom: 16 }}>Tonhub v{AppConfig.version}</Text>
             </ScrollView>
         </View>
     );

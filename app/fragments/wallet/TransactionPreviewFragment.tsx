@@ -110,7 +110,7 @@ export const TransactionPreviewFragment = fragment(() => {
             }}>
                 <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                     <WalletAddress
-                        address={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        address={transaction?.address?.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         textProps={{ numberOfLines: undefined }}
                         textStyle={{
                             textAlign: 'left',

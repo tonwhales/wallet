@@ -200,9 +200,9 @@ function WalletWordsComponent(props: {
 
     // Submit Callback (does not re-create during re-render)
     const wordsRef = React.useRef(words);
-    React.useEffect(() => {
-        wordsRef.current = words;
-    }, [words]);
+    // React.useEffect(() => {
+    //     wordsRef.current = words;
+    // }, [words]);
     const onSubmitEnd = React.useCallback(async () => {
         let wordsLocal = wordsRef.current;
         let isValid = await mnemonicValidate(wordsLocal);
@@ -282,19 +282,17 @@ function WalletWordsComponent(props: {
     }, []);
 
     const onSetValue = React.useCallback((index: number, value: string) => {
-        setWords((w) => {
-            let r = [...w];
-            r[index] = value;
-            return r;
-        });
+        let r = [...wordsRef.current];
+        r[index] = value;
+        wordsRef.current = r;
+        setWords(r);
     }, []);
 
     const onSubmit = React.useCallback((index: number, value: string) => {
-        setWords((w) => {
-            let r = [...w];
-            r[index] = value;
-            return r;
-        });
+        let r = [...wordsRef.current];
+        r[index] = value;
+        wordsRef.current = r;
+        setWords(r);
         if (index === 23) {
             onSubmitEnd();
         } else {

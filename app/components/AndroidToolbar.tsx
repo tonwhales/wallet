@@ -1,7 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react"
-import { Pressable, View, Image, Text, Platform, StyleProp, ViewStyle } from "react-native"
+import React from "react"
+import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } from "react-native"
 import { Theme } from "../Theme";
+import { Ionicons } from '@expo/vector-icons';
 
 export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string }) => {
     if (Platform.OS === 'ios') {
@@ -9,7 +10,6 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
     }
 
     const navigation = useNavigation();
-    const [backPressedIn, setBackPressedIn] = useState(false);
 
     return (
         <View style={[
@@ -23,18 +23,14 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
             props.style
         ]}>
             {navigation.canGoBack() && (
-                <Pressable
-                    onPressIn={() => setBackPressedIn(true)}
-                    onPressOut={() => setBackPressedIn(false)}
-                    style={{ height: 28, width: 28, alignItems: 'center', justifyContent: 'center', }}
+                <TouchableNativeFeedback
                     onPress={() => navigation.goBack()}
+                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                 >
-                    <Image source={
-                        backPressedIn
-                            ? require('../../assets/ic_back_and_selected.png')
-                            : require('../../assets/ic_back_and.png')
-                    } />
-                </Pressable>
+                    <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
+                        <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
+                    </View>
+                </TouchableNativeFeedback>
             )}
             {props.pageTitle && (
                 <Text

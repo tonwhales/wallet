@@ -28,7 +28,7 @@ export const FragmentMediaContent = React.memo((props: {
     return (
         <View style={[{
             justifyContent: 'center', alignItems: 'center',
-            marginTop: height * 0.13, paddingHorizontal: 25,
+            marginTop: height * 0.13, paddingHorizontal: 25
         }, props.style]}>
             {props.animation && (
                 <LottieView

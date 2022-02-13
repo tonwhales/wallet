@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
+import { Theme } from "../../Theme";
 
 export const WalletCreatedFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -20,10 +21,12 @@ export const WalletCreatedFragment = fragment(() => {
     return (
         <View style={{
             flexGrow: 1,
+            flexDirection: 'column',
             alignSelf: 'stretch', alignItems: 'center',
             backgroundColor: 'white',
             paddingHorizontal: 16,
         }}>
+            <View style={{ flexGrow: 1 }} />
             <FragmentMediaContent
                 style={{ paddingHorizontal: 0, marginTop: height > 800 ? height * 0.13 : 50 }}
                 animation={require('../../../assets/animations/folders.json')}
@@ -54,7 +57,7 @@ export const WalletCreatedFragment = fragment(() => {
                         <Ionicons
                             name={loose ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={loose ? '#42A3EB' : '#B6B6BF'}
+                            color={loose ? Theme.accent : '#B6B6BF'}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -77,7 +80,7 @@ export const WalletCreatedFragment = fragment(() => {
                         <Ionicons
                             name={share ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={share ? '#42A3EB' : '#B6B6BF'}
+                            color={share ? Theme.accent : '#B6B6BF'}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -99,7 +102,7 @@ export const WalletCreatedFragment = fragment(() => {
                         <Ionicons
                             name={responsibility ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={responsibility ? '#42A3EB' : '#B6B6BF'}
+                            color={responsibility ? Theme.accent : '#B6B6BF'}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1

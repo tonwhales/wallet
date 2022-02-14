@@ -18,6 +18,7 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { useAccount } from "../../sync/Engine";
 import { t } from "../../i18n/t";
+import { CopyView } from "../../components/CopyView";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -77,12 +78,12 @@ export const TransactionPreviewFragment = fragment(() => {
                 {`${formatDate(transaction.time, 'dd.MM.yyyy')} ${formatTime(transaction.time)}`}
             </Text>
             <View style={{ flexDirection: 'row', marginTop: 39 }} collapsable={false}>
-                {transaction.kind === 'out' && (
+                {transaction.kind === 'out' && (transaction.body === null || transaction.body.type !== 'payload') && (
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
                         onPress={() => navigation.navigate('Transfer', {
-                            target: transaction?.address?.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            comment: transaction?.body?.comment,
+                            target: transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            comment: transaction.body && transaction.body.type === 'comment' ? transaction.body.comment : null,
                             amount: transaction.amount.neg()
                         })}
                     >
@@ -108,6 +109,26 @@ export const TransactionPreviewFragment = fragment(() => {
                 justifyContent: 'center',
                 width: '100%'
             }}>
+                {transaction.body && transaction.body.type === 'comment' && (
+                    <CopyView content={transaction.body.comment}>
+                        <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+                            <Text
+                                style={{
+                                    textAlign: 'left',
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    lineHeight: 20
+                                }}
+                            >
+                                {transaction.body.comment}
+                            </Text>
+                            <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
+                                {t('common.comment')}
+                            </Text>
+                        </View>
+                    </CopyView>
+                )}
+                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                 <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                     <WalletAddress
                         address={transaction?.address?.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}

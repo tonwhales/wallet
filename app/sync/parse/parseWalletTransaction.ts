@@ -15,10 +15,15 @@ function parseBody(slice: Slice): Body | null {
             rr = rr.readRef();
             res += rr.readBuffer(Math.floor(rr.remaining / 8)).toString();
         }
-        return { comment: slice.readBuffer(Math.floor(slice.remaining / 8)).toString() };
+        if (res.length > 0) {
+            return { type: 'comment', comment: res };
+        } else {
+            return null;
+        }
     }
 
-    return null;
+    // Binary payload
+    return { type: 'payload' };
 }
 
 export function parseWalletTransaction(tx: RawTransaction): Transaction {
@@ -107,6 +112,9 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         if (tx.outMessagesCount === 0) {
             status = 'failed';
         }
+    }
+    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        body = parseBody(tx.inMessage.body.beginParse());
     }
 
     return {

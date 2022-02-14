@@ -21,7 +21,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         no: 'No',
         amount: 'Amount',
         today: 'Today',
-        yesterday: 'Yesterday'
+        yesterday: 'Yesterday',
+        comment: 'Comment'
     },
     home: {
         wallet: 'Wallet',

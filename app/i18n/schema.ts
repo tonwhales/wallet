@@ -23,7 +23,8 @@ export type LocalizationSchema = {
         no: string,
         amount: string,
         today: string,
-        yesterday: string
+        yesterday: string,
+        comment: string
     }
     home: {
         wallet: string,

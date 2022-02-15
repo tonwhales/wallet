@@ -1,7 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StyleProp, Text, TextProps, TextStyle, ViewStyle } from "react-native";
 import { Theme } from "../Theme";
-import { CopyView } from "./CopyView";
+import { ActionsMenuView } from "./ActionsMenuView";
 
 export const WalletAddress = React.memo((props: {
     address: string,
@@ -10,8 +11,9 @@ export const WalletAddress = React.memo((props: {
     textStyle?: StyleProp<TextStyle>,
     textProps?: TextProps
 }) => {
+    const { t } = useTranslation();
     return (
-        <CopyView content={props.value ? props.value : props.address} style={props.style}>
+        <ActionsMenuView title={t('common.walletAddress')} content={props.value ? props.value : props.address} style={props.style}>
             <Text
                 selectable={false}
                 numberOfLines={1}
@@ -30,6 +32,6 @@ export const WalletAddress = React.memo((props: {
                     {props.address}
                 </Text>
             </Text>
-        </CopyView>
+        </ActionsMenuView>
     );
 })

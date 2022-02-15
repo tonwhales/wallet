@@ -18,7 +18,7 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { useAccount } from "../../sync/Engine";
 import { t } from "../../i18n/t";
-import { CopyView } from "../../components/CopyView";
+import { ActionsMenuView } from "../../components/ActionsMenuView";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -110,7 +110,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 width: '100%'
             }}>
                 {transaction.body && transaction.body.type === 'comment' && (
-                    <CopyView content={transaction.body.comment}>
+                    <ActionsMenuView content={transaction.body.comment}>
                         <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                             <Text
                                 style={{
@@ -126,7 +126,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 {t('common.comment')}
                             </Text>
                         </View>
-                    </CopyView>
+                    </ActionsMenuView>
                 )}
                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                 <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>

@@ -142,7 +142,8 @@ export const Navigation = React.memo(() => {
                     main: 'https://mainnet.tonhubapi.com',
                     estimate: 'https://wallet.toncenter.com/api/v2'
                 } : {
-                    main: 'https://testnet.toncenter.com/api/v2'
+                    main: 'https://testnet.tonhubapi.com',
+                    estimate: 'https://testnet.toncenter.com/api/v2'
                 })
             );
         } else {

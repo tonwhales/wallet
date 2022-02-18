@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Platform, Text, View, useWindowDimensions, ScrollView } from 'react-native';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
@@ -71,27 +71,29 @@ export const WalletBackupFragment = fragment(() => {
             key={"content"}
         >
             <AndroidToolbar />
-            <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 21 }}>{t('backup.title')}</Text>
-            <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: '#6D6D71' }}>
-                {t('backup.subtitle')}
-            </Text>
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginHorizontal: 35,
-                marginTop: 43,
-                alignSelf: 'stretch',
-                paddingHorizontal: 10
-            }}>
-                <View>
-                    {words1}
+            <ScrollView alwaysBounceVertical={false} style={{ width: '100%' }}>
+                <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 17 }}>{t('backup.title')}</Text>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: '#6D6D71' }}>
+                    {t('backup.subtitle')}
+                </Text>
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginHorizontal: 35,
+                    marginTop: 35,
+                    alignSelf: 'stretch',
+                    paddingHorizontal: 10
+                }}>
+                    <View>
+                        {words1}
+                    </View>
+                    <View>
+                        {words2}
+                    </View>
                 </View>
-                <View>
-                    {words2}
-                </View>
-            </View>
-            <View style={{ flexGrow: 1 }} />
-            <View style={{ height: 64, marginHorizontal: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <View style={{ height: 64 + 16 + safeArea.bottom }} />
+            </ScrollView>
+            <View style={{ height: 64, marginTop: 33, alignSelf: 'stretch', position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
                 <RoundButton title={t('common.continue')} onPress={onComplete} />
             </View>
         </Animated.View>

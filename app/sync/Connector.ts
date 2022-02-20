@@ -35,14 +35,13 @@ export interface Connector {
 
 export function createSimpleConnector(endpoints: {
     main: string,
-    estimate?: string,
+    estimate: string,
     sender?: string
 }): Connector {
 
     // Client
     const client = new TonClient({ endpoint: endpoints.main + '/jsonRPC' });
     const senderClient = new TonClient({ endpoint: (endpoints.sender || endpoints.main) + '/jsonRPC' });
-    const estimateClient = new TonClient({ endpoint: (endpoints.estimate || endpoints.main) + '/jsonRPC' });
 
     // Account state
     const fetchAccountState: (address: Address) => Promise<ConnectorAccountState> = async (address) => {
@@ -110,18 +109,15 @@ export function createSimpleConnector(endpoints: {
 
     const estimateExternalMessageFee: (contract: Contract, src: Cell) => Promise<BN> = async (contract, src) => {
         const deployed = await client.isContractDeployed(contract.address);
-        const fees = await estimateClient.estimateExternalMessageFee(contract.address, {
-            body: src,
-            initCode: !deployed ? contract.source.initialCode : null,
-            initData: !deployed ? contract.source.initialData : null,
-            ignoreSignature: true
+        let res = await axios.post(endpoints.estimate, {
+            address: contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            body: src.toBoc({ idx: false }).toString('base64'),
+            code: !deployed ? contract.source.initialCode.toBoc({ idx: false }).toString('base64') : null,
+            data: !deployed ? contract.source.initialData.toBoc({ idx: false }).toString('base64') : null,
+            ignoreSignatures: true
         });
-        let fee = new BN(0);
-        fee = fee.add(new BN(fees.source_fees.fwd_fee));
-        fee = fee.add(new BN(fees.source_fees.gas_fee));
-        fee = fee.add(new BN(fees.source_fees.in_fwd_fee));
-        fee = fee.add(new BN(fees.source_fees.storage_fee));
-        return fee;
+        let total = new BN(res.data.total, 10)
+        return total;
     }
 
 

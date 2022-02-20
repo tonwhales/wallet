@@ -132,9 +132,9 @@ export const TransferFragment = fragment(() => {
 
         // Check bounce flag
         let bounce = true;
-        if (!(await engine.connector.client.isContractDeployed(address))) {
+        if (!(await backoff(() => engine.connector.client.isContractDeployed(address)))) {
             bounce = false;
-            if ((await engine.connector.client.getBalance(address)).eq(new BN(0))) {
+            if ((await backoff(() => engine.connector.client.getBalance(address))).eq(new BN(0))) {
                 let cont = await confirm('transfer.error.addressIsNotActive');
                 if (!cont) {
                     return;

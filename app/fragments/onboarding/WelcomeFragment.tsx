@@ -58,8 +58,7 @@ export const WelcomeFragment = fragment(() => {
                 </Text>
                 <Text style={{
                     textAlign: 'center',
-                    color: '#8E979D',
-                    fontSize: 14,
+                    fontSize: 18,
                     marginTop: 14,
                     flexShrink: 1,
                 }}>
@@ -74,13 +73,15 @@ export const WelcomeFragment = fragment(() => {
                         return {
                             opacity: pressed ? 0.5 : 1,
                             alignSelf: 'center',
-                            marginTop: 26
+                            marginTop: 26,
+                            justifyContent: 'center',
+                            alignItems: 'center',
                         }
                     }}
                 >
                     <Text style={{
                         fontSize: 17,
-                        fontWeight: '400',
+                        fontWeight: '600',
                         color: Theme.accentText
                     }}>
                         {t('welcome.importWallet')}

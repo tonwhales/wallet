@@ -174,7 +174,7 @@ export const TransferFragment = fragment(() => {
         const fee = await backoff(() => engine.connector.estimateExternalMessageFee(contract, transfer));
 
         // Sending transfer
-        await backoff(() => engine.connector.client.sendExternalMessage(contract, transfer));
+        await backoff(() => engine.connector.sendExternalMessage(contract, transfer));
 
         // Notify
         engine.registerPending({

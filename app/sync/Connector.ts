@@ -104,7 +104,6 @@ export function createSimpleConnector(endpoints: {
     // Send
     const sendExternalMessage: (contract: Contract, src: Cell) => Promise<void> = async (contract, src) => {
         const deployed = await client.isContractDeployed(contract.address);
-        console.warn('send external: ' + endpoints.sender);
         let res = await axios.post(endpoints.sender, {
             address: contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
             body: src.toBoc({ idx: false }).toString('base64'),

@@ -36,12 +36,11 @@ export interface Connector {
 export function createSimpleConnector(endpoints: {
     main: string,
     estimate: string,
-    sender?: string
+    sender: string
 }): Connector {
 
     // Client
     const client = new TonClient({ endpoint: endpoints.main + '/jsonRPC' });
-    const senderClient = new TonClient({ endpoint: (endpoints.sender || endpoints.main) + '/jsonRPC' });
 
     // Account state
     const fetchAccountState: (address: Address) => Promise<ConnectorAccountState> = async (address) => {
@@ -103,8 +102,17 @@ export function createSimpleConnector(endpoints: {
     }
 
     // Send
-    const sendExternalMessage: (contract: Contract, src: Cell) => Promise<void> = (contract, src) => {
-        return senderClient.sendExternalMessage(contract, src);
+    const sendExternalMessage: (contract: Contract, src: Cell) => Promise<void> = async (contract, src) => {
+        const deployed = await client.isContractDeployed(contract.address);
+        let res = await axios.post(endpoints.sender, {
+            address: contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            body: src.toBoc({ idx: false }).toString('base64'),
+            code: !deployed ? contract.source.initialCode.toBoc({ idx: false }).toString('base64') : null,
+            data: !deployed ? contract.source.initialData.toBoc({ idx: false }).toString('base64') : null
+        });
+        if (!res.data.ok) {
+            throw Error('Invalid request')
+        }
     };
 
     const estimateExternalMessageFee: (contract: Contract, src: Cell) => Promise<BN> = async (contract, src) => {

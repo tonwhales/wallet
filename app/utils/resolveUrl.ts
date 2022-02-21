@@ -10,6 +10,8 @@ export function resolveUrl(src: string): {
     stateInit: Cell | null,
 } | null {
 
+
+
     // Try address parsing
     try {
         let res = Address.parseFriendly(src);
@@ -96,6 +98,7 @@ export function resolveUrl(src: string): {
 
     } catch (e) {
         // Ignore
+        console.warn(e);
     }
 
     return null;

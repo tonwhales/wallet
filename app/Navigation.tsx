@@ -140,10 +140,12 @@ export const Navigation = React.memo(() => {
                 storageCache,
                 createSimpleConnector(!AppConfig.isTestnet ? {
                     main: 'https://mainnet.tonhubapi.com',
-                    estimate: 'https://connect.tonhubapi.com/estimate'
+                    estimate: 'https://connect.tonhubapi.com/estimate',
+                    sender: 'https://connect.tonhubapi.com/send',
                 } : {
                     main: 'https://testnet.tonhubapi.com',
-                    estimate: 'https://connect.tonhubapi.com/estimate'
+                    estimate: 'https://connect.tonhubapi.com/estimate',
+                    sender: 'https://connect.tonhubapi.com/send',
                 })
             );
         } else {

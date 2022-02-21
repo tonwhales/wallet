@@ -44,7 +44,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             send: 'отправить'
         },
         empty: {
-            message: 'Увас нет транзакций',
+            message: 'У вас нет транзакций',
             receive: 'Получить TON'
         }
     },

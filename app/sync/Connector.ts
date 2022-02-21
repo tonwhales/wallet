@@ -78,7 +78,7 @@ export function createSimpleConnector(endpoints: {
 
     // Fetch transactions
     const fetchTransactions: (address: Address, from: { lt: string, hash: string }) => Promise<ConnectorTransaction[]> = async (address, from) => {
-        let res = await axios.get(endpoints.main + '/getTransactions?address=' + address.toFriendly({ testOnly: AppConfig.isTestnet }) + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'));
+        let res = await axios.get(endpoints.main + '/getTransactions?address=' + address.toFriendly({ testOnly: AppConfig.isTestnet }) + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'), { timeout: 15000 });
         if (!res.data.ok) {
             throw Error('Server error');
         }
@@ -109,7 +109,7 @@ export function createSimpleConnector(endpoints: {
             body: src.toBoc({ idx: false }).toString('base64'),
             code: !deployed ? contract.source.initialCode.toBoc({ idx: false }).toString('base64') : null,
             data: !deployed ? contract.source.initialData.toBoc({ idx: false }).toString('base64') : null
-        });
+        }, { timeout: 5000 });
         if (!res.data.ok) {
             throw Error('Invalid request')
         }
@@ -123,7 +123,7 @@ export function createSimpleConnector(endpoints: {
             code: !deployed ? contract.source.initialCode.toBoc({ idx: false }).toString('base64') : null,
             data: !deployed ? contract.source.initialData.toBoc({ idx: false }).toString('base64') : null,
             ignoreSignatures: true
-        });
+        }, { timeout: 5000 });
         let total = new BN(res.data.total, 10)
         return total;
     }

@@ -25,9 +25,6 @@ export class PriceProduct {
     }
 
     get state() {
-        if (!this._state) {
-            throw Error('Not ready');
-        }
         return this._state;
     }
 

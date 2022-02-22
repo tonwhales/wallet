@@ -11,9 +11,10 @@ export function watchPrice(handler: (state: PriceState) => Promise<void> | void)
         }
         await handler(state);
     });
+    // Query every 10 seconds
     const timer = setInterval(() => {
         invalidateSync.invalidate();
-    }, 10000);
+    }, 10 * 1000);
     return () => {
         if (!ended) {
             ended = true;

@@ -23,7 +23,7 @@ export function formatDate(src: number, dateFormat?: string) {
 }
 
 export function formatTime(src: number) {
-    return format(src * 1000, is24Hour ? 'HH:mm' : 'hh:mm aa', { locale });
+    return format(src * 1000, is24Hour || locale === ru ? 'HH:mm' : 'hh:mm aa', { locale });
 }
 
 export function getDateKey(src: number) {

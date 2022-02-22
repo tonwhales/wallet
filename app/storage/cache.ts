@@ -74,6 +74,20 @@ const addressStateStorage = t.type({
     storedAt: t.number
 });
 
+const priceStateStorage = t.type({
+    price: t.type({ usd: t.number })
+});
+
+function parsePriceState(src: any): PriceState | null {
+    const parsed = priceStateStorage.decode(src);
+
+    if (isLeft(parsed)) {
+        return null;
+    }
+
+    return parsed.right;
+}
+
 function serializeAddressState(state: AddressState): t.TypeOf<typeof addressStateStorage> {
     return {
         version: 1,
@@ -133,6 +147,12 @@ export type AddressState = {
     storedAt: number,
 };
 
+export type PriceState = {
+    price: {
+        usd: number
+    }
+}
+
 export function createCache(store: MMKV) {
     return {
         storeTransaction: (address: Address, lt: string, data: string) => {
@@ -181,6 +201,17 @@ export function createCache(store: MMKV) {
             let ex = store.getString('coin_' + name);
             if (ex) {
                 return new BN(ex, 10);
+            } else {
+                return null;
+            }
+        },
+        storePrice: (price: PriceState) => {
+            store.set('price_', JSON.stringify(price));
+        },
+        loadPrice: () => {
+            let price = store.getString('price_');
+            if (price) {
+                return parsePriceState(JSON.parse(price));
             } else {
                 return null;
             }

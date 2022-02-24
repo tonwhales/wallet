@@ -129,6 +129,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         titleUnprotected: 'Your device is not protected',
         subtitle: 'We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.',
         subtitleUnprotected: 'It is highly recommend to enable passcode on your device to protect your assets.',
+        subtitleNoBiometrics: 'It is highly recommend to enable biometrics on your device to protect your assets. We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.',
+        messageNoBiometrics: 'It is highly recommend to enable biometrics on your device to protect your assets.',
         protectFaceID: 'Protect with Face ID',
         protectTouchID: 'Protect with Touch ID',
         protectBiometrics: 'Protect with biometrics',

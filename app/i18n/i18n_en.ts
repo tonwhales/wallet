@@ -151,8 +151,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             message: 'You have entered incorrect secret words. Please, double ckeck your input and try again.'
         },
         secureStorageError: {
-            title: 'Ошибка безопасного хранилища',
-            message: 'К сожалению, мы не можем сохранить данные. Пожалуйста, перезагрузите телефон.'
+            title: 'Secure storage error',
+            message: 'Unfortunatelly we are unable to save data. Please, restart your phone.'
         }
     },
     confirm: {

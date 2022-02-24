@@ -44,7 +44,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             send: 'отправить'
         },
         empty: {
-            message: 'Увас нет транзакций',
+            message: 'У вас нет транзакций',
             receive: 'Получить TON'
         }
     },
@@ -151,8 +151,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             message: 'Вы ввели неправильные секретные слова. Пожалуйста, проверьте ввод и попробуйте еще раз.'
         },
         secureStorageError: {
-            title: 'Secure storage error',
-            message: 'Unfortunatelly we are unable to save data. Please, restart your phone.'
+            title: 'Ошибка безопасного хранилища',
+            message: 'К сожалению, мы не можем сохранить данные. Пожалуйста, перезагрузите телефон.'
         }
     },
     confirm: {

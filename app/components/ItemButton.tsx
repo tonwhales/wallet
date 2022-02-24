@@ -12,14 +12,15 @@ export const ItemButton = React.memo((props: {
     return (
         <Pressable style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })} onPress={props.onPress}>
             <View style={{ height: 48, paddingLeft: props.leftIcon ? 8 : 16, paddingRight: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
-                <View style={{ flexGrow: 1, flexShrink: 1, flexDirection: 'row' }}>
+                <View style={{ flexGrow: 1, flexShrink: 1, flexDirection: 'row', alignItems: 'center' }}>
                     {props.leftIcon && (<Image style={{ height: 24, width: 24 }} source={props.leftIcon} />)}
                     <Text
                         style={{
                             fontSize: 17,
                             textAlignVertical: 'center',
-                            color: props.dangerZone ? "#DD4242" : Theme.textColor,
-                            marginLeft: 10,
+                            color: props.dangerZone ? "#FF0000" : Theme.textColor,
+                            marginLeft: 13,
+                            lineHeight: 24,
                         }}
                         numberOfLines={1}
                         ellipsizeMode={'tail'}

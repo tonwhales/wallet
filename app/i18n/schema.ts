@@ -131,6 +131,8 @@ export type LocalizationSchema = {
         titleUnprotected: string,
         subtitle: string,
         subtitleUnprotected: string,
+        subtitleNoBiometrics: string,
+        messageNoBiometrics: string,
         protectFaceID: string,
         protectTouchID: string,
         protectBiometrics: string,

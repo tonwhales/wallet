@@ -35,6 +35,7 @@ import { registerForPushNotificationsAsync, registerPushToken } from './utils/re
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
+import { useNavigationReady } from './utils/NavigationReadyContext';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -129,6 +130,10 @@ const navigation = [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
+    const navState: {
+        ready: boolean,
+        setReady: (value: boolean) => void
+    } | undefined = useNavigationReady();
 
     const engine = React.useMemo(() => {
         let state = getAppState();
@@ -244,12 +249,18 @@ export const Navigation = React.memo(() => {
         };
     }, []);
 
+    React.useEffect(() => {
+        if (navState?.ready) {
+            onMounted();
+        }
+    }, [navState?.ready, onMounted]);
+
     return (
         <EngineContext.Provider value={engine}>
             <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
                 <NavigationContainer
                     theme={NavigationTheme}
-                    onReady={onMounted}
+                    onReady={() => navState?.setReady(true)}
                 >
                     <Stack.Navigator
                         initialRouteName={initial}

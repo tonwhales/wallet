@@ -44,7 +44,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             send: 'отправить'
         },
         empty: {
-            message: 'Увас нет транзакций',
+            message: 'У вас нет транзакций',
             receive: 'Получить TON'
         }
     },
@@ -129,6 +129,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         titleUnprotected: 'Ваше устройство не защищено',
         subtitle: 'Мы используем биометрию для подтверждения транзакций что бы быть уверенными что никто кроме вас не сможет перевести ваши монеты.',
         subtitleUnprotected: 'Настоятельно рекомендуется включить пароль на вашем устройстве для защиты ваших активов.',
+        subtitleNoBiometrics: 'Настоятельно рекомендуется включить биометрию на вашем устройстве для защиты ваших активов. Мы используем биометрию для подтверждения транзакций что бы быть уверенными что никто кроме вас не сможет перевести ваши монеты.',
+        messageNoBiometrics: 'Настоятельно рекомендуется включить биометрию на вашем устройстве для защиты ваших активов.',
         protectFaceID: 'Защитить с Face ID',
         protectTouchID: 'Защитить с Touch ID',
         protectBiometrics: 'Защитить с биометрией',
@@ -151,8 +153,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             message: 'Вы ввели неправильные секретные слова. Пожалуйста, проверьте ввод и попробуйте еще раз.'
         },
         secureStorageError: {
-            title: 'Secure storage error',
-            message: 'Unfortunatelly we are unable to save data. Please, restart your phone.'
+            title: 'Ошибка безопасного хранилища',
+            message: 'К сожалению, мы не можем сохранить данные. Пожалуйста, перезагрузите телефон.'
         }
     },
     confirm: {

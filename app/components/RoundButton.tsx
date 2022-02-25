@@ -10,7 +10,7 @@ const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hit
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
 
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary';
+export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'disabled';
 const displays: { [key in RoundButtonDisplay]: {
     textColor: string,
     textPressed: string,
@@ -22,6 +22,15 @@ const displays: { [key in RoundButtonDisplay]: {
     default: {
         backgroundColor: Theme.accent,
         borderColor: Theme.accent,
+        textColor: '#fff',
+
+        backgroundPressedColor: Theme.accentDark,
+        borderPressedColor: Theme.accentDark,
+        textPressed: '#fff',
+    },
+    disabled: {
+        backgroundColor: '#9EA6AB',
+        borderColor: '#9EA6AB',
         textColor: '#fff',
 
         backgroundPressedColor: Theme.accentDark,
@@ -116,7 +125,9 @@ export const RoundButton = React.memo((props: {
     }, [props.onPress, props.action]);
 
     const size = sizes[props.size || 'large'];
-    const display = displays[props.display || 'default'];
+    const display = props.disabled
+        ? displays['disabled']
+        : displays[props.display || 'default'];
 
     return (
         <Pressable
@@ -125,19 +136,13 @@ export const RoundButton = React.memo((props: {
             style={(p) => ([
                 {
                     borderWidth: 1,
-                    borderRadius: 14, // size.height / 2
+                    borderRadius: 14,
                     backgroundColor: display.backgroundColor,
                     borderColor: display.borderColor,
                 },
                 p.pressed && {
-                    // backgroundColor: display.backgroundPressedColor,
-                    // borderColor: display.borderPressedColor,
                     opacity: 0.55
                 },
-                // !p.pressed && {
-                //     backgroundColor: display.backgroundColor,
-                //     borderColor: display.borderColor,
-                // },
                 props.style])}
             onPress={doAction}
         >

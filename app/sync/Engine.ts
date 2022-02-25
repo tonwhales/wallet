@@ -11,6 +11,7 @@ import { parseWalletTransaction } from './parse/parseWalletTransaction';
 import { OldWalletsProduct } from './products/OldWalletsProduct';
 import { AddressProduct } from './products/AddressProduct';
 import { AppConfig } from '../AppConfig';
+import { PriceProduct } from './products/PriceProduct';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -76,6 +77,7 @@ export class Engine {
         this.start();
 
         this.products = {
+            price: new PriceProduct(this),
             oldWallets: new OldWalletsProduct(this)
         };
     }

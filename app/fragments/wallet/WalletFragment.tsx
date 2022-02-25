@@ -16,7 +16,7 @@ import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useShared
 import { resolveUrl } from '../../utils/resolveUrl';
 import { useAccount } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
-import { Address } from 'ton';
+import { Address, fromNano } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
 import { BN } from 'bn.js';
@@ -24,6 +24,8 @@ import { WalletAddress } from '../../components/WalletAddress';
 import { ProductButton } from './products/ProductButton';
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
+import { config } from 'process';
+import { PriceComponent } from '../../components/PriceComponent';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -226,26 +228,7 @@ export const WalletFragment = fragment(() => {
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>
-                    {/* TODO: add value in USD */}
-                    {/* <View style={{
-                        backgroundColor: Theme.accent,
-                        borderRadius: 9,
-                        height: 24,
-                        marginHorizontal: 22, marginTop: 6,
-                        justifyContent: 'center',
-                        alignItems: 'flex-start',
-                        alignSelf: 'flex-start',
-                        paddingVertical: 4, paddingHorizontal: 8
-                    }}>
-                        <Text style={{
-                            color: 'white',
-                            fontSize: 14, fontWeight: '600',
-                            textAlign: "center",
-                            lineHeight: 16
-                        }}>
-                            {`$ ${(parseFloat(fromNano(account.balance)) * 3.2).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`}
-                        </Text>
-                    </View> */}
+                    <PriceComponent style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={address.toFriendly({ testOnly: AppConfig.isTestnet })}

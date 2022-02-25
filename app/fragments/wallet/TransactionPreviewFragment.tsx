@@ -110,25 +110,27 @@ export const TransactionPreviewFragment = fragment(() => {
                 width: '100%'
             }}>
                 {transaction.body && transaction.body.type === 'comment' && (
-                    <ActionsMenuView content={transaction.body.comment}>
-                        <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                            <Text
-                                style={{
-                                    textAlign: 'left',
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    lineHeight: 20
-                                }}
-                            >
-                                {transaction.body.comment}
-                            </Text>
-                            <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
-                                {t('common.comment')}
-                            </Text>
-                        </View>
-                    </ActionsMenuView>
+                    <>
+                        <ActionsMenuView content={transaction.body.comment}>
+                            <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+                                <Text
+                                    style={{
+                                        textAlign: 'left',
+                                        fontWeight: '600',
+                                        fontSize: 16,
+                                        lineHeight: 20
+                                    }}
+                                >
+                                    {transaction.body.comment}
+                                </Text>
+                                <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
+                                    {t('common.comment')}
+                                </Text>
+                            </View>
+                        </ActionsMenuView>
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                    </>
                 )}
-                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                 <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                     <WalletAddress
                         address={transaction?.address?.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}

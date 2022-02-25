@@ -4,6 +4,8 @@ import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert } from "react-native";
 import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useKeyboard } from '@react-native-community/hooks';
+import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
@@ -30,6 +32,10 @@ const labelStyle: StyleProp<TextStyle> = {
     marginLeft: 17,
     fontSize: 17
 };
+
+export type ATextInputRef = {
+    focus: () => void;
+}
 
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -294,25 +300,86 @@ export const TransferFragment = fragment(() => {
         setAmount(fromNano(account.balance));
     }, [setAmount, account]);
 
+    //
+    // Scroll state tracking
+    //
+
+    const [selectedInput, setSelectedInput] = React.useState(0);
+
+    const refs = React.useMemo(() => {
+        let r: React.RefObject<ATextInputRef>[] = [];
+        for (let i = 0; i < 3; i++) {
+            r.push(React.createRef());
+        }
+        return r;
+    }, []);
+
+    const keyboard = useKeyboard();
+    const scrollRef = useAnimatedRef<Animated.ScrollView>();
+    const containerRef = useAnimatedRef<View>();
+
+    const scrollToInput = React.useCallback((index: number) => {
+        'worklet';
+
+        if (index === 0) {
+            scrollTo(scrollRef, 0, 0, true);
+            return;
+        }
+
+        let container = measure(containerRef);
+        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : container.height, true);
+        return;
+
+    }, []);
+
+    const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
+    React.useEffect(() => {
+        keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
+        if (keyboard.keyboardShown) {
+            runOnUI(scrollToInput)(selectedInput);
+        }
+    }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
+
+    const onFocus = React.useCallback((index: number) => {
+        console.log('[onFocus]', index);
+        runOnUI(scrollToInput)(index);
+        setSelectedInput(index);
+    }, []);
+
+    const onSubmit = React.useCallback((index: number) => {
+        let next = refs[index + 1].current;
+        console.log('[onSubmit] next', index, next);
+        if (next) {
+            next.focus();
+        }
+    }, []);
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
-            <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flexGrow: 1 }}
-                keyboardVerticalOffset={16}
+            <StatusBar style="dark" />
+            {Platform.OS === 'ios' && (
+                <View style={{
+                    paddingTop: 12,
+                    paddingBottom: 17
+                }}>
+                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? 'transfer.titleAction' : 'transfer.title')}</Text>
+                </View>
+            )}
+            <Animated.ScrollView
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                contentInsetAdjustmentBehavior="never"
+                keyboardShouldPersistTaps="always"
+                keyboardDismissMode="none"
+                automaticallyAdjustContentInsets={false}
+                ref={scrollRef}
+                scrollEventThrottle={16}
             >
-                <StatusBar style="dark" />
-                {Platform.OS === 'ios' && (
-                    <View style={{
-                        paddingTop: 12,
-                        paddingBottom: 17
-                    }}>
-                        <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? 'transfer.titleAction' : 'transfer.title')}</Text>
-                    </View>
-                )}
-                <ScrollView
-                    style={{ paddingHorizontal: 16, flex: 1 }}
+                <View
+                    ref={containerRef}
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
                     {payload && (
                         <View style={{
@@ -351,6 +418,9 @@ export const TransferFragment = fragment(() => {
                                 padding: 22
                             }}>
                                 <ATextInput
+                                    index={0}
+                                    ref={refs[0]}
+                                    onFocus={onFocus}
                                     value={amount}
                                     onValueChange={setAmount}
                                     placeholder={'0'}
@@ -362,6 +432,7 @@ export const TransferFragment = fragment(() => {
                                     lineHeight={41}
                                     preventDefaultHeight
                                     preventDefaultValuePadding
+                                    blurOnSubmit={false}
                                 />
                                 <Text style={{
                                     fontWeight: '600',
@@ -417,6 +488,9 @@ export const TransferFragment = fragment(() => {
                         )}
                         <ATextInput
                             value={target}
+                            index={1}
+                            ref={refs[1]}
+                            onFocus={onFocus}
                             onValueChange={setTarget}
                             placeholder={t('common.walletAddress')}
                             keyboardType="ascii-capable"
@@ -426,6 +500,9 @@ export const TransferFragment = fragment(() => {
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
                             enabled={!payload}
                             editable={!payload}
+                            onSubmit={onSubmit}
+                            returnKeyType="next"
+                            blurOnSubmit={false}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
                         {payload && (
@@ -442,6 +519,9 @@ export const TransferFragment = fragment(() => {
                         )}
                         <ATextInput
                             value={comment}
+                            index={2}
+                            ref={refs[2]}
+                            onFocus={onFocus}
                             onValueChange={setComment}
                             placeholder={t('transfer.comment')}
                             keyboardType="default"
@@ -471,27 +551,29 @@ export const TransferFragment = fragment(() => {
                         )}
                     </View>
                     {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>)}
-                </ScrollView>
-                <View style={[
-                    {
-                        marginHorizontal: 16, marginTop: 16,
-                        paddingBottom: safeArea.bottom + 16
-                    },
-                ]}>
-                    <RoundButton
-                        title={t('common.send')}
-                        action={doSend}
-                    />
                 </View>
-                {Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )}
+            </Animated.ScrollView>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{
+                    marginHorizontal: 16, marginTop: 16,
+                    marginBottom: safeArea.bottom + 16,
+                }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+            >
+                <RoundButton
+                    title={t('common.send')}
+                    action={doSend}
+                />
             </KeyboardAvoidingView>
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+            )}
         </>
     );
 });

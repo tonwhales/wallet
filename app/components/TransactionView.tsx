@@ -46,7 +46,15 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                         {parsed.status === 'failed' ? (
                             <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                         ) : (
-                            <Text style={{ color: parsed.amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={parsed.amount} /></Text>
+                            <Text
+                                style={{
+                                    color: parsed.amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000',
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    marginRight: 2
+                                }}>
+                                <ValueComponent value={parsed.amount} />
+                            </Text>
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>

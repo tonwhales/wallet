@@ -55,7 +55,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     txPreview: {
         sendAgain: 'send again',
-        blockchainFee: 'Blockchain fee'
+        blockchainFee: 'Blockchain fee',
+        share: 'share'
+    },
+    txShare: {
+        title: 'Transaction',
+        total: 'Total'
     },
     receive: {
         title: 'Receive Ton',

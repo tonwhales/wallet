@@ -90,7 +90,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     txPreview: {
         sendAgain: 'повторить',
-        blockchainFee: 'Комиссия сети'
+        blockchainFee: 'Комиссия сети',
+        share: 'поделиться'
+    },
+    txShare: {
+        title: 'Транзакция',
+        total: 'Итоговая цена'
     },
     qr: {
         title: 'Отсканируйте QR-код',

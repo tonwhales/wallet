@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View, Platform, Text, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -19,6 +19,7 @@ import { Avatar } from "../../components/Avatar";
 import { useAccount } from "../../sync/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
+import { showModal } from "../../components/FastModal/showModal";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -44,6 +45,13 @@ export const TransactionPreviewFragment = fragment(() => {
     } else {
         transactionType = t('tx.received');
     }
+
+    const onShareTx = useCallback(
+        () => {
+            navigation.navigate('ShareTransaction', { transaction });
+        },
+        [transaction],
+    );
 
     return (
         <View style={{
@@ -74,32 +82,37 @@ export const TransactionPreviewFragment = fragment(() => {
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 10 }}>
+            <Text style={{ color: Theme.textSecondary, fontSize: 17, marginTop: 10 }}>
                 {`${formatDate(transaction.time, 'dd.MM.yyyy')} ${formatTime(transaction.time)}`}
             </Text>
             <View style={{ flexDirection: 'row', marginTop: 39 }} collapsable={false}>
                 {transaction.kind === 'out' && (transaction.body === null || transaction.body.type !== 'payload') && (
-                    <Pressable
-                        style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={() => navigation.navigate('Transfer', {
-                            target: transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            comment: transaction.body && transaction.body.type === 'comment' ? transaction.body.comment : null,
-                            amount: transaction.amount.neg()
-                        })}
-                    >
-                        <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={require('../../../assets/ic_change.png')} />
-                        </View>
-                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('txPreview.sendAgain')}</Text>
-                    </Pressable>
-                    // TODO: add transaction to favorites
-                    // {/* <Pressable
-                    //     style={(p) => ({ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                    //     onPress={() => addToFav()}
-                    // >
-                    //     <Image source={require('../../../assets/send.png')} />
-                    //     <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("add to favorites")}</Text>
-                    // </Pressable> */}
+                    <>
+                        <Pressable
+                            style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
+                            onPress={() => navigation.navigate('Transfer', {
+                                target: transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                comment: transaction.body && transaction.body.type === 'comment' ? transaction.body.comment : null,
+                                amount: transaction.amount.neg()
+                            })}
+                        >
+                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={require('../../../assets/ic_change.png')} />
+                            </View>
+                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('txPreview.sendAgain')}</Text>
+                        </Pressable>
+                        {transaction.body?.type === 'comment' && (
+                            <Pressable
+                                style={(p) => ({ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
+                                onPress={onShareTx}
+                            >
+                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Image source={require('../../../assets/ic_share.png')} />
+                                </View>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('txPreview.share')}</Text>
+                            </Pressable>
+                        )}
+                    </>
                 )}
             </View>
             <View style={{
@@ -111,23 +124,21 @@ export const TransactionPreviewFragment = fragment(() => {
             }}>
                 {transaction.body && transaction.body.type === 'comment' && (
                     <>
-                        <ActionsMenuView content={transaction.body.comment}>
-                            <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text
-                                    style={{
-                                        textAlign: 'left',
-                                        fontWeight: '600',
-                                        fontSize: 16,
-                                        lineHeight: 20
-                                    }}
-                                >
-                                    {transaction.body.comment}
-                                </Text>
-                                <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
-                                    {t('common.comment')}
-                                </Text>
-                            </View>
-                        </ActionsMenuView>
+                        <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+                            <Text
+                                style={{
+                                    textAlign: 'left',
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    lineHeight: 20
+                                }}
+                            >
+                                {transaction.body.comment}
+                            </Text>
+                            <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
+                                {t('common.comment')}
+                            </Text>
+                        </View>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                     </>
                 )}

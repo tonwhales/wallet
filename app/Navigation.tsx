@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Platform, View, Image } from 'react-native';
+import { Platform, View, Image, Text } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -36,6 +36,7 @@ import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { useNavigationReady } from './utils/NavigationReadyContext';
+import { ShareTransactionFragment } from './fragments/wallet/ShareTransactionFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -106,6 +107,25 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>) {
 //     );
 // }
 
+function shortScreenModal(name: string, component: React.ComponentType<any>) {
+    return (
+        <Stack.Screen
+            key={`fullScreenModal-${name}`}
+            name={name}
+            component={component}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                contentStyle: {
+                    marginTop: '25%',
+                    borderTopRightRadius: 14,
+                    borderTopLeftRadius: 14
+                },
+            }}
+        />
+    );
+}
+
 const navigation = [
     fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
@@ -124,6 +144,7 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Migration', MigrationFragment),
+    shortScreenModal('ShareTransaction', ShareTransactionFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];

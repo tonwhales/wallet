@@ -57,7 +57,12 @@ export type LocalizationSchema = {
     },
     txPreview: {
         sendAgain: string,
-        blockchainFee: string
+        blockchainFee: string,
+        share: string
+    },
+    txShare: {
+        title: string,
+        total: string
     },
     receive: {
         title: string,

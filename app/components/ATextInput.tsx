@@ -69,6 +69,7 @@ export interface ATextInputProps {
     lineHeight?: number | undefined;
     preventDefaultHeight?: boolean,
     preventDefaultValuePadding?: boolean
+    preventDefaultLineHeight?: boolean
     actionButtonRight?: any,
     blurOnSubmit?: boolean,
     innerRef?: React.RefObject<View>,
@@ -131,7 +132,9 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                             : props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10),
                         flexGrow: 1,
                         fontSize: props.fontSize ? props.fontSize : 17,
-                        lineHeight: props.lineHeight ? props.lineHeight : 22,
+                        lineHeight: props.lineHeight
+                            ? props.lineHeight
+                            : props.preventDefaultLineHeight ? undefined : 22,
                         fontWeight: props.fontWeight ? props.fontWeight : '400',
                         textAlignVertical: props.multiline ? 'top' : 'center'
                     }, props.inputStyle]}

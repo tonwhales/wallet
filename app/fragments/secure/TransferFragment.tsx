@@ -415,7 +415,7 @@ export const TransferFragment = fragment(() => {
                                 borderRadius: 14,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                padding: 22
+                                padding: 15
                             }}>
                                 <ATextInput
                                     index={0}
@@ -426,18 +426,19 @@ export const TransferFragment = fragment(() => {
                                     placeholder={'0'}
                                     keyboardType={'numeric'}
                                     textAlign={'center'}
-                                    style={{ marginBottom: 20, backgroundColor: 'transparent' }}
+                                    style={{ backgroundColor: 'transparent' }}
                                     fontWeight={'800'}
-                                    fontSize={38}
-                                    lineHeight={41}
+                                    fontSize={30}
                                     preventDefaultHeight
+                                    preventDefaultLineHeight
                                     preventDefaultValuePadding
                                     blurOnSubmit={false}
                                 />
                                 <Text style={{
                                     fontWeight: '600',
                                     fontSize: 16,
-                                    color: '#6D6D71'
+                                    color: '#6D6D71',
+                                    marginBottom: 5
                                 }}>
                                     {fromNano(account?.balance || new BN(0))} TON
                                 </Text>
@@ -464,7 +465,6 @@ export const TransferFragment = fragment(() => {
                                     </TouchableHighlight>
                                 </View>
                             </View>
-                            <Text style={{ fontWeight: '700', fontSize: 20, marginTop: 13 }}>{t('transfer.sendTo')}</Text>
                         </>
                     )}
                     <View style={{

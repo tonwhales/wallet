@@ -10,7 +10,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="*"
+                    android:host="transfer"
+                    android:pathPrefix="/"
                     android:scheme="ton" />
                 <data
                     android:host="tonhub.com"

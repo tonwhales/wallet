@@ -155,7 +155,7 @@ export const SettingsFragment = fragment(() => {
             </ScrollView>
             <View style={{
                 position: 'absolute',
-                bottom: 56 + 14,
+                bottom: 56 + 14 + safeArea.bottom,
                 flexShrink: 1,
                 alignSelf: 'center',
                 borderRadius: 20,

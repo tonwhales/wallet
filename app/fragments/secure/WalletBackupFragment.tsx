@@ -10,6 +10,7 @@ import { loadWalletKeys } from '../../storage/walletKeys';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 
 export const WalletBackupFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -35,6 +36,12 @@ export const WalletBackupFragment = fragment(() => {
                 return;
             }
         })();
+
+        // Keeping screen in awakened state
+        activateKeepAwake('WalletBackupFragment');
+        return function deactivate() {
+            deactivateKeepAwake('WalletBackupFragment')
+        };
     }, []);
     if (!mnemonics) {
         return (

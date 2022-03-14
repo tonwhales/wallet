@@ -46,6 +46,11 @@ export type AccountState = {
     pending: Transaction[]
 };
 
+export type EngineProduct = {
+    ready: boolean,
+    awaitReady: () => Promise<void>
+}
+
 export class Engine {
     readonly address: Address;
     readonly publicKey: Buffer;
@@ -59,7 +64,7 @@ export class Engine {
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _txs = new Map<string, Transaction>();
     private _pending: Transaction[] = [];
-    private _products = new Map<string, AddressProduct | PriceProduct>();
+    private _products = new Map<string, EngineProduct>();
 
     constructor(
         address: Address,
@@ -103,14 +108,13 @@ export class Engine {
             }
         });
         for (let p of this._products.values()) {
-            console.log('[Engine]: awaitReady', p)
             await p.awaitReady();
         }
     }
 
     get state() {
         if (!this._state) {
-            throw Error('Engine not ready');
+            throw Error('Not ready');
         }
         return this._state;
     }
@@ -124,7 +128,7 @@ export class Engine {
         return n;
     }
 
-    createAddressProduct(address: Address): AddressProduct {
+    createAddressProduct(address: Address) {
         const key = address.toFriendly({ testOnly: AppConfig.isTestnet });
         let ex = this._products.get(key);
         if (ex) {

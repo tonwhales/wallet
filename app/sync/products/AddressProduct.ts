@@ -28,7 +28,7 @@ export class AddressProduct {
 
     get state() {
         if (!this._state) {
-            throw Error('Not ready');
+            throw Error('Address not ready');
         }
         return this._state;
     }

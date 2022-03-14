@@ -59,7 +59,7 @@ export class Engine {
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _txs = new Map<string, Transaction>();
     private _pending: Transaction[] = [];
-    private _products = new Map<string, AddressProduct>();
+    private _products = new Map<string, AddressProduct | PriceProduct>();
 
     constructor(
         address: Address,
@@ -77,8 +77,8 @@ export class Engine {
         this.start();
 
         this.products = {
-            price: new PriceProduct(this),
-            oldWallets: new OldWalletsProduct(this)
+            oldWallets: new OldWalletsProduct(this),
+            price: this.createPriceProduct()
         };
     }
 
@@ -103,22 +103,32 @@ export class Engine {
             }
         });
         for (let p of this._products.values()) {
+            console.log('[Engine]: awaitReady', p)
             await p.awaitReady();
         }
     }
 
     get state() {
         if (!this._state) {
-            throw Error('Not ready');
+            throw Error('Engine not ready');
         }
         return this._state;
     }
 
-    createAddressProduct(address: Address) {
+    createPriceProduct(): PriceProduct {
+        const key = 'price_product';
+        let ex = this._products.get(key);
+        if (ex) return ex as PriceProduct;
+        let n = new PriceProduct(this);
+        this._products.set(key, n);
+        return n;
+    }
+
+    createAddressProduct(address: Address): AddressProduct {
         const key = address.toFriendly({ testOnly: AppConfig.isTestnet });
         let ex = this._products.get(key);
         if (ex) {
-            return ex;
+            return ex as AddressProduct;
         }
         let n = new AddressProduct(address, this);
         this._products.set(key, n);

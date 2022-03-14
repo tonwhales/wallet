@@ -14,6 +14,7 @@ export class PriceProduct {
     private _watched: (() => void) | null = null;
 
     constructor(engine: Engine) {
+        console.log('[PriceProduct] init');
         this.engine = engine;
         this._state = engine.cache.loadPrice();
         this._destroyed = false;
@@ -25,6 +26,9 @@ export class PriceProduct {
     }
 
     get state() {
+        if (!this._state) {
+            throw Error('Price not ready');
+        }
         return this._state;
     }
 

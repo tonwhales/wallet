@@ -8454,10 +8454,10 @@ toidentifier@1.0.1:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
 
-ton-contracts@2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/ton-contracts/-/ton-contracts-2.3.2.tgz#cb9f130f1fb4cb1af3a35f04d1fd00b9100663a1"
-  integrity sha512-O8DVQ1180Zx2m6D0SVluny4rjWhChLpo41WwmnDejPKd0Ip1s8lI/vACjS4oewkEPvZG1stIsrAWpLHyW94y6A==
+ton-contracts@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/ton-contracts/-/ton-contracts-3.0.0.tgz#f3aa68e85fa963836d3aa0b67eae9196f1e67b94"
+  integrity sha512-62i/fyFQSTEV9PUFiFd74L9CSWLRBxbuDp7nPzNYTaWBFR+ijTqKand+bfEZLIkNOUoY4jlrEogO5ZnNhYq1Zw==
   dependencies:
     "@openland/patterns" "^0.0.2"
 

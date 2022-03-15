@@ -180,7 +180,7 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = 4CFQ3FG324;
+						DevelopmentTeam = 6WGTUU3SQ7;
 						LastSwiftMigration = 1250;
 						ProvisioningStyle = Automatic;
 					};
@@ -340,7 +340,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 44;
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
+				DEVELOPMENT_TEAM = 6WGTUU3SQ7;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -355,7 +355,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.vzhovnitsky;
 				PRODUCT_NAME = "Tonhub [d]";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "wallet/wallet-Bridging-Header.h";
@@ -378,7 +378,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 44;
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
+				DEVELOPMENT_TEAM = 6WGTUU3SQ7;
 				INFOPLIST_FILE = wallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -388,7 +388,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.vzhovnitsky;
 				PRODUCT_NAME = Tonhub;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "wallet/wallet-Bridging-Header.h";
@@ -577,7 +577,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 44;
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
+				DEVELOPMENT_TEAM = 6WGTUU3SQ7;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -592,7 +592,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.testnet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.testnet.vzhovnitsky;
 				PRODUCT_NAME = "Tondev [d]";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "wallet/wallet-Bridging-Header.h";
@@ -666,7 +666,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 44;
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
+				DEVELOPMENT_TEAM = 6WGTUU3SQ7;
 				INFOPLIST_FILE = wallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -676,7 +676,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.testnet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.testnet.vzhovnitsky;
 				PRODUCT_NAME = Tondev;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "wallet/wallet-Bridging-Header.h";

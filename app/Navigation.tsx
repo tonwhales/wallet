@@ -163,7 +163,6 @@ export const Navigation = React.memo(() => {
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine);
 
-        console.log('[initial] onboarding', onboarding);
         if (onboarding === 'backup') {
             return 'WalletCreated';
         } else if (onboarding === 'home') {

@@ -38,7 +38,21 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         stake: 'Стейкинг'
     },
     stake: {
-        title: 'Стейкинг Toncoin',
+        title: 'Toncoin стейкинг пул',
+        buttonTitle: 'cтейкинг',
+        balanceTitle: 'Баланс',
+        actions: {
+            deposit: 'внести',
+            withdraw: 'вывести'
+        },
+        empty: {
+            message: 'У вас нет транзакций'
+        },
+        pending: {
+            deposit: 'Ожидает внесения',
+            withdraw: 'Ожидает вывода'
+        },
+        withdraw: 'Вывод'
     },
     wallet: {
         sync: 'Синхронизация кошелька',

@@ -3,11 +3,14 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { View, Text, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AppConfig } from "../../AppConfig";
 import { AddressComponent } from "../../components/AddressComponent";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
+import { StakingMemberComponent } from "../../components/StakingMemberComponent";
 import { ValueComponent } from "../../components/ValueComponent";
 import { fragment } from "../../fragment";
+import { getCurrentAddress } from "../../storage/appState";
 import { useAccount } from "../../sync/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
@@ -16,18 +19,26 @@ export const StakeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [account, engine] = useAccount();
+    const address = React.useMemo(() => getCurrentAddress().address, []);
     const staking = engine.products.stake.useState();
     const pool = engine.products.stakingPool.useState();
 
-    console.log({ staking, pool });
 
     if (!staking || !pool) {
         return <></>
     }
 
+    const member = pool
+        .members
+        .find((m) => {
+            return m.address
+                .toFriendly({ testOnly: AppConfig.isTestnet }) === address
+                    .toFriendly({ testOnly: AppConfig.isTestnet })
+        });
     // const response = useStaking();
     // const pool = useStakingPool();
     // const pools = pool.data;
+    console.log({ staking, pool, joined: member });
 
     let startValidation = staking.startWorkTime;
     let endValidation = staking.startWorkTime + staking.validatorsElectedFor;
@@ -51,19 +62,10 @@ export const StakeFragment = fragment(() => {
             flex: 1
         }}>
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        marginLeft: 17,
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>{t('stake.title')}</Text>
-                </View>
+            {member && (
+                <StakingMemberComponent pool={pool} member={member} />
             )}
-            <Text style={{ alignSelf: 'center', marginTop: 5, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
+            {/* <Text style={{ alignSelf: 'center', marginTop: 5, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
                 {'[TESTNET] Whales Nominator Pool #2'}
             </Text>
             <View>
@@ -83,15 +85,7 @@ export const StakeFragment = fragment(() => {
                 <Text>Weight: {(pool.validatorWeight * 100).toFixed(4) + '%'}</Text>
                 <Text>Bonuses in current round: <ValueComponent value={pool.validatorBonuses} /></Text>
                 <Text>Balance drift: <ValueComponent value={pool.balanceDrift} /></Text>
-            </View>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            </View> */}
         </View>
     );
 });

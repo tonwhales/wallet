@@ -1,5 +1,6 @@
 import { AddSuffixes, ReplaceTypeRecurcive, FilterTypeRecursive, FilterNotTypeRecursive, FlattenForIntellisense } from './../utils/types';
 import { Paths } from '../utils/types';
+import { string } from 'io-ts';
 export type Plural = number;
 
 export type LocalizationSchema = {
@@ -41,6 +42,20 @@ export type LocalizationSchema = {
     },
     stake: {
         title: string,
+        buttonTitle: string,
+        balanceTitle: string,
+        actions: {
+            deposit: string,
+            withdraw: string
+        },
+        empty: {
+            message: string
+        },
+        pending: {
+            deposit: string,
+            withdraw: string
+        },
+        withdraw: string
     },
     wallet: {
         sync: string,

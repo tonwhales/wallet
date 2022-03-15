@@ -40,7 +40,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     stake: {
         title: 'Toncoin стейкинг пул',
         buttonTitle: 'cтейкинг',
-        balanceTitle: 'Баланс',
+        balanceTitle: 'Стейкинг Баланс',
         actions: {
             deposit: 'внести',
             withdraw: 'вывести'

@@ -40,7 +40,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     stake: {
         title: 'Toncoin Staking pool',
         buttonTitle: 'stake',
-        balanceTitle: 'Balance',
+        balanceTitle: 'Staking Balance',
         actions: {
             deposit: 'deposit',
             withdraw: 'withdraw'

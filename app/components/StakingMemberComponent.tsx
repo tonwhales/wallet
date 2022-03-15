@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react"
 import { View, Text, Platform, useWindowDimensions, Image, Pressable } from "react-native"
-import { Address } from "ton";
+import { Address, fromNano, toNano } from "ton";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Transaction } from "../sync/Transaction";
 import { formatDate, getDateKey } from "../utils/dates";
@@ -234,10 +234,20 @@ export const StakingMemberComponent = React.memo((props: {
                         }}
                     />
                 </Animated.View>
-
+                {/* actions */}
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight
+                            onPress={() => navigation.navigate(
+                                'Transfer',
+                                {
+                                    target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                    comment: 'Deposit',
+                                }
+                            )}
+                            underlayColor={Theme.selector}
+                            style={{ borderRadius: 14 }}
+                        >
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../assets/ic_receive.png')} />
@@ -247,7 +257,18 @@ export const StakingMemberComponent = React.memo((props: {
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigate('Transfer')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight
+                            onPress={() => navigation.navigate(
+                                'Transfer',
+                                {
+                                    target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                    comment: 'Withdraw',
+                                    amount: toNano('0.2')
+                                }
+                            )}
+                            underlayColor={Theme.selector}
+                            style={{ borderRadius: 14 }}
+                        >
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../assets/ic_send.png')} />
@@ -257,28 +278,38 @@ export const StakingMemberComponent = React.memo((props: {
                         </TouchableHighlight>
                     </View>
                 </View>
-                <View style={{ flexDirection: 'row', marginHorizontal: 16, marginVertical: 16 }} collapsable={false}>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'flex-start', height: 66, borderRadius: 14 }}>
+                {/* stats */}
+                <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 16 }} collapsable={false}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14, padding: 12 }}>
+                        <View style={{ justifyContent: 'space-between', alignItems: 'flex-start', borderRadius: 14 }}>
                             <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.deposit')}</Text>
-                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', height: 40, marginTop: 2 }}>
-                                <ValueComponent value={props.member.pendingDeposit} centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }} />
+                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
+                                <ValueComponent
+                                    value={props.member.pendingDeposit}
+                                    centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
+                                />
                             </Text>
                         </View>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'flex-start', height: 66, borderRadius: 14 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 7, backgroundColor: 'white', borderRadius: 14, padding: 12 }}>
+                        <View style={{ justifyContent: 'space-between', flex: 1, alignItems: 'flex-start', borderRadius: 14 }}>
                             <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.withdraw')}</Text>
-                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', height: 40, marginTop: 2 }}>
-                                <ValueComponent value={props.member.pendingWithdraw} centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }} />
+                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
+                                <ValueComponent
+                                    value={props.member.pendingWithdraw}
+                                    centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
+                                />
                             </Text>
                         </View>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'flex-start', height: 66, borderRadius: 14 }}>
-                            <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.withdraw')}</Text>
-                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', height: 40, marginTop: 2 }}>
-                                <ValueComponent value={props.member.withdraw} centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }} />
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 7, backgroundColor: 'white', borderRadius: 14, padding: 12 }}>
+                        <View style={{ justifyContent: 'space-between', flex: 1, alignItems: 'flex-start', borderRadius: 14 }}>
+                            <Text style={{ fontSize: 12, color: 'black', opacity: 0.8, }}>{t('stake.withdraw')}</Text>
+                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
+                                <ValueComponent
+                                    value={props.member.withdraw}
+                                    centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
+                                />
                             </Text>
                         </View>
                     </View>

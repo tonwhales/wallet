@@ -34,7 +34,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         migrateOldWallets: 'Перенос старых кошельков',
         termsOfService: 'Условия использования',
         privacyPolicy: 'Политика конфиденциальности',
-        developerTools: 'Инструменты разработчика'
+        developerTools: 'Инструменты разработчика',
+        stake: 'Стейкинг'
+    },
+    stake: {
+        title: 'Стейкинг Toncoin',
     },
     wallet: {
         sync: 'Синхронизация кошелька',

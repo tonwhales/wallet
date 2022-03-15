@@ -36,6 +36,7 @@ import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { useNavigationReady } from './utils/NavigationReadyContext';
+import { StakeFragment } from './fragments/wallet/StakeFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -112,6 +113,7 @@ const navigation = [
     fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment),
     genericScreen('LegalImport', LegalFragment),
+    modalScreen('StakeFragment', StakeFragment),
     genericScreen('WalletImport', WalletImportFragment),
     genericScreen('WalletCreate', WalletCreateFragment),
     genericScreen('WalletCreated', WalletCreatedFragment),
@@ -160,6 +162,8 @@ export const Navigation = React.memo(() => {
 
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine);
+
+        console.log('[initial] onboarding', onboarding);
         if (onboarding === 'backup') {
             return 'WalletCreated';
         } else if (onboarding === 'home') {

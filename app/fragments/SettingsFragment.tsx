@@ -100,6 +100,18 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
+                    {AppConfig.isTestnet && (
+                        <>
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton
+                                    leftIcon={require('../../assets/stake.png')}
+                                    title={t('settings.stake')}
+                                    onPress={() => navigation.navigate('StakeFragment')}
+                                />
+                            </View>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                        </>
+                    )}
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup')} />
                     </View>

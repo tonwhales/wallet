@@ -36,7 +36,11 @@ export type LocalizationSchema = {
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,
-        developerTools: string
+        developerTools: string,
+        stake: string
+    },
+    stake: {
+        title: string,
     },
     wallet: {
         sync: string,

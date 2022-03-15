@@ -55,7 +55,8 @@ export type LocalizationSchema = {
             deposit: string,
             withdraw: string
         },
-        withdraw: string
+        withdraw: string,
+        sync: string
     },
     wallet: {
         sync: string,

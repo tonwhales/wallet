@@ -38,7 +38,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         stake: 'Stake'
     },
     stake: {
-        title: 'Toncoin Staking pool',
+        title: 'Staking',
         buttonTitle: 'stake',
         balanceTitle: 'Staking Balance',
         actions: {
@@ -52,7 +52,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             deposit: 'Pending Deposit',
             withdraw: 'Pending Withdraw'
         },
-        withdraw: 'Withdraw'
+        withdraw: 'Withdraw',
+        sync: 'Downloading staking data'
     },
     wallet: {
         sync: 'Downloading wallet data',

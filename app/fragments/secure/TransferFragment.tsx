@@ -45,13 +45,15 @@ export const TransferFragment = fragment(() => {
         amount?: BN | null,
         payload?: Cell | null,
         stateInit?: Cell | null,
+        minAmount?: BN | null,
+        fromStaking?: boolean
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
+    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : params?.minAmount ? fromNano(params.minAmount) : '0');
     const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
@@ -202,8 +204,12 @@ export const TransferFragment = fragment(() => {
         }
 
         // Reset stack to root
-        navigation.popToTop();
-    }, [amount, target, comment, account.seqno, payload, stateInit]);
+        if (!params?.fromStaking) {
+            navigation.popToTop();
+        } else {
+            navigation.goBack();
+        }
+    }, [amount, target, comment, account.seqno, payload, stateInit, params]);
 
     // Estimate fee
     const lock = React.useMemo(() => {

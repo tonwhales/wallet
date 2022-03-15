@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react"
-import { View, Text, Platform, useWindowDimensions, Image, Pressable } from "react-native"
-import { Address, fromNano, toNano } from "ton";
+import { View, Text, Platform, useWindowDimensions, Image } from "react-native"
+import { Address, toNano } from "ton";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Transaction } from "../sync/Transaction";
 import { formatDate, getDateKey } from "../utils/dates";
@@ -16,12 +16,11 @@ import { PriceComponent } from "./PriceComponent";
 import { WalletAddress } from "./WalletAddress";
 import { AppConfig } from "../AppConfig";
 import { TouchableHighlight } from "react-native-gesture-handler";
-import { ProductButton } from "../fragments/wallet/products/ProductButton";
 import { useTranslation } from "react-i18next";
-import { RoundButton } from "./RoundButton";
 import { BlurView } from "expo-blur";
 import { AddressComponent } from "./AddressComponent";
 import { StakingPoolState } from "../storage/cache";
+import { HeaderBackButton } from '@react-navigation/elements';
 
 const StakingTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -190,6 +189,12 @@ export const StakingMemberComponent = React.memo((props: {
                 scrollEventThrottle={16}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
+                {/* <Text style={{ fontSize: 12, color: 'black', opacity: 0.8, marginHorizontal: 16, marginTop: 8, padding: 4 }}>
+                    Status: {props.pool.locked ? (props.pool.readyToUnlock ? '💸 Recovering stake' : '🔨 Stake sent to elector') : '💨 Cooldown'}
+                </Text>
+                <Text style={{ fontSize: 12, color: 'black', opacity: 0.8, marginHorizontal: 16, marginTop: 8, padding: 4 }}>
+                    Accepting new stakes: {props.pool.enabled ? '✅ Yes!' : '⚠️ Suspended'}
+                </Text> */}
                 <Animated.View
                     style={[
                         { ...cardOpacityStyle },
@@ -243,6 +248,8 @@ export const StakingMemberComponent = React.memo((props: {
                                 {
                                     target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                                     comment: 'Deposit',
+                                    minAmount: props.pool.minStake,
+                                    fromStaking: true
                                 }
                             )}
                             underlayColor={Theme.selector}
@@ -263,7 +270,8 @@ export const StakingMemberComponent = React.memo((props: {
                                 {
                                     target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                                     comment: 'Withdraw',
-                                    amount: toNano('0.2')
+                                    amount: toNano('0.2'),
+                                    fromStaking: true
                                 }
                             )}
                             underlayColor={Theme.selector}
@@ -279,39 +287,35 @@ export const StakingMemberComponent = React.memo((props: {
                     </View>
                 </View>
                 {/* stats */}
-                <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 16 }} collapsable={false}>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14, padding: 12 }}>
-                        <View style={{ justifyContent: 'space-between', alignItems: 'flex-start', borderRadius: 14 }}>
-                            <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.deposit')}</Text>
-                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
-                                <ValueComponent
-                                    value={props.member.pendingDeposit}
-                                    centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
-                                />
-                            </Text>
-                        </View>
+                <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start' }}>
+                        <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.deposit')}</Text>
+                        <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
+                            <ValueComponent
+                                value={props.member.pendingDeposit}
+                                centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
+                            />
+                        </Text>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 7, backgroundColor: 'white', borderRadius: 14, padding: 12 }}>
-                        <View style={{ justifyContent: 'space-between', flex: 1, alignItems: 'flex-start', borderRadius: 14 }}>
-                            <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.withdraw')}</Text>
-                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
-                                <ValueComponent
-                                    value={props.member.pendingWithdraw}
-                                    centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
-                                />
-                            </Text>
-                        </View>
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start' }}>
+                        <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.withdraw')}</Text>
+                        <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
+                            <ValueComponent
+                                value={props.member.pendingWithdraw}
+                                centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
+                            />
+                        </Text>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginHorizontal: 7, backgroundColor: 'white', borderRadius: 14, padding: 12 }}>
-                        <View style={{ justifyContent: 'space-between', flex: 1, alignItems: 'flex-start', borderRadius: 14 }}>
-                            <Text style={{ fontSize: 12, color: 'black', opacity: 0.8, }}>{t('stake.withdraw')}</Text>
-                            <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
-                                <ValueComponent
-                                    value={props.member.withdraw}
-                                    centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
-                                />
-                            </Text>
-                        </View>
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start' }}>
+                        <Text style={{ fontSize: 12, color: 'black', opacity: 0.8, }}>{t('stake.withdraw')}</Text>
+                        <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
+                            <ValueComponent
+                                value={props.member.withdraw}
+                                centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
+                            />
+                        </Text>
                     </View>
                 </View>
                 {
@@ -365,6 +369,13 @@ export const StakingMemberComponent = React.memo((props: {
                         }}
                         >
                             <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                                <View style={{
+                                    position: 'absolute',
+                                    top: 0, bottom: 0, left: 0,
+                                    justifyContent: 'center', alignItems: 'center'
+                                }}>
+                                    <HeaderBackButton onPress={navigation.goBack} />
+                                </View>
                                 <Animated.Text style={[
                                     { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
                                     { position: 'relative', ...titleOpacityStyle },
@@ -443,7 +454,7 @@ export const StakingMemberComponent = React.memo((props: {
                                 { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
                                 { position: 'relative', ...titleOpacityStyle },
                             ]}>
-                                Tonhub
+                                Staking
                             </Animated.Text>
                             <Animated.View
                                 style={[

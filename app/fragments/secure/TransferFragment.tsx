@@ -29,7 +29,6 @@ import { LocalizedResources } from '../../i18n/schema';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
-    marginLeft: 17,
     fontSize: 17
 };
 
@@ -46,7 +45,11 @@ export const TransferFragment = fragment(() => {
         payload?: Cell | null,
         stateInit?: Cell | null,
         minAmount?: BN | null,
-        fromStaking?: boolean
+        staking?: {
+            goBack?: boolean,
+            minAmount?: BN,
+            deposit?: boolean
+        }
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
@@ -204,7 +207,7 @@ export const TransferFragment = fragment(() => {
         }
 
         // Reset stack to root
-        if (!params?.fromStaking) {
+        if (!params?.staking || !params.staking.goBack) {
             navigation.popToTop();
         } else {
             navigation.goBack();
@@ -360,16 +363,30 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
+    console.log('[Transfer]', { params })
+
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
+            <AndroidToolbar
+                style={{ marginTop: safeArea.top }}
+                pageTitle={t(
+                    params?.staking?.deposit
+                        ? 'transfer.depositStakeTitle'
+                        : payload ? 'transfer.titleAction' : 'transfer.title'
+                )} />
             <StatusBar style="dark" />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t(payload ? 'transfer.titleAction' : 'transfer.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center' }]}>
+                        {t(
+                            params?.staking?.deposit
+                                ? 'transfer.depositStakeTitle'
+                                : payload ? 'transfer.titleAction' : 'transfer.title'
+                        )}
+                    </Text>
                 </View>
             )}
             <Animated.ScrollView
@@ -387,6 +404,11 @@ export const TransferFragment = fragment(() => {
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
+                    {params?.staking && params.staking.minAmount && (
+                        <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13, marginBottom: 14, }}>
+                            {t('transfer.stakingWarning', { minAmount: fromNano(params.staking.minAmount) })}
+                        </Text>
+                    )}
                     {payload && (
                         <View style={{
                             marginBottom: 14,

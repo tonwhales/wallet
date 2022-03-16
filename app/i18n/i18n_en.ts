@@ -45,12 +45,26 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             deposit: 'deposit',
             withdraw: 'withdraw'
         },
+        join: {
+            title: 'Join Tonwhales Staking Pool',
+            message: 'Deposit your Toncoins to receive staking rewards from validation',
+            buttonTitle: 'Stake now',
+            moreAbout: 'More about Tonwhales Staking Pool',
+            here: 'HERE'
+        },
         empty: {
             message: 'You have no transactions'
         },
         pending: {
             deposit: 'Pending Deposit',
             withdraw: 'Pending Withdraw'
+        },
+        withdrawStatus: {
+            pending: 'Withdraw pending',
+            ready: 'Withdraw ready'
+        },
+        depositStatus: {
+            pending: 'Deposit pending'
         },
         withdraw: 'Withdraw',
         sync: 'Downloading staking data'
@@ -102,7 +116,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',
         purpose: 'Purpose of transaction',
-        comment: 'Message to recipient (optional)'
+        comment: 'Message to recipient (optional)',
+        stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
+        depositStakeTitle: 'Deposit Stake'
     },
     migrate: {
         title: 'Migrate old wallets',

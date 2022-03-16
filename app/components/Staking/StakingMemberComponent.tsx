@@ -1,8 +1,7 @@
 import BN from "bn.js";
-import React from "react"
-import { View, Text, Platform, useWindowDimensions, Image } from "react-native"
-import { Address, toNano } from "ton";
-import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import React, { useEffect } from "react"
+import { View, Text, Platform, Image } from "react-native"
+import { Address, fromNano, toNano } from "ton";
 import { Transaction } from "../../sync/Transaction";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { TransactionView } from "../TransactionView";
@@ -13,14 +12,12 @@ import { getCurrentAddress } from "../../storage/appState";
 import { useAccount } from "../../sync/Engine";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
-import { WalletAddress } from "../WalletAddress";
 import { AppConfig } from "../../AppConfig";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
-import { BlurView } from "expo-blur";
-import { AddressComponent } from "../AddressComponent";
 import { StakingPoolState } from "../../storage/cache";
-import { HeaderBackButton } from '@react-navigation/elements';
+import { CloseButton } from "../CloseButton";
+import LottieView from 'lottie-react-native';
 
 const StakingTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -77,130 +74,170 @@ export const StakingMemberComponent = React.memo((props: {
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
+    const animRef = React.useRef<LottieView>(null);
+
+    useEffect(() => {
+        setTimeout(() => {
+            if (Platform.OS) {
+                animRef.current?.play();
+            }
+        }, 300);
+    }, [animRef.current]);
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <View>
+            {Platform.OS === 'ios' && (
+                <View style={{
+                    paddingTop: 12,
+                    paddingBottom: 17
+                }}>
+                    <Text style={[{
+                        textAlign: 'center', fontWeight: '600',
+                        fontSize: 17
+                    }]}>{
+                            t('stake.title')}</Text>
+                </View>
+            )}
+            <View
+                style={[{ marginHorizontal: 16, marginTop: 48, }]}
+                collapsable={false}
+            >
                 <View
-                    style={[
-                        { marginHorizontal: 16, marginVertical: 16, }
-                    ]}
-                    collapsable={false}
+                    style={{
+                        backgroundColor: 'white',
+                        position: 'absolute',
+                        top: 0, bottom: 0, left: 0, right: 0,
+                        borderRadius: 14
+                    }}
+                />
+                <Text
+                    style={{ fontSize: 14, color: 'black', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
                 >
-                    <View
-                        style={{
-                            backgroundColor: 'white',
-                            position: 'absolute',
-                            top: 0, bottom: 0, left: 0, right: 0,
-                            borderRadius: 14
-                        }}
+                    {t('stake.balanceTitle')}
+                </Text>
+                <Text
+                    style={{ fontSize: 30, color: 'black', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
+                >
+                    <ValueComponent
+                        value={props.member.balance}
+                        centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                     />
-                    <Text style={{ fontSize: 14, color: 'black', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('stake.balanceTitle')}</Text>
-                    <Text style={{ fontSize: 30, color: 'black', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
-                        <ValueComponent value={props.member.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
-                    </Text>
-                    <PriceComponent style={{ marginHorizontal: 22, marginTop: 6 }} />
-                    <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={
-                            address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 10)
-                            + '...'
-                            + address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
-                        }
-                        style={{
-                            marginLeft: 22,
-                            marginBottom: 24,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: 'black',
-                            fontWeight: '500',
-                            fontFamily: undefined
-                        }}
-                    />
-                </View>
-                {/* actions */}
-                <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight
-                            onPress={() => navigation.navigate(
-                                'Transfer',
-                                {
-                                    target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    comment: 'Deposit',
-                                    minAmount: props.pool.minStake,
-                                    fromStaking: true
-                                }
-                            )}
-                            underlayColor={Theme.selector}
-                            style={{ borderRadius: 14 }}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                    <Image source={require('../../assets/ic_receive.png')} />
-                                </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('stake.actions.deposit')}</Text>
-                            </View>
-                        </TouchableHighlight>
-                    </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight
-                            onPress={() => navigation.navigate(
-                                'Transfer',
-                                {
-                                    target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    comment: 'Withdraw',
-                                    amount: toNano('0.2'),
-                                    fromStaking: true
-                                }
-                            )}
-                            underlayColor={Theme.selector}
-                            style={{ borderRadius: 14 }}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                    <Image source={require('../../assets/ic_send.png')} />
-                                </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('stake.actions.withdraw')}</Text>
-                            </View>
-                        </TouchableHighlight>
-                    </View>
-                </View>
-                {/* stats */}
+                </Text>
+                <PriceComponent style={{ marginHorizontal: 22, marginTop: 6 }} />
+            </View>
+            {parseFloat(fromNano(props.member.pendingDeposit)) > 0 && (
                 <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
-                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start' }}>
-                        <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.deposit')}</Text>
-                        <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 16, color: Theme.scoreGold, fontWeight: '500' }}>{t('stake.pending.deposit')}</Text>
+                        <Text style={{ fontSize: 12, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
                             <ValueComponent
                                 value={props.member.pendingDeposit}
-                                centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
-                            />
-                        </Text>
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
-                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start' }}>
-                        <Text style={{ fontSize: 12, color: 'black', opacity: 0.8 }}>{t('stake.pending.withdraw')}</Text>
-                        <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
-                            <ValueComponent
-                                value={props.member.pendingWithdraw}
-                                centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
-                            />
-                        </Text>
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
-                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start' }}>
-                        <Text style={{ fontSize: 12, color: 'black', opacity: 0.8, }}>{t('stake.withdraw')}</Text>
-                        <Text style={{ fontSize: 14, color: 'black', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
-                            <ValueComponent
-                                value={props.member.withdraw}
-                                centFontStyle={{ fontSize: 12, fontWeight: '500', opacity: 0.55 }}
+                                centFontStyle={{ fontSize: 10, fontWeight: '500', opacity: 0.55 }}
                             />
                         </Text>
                     </View>
                 </View>
+            )}
+            {parseFloat(fromNano(props.member.pendingWithdraw)) > 0 && (
+                <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 16, color: Theme.scoreGold, fontWeight: '500' }}>{t('stake.withdrawStatus.pending')}</Text>
+                        <Text style={{ fontSize: 12, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
+                            <ValueComponent
+                                value={props.member.pendingWithdraw}
+                                centFontStyle={{ fontSize: 10, fontWeight: '500', opacity: 0.55 }}
+                            />
+                        </Text>
+                    </View>
+                </View>
+            )}
+            {parseFloat(fromNano(props.member.withdraw)) > 0 && (
+                <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 16, color: '#4FAE42', fontWeight: '500' }}>{t('stake.withdrawStatus.ready')}</Text>
+                        <Text style={{ fontSize: 12, color: 'black', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
+                            <ValueComponent
+                                value={props.member.withdraw}
+                                centFontStyle={{ fontSize: 10, fontWeight: '500', opacity: 0.55 }}
+                            />
+                        </Text>
+                    </View>
+                </View>
+            )}
+            <View style={{ flex: 1, flexGrow: 1 }} />
+            {/* staking_whale */}
+            <View style={{ alignSelf: 'center' }}>
+                <LottieView
+                    ref={animRef}
+                    source={require('../../../assets/animations/staking_whale.json')}
+                    autoPlay={true}
+                    loop={true}
+                    style={{ width: 140, height: 140 }}
+                />
             </View>
-        </View >
+            <View style={{ flex: 1, flexGrow: 1 }} />
+            {/* actions */}
+            <View style={{ flexDirection: 'row', marginHorizontal: 16, paddingBottom: safeArea.bottom + 16 }} collapsable={false}>
+                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                    <TouchableHighlight
+                        onPress={() => navigation.navigate(
+                            'Transfer',
+                            {
+                                target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                comment: 'Deposit',
+                                minAmount: props.pool.minStake,
+                                staking: {
+                                    goBack: true,
+                                    minAmount: props.pool.minStake,
+                                    deposit: true
+                                }
+                            }
+                        )}
+                        underlayColor={Theme.selector}
+                        style={{ borderRadius: 14 }}
+                    >
+                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={require('../../../assets/ic_receive.png')} />
+                            </View>
+                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('stake.actions.deposit')}</Text>
+                        </View>
+                    </TouchableHighlight>
+                </View>
+                <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                    <TouchableHighlight
+                        onPress={() => navigation.navigate(
+                            'Transfer',
+                            {
+                                target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                comment: 'Withdraw',
+                                amount: toNano('0.2'),
+                                staking: {
+                                    goBack: true,
+                                    minAmount: toNano('0.2')
+                                }
+                            }
+                        )}
+                        underlayColor={Theme.selector}
+                        style={{ borderRadius: 14 }}
+                    >
+                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                <Image source={require('../../../assets/ic_send.png')} />
+                            </View>
+                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('stake.actions.withdraw')}</Text>
+                        </View>
+                    </TouchableHighlight>
+                </View>
+            </View>
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+            )}
+        </View>
     );
 });

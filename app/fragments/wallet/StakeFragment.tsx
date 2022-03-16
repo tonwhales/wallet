@@ -52,7 +52,7 @@ export const StakeFragment = fragment(() => {
         }}>
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             {!member && (
-                <StakingJoinComponent />
+                <StakingJoinComponent pool={pool} />
             )}
             {member && (
                 <StakingMemberComponent pool={pool} member={member} />

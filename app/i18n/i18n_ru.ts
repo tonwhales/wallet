@@ -45,12 +45,26 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             deposit: 'внести',
             withdraw: 'вывести'
         },
+        join: {
+            title: 'Присоединяйтесь к Tonwhales Staking Pool',
+            message: 'Внесите свои Toncoin, чтобы получать вознаграждение за стейкинг валидацию',
+            buttonTitle: 'Присоединиться',
+            moreAbout: 'Подробнее о Tonwhales Staking Pool',
+            here: 'ЗДЕСЬ'
+        },
         empty: {
             message: 'У вас нет транзакций'
         },
         pending: {
             deposit: 'Ожидает внесения',
             withdraw: 'Ожидает вывода'
+        },
+        withdrawStatus: {
+            pending: 'Вывод ожидает',
+            ready: 'Вывод готов'
+        },
+        depositStatus: {
+            pending: 'Взнос ожидает'
         },
         withdraw: 'Вывод',
         sync: 'Синхронизация данных'
@@ -93,7 +107,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
         purpose: 'Цель транзакции',
-        comment: 'Сообщение получателю (необязательное)'
+        comment: 'Сообщение получателю (необязательное)',
+        stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
+        depositStakeTitle: 'Внести стейк'
     },
     migrate: {
         title: 'Перенос старых кошельков',

@@ -48,12 +48,26 @@ export type LocalizationSchema = {
             deposit: string,
             withdraw: string
         },
+        join: {
+            title: string,
+            message: string,
+            buttonTitle: string,
+            moreAbout: string,
+            here: string
+        },
         empty: {
             message: string
         },
         pending: {
             deposit: string,
             withdraw: string
+        },
+        withdrawStatus: {
+            pending: string,
+            ready: string
+        },
+        depositStatus: {
+            pending: string
         },
         withdraw: string,
         sync: string
@@ -105,7 +119,9 @@ export type LocalizationSchema = {
         sendTo: string,
         fee: string,
         purpose: string,
-        comment: string
+        comment: string,
+        stakingWarning: string,
+        depositStakeTitle: string
     },
     migrate: {
         title: string,

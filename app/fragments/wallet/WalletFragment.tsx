@@ -272,18 +272,6 @@ export const WalletFragment = fragment(() => {
                             </View>
                         </TouchableHighlight>
                     </View>
-                    {AppConfig.isTestnet && (
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 14, backgroundColor: 'white', borderRadius: 14 }}>
-                            <TouchableHighlight onPress={() => navigation.navigate('StakeFragment')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                                <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                    <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Image source={require('../../../assets/ic_stake.png')} />
-                                    </View>
-                                    <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('stake.buttonTitle')}</Text>
-                                </View>
-                            </TouchableHighlight>
-                        </View>
-                    )}
                 </View>
 
                 {oldWalletsBalance.gt(new BN(0)) && (

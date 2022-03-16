@@ -11,6 +11,7 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
+import { EngineContext } from '../../sync/Engine';
 
 export const WalletBackupFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -18,13 +19,18 @@ export const WalletBackupFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getCurrentAddress(), []);
+    const engine = React.useContext(EngineContext)!
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
         }
         markAddressSecured(address.address);
-        navigation.navigateAndReplaceAll('Home');
+        if (engine && !engine.ready) {
+            navigation.navigateAndReplaceAll('Sync');
+        } else {
+            navigation.navigateAndReplaceAll('Home');
+        }
     }, []);
     React.useEffect(() => {
         (async () => {

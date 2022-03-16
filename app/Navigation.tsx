@@ -113,7 +113,7 @@ const navigation = [
     fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment),
     genericScreen('LegalImport', LegalFragment),
-    fullScreen('StakeFragment', StakeFragment),
+    modalScreen('StakeFragment', StakeFragment),
     genericScreen('WalletImport', WalletImportFragment),
     genericScreen('WalletCreate', WalletCreateFragment),
     genericScreen('WalletCreated', WalletCreatedFragment),

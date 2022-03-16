@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "1.7.6",
+  "version": "1.8.0",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -40,6 +40,7 @@
     "expo-constants": "~13.0.0",
     "expo-device": "~4.1.0",
     "expo-haptics": "^11.1.0",
+    "expo-keep-awake": "^10.0.2",
     "expo-local-authentication": "~12.1.0",
     "expo-notifications": "~0.14.0",
     "expo-random": "~12.1.1",

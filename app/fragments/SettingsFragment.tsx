@@ -84,7 +84,6 @@ export const SettingsFragment = fragment(() => {
                 </View>
             )}
             <ScrollView
-                alwaysBounceVertical={false}
                 contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom + 52 }}
                 style={{
                     flexGrow: 1,
@@ -153,9 +152,31 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={doSignout} />
                     </View>
                 </View>
-                <View style={{ flexGrow: 1 }} />
-                <Text style={{ color: Theme.textSecondary, alignSelf: 'center', paddingBottom: 16 }}>Tonhub v{AppConfig.version}</Text>
             </ScrollView>
+            <View style={{
+                position: 'absolute',
+                bottom: 56 + 14 + safeArea.bottom,
+                flexShrink: 1,
+                alignSelf: 'center',
+                borderRadius: 20,
+                overflow: 'hidden',
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+            }}>
+                <View style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: Theme.background,
+                    opacity: 0.8
+                }} />
+
+                <Text style={{
+                    color: Theme.textSecondary,
+                    alignSelf: 'center',
+                }}>
+                    Tonhub v{AppConfig.version}
+                </Text>
+            </View>
         </View>
     );
 });

@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.tonhub.wallet">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tonhub.wallet">
 
     <application>
         <activity android:name=".MainActivity">
@@ -8,16 +7,15 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="test.tonhub.com" android:scheme="http" />
+                <data android:host="test.tonhub.com" android:scheme="https" />
+            </intent-filter>
 
-                <data
-                    android:host="*"
-                    android:scheme="ton-test" />
-                <data
-                    android:host="test.tonhub.com"
-                    android:scheme="http" />
-                <data
-                    android:host="test.tonhub.com"
-                    android:scheme="https" />
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="ton-test" />
             </intent-filter>
         </activity>
     </application>

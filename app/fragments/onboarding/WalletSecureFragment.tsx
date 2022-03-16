@@ -168,26 +168,28 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                         iconImage={iconImage}
                         icon={icon}
                     />
-                    <Pressable
-                        onPress={continueAnywayAlert}
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                                alignSelf: 'center',
-                                marginTop: 26,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }
-                        }}
-                    >
-                        <Text style={{
-                            fontSize: 17,
-                            fontWeight: '600',
-                            color: Theme.accentText
-                        }}>
-                            {t('common.continueAnyway')}
-                        </Text>
-                    </Pressable>
+                    {disabled && (
+                        <Pressable
+                            onPress={continueAnywayAlert}
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1,
+                                    alignSelf: 'center',
+                                    marginTop: 26,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }
+                            }}
+                        >
+                            <Text style={{
+                                fontSize: 17,
+                                fontWeight: '600',
+                                color: Theme.accentText
+                            }}>
+                                {t('common.continueAnyway')}
+                            </Text>
+                        </Pressable>
+                    )}
                 </View>
             </View>
         </View>

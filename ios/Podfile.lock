@@ -23,7 +23,7 @@ PODS:
   - EXImageLoader (3.1.0):
     - ExpoModulesCore
     - React-Core
-  - EXKeepAwake (10.0.1):
+  - EXKeepAwake (10.0.2):
     - ExpoModulesCore
   - EXLocalAuthentication (12.1.0):
     - ExpoModulesCore
@@ -733,7 +733,7 @@ SPEC CHECKSUMS:
   EXFileSystem: 7d1309ba6b38b82ef7fc9e80174de3f9184ac8b4
   EXFont: 1fb13af43dc517c01c0ff21a6e32f9f9bf2ea602
   EXImageLoader: df83442d32bcfb57b7cfc5690096b6caf8203f8d
-  EXKeepAwake: b571c2ad8323b2fced6e907766e2549f75119471
+  EXKeepAwake: bf48d7f740a5cd2befed6cf9a49911d385c6c47d
   EXLocalAuthentication: 4c7166ed3133d2c75586093833936652e7d2c7fc
   EXNotifications: d5b454a2363c8743aa9b2888cc0df70a1d9ee816
   Expo: f8cd8811d9aee5bc651a3285e1101358db610e0d

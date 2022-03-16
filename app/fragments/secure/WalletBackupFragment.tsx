@@ -27,8 +27,7 @@ export const WalletBackupFragment = fragment(() => {
         }
         markAddressSecured(address.address);
         if (engine && !engine.ready) {
-            console.log('engine && !engine.ready');
-            navigation.navigate('Sync');
+            navigation.navigateAndReplaceAll('Sync');
         } else {
             navigation.navigateAndReplaceAll('Home');
         }

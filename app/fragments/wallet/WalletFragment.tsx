@@ -26,6 +26,7 @@ import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
 import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
+import { StakingProductComponent } from '../../components/StakingProductComponent';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -283,7 +284,7 @@ export const WalletFragment = fragment(() => {
                         onPress={() => navigation.navigate('Migration')}
                     />
                 )}
-
+                {AppConfig.isTestnet && (<StakingProductComponent />)}
                 {
                     transactions.length === 0 && (
                         <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: window.height * 0.095 }}>

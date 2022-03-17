@@ -40,38 +40,6 @@ export type LocalizationSchema = {
         developerTools: string,
         stake: string
     },
-    stake: {
-        title: string,
-        buttonTitle: string,
-        balanceTitle: string,
-        actions: {
-            deposit: string,
-            withdraw: string
-        },
-        join: {
-            title: string,
-            message: string,
-            buttonTitle: string,
-            moreAbout: string,
-            here: string
-        },
-        empty: {
-            message: string
-        },
-        pending: {
-            deposit: string,
-            withdraw: string
-        },
-        withdrawStatus: {
-            pending: string,
-            ready: string
-        },
-        depositStatus: {
-            pending: string
-        },
-        withdraw: string,
-        sync: string
-    },
     wallet: {
         sync: string,
         balanceTitle: string,
@@ -139,7 +107,41 @@ export type LocalizationSchema = {
         oldWallets: {
             title: string,
             subtitle: string
-        }
+        },
+        stake: {
+            title: string,
+            subtitle: {
+                join: string,
+            },
+            buttonTitle: string,
+            balanceTitle: string,
+            actions: {
+                deposit: string,
+                withdraw: string
+            },
+            join: {
+                title: string,
+                message: string,
+                buttonTitle: string,
+                moreAbout: string,
+            },
+            empty: {
+                message: string
+            },
+            pending: {
+                deposit: string,
+                withdraw: string
+            },
+            withdrawStatus: {
+                pending: string,
+                ready: string
+            },
+            depositStatus: {
+                pending: string
+            },
+            withdraw: string,
+            sync: string
+        },
     }
     welcome: {
         title: string,

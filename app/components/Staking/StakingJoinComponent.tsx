@@ -53,7 +53,7 @@ export const StakingJoinComponent = React.memo((props: {
                     <Text style={[{
                         textAlign: 'center', fontWeight: '600',
                         fontSize: 17
-                    }]}>{t('stake.title')}</Text>
+                    }]}>{t('products.stake.title')}</Text>
                 </View>
             )}
             <View style={{ flex: 1, flexGrow: 1 }} />
@@ -83,7 +83,7 @@ export const StakingJoinComponent = React.memo((props: {
                     fontSize: 18,
                     fontWeight: '600'
                 }}>
-                    {t('stake.join.title')}
+                    {t('products.stake.join.title')}
                 </Text>
                 <Text style={{
                     textAlign: 'center',
@@ -97,7 +97,7 @@ export const StakingJoinComponent = React.memo((props: {
                     color: 'white',
                     fontSize: 14
                 }}>
-                    {t('stake.join.message')}
+                    {t('products.stake.join.message')}
                 </Text>
 
                 <TouchableOpacity
@@ -124,7 +124,7 @@ export const StakingJoinComponent = React.memo((props: {
                         fontSize: 16,
                     }}>
                         <Text style={{ color: 'white', fontWeight: '800' }}>
-                            {t('stake.join.moreAbout')}
+                            {t('products.stake.join.moreAbout')}
                         </Text>
                     </Text>
 
@@ -132,7 +132,7 @@ export const StakingJoinComponent = React.memo((props: {
             </View>
             <View style={{ flex: 1, flexGrow: 1 }} />
             <RoundButton
-                title={t('stake.join.buttonTitle')}
+                title={t('products.stake.join.buttonTitle')}
                 onPress={onJoin}
                 style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
             />

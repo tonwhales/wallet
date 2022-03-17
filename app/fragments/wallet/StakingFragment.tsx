@@ -14,7 +14,7 @@ import { getCurrentAddress } from "../../storage/appState";
 import { useAccount } from "../../sync/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
-export const StakeFragment = fragment(() => {
+export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -28,7 +28,7 @@ export const StakeFragment = fragment(() => {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
-                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16 }}>{t('stake.sync')}</Text>
+                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16 }}>{t('products.stake.sync')}</Text>
             </View>
         );
     }

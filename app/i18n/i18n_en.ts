@@ -37,38 +37,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         developerTools: 'Developer Tools',
         stake: 'Stake'
     },
-    stake: {
-        title: 'Staking',
-        buttonTitle: 'stake',
-        balanceTitle: 'Staking Balance',
-        actions: {
-            deposit: 'deposit',
-            withdraw: 'withdraw'
-        },
-        join: {
-            title: 'Join Tonwhales Staking Pool',
-            message: 'Deposit your Toncoins to receive staking rewards from validation',
-            buttonTitle: 'Stake now',
-            moreAbout: 'More about Tonwhales Staking Pool',
-            here: 'HERE'
-        },
-        empty: {
-            message: 'You have no transactions'
-        },
-        pending: {
-            deposit: 'Pending Deposit',
-            withdraw: 'Pending Withdraw'
-        },
-        withdrawStatus: {
-            pending: 'Withdraw pending',
-            ready: 'Withdraw ready'
-        },
-        depositStatus: {
-            pending: 'Deposit pending'
-        },
-        withdraw: 'Withdraw',
-        sync: 'Downloading staking data'
-    },
     wallet: {
         sync: 'Downloading wallet data',
         balanceTitle: 'Ton balance',
@@ -136,7 +104,41 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
-        }
+        },
+        stake: {
+            title: 'Staking',
+            subtitle: {
+                join: 'Stake your Toncoins',
+            },
+            buttonTitle: 'stake',
+            balanceTitle: 'Staking Balance',
+            actions: {
+                deposit: 'deposit',
+                withdraw: 'withdraw'
+            },
+            join: {
+                title: 'Stake your Toncoins to become an TON Validator',
+                message: 'Staking is a public good for the TON ecosystem. You can help secure the network and earn rewards in the process',
+                buttonTitle: 'Start staking',
+                moreAbout: 'More about Tonwhales Staking Pool',
+            },
+            empty: {
+                message: 'You have no transactions'
+            },
+            pending: {
+                deposit: 'Pending Deposit',
+                withdraw: 'Pending Withdraw'
+            },
+            withdrawStatus: {
+                pending: 'Withdraw pending',
+                ready: 'Withdraw ready'
+            },
+            depositStatus: {
+                pending: 'Deposit pending'
+            },
+            withdraw: 'Withdraw',
+            sync: 'Downloading staking data'
+        },
     },
     welcome: {
         title: 'Tonhub',

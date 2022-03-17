@@ -37,38 +37,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         developerTools: 'Инструменты разработчика',
         stake: 'Стейкинг'
     },
-    stake: {
-        title: 'Стейкинг',
-        buttonTitle: 'cтейкинг',
-        balanceTitle: 'Стейкинг Баланс',
-        actions: {
-            deposit: 'внести',
-            withdraw: 'вывести'
-        },
-        join: {
-            title: 'Присоединяйтесь к Tonwhales Staking Pool',
-            message: 'Внесите свои Toncoin, чтобы получать вознаграждение за стейкинг валидацию',
-            buttonTitle: 'Присоединиться',
-            moreAbout: 'Подробнее о Tonwhales Staking Pool',
-            here: 'ЗДЕСЬ'
-        },
-        empty: {
-            message: 'У вас нет транзакций'
-        },
-        pending: {
-            deposit: 'Ожидает внесения',
-            withdraw: 'Ожидает вывода'
-        },
-        withdrawStatus: {
-            pending: 'Вывод ожидает',
-            ready: 'Вывод готов'
-        },
-        depositStatus: {
-            pending: 'Взнос ожидает'
-        },
-        withdraw: 'Вывод',
-        sync: 'Синхронизация данных'
-    },
     wallet: {
         sync: 'Синхронизация кошелька',
         balanceTitle: 'Баланс Ton',
@@ -136,7 +104,41 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите что бы перенести кошельки'
-        }
+        },
+        stake: {
+            title: 'Стейкинг',
+            subtitle: {
+                join: 'Вложите свои Toncoin',
+            },
+            buttonTitle: 'cтейкинг',
+            balanceTitle: 'Стейкинг Баланс',
+            actions: {
+                deposit: 'внести',
+                withdraw: 'вывести'
+            },
+            join: {
+                title: 'Вложите свои Toncoin, чтобы стать валидатором TON',
+                message: 'Стейкинг — это общественное благо для экосистемы TON. Вы можете помочь защитить сеть и получить вознаграждение в процессе',
+                buttonTitle: 'Присоединиться',
+                moreAbout: 'Подробнее о Tonwhales Staking Pool',
+            },
+            empty: {
+                message: 'У вас нет транзакций'
+            },
+            pending: {
+                deposit: 'Ожидает внесения',
+                withdraw: 'Ожидает вывода'
+            },
+            withdrawStatus: {
+                pending: 'Вывод ожидает',
+                ready: 'Вывод готов'
+            },
+            depositStatus: {
+                pending: 'Взнос ожидает'
+            },
+            withdraw: 'Вывод',
+            sync: 'Синхронизация данных'
+        },
     },
     welcome: {
         title: 'Tonhub',

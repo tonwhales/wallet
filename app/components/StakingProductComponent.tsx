@@ -35,34 +35,36 @@ export const StakingProductComponent = React.memo(() => {
             name={t('products.stake.title')}
             subtitle={member
                 ? parseFloat(fromNano(member.withdraw)) > 0
-                    ? t('products.stake.withdrawStatus.ready')
-                    : undefined
+                    ? `${t('products.stake.withdrawStatus.ready')}: ${fromNano(member.withdraw)}`
+                    : parseFloat(fromNano(member.pendingWithdraw)) > 0
+                        ? `${t('products.stake.withdrawStatus.pending')}: ${fromNano(member.pendingWithdraw)}`
+                        : undefined
                 : t("products.stake.subtitle.join")}
             icon={OldWalletIcon}
             value={member?.balance}
-            graph={
-                member
-                    ? {
-                        full: member.balance
-                            .add(member.pendingDeposit)
-                            .add(member.withdraw),
-                        values: [
-                            {
-                                amount: member.balance,
-                                color: '#47A9F1'
-                            },
-                            {
-                                amount: member.pendingDeposit,
-                                color: '#F3A203'
-                            },
-                            {
-                                amount: member.withdraw,
-                                color: '#4FAE42'
-                            },
-                        ]
-                    }
-                    : undefined
-            }
+            // graph={
+            //     member
+            //         ? {
+            //             full: member.balance
+            //                 .add(member.pendingDeposit)
+            //                 .add(member.withdraw),
+            //             values: [
+            //                 {
+            //                     amount: member.balance,
+            //                     color: '#47A9F1'
+            //                 },
+            //                 {
+            //                     amount: member.pendingDeposit,
+            //                     color: '#F3A203'
+            //                 },
+            //                 {
+            //                     amount: member.withdraw,
+            //                     color: '#4FAE42'
+            //                 },
+            //             ]
+            //         }
+            //         : undefined
+            // }
             onPress={() => navigation.navigate('Staking')}
         />
     )

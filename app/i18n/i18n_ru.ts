@@ -77,7 +77,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         purpose: 'Цель транзакции',
         comment: 'Сообщение получателю (необязательное)',
         stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
-        depositStakeTitle: 'Внести стейк'
+        depositStakeTitle: 'Внести на стейкинг',
+        withdrawStakeTitle: 'Вывести со стейкинга'
     },
     migrate: {
         title: 'Перенос старых кошельков',

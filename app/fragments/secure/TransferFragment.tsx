@@ -44,11 +44,13 @@ export const TransferFragment = fragment(() => {
         amount?: BN | null,
         payload?: Cell | null,
         stateInit?: Cell | null,
-        minAmount?: BN | null,
+        lockAmount?: boolean,
+        lockComment?: boolean,
+        lockAddress?: boolean,
         staking?: {
             goBack?: boolean,
             minAmount?: BN,
-            deposit?: boolean
+            action?: 'deposit' | 'withdraw'
         }
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
@@ -56,7 +58,7 @@ export const TransferFragment = fragment(() => {
 
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : params?.minAmount ? fromNano(params.minAmount) : '0');
+    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
     const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
@@ -363,17 +365,25 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
-    console.log('[Transfer]', { params })
+    const lockAmount = payload ? true : params?.lockAmount;
+    const lockAddress = payload ? true : params?.lockAddress;
+    const lockComment = payload ? true : params?.lockComment;
+    // const title = params?.staking?.action === 'deposit'
+    //     ? 'transfer.depositStakeTitle'
+    //     : payload ? 'transfer.titleAction' : 'transfer.title';
+    let title = payload ? t('transfer.titleAction') : t('transfer.title');
+
+    if (params?.staking?.action === 'deposit') {
+        title = t('transfer.depositStakeTitle');
+    } else if (params?.staking?.action === 'withdraw') {
+        title = t('transfer.withdrawStakeTitle');
+    }
 
     return (
         <>
             <AndroidToolbar
                 style={{ marginTop: safeArea.top }}
-                pageTitle={t(
-                    params?.staking?.deposit
-                        ? 'transfer.depositStakeTitle'
-                        : payload ? 'transfer.titleAction' : 'transfer.title'
-                )} />
+                pageTitle={title} />
             <StatusBar style="dark" />
             {Platform.OS === 'ios' && (
                 <View style={{
@@ -381,11 +391,7 @@ export const TransferFragment = fragment(() => {
                     paddingBottom: 17
                 }}>
                     <Text style={[labelStyle, { textAlign: 'center' }]}>
-                        {t(
-                            params?.staking?.deposit
-                                ? 'transfer.depositStakeTitle'
-                                : payload ? 'transfer.titleAction' : 'transfer.title'
-                        )}
+                        {title}
                     </Text>
                 </View>
             )}
@@ -404,12 +410,12 @@ export const TransferFragment = fragment(() => {
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-                    {params?.staking && params.staking.minAmount && (
+                    {params?.staking && params?.staking?.action === 'deposit' && params.staking.minAmount && (
                         <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13, marginBottom: 14, }}>
                             {t('transfer.stakingWarning', { minAmount: fromNano(params.staking.minAmount) })}
                         </Text>
                     )}
-                    {payload && (
+                    {lockAmount && (
                         <View style={{
                             marginBottom: 14,
                             backgroundColor: "white",
@@ -435,7 +441,7 @@ export const TransferFragment = fragment(() => {
                             </Text>
                         </View>
                     )}
-                    {!payload && (
+                    {!lockAmount && (
                         <>
                             <View style={{
                                 marginBottom: 16,
@@ -472,7 +478,7 @@ export const TransferFragment = fragment(() => {
                                 </Text>
                             </View>
                             <View style={{ flexDirection: 'row' }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: !params?.staking ? 7 : undefined, backgroundColor: 'white', borderRadius: 14 }}>
                                     <TouchableHighlight onPress={onAddAll} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
@@ -482,16 +488,18 @@ export const TransferFragment = fragment(() => {
                                         </View>
                                     </TouchableHighlight>
                                 </View>
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                    <TouchableHighlight onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                <Image source={require('../../../assets/ic_scan_qr.png')} />
+                                {!params?.staking && (
+                                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                        <TouchableHighlight onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Image source={require('../../../assets/ic_scan_qr.png')} />
+                                                </View>
+                                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
                                             </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
-                                        </View>
-                                    </TouchableHighlight>
-                                </View>
+                                        </TouchableHighlight>
+                                    </View>
+                                )}
                             </View>
                         </>
                     )}
@@ -526,8 +534,8 @@ export const TransferFragment = fragment(() => {
                             multiline
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!payload}
-                            editable={!payload}
+                            enabled={!lockAddress}
+                            editable={!lockAddress}
                             onSubmit={onSubmit}
                             returnKeyType="next"
                             blurOnSubmit={false}
@@ -556,8 +564,8 @@ export const TransferFragment = fragment(() => {
                             autoCapitalize="sentences"
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!payload}
-                            editable={!payload}
+                            enabled={!lockComment}
+                            editable={!lockComment}
                             preventDefaultHeight
                             multiline
                         />

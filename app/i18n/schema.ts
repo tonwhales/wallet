@@ -89,7 +89,8 @@ export type LocalizationSchema = {
         purpose: string,
         comment: string,
         stakingWarning: string,
-        depositStakeTitle: string
+        depositStakeTitle: string,
+        withdrawStakeTitle: string,
     },
     migrate: {
         title: string,

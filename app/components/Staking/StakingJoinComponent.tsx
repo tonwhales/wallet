@@ -34,10 +34,12 @@ export const StakingJoinComponent = React.memo((props: {
             {
                 target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 comment: 'Deposit',
-                minAmount: props.pool.minStake,
+                amount: props.pool.minStake,
+                lockAddress: true,
+                lockComment: true,
                 staking: {
                     minAmount: props.pool.minStake,
-                    deposit: true
+                    action: 'deposit'
                 }
             }
         )

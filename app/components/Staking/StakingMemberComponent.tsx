@@ -99,7 +99,7 @@ export const StakingMemberComponent = React.memo((props: {
                 </View>
             )}
             <View
-                style={[{ marginHorizontal: 16, marginTop: 48, }]}
+                style={[{ marginHorizontal: 16, marginTop: 12, }]}
                 collapsable={false}
             >
                 <View
@@ -185,11 +185,13 @@ export const StakingMemberComponent = React.memo((props: {
                             {
                                 target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                                 comment: 'Deposit',
-                                minAmount: props.pool.minStake,
+                                amount: props.pool.minStake,
+                                lockAddress: true,
+                                lockComment: true,
                                 staking: {
                                     goBack: true,
                                     minAmount: props.pool.minStake,
-                                    deposit: true
+                                    action: 'deposit'
                                 }
                             }
                         )}
@@ -212,9 +214,13 @@ export const StakingMemberComponent = React.memo((props: {
                                 target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                                 comment: 'Withdraw',
                                 amount: toNano('0.2'),
+                                lockAmount: true,
+                                lockAddress: true,
+                                lockComment: true,
                                 staking: {
                                     goBack: true,
-                                    minAmount: toNano('0.2')
+                                    minAmount: toNano('0.2'),
+                                    action: 'withdraw'
                                 }
                             }
                         )}

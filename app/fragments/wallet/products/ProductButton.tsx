@@ -45,7 +45,12 @@ export function ProductButton(props: {
                             {props.name}
                         </Text>
                         {props.value && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} /></Text>
+                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                                <ValueComponent
+                                    value={props.value}
+                                    centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                />
+                            </Text>
                         )}
                     </View>
                     {props.subtitle && (

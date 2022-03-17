@@ -86,7 +86,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         purpose: 'Purpose of transaction',
         comment: 'Message to recipient (optional)',
         stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
-        depositStakeTitle: 'Deposit Stake'
+        depositStakeTitle: 'Deposit stake',
+        withdrawStakeTitle: 'Withdraw stake'
     },
     migrate: {
         title: 'Migrate old wallets',

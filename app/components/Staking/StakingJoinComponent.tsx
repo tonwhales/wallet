@@ -96,6 +96,7 @@ export const StakingJoinComponent = React.memo((props: {
                             <ValueComponent
                                 value={account.balance.muln(0.133)}
                                 centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.8 }}
+                                centLength={3}
                             />
                             {price && (
                                 <Text style={{

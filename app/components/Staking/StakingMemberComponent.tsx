@@ -121,6 +121,7 @@ export const StakingMemberComponent = React.memo((props: {
                             <ValueComponent
                                 value={props.member.balance.muln(0.133)}
                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                centLength={3}
                             />
                         </Text>
                     </View>
@@ -134,6 +135,7 @@ export const StakingMemberComponent = React.memo((props: {
                             <ValueComponent
                                 value={props.member.pendingDeposit}
                                 centFontStyle={{ fontSize: 10, fontWeight: '500', opacity: 0.55 }}
+                                centLength={3}
                             />
                         </Text>
                     </View>
@@ -145,6 +147,7 @@ export const StakingMemberComponent = React.memo((props: {
                             <ValueComponent
                                 value={props.member.pendingDeposit.muln(0.133)}
                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                centLength={3}
                             />
                         </Text>
                     </View>
@@ -158,6 +161,7 @@ export const StakingMemberComponent = React.memo((props: {
                             <ValueComponent
                                 value={props.member.pendingWithdraw}
                                 centFontStyle={{ fontSize: 10, fontWeight: '500', opacity: 0.55 }}
+                                centLength={3}
                             />
                         </Text>
                     </View>
@@ -171,6 +175,7 @@ export const StakingMemberComponent = React.memo((props: {
                             <ValueComponent
                                 value={props.member.withdraw}
                                 centFontStyle={{ fontSize: 10, fontWeight: '500', opacity: 0.55 }}
+                                centLength={3}
                             />
                         </Text>
                     </View>

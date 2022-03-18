@@ -95,7 +95,7 @@ export const StakingMemberComponent = React.memo((props: {
                         textAlign: 'center', fontWeight: '600',
                         fontSize: 17
                     }]}>{
-                            t('products.stake.title')}</Text>
+                            t('products.staking.title')}</Text>
                 </View>
             )}
             <View
@@ -113,7 +113,7 @@ export const StakingMemberComponent = React.memo((props: {
                 <Text
                     style={{ fontSize: 14, color: 'black', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
                 >
-                    {t('products.stake.balanceTitle')}
+                    {t('products.staking.balanceTitle')}
                 </Text>
                 <Text
                     style={{ fontSize: 30, color: 'black', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
@@ -125,10 +125,10 @@ export const StakingMemberComponent = React.memo((props: {
                 </Text>
                 <PriceComponent style={{ marginHorizontal: 22, marginTop: 6 }} />
             </View>
-            {parseFloat(fromNano(props.member.pendingDeposit)) > 0 && (
+            {props.member.pendingDeposit.gtn(0) && (
                 <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
                     <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 16, color: Theme.scoreGold, fontWeight: '500' }}>{t('products.stake.pending.deposit')}</Text>
+                        <Text style={{ fontSize: 16, color: Theme.scoreGold, fontWeight: '500' }}>{t('products.staking.pending.deposit')}</Text>
                         <Text style={{ fontSize: 12, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
                             <ValueComponent
                                 value={props.member.pendingDeposit}
@@ -136,12 +136,25 @@ export const StakingMemberComponent = React.memo((props: {
                             />
                         </Text>
                     </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 4, width: '100%', marginRight: 10 }}>
+                        <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
+                            {t("products.staking.subtitle.rewards")}
+                        </Text>
+                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
+                            {'~'}
+                            <ValueComponent
+                                value={props.member.pendingDeposit.muln(0.133)}
+                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                            />
+                        </Text>
+                    </View>
+
                 </View>
             )}
             {parseFloat(fromNano(props.member.pendingWithdraw)) > 0 && (
                 <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
                     <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 16, color: Theme.scoreGold, fontWeight: '500' }}>{t('products.stake.withdrawStatus.pending')}</Text>
+                        <Text style={{ fontSize: 16, color: Theme.scoreGold, fontWeight: '500' }}>{t('products.staking.withdrawStatus.pending')}</Text>
                         <Text style={{ fontSize: 12, color: 'black', fontWeight: '800', marginTop: 2 }} numberOfLines={1}>
                             <ValueComponent
                                 value={props.member.pendingWithdraw}
@@ -154,7 +167,7 @@ export const StakingMemberComponent = React.memo((props: {
             {parseFloat(fromNano(props.member.withdraw)) > 0 && (
                 <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
                     <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 16, color: '#4FAE42', fontWeight: '500' }}>{t('products.stake.withdrawStatus.ready')}</Text>
+                        <Text style={{ fontSize: 16, color: '#4FAE42', fontWeight: '500' }}>{t('products.staking.withdrawStatus.ready')}</Text>
                         <Text style={{ fontSize: 12, color: 'black', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
                             <ValueComponent
                                 value={props.member.withdraw}
@@ -202,7 +215,7 @@ export const StakingMemberComponent = React.memo((props: {
                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                 <Image source={require('../../../assets/ic_receive.png')} />
                             </View>
-                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('products.stake.actions.deposit')}</Text>
+                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('products.staking.actions.deposit')}</Text>
                         </View>
                     </TouchableHighlight>
                 </View>
@@ -231,7 +244,7 @@ export const StakingMemberComponent = React.memo((props: {
                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                 <Image source={require('../../../assets/ic_send.png')} />
                             </View>
-                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('products.stake.actions.withdraw')}</Text>
+                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('products.staking.actions.withdraw')}</Text>
                         </View>
                     </TouchableHighlight>
                 </View>

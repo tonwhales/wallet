@@ -106,10 +106,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
         },
-        stake: {
+        staking: {
             title: 'Staking',
             subtitle: {
-                join: 'Stake your Toncoins',
+                join: 'Stake your Toncoins and get rewarded',
+                rewards: 'Estimated Interest',
+                apy: '~13.3 APY of the contribution'
             },
             buttonTitle: 'stake',
             balanceTitle: 'Staking Balance',

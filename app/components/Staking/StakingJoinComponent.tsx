@@ -10,6 +10,7 @@ import { Theme } from "../../Theme";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { StakingPoolState } from "../../storage/cache";
 import { AppConfig } from "../../AppConfig";
+import { toNano } from "ton";
 
 export const StakingJoinComponent = React.memo((props: {
     pool: StakingPoolState
@@ -34,7 +35,7 @@ export const StakingJoinComponent = React.memo((props: {
             {
                 target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 comment: 'Deposit',
-                amount: props.pool.minStake,
+                amount: props.pool.minStake.add(toNano('0.2')),
                 lockAddress: true,
                 lockComment: true,
                 staking: {
@@ -55,7 +56,7 @@ export const StakingJoinComponent = React.memo((props: {
                     <Text style={[{
                         textAlign: 'center', fontWeight: '600',
                         fontSize: 17
-                    }]}>{t('products.stake.title')}</Text>
+                    }]}>{t('products.staking.title')}</Text>
                 </View>
             )}
             <View style={{ flex: 1, flexGrow: 1 }} />
@@ -85,7 +86,7 @@ export const StakingJoinComponent = React.memo((props: {
                     fontSize: 18,
                     fontWeight: '600'
                 }}>
-                    {t('products.stake.join.title')}
+                    {t('products.staking.join.title')}
                 </Text>
                 <Text style={{
                     textAlign: 'center',
@@ -99,7 +100,7 @@ export const StakingJoinComponent = React.memo((props: {
                     color: 'white',
                     fontSize: 14
                 }}>
-                    {t('products.stake.join.message')}
+                    {t('products.staking.join.message')}
                 </Text>
 
                 <TouchableOpacity
@@ -126,7 +127,7 @@ export const StakingJoinComponent = React.memo((props: {
                         fontSize: 16,
                     }}>
                         <Text style={{ color: 'white', fontWeight: '800' }}>
-                            {t('products.stake.join.moreAbout')}
+                            {t('products.staking.join.moreAbout')}
                         </Text>
                     </Text>
 
@@ -134,7 +135,7 @@ export const StakingJoinComponent = React.memo((props: {
             </View>
             <View style={{ flex: 1, flexGrow: 1 }} />
             <RoundButton
-                title={t('products.stake.join.buttonTitle')}
+                title={t('products.staking.join.buttonTitle')}
                 onPress={onJoin}
                 style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
             />

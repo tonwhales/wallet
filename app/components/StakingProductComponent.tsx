@@ -36,14 +36,14 @@ export const StakingProductComponent = React.memo(() => {
 
     return (
         // <ProductButton
-        //     name={t('products.stake.title')}
+        //     name={t('products.staking.title')}
         //     subtitle={member
         //         ? parseFloat(fromNano(member.withdraw)) > 0
-        //             ? `${t('products.stake.withdrawStatus.ready')}: ${fromNano(member.withdraw)}`
+        //             ? `${t('products.staking.withdrawStatus.ready')}: ${fromNano(member.withdraw)}`
         //             : parseFloat(fromNano(member.pendingWithdraw)) > 0
-        //                 ? `${t('products.stake.withdrawStatus.pending')}: ${fromNano(member.pendingWithdraw)}`
+        //                 ? `${t('products.staking.withdrawStatus.pending')}: ${fromNano(member.pendingWithdraw)}`
         //                 : undefined
-        //         : t("products.stake.subtitle.join")}
+        //         : t("products.staking.subtitle.join")}
         //     icon={OldWalletIcon}
         //     value={member?.balance}
         //     graph={
@@ -86,32 +86,112 @@ export const StakingProductComponent = React.memo(() => {
                         <OldWalletIcon width={29} height={29} color={'white'} />
                     </View>
                 </View>
-                <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
+                <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0, }}>
                     <View style={{ flexGrow: 1 }} />
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
+                    <View style={{ flexDirection: 'column', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
                         <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
-                            {t('products.stake.title')}
+                            {t('products.staking.title')}
                         </Text>
-                        {member && (
-                            <Text style={{ color: member.balance.gte(new BN(0)) ? '#4FAE42' : 'grey', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
-                                <ValueComponent
-                                    value={member.balance}
-                                    centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
-                                />
-                            </Text>
+                        {member && member.balance.gte(new BN(0)) && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 4, width: '100%', marginRight: 10 }}>
+                                <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
+                                    {t("common.balance")}
+                                </Text>
+                                <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                                    <ValueComponent
+                                        value={member.balance}
+                                        centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                    />
+                                </Text>
+                            </View>
                         )}
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
-                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>
-                            {member
-                                ? parseFloat(fromNano(member.withdraw)) > 0
-                                    ? `${t('products.stake.withdrawStatus.ready')}: ${fromNano(member.withdraw)}`
-                                    : parseFloat(fromNano(member.pendingWithdraw)) > 0
-                                        ? `${t('products.stake.withdrawStatus.pending')}: ${fromNano(member.pendingWithdraw)}`
-                                        : undefined
-                                : t("products.stake.subtitle.join")
-                            }
-                        </Text>
+                    <View style={{ flexDirection: 'column', alignItems: 'baseline', marginRight: 10, marginBottom: 10, flexGrow: 1, flexBasis: 0, }}>
+                        {member && (
+                            <>
+                                {member.pendingDeposit.gtn(0) && (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: 4, marginRight: 10 }}>
+                                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="tail" numberOfLines={1}>
+                                            {t('products.staking.pending.deposit')}
+                                        </Text>
+                                        <Text style={{ color: Theme.scoreGold, fontWeight: '600', fontSize: 16, }}>
+                                            <ValueComponent
+                                                value={member.pendingDeposit}
+                                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                            />
+                                        </Text>
+                                    </View>
+                                )}
+                                {(member.balance.gtn(0) || member.pendingDeposit.gtn(0)) && (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 4, width: '100%', marginRight: 10 }}>
+                                        <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
+                                            {t("products.staking.subtitle.rewards")}
+                                        </Text>
+                                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
+                                            {'~'}
+                                            <ValueComponent
+                                                value={member.balance.gtn(0)
+                                                    ? member.balance.muln(0.133)
+                                                    : member.pendingDeposit.muln(0.133)
+                                                }
+                                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                            />
+                                        </Text>
+                                    </View>
+                                )}
+                                {member.withdraw.gtn(0) && (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: 4, marginRight: 10 }}>
+                                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="tail" numberOfLines={1}>
+                                            {t('products.staking.withdrawStatus.ready')}
+                                        </Text>
+                                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
+                                            <ValueComponent
+                                                value={member.withdraw}
+                                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                            />
+                                        </Text>
+                                    </View>
+                                )}
+                                {member.pendingWithdraw.gtn(0) && (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginRight: 10, marginTop: 4 }}>
+                                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="tail" numberOfLines={1}>
+                                            {t('products.staking.withdrawStatus.pending')}
+                                        </Text>
+                                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
+                                            <ValueComponent
+                                                value={member.pendingWithdraw}
+                                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                            />
+                                        </Text>
+                                    </View>
+                                )}
+                            </>
+                        )}
+                        {!member && (
+                            <>
+                                <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail">
+                                    {t("products.staking.subtitle.join")}
+                                </Text>
+                                {account.balance.gt(pool.minStake) ? (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginRight: 10 }}>
+                                        <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
+                                            {t("products.staking.subtitle.rewards")}
+                                        </Text>
+                                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16 }}>
+                                            {'~'}
+                                            <ValueComponent
+                                                value={account.balance.muln(0.133)}
+                                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                                            />
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, marginRight: 16 }} ellipsizeMode="tail">
+                                        {t("products.staking.subtitle.apy")}
+                                    </Text>
+                                )}
+                            </>
+                        )}
                     </View>
                     <View style={{ flexGrow: 1 }} />
                 </View>

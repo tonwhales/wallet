@@ -106,10 +106,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Старые кошельки',
             subtitle: 'Нажмите что бы перенести кошельки'
         },
-        stake: {
+        staking: {
             title: 'Стейкинг',
             subtitle: {
-                join: 'Вложите свои Toncoin',
+                join: 'Вложите свои Toncoin и получайте возраграждение',
+                rewards: 'Расчетная доходность',
+                apy: '~13.3% годовых от вклада'
             },
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',

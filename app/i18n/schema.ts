@@ -109,10 +109,12 @@ export type LocalizationSchema = {
             title: string,
             subtitle: string
         },
-        stake: {
+        staking: {
             title: string,
             subtitle: {
                 join: string,
+                rewards: string,
+                apy: string
             },
             buttonTitle: string,
             balanceTitle: string,

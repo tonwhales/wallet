@@ -23,7 +23,6 @@ import { ModalProvider } from './app/components/FastModal/ModalProvider';
 import { Root } from './app/Root';
 import * as SplashScreen from 'expo-splash-screen';
 
-console.disableYellowBox = true
 
 SplashScreen.preventAutoHideAsync()
   .then(result => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))

@@ -496,6 +496,8 @@ export const TransferFragment = fragment(() => {
                             keyboardType="ascii-capable"
                             preventDefaultHeight
                             multiline
+                            autoCorrect={false}
+                            autoCompleteType={'off'}
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
                             enabled={!payload}

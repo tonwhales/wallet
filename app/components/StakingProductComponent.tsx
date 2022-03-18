@@ -122,13 +122,18 @@ export const StakingProductComponent = React.memo(() => {
                                         </Text>
                                     </View>
                                 )}
-                                {(member.balance.gtn(0) || member.pendingDeposit.gtn(0)) && (
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 4, width: '100%', marginRight: 10 }}>
+                                {/* {(member.balance.gtn(0) || member.pendingDeposit.gtn(0)) && (
+                                    <View style={{
+                                        flexDirection: 'row', justifyContent: 'space-between',
+                                        alignItems: 'flex-end',
+                                        marginTop: 4, width: '100%',
+                                        marginRight: 10,
+                                        flexWrap: 'wrap'
+                                    }}>
                                         <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
                                             {t("products.staking.subtitle.rewards")}
                                         </Text>
                                         <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
-                                            {'~'}
                                             <ValueComponent
                                                 value={member.balance.gtn(0)
                                                     ? member.balance.muln(0.133)
@@ -138,7 +143,7 @@ export const StakingProductComponent = React.memo(() => {
                                             />
                                         </Text>
                                     </View>
-                                )}
+                                )} */}
                                 {member.withdraw.gtn(0) && (
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: 4, marginRight: 10 }}>
                                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="tail" numberOfLines={1}>
@@ -157,7 +162,7 @@ export const StakingProductComponent = React.memo(() => {
                                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="tail" numberOfLines={1}>
                                             {t('products.staking.withdrawStatus.pending')}
                                         </Text>
-                                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
+                                        <Text style={{ color: Theme.scoreGold, fontWeight: '600', fontSize: 16, }}>
                                             <ValueComponent
                                                 value={member.pendingWithdraw}
                                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
@@ -173,12 +178,15 @@ export const StakingProductComponent = React.memo(() => {
                                     {t("products.staking.subtitle.join")}
                                 </Text>
                                 {account.balance.gt(pool.minStake) ? (
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginRight: 10 }}>
+                                    <View style={{
+                                        flexDirection: 'row', justifyContent: 'space-between',
+                                        alignItems: 'flex-end', width: '100%',
+                                        marginRight: 10, flexWrap: 'wrap'
+                                    }}>
                                         <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
                                             {t("products.staking.subtitle.rewards")}
                                         </Text>
                                         <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16 }}>
-                                            {'~'}
                                             <ValueComponent
                                                 value={account.balance.muln(0.133)}
                                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}

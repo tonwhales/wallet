@@ -1,7 +1,7 @@
 import BN from "bn.js";
-import React, { useEffect } from "react"
+import React from "react"
 import { View, Text, Platform, Image } from "react-native"
-import { Address, fromNano, toNano } from "ton";
+import { Address, toNano } from "ton";
 import { Transaction } from "../../sync/Transaction";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { TransactionView } from "../TransactionView";
@@ -9,7 +9,6 @@ import { Theme } from "../../Theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { getCurrentAddress } from "../../storage/appState";
-import { useAccount } from "../../sync/Engine";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { AppConfig } from "../../AppConfig";
@@ -17,7 +16,6 @@ import { TouchableHighlight } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { StakingPoolState } from "../../storage/cache";
 import { CloseButton } from "../CloseButton";
-import LottieView from 'lottie-react-native';
 
 const StakingTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -73,16 +71,6 @@ export const StakingMemberComponent = React.memo((props: {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const [account, engine] = useAccount();
-    const animRef = React.useRef<LottieView>(null);
-
-    useEffect(() => {
-        setTimeout(() => {
-            if (Platform.OS) {
-                animRef.current?.play();
-            }
-        }, 300);
-    }, [animRef.current]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -99,7 +87,7 @@ export const StakingMemberComponent = React.memo((props: {
                 </View>
             )}
             <View
-                style={[{ marginHorizontal: 16, marginTop: 12, }]}
+                style={{ marginHorizontal: 16, marginTop: 12, paddingBottom: 12, padding: 22 }}
                 collapsable={false}
             >
                 <View
@@ -111,19 +99,32 @@ export const StakingMemberComponent = React.memo((props: {
                     }}
                 />
                 <Text
-                    style={{ fontSize: 14, color: 'black', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
+                    style={{ fontSize: 14, color: 'black', opacity: 0.8 }}
                 >
                     {t('products.staking.balanceTitle')}
                 </Text>
                 <Text
-                    style={{ fontSize: 30, color: 'black', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
+                    style={{ fontSize: 30, color: 'black', fontWeight: '800', height: 40 }}
                 >
                     <ValueComponent
                         value={props.member.balance}
                         centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                     />
                 </Text>
-                <PriceComponent style={{ marginHorizontal: 22, marginTop: 6 }} />
+                <PriceComponent style={{ marginTop: 6 }} />
+                {props.member.balance.gtn(0) && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 4, width: '100%', marginRight: 10 }}>
+                        <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
+                            {t("products.staking.subtitle.rewards")}
+                        </Text>
+                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
+                            <ValueComponent
+                                value={props.member.balance.muln(0.133)}
+                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
+                            />
+                        </Text>
+                    </View>
+                )}
             </View>
             {props.member.pendingDeposit.gtn(0) && (
                 <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
@@ -141,17 +142,15 @@ export const StakingMemberComponent = React.memo((props: {
                             {t("products.staking.subtitle.rewards")}
                         </Text>
                         <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16, }}>
-                            {'~'}
                             <ValueComponent
                                 value={props.member.pendingDeposit.muln(0.133)}
                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
                             />
                         </Text>
                     </View>
-
                 </View>
             )}
-            {parseFloat(fromNano(props.member.pendingWithdraw)) > 0 && (
+            {props.member.pendingWithdraw.gtn(0) && (
                 <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
                     <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={{ fontSize: 16, color: Theme.scoreGold, fontWeight: '500' }}>{t('products.staking.withdrawStatus.pending')}</Text>
@@ -164,7 +163,7 @@ export const StakingMemberComponent = React.memo((props: {
                     </View>
                 </View>
             )}
-            {parseFloat(fromNano(props.member.withdraw)) > 0 && (
+            {props.member.withdraw.gtn(0) && (
                 <View style={{ flexDirection: 'column', marginHorizontal: 16, marginTop: 16, padding: 12, backgroundColor: 'white', borderRadius: 14 }} collapsable={false}>
                     <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={{ fontSize: 16, color: '#4FAE42', fontWeight: '500' }}>{t('products.staking.withdrawStatus.ready')}</Text>
@@ -177,17 +176,6 @@ export const StakingMemberComponent = React.memo((props: {
                     </View>
                 </View>
             )}
-            <View style={{ flex: 1, flexGrow: 1 }} />
-            {/* staking_whale */}
-            <View style={{ alignSelf: 'center' }}>
-                <LottieView
-                    ref={animRef}
-                    source={require('../../../assets/animations/staking_whale.json')}
-                    autoPlay={true}
-                    loop={true}
-                    style={{ width: 140, height: 140 }}
-                />
-            </View>
             <View style={{ flex: 1, flexGrow: 1 }} />
             {/* actions */}
             <View style={{ flexDirection: 'row', marginHorizontal: 16, paddingBottom: safeArea.bottom + 16 }} collapsable={false}>

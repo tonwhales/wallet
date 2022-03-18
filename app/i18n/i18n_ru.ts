@@ -110,7 +110,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Стейкинг',
             subtitle: {
                 join: 'Вложите свои Toncoin и получайте возраграждение',
-                rewards: 'Расчетная доходность',
+                rewards: 'Расчетная доходность (~13.3 APY)',
                 apy: '~13.3% годовых от вклада'
             },
             buttonTitle: 'cтейкинг',

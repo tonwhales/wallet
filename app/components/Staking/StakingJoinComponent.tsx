@@ -10,7 +10,9 @@ import { Theme } from "../../Theme";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { StakingPoolState } from "../../storage/cache";
 import { AppConfig } from "../../AppConfig";
-import { toNano } from "ton";
+import { fromNano, toNano } from "ton";
+import { useAccount } from "../../sync/Engine";
+import { ValueComponent } from "../ValueComponent";
 
 export const StakingJoinComponent = React.memo((props: {
     pool: StakingPoolState
@@ -18,16 +20,8 @@ export const StakingJoinComponent = React.memo((props: {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-
-    const animRef = React.useRef<LottieView>(null);
-
-    useEffect(() => {
-        setTimeout(() => {
-            if (Platform.OS) {
-                animRef.current?.play();
-            }
-        }, 1000);
-    }, [animRef.current]);
+    const [account, engine] = useAccount();
+    const price = engine.products.price.useState();
 
     const onJoin = useCallback(() => {
         navigation.navigate(
@@ -48,92 +42,102 @@ export const StakingJoinComponent = React.memo((props: {
 
     return (
         <View style={{ flexGrow: 1, paddingHorizontal: 16 }}>
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
+            <Text style={{
+                textAlign: 'center',
+                color: Theme.textColor,
+                marginBottom: 12,
+                fontSize: 30,
+                fontWeight: '700',
+                marginTop: 24
+            }}>
+                {t('products.staking.join.title')}
+            </Text>
+            <Text style={{
+                textAlign: 'center',
+                color: Theme.textSecondary,
+                fontSize: 16
+            }}>
+                {t('products.staking.join.message')}
+            </Text>
+            <View style={{
+                backgroundColor: 'rgba(220,220,220, 0.5)',
+                padding: 16,
+                borderRadius: 14,
+                marginTop: 64
+            }}>
+                <Text style={{
+                    textAlign: 'center',
+                    color: Theme.textColor,
+                    fontSize: 16,
+                    marginBottom: 16
                 }}>
-                    <Text style={[{
-                        textAlign: 'center', fontWeight: '600',
-                        fontSize: 17
-                    }]}>{t('products.staking.title')}</Text>
-                </View>
-            )}
-            <View style={{ flex: 1, flexGrow: 1 }} />
-            <View style={{ alignSelf: 'center' }}>
-                <LottieView
-                    ref={animRef}
-                    source={require('../../../assets/animations/whale.json')}
-                    autoPlay={true}
-                    loop={true}
-                    style={{ width: 140, height: 140 }}
-                />
+                    {t('products.staking.subtitle.join')}
+                </Text>
+                {!account.balance.gtn(0) && (
+                    <Text style={{
+                        textAlign: 'center',
+                        color: Theme.textColor,
+                        fontSize: 16
+                    }}>
+                        {t('products.staking.subtitle.apy')}
+                    </Text>
+                )}
+                {account.balance.gtn(0) && (
+                    <View style={{
+                        flexDirection: 'row', justifyContent: 'space-between',
+                        alignItems: 'flex-end', width: '100%',
+                        marginRight: 10,
+                        flexWrap: 'wrap'
+                    }}>
+                        <Text style={{ color: Theme.textColor, fontSize: 16 }} ellipsizeMode="tail">
+                            {t("products.staking.subtitle.rewards")}
+                        </Text>
+                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 20, marginTop: 4 }}>
+                            <ValueComponent
+                                value={account.balance.muln(0.133)}
+                                centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.8 }}
+                            />
+                            {price && (
+                                <Text style={{
+                                    fontSize: 16
+                                }}>
+                                    {` ($ ${(parseFloat(fromNano(account.balance.muln(0.133))) * price.price.usd)
+                                        .toFixed(2)
+                                        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')})`
+                                    }
+                                </Text>
+                            )}
+                        </Text>
+                    </View>
+                )}
             </View>
             <View style={{ flex: 1, flexGrow: 1 }} />
-            <View
+            <TouchableOpacity
+                activeOpacity={0.6}
+                onPress={() => {
+                    Linking.openURL(
+                        AppConfig.isTestnet
+                            ? 'https://test.tonwhales.com/staking'
+                            : 'https://tonwhales.com/staking'
+                    )
+                }}
                 style={{
-                    backgroundColor: AppConfig.isTestnet ? 'rgba(243,162,3, 0.8)' : 'rgba(71,169,241, 0.8)',
-                    borderRadius: 14,
-                    padding: 16,
-                    justifyContent: 'center',
-                    alignItems: 'center'
+                    marginTop: 8,
+                    padding: 4,
+                    borderRadius: 4,
+                    alignItems: 'center', justifyContent: 'center',
                 }}
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: 'white',
-                    marginBottom: 12,
-                    fontSize: 18,
-                    fontWeight: '600'
+                    color: Theme.accent,
+                    fontSize: 16,
+                    fontWeight: '800'
                 }}>
-                    {t('products.staking.join.title')}
-                </Text>
-                <Text style={{
-                    textAlign: 'center',
-                    marginBottom: 12,
-                    fontSize: 60,
-                }}>
-                    {'💎'}
-                </Text>
-                <Text style={{
-                    textAlign: 'center',
-                    color: 'white',
-                    fontSize: 14
-                }}>
-                    {t('products.staking.join.message')}
+                    {t('products.staking.join.moreAbout')}
                 </Text>
 
-                <TouchableOpacity
-                    activeOpacity={0.6}
-                    onPress={() => {
-                        Linking.openURL(
-                            AppConfig.isTestnet
-                                ? 'https://test.tonwhales.com/staking'
-                                : 'https://tonwhales.com/staking'
-                        )
-                    }}
-                    style={{
-                        height: 28,
-                        // backgroundColor: AppConfig.isTestnet ? 'rgb(71,169,241)' : 'rgb(243,162,3)',
-                        marginTop: 8,
-                        padding: 4,
-                        borderRadius: 4,
-                        alignItems: 'center', justifyContent: 'center',
-                    }}
-                >
-                    <Text style={{
-                        textAlign: 'center',
-                        color: 'white',
-                        fontSize: 16,
-                    }}>
-                        <Text style={{ color: 'white', fontWeight: '800' }}>
-                            {t('products.staking.join.moreAbout')}
-                        </Text>
-                    </Text>
-
-                </TouchableOpacity>
-            </View>
-            <View style={{ flex: 1, flexGrow: 1 }} />
+            </TouchableOpacity>
             <RoundButton
                 title={t('products.staking.join.buttonTitle')}
                 onPress={onJoin}

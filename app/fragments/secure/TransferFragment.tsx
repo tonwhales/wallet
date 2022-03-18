@@ -368,9 +368,7 @@ export const TransferFragment = fragment(() => {
     const lockAmount = payload ? true : params?.lockAmount;
     const lockAddress = payload ? true : params?.lockAddress;
     const lockComment = payload ? true : params?.lockComment;
-    // const title = params?.staking?.action === 'deposit'
-    //     ? 'transfer.depositStakeTitle'
-    //     : payload ? 'transfer.titleAction' : 'transfer.title';
+    
     let title = payload ? t('transfer.titleAction') : t('transfer.title');
 
     if (params?.staking?.action === 'deposit') {

@@ -13,6 +13,7 @@ import { AppConfig } from "../../AppConfig";
 import { fromNano, toNano } from "ton";
 import { useAccount } from "../../sync/Engine";
 import { ValueComponent } from "../ValueComponent";
+import { PoolInfo } from "./PoolInfo";
 
 export const StakingJoinComponent = React.memo((props: {
     pool: StakingPoolState
@@ -60,7 +61,7 @@ export const StakingJoinComponent = React.memo((props: {
                 {t('products.staking.join.message')}
             </Text>
             <View style={{
-                backgroundColor: 'rgba(220,220,220, 0.5)',
+                backgroundColor: 'white',
                 padding: 16,
                 borderRadius: 14,
                 marginTop: 64
@@ -68,48 +69,45 @@ export const StakingJoinComponent = React.memo((props: {
                 <Text style={{
                     textAlign: 'center',
                     color: Theme.textColor,
-                    fontSize: 16,
+                    fontSize: 18,
+                    fontWeight: '600',
                     marginBottom: 16
                 }}>
                     {t('products.staking.subtitle.join')}
                 </Text>
-                {!account.balance.gtn(0) && (
-                    <Text style={{
-                        textAlign: 'center',
-                        color: Theme.textColor,
-                        fontSize: 16
-                    }}>
-                        {t('products.staking.subtitle.apy')}
-                    </Text>
-                )}
+                <PoolInfo pool={props.pool} />
                 {account.balance.gtn(0) && (
-                    <View style={{
-                        flexDirection: 'row', justifyContent: 'space-between',
-                        alignItems: 'flex-end', width: '100%',
-                        marginRight: 10,
-                        flexWrap: 'wrap'
-                    }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16 }} ellipsizeMode="tail">
-                            {t("products.staking.subtitle.rewards")}
-                        </Text>
-                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 20, marginTop: 4 }}>
-                            <ValueComponent
-                                value={account.balance.muln(0.133)}
-                                centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.8 }}
-                                centLength={3}
-                            />
-                            {price && !AppConfig.isTestnet && (
-                                <Text style={{
-                                    fontSize: 16
-                                }}>
-                                    {` ($ ${(parseFloat(fromNano(account.balance.muln(0.133))) * price.price.usd)
-                                        .toFixed(2)
-                                        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')})`
-                                    }
-                                </Text>
-                            )}
-                        </Text>
-                    </View>
+                    <>
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
+                        <View style={{
+                            flexDirection: 'row', justifyContent: 'space-between',
+                            alignItems: 'flex-end', width: '100%',
+                            marginRight: 10,
+                            flexWrap: 'wrap'
+                        }}>
+                            <Text style={{ color: Theme.textColor, fontSize: 16 }} ellipsizeMode="tail">
+                                {t("products.staking.subtitle.rewards")}
+                            </Text>
+                            <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 20, marginTop: 4 }}>
+                                {'~'}
+                                <ValueComponent
+                                    value={account.balance.muln(0.133)}
+                                    centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.8 }}
+                                    centLength={3}
+                                />
+                                {price && !AppConfig.isTestnet && (
+                                    <Text style={{
+                                        fontSize: 16
+                                    }}>
+                                        {` ($ ${(parseFloat(fromNano(account.balance.muln(0.133))) * price.price.usd)
+                                            .toFixed(2)
+                                            .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')})`
+                                        }
+                                    </Text>
+                                )}
+                            </Text>
+                        </View>
+                    </>
                 )}
             </View>
             <View style={{ flex: 1, flexGrow: 1 }} />
@@ -137,21 +135,12 @@ export const StakingJoinComponent = React.memo((props: {
                 }}>
                     {t('products.staking.join.moreAbout')}
                 </Text>
-
             </TouchableOpacity>
             <RoundButton
                 title={t('products.staking.join.buttonTitle')}
                 onPress={onJoin}
                 style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
             />
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
         </View>
     );
 })

@@ -129,6 +129,11 @@ export type LocalizationSchema = {
                 buttonTitle: string,
                 moreAbout: string,
             },
+            pool: {
+                balance: string,
+                members: string,
+                profitability: string
+            },
             empty: {
                 message: string
             },

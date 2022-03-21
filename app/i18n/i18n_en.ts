@@ -109,8 +109,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         staking: {
             title: 'Staking',
             subtitle: {
-                join: 'Stake your Toncoins and get rewarded',
-                rewards: 'Estimated Interest ~13.3 APY',
+                join: 'Stake your Toncoins and get rewarded with Tonwhales staking pool',
+                rewards: 'Estimated Interest',
                 apy: '~13.3 APY of the contribution'
             },
             nextSycle: 'Next sycle',
@@ -121,10 +121,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdraw: 'withdraw'
             },
             join: {
-                title: 'Stake your Toncoins to become an TON Validator',
+                title: 'Become a TON validator',
                 message: 'Staking is a public good for the TON ecosystem. You can help secure the network and earn rewards in the process',
                 buttonTitle: 'Start staking',
                 moreAbout: 'More about Tonwhales Staking Pool',
+            },
+            pool: {
+                balance: 'Total Stake',
+                members: 'Nominators',
+                profitability: 'Profitability'
             },
             empty: {
                 message: 'You have no transactions'

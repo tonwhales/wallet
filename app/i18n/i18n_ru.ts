@@ -109,8 +109,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         staking: {
             title: 'Стейкинг',
             subtitle: {
-                join: 'Вложите свои Toncoin и получайте возраграждение',
-                rewards: 'Расчетная доходность ~13.3 APY',
+                join: 'Вложите свои Toncoin и получайте возраграждение вместе с Tonwhales стейкинг пулом',
+                rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада'
             },
             nextSycle: 'Следующий цикл',
@@ -121,10 +121,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 withdraw: 'вывести'
             },
             join: {
-                title: 'Вложите свои Toncoin, чтобы стать валидатором TON',
+                title: 'Стань валидатором TON',
                 message: 'Стейкинг — это общественное благо для экосистемы TON. Вы можете помочь защитить сеть и получить вознаграждение в процессе',
                 buttonTitle: 'Присоединиться',
                 moreAbout: 'Подробнее о Tonwhales Staking Pool',
+            },
+            pool: {
+                balance: 'Общая ставка',
+                members: 'Номинаторы',
+                profitability: 'Прибыльность'
             },
             empty: {
                 message: 'У вас нет транзакций'

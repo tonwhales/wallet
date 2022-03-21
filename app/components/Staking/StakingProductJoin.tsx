@@ -53,7 +53,7 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                                         {'. '}
                                         {t("products.staking.subtitle.rewards")}
                                         <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16 }}>
-                                            {' ('}
+                                            {' (~'}
                                             <ValueComponent
                                                 value={account.balance.muln(0.133)}
                                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}

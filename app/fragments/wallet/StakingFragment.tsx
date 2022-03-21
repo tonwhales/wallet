@@ -2,16 +2,18 @@ import { useNavigation } from "@react-navigation/native";
 import BN from "bn.js";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { View, Text } from "react-native";
+import { View, Text, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { CloseButton } from "../../components/CloseButton";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { StakingJoinComponent } from "../../components/Staking/StakingJoinComponent";
 import { StakingMemberComponent } from "../../components/Staking/StakingMemberComponent";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { useAccount } from "../../sync/Engine";
+import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const StakingFragment = fragment(() => {
@@ -41,14 +43,11 @@ export const StakingFragment = fragment(() => {
                     .toFriendly({ testOnly: AppConfig.isTestnet })
         });
 
-    console.log({ staking, pool, joined: member });
-
-    let minStake = new BN(staking.validators[0].stake);
-    let maxStake = new BN(staking.validators[0].stake);
-
     return (
         <View style={{
-            flex: 1
+            flex: 1,
+            backgroundColor: Theme.background,
+            paddingTop: 16
         }}>
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             {!member && (
@@ -56,6 +55,14 @@ export const StakingFragment = fragment(() => {
             )}
             {member && (
                 <StakingMemberComponent pool={pool} member={member} />
+            )}
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
             )}
         </View>
     );

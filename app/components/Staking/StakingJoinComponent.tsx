@@ -98,7 +98,7 @@ export const StakingJoinComponent = React.memo((props: {
                                 centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.8 }}
                                 centLength={3}
                             />
-                            {price && (
+                            {price && !AppConfig.isTestnet && (
                                 <Text style={{
                                     fontSize: 16
                                 }}>

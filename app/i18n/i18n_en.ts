@@ -110,9 +110,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Staking',
             subtitle: {
                 join: 'Stake your Toncoins and get rewarded',
-                rewards: 'Estimated Interest (~13.3 APY)',
+                rewards: 'Estimated Interest ~13.3 APY',
                 apy: '~13.3 APY of the contribution'
             },
+            nextSycle: 'Next sycle',
             buttonTitle: 'stake',
             balanceTitle: 'Staking Balance',
             actions: {

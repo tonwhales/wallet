@@ -1,61 +1,18 @@
 import BN from "bn.js";
 import React from "react"
 import { View, Text, Platform, Image } from "react-native"
-import { Address, toNano } from "ton";
-import { Transaction } from "../../sync/Transaction";
-import { formatDate, getDateKey } from "../../utils/dates";
-import { TransactionView } from "../TransactionView";
+import { Address, fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { getCurrentAddress } from "../../storage/appState";
 import { ValueComponent } from "../ValueComponent";
-import { PriceComponent } from "../PriceComponent";
 import { AppConfig } from "../../AppConfig";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { StakingPoolState } from "../../storage/cache";
 import { CloseButton } from "../CloseButton";
-
-const StakingTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
-    const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: Transaction[] }[] = [];
-        if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: Transaction[] = [];
-            let title = formatDate(props.txs[0].time);
-            sections.push({ title, items: lastSection });
-            for (let t of props.txs) {
-                let time = getDateKey(t.time);
-                if (lastTime !== time) {
-                    lastSection = [];
-                    lastTime = time;
-                    title = formatDate(t.time);
-                    sections.push({ title, items: lastSection });
-                }
-                lastSection.push(t);
-            }
-        }
-        return sections;
-    }, [props.txs]);
-
-    const components: any[] = [];
-    for (let s of transactionsSectioned) {
-        components.push(
-            <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
-            </View>
-        );
-        components.push(
-            < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
-            } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
-            </View >
-        );
-    }
-
-    return <>{components}</>;
-})
+import { useAccount } from "../../sync/Engine";
 
 export const StakingMemberComponent = React.memo((props: {
     member: {
@@ -71,6 +28,8 @@ export const StakingMemberComponent = React.memo((props: {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
+    const [account, engine] = useAccount();
+    const price = engine.products.price.useState();
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -101,7 +60,7 @@ export const StakingMemberComponent = React.memo((props: {
                 <Text
                     style={{ fontSize: 14, color: 'black', opacity: 0.8 }}
                 >
-                    {t('products.staking.balanceTitle')}
+                    {t('common.balance')}
                 </Text>
                 <Text
                     style={{ fontSize: 30, color: 'black', fontWeight: '800', height: 40 }}
@@ -111,7 +70,29 @@ export const StakingMemberComponent = React.memo((props: {
                         centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                     />
                 </Text>
-                <PriceComponent style={{ marginTop: 6 }} />
+                {price && !AppConfig.isTestnet && (
+                    <View style={[{
+                        backgroundColor: Theme.accent,
+                        borderRadius: 9,
+                        height: 24,
+                        justifyContent: 'center',
+                        alignItems: 'flex-start',
+                        alignSelf: 'flex-start',
+                        paddingVertical: 4, paddingHorizontal: 8
+                    }]}>
+                        <Text style={{
+                            color: 'white',
+                            fontSize: 14, fontWeight: '600',
+                            textAlign: "center",
+                            lineHeight: 16
+                        }}>
+                            {`$ ${(parseFloat(fromNano(props.member.balance)) * price.price.usd)
+                                .toFixed(2)
+                                .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`
+                            }
+                        </Text>
+                    </View>
+                )}
                 {props.member.balance.gtn(0) && (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 4, width: '100%', marginRight: 10 }}>
                         <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
@@ -123,6 +104,10 @@ export const StakingMemberComponent = React.memo((props: {
                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
                                 centLength={3}
                             />
+                            {` ($ ${(parseFloat(fromNano(props.member.balance.muln(0.133))) * price.price.usd)
+                                .toFixed(2)
+                                .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')})`
+                            }
                         </Text>
                     </View>
                 )}
@@ -149,6 +134,10 @@ export const StakingMemberComponent = React.memo((props: {
                                 centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
                                 centLength={3}
                             />
+                            {` ($ ${(parseFloat(fromNano(props.member.pendingDeposit.muln(0.133))) * price.price.usd)
+                                .toFixed(2)
+                                .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')})`
+                            }
                         </Text>
                     </View>
                 </View>

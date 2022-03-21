@@ -26,7 +26,7 @@ import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
 import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
-import { StakingProductComponent } from '../../components/StakingProductComponent';
+import { StakingProductComponent } from '../../components/Staking/StakingProductComponent';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {

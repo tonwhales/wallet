@@ -22,8 +22,6 @@ export const StakingProductComponent = React.memo(() => {
                     .toFriendly({ testOnly: AppConfig.isTestnet })
         });
 
-    console.log({ member })
-
     if (member) {
         return <StakingProductMember pool={pool} member={member} />
     }

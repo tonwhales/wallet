@@ -34,7 +34,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         migrateOldWallets: 'Migrate old wallets',
         termsOfService: 'Terms of Service',
         privacyPolicy: 'Privacy policy',
-        developerTools: 'Developer Tools'
+        developerTools: 'Developer Tools',
+        security: 'Security'
+    },
+    security: {
+        title: 'Security'
     },
     wallet: {
         sync: 'Downloading wallet data',

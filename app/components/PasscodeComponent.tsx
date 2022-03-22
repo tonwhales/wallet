@@ -1,0 +1,151 @@
+import React, { useCallback, useEffect, useState } from "react"
+import { View, TextInput, Text, Pressable, Image } from "react-native"
+import { Settings } from "../storage/settings";
+import { Theme } from "../Theme";
+
+export const PasscodeComponent = React.memo((props: {
+    type?: 'confirm' | 'new',
+    onSuccess?: () => void,
+    onCancel?: () => void
+}) => {
+    if (!props.type) return null;
+
+    const [error, setError] = useState<string>();
+    console.log(props);
+
+    const [screenState, setScreenState] = useState<{
+        pass?: {
+            value?: string,
+            confirmValue?: string
+        },
+        type?: 'reenter' | 'new'
+    }>({ type: props.type === 'new' ? 'new' : undefined });
+    const tref = React.useRef<TextInput>(null);
+
+    const onChange = useCallback(
+        (pass: string) => {
+            setError(undefined);
+            if (!screenState.type) {
+                if (pass.length === 4) {
+                    const stored = Settings.getPasscode();
+                    if (stored === pass) {
+                        if (props.onSuccess) props.onSuccess();
+                    } else {
+                        setScreenState({});
+                        setError('Wrong passcode');
+                    }
+                } else {
+                    setScreenState({
+                        pass: {
+                            value: pass
+                        }
+                    })
+                }
+            } else {
+                if (screenState.type === 'new') {
+                    if (pass.length === 4) {
+                        setScreenState({
+                            pass: {
+                                value: pass
+                            },
+                            type: 'reenter'
+                        });
+                    } else {
+                        setScreenState(prev => {
+                            return {
+                                ...prev,
+                                pass: {
+                                    value: pass
+                                },
+                            }
+                        });
+                    }
+                } else {
+                    if (pass.length === 4) {
+                        if (pass === screenState.pass?.value) {
+                            Settings.setPasscode(pass);
+                            if (props.onSuccess) props.onSuccess();
+                        } else {
+                            setScreenState(prev => {
+                                return {
+                                    pass: {
+                                        value: prev.pass?.value
+                                    },
+                                    type: 'reenter'
+                                }
+                            });
+                            setError('Wrong passcode');
+                        }
+                    } else {
+                        setScreenState(prev => {
+                            return {
+                                ...prev,
+                                pass: {
+                                    value: prev.pass?.value,
+                                    confirmValue: pass
+                                },
+                            }
+                        });
+                    }
+                }
+            }
+        },
+        [screenState, setScreenState, props],
+    );
+
+    console.log({ screenState });
+
+    return (
+        <View style={{
+            position: 'absolute',
+            top: 0, bottom: 0, right: 0, left: 0,
+            // backgroundColor: Theme.background
+            backgroundColor: 'red',
+            alignItems: 'center'
+        }}>
+            <View style={{ flexGrow: 1 }} />
+            <Text style={{
+                color: error
+                    ? Theme.warningText
+                    : Theme.textColor
+            }}>
+                {
+                    !!error
+                        ? error
+                        : screenState.type === 'reenter'
+                            ? 'Re-enter passcode'
+                            : screenState.type === 'new'
+                                ? 'Create new passcode'
+                                : 'Enter current passcode'
+                }
+            </Text>
+            <TextInput
+                ref={tref}
+                style={{
+                    height: 48,
+                    fontSize: 17,
+                    lineHeight: 22,
+                    fontWeight: '400',
+                    textAlignVertical: 'center',
+                    backgroundColor: Theme.accent
+                }}
+                autoFocus={true}
+                autoCorrect={false}
+                keyboardType={'numeric'}
+                autoCompleteType={'off'}
+                multiline={false}
+                editable={true}
+                focusable={false}
+                value={screenState.type === 'reenter' ? screenState.pass?.confirmValue : screenState.pass?.value}
+                textContentType={'password'}
+                onChangeText={onChange}
+            />
+            <View style={{ flexGrow: 1 }} />
+            {props.onCancel && (
+                <Pressable style={({ pressed }) => { return [{ position: 'absolute', top: 12, right: 10 }, { opacity: pressed ? 0.5 : 1 }] }} onPress={props.onCancel}>
+                    <Image source={require('../../assets/ic_close_dark.png')} />
+                </Pressable>
+            )}
+        </View>
+    );
+});

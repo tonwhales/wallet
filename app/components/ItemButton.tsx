@@ -19,7 +19,7 @@ export const ItemButton = React.memo((props: {
                             fontSize: 17,
                             textAlignVertical: 'center',
                             color: props.dangerZone ? "#FF0000" : Theme.textColor,
-                            marginLeft: 13,
+                            marginLeft: 8,
                             lineHeight: 24,
                         }}
                         numberOfLines={1}

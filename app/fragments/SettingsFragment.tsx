@@ -107,6 +107,10 @@ export const SettingsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
                     </View>
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../assets/ic_security.png')} title={t('settings.security')} onPress={() => navigation.navigate('Security')} />
+                    </View>
                 </View>
                 <View style={{
                     marginBottom: 16, marginTop: 17,

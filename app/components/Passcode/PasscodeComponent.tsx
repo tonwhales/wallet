@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react"
 import { View, TextInput, Text, Pressable, Image } from "react-native"
 import { Settings } from "../../storage/settings";
 import { Theme } from "../../Theme";
+import { PasscodeInput } from "./PasscodeInput";
 
 export const PasscodeComponent = React.memo((props: {
     type?: 'confirm' | 'new',
@@ -20,7 +21,6 @@ export const PasscodeComponent = React.memo((props: {
         },
         type?: 'reenter' | 'new'
     }>({ type: props.type === 'new' ? 'new' : undefined });
-    const tref = React.useRef<TextInput>(null);
 
     const onChange = useCallback(
         (pass: string) => {
@@ -118,26 +118,13 @@ export const PasscodeComponent = React.memo((props: {
                                 : 'Enter current passcode'
                 }
             </Text>
-            <TextInput
-                ref={tref}
-                style={{
-                    height: 48,
-                    fontSize: 17,
-                    lineHeight: 22,
-                    fontWeight: '400',
-                    textAlignVertical: 'center',
-                    backgroundColor: Theme.accent
-                }}
-                autoFocus={true}
-                autoCorrect={false}
-                keyboardType={'numeric'}
-                autoCompleteType={'off'}
-                multiline={false}
-                editable={true}
-                focusable={false}
-                value={screenState.type === 'reenter' ? screenState.pass?.confirmValue : screenState.pass?.value}
-                textContentType={'password'}
-                onChangeText={onChange}
+            <PasscodeInput
+                value={
+                    screenState.type === 'reenter'
+                        ? screenState.pass?.confirmValue
+                        : screenState.pass?.value
+                }
+                onChange={onChange}
             />
             <View style={{ flexGrow: 1 }} />
         </View>

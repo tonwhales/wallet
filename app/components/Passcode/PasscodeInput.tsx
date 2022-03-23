@@ -45,29 +45,30 @@ export const PasscodeInput = React.memo((
 
 
     return (
-        <View>
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             {/* 1, 2, 3 */}
             <View style={{
-                width: '100%'
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
             }}>
                 <Text style={{
                     color: error
                         ? Theme.warningText
-                        : Theme.textColor
+                        : Theme.textColor,
+                    fontWeight: '600',
+                    fontSize: 24,
+                    textAlign: 'center'
                 }}>
                     {error || title}
                 </Text>
             </View>
-            <View style={{
-                width: '100%'
-            }}>
+            <View style={{ width: '100%' }}>
                 <Text>
                     {value}
                 </Text>
             </View>
-            <View style={{
-                flexDirection: 'row'
-            }}>
+            <View style={{ flexDirection: 'row', width: '100%' }}>
                 <Pressable
                     onPress={() => onKeyPressed('1')}
                     style={inputButtonStyle}
@@ -94,9 +95,7 @@ export const PasscodeInput = React.memo((
                 </Pressable>
             </View>
             {/* 4, 5, 6 */}
-            <View style={{
-                flexDirection: 'row'
-            }}>
+            <View style={{ flexDirection: 'row', width: '100%' }}>
                 <Pressable
                     onPress={() => onKeyPressed('4')}
                     style={inputButtonStyle}
@@ -123,9 +122,7 @@ export const PasscodeInput = React.memo((
                 </Pressable>
             </View>
             {/* 7, 8, 9 */}
-            <View style={{
-                flexDirection: 'row'
-            }}>
+            <View style={{ flexDirection: 'row', width: '100%' }}>
                 <Pressable
                     onPress={() => onKeyPressed('7')}
                     style={inputButtonStyle}
@@ -152,9 +149,11 @@ export const PasscodeInput = React.memo((
                 </Pressable>
             </View>
             {/* 0, <- */}
-            <View style={{
-                flexDirection: 'row'
-            }}>
+            <View style={{ width: '100%', flexDirection: 'row' }}>
+                <View style={{
+                    height: 84, width: 84,
+                    borderRadius: 84, margin: 8,
+                }} />
                 <Pressable
                     onPress={() => onKeyPressed('0')}
                     style={inputButtonStyle}

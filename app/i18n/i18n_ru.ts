@@ -40,6 +40,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     security: {
         title: 'Безопасность',
         error: 'Неправильный пароль',
+        passcode: {
+            use: 'Использовать пароль',
+            change: 'Изменить пароль',
+        },
         reenter: 'Повторно введите пароль',
         new: 'Создать новый пароль',
         confirm: 'Введите текущий пароль'

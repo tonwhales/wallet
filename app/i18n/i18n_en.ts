@@ -40,6 +40,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     security: {
         title: 'Security',
         error: 'Wrong passcode',
+        passcode: {
+            use: 'Use passcode',
+            change: 'Change passcode',
+        },
         reenter: 'Re-enter passcode',
         new: 'Create new passcode',
         confirm: 'Enter current passcode'

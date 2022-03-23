@@ -41,6 +41,10 @@ export type LocalizationSchema = {
     },
     security: {
         title: string,
+        passcode: {
+            use: string
+            change: string,
+        }
         error: string,
         reenter: string,
         new: string,

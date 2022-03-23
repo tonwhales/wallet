@@ -105,21 +105,6 @@ export const PasscodeComponent = React.memo((props: {
             alignItems: 'center'
         }}>
             <View style={{ flexGrow: 1 }} />
-            <Text style={{
-                color: error
-                    ? Theme.warningText
-                    : Theme.textColor
-            }}>
-                {
-                    !!error
-                        ? error
-                        : screenState.type === 'reenter'
-                            ? t('security.reenter')
-                            : screenState.type === 'new'
-                                ? t('security.new')
-                                : t('security.confirm')
-                }
-            </Text>
             <PasscodeInput
                 error={error}
                 title={screenState.type === 'reenter'

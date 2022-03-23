@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { View, TextInput, Text, Pressable, Image } from "react-native"
-import { Settings } from "../storage/settings";
-import { Theme } from "../Theme";
+import { Settings } from "../../storage/settings";
+import { Theme } from "../../Theme";
 
 export const PasscodeComponent = React.memo((props: {
     type?: 'confirm' | 'new',
@@ -99,8 +99,7 @@ export const PasscodeComponent = React.memo((props: {
         <View style={{
             position: 'absolute',
             top: 0, bottom: 0, right: 0, left: 0,
-            // backgroundColor: Theme.background
-            backgroundColor: 'red',
+            backgroundColor: Theme.background,
             alignItems: 'center'
         }}>
             <View style={{ flexGrow: 1 }} />
@@ -141,11 +140,6 @@ export const PasscodeComponent = React.memo((props: {
                 onChangeText={onChange}
             />
             <View style={{ flexGrow: 1 }} />
-            {props.onCancel && (
-                <Pressable style={({ pressed }) => { return [{ position: 'absolute', top: 12, right: 10 }, { opacity: pressed ? 0.5 : 1 }] }} onPress={props.onCancel}>
-                    <Image source={require('../../assets/ic_close_dark.png')} />
-                </Pressable>
-            )}
         </View>
     );
 });

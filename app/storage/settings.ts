@@ -1,14 +1,6 @@
 import { storage } from "./storage";
 
 export const Settings = {
-    markUsePasscode(value: boolean) {
-        storage.set('security_use_passcode', value);
-    },
-
-    usePasscode() {
-        return storage.getBoolean('security_use_passcode');
-    },
-
     setPasscode(passcode: string) {
         storage.set('security_passcode', passcode);
     },

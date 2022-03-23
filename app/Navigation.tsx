@@ -125,7 +125,7 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Migration', MigrationFragment),
-    modalScreen('Security', SecurityFragment),
+    genericScreen('Security', SecurityFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];

@@ -1,6 +1,7 @@
 import React, { useCallback } from "react"
-import { Pressable, View, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle } from "react-native"
+import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { Theme } from "../../Theme";
+import { AnimatedCircle } from "./AnimatedCircle";
 
 function inputButtonStyle(state: PressableStateCallbackType): StyleProp<ViewStyle> {
     return ({
@@ -10,13 +11,14 @@ function inputButtonStyle(state: PressableStateCallbackType): StyleProp<ViewStyl
         height: 84, width: 84,
         borderRadius: 84,
         margin: 8,
-        opacity: state.pressed ? 0.8 : 1
+        opacity: state.pressed ? 0.3 : 1
     })
 }
 
 const keyHintStyle: StyleProp<TextStyle> = {
     fontSize: 24,
-    fontWeight: '700'
+    fontWeight: '700',
+    color: 'white'
 }
 
 export const PasscodeInput = React.memo((
@@ -63,12 +65,49 @@ export const PasscodeInput = React.memo((
                     {error || title}
                 </Text>
             </View>
-            <View style={{ width: '100%' }}>
-                <Text>
-                    {value}
-                </Text>
+            <View style={{
+                width: '100%', height: 16,
+                flexDirection: 'row', marginTop: 16,
+                justifyContent: 'center', alignItems: 'center',
+            }}>
+                <View style={{
+                    height: 12, width: 12,
+                    backgroundColor: Theme.divider,
+                    borderRadius: 12,
+                    margin: 4
+                }} />
+                <View style={{
+                    height: 12, width: 12,
+                    backgroundColor: Theme.divider,
+                    borderRadius: 12,
+                    margin: 4
+                }} />
+                <View style={{
+                    height: 12, width: 12,
+                    backgroundColor: Theme.divider,
+                    borderRadius: 12,
+                    margin: 4
+                }} />
+                <View style={{
+                    height: 12, width: 12,
+                    backgroundColor: Theme.divider,
+                    borderRadius: 12,
+                    margin: 4
+                }} />
+                {!!value && (
+                    <View style={{
+                        flexDirection: 'row', position: 'absolute',
+                        top: 0, bottom: 0,
+                        alignItems: 'center',
+                        width: 80,
+                    }}>
+                        {[...value].map((v, index) => {
+                            return (<AnimatedCircle key={`a-c-${index}`} error={!!error} />);
+                        })}
+                    </View>
+                )}
             </View>
-            <View style={{ flexDirection: 'row', width: '100%' }}>
+            <View style={{ flexDirection: 'row', width: '100%', marginTop: 16 }}>
                 <Pressable
                     onPress={() => onKeyPressed('1')}
                     style={inputButtonStyle}
@@ -170,9 +209,7 @@ export const PasscodeInput = React.memo((
                     }}
                     style={inputButtonStyle}
                 >
-                    <Text style={keyHintStyle}>
-                        {'<-'}
-                    </Text>
+                    <Image style={{ height: 36, width: 36 }} source={require('../../../assets/ic_backspace.png')} />
                 </Pressable>
             </View>
         </View>

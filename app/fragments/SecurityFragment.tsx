@@ -1,8 +1,10 @@
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, Switch, Text, View } from "react-native";
+import { Platform, Pressable, Switch, Text, View, Image } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AndroidToolbar } from "../components/AndroidToolbar";
 import { PasscodeComponent } from "../components/Passcode/PasscodeComponent";
 import { fragment } from "../fragment";
 import { Settings } from "../storage/settings";
@@ -10,11 +12,12 @@ import { Theme } from "../Theme";
 
 export const SecurityFragment = fragment(() => {
     const { t } = useTranslation();
+    const safeArea = useSafeAreaInsets();
     const baseNavigation = useNavigation();
 
     const [usePasscode, setUsePasscode] = useState(!!Settings.getPasscode());
     const [passcodeState, setPasscodeState] = useState<{
-        type?: 'confirm' | 'new',
+        type?: 'confirm' | 'new' | 'change',
         onSuccess?: () => void,
     }>();
 
@@ -42,75 +45,84 @@ export const SecurityFragment = fragment(() => {
         [passcodeState],
     );
 
-    useLayoutEffect(() => {
-        baseNavigation.setOptions({ headerStyle: { backgroundColor: Theme.background }, title: t('security.title') });
-    }, []);
+    const onChangePasscode = useCallback(
+        () => {
+            if (usePasscode) {
+                setPasscodeState({
+                    type: 'change',
+                    onSuccess: () => {
+                        setPasscodeState(undefined);
+                    }
+                });
+            }
+        },
+        [usePasscode],
+    );
+
+
+    useEffect(() => {
+        if (Platform.OS === 'ios') {
+            if (!passcodeState?.type) {
+                baseNavigation.setOptions({
+                    headerStyle: { backgroundColor: Theme.background },
+                    headerBackVisible: true,
+                    title: t('security.title')
+                });
+            } else {
+                baseNavigation.setOptions({
+                    headerShow: false,
+                    headerBackVisible: false,
+                    title: ''
+                });
+            }
+        }
+    }, [passcodeState]);
 
 
     return (
         <View style={{
             flexGrow: 1,
-            paddingHorizontal: 16,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : 0
         }}>
+            {!passcodeState?.type && (<AndroidToolbar pageTitle={t('security.title')} />)}
             <StatusBar style="dark" />
-            <View style={{
-                marginBottom: 16, marginTop: 17,
-                backgroundColor: "white",
-                borderRadius: 14,
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexShrink: 1,
-            }}>
-                <View style={{ marginHorizontal: 16, height: 48, width: '100%', flexDirection: 'row' }}>
-                    <View style={{ width: 24, height: 24 }} />
-                    <Pressable
-                        style={({ pressed }) => {
-                            return [{
-                                flexGrow: 1,
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                opacity: pressed ? 0.8 : 1,
-                                borderRadius: 8,
-                                justifyContent: 'space-between',
-                                padding: 6
-                            }]
-                        }}
-                        onPress={() => {
-                            onUsePasscodeChange(!usePasscode)
-                        }}
-                    >
-                        <Text style={{
-                            fontSize: 17,
-                            textAlignVertical: 'center',
-                            color: Theme.textColor,
-                            marginLeft: 8,
-                            lineHeight: 24,
-                        }}>
-                            {t('security.passcode.use')}
-                        </Text>
-                        <Switch
-                            trackColor={{ false: '#767577', true: '#81b0ff' }}
-                            thumbColor={usePasscode ? '#f5dd4b' : '#f4f3f4'}
-                            ios_backgroundColor="#3e3e3e"
-                            onValueChange={onUsePasscodeChange}
-                            value={usePasscode}
-                        />
-                    </Pressable>
-                </View>
-                {
-                    <>
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                        <View style={{ marginHorizontal: 16, padding: 6, height: 48, width: '100%', flexDirection: 'row', }}>
-                            <Pressable style={({ pressed }) => {
+            <View style={{ paddingHorizontal: 16, flexGrow: 1 }}>
+                <View style={{
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: "white",
+                    borderRadius: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{
+                        marginHorizontal: 16, height: 48,
+                        width: '100%', flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Pressable
+                            style={({ pressed }) => {
                                 return [{
                                     flexGrow: 1,
                                     flexDirection: 'row',
                                     alignItems: 'center',
-                                    opacity: pressed ? 0.8 : 1,
-                                    borderRadius: 8
+                                    opacity: pressed ? 0.3 : 1,
+                                    borderRadius: 8,
+                                    padding: 6
                                 }]
+                            }}
+                            onPress={() => {
+                                onUsePasscodeChange(!usePasscode)
+                            }}
+                        >
+                            <Image style={{ height: 24, width: 24 }} source={require('../../assets/ic_passcode.png')} />
+                            <View style={{
+                                flexDirection: 'row',
+                                flexGrow: 1,
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
                             }}>
-                                <View style={{ width: 24, height: 24 }} />
                                 <Text style={{
                                     fontSize: 17,
                                     textAlignVertical: 'center',
@@ -118,20 +130,58 @@ export const SecurityFragment = fragment(() => {
                                     marginLeft: 8,
                                     lineHeight: 24,
                                 }}>
-                                    {t('security.passcode.change')}
+                                    {t('security.passcode.use')}
                                 </Text>
-                            </Pressable>
-                        </View>
-                    </>
-                }
+                                <Switch
+                                    trackColor={{ false: '#f4f3f4', true: Platform.OS === 'android' ? Theme.accent : '#4FAE42' }}
+                                    thumbColor={'white'}
+                                    ios_backgroundColor={usePasscode ? '#4FAE42' : "#f4f3f4"}
+                                    onValueChange={onUsePasscodeChange}
+                                    value={usePasscode}
+                                />
+                            </View>
+                        </Pressable>
+                    </View>
+                    {usePasscode && (
+                        <>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                            <View style={{ marginHorizontal: 16, padding: 6, height: 48, width: '100%', flexDirection: 'row', }}>
+                                <Pressable
+                                    style={({ pressed }) => {
+                                        return [{
+                                            flexGrow: 1,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            opacity: pressed ? 0.3 : 1,
+                                            borderRadius: 8
+                                        }]
+                                    }}
+                                    onPress={onChangePasscode}
+                                >
+                                    <View style={{ width: 24, height: 24 }} />
+                                    <Text style={{
+                                        fontSize: 17,
+                                        textAlignVertical: 'center',
+                                        color: Theme.textColor,
+                                        marginLeft: 8,
+                                        lineHeight: 24,
+                                    }}>
+                                        {t('security.passcode.change')}
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        </>
+                    )
+                    }
+                </View>
+                <PasscodeComponent
+                    type={passcodeState?.type}
+                    onSuccess={passcodeState?.onSuccess}
+                    onCancel={() => {
+                        setPasscodeState(undefined);
+                    }}
+                />
             </View>
-            <PasscodeComponent
-                type={passcodeState?.type}
-                onSuccess={passcodeState?.onSuccess}
-                onCancel={() => {
-                    setPasscodeState(undefined);
-                }}
-            />
         </View>
     );
 });

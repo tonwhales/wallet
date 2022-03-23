@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next";
 import { View, TextInput, Text, Pressable, Image } from "react-native"
 import { Settings } from "../../storage/settings";
 import { Theme } from "../../Theme";
@@ -11,6 +12,7 @@ export const PasscodeComponent = React.memo((props: {
 }) => {
     if (!props.type) return null;
 
+    const { t } = useTranslation();
     const [error, setError] = useState<string>();
     console.log(props);
 
@@ -32,7 +34,7 @@ export const PasscodeComponent = React.memo((props: {
                         if (props.onSuccess) props.onSuccess();
                     } else {
                         setScreenState({});
-                        setError('Wrong passcode');
+                        setError(t('security.error'));
                     }
                 } else {
                     setScreenState({
@@ -74,7 +76,7 @@ export const PasscodeComponent = React.memo((props: {
                                     type: 'reenter'
                                 }
                             });
-                            setError('Wrong passcode');
+                            setError(t('security.error'));
                         }
                     } else {
                         setScreenState(prev => {
@@ -112,13 +114,19 @@ export const PasscodeComponent = React.memo((props: {
                     !!error
                         ? error
                         : screenState.type === 'reenter'
-                            ? 'Re-enter passcode'
+                            ? t('security.reenter')
                             : screenState.type === 'new'
-                                ? 'Create new passcode'
-                                : 'Enter current passcode'
+                                ? t('security.new')
+                                : t('security.confirm')
                 }
             </Text>
             <PasscodeInput
+                error={error}
+                title={screenState.type === 'reenter'
+                    ? t('security.reenter')
+                    : screenState.type === 'new'
+                        ? t('security.new')
+                        : t('security.confirm')}
                 value={
                     screenState.type === 'reenter'
                         ? screenState.pass?.confirmValue

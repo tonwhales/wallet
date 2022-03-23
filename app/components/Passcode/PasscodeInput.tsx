@@ -50,7 +50,11 @@ export const PasscodeInput = React.memo((
             <View style={{
                 width: '100%'
             }}>
-                <Text>
+                <Text style={{
+                    color: error
+                        ? Theme.warningText
+                        : Theme.textColor
+                }}>
                     {error || title}
                 </Text>
             </View>

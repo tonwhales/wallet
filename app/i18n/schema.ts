@@ -40,7 +40,11 @@ export type LocalizationSchema = {
         security: string
     },
     security: {
-        title: string
+        title: string,
+        error: string,
+        reenter: string,
+        new: string,
+        confirm: string
     },
     wallet: {
         sync: string,

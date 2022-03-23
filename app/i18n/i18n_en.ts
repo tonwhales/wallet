@@ -38,7 +38,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         security: 'Security'
     },
     security: {
-        title: 'Security'
+        title: 'Security',
+        error: 'Wrong passcode',
+        reenter: 'Re-enter passcode',
+        new: 'Create new passcode',
+        confirm: 'Enter current passcode'
     },
     wallet: {
         sync: 'Downloading wallet data',

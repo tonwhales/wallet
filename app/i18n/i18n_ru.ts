@@ -38,7 +38,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         security: 'Безопасность'
     },
     security: {
-        title: 'Безопасность'
+        title: 'Безопасность',
+        error: 'Неправильный пароль',
+        reenter: 'Повторно введите пароль',
+        new: 'Создать новый пароль',
+        confirm: 'Введите текущий пароль'
     },
     wallet: {
         sync: 'Синхронизация кошелька',

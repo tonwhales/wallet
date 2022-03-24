@@ -39,7 +39,7 @@ export const HomeFragment = fragment(() => {
             }
             if (resolved && resolved.type === 'sign') {
                 navState?.setReady(true);
-                navigation.navigate('Sign', {
+                navigation.navigate('Authenticate', {
                     session: resolved.session,
                     endpoint: resolved.endpoint
                 });

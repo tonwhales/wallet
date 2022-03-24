@@ -3,7 +3,7 @@ import { useRoute } from "@react-navigation/native";
 import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { fragment } from "../../fragment";
-import { t } from "../../i18n/t";
+import { t, tStyled } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +11,7 @@ import { backoff } from '../../utils/time';
 import axios from 'axios';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { getAppKey, getCurrentAddress } from '../../storage/appState';
+import { getAppInstanceKeyPair, getAppKey, getCurrentAddress } from '../../storage/appState';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
 import { Cell } from 'ton';
@@ -27,7 +27,7 @@ const labelStyle: StyleProp<TextStyle> = {
 
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const navigation = useTypedNavigation();
-    const [state, setState] = React.useState<'loading' | 'expired' | 'initing' | 'completed'>('loading');
+    const [state, setState] = React.useState<{ type: 'loading' } | { type: 'expired' } | { type: 'initing', name: string, url: string } | { type: 'completed' }>({ type: 'loading' });
     React.useEffect(() => {
         let ended = false;
         backoff(async () => {
@@ -39,18 +39,18 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 return;
             }
             if (currentState.data.state === 'not_found') {
-                setState('expired');
+                setState({ type: 'expired' });
                 return;
             }
             if (currentState.data.state === 'initing') {
-                setState('initing');
+                setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url });
                 return;
             }
             if (currentState.data.state === 'ready') {
-                setState('completed');
+                setState({ type: 'completed' });
                 return;
             }
-            setState('expired');
+            setState({ type: 'expired' });
         });
         return () => {
             ended = true;
@@ -70,7 +70,8 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let walletConfig = contract.source.backup();
         let walletType = contract.source.type;
         let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
-        let answerKey = await getAppKey();
+        let appInstanceKeyPair = await getAppInstanceKeyPair();
+        let endpoint = 'https://connect.tonhubapi.com/connect/command';
 
         // Sign
         let walletKeys: WalletKeys;
@@ -83,6 +84,13 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let toSign = new Cell();
         toSign.bits.writeBuffer(Buffer.from(props.session, 'base64'));
         toSign.bits.writeAddress(contract.address);
+        toSign.bits.writeBit(1);
+        let ref = new Cell();
+        ref.bits.writeString(endpoint);
+        toSign.refs.push(ref);
+        let ref2 = new Cell();
+        ref2.bits.writeBuffer(appInstanceKeyPair.publicKey);
+        toSign.refs.push(ref2);
         let hashSign = toSign.hash();
         let signature = sign(hashSign, walletKeys.keyPair.secretKey);
 
@@ -93,11 +101,12 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             }
             await axios.post('https://' + props.endpoint + '/connect/answer', {
                 key: props.session,
-                answerKey: answerKey,
+                appPublicKey: appInstanceKeyPair.publicKey.toString('base64'),
                 address: address,
                 walletType,
                 walletConfig,
-                walletSig: signature.toString('base64')
+                walletSig: signature.toString('base64'),
+                endpoint
             });
             if (!active.current) {
                 return;
@@ -107,7 +116,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     }, []);
 
     // When loading
-    if (state === 'loading') {
+    if (state.type === 'loading') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <LoadingIndicator simple={true} />
@@ -116,7 +125,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     }
 
     // Expired
-    if (state === 'expired') {
+    if (state.type === 'expired') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
@@ -126,7 +135,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     }
 
     // Completed
-    if (state === 'completed') {
+    if (state.type === 'completed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
@@ -137,14 +146,15 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
 
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.message')}</Text>
+            <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{tStyled('auth.message', { name: state.name })}</Text>
+            <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textSecondary, marginBottom: 32 }}>{state.url}</Text>
             <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textSecondary, marginBottom: 32 }}>{t('auth.hint')}</Text>
             <RoundButton title={t('auth.action')} action={approve} size="large" style={{ width: 200 }} />
         </View>
     );
 });
 
-export const SignFragment = fragment(() => {
+export const AuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params: {
         session: string,

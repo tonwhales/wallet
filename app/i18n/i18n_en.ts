@@ -87,7 +87,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     auth: {
         title: 'Authentication',
-        message: 'Allow this site to know your wallet addres',
+        message: 'Allow <strong>{{name}}</strong> to know your wallet addres',
         hint: 'No funds would be transfered to the site and no access to your coins would be granted',
         action: 'Allow',
         expired: 'This authentication request already expired',

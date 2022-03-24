@@ -17,7 +17,7 @@ export const Settings = {
         storage.set('security_use_biometry', value);
     },
 
-    useUseBiometry() {
+    useBiometry() {
         return storage.getBoolean('security_use_biometry');
     }
 }

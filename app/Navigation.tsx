@@ -37,6 +37,7 @@ import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { useNavigationReady } from './utils/NavigationReadyContext';
 import { SecurityFragment } from './fragments/SecurityFragment';
+import { useAuth } from './utils/AuthContext';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();

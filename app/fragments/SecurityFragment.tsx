@@ -5,7 +5,8 @@ import { useTranslation } from "react-i18next";
 import { Platform, Pressable, Switch, Text, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../components/AndroidToolbar";
-import { PasscodeComponent } from "../components/Passcode/PasscodeComponent";
+import { BiometryComponent } from "../components/Security/BiometryComponent";
+import { PasscodeComponent } from "../components/Security/PasscodeComponent";
 import { fragment } from "../fragment";
 import { Settings } from "../storage/settings";
 import { Theme } from "../Theme";
@@ -66,18 +67,30 @@ export const SecurityFragment = fragment(() => {
                 baseNavigation.setOptions({
                     headerStyle: { backgroundColor: Theme.background },
                     headerBackVisible: true,
-                    title: t('security.title')
+                    title: t('security.title'),
+                    // headerRight: null
                 });
             } else {
                 baseNavigation.setOptions({
                     headerShow: false,
                     headerBackVisible: false,
-                    title: ''
+                    title: '',
+                    // headerRight: () => {
+                    //     return (
+                    //         <Pressable
+                    //             style={({ pressed }) => [
+                    //                 { opacity: pressed ? 0.3 : 1 },
+                    //             ]}
+                    //             onPress={() => setPasscodeState(undefined)}
+                    //         >
+                    //             <Image source={require('../../assets/ic_close.png')} />
+                    //         </Pressable>
+                    //     );
+                    // }
                 });
             }
         }
     }, [passcodeState]);
-
 
     return (
         <View style={{
@@ -158,7 +171,7 @@ export const SecurityFragment = fragment(() => {
                                     }}
                                     onPress={onChangePasscode}
                                 >
-                                    <View style={{ width: 24, height: 24 }} />
+                                    <Image style={{ height: 24, width: 24 }} source={require('../../assets/ic_reset_passcode.png')} />
                                     <Text style={{
                                         fontSize: 17,
                                         textAlignVertical: 'center',
@@ -171,8 +184,8 @@ export const SecurityFragment = fragment(() => {
                                 </Pressable>
                             </View>
                         </>
-                    )
-                    }
+                    )}
+                    <BiometryComponent />
                 </View>
                 <PasscodeComponent
                     type={passcodeState?.type}

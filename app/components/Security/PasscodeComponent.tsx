@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
-import { View, TextInput, Text, Pressable, Image } from "react-native"
+import { View, TextInput, Text, Pressable, Image, Platform } from "react-native"
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Settings } from "../../storage/settings";
 import { Theme } from "../../Theme";
 import { PasscodeInput } from "./PasscodeInput";
@@ -14,6 +15,7 @@ export const PasscodeComponent = React.memo((props: {
     if (!props.type) return null;
 
     const { t } = useTranslation();
+    const safeArea = useSafeAreaInsets();
     const [error, setError] = useState<string>();
     console.log(props);
 
@@ -184,6 +186,18 @@ export const PasscodeComponent = React.memo((props: {
                 />
                 <View style={{ flexGrow: 1 }} />
             </Animated.View>
+            {props.onCancel && (
+                <Pressable
+                    style={({ pressed }) => [{
+                        opacity: pressed ? 0.5 : 1,
+                        position: 'absolute',
+                        top: safeArea.top, right: 16
+                    }]}
+                    onPress={props.onCancel}
+                >
+                    <Image source={require('../../../assets/ic_close.png')} />
+                </Pressable>
+            )}
         </View>
     );
 });

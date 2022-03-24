@@ -44,6 +44,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             use: 'Использовать пароль',
             change: 'Изменить пароль',
         },
+        biometry: 'Использовать биометрию',
         reenter: 'Повторно введите пароль',
         new: 'Создать новый пароль',
         confirm: 'Введите текущий пароль'

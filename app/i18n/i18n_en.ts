@@ -44,6 +44,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             use: 'Use passcode',
             change: 'Change passcode',
         },
+        biometry: 'Use biometry',
         reenter: 'Re-enter passcode',
         new: 'Create new passcode',
         confirm: 'Enter current passcode'

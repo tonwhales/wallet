@@ -44,7 +44,8 @@ export type LocalizationSchema = {
         passcode: {
             use: string
             change: string,
-        }
+        },
+        biometry: string,
         error: string,
         reenter: string,
         new: string,

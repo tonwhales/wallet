@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Platform, View, Image } from 'react-native';
+import { Platform, View, Image, BackHandler } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -133,6 +133,7 @@ const navigation = [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
+    const auth = useAuth();
     const navState: {
         ready: boolean,
         setReady: (value: boolean) => void
@@ -257,6 +258,25 @@ export const Navigation = React.memo(() => {
             onMounted();
         }
     }, [navState?.ready, onMounted]);
+
+    // 
+    const reqAuth = React.useCallback(
+        () => {
+            auth?.authenticate({
+                onSuccess: () => {
+                    // Ignore
+                },
+                onError: () => {
+                    reqAuth();
+                }
+            })
+        },
+        [],
+    );
+
+    React.useEffect(() => {
+        reqAuth();
+    }, [])
 
     return (
         <EngineContext.Provider value={engine}>

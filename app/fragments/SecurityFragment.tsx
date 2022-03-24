@@ -10,6 +10,7 @@ import { PasscodeComponent } from "../components/Security/PasscodeComponent";
 import { fragment } from "../fragment";
 import { Settings } from "../storage/settings";
 import { Theme } from "../Theme";
+import { useAuth } from "../utils/AuthContext";
 
 export const SecurityFragment = fragment(() => {
     const { t } = useTranslation();
@@ -91,6 +92,8 @@ export const SecurityFragment = fragment(() => {
             }
         }
     }, [passcodeState]);
+
+    const auth = useAuth();
 
     return (
         <View style={{

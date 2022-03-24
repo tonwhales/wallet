@@ -18,13 +18,13 @@ export const AuthComponent = React.memo((
     }
 ) => {
     const safeArea = useSafeAreaInsets();
-    const [type, setType] = useState<'biometry' | 'passcode' | undefined>(
-        Settings.useBiometry()
-            ? 'biometry'
-            : !!Settings.getPasscode()
-                ? 'passcode'
-                : undefined
-    );
+    const type = Settings.useBiometry()
+        ? 'biometry'
+        : !!Settings.getPasscode()
+            ? 'passcode'
+            : undefined;
+
+
     const [warning, setWarning] = useState<string | undefined>();
 
     useEffect(() => {
@@ -40,16 +40,21 @@ export const AuthComponent = React.memo((
                             if (onSuccess) onSuccess();
                         } else {
                             if (res.error && onError) {
+                                // TODO add a button to fallback to passcode if set
                                 onError();
                                 return;
                             }
                             setWarning(res.warning);
                         }
                     } catch (error) {
+                        // TODO add a button to fallback to passcode if set
                         if (onError) onError();
                     }
                 }
             })();
+        }
+        if (!type) {
+            if (onSuccess) onSuccess();
         }
     }, [
         onSuccess,

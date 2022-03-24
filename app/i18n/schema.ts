@@ -93,7 +93,14 @@ export type LocalizationSchema = {
         hint: string,
         action: string,
         expired: string,
-        completed: string
+        completed: string,
+        noApps: string,
+        name: string,
+        revoke: {
+            title: string,
+            message: string,
+            action: string
+        }
     },
     migrate: {
         title: string,

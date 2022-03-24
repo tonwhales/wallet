@@ -168,6 +168,14 @@ export function addConnectionReference(key: string, name: string, url: string, d
     storage.set('app_references', JSON.stringify(refs));
 }
 
+export function removeConnectionReference(key: string) {
+    let refs = getConnectionReferences();
+    if (!refs.find((v) => v.key === key)) {
+        return;
+    }
+    storage.set('app_references', JSON.stringify(refs.filter((v) => v.key !== key)));
+}
+
 export function getPendingGrant() {
     let pendingGrantRaw = storage.getString('app_references_grant');
     let pendingGrant: string[] = [];

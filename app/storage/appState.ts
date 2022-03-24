@@ -146,3 +146,76 @@ export async function getAppInstanceKeyPair() {
     let keypair = keyPairFromSeed(seed);
     return keypair;
 }
+
+//
+// Connection References
+//
+
+export function getConnectionReferences(): { key: string, name: string, url: string, date: number }[] {
+    let key = storage.getString('app_references');
+    if (key) {
+        return JSON.parse(key);
+    }
+    return [];
+}
+
+export function addConnectionReference(key: string, name: string, url: string, date: number) {
+    let refs = getConnectionReferences();
+    if (refs.find((v) => v.key === key)) {
+        return;
+    }
+    refs = [...refs, { key, name, url, date }];
+    storage.set('app_references', JSON.stringify(refs));
+}
+
+export function getPendingGrant() {
+    let pendingGrantRaw = storage.getString('app_references_grant');
+    let pendingGrant: string[] = [];
+    if (pendingGrantRaw) {
+        pendingGrant = JSON.parse(pendingGrantRaw);
+    }
+    return pendingGrant;
+}
+
+export function addPendingGrant(key: string) {
+    let pendingGrant: string[] = getPendingGrant();
+    if (pendingGrant.find((v) => v === key)) {
+        return;
+    }
+    pendingGrant.push(key);
+    storage.set('app_references_grant', JSON.stringify(pendingGrant));
+}
+
+export function removePendingGrant(key: string) {
+    let pendingGrant: string[] = getPendingGrant();
+    if (!pendingGrant.find((v) => v === key)) {
+        return;
+    }
+    storage.set('app_references_grant', JSON.stringify(pendingGrant.filter((v) => v !== key)));
+}
+
+export function getPendingRevoke() {
+    let pendingGrantRaw = storage.getString('app_references_revoke');
+    let pendingGrant: string[] = [];
+    if (pendingGrantRaw) {
+        pendingGrant = JSON.parse(pendingGrantRaw);
+    }
+    return pendingGrant;
+}
+
+export function addPendingRevoke(key: string) {
+    let pendingGrant: string[] = getPendingRevoke();
+    if (pendingGrant.find((v) => v === key)) {
+        return;
+    }
+    pendingGrant.push(key);
+    storage.set('app_references_revoke', JSON.stringify(pendingGrant));
+}
+
+export function removePendingRevoke(key: string) {
+    let pendingGrant: string[] = getPendingRevoke();
+    if (!pendingGrant.find((v) => v === key)) {
+        return;
+    }
+    storage.set('app_references_revoke', JSON.stringify(pendingGrant.filter((v) => v !== key)));
+}

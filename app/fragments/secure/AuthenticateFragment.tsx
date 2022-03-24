@@ -11,7 +11,7 @@ import { backoff } from '../../utils/time';
 import axios from 'axios';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { getAppInstanceKeyPair, getAppKey, getCurrentAddress } from '../../storage/appState';
+import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getAppKey, getCurrentAddress, getPendingGrant, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
 import { Cell } from 'ton';
@@ -65,6 +65,10 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     }, []);
     const approve = React.useCallback(async () => {
 
+        if (state.type !== 'initing') {
+            return;
+        }
+
         // Load data
         const contract = await contractFromPublicKey(acc.publicKey);
         let walletConfig = contract.source.backup();
@@ -72,6 +76,8 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
         let appInstanceKeyPair = await getAppInstanceKeyPair();
         let endpoint = 'https://connect.tonhubapi.com/connect/command';
+        let name = state.name;
+        let url = state.url;
 
         // Sign
         let walletKeys: WalletKeys;
@@ -99,6 +105,8 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             if (!active.current) {
                 return;
             }
+
+            // Apply answer
             await axios.post('https://' + props.endpoint + '/connect/answer', {
                 key: props.session,
                 appPublicKey: appInstanceKeyPair.publicKey.toString('base64'),
@@ -107,13 +115,26 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 walletConfig,
                 walletSig: signature.toString('base64'),
                 endpoint
+            }, { timeout: 5000 });
+
+            // Persist reference
+            addConnectionReference(props.session, name, url, Date.now());
+            addPendingGrant(props.session);
+
+            // Grant access
+            await backoff(async () => {
+                await axios.post('https://connect.tonhubapi.com/connect/grant', { key: props.session }, { timeout: 5000 });
+                removePendingGrant(props.session);
             });
+
+            // Exit if already exited screen
             if (!active.current) {
                 return;
             }
+
             navigation.goBack();
         });
-    }, []);
+    }, [state]);
 
     // When loading
     if (state.type === 'loading') {

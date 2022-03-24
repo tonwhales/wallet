@@ -149,6 +149,19 @@ export const SettingsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={'Connected Apps'} onPress={() => navigation.navigate('Connections')} />
+                    </View>
+                </View>
+
+                <View style={{
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: "white",
+                    borderRadius: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={doSignout} />
                     </View>
                 </View>

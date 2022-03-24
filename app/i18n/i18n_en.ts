@@ -85,6 +85,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         purpose: 'Purpose of transaction',
         comment: 'Message to recipient (optional)'
     },
+    auth: {
+        title: 'Authentication',
+        message: 'Allow this site to know your wallet addres',
+        hint: 'No funds would be transfered to the site and no access to your coins would be granted',
+        action: 'Allow',
+        expired: 'This authentication request already expired',
+        completed: 'This authentication request already completed'
+    },
     migrate: {
         title: 'Migrate old wallets',
         subtitle: 'If you have been using obsolete wallets, you can automatically move all funds from your old addresses.',

@@ -3,6 +3,8 @@ import { storage } from './storage';
 import * as t from 'io-ts';
 import { isLeft } from 'fp-ts/lib/Either';
 import { AppConfig } from '../AppConfig';
+import { randomKey } from '../utils/randomKey';
+import { getSecureRandomBytes } from 'ton-crypto';
 
 export type AppState = {
     addresses: {
@@ -120,4 +122,14 @@ export function markAsTermsAccepted() {
 
 export function isTermsAccepted() {
     return storage.getBoolean('terms_accepted');
+}
+
+export async function getAppKey() {
+    let uid = storage.getString('app_key');
+    if (!uid) {
+        uid = (await getSecureRandomBytes(64)).toString('base64');
+        storage.set('app_key', uid);
+        return uid;
+    }
+    return uid;
 }

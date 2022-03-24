@@ -168,7 +168,7 @@ export const WalletFragment = fragment(() => {
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src);
-            if (res) {
+            if (res && res.type === 'transaction') {
                 // if QR is valid navigate to transfer fragment
                 navigation.navigate('Transfer', {
                     target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
@@ -176,7 +176,14 @@ export const WalletFragment = fragment(() => {
                     amount: res.amount,
                     payload: res.payload,
                     stateInit: res.stateInit
-                })
+                });
+            }
+            if (res && res.type === 'sign') {
+                // if QR is valid navigate to sign fragment
+                navigation.navigate('Sign', {
+                    session: res.session,
+                    endpoint: res.endpoint
+                });
             }
 
         } catch (error) {

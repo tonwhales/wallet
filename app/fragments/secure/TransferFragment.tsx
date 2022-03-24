@@ -275,7 +275,7 @@ export const TransferFragment = fragment(() => {
 
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
-        if (res) {
+        if (res && res.type === 'transaction') {
             setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
             if (res.amount) {
                 setAmount(fromNano(res.amount));

@@ -87,6 +87,14 @@ export type LocalizationSchema = {
         purpose: string,
         comment: string
     },
+    auth: {
+        title: string,
+        message: string,
+        hint: string,
+        action: string,
+        expired: string,
+        completed: string
+    },
     migrate: {
         title: string,
         subtitle: string,

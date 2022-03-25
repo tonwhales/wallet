@@ -228,7 +228,9 @@ export const StakingMemberComponent = React.memo((props: {
                     <View style={{ flexDirection: 'column' }}>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />
                         <View style={{
-                            flexDirection: 'row'
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
                         }}>
                             <View style={{ justifyContent: 'space-between', flexDirection: 'column', alignItems: 'flex-start' }}>
                                 <Text style={{ fontSize: 14, color: Theme.textSecondary }}>

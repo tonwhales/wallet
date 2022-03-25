@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Platform, View, Image } from 'react-native';
+import { Platform, View, Image, BackHandler } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -39,6 +39,8 @@ import { useNavigationReady } from './utils/NavigationReadyContext';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
+import { SecurityFragment } from './fragments/SecurityFragment';
+import { useAuth } from './utils/AuthContext';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -129,12 +131,14 @@ const navigation = [
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
     modalScreen('Migration', MigrationFragment),
+    genericScreen('Security', SecurityFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
+    const auth = useAuth();
     const navState: {
         ready: boolean,
         setReady: (value: boolean) => void
@@ -254,47 +258,66 @@ export const Navigation = React.memo(() => {
         };
     }, []);
 
-    // Grant accesses
-    React.useEffect(() => {
-        let ended = false;
-        backoff(async () => {
-            if (ended) {
-                return;
-            }
-            const pending = getPendingGrant();
-            for (let p of pending) {
-                await axios.post('https://connect.tonhubapi.com/connect/grant', { key: p }, { timeout: 5000 });
-                removePendingGrant(p);
-            }
-        })
-        return () => {
-            ended = true;
-        };
-    }, []);
-
-    // Revoke accesses
-    React.useEffect(() => {
-        let ended = false;
-        backoff(async () => {
-            if (ended) {
-                return;
-            }
-            const pending = getPendingRevoke();
-            for (let p of pending) {
-                await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: p }, { timeout: 5000 });
-                removePendingRevoke(p);
-            }
-        })
-        return () => {
-            ended = true;
-        };
-    }, []);
+        // Grant accesses
+        React.useEffect(() => {
+            let ended = false;
+            backoff(async () => {
+                if (ended) {
+                    return;
+                }
+                const pending = getPendingGrant();
+                for (let p of pending) {
+                    await axios.post('https://connect.tonhubapi.com/connect/grant', { key: p }, { timeout: 5000 });
+                    removePendingGrant(p);
+                }
+            })
+            return () => {
+                ended = true;
+            };
+        }, []);
+    
+        // Revoke accesses
+        React.useEffect(() => {
+            let ended = false;
+            backoff(async () => {
+                if (ended) {
+                    return;
+                }
+                const pending = getPendingRevoke();
+                for (let p of pending) {
+                    await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: p }, { timeout: 5000 });
+                    removePendingRevoke(p);
+                }
+            })
+            return () => {
+                ended = true;
+            };
+        }, []);
 
     React.useEffect(() => {
         if (navState?.ready) {
             onMounted();
         }
     }, [navState?.ready, onMounted]);
+
+    // 
+    const reqAuth = React.useCallback(
+        () => {
+            auth?.authenticate({
+                onSuccess: () => {
+                    // Ignore
+                },
+                onError: () => {
+                    reqAuth();
+                }
+            })
+        },
+        [],
+    );
+
+    React.useEffect(() => {
+        reqAuth();
+    }, [])
 
     return (
         <EngineContext.Provider value={engine}>

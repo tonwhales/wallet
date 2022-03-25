@@ -116,7 +116,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите что бы перенести кошельки'
-        }
+        },
+        transactionRequest: 'Запрос транзакции'
     },
     welcome: {
         title: 'Tonhub',

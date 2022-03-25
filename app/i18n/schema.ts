@@ -118,7 +118,8 @@ export type LocalizationSchema = {
         oldWallets: {
             title: string,
             subtitle: string
-        }
+        },
+        transactionRequest: string
     }
     welcome: {
         title: string,

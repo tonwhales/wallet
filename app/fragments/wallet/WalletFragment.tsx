@@ -294,7 +294,7 @@ export const WalletFragment = fragment(() => {
 
                 {currentJob && currentJob.job.type === 'transaction' && (
                     <ProductButton
-                        name={'Transaction request'}
+                        name={t('products.transactionRequest')}
                         subtitle={currentJob.job.text}
                         icon={OldWalletIcon}
                         value={null}

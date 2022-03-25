@@ -98,6 +98,21 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         purpose: 'Purpose of transaction',
         comment: 'Message to recipient (optional)'
     },
+    auth: {
+        title: 'Authentication',
+        message: 'Allow <strong>{{name}}</strong> to know your wallet addres',
+        hint: 'No funds would be transfered to the site and no access to your coins would be granted',
+        action: 'Allow',
+        expired: 'This authentication request already expired',
+        completed: 'This authentication request already completed',
+        noApps: 'No connected apps',
+        name: 'Connected apps',
+        revoke: {
+            title: 'Are you sure want to revoke this app?',
+            message: 'This will destroy link between your wallet and app, but you can always try to connect again.',
+            action: 'Revoke'
+        }
+    },
     migrate: {
         title: 'Migrate old wallets',
         subtitle: 'If you have been using obsolete wallets, you can automatically move all funds from your old addresses.',
@@ -114,7 +129,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
-        }
+        },
+        transactionRequest: 'Request transaction'
     },
     welcome: {
         title: 'Tonhub',

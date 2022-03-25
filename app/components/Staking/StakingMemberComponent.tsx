@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { StakingPoolState } from "../../storage/cache";
 import { useAccount } from "../../sync/Engine";
 import { capitalizeString } from "../../utils/capitalizeString";
+import Img_whale from '../../../assets/images/img_whale.svg';
 
 export const StakingMemberComponent = React.memo((props: {
     member: {
@@ -66,7 +67,6 @@ export const StakingMemberComponent = React.memo((props: {
         [],
     );
 
-
     return (
         <View style={{ flexGrow: 1 }}>
             {Platform.OS === 'ios' && (
@@ -93,6 +93,14 @@ export const StakingMemberComponent = React.memo((props: {
                         borderRadius: 14
                     }}
                 />
+                <View style={{
+                    width: 64, height: 64, borderRadius: 32,
+                    backgroundColor: Theme.accent,
+                    alignItems: 'center', justifyContent: 'center',
+                    alignSelf: 'center'
+                }}>
+                    <Img_whale width={Math.floor(64 * 0.7)} height={Math.floor(64 * 0.7)} color="white" />
+                </View>
                 <Text style={[{
                     textAlign: 'center', fontWeight: '600',
                     fontSize: 17, marginTop: 8

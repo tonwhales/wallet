@@ -171,22 +171,24 @@ export const StakingMemberComponent = React.memo((props: {
                             </View>
                         )}
                     </View>
-                    <TouchableHighlight
-                        onPress={onUnstake}
-                        underlayColor={Theme.selector}
-                        style={{
-                            borderRadius: 34,
-                            backgroundColor: Theme.secondaryButton,
-                            paddingVertical: 8,
-                            paddingHorizontal: 16,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <Text style={{ fontSize: 13, color: '#FF0000' }}>
-                            {t('products.staking.actions.withdraw').toUpperCase()}
-                        </Text>
-                    </TouchableHighlight>
+                    {props.member.balance.gtn(0) && (
+                        <TouchableHighlight
+                            onPress={onUnstake}
+                            underlayColor={Theme.selector}
+                            style={{
+                                borderRadius: 34,
+                                backgroundColor: Theme.secondaryButton,
+                                paddingVertical: 8,
+                                paddingHorizontal: 16,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text style={{ fontSize: 13, color: '#FF0000' }}>
+                                {t('products.staking.actions.withdraw').toUpperCase()}
+                            </Text>
+                        </TouchableHighlight>
+                    )}
                 </View>
                 {props.member.pendingDeposit.gtn(0) && (
                     <View style={{ flexDirection: 'column' }}>
@@ -225,17 +227,37 @@ export const StakingMemberComponent = React.memo((props: {
                 {props.member.withdraw.gtn(0) && (
                     <View style={{ flexDirection: 'column' }}>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />
-                        <View style={{ justifyContent: 'space-between', flexDirection: 'column', alignItems: 'flex-start' }}>
-                            <Text style={{ fontSize: 14, color: Theme.textSecondary }}>
-                                {t('products.staking.withdrawStatus.ready')}
-                            </Text>
-                            <Text style={{ fontSize: 30, color: '#4FAE42', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
-                                <ValueComponent
-                                    value={props.member.withdraw}
-                                    centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                                    centLength={3}
-                                />
-                            </Text>
+                        <View style={{
+                            flexDirection: 'row'
+                        }}>
+                            <View style={{ justifyContent: 'space-between', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <Text style={{ fontSize: 14, color: Theme.textSecondary }}>
+                                    {t('products.staking.withdrawStatus.ready')}
+                                </Text>
+                                <Text style={{ fontSize: 30, color: '#4FAE42', fontWeight: '800', marginTop: 2, }} numberOfLines={1}>
+                                    <ValueComponent
+                                        value={props.member.withdraw}
+                                        centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                        centLength={3}
+                                    />
+                                </Text>
+                            </View>
+                            <TouchableHighlight
+                                onPress={onUnstake}
+                                underlayColor={Theme.selector}
+                                style={{
+                                    borderRadius: 34,
+                                    backgroundColor: Theme.secondaryButton,
+                                    paddingVertical: 8,
+                                    paddingHorizontal: 16,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text style={{ fontSize: 13, color: '#4FAE42' }}>
+                                    {t('products.staking.actions.withdraw').toUpperCase()}
+                                </Text>
+                            </TouchableHighlight>
                         </View>
                     </View>
                 )}

@@ -29,7 +29,7 @@ export const PoolInfo = React.memo(({ pool }: { pool: StakingPoolState }) => {
                     />
                 </Text>
             </View>
-            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
+            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />
             <View style={{
                 flexDirection: 'row', justifyContent: 'space-between',
                 alignItems: 'flex-end', width: '100%',
@@ -52,7 +52,7 @@ export const PoolInfo = React.memo(({ pool }: { pool: StakingPoolState }) => {
                     {'13.3% (APY)'}
                 </Text>
             </View>
-            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
+            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />
             <View style={{
                 flexDirection: 'row', justifyContent: 'space-between',
                 alignItems: 'flex-end', width: '100%',

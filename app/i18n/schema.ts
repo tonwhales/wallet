@@ -126,6 +126,7 @@ export type LocalizationSchema = {
         },
         staking: {
             title: string,
+            balance: string,
             subtitle: {
                 join: string,
                 rewards: string,
@@ -136,7 +137,7 @@ export type LocalizationSchema = {
             balanceTitle: string,
             actions: {
                 deposit: string,
-                withdraw: string
+                withdraw: string,
             },
             join: {
                 title: string,
@@ -164,7 +165,11 @@ export type LocalizationSchema = {
                 pending: string
             },
             withdraw: string,
-            sync: string
+            sync: string,
+            unstake: {
+                title: string,
+                message: string
+            }
         },
         transactionRequest: string
     }

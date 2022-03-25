@@ -123,6 +123,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         staking: {
             title: 'Стейкинг',
+            balance: 'Ставка с валидатором',
             subtitle: {
                 join: 'Вложите свои Toncoin и получайте возраграждение вместе с Tonwhales стейкинг пулом',
                 rewards: 'Расчетная доходность',
@@ -161,7 +162,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 pending: 'Взнос ожидает'
             },
             withdraw: 'Вывод',
-            sync: 'Синхронизация данных'
+            sync: 'Синхронизация данных',
+            unstake: {
+                title: 'Вы уверены что хотите запросить вывод?',
+                message: 'Обратите внимание, что при запросе на вывод все незавершенные депозиты также будут возвращены.'
+            }
         },
         transactionRequest: 'Запрос транзакции'
     },

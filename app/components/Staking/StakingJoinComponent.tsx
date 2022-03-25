@@ -1,9 +1,7 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Platform, View, Text, Pressable, Linking } from "react-native";
+import { View, Text, Linking } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { CloseButton } from "../CloseButton";
-import LottieView from 'lottie-react-native';
 import { RoundButton } from "../RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Theme } from "../../Theme";
@@ -75,7 +73,11 @@ export const StakingJoinComponent = React.memo((props: {
                 }}>
                     {t('products.staking.subtitle.join')}
                 </Text>
-                <PoolInfo pool={props.pool} />
+                <View style={{
+                    marginTop: 16
+                }}>
+                    <PoolInfo pool={props.pool} />
+                </View>
                 {account.balance.gtn(0) && (
                     <>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />

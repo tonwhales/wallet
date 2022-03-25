@@ -123,6 +123,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         staking: {
             title: 'Staking',
+            balance: 'Staked with validator',
             subtitle: {
                 join: 'Stake your Toncoins and get rewarded with Tonwhales staking pool',
                 rewards: 'Estimated Interest',
@@ -133,7 +134,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             balanceTitle: 'Staking Balance',
             actions: {
                 deposit: 'deposit',
-                withdraw: 'withdraw'
+                withdraw: 'unstake'
             },
             join: {
                 title: 'Become a TON validator',
@@ -161,7 +162,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 pending: 'Deposit pending'
             },
             withdraw: 'Withdraw',
-            sync: 'Downloading staking data'
+            sync: 'Downloading staking data',
+            unstake: {
+                title: 'Are you sure want to request withdrawal?',
+                message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
+            }
         },
         transactionRequest: 'Request transaction'
     },

@@ -22,7 +22,7 @@ import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme } from './Theme';
-import { getAppState } from './storage/appState';
+import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { Engine, EngineContext } from './sync/Engine';
 import { storageCache } from './storage/storage';
 import { createSimpleConnector } from './sync/Connector';
@@ -37,6 +37,9 @@ import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { useNavigationReady } from './utils/NavigationReadyContext';
 import { StakingFragment } from './fragments/wallet/StakingFragment';
+import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
+import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
+import axios from 'axios';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -122,9 +125,11 @@ const navigation = [
     genericScreen('Settings', SettingsFragment),
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
+    genericScreen('Connections', ConnectionsFragment),
     modalScreen('Transfer', TransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
+    modalScreen('Authenticate', AuthenticateFragment),
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
@@ -247,6 +252,42 @@ export const Navigation = React.memo(() => {
                 }
             }
         })();
+        return () => {
+            ended = true;
+        };
+    }, []);
+
+    // Grant accesses
+    React.useEffect(() => {
+        let ended = false;
+        backoff(async () => {
+            if (ended) {
+                return;
+            }
+            const pending = getPendingGrant();
+            for (let p of pending) {
+                await axios.post('https://connect.tonhubapi.com/connect/grant', { key: p }, { timeout: 5000 });
+                removePendingGrant(p);
+            }
+        })
+        return () => {
+            ended = true;
+        };
+    }, []);
+
+    // Revoke accesses
+    React.useEffect(() => {
+        let ended = false;
+        backoff(async () => {
+            if (ended) {
+                return;
+            }
+            const pending = getPendingRevoke();
+            for (let p of pending) {
+                await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: p }, { timeout: 5000 });
+                removePendingRevoke(p);
+            }
+        })
         return () => {
             ended = true;
         };

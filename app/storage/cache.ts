@@ -494,6 +494,21 @@ export function createCache(store: MMKV) {
                 return null;
             }
         },
+        storeJob: (address: Address, state: string | null) => {
+            if (state) {
+                store.set('job_' + address.toFriendly({ testOnly: AppConfig.isTestnet }), state);
+            } else {
+                store.delete('job_' + address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            }
+        },
+        loadJob: (address: Address) => {
+            let s = store.getString('job_' + address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            if (s) {
+                return s;
+            } else {
+                return null;
+            }
+        },
         storeCoin: (name: string, value: BN | null) => {
             if (value) {
                 store.set('coin_' + name, value.toString(10))

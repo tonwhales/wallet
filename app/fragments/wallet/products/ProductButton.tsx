@@ -12,14 +12,7 @@ export function ProductButton(props: {
     name: string,
     subtitle?: string,
     icon: React.FC<SvgProps>,
-    value?: BN,
-    graph?: {
-        full: BN,
-        values: {
-            amount: BN,
-            color: string
-        }[]
-    },
+    value: BN | null,
     onPress: () => void
 }) {
     const Icon = props.icon;
@@ -33,7 +26,7 @@ export function ProductButton(props: {
                 marginHorizontal: 16, marginVertical: 16
             }}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: props.graph && props.subtitle ? 62 + 8 : 62 }}>
+            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: props.subtitle ? 62 + 8 : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
                         <Icon width={29} height={29} color={'white'} />
@@ -57,32 +50,6 @@ export function ProductButton(props: {
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
                             <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
                             {/* <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{t('common.balance')}</Text> */}
-                        </View>
-                    )}
-                    <View style={{ flexGrow: 1 }} />
-                    {props.graph && (
-                        <View style={{
-                            borderRadius: 14,
-                            backgroundColor: 'grey',
-                            height: 8,
-                            marginRight: 10,
-                            marginBottom: 10,
-                            alignSelf: 'stretch',
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}>
-                            {props.graph.values.map((value, index) => {
-                                return (
-                                    <View
-                                        key={`val-${index}`}
-                                        style={{
-                                            height: 8,
-                                            backgroundColor: value.color,
-                                            width: `${(parseFloat(fromNano(value.amount)) / parseFloat(fromNano(props.graph!.full))) * 100}%`
-                                        }}
-                                    />
-                                )
-                            })}
                         </View>
                     )}
                     <View style={{ flexGrow: 1 }} />

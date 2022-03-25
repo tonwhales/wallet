@@ -3,11 +3,16 @@ import { Address, Cell } from "ton";
 import Url from 'url-parse';
 
 export function resolveUrl(src: string): {
+    type: 'transaction',
     address: Address,
     comment: string | null,
     amount: BN | null,
     payload: Cell | null,
     stateInit: Cell | null,
+} | {
+    type: 'sign',
+    session: string,
+    endpoint: string | null
 } | null {
 
 
@@ -16,6 +21,7 @@ export function resolveUrl(src: string): {
     try {
         let res = Address.parseFriendly(src);
         return {
+            type: 'transaction',
             address: res.address,
             comment: null,
             amount: null,
@@ -54,11 +60,30 @@ export function resolveUrl(src: string): {
                 }
             }
             return {
+                type: 'transaction',
                 address,
                 comment,
                 amount,
                 payload,
                 stateInit
+            }
+        }
+
+        // ton url connect
+        if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'connect' && url.pathname.startsWith('/')) {
+            let session = url.pathname.slice(1);
+            let endpoint: string | null = null;
+            if (url.query) {
+                for (let key in url.query) {
+                    if (key.toLowerCase() === 'endpoint') {
+                        endpoint = url.query[key]!;
+                    }
+                }
+            }
+            return {
+                type: 'sign',
+                session,
+                endpoint
             }
         }
 
@@ -88,11 +113,32 @@ export function resolveUrl(src: string): {
                 }
             }
             return {
+                type: 'transaction',
                 address,
                 comment,
                 amount,
                 payload,
                 stateInit
+            }
+        }
+
+        // HTTP(s) Sign Url
+        if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
+            && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com' || url.host.toLowerCase() === 'test.tonhub.com')
+            && (url.pathname.toLowerCase().startsWith('/connect/'))) {
+            let session = url.pathname.slice('/connect/'.length);
+            let endpoint: string | null = null;
+            if (url.query) {
+                for (let key in url.query) {
+                    if (key.toLowerCase() === 'endpoint') {
+                        endpoint = url.query[key]!;
+                    }
+                }
+            }
+            return {
+                type: 'sign',
+                session,
+                endpoint
             }
         }
 

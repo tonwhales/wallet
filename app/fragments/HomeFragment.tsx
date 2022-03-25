@@ -27,7 +27,7 @@ export const HomeFragment = fragment(() => {
     React.useEffect(() => {
         return CachedLinking.setListener((link: string) => {
             let resolved = resolveUrl(link);
-            if (resolved) {
+            if (resolved && resolved.type === 'transaction') {
                 navState?.setReady(true);
                 navigation.navigate('Transfer', {
                     target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
@@ -35,6 +35,13 @@ export const HomeFragment = fragment(() => {
                     amount: resolved.amount,
                     payload: resolved.payload,
                     stateInit: resolved.stateInit
+                });
+            }
+            if (resolved && resolved.type === 'sign') {
+                navState?.setReady(true);
+                navigation.navigate('Authenticate', {
+                    session: resolved.session,
+                    endpoint: resolved.endpoint
                 });
             }
         });

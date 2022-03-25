@@ -74,6 +74,7 @@ export const WalletFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
     const oldWalletsBalance = engine.products.oldWallets.useState();
+    const currentJob = engine.products.apps.useState();
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.getTransaction(v));
         return [...account.pending, ...txs];
@@ -169,7 +170,7 @@ export const WalletFragment = fragment(() => {
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src);
-            if (res) {
+            if (res && res.type === 'transaction') {
                 // if QR is valid navigate to transfer fragment
                 navigation.navigate('Transfer', {
                     target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
@@ -177,7 +178,14 @@ export const WalletFragment = fragment(() => {
                     amount: res.amount,
                     payload: res.payload,
                     stateInit: res.stateInit
-                })
+                });
+            }
+            if (res && res.type === 'sign') {
+                // if QR is valid navigate to sign fragment
+                navigation.navigate('Authenticate', {
+                    session: res.session,
+                    endpoint: res.endpoint
+                });
             }
 
         } catch (error) {
@@ -285,6 +293,27 @@ export const WalletFragment = fragment(() => {
                     />
                 )}
                 {AppConfig.isTestnet && (<StakingProductComponent />)}
+
+                {currentJob && currentJob.job.type === 'transaction' && (
+                    <ProductButton
+                        name={t('products.transactionRequest')}
+                        subtitle={currentJob.job.text}
+                        icon={OldWalletIcon}
+                        value={null}
+                        onPress={() => {
+                            if (currentJob.job.type === 'transaction') {
+                                navigation.navigate('Transfer', {
+                                    target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                    comment: currentJob.job.text,
+                                    amount: currentJob.job.amount.toString(10),
+                                    payload: currentJob.job.payload,
+                                    job: currentJob.jobRaw
+                                });
+                            }
+                        }}
+                    />
+                )}
+
                 {
                     transactions.length === 0 && (
                         <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: window.height * 0.095 }}>

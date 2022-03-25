@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
@@ -52,6 +52,7 @@ export const TransferFragment = fragment(() => {
             minAmount?: BN,
             action?: 'deposit' | 'withdraw'
         }
+        job?: string | null
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
@@ -63,6 +64,13 @@ export const TransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
+    React.useEffect(() => {
+        return () => {
+            if (params && params.job) {
+                engine.products.apps.commitCommand(false, params.job, new Cell());
+            }
+        }
+    }, []);
     const doSend = React.useCallback(async () => {
 
         async function confirm(title: LocalizedResources) {
@@ -189,6 +197,11 @@ export const TransferFragment = fragment(() => {
         // Sending transfer
         await backoff(() => engine.connector.sendExternalMessage(contract, transfer));
 
+        // Notify job
+        if (params && params.job) {
+            engine.products.apps.commitCommand(true, params.job, new Cell());
+        }
+
         // Notify
         engine.registerPending({
             id: 'pending-' + account.seqno,
@@ -286,7 +299,7 @@ export const TransferFragment = fragment(() => {
 
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
-        if (res) {
+        if (res && res.type === 'transaction') {
             setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
             if (res.amount) {
                 setAmount(fromNano(res.amount));
@@ -476,27 +489,47 @@ export const TransferFragment = fragment(() => {
                                 </Text>
                             </View>
                             <View style={{ flexDirection: 'row' }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: !params?.staking ? 7 : undefined, backgroundColor: 'white', borderRadius: 14 }}>
-                                    <TouchableHighlight onPress={onAddAll} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                    <Pressable
+                                        onPress={onAddAll}
+                                        style={({ pressed }) => [
+                                            {
+                                                backgroundColor: pressed
+                                                    ? Theme.selector
+                                                    : 'white',
+                                            },
+                                            { borderRadius: 14 }
+                                        ]}
+                                    >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                             <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../../assets/ic_all_coins.png')} />
                                             </View>
                                             <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
                                         </View>
-                                    </TouchableHighlight>
+                                    </Pressable>
                                 </View>
                                 {!params?.staking && (
                                     <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                        <TouchableHighlight onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Image source={require('../../../assets/ic_scan_qr.png')} />
-                                                </View>
-                                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
+                                    <Pressable
+                                        onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                        style={({ pressed }) => [
+                                            {
+                                                backgroundColor: pressed
+                                                    ? Theme.selector
+                                                    : 'white',
+                                            },
+                                            { borderRadius: 14 }
+                                        ]}
+                                    >
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={require('../../../assets/ic_scan_qr.png')} />
                                             </View>
-                                        </TouchableHighlight>
-                                    </View>
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
+                                        </View>
+                                    </Pressable>
+                                </View>
                                 )}
                             </View>
                         </>
@@ -530,6 +563,8 @@ export const TransferFragment = fragment(() => {
                             keyboardType="ascii-capable"
                             preventDefaultHeight
                             multiline
+                            autoCorrect={false}
+                            autoCompleteType={'off'}
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
                             enabled={!lockAddress}
@@ -600,14 +635,16 @@ export const TransferFragment = fragment(() => {
                     action={doSend}
                 />
             </KeyboardAvoidingView>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            {
+                Platform.OS === 'ios' && (
+                    <CloseButton
+                        style={{ position: 'absolute', top: 12, right: 10 }}
+                        onPress={() => {
+                            navigation.goBack();
+                        }}
+                    />
+                )
+            }
         </>
     );
 });

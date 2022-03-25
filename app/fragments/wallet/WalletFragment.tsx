@@ -73,6 +73,7 @@ export const WalletFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
     const oldWalletsBalance = engine.products.oldWallets.useState();
+    const currentJob = engine.products.apps.useState();
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.getTransaction(v));
         return [...account.pending, ...txs];
@@ -288,6 +289,25 @@ export const WalletFragment = fragment(() => {
                         icon={OldWalletIcon}
                         value={oldWalletsBalance}
                         onPress={() => navigation.navigate('Migration')}
+                    />
+                )}
+
+                {currentJob && currentJob.job.type === 'transaction' && (
+                    <ProductButton
+                        name={'Transaction request'}
+                        subtitle={currentJob.job.text}
+                        icon={OldWalletIcon}
+                        value={null}
+                        onPress={() => {
+                            if (currentJob.job.type === 'transaction') {
+                                navigation.navigate('Transfer', {
+                                    target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                    comment: currentJob.job.text,
+                                    amount: currentJob.job.amount.toString(10),
+                                    payload: currentJob.job.payload
+                                });
+                            }
+                        }}
                     />
                 )}
 

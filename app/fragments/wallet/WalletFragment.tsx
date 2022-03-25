@@ -304,7 +304,8 @@ export const WalletFragment = fragment(() => {
                                     target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
                                     comment: currentJob.job.text,
                                     amount: currentJob.job.amount.toString(10),
-                                    payload: currentJob.job.payload
+                                    payload: currentJob.job.payload,
+                                    job: currentJob.jobRaw
                                 });
                             }
                         }}

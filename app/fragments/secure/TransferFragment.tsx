@@ -45,6 +45,7 @@ export const TransferFragment = fragment(() => {
         amount?: BN | null,
         payload?: Cell | null,
         stateInit?: Cell | null,
+        job?: string | null
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
@@ -56,6 +57,13 @@ export const TransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
+    React.useEffect(() => {
+        return () => {
+            if (params && params.job) {
+                engine.products.apps.commitCommand(false, params.job, new Cell());
+            }
+        }
+    }, []);
     const doSend = React.useCallback(async () => {
 
         async function confirm(title: LocalizedResources) {
@@ -181,6 +189,11 @@ export const TransferFragment = fragment(() => {
 
         // Sending transfer
         await backoff(() => engine.connector.sendExternalMessage(contract, transfer));
+
+        // Notify job
+        if (params && params.job) {
+            engine.products.apps.commitCommand(true, params.job, new Cell());
+        }
 
         // Notify
         engine.registerPending({

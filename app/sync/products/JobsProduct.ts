@@ -19,8 +19,10 @@ export class JobsProduct {
         appPublicKey: Buffer;
         job: Job;
         jobCell: Cell;
+        jobRaw: string;
     } | null = null
     private _eventEmitter: EventEmitter = new EventEmitter();
+    private _completed = new Set<string>();
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -31,7 +33,7 @@ export class JobsProduct {
                 let jobCell = Cell.fromBoc(Buffer.from(job, 'base64'))[0];
                 let parsed = parseJob(jobCell.beginParse());
                 if (parsed) {
-                    this._state = { ...parsed, jobCell };
+                    this._state = { ...parsed, jobCell, jobRaw: job };
                 }
             }
         } catch (e) {
@@ -86,6 +88,27 @@ export class JobsProduct {
         }
     }
 
+    commitCommand(success: boolean, job: string, result: Cell) {
+        if (this._completed.has(job)) {
+            return;
+        }
+        this._completed.add(job);
+        if (this._state && this._state.jobRaw === job) {
+            this._state = null;
+            this.engine.cache.storeJob(this.engine.address, null);
+            this._eventEmitter.emit('updated');
+        }
+
+        // Notify
+        backoff(async () => {
+            await axios.post('https://connect.tonhubapi.com/connect/command/commit', {
+                successful: success,
+                job,
+                result: result.toBoc({ idx: false }).toString('base64')
+            });
+        });
+    }
+
     private _startSync() {
         backoff(async () => {
             while (!this._destroyed) {
@@ -108,7 +131,7 @@ export class JobsProduct {
                 // Submited state
                 if (res.data.state === 'submitted') {
                     let jobCell = Cell.fromBoc(Buffer.from(res.data.job, 'base64'))[0];
-                    if (this._state && this._state.jobCell.equals(jobCell)) {
+                    if (this._state && this._state.jobCell.equals(jobCell) || this._completed.has(res.data.job)) {
                         continue;
                     }
                     let parsed = parseJob(jobCell.beginParse());
@@ -119,7 +142,7 @@ export class JobsProduct {
                         continue;
                     }
                     if (parsed) {
-                        this._state = { ...parsed, jobCell };
+                        this._state = { ...parsed, jobCell, jobRaw: res.data.job };
                         this.engine.cache.storeJob(this.engine.address, res.data.job);
                         this._eventEmitter.emit('updated');
                         continue;

@@ -58,11 +58,11 @@ export const StakingJoinComponent = React.memo((props: {
             }}>
                 {t('products.staking.join.message')}
             </Text>
+            <View style={{ flex: 1, flexGrow: 1 }} />
             <View style={{
                 backgroundColor: 'white',
                 padding: 16,
                 borderRadius: 14,
-                marginTop: 64
             }}>
                 <Text style={{
                     textAlign: 'center',

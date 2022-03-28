@@ -20,6 +20,7 @@ export const NeocryptoFragment = fragment(() => {
     const address = getCurrentAddress();
     const baseNavigation = useNavigation();
     const { t } = useTranslation();
+    const wref = React.useRef<WebView>(null);
 
     const queryParams = useMemo(() => new URLSearchParams({
         partner: 'tonhub',
@@ -30,8 +31,6 @@ export const NeocryptoFragment = fragment(() => {
         fix_address: 'true',
         ...params
     }), [params]);
-
-    console.log(queryParams.toString());
 
     useLayoutEffect(() => {
         baseNavigation.setOptions({
@@ -59,6 +58,7 @@ export const NeocryptoFragment = fragment(() => {
         }}>
             <AndroidToolbar />
             <WebView
+                ref={wref}
                 source={{
                     uri: `http://neocrypto.net/buy.html?${queryParams}`
                 }}

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Platform, View } from "react-native";
+import { Platform, Pressable, View, Text } from "react-native";
 import { fragment } from "../../fragment"
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Settings } from "../../storage/settings";
@@ -57,7 +57,7 @@ export const SetBiometryFragment = fragment(() => {
                 text={t('secure.messageNoBiometrics')}
             />
             <View style={{ flexGrow: 1 }} />
-            <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+            <View style={{ height: 128, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                 <RoundButton
                     onPress={onSet}
                     title={
@@ -72,6 +72,26 @@ export const SetBiometryFragment = fragment(() => {
                             : require('../../../assets/ic_and_touch.png')
                     }
                 />
+                <Pressable
+                    onPress={params.onSkip}
+                    style={({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.5 : 1,
+                            alignSelf: 'center',
+                            marginTop: 26,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }
+                    }}
+                >
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: '600',
+                        color: Theme.accentText
+                    }}>
+                        {t('common.skip')}
+                    </Text>
+                </Pressable>
             </View>
         </View>
     );

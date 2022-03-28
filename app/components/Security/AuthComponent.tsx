@@ -11,10 +11,12 @@ export const AuthComponent = React.memo((
         onSuccess,
         onError,
         onCancel,
+        fallbackToPasscode
     }: {
         onSuccess?: () => void,
         onError?: () => void,
-        onCancel?: () => void
+        onCancel?: () => void,
+        fallbackToPasscode?: boolean
     }
 ) => {
     const safeArea = useSafeAreaInsets();

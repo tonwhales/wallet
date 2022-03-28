@@ -77,32 +77,34 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
         })();
     }, []);
 
-    const setBiometry = React.useCallback(
+    const setupBiometry = React.useCallback(
         () => {
             navigation.navigate('SetBiometry', {
                 onSuccess: onSet,
                 onCancel: () => {
                     navigation.goBack();
                 },
+                onSkip: onSet
             });
         },
         [],
     );
 
-    const setPasscode = React.useCallback(
+    const hasBiometry = props.deviceEncryption !== 'none'
+        && !!props.deviceEncryption
+            .types
+            .find(
+                (t) =>
+                    (t === LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
+                    || (t === LocalAuthentication.AuthenticationType.FINGERPRINT)
+            );
+
+    const setupPasscode = React.useCallback(
         () => {
             navigation.navigate('SetPasscode', {
                 onSuccess: () => {
-                    const hasBiometry = props.deviceEncryption !== 'none'
-                        && !!props.deviceEncryption
-                            .types
-                            .find(
-                                (t) =>
-                                    (t === LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
-                                    || (t === LocalAuthentication.AuthenticationType.FINGERPRINT)
-                            );
                     if (hasBiometry) {
-                        setBiometry();
+                        setupBiometry();
                     } else {
                         onSet();
                     }
@@ -115,9 +117,20 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
         [],
     );
 
+    const onSkip = React.useCallback(
+        () => {
+            if (hasBiometry) {
+                setupBiometry();
+            } else {
+                onSet();
+            }
+        },
+        [],
+    );
+
     const button = {
         title: t('secure.protectPasscode'),
-        onPress: setPasscode,
+        onPress: setupPasscode,
         icon: <Ionicons name="keypad" size={20} color="white" />
     };
 
@@ -147,9 +160,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                         icon={button.icon}
                     />
                     <Pressable
-                        onPress={() => {
-
-                        }}
+                        onPress={onSkip}
                         style={({ pressed }) => {
                             return {
                                 opacity: pressed ? 0.5 : 1,

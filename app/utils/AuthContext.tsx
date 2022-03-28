@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { AuthComponent } from "../components/Security/AuthComponent";
+import { Settings } from "../storage/settings";
 import { backoff } from "./time";
 
 
@@ -7,7 +8,8 @@ export type AuthContextType = {
     authenticate: (props: {
         onSuccess?: () => void,
         onError?: () => void,
-        onCancel?: () => void
+        onCancel?: () => void,
+        fallbackToPasscode?: boolean
     }) => void,
     authenticateAsync: () => Promise<'success' | 'error' | 'canceled'>
 } | undefined
@@ -18,7 +20,8 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
     const [authState, setAuthState] = useState<{
         onSuccess?: () => void,
         onError?: () => void,
-        onCancel?: () => void
+        onCancel?: () => void,
+        fallbackToPasscode?: boolean
     }>();
 
     function finishAuth(call?: () => void) {
@@ -36,12 +39,16 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
         (props: {
             onSuccess?: () => void,
             onError?: () => void,
-            onCancel?: () => void
+            onCancel?: () => void,
+            fallbackToPasscode?: boolean
         }) => {
             setAuthState({
                 onSuccess: finishAuth(props.onSuccess),
                 onError: finishAuth(props.onError),
-                onCancel: finishAuth(props.onCancel)
+                onCancel: finishAuth(props.onCancel),
+                fallbackToPasscode: !!Settings.getPasscode()
+                    ? props.fallbackToPasscode
+                    : undefined
             });
         },
         [],
@@ -54,7 +61,6 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
             setAuthState({
                 onSuccess: finishAuth(() => res('success')),
                 onError: finishAuth(() => res('error')),
-                onCancel: finishAuth(() => res('canceled'))
             });
         });
     };

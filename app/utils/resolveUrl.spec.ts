@@ -6,6 +6,9 @@ describe('resolveUrl', () => {
         let res = resolveUrl('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toBeNull();
 
@@ -17,24 +20,36 @@ describe('resolveUrl', () => {
         let res = resolveUrl('ton://transfer/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toBeNull();
 
         res = resolveUrl('ton://transfer/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N?amount=105000000000&text=helloworld')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toEqual('helloworld');
 
         res = resolveUrl('ton://TRANSFER/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N?amount=105000000000&text=helloworld')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toEqual('helloworld');
 
         res = resolveUrl('ton://TRANSFER/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N?amount=105000000000&TEXT=helloworld')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toEqual('helloworld');
     });
@@ -43,6 +58,9 @@ describe('resolveUrl', () => {
         let res = resolveUrl('https://tonhub.com/transfer/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toBeNull();
 
@@ -50,18 +68,27 @@ describe('resolveUrl', () => {
         res = resolveUrl('https://tonhub.com/transfer/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N?amount=105000000000&text=helloworld')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toEqual('helloworld');
 
         res = resolveUrl('https://tonhub.com/TRANSFER/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N?amount=105000000000&text=helloworld')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toEqual('helloworld');
 
         res = resolveUrl('https://tonhub.com/TRANSFER/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N?amount=105000000000&TEXT=helloworld')!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
+        if (res.type !== 'transaction') {
+            throw Error();
+        }
         expect(res.address.equals(Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'))).toBe(true);
         expect(res.comment).toEqual('helloworld');
     });

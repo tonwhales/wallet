@@ -87,6 +87,21 @@ export type LocalizationSchema = {
         purpose: string,
         comment: string
     },
+    auth: {
+        title: string,
+        message: string,
+        hint: string,
+        action: string,
+        expired: string,
+        completed: string,
+        noApps: string,
+        name: string,
+        revoke: {
+            title: string,
+            message: string,
+            action: string
+        }
+    },
     migrate: {
         title: string,
         subtitle: string,
@@ -103,7 +118,8 @@ export type LocalizationSchema = {
         oldWallets: {
             title: string,
             subtitle: string
-        }
+        },
+        transactionRequest: string
     }
     welcome: {
         title: string,

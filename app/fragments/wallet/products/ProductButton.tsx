@@ -11,7 +11,7 @@ export function ProductButton(props: {
     name: string,
     subtitle: string,
     icon: React.FC<SvgProps>,
-    value: BN,
+    value: BN | null,
     onPress: () => void
 }) {
     const Icon = props.icon;
@@ -36,7 +36,9 @@ export function ProductButton(props: {
                         <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
                             {props.name}
                         </Text>
-                        <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} /></Text>
+                        {props.value && (
+                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} /></Text>
+                        )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>

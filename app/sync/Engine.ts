@@ -12,6 +12,7 @@ import { OldWalletsProduct } from './products/OldWalletsProduct';
 import { AddressProduct } from './products/AddressProduct';
 import { AppConfig } from '../AppConfig';
 import { PriceProduct } from './products/PriceProduct';
+import { JobsProduct } from './products/JobsProduct';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -83,8 +84,10 @@ export class Engine {
 
         this.products = {
             oldWallets: new OldWalletsProduct(this),
-            price: this.createPriceProduct()
+            price: this.createPriceProduct(),
+            apps: new JobsProduct(this)
         };
+        this._products.set('apps', this.products.apps);
     }
 
     get ready() {

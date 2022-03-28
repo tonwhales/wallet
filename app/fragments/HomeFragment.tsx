@@ -23,7 +23,7 @@ export const HomeFragment = fragment(() => {
     React.useEffect(() => {
         return CachedLinking.setListener((link: string) => {
             let resolved = resolveUrl(link);
-            if (resolved) {
+            if (resolved && resolved.type === 'transaction') {
                 SplashScreen.hideAsync();
                 navigation.navigate('Transfer', {
                     target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
@@ -31,6 +31,13 @@ export const HomeFragment = fragment(() => {
                     amount: resolved.amount,
                     payload: resolved.payload,
                     stateInit: resolved.stateInit
+                });
+            }
+            if (resolved && resolved.type === 'sign') {
+                SplashScreen.hideAsync();
+                navigation.navigate('Authenticate', {
+                    session: resolved.session,
+                    endpoint: resolved.endpoint
                 });
             }
         });

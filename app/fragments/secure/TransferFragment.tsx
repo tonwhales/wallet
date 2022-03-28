@@ -17,7 +17,7 @@ import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { loadWalletKeysWithAuth, loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
 import { useAccount } from '../../sync/Engine';
 import { AsyncLock } from 'teslabot';
@@ -26,6 +26,7 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
+import { useAuth } from '../../utils/AuthContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -39,6 +40,7 @@ export type ATextInputRef = {
 
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const auth = useAuth();
     const params: {
         target?: string,
         comment?: string | null,
@@ -159,7 +161,7 @@ export const TransferFragment = fragment(() => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            walletKeys = await loadWalletKeysWithAuth(acc.secretKeyEnc, auth);
         } catch (e) {
             navigation.goBack();
             return;

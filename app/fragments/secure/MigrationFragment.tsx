@@ -6,7 +6,7 @@ import { SendMode, WalletContractType } from 'ton';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { loadWalletKeysWithAuth, loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
@@ -21,6 +21,7 @@ import { CloseButton } from '../../components/CloseButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
+import { useAuth } from '../../utils/AuthContext';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -34,6 +35,7 @@ const MigrationProcessFragment = fragment(() => {
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
     const [account, engine] = useAccount();
     const acc = React.useMemo(() => getCurrentAddress(), []);
+    const auth = useAuth();
 
     React.useEffect(() => {
         let ended = false;
@@ -43,7 +45,7 @@ const MigrationProcessFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                key = await loadWalletKeys(acc.secretKeyEnc);
+                key = await loadWalletKeysWithAuth(acc.secretKeyEnc, auth);
             } catch (e) {
                 navigation.goBack();
                 return;

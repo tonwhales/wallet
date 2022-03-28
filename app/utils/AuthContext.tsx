@@ -1,13 +1,18 @@
 import React, { useCallback, useState } from "react";
 import { AuthComponent } from "../components/Security/AuthComponent";
+import { backoff } from "./time";
 
-const AuthContext = React.createContext<{
+
+export type AuthContextType = {
     authenticate: (props: {
         onSuccess?: () => void,
         onError?: () => void,
         onCancel?: () => void
-    }) => void
-} | undefined>(undefined);
+    }) => void,
+    authenticateAsync: () => Promise<'success' | 'error' | 'canceled'>
+} | undefined
+
+const AuthContext = React.createContext<AuthContextType>(undefined);
 
 export const AuthLoader = React.memo(({ children }: { children: any }) => {
     const [authState, setAuthState] = useState<{
@@ -42,8 +47,20 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
         [],
     );
 
+    const authenticateAsync = async () => {
+        console.log('[authenticateAsync]')
+        return await new Promise<'success' | 'error' | 'canceled'>((res, reg) => {
+            console.log('[authenticateAsync]', 'Promise');
+            setAuthState({
+                onSuccess: finishAuth(() => res('success')),
+                onError: finishAuth(() => res('error')),
+                onCancel: finishAuth(() => res('canceled'))
+            });
+        });
+    };
+
     return (
-        <AuthContext.Provider value={{ authenticate }}>
+        <AuthContext.Provider value={{ authenticate, authenticateAsync }}>
             {children}
             {authState && <AuthComponent {...authState} />}
         </AuthContext.Provider>
@@ -51,6 +68,8 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
 });
 
 export function useAuth() {
+    console.log('[useAuth]');
     let v = React.useContext(AuthContext);
+    console.log('[useAuth]', { v });
     return v;
 }

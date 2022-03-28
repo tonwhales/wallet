@@ -6,12 +6,13 @@ import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { loadWalletKeys } from '../../storage/walletKeys';
+import { loadWalletKeysWithAuth, loadWalletKeys } from '../../storage/walletKeys';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import { EngineContext } from '../../sync/Engine';
+import { useAuth } from '../../utils/AuthContext';
 
 export const WalletBackupFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -20,6 +21,7 @@ export const WalletBackupFragment = fragment(() => {
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getCurrentAddress(), []);
     const engine = React.useContext(EngineContext)!
+    const auth = useAuth();
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
@@ -35,7 +37,7 @@ export const WalletBackupFragment = fragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await loadWalletKeys(address.secretKeyEnc);
+                let keys = await loadWalletKeysWithAuth(address.secretKeyEnc, auth);
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 navigation.goBack();

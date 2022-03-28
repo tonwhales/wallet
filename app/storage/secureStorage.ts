@@ -29,6 +29,18 @@ async function getApplicationKey() {
     }
 }
 
+async function getPasscodeApplicationKey() {
+    while (true) {
+        const ex = storage.getString(TOKEN_KEY);
+        if (!ex) {
+            let privateKey = await getSecureRandomBytes(32);
+            storage.set(TOKEN_KEY, privateKey.toString('base64'));
+        } else {
+            return Buffer.from(ex, 'base64');
+        }
+    }
+}
+
 export async function ensureKeystoreReady() {
     if (Platform.OS === 'android') {
         try {
@@ -45,6 +57,25 @@ export async function encryptData(data: Buffer) {
     const nonce = await getSecureRandomBytes(24);
     const sealed = sealBox(data, nonce, key);
     return Buffer.concat([nonce, sealed]);
+}
+
+export async function encryptPasscodeData(data: Buffer) {
+    const key = await getPasscodeApplicationKey();
+    const nonce = await getSecureRandomBytes(24);
+    const sealed = sealBox(data, nonce, key);
+    return Buffer.concat([nonce, sealed]);
+}
+
+
+export async function decryptPasscodeData(data: Buffer) {
+    const key = await getPasscodeApplicationKey();
+    let nonce = data.slice(0, 24);
+    let cypherData = data.slice(24);
+    let res = openBox(cypherData, nonce, key);
+    if (!res) {
+        throw Error('Unable to decrypt data');
+    }
+    return res;
 }
 
 export async function decryptData(data: Buffer) {

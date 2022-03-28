@@ -35,7 +35,6 @@ export const AuthComponent = React.memo((
                 if (types.length > 0 && enrolled) {
                     try {
                         const res = await LocalAuthentication.authenticateAsync();
-                        console.log('[Auth]', { res });
                         if (res.success) {
                             if (onSuccess) onSuccess();
                         } else {

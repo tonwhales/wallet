@@ -41,6 +41,8 @@ import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment
 import axios from 'axios';
 import { SecurityFragment } from './fragments/SecurityFragment';
 import { useAuth } from './utils/AuthContext';
+import { SetPasscodeFragment } from './fragments/utils/SetPasscodeFragment';
+import { SetBiometryFragment } from './fragments/utils/SetBiometryFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -126,6 +128,8 @@ const navigation = [
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
     genericScreen('Connections', ConnectionsFragment),
+    fullScreen('SetPasscode', SetPasscodeFragment),
+    fullScreen('SetBiometry', SetBiometryFragment),
     modalScreen('Transfer', TransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
@@ -258,41 +262,41 @@ export const Navigation = React.memo(() => {
         };
     }, []);
 
-        // Grant accesses
-        React.useEffect(() => {
-            let ended = false;
-            backoff(async () => {
-                if (ended) {
-                    return;
-                }
-                const pending = getPendingGrant();
-                for (let p of pending) {
-                    await axios.post('https://connect.tonhubapi.com/connect/grant', { key: p }, { timeout: 5000 });
-                    removePendingGrant(p);
-                }
-            })
-            return () => {
-                ended = true;
-            };
-        }, []);
-    
-        // Revoke accesses
-        React.useEffect(() => {
-            let ended = false;
-            backoff(async () => {
-                if (ended) {
-                    return;
-                }
-                const pending = getPendingRevoke();
-                for (let p of pending) {
-                    await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: p }, { timeout: 5000 });
-                    removePendingRevoke(p);
-                }
-            })
-            return () => {
-                ended = true;
-            };
-        }, []);
+    // Grant accesses
+    React.useEffect(() => {
+        let ended = false;
+        backoff(async () => {
+            if (ended) {
+                return;
+            }
+            const pending = getPendingGrant();
+            for (let p of pending) {
+                await axios.post('https://connect.tonhubapi.com/connect/grant', { key: p }, { timeout: 5000 });
+                removePendingGrant(p);
+            }
+        })
+        return () => {
+            ended = true;
+        };
+    }, []);
+
+    // Revoke accesses
+    React.useEffect(() => {
+        let ended = false;
+        backoff(async () => {
+            if (ended) {
+                return;
+            }
+            const pending = getPendingRevoke();
+            for (let p of pending) {
+                await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: p }, { timeout: 5000 });
+                removePendingRevoke(p);
+            }
+        })
+        return () => {
+            ended = true;
+        };
+    }, []);
 
     React.useEffect(() => {
         if (navState?.ready) {
@@ -304,9 +308,7 @@ export const Navigation = React.memo(() => {
     const reqAuth = React.useCallback(
         () => {
             auth?.authenticate({
-                onSuccess: () => {
-                    // Ignore
-                },
+                onSuccess: () => { /* Ignore */ },
                 onError: () => {
                     reqAuth();
                 }

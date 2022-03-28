@@ -1,0 +1,69 @@
+import React, { useCallback, useState } from "react";
+import { Platform, View } from "react-native";
+import { fragment } from "../../fragment"
+import * as LocalAuthentication from 'expo-local-authentication';
+import { Settings } from "../../storage/settings";
+import { useParams } from "../../utils/useParams";
+import { RoundButton } from "../../components/RoundButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+
+export const SetBiometryFragment = fragment(() => {
+    const safeArea = useSafeAreaInsets();
+    const { t } = useTranslation();
+    const [loading, setLoading] = useState(false);
+    const params = useParams<{
+        onSuccess?: () => void,
+        onCancel?: () => void,
+        onSkip?: () => void
+    }>();
+
+    const onSet = useCallback(
+        () => {
+            (async () => {
+                setLoading(true);
+                const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
+                const enrolled = await LocalAuthentication.isEnrolledAsync();
+                if (types.length > 0 && enrolled) {
+                    try {
+                        const res = await LocalAuthentication.authenticateAsync();
+                        if (res.success) {
+                            setLoading(false);
+                            Settings.markUseBiometry(true);
+                            if (params.onSuccess) params.onSuccess();
+                        } else {
+                            setLoading(false);
+                        }
+                    } catch (error) {
+                        setLoading(false);
+                    }
+                }
+            })();
+        },
+        [],
+    );
+
+    return (
+        <View style={{
+            flex: 1
+        }}>
+            <View style={{ flexGrow: 1 }} />
+            <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <RoundButton
+                    onPress={onSet}
+                    title={
+                        Platform.OS === 'ios'
+                            ? t('secure.protectFaceID')
+                            : t('secure.protectBiometrics')
+                    }
+                    loading={loading}
+                    iconImage={
+                        Platform.OS === 'ios'
+                            ? require('../../../assets/ic_face_id.png')
+                            : require('../../../assets/ic_and_touch.png')
+                    }
+                />
+            </View>
+        </View>
+    );
+})

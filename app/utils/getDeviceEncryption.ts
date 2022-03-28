@@ -1,7 +1,13 @@
 import * as Device from 'expo-device';
 import * as LocalAuthentication from 'expo-local-authentication';
 
-export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face';
+// export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face';
+
+export type DeviceEncryption = {
+    level: LocalAuthentication.SecurityLevel,
+    types: LocalAuthentication.AuthenticationType[]
+} | 'none';
+
 
 export async function getDeviceEncryption(): Promise<DeviceEncryption> {
 
@@ -19,15 +25,7 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
     // Resolve encryption
     if (level === LocalAuthentication.SecurityLevel.NONE) {
         return 'none';
-    } else if (level === LocalAuthentication.SecurityLevel.SECRET) {
-        return 'passcode';
     } else {
-        if (types.find((v) => v === LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
-            return 'face';
-        }
-        if (types.find((v) => v === LocalAuthentication.AuthenticationType.FINGERPRINT)) {
-            return 'fingerprint';
-        }
-        throw Error('Unknown encryption type');
+        return { level, types };
     }
 }

@@ -15,9 +15,10 @@ import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getAppK
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
 import { Cell } from 'ton';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { loadWalletKeysWithAuth, loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
+import { useAuth } from '../../utils/AuthContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -27,6 +28,7 @@ const labelStyle: StyleProp<TextStyle> = {
 
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const navigation = useTypedNavigation();
+    const auth = useAuth();
     const [state, setState] = React.useState<{ type: 'loading' } | { type: 'expired' } | { type: 'initing', name: string, url: string } | { type: 'completed' }>({ type: 'loading' });
     React.useEffect(() => {
         let ended = false;
@@ -82,7 +84,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         // Sign
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            walletKeys = await loadWalletKeysWithAuth(acc.secretKeyEnc, auth);
         } catch (e) {
             console.warn(e);
             return;

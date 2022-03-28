@@ -35,7 +35,6 @@ import { registerForPushNotificationsAsync, registerPushToken } from './utils/re
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
-import { useNavigationReady } from './utils/NavigationReadyContext';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
@@ -285,12 +284,6 @@ export const Navigation = React.memo(() => {
             ended = true;
         };
     }, []);
-
-    React.useEffect(() => {
-        if (navState?.ready) {
-            onMounted();
-        }
-    }, [navState?.ready, onMounted]);
     
     return (
         <EngineContext.Provider value={engine}>

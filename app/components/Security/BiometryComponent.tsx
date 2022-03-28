@@ -39,7 +39,7 @@ export const BiometryComponent = React.memo(() => {
     return (
         <>
             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-            <View style={{ marginHorizontal: 16, padding: 6, height: 48, width: '100%', flexDirection: 'row', }}>
+            <View style={{ marginHorizontal: 16, height: 48, width: '100%', flexDirection: 'row', }}>
                 <Pressable
                     style={({ pressed }) => {
                         return [{

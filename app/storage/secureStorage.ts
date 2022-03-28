@@ -29,7 +29,7 @@ async function getApplicationKey() {
     }
 }
 
-async function getPasscodeApplicationKey() {
+async function getApplicationKeyNoEnc() {
     while (true) {
         const ex = storage.getString(TOKEN_KEY);
         if (!ex) {
@@ -59,8 +59,8 @@ export async function encryptData(data: Buffer) {
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function encryptPasscodeData(data: Buffer) {
-    const key = await getPasscodeApplicationKey();
+export async function encryptDataNoAuth(data: Buffer) {
+    const key = await getApplicationKeyNoEnc();
     const nonce = await getSecureRandomBytes(24);
     const sealed = sealBox(data, nonce, key);
     return Buffer.concat([nonce, sealed]);
@@ -68,7 +68,7 @@ export async function encryptPasscodeData(data: Buffer) {
 
 
 export async function decryptPasscodeData(data: Buffer) {
-    const key = await getPasscodeApplicationKey();
+    const key = await getApplicationKeyNoEnc();
     let nonce = data.slice(0, 24);
     let cypherData = data.slice(24);
     let res = openBox(cypherData, nonce, key);

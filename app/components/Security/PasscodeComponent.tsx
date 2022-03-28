@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
-import { View, TextInput, Text, Pressable, Image, Platform } from "react-native"
+import { View, Pressable, Image } from "react-native"
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Settings } from "../../storage/settings";
-import { Theme } from "../../Theme";
 import { PasscodeInput } from "./PasscodeInput";
 
 export const PasscodeComponent = React.memo((props: {
@@ -85,7 +84,7 @@ export const PasscodeComponent = React.memo((props: {
                             return {
                                 ...prev,
                                 pass: {
-                                    value: pass
+                                    value: pass.slice(0, 3)
                                 },
                             }
                         });
@@ -112,7 +111,7 @@ export const PasscodeComponent = React.memo((props: {
                                     ...prev,
                                     pass: {
                                         value: prev.pass?.value,
-                                        confirmValue: pass
+                                        confirmValue: pass.slice(0, 3)
                                     },
                                 }
                             });
@@ -132,7 +131,7 @@ export const PasscodeComponent = React.memo((props: {
                                 ...prev,
                                 pass: {
                                     value: prev.pass?.value,
-                                    confirmValue: pass
+                                    confirmValue: pass.slice(0, 3)
                                 },
                             }
                         });
@@ -161,7 +160,7 @@ export const PasscodeComponent = React.memo((props: {
         <View style={{
             position: 'absolute',
             top: 0, bottom: 0, right: 0, left: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: 'white',
             alignItems: 'center'
         }}>
             <Animated.View style={{

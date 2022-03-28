@@ -7,13 +7,13 @@ export const SetPasscodeFragment = fragment(() => {
     const params = useParams<{
         onSuccess?: () => void,
         onCancel?: () => void,
+        onSkip?: () => void,
     }>();
 
     return (
         <PasscodeComponent
             type={'new'}
             onSuccess={params.onSuccess}
-            onCancel={params.onCancel}
         />
     );
 });

@@ -24,7 +24,8 @@ export type LocalizationSchema = {
         amount: string,
         today: string,
         yesterday: string,
-        comment: string
+        comment: string,
+        skip: string
     }
     home: {
         wallet: string,
@@ -165,7 +166,9 @@ export type LocalizationSchema = {
         protectFaceID: string,
         protectTouchID: string,
         protectBiometrics: string,
-        protectPasscode: string
+        protectPasscode: string,
+        subtitleFaceID: string,
+        subtitleBiometrics: string
     },
     backup: {
         title: string,

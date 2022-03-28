@@ -3,7 +3,7 @@ import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, Vi
 import { Theme } from "../../Theme";
 import { AnimatedCircle } from "./AnimatedCircle";
 
-function inputButtonStyle(state: PressableStateCallbackType): StyleProp<ViewStyle> {
+function inputButtonStyle(state: PressableStateCallbackType, style?: ViewStyle): StyleProp<ViewStyle> {
     return ({
         backgroundColor: Theme.accent,
         justifyContent: 'center',
@@ -11,7 +11,8 @@ function inputButtonStyle(state: PressableStateCallbackType): StyleProp<ViewStyl
         height: 84, width: 84,
         borderRadius: 84,
         margin: 8,
-        opacity: state.pressed ? 0.3 : 1
+        opacity: state.pressed ? 0.3 : 1,
+        ...style
     })
 }
 
@@ -207,7 +208,9 @@ export const PasscodeInput = React.memo((
                             onChange(value.substring(0, value.length - 2))
                         }
                     }}
-                    style={inputButtonStyle}
+                    style={(state) => inputButtonStyle(state, {
+                        backgroundColor: Theme.secondaryButton
+                    })}
                 >
                     <Image style={{ height: 36, width: 36 }} source={require('../../../assets/ic_backspace.png')} />
                 </Pressable>

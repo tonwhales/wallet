@@ -7,6 +7,8 @@ import { useParams } from "../../utils/useParams";
 import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
+import { FragmentMediaContent } from "../../components/FragmentMediaContent";
+import { Theme } from "../../Theme";
 
 export const SetBiometryFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -45,8 +47,15 @@ export const SetBiometryFragment = fragment(() => {
 
     return (
         <View style={{
-            flex: 1
+            flex: 1,
+            backgroundColor: 'white'
         }}>
+            <View style={{ flexGrow: 1 }} />
+            <FragmentMediaContent
+                animation={require('../../../assets/animations/lock.json')}
+                title={Platform.OS === 'ios' ? t('secure.protectFaceID') : t('secure.protectBiometrics')}
+                text={t('secure.messageNoBiometrics')}
+            />
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                 <RoundButton

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Alert, ImageSourcePropType, View } from 'react-native';
+import { Alert, Text, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { encryptData, encryptPasscodeData, ensureKeystoreReady } from '../../storage/secureStorage';
+import { encryptData, encryptDataNoAuth, ensureKeystoreReady } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../utils/getDeviceEncryption';
 import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
 import { storage } from '../../storage/storage';
@@ -15,6 +15,7 @@ import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Theme } from '../../Theme';
 
 export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
@@ -38,7 +39,7 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                 } else {
                     storage.set('ton-bypass-encryption', false);
                 }
-                const token = await encryptPasscodeData(Buffer.from(props.mnemonics));
+                const token = await encryptDataNoAuth(Buffer.from(props.mnemonics));
 
                 // Resolve key
                 const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
@@ -76,6 +77,17 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
         })();
     }, []);
 
+    const setBiometry = React.useCallback(
+        () => {
+            navigation.navigate('SetBiometry', {
+                onSuccess: onSet,
+                onCancel: () => {
+                    navigation.goBack();
+                },
+            });
+        },
+        [],
+    );
 
     const setPasscode = React.useCallback(
         () => {
@@ -90,14 +102,9 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                                     || (t === LocalAuthentication.AuthenticationType.FINGERPRINT)
                             );
                     if (hasBiometry) {
-                        navigation.navigate('SetBiometry', {
-                            onSuccess: onSet,
-                            onCancel: () => {
-                                navigation.goBack();
-                            },
-                        });
+                        setBiometry();
                     } else {
-                        onSet()
+                        onSet();
                     }
                 },
                 onCancel: () => {
@@ -132,37 +139,35 @@ export const WalletSecureFragment = fragment((props: { mnemonics: string, device
                     text={text}
                 />
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <View style={{ height: 128, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                     <RoundButton
-                        // disabled={disabled}
                         onPress={button.onPress}
                         title={button.title}
                         loading={loading}
-                        // iconImage={button.iconImage}
                         icon={button.icon}
                     />
-                    {/* {disabled && (
-                        <Pressable
-                            onPress={continueAnywayAlert}
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    alignSelf: 'center',
-                                    marginTop: 26,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }
-                            }}
-                        >
-                            <Text style={{
-                                fontSize: 17,
-                                fontWeight: '600',
-                                color: Theme.accentText
-                            }}>
-                                {t('common.continueAnyway')}
-                            </Text>
-                        </Pressable>
-                    )} */}
+                    <Pressable
+                        onPress={() => {
+
+                        }}
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                                alignSelf: 'center',
+                                marginTop: 26,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }
+                        }}
+                    >
+                        <Text style={{
+                            fontSize: 17,
+                            fontWeight: '600',
+                            color: Theme.accentText
+                        }}>
+                            {t('common.skip')}
+                        </Text>
+                    </Pressable>
                 </View>
             </View>
         </View>

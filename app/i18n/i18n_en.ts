@@ -22,7 +22,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         amount: 'Amount',
         today: 'Today',
         yesterday: 'Yesterday',
-        comment: 'Comment'
+        comment: 'Comment',
+        skip: 'Skip'
     },
     home: {
         wallet: 'Wallet',
@@ -156,14 +157,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     secure: {
         title: 'Protect your wallet',
         titleUnprotected: 'Your device is not protected',
-        subtitle: 'We use passcode or biometrics to authenticate transactions to make sure no one except you can transfer your coins.',
+        subtitle: 'We use passcode to authenticate transactions to make sure no one except you can transfer your coins.',
         subtitleUnprotected: 'It is highly recommend to enable passcode on your device to protect your assets.',
         subtitleNoBiometrics: 'It is highly recommend to enable biometrics on your device to protect your assets. We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.',
         messageNoBiometrics: 'It is highly recommend to enable biometrics on your device to protect your assets.',
         protectFaceID: 'Protect with Face ID',
         protectTouchID: 'Protect with Touch ID',
         protectBiometrics: 'Protect with biometrics',
-        protectPasscode: 'Protect with Passcode'
+        protectPasscode: 'Protect with Passcode',
+        subtitleFaceID: 'Enable Face ID',
+        subtitleBiometrics: 'Enable biometrics'
     },
     backup: {
         title: 'Your recovery phrase',

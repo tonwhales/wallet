@@ -178,6 +178,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure want to log out?',
             message: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.'
         }
+    },
+    neocrypto: {
+        buttonTitle: 'buy',
+        alert: {
+            title: 'How the checkout works',
+            message: 'Fill in the required fields -> Select cryptocurrency and specify wallet address and the amount to buy -> Proceed to checkout -> Enter your billing details correctly. Your credit card payment is securely processed by our Partners -> Complete purchase. No account needed!'
+        }
     }
 };
 

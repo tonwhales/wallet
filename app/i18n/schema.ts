@@ -180,6 +180,13 @@ export type LocalizationSchema = {
             title: string,
             message: string
         }
+    },
+    neocrypto: {
+        buttonTitle: string,
+        alert: {
+            title: string,
+            message: string
+        }
     }
 };
 

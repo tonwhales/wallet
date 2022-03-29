@@ -25,7 +25,8 @@ export type LocalizationSchema = {
         today: string,
         yesterday: string,
         comment: string,
-        skip: string
+        skip: string,
+        faceID: string
     }
     home: {
         wallet: string,
@@ -50,7 +51,7 @@ export type LocalizationSchema = {
         error: string,
         reenter: string,
         new: string,
-        confirm: string
+        confirm: string,
     },
     wallet: {
         sync: string,
@@ -195,6 +196,25 @@ export type LocalizationSchema = {
         logout: {
             title: string,
             message: string
+        },
+        passcode: {
+            change: {
+                title: string,
+                positive: string
+            },
+            turnOff: {
+                title: string,
+                message: string,
+                positive: string
+            }
+        },
+        biometry: {
+            turnOff: {
+                title: string,
+                message: string,
+                positive: string,
+                typeBiometry: string
+            }
         }
     }
 };

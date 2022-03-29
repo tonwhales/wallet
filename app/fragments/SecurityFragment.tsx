@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Platform, Pressable, Switch, Text, View, Image } from "react-native";
+import { Platform, Pressable, Switch, Text, View, Image, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { BiometryComponent } from "../components/Security/BiometryComponent";
@@ -10,7 +10,6 @@ import { PasscodeComponent } from "../components/Passcode/PasscodeComponent";
 import { fragment } from "../fragment";
 import { Settings } from "../storage/settings";
 import { Theme } from "../Theme";
-import { useAuth } from "../utils/AuthContext";
 
 export const SecurityFragment = fragment(() => {
     const { t } = useTranslation();
@@ -35,14 +34,21 @@ export const SecurityFragment = fragment(() => {
                 });
                 return;
             }
-            setPasscodeState({
-                type: 'confirm',
-                onSuccess: () => {
-                    setPasscodeState(undefined);
-                    Settings.clearPasscode();
-                    setUsePasscode(false);
-                }
-            });
+            Alert.alert(
+                t('confirm.passcode.turnOff.title'),
+                t('confirm.passcode.turnOff.message'),
+                [{
+                    text: t('confirm.passcode.turnOff.positive'), style: 'destructive', onPress: () => {
+                        setPasscodeState({
+                            type: 'confirm',
+                            onSuccess: () => {
+                                setPasscodeState(undefined);
+                                Settings.clearPasscode();
+                                setUsePasscode(false);
+                            }
+                        });
+                    }
+                }, { text: t('common.cancel') }]);
         },
         [passcodeState],
     );
@@ -50,12 +56,19 @@ export const SecurityFragment = fragment(() => {
     const onChangePasscode = useCallback(
         () => {
             if (usePasscode) {
-                setPasscodeState({
-                    type: 'change',
-                    onSuccess: () => {
-                        setPasscodeState(undefined);
-                    }
-                });
+                Alert.alert(
+                    t('confirm.passcode.change.title'),
+                    undefined,
+                    [{
+                        text: t('confirm.passcode.change.positive'), style: 'destructive', onPress: () => {
+                            setPasscodeState({
+                                type: 'change',
+                                onSuccess: () => {
+                                    setPasscodeState(undefined);
+                                }
+                            });
+                        }
+                    }, { text: t('common.cancel') }]);
             }
         },
         [usePasscode],
@@ -76,24 +89,10 @@ export const SecurityFragment = fragment(() => {
                     headerShow: false,
                     headerBackVisible: false,
                     title: '',
-                    // headerRight: () => {
-                    //     return (
-                    //         <Pressable
-                    //             style={({ pressed }) => [
-                    //                 { opacity: pressed ? 0.3 : 1 },
-                    //             ]}
-                    //             onPress={() => setPasscodeState(undefined)}
-                    //         >
-                    //             <Image source={require('../../assets/ic_close.png')} />
-                    //         </Pressable>
-                    //     );
-                    // }
                 });
             }
         }
     }, [passcodeState]);
-
-    const auth = useAuth();
 
     return (
         <View style={{
@@ -196,6 +195,7 @@ export const SecurityFragment = fragment(() => {
                     onCancel={() => {
                         setPasscodeState(undefined);
                     }}
+                    backgroundColor={Theme.background}
                 />
             </View>
         </View>

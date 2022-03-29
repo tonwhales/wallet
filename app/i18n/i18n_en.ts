@@ -23,7 +23,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         today: 'Today',
         yesterday: 'Yesterday',
         comment: 'Comment',
-        skip: 'Skip'
+        skip: 'Skip',
+        faceID: 'Face ID'
     },
     home: {
         wallet: 'Wallet',
@@ -193,6 +194,25 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         logout: {
             title: 'Are you sure want to log out?',
             message: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.'
+        },
+        passcode: {
+            change: {
+                title: 'Are you sure you want to change passcode?',
+                positive: 'Change passcode'
+            },
+            turnOff: {
+                title: 'Are you sure you want to turn passcode authentication off?',
+                message: 'It is highly recommend to enable passcode on your device to protect your assets.',
+                positive: 'Turn passcode off'
+            }
+        },
+        biometry: {
+            turnOff: {
+                title: 'Are you sure you want to turn {{type}} authentication off?',
+                message: 'It is highly recommend to enable biometrics on your device to protect your assets.',
+                positive: 'Turn {{type}} off',
+                typeBiometry: 'biometry'
+            }
         }
     }
 };

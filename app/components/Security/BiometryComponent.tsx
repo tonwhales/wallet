@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { Pressable, View, Image, Text, Switch, Platform } from "react-native"
+import { Pressable, View, Image, Text, Switch, Platform, Alert } from "react-native"
 import { Settings } from "../../storage/settings";
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useTranslation } from "react-i18next";
@@ -24,6 +24,23 @@ export const BiometryComponent = React.memo(() => {
 
     const onChange = useCallback(
         (newVal: boolean) => {
+            if (!newVal) {
+                Alert.alert(
+                    t('confirm.biometry.turnOff.title', { type: Platform.OS === 'ios' ? t('common.faceID') : t('confirm.biometry.turnOff.typeBiometry') }),
+                    t('confirm.biometry.turnOff.message'),
+                    [{
+                        text: t('confirm.biometry.turnOff.positive', { type: Platform.OS === 'ios' ? t('common.faceID') : t('confirm.biometry.turnOff.typeBiometry') }), style: 'destructive', onPress: () => {
+                            LocalAuthentication
+                                .authenticateAsync()
+                                .then(() => {
+                                    Settings.markUseBiometry(newVal);
+                                    setUseBiometry(newVal);
+                                });
+                        }
+                    }, { text: t('common.cancel') }]);
+                return;
+            }
+
             LocalAuthentication
                 .authenticateAsync()
                 .then(() => {

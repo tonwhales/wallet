@@ -8,7 +8,8 @@ import { PasscodeInput } from "./PasscodeInput";
 
 export const PasscodeConfirm = React.memo((props: {
     onSuccess?: () => void,
-    onCancel?: () => void
+    onCancel?: () => void,
+    backgroundColor?: string
 }) => {
     const { t } = useTranslation();
     const [error, setError] = useState<string>();
@@ -51,7 +52,7 @@ export const PasscodeConfirm = React.memo((props: {
         <View style={{
             position: 'absolute',
             top: 0, bottom: 0, right: 0, left: 0,
-            backgroundColor: 'white',
+            backgroundColor: props.backgroundColor ? props.backgroundColor : 'white',
             alignItems: 'center'
         }}>
             <Animated.View style={{

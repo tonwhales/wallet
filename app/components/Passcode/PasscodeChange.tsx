@@ -10,7 +10,8 @@ import { PasscodeInput } from "./PasscodeInput";
 export const PasscodeChange = React.memo((props: {
     onSuccess?: () => void,
     onCancel?: () => void,
-    new?: boolean
+    new?: boolean,
+    backgroundColor?: string
 }) => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
@@ -91,14 +92,20 @@ export const PasscodeChange = React.memo((props: {
     console.log({ props, confirmed });
 
     if (!confirmed) {
-        return (<PasscodeConfirm onSuccess={onConfirm} onCancel={props.onCancel} />);
+        return (
+            <PasscodeConfirm
+                backgroundColor={props.backgroundColor}
+                onSuccess={onConfirm}
+                onCancel={props.onCancel}
+            />
+        );
     }
 
     return (
         <View style={{
             position: 'absolute',
             top: 0, bottom: 0, right: 0, left: 0,
-            backgroundColor: 'white',
+            backgroundColor: props.backgroundColor ? props.backgroundColor : 'white',
             alignItems: 'center'
         }}>
             <Animated.View style={{

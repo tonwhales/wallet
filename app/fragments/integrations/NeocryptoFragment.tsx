@@ -51,16 +51,23 @@ export const NeocryptoFragment = fragment(() => {
         }
     }, []);
 
+    const link = `https://demo2.neocrypto.net/buy.html?${queryParams.toString()}`
+    console.log(link);
 
     return (
         <View style={{
-            flex: 1
+            flex: 1,
+            backgroundColor: '#2C3556'
         }}>
             <AndroidToolbar />
             <WebView
                 ref={wref}
                 source={{
-                    uri: `http://neocrypto.net/buy.html?${queryParams}`
+                    uri: link
+                }}
+                onError={(e) => console.log(e, link)}
+                style={{
+                    backgroundColor: '#2C3556'
                 }}
             />
         </View>

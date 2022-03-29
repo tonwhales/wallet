@@ -75,7 +75,7 @@ export const BiometryComponent = React.memo(() => {
                         source={
                             Platform.OS === 'ios'
                                 ? require('../../../assets/face_id.png')
-                                : require('../../../assets/ic_and_touch.png')
+                                : require('../../../assets/ic_and_touch_black.png')
                         } />
                     <View style={{
                         flexDirection: 'row',

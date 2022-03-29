@@ -210,7 +210,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             turnOff: {
                 title: 'Are you sure you want to turn {{type}} authentication off?',
                 message: 'It is highly recommend to enable biometrics on your device to protect your assets.',
-                positive: 'Turn {{type}} off',
+                positive: 'Turn off',
                 typeBiometry: 'biometry'
             }
         }

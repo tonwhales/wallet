@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { Theme } from "../../Theme";
 import { AnimatedCircle } from "../Security/AnimatedCircle";
+import Backspace from '../../../assets/ic_backspace.svg';
 
 function inputButtonStyle(state: PressableStateCallbackType, style?: ViewStyle): StyleProp<ViewStyle> {
     return ({
@@ -189,7 +190,7 @@ export const PasscodeInput = React.memo((
                     </Text>
                 </Pressable>
             </View>
-            {/* 0, <- */}
+            {/* cancel, 0, <- */}
             <View style={{ width: '100%', flexDirection: 'row' }}>
                 {onCancel ? (
                     <Pressable
@@ -206,9 +207,10 @@ export const PasscodeInput = React.memo((
                         }}
                     >
                         <Text style={{
-                            fontWeight: '500',
-                            fontSize: 24,
-                            color: Theme.secondaryButtonText
+                            fontWeight: '700',
+                            fontSize: 18,
+                            color: Theme.secondaryButtonText,
+                            textAlign: 'center'
                         }}>
                             {t('common.cancel')}
                         </Text>
@@ -234,10 +236,10 @@ export const PasscodeInput = React.memo((
                         }
                     }}
                     style={(state) => inputButtonStyle(state, {
-                        backgroundColor: Theme.secondaryButton
+                        backgroundColor: undefined
                     })}
                 >
-                    <Image style={{ height: 36, width: 36 }} source={require('../../../assets/ic_backspace.png')} />
+                    <Backspace width={52} height={52} color={Theme.secondaryButtonText} />
                 </Pressable>
             </View>
         </View>

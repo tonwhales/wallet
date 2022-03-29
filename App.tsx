@@ -22,6 +22,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
 import { Root } from './app/Root';
 import * as SplashScreen from 'expo-splash-screen';
+import { AuthLoader } from './app/utils/AuthContext';
 
 SplashScreen.preventAutoHideAsync()
   .then(result => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
@@ -33,7 +34,9 @@ function Boot() {
       <StatusBar style="auto" />
       <SafeAreaProvider>
         <GestureHandlerRootView style={styles.container}>
-          <Root />
+          <AuthLoader>
+            <Root />
+          </AuthLoader>
         </GestureHandlerRootView>
         <ModalProvider />
       </SafeAreaProvider>

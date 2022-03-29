@@ -55,9 +55,7 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
     );
 
     const authenticateAsync = async () => {
-        console.log('[authenticateAsync]')
         return await new Promise<'success' | 'error' | 'canceled'>((res, reg) => {
-            console.log('[authenticateAsync]', 'Promise');
             setAuthState({
                 onSuccess: finishAuth(() => res('success')),
                 onError: finishAuth(() => res('error')),
@@ -74,8 +72,6 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
 });
 
 export function useAuth() {
-    console.log('[useAuth]');
     let v = React.useContext(AuthContext);
-    console.log('[useAuth]', { v });
     return v;
 }

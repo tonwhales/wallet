@@ -356,14 +356,12 @@ export const TransferFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
-        console.log('[onFocus]', index);
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
     const onSubmit = React.useCallback((index: number) => {
         let next = refs[index + 1].current;
-        console.log('[onSubmit] next', index, next);
         if (next) {
             next.focus();
         }

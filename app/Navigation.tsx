@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createStackNavigator } from '@react-navigation/stack';
-import { Platform, View, Image, BackHandler } from 'react-native';
+import { Platform, View, Image } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -39,7 +38,6 @@ import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { SecurityFragment } from './fragments/SecurityFragment';
-import { useAuth } from './utils/AuthContext';
 import { SetPasscodeFragment } from './fragments/utils/SetPasscodeFragment';
 import { SetBiometryFragment } from './fragments/utils/SetBiometryFragment';
 
@@ -141,7 +139,6 @@ const navigation = [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
-    const auth = useAuth();
 
     const engine = React.useMemo(() => {
         let state = getAppState();
@@ -292,22 +289,6 @@ export const Navigation = React.memo(() => {
             ended = true;
         };
     }, []);
-
-    const reqAuth = React.useCallback(
-        () => {
-            auth?.authenticate({
-                onSuccess: () => { /* Ignore */ },
-                onError: () => {
-                    reqAuth();
-                }
-            })
-        },
-        [],
-    );
-
-    React.useEffect(() => {
-        reqAuth();
-    }, [])
 
     return (
         <EngineContext.Provider value={engine}>

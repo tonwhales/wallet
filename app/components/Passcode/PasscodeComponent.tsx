@@ -8,7 +8,6 @@ export const PasscodeComponent = React.memo((props: {
     onCancel?: () => void,
     backgroundColor?: string
 }) => {
-    console.log({ props })
     switch (props.type) {
         case 'change': {
             return (

@@ -85,9 +85,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
         }
     }, [props.index]);
     const onSubmit = React.useCallback(() => {
-        console.log('[onSubmit]');
         if (props.onSubmit && props.index) {
-            console.log('[onSubmit] submiting...');
             props.onSubmit(props.index);
         }
     }, [props.index]);

@@ -89,8 +89,6 @@ export const PasscodeChange = React.memo((props: {
         opacity.value = 1;
     }, []);
 
-    console.log({ props, confirmed });
-
     if (!confirmed) {
         return (
             <PasscodeConfirm

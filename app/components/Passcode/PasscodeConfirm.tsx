@@ -21,7 +21,6 @@ export const PasscodeConfirm = React.memo((props: {
             if (pass.length <= 4) {
                 setValue(pass);
                 if (pass.length === 4) {
-                    console.log(Settings.getPasscode());
                     if (Settings.getPasscode() === pass) {
                         if (props.onSuccess) props.onSuccess();
                     } else {

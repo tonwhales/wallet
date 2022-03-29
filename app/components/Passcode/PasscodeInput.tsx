@@ -41,9 +41,7 @@ export const PasscodeInput = React.memo((
     const { t } = useTranslation();
     const onKeyPressed = useCallback(
         (key: string) => {
-            console.log({ key, value });
             if (onChange) {
-                console.log({ key, value });
                 onChange(value ? value + key : key)
             }
         },

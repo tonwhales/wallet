@@ -10,7 +10,6 @@ export const Settings = {
     },
 
     getPasscode() {
-        console.log('[getPasscode]', storage.getString('security_passcode'));
         return storage.getString('security_passcode');
     },
 

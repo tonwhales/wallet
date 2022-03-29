@@ -15,7 +15,7 @@ export async function loadWalletKeys(secretKeyEnc: Buffer): Promise<WalletKeys> 
 }
 
 export async function loadWalletKeysWithAuth(secretKeyEnc: Buffer, auth: AuthContextType): Promise<WalletKeys> {
-    const authRes = await auth?.authenticateAsync();
+    const authRes = await auth?.authenticateAsync(true);
     if (authRes === 'success') {
         let plainText = await decryptPasscodeData(secretKeyEnc);
         let mnemonics = plainText.toString().split(' ');

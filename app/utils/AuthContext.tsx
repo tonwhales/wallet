@@ -11,7 +11,7 @@ export type AuthContextType = {
         onCancel?: () => void,
         fallbackToPasscode?: boolean
     }) => void,
-    authenticateAsync: () => Promise<'success' | 'error' | 'canceled'>
+    authenticateAsync: (cancelable?: boolean) => Promise<'success' | 'error' | 'canceled'>
 } | undefined
 
 const AuthContext = React.createContext<AuthContextType>(undefined);
@@ -54,11 +54,12 @@ export const AuthLoader = React.memo(({ children }: { children: any }) => {
         [],
     );
 
-    const authenticateAsync = async () => {
+    const authenticateAsync = async (cancelable?: boolean) => {
         return await new Promise<'success' | 'error' | 'canceled'>((res, reg) => {
             setAuthState({
                 onSuccess: finishAuth(() => res('success')),
                 onError: finishAuth(() => res('error')),
+                onCancel: cancelable ? finishAuth(() => res('canceled')) : undefined
             });
         });
     };

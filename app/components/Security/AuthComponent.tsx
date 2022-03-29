@@ -5,6 +5,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { Theme } from "../../Theme";
 import { PasscodeComponent } from "../Passcode/PasscodeComponent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AppConfig } from "../../AppConfig";
 
 export const AuthComponent = React.memo((
     {
@@ -70,14 +71,31 @@ export const AuthComponent = React.memo((
             justifyContent: 'center',
             alignItems: 'center'
         }}>
-            {!!warning && (
-                <Text style={{
-                    fontWeight: '600',
-                    color: Theme.warningText
+            <View style={{
+                height: 416,
+                alignItems: 'center',
+            }}>
+                <View style={{
+                    width: 256, height: 256,
+                    justifyContent: 'center', alignItems: 'center',
                 }}>
-                    {warning}
-                </Text>
-            )}
+                    <Image source={
+                        AppConfig.isTestnet
+                            ? require('../../../assets/ic_diamond_test.png')
+                            : require('../../../assets/ic_diamond.png')}
+                    />
+                </View>
+                {!!warning && (
+                    <Text style={{
+                        fontSize: 30, fontWeight: '700',
+                        marginTop: -42,
+                        textAlign: 'center',
+                        color: Theme.warningText
+                    }}>
+                        {warning}
+                    </Text>
+                )}
+            </View>
             {type === 'passcode' && (
                 <PasscodeComponent
                     type={'confirm'}

@@ -1,5 +1,5 @@
 import React from "react";
-import { PasscodeComponent } from "../../components/Security/PasscodeComponent";
+import { PasscodeComponent } from "../../components/Passcode/PasscodeComponent";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 

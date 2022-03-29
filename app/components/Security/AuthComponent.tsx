@@ -3,7 +3,7 @@ import { Pressable, View, Image, Text } from "react-native";
 import { Settings } from "../../storage/settings";
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Theme } from "../../Theme";
-import { PasscodeComponent } from "./PasscodeComponent";
+import { PasscodeComponent } from "../Passcode/PasscodeComponent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const AuthComponent = React.memo((

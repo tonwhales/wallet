@@ -1,7 +1,8 @@
 import React, { useCallback } from "react"
+import { useTranslation } from "react-i18next";
 import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { Theme } from "../../Theme";
-import { AnimatedCircle } from "./AnimatedCircle";
+import { AnimatedCircle } from "../Security/AnimatedCircle";
 
 function inputButtonStyle(state: PressableStateCallbackType, style?: ViewStyle): StyleProp<ViewStyle> {
     return ({
@@ -26,15 +27,18 @@ export const PasscodeInput = React.memo((
     {
         value,
         onChange,
+        onCancel,
         error,
         title
     }: {
         value?: string,
         onChange?: (newVal: string) => void,
+        onCancel?: () => void,
         error?: string,
         title?: string
     }
 ) => {
+    const { t } = useTranslation();
     const onKeyPressed = useCallback(
         (key: string) => {
             console.log({ key, value });
@@ -45,7 +49,6 @@ export const PasscodeInput = React.memo((
         },
         [value, onChange],
     );
-
 
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -190,10 +193,34 @@ export const PasscodeInput = React.memo((
             </View>
             {/* 0, <- */}
             <View style={{ width: '100%', flexDirection: 'row' }}>
-                <View style={{
-                    height: 84, width: 84,
-                    borderRadius: 84, margin: 8,
-                }} />
+                {onCancel ? (
+                    <Pressable
+                        onPress={onCancel}
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.3 : 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: 84, width: 84,
+                                borderRadius: 84,
+                                margin: 8,
+                            }
+                        }}
+                    >
+                        <Text style={{
+                            fontWeight: '500',
+                            fontSize: 24,
+                            color: Theme.secondaryButtonText
+                        }}>
+                            {t('common.cancel')}
+                        </Text>
+                    </Pressable>
+                ) : (
+                    <View style={{
+                        height: 84, width: 84,
+                        borderRadius: 84, margin: 8,
+                    }} />
+                )}
                 <Pressable
                     onPress={() => onKeyPressed('0')}
                     style={inputButtonStyle}
@@ -205,7 +232,7 @@ export const PasscodeInput = React.memo((
                 <Pressable
                     onPress={() => {
                         if (onChange && value) {
-                            onChange(value.substring(0, value.length - 2))
+                            onChange(value.substring(0, value.length - 1))
                         }
                     }}
                     style={(state) => inputButtonStyle(state, {

@@ -6,7 +6,7 @@ import { Platform, Pressable, Switch, Text, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { BiometryComponent } from "../components/Security/BiometryComponent";
-import { PasscodeComponent } from "../components/Security/PasscodeComponent";
+import { PasscodeComponent } from "../components/Passcode/PasscodeComponent";
 import { fragment } from "../fragment";
 import { Settings } from "../storage/settings";
 import { Theme } from "../Theme";

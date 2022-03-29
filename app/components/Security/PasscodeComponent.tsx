@@ -16,7 +16,6 @@ export const PasscodeComponent = React.memo((props: {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const [error, setError] = useState<string>();
-    console.log(props);
 
     const [screenState, setScreenState] = useState<{
         pass?: {
@@ -26,115 +25,57 @@ export const PasscodeComponent = React.memo((props: {
         type?: 'reenter' | 'new'
     }>({ type: props.type === 'new' ? 'new' : undefined });
 
+    const onSet = useCallback(
+        (value: string) => {
+            Settings.setPasscode(value);
+            if (props.onSuccess) props.onSuccess();
+        },
+        [],
+    );
+
     const onChange = useCallback(
         (pass: string) => {
             setError(undefined);
-            if (!screenState.type) {
-                if (pass.length === 4) {
-                    const stored = Settings.getPasscode();
-                    if (stored === pass) {
-                        if (props.type === 'change') {
-                            setScreenState({
-                                pass: {
-                                    value: pass
-                                }
-                            });
-                            setTimeout(() => setScreenState({
-                                type: 'new',
-                                pass: undefined
-                            }), 100);
+            if (pass.length <= 4) {
+                // Confirming prev entered passcode
+                if (screenState.type === 'reenter') {
+                    if (pass.length === 4) {
+                        // Check if pass is consistent
+                        if (pass === screenState.pass?.value) {
+                            onSet(pass);
                         } else {
-                            if (props.onSuccess) props.onSuccess();
+                            setError(t('security.error'));
                         }
                     } else {
                         setScreenState({
                             pass: {
-                                value: pass
-                            }
-                        });
-                        setError(t('security.error'));
-                        setTimeout(() => setScreenState({}), 100);
-                    }
-                } else {
-                    setScreenState({
-                        pass: {
-                            value: pass
-                        }
-                    });
-                }
-            } else {
-                if (screenState.type === 'new') {
-                    if (pass.length === 4) {
-                        setScreenState(prev => {
-                            return {
-                                ...prev,
-                                pass: {
-                                    value: pass
-                                },
-                            }
-                        });
-                        setTimeout(() => setScreenState({
-                            pass: {
-                                value: pass
+                                confirmValue: pass,
+                                value: screenState.pass?.value
                             },
                             type: 'reenter'
-                        }), 100);
-                    } else {
-                        setScreenState(prev => {
-                            return {
-                                ...prev,
-                                pass: {
-                                    value: pass.slice(0, 3)
-                                },
-                            }
                         });
                     }
+                } else if (screenState.type === 'new') {
+                    // Set new pass state
+                    setScreenState(
+                        pass.length === 4
+                            ? { pass: { value: pass }, type: 'reenter' }
+                            : { pass: { value: pass }, type: 'new' }
+                    );
                 } else {
-                    if (pass.length === 4) {
-                        if (pass === screenState.pass?.value) {
-                            setScreenState(prev => {
-                                return {
-                                    ...prev,
-                                    pass: {
-                                        value: prev.pass?.value,
-                                        confirmValue: pass
-                                    },
-                                }
-                            });
-                            setTimeout(() => {
-                                Settings.setPasscode(pass);
-                                if (props.onSuccess) props.onSuccess();
-                            }, 100);
-                        } else {
-                            setScreenState(prev => {
-                                return {
-                                    ...prev,
-                                    pass: {
-                                        value: prev.pass?.value,
-                                        confirmValue: pass.slice(0, 3)
-                                    },
-                                }
-                            });
-                            setError(t('security.error'));
-                            setTimeout(() => setScreenState(prev => {
-                                return {
-                                    pass: {
-                                        value: prev.pass?.value
-                                    },
-                                    type: 'reenter'
-                                }
-                            }), 100);
+                    // Check if entered is the same as stored
+                    if (pass === Settings.getPasscode()) {
+                        if (props.type === 'confirm') {
+                            if (props.onSuccess) props.onSuccess();
+                        } else if (props.type === 'change') {
+                            setScreenState({ type: 'new' });
                         }
                     } else {
-                        setScreenState(prev => {
-                            return {
-                                ...prev,
-                                pass: {
-                                    value: prev.pass?.value,
-                                    confirmValue: pass.slice(0, 3)
-                                },
-                            }
-                        });
+                        if (pass.length === 4) {
+                            setError(t('security.error'))
+                        } else {
+                            setScreenState({ pass: { value: pass } });
+                        }
                     }
                 }
             }

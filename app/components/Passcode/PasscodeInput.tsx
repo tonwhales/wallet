@@ -208,7 +208,7 @@ export const PasscodeInput = React.memo((
                     >
                         <Text style={{
                             fontWeight: '700',
-                            fontSize: 18,
+                            fontSize: 14,
                             color: Theme.secondaryButtonText,
                             textAlign: 'center'
                         }}>

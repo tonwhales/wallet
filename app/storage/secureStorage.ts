@@ -31,6 +31,13 @@ async function getApplicationKey() {
 
 async function getApplicationKeyNoEnc() {
     while (true) {
+        // Migrating from SecureStore
+        if (!storage.getBoolean('ton-bypass-encryption')) {
+            let ex = await SecureStore.getItemAsync(TOKEN_KEY);
+            if (ex) {
+                storage.set(TOKEN_KEY, ex);
+            }
+        }
         const ex = storage.getString(TOKEN_KEY);
         if (!ex) {
             let privateKey = await getSecureRandomBytes(32);

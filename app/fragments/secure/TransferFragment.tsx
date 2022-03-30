@@ -540,7 +540,7 @@ export const TransferFragment = fragment(() => {
                                             blurOnSubmit={false}
                                         />
                                         <PriceComponent
-                                            amount={toNano(amount.replace(',', '.'))}
+                                            amount={toNano(parseFloat(amount.replace(',', '.')))}
                                             style={{
                                                 backgroundColor: 'transparent',
                                                 paddingHorizontal: 0
@@ -687,7 +687,7 @@ export const TransferFragment = fragment(() => {
                     {params?.staking && (
                         <>
                             {params.staking.action === 'deposit' && (
-                                <StakingCalcComponent amount={toNano(amount.replace(',', '.'))} />
+                                <StakingCalcComponent amount={amount} />
                             )}
                             <PoolTransactionInfo pool={pool} fee={estimation} />
                         </>

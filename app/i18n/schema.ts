@@ -181,7 +181,8 @@ export type LocalizationSchema = {
             calc: {
                 yearly: string,
                 monthly: string,
-                daily: string
+                daily: string,
+                note: string
             },
             info: {
                 rate: string,

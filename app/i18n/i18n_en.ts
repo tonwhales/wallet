@@ -178,7 +178,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             calc: {
                 yearly: 'Yearly rewards',
                 monthly: 'Monthly rewards',
-                daily: 'Daily rewards'
+                daily: 'Daily rewards',
+                note: 'Calculated including all fees'
             },
             info: {
                 rate: '13.3%',

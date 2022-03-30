@@ -12,7 +12,6 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
     if (!pool) { return null; }
     const { t } = useTranslation();
 
-
     return (
         <View style={{
             backgroundColor: 'white',
@@ -21,7 +20,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
             alignItems: 'center',
             paddingVertical: 11,
             paddingLeft: 16,
-            marginVertical: 14
+            marginTop: 20
         }}>
             <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 16 }}>
                 <Text style={{

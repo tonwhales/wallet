@@ -48,12 +48,36 @@ export const StakingJoinComponent = React.memo((props: {
         )
     }, []);
 
+    const openMoreInfo = useCallback(
+        () => {
+            // TODO
+        },
+        [],
+    );
+
+
     useLayoutEffect(() => {
         baseNavigation.setOptions({
             title: t('products.staking.title'),
             headerStyle: {
                 backgroundColor: Theme.background
-            }
+            },
+            headerRight: () => (
+                <Pressable onPress={openMoreInfo} style={({ pressed }) => {
+                    return {
+                        opacity: pressed ? 0.3 : 1,
+                    }
+                }}>
+                    <Text
+                        style={{
+                            color: Theme.accent,
+                            fontSize: 17
+                        }}
+                    >
+                        {t('products.staking.learnMore')}
+                    </Text>
+                </Pressable>
+            )
         })
     }, []);
 
@@ -143,86 +167,6 @@ export const StakingJoinComponent = React.memo((props: {
                     style={{ alignSelf: 'stretch', marginBottom: 30 + safeArea.bottom + 52, marginTop: 30 }}
                 />
             </View>
-            {/* <View style={{ height: 52 + safeArea.bottom, width: '100%' }}>
-                {Platform.OS === 'ios' && (
-                    <BlurView
-                        style={{
-                            height: 52 + safeArea.bottom,
-                            paddingBottom: safeArea.bottom, paddingHorizontal: 16,
-                            flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        }}
-                    >
-                        <View
-                            style={{
-                                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                                backgroundColor: Theme.background,
-                                opacity: 0.9
-                            }}
-                        />
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image
-                                source={require('../../../assets/ic_wallet_selected.png')}
-                                style={{ tintColor: Theme.accent }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.accent }}
-                            >
-                                {t('home.wallet')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image
-                                source={require('../../../assets/ic_settings.png')}
-                                style={{ tintColor: Theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.textSecondary }}
-                            >
-                                {t('home.settings')}
-                            </Text>
-                        </Pressable>
-                    </BlurView>
-                )}
-                {Platform.OS === 'android' && (
-                    <View style={{
-                        height: 52 + safeArea.bottom,
-                        paddingBottom: safeArea.bottom, paddingHorizontal: 16,
-                        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        backgroundColor: 'white'
-                    }}>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image
-                                source={require('../../../assets/ic_wallet_selected.png')}
-                                style={{ tintColor: Theme.accent }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.accent }}
-                            >
-                                {t('home.wallet')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image
-                                source={require('../../../assets/ic_settings.png')}
-                                style={{ tintColor: Theme.textSecondary }}
-                            />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.textSecondary }}>
-                                {t('home.settings')}
-                            </Text>
-                        </Pressable>
-                    </View>
-                )}
-                <View
-                    style={{
-                        position: 'absolute',
-                        top: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: '#000',
-                        opacity: 0.08
-                    }}
-                />
-            </View> */}
         </View>
     );
 })

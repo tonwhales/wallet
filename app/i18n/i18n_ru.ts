@@ -173,7 +173,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             unstake: {
                 title: 'Вы уверены что хотите запросить вывод?',
                 message: 'Обратите внимание, что при запросе на вывод все незавершенные депозиты также будут возвращены.'
-            }
+            },
+            learnMore: 'Узнать больше'
         },
         transactionRequest: 'Запрос транзакции'
     },

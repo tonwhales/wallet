@@ -173,7 +173,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             unstake: {
                 title: 'Are you sure want to request withdrawal?',
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
-            }
+            },
+            learnMore: 'More info'
         },
         transactionRequest: 'Request transaction'
     },

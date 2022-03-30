@@ -176,7 +176,8 @@ export type LocalizationSchema = {
             unstake: {
                 title: string,
                 message: string
-            }
+            },
+            learnMore: string
         },
         transactionRequest: string
     }

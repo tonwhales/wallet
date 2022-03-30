@@ -42,7 +42,7 @@ export const StakingJoinComponent = React.memo((props: {
                 lockComment: true,
                 staking: {
                     minAmount: props.pool.minStake,
-                    action: 'deposit'
+                    action: 'deposit',
                 }
             }
         )

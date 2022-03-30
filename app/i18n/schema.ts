@@ -177,7 +177,23 @@ export type LocalizationSchema = {
                 title: string,
                 message: string
             },
-            learnMore: string
+            learnMore: string,
+            calc: {
+                yearly: string,
+                monthly: string,
+                daily: string
+            },
+            info: {
+                rate: string,
+                rateTitle: string,
+                frequency: string,
+                frequencyTitle: string,
+                minDeposit: string,
+                poolFee: string,
+                poolFeeTitle: string,
+                depositFee: string,
+                blockchainFee: string,
+            }
         },
         transactionRequest: string
     }

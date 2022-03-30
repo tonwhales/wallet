@@ -174,7 +174,23 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 title: 'Вы уверены что хотите запросить вывод?',
                 message: 'Обратите внимание, что при запросе на вывод все незавершенные депозиты также будут возвращены.'
             },
-            learnMore: 'Узнать больше'
+            learnMore: 'Узнать больше',
+            calc: {
+                yearly: 'Ежегодное вознаграждение',
+                monthly: 'Ежемесячное вознаграждение',
+                daily: 'Ежедневное вознаграждение'
+            },
+            info: {
+                rate: '13.3%',
+                rateTitle: 'Прим. курс APY',
+                frequency: 'Каждые 36 часов',
+                frequencyTitle: 'Частота вознаграждения',
+                minDeposit: 'Минимальный депозит',
+                poolFee: '3.3% от APY',
+                poolFeeTitle: 'Комиссия пула',
+                depositFee: 'Комиссия за депозит',
+                blockchainFee: 'Комиссия сети',
+            }
         },
         transactionRequest: 'Запрос транзакции'
     },

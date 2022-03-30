@@ -87,7 +87,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         purpose: 'Purpose of transaction',
         comment: 'Message to recipient (optional)',
         stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
-        depositStakeTitle: 'Deposit stake',
+        depositStakeTitle: 'Confirm Staking',
         withdrawStakeTitle: 'Withdraw stake'
     },
     auth: {
@@ -174,7 +174,23 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 title: 'Are you sure want to request withdrawal?',
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
             },
-            learnMore: 'More info'
+            learnMore: 'More info',
+            calc: {
+                yearly: 'Yearly rewards',
+                monthly: 'Monthly rewards',
+                daily: 'Daily rewards'
+            },
+            info: {
+                rate: '13.3%',
+                rateTitle: 'Est. APY rate',
+                frequency: 'Every 36 hours',
+                frequencyTitle: 'Reward Frequency',
+                minDeposit: 'Minimal deposit',
+                poolFee: '3.3% from APY',
+                poolFeeTitle: 'Pool Fee',
+                depositFee: 'Deposit Gas',
+                blockchainFee: 'Blockhain fee',
+            }
         },
         transactionRequest: 'Request transaction'
     },

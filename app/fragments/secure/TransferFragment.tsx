@@ -26,6 +26,10 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
+import { StakingPoolState } from '../../storage/cache';
+import { PriceComponent } from '../../components/PriceComponent';
+import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
+import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -49,14 +53,13 @@ export const TransferFragment = fragment(() => {
         lockAddress?: boolean,
         staking?: {
             goBack?: boolean,
-            minAmount?: BN,
             action?: 'deposit' | 'withdraw'
         }
         job?: string | null
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
-
+    const pool = engine.products.stakingPool.useState();
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
@@ -381,7 +384,7 @@ export const TransferFragment = fragment(() => {
     const lockAmount = payload ? true : params?.lockAmount;
     const lockAddress = payload ? true : params?.lockAddress;
     const lockComment = payload ? true : params?.lockComment;
-    
+
     let title = payload ? t('transfer.titleAction') : t('transfer.title');
 
     if (params?.staking?.action === 'deposit') {
@@ -394,7 +397,8 @@ export const TransferFragment = fragment(() => {
         <>
             <AndroidToolbar
                 style={{ marginTop: safeArea.top }}
-                pageTitle={title} />
+                pageTitle={title}
+            />
             <StatusBar style="dark" />
             {Platform.OS === 'ios' && (
                 <View style={{
@@ -421,11 +425,6 @@ export const TransferFragment = fragment(() => {
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-                    {params?.staking && params?.staking?.action === 'deposit' && params.staking.minAmount && (
-                        <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13, marginBottom: 14, }}>
-                            {t('transfer.stakingWarning', { minAmount: fromNano(params.staking.minAmount) })}
-                        </Text>
-                    )}
                     {lockAmount && (
                         <View style={{
                             marginBottom: 14,
@@ -454,157 +453,158 @@ export const TransferFragment = fragment(() => {
                     )}
                     {!lockAmount && (
                         <>
-                            <View style={{
-                                marginBottom: 16,
-                                backgroundColor: "white",
-                                borderRadius: 14,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                padding: 15
-                            }}>
-                                <ATextInput
-                                    index={0}
-                                    ref={refs[0]}
-                                    onFocus={onFocus}
-                                    value={amount}
-                                    onValueChange={setAmount}
-                                    placeholder={'0'}
-                                    keyboardType={'numeric'}
-                                    textAlign={'center'}
-                                    style={{ backgroundColor: 'transparent' }}
-                                    fontWeight={'800'}
-                                    fontSize={30}
-                                    preventDefaultHeight
-                                    preventDefaultLineHeight
-                                    preventDefaultValuePadding
-                                    blurOnSubmit={false}
-                                />
-                                <Text style={{
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    color: '#6D6D71',
-                                    marginBottom: 5
+                            {!params?.staking && (
+                                <View style={{
+                                    marginBottom: 16,
+                                    backgroundColor: "white",
+                                    borderRadius: 14,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    padding: 15
                                 }}>
-                                    {fromNano(account?.balance || new BN(0))} TON
-                                </Text>
-                            </View>
-                            <View style={{ flexDirection: 'row' }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                    <Pressable
-                                        onPress={onAddAll}
-                                        style={({ pressed }) => [
-                                            {
-                                                backgroundColor: pressed
-                                                    ? Theme.selector
-                                                    : 'white',
-                                            },
-                                            { borderRadius: 14 }
-                                        ]}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                <Image source={require('../../../assets/ic_all_coins.png')} />
-                                            </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
-                                        </View>
-                                    </Pressable>
+                                    <ATextInput
+                                        index={0}
+                                        ref={refs[0]}
+                                        onFocus={onFocus}
+                                        value={amount}
+                                        onValueChange={setAmount}
+                                        placeholder={'0'}
+                                        keyboardType={'numeric'}
+                                        textAlign={'center'}
+                                        style={{ backgroundColor: 'transparent' }}
+                                        fontWeight={'800'}
+                                        fontSize={30}
+                                        preventDefaultHeight
+                                        preventDefaultLineHeight
+                                        preventDefaultValuePadding
+                                        blurOnSubmit={false}
+                                    />
+                                    <Text style={{
+                                        fontWeight: '600',
+                                        fontSize: 16,
+                                        color: '#6D6D71',
+                                        marginBottom: 5
+                                    }}>
+                                        {fromNano(account?.balance || new BN(0))} TON
+                                    </Text>
                                 </View>
-                                {!params?.staking && (
+                            )}
+                            {params?.staking && (
+                                <View style={{
+                                    marginBottom: 0,
+                                    backgroundColor: "white",
+                                    borderRadius: 14,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    padding: 15,
+                                }}>
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        width: '100%',
+                                        justifyContent: 'space-between'
+                                    }}>
+                                        <Text style={{
+                                            fontWeight: '400',
+                                            fontSize: 16,
+                                            color: '#8E979D',
+                                        }}>
+                                            {t('common.amount')}
+                                        </Text>
+                                        <Text style={{
+                                            fontWeight: '600',
+                                            fontSize: 16,
+                                            color: '#6D6D71',
+                                        }}>
+                                            {fromNano(account?.balance || new BN(0))} TON
+                                        </Text>
+                                    </View>
+                                    <View style={{
+                                        width: '100%'
+                                    }}>
+                                        <ATextInput
+                                            index={0}
+                                            ref={refs[0]}
+                                            onFocus={onFocus}
+                                            value={amount}
+                                            onValueChange={setAmount}
+                                            placeholder={'0'}
+                                            keyboardType={'numeric'}
+                                            textAlign={'center'}
+                                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0 }}
+                                            inputStyle={{ color: Theme.accent, flexGrow: 0 }}
+                                            fontWeight={'800'}
+                                            fontSize={30}
+                                            preventDefaultHeight
+                                            preventDefaultLineHeight
+                                            preventDefaultValuePadding
+                                            blurOnSubmit={false}
+                                        />
+                                        <PriceComponent
+                                            amount={toNano(amount.replace(',', '.'))}
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                paddingHorizontal: 0
+                                            }}
+                                            textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                        />
+                                    </View>
+                                </View>
+                            )}
+                            {!params?.staking && (
+                                <View style={{ flexDirection: 'row' }} collapsable={false}>
+                                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                        <Pressable
+                                            onPress={onAddAll}
+                                            style={({ pressed }) => [
+                                                {
+                                                    backgroundColor: pressed
+                                                        ? Theme.selector
+                                                        : 'white',
+                                                },
+                                                { borderRadius: 14 }
+                                            ]}
+                                        >
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Image source={require('../../../assets/ic_all_coins.png')} />
+                                                </View>
+                                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
+                                            </View>
+                                        </Pressable>
+                                    </View>
                                     <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                    <Pressable
-                                        onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                        style={({ pressed }) => [
-                                            {
-                                                backgroundColor: pressed
-                                                    ? Theme.selector
-                                                    : 'white',
-                                            },
-                                            { borderRadius: 14 }
-                                        ]}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                <Image source={require('../../../assets/ic_scan_qr.png')} />
+                                        <Pressable
+                                            onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                            style={({ pressed }) => [
+                                                {
+                                                    backgroundColor: pressed
+                                                        ? Theme.selector
+                                                        : 'white',
+                                                },
+                                                { borderRadius: 14 }
+                                            ]}
+                                        >
+                                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Image source={require('../../../assets/ic_scan_qr.png')} />
+                                                </View>
+                                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
                                             </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
-                                        </View>
-                                    </Pressable>
+                                        </Pressable>
+                                    </View>
                                 </View>
-                                )}
-                            </View>
+                            )}
                         </>
                     )}
-                    <View style={{
-                        marginBottom: 16, marginTop: payload ? 0 : 17,
-                        backgroundColor: "white",
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        {payload && (
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
-                            }}>
-                                {t('common.walletAddress')}
-                            </Text>
-                        )}
-                        <ATextInput
-                            value={target}
-                            index={1}
-                            ref={refs[1]}
-                            onFocus={onFocus}
-                            onValueChange={setTarget}
-                            placeholder={t('common.walletAddress')}
-                            keyboardType="ascii-capable"
-                            preventDefaultHeight
-                            multiline
-                            autoCorrect={false}
-                            autoCompleteType={'off'}
-                            inputStyle={payload ? { paddingTop: 4 } : undefined}
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!lockAddress}
-                            editable={!lockAddress}
-                            onSubmit={onSubmit}
-                            returnKeyType="next"
-                            blurOnSubmit={false}
-                        />
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
-                        {payload && (
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
-                            }}>
-                                {t('transfer.purpose')}
-                            </Text>
-                        )}
-                        <ATextInput
-                            value={comment}
-                            index={2}
-                            ref={refs[2]}
-                            onFocus={onFocus}
-                            onValueChange={setComment}
-                            placeholder={t('transfer.comment')}
-                            keyboardType="default"
-                            autoCapitalize="sentences"
-                            inputStyle={payload ? { paddingTop: 4 } : undefined}
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!lockComment}
-                            editable={!lockComment}
-                            preventDefaultHeight
-                            multiline
-                        />
-                        {payload && (
-                            <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                    {!params?.staking && (
+                        <View style={{
+                            marginBottom: 16, marginTop: payload ? 0 : 17,
+                            backgroundColor: "white",
+                            borderRadius: 14,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                            {payload && (
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
@@ -613,13 +613,86 @@ export const TransferFragment = fragment(() => {
                                     marginTop: 10,
                                     marginLeft: 16
                                 }}>
-                                    {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
+                                    {t('common.walletAddress')}
                                 </Text>
-                            </>
+                            )}
+                            <ATextInput
+                                value={target}
+                                index={1}
+                                ref={refs[1]}
+                                onFocus={onFocus}
+                                onValueChange={setTarget}
+                                placeholder={t('common.walletAddress')}
+                                keyboardType="ascii-capable"
+                                preventDefaultHeight
+                                multiline
+                                autoCorrect={false}
+                                autoCompleteType={'off'}
+                                inputStyle={payload ? { paddingTop: 4 } : undefined}
+                                style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
+                                enabled={!lockAddress}
+                                editable={!lockAddress}
+                                onSubmit={onSubmit}
+                                returnKeyType="next"
+                                blurOnSubmit={false}
+                            />
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                            {payload && (
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    color: '#8E979D',
+                                    alignSelf: 'flex-start',
+                                    marginTop: 10,
+                                    marginLeft: 16
+                                }}>
+                                    {t('transfer.purpose')}
+                                </Text>
+                            )}
+                            <ATextInput
+                                value={comment}
+                                index={2}
+                                ref={refs[2]}
+                                onFocus={onFocus}
+                                onValueChange={setComment}
+                                placeholder={t('transfer.comment')}
+                                keyboardType="default"
+                                autoCapitalize="sentences"
+                                inputStyle={payload ? { paddingTop: 4 } : undefined}
+                                style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
+                                enabled={!lockComment}
+                                editable={!lockComment}
+                                preventDefaultHeight
+                                multiline
+                            />
+                            {payload && (
+                                <>
+                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                                    <Text style={{
+                                        fontWeight: '400',
+                                        fontSize: 16,
+                                        color: '#8E979D',
+                                        alignSelf: 'flex-start',
+                                        marginTop: 10,
+                                        marginLeft: 16
+                                    }}>
+                                        {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
+                                    </Text>
+                                </>
 
-                        )}
-                    </View>
-                    {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>)}
+                            )}
+                        </View>
+                    )}
+
+                    {params?.staking && (
+                        <>
+                            {params.staking.action === 'deposit' && (
+                                <StakingCalcComponent amount={toNano(amount.replace(',', '.'))} />
+                            )}
+                            <PoolTransactionInfo pool={pool} fee={estimation} />
+                        </>
+                    )}
+                    {!payload && !params?.staking && (<Text style={{ color: '#6D6D71', marginLeft: 0, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>)}
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView

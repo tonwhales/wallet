@@ -22,7 +22,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         amount: 'Количество',
         today: 'Сегодня',
         yesterday: 'Вчера',
-        comment: 'Комментарий'
+        comment: 'Комментарий',
+        products: 'Продукты'
     },
     home: {
         wallet: 'Кошелек',
@@ -125,7 +126,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Стейкинг',
             balance: 'Ставка с валидатором',
             subtitle: {
-                join: 'Вложите свои Toncoin и получайте возраграждение вместе с Tonwhales стейкинг пулом',
+                join: 'Заработайте 13,3% на ваших TON',
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада'
             },
@@ -139,8 +140,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             join: {
                 title: 'Стань валидатором TON',
                 message: 'Стейкинг — это общественное благо для экосистемы TON. Вы можете помочь защитить сеть и получить вознаграждение в процессе',
-                buttonTitle: 'Присоединиться',
+                buttonTitle: 'Начать зарабатывать',
                 moreAbout: 'Подробнее о Tonwhales Staking Pool',
+                earn: 'Зарабатывайте',
+                onYourTons: 'на ваших TON',
+                apy: '~13.3%',
+                cycle: 'Получайте вознаграждение за ставку каждые 36 часов',
+                ownership: 'Застейканые TONы пренадлежат только вам',
+                withdraw: 'Снимайте и пополняйте в любое время'
             },
             pool: {
                 balance: 'Общая ставка',

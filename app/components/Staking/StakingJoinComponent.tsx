@@ -1,26 +1,35 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { View, Text, Linking } from "react-native";
+import { View, Text, Image, Pressable, Platform } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Theme } from "../../Theme";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { StakingPoolState } from "../../storage/cache";
 import { AppConfig } from "../../AppConfig";
-import { fromNano, toNano } from "ton";
+import { toNano } from "ton";
 import { useAccount } from "../../sync/Engine";
-import { ValueComponent } from "../ValueComponent";
-import { PoolInfo } from "./PoolInfo";
+import { useNavigation } from "@react-navigation/native";
+import { Theme } from "../../Theme";
+import CheckIcon from '../../../assets/ic_check.svg';
+import { BlurView } from "expo-blur";
 
 export const StakingJoinComponent = React.memo((props: {
     pool: StakingPoolState
 }) => {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
+    const baseNavigation = useNavigation();
     const safeArea = useSafeAreaInsets();
     const [account, engine] = useAccount();
     const price = engine.products.price.useState();
+
+    const setTab = useCallback(
+        (value: number) => {
+            navigation.navigateAndReplaceAll('Home', { tab: value })
+        },
+        [],
+    );
+
 
     const onJoin = useCallback(() => {
         navigation.navigate(
@@ -39,110 +48,181 @@ export const StakingJoinComponent = React.memo((props: {
         )
     }, []);
 
+    useLayoutEffect(() => {
+        baseNavigation.setOptions({
+            title: t('products.staking.title'),
+            headerStyle: {
+                backgroundColor: Theme.background
+            }
+        })
+    }, []);
+
     return (
-        <View style={{ flexGrow: 1, paddingHorizontal: 16 }}>
-            <Text style={{
-                textAlign: 'center',
-                color: Theme.textColor,
-                marginBottom: 12,
-                fontSize: 30,
-                fontWeight: '700',
-                marginTop: 24
-            }}>
-                {t('products.staking.join.title')}
-            </Text>
-            <Text style={{
-                textAlign: 'center',
-                color: Theme.textSecondary,
-                fontSize: 16
-            }}>
-                {t('products.staking.join.message')}
-            </Text>
-            <View style={{ flex: 1, flexGrow: 1 }} />
-            <View style={{
-                backgroundColor: 'white',
-                padding: 16,
-                borderRadius: 14,
-            }}>
+        <View style={{
+            flexGrow: 1,
+        }}>
+            <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ flex: 1, flexGrow: 1 }} />
+                <Image source={require('../../../assets/ic_staking.png')} />
                 <Text style={{
-                    textAlign: 'center',
+                    fontSize: 30,
+                    fontWeight: '800',
+                    lineHeight: 41,
+                    letterSpacing: -0.5,
                     color: Theme.textColor,
-                    fontSize: 18,
-                    fontWeight: '600',
-                    marginBottom: 16
+                    textAlign: 'center',
+                    maxWidth: 200,
+                    marginTop: 19
                 }}>
-                    {t('products.staking.subtitle.join')}
+                    {t('products.staking.join.earn') + ' '}
+                    <View style={{
+                        borderRadius: 6,
+                        overflow: 'hidden',
+                        backgroundColor: '#4DC47D',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: 41,
+                    }}>
+                        <Text style={{
+                            color: 'white',
+                            fontSize: 30,
+                            fontWeight: '800',
+                            letterSpacing: -0.5,
+                            paddingHorizontal: 4,
+                        }}>
+                            {t('products.staking.join.apy')}
+                        </Text>
+                    </View>
+                    {' ' + t('products.staking.join.onYourTons')}
                 </Text>
                 <View style={{
-                    marginTop: 16
+                    marginTop: 30,
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    width: '100%',
+                    paddingHorizontal: 14
                 }}>
-                    <PoolInfo pool={props.pool} />
-                </View>
-                {account.balance.gtn(0) && (
-                    <>
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 8 }} />
-                        <View style={{
-                            flexDirection: 'row', justifyContent: 'space-between',
-                            alignItems: 'flex-end', width: '100%',
-                            marginRight: 10,
-                            flexWrap: 'wrap'
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
+                        <CheckIcon height={20} width={20} color={'#4DC47D'} />
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            lineHeight: 19,
+                            marginLeft: 10
                         }}>
-                            <Text style={{ color: Theme.textColor, fontSize: 16 }} ellipsizeMode="tail">
-                                {t("products.staking.subtitle.rewards")}
-                            </Text>
-                            <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 20, marginTop: 4 }}>
-                                {'~'}
-                                <ValueComponent
-                                    value={account.balance.muln(0.133)}
-                                    centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.8 }}
-                                    centLength={3}
-                                />
-                                {price && !AppConfig.isTestnet && (
-                                    <Text style={{
-                                        fontSize: 16
-                                    }}>
-                                        {` ($ ${(parseFloat(fromNano(account.balance.muln(0.133))) * price.price.usd)
-                                            .toFixed(2)
-                                            .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')})`
-                                        }
-                                    </Text>
-                                )}
-                            </Text>
-                        </View>
-                    </>
-                )}
+                            {t('products.staking.join.cycle')}
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
+                        <CheckIcon height={20} width={20} color={'#4DC47D'} />
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            lineHeight: 19,
+                            marginLeft: 10
+                        }}>
+                            {t('products.staking.join.ownership')}
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
+                        <CheckIcon height={20} width={20} color={'#4DC47D'} />
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            lineHeight: 19,
+                            marginLeft: 10
+                        }}>
+                            {t('products.staking.join.withdraw')}
+                        </Text>
+                    </View>
+                </View>
+                <View style={{ flex: 1, flexGrow: 1 }} />
+                <RoundButton
+                    title={t('products.staking.join.buttonTitle')}
+                    onPress={onJoin}
+                    style={{ alignSelf: 'stretch', marginBottom: 30 + safeArea.bottom + 52, marginTop: 30 }}
+                />
             </View>
-            <View style={{ flex: 1, flexGrow: 1 }} />
-            <TouchableOpacity
-                activeOpacity={0.6}
-                onPress={() => {
-                    Linking.openURL(
-                        AppConfig.isTestnet
-                            ? 'https://test.tonwhales.com/staking'
-                            : 'https://tonwhales.com/staking'
-                    )
-                }}
-                style={{
-                    marginTop: 8,
-                    padding: 4,
-                    borderRadius: 4,
-                    alignItems: 'center', justifyContent: 'center',
-                }}
-            >
-                <Text style={{
-                    textAlign: 'center',
-                    color: Theme.accent,
-                    fontSize: 16,
-                    fontWeight: '800'
-                }}>
-                    {t('products.staking.join.moreAbout')}
-                </Text>
-            </TouchableOpacity>
-            <RoundButton
-                title={t('products.staking.join.buttonTitle')}
-                onPress={onJoin}
-                style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
-            />
+            {/* <View style={{ height: 52 + safeArea.bottom, width: '100%' }}>
+                {Platform.OS === 'ios' && (
+                    <BlurView
+                        style={{
+                            height: 52 + safeArea.bottom,
+                            paddingBottom: safeArea.bottom, paddingHorizontal: 16,
+                            flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                        }}
+                    >
+                        <View
+                            style={{
+                                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                                backgroundColor: Theme.background,
+                                opacity: 0.9
+                            }}
+                        />
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
+                            <Image
+                                source={require('../../../assets/ic_wallet_selected.png')}
+                                style={{ tintColor: Theme.accent }}
+                            />
+                            <Text
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.accent }}
+                            >
+                                {t('home.wallet')}
+                            </Text>
+                        </Pressable>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
+                            <Image
+                                source={require('../../../assets/ic_settings.png')}
+                                style={{ tintColor: Theme.textSecondary }}
+                            />
+                            <Text
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.textSecondary }}
+                            >
+                                {t('home.settings')}
+                            </Text>
+                        </Pressable>
+                    </BlurView>
+                )}
+                {Platform.OS === 'android' && (
+                    <View style={{
+                        height: 52 + safeArea.bottom,
+                        paddingBottom: safeArea.bottom, paddingHorizontal: 16,
+                        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                        backgroundColor: 'white'
+                    }}>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
+                            <Image
+                                source={require('../../../assets/ic_wallet_selected.png')}
+                                style={{ tintColor: Theme.accent }}
+                            />
+                            <Text
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.accent }}
+                            >
+                                {t('home.wallet')}
+                            </Text>
+                        </Pressable>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
+                            <Image
+                                source={require('../../../assets/ic_settings.png')}
+                                style={{ tintColor: Theme.textSecondary }}
+                            />
+                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: Theme.textSecondary }}>
+                                {t('home.settings')}
+                            </Text>
+                        </Pressable>
+                    </View>
+                )}
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0.5, left: 0, right: 0,
+                        height: 0.5,
+                        width: '100%',
+                        backgroundColor: '#000',
+                        opacity: 0.08
+                    }}
+                />
+            </View> */}
         </View>
     );
 })

@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler"
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
-import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
+import StakingIcon from '../../../assets/ic_staking.svg';
 import { useTranslation } from "react-i18next";
 import { ValueComponent } from "../ValueComponent";
 import { useAccount } from "../../sync/Engine";
@@ -25,7 +25,7 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
                 backgroundColor: 'white',
-                marginHorizontal: 16, marginVertical: 16,
+                marginHorizontal: 16, marginVertical: 4,
             }}
         >
             <View style={{
@@ -33,8 +33,8 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
             }}>
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginRight: 10 }}>
-                        <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
-                            <OldWalletIcon width={29} height={29} color={'white'} />
+                        <View style={{ backgroundColor: '#4DC47D', borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
+                            <StakingIcon width={42} height={42} color={'white'} />
                         </View>
                     </View>
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0, }}>
@@ -42,37 +42,8 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                             {t('products.staking.title')}
                         </Text>
                         <View style={{ flexDirection: 'column', alignItems: 'baseline', flexGrow: 1, flexBasis: 0, }}>
-                            <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginTop: 4 }} ellipsizeMode="tail">
+                            <Text style={{ color: '#787F83', fontSize: 13, flexGrow: 1, flexBasis: 0, marginTop: 4 }} ellipsizeMode="tail">
                                 {t("products.staking.subtitle.join")}
-                                {!account.balance.gt(pool.minStake.add(new BN(0.2)))
-                                    ? " " + t("products.staking.subtitle.apy")
-                                    : undefined
-                                }
-                                {account.balance.gt(pool.minStake.add(new BN(0.2))) && (
-                                    <Text style={{ color: '#8E979D', fontSize: 13 }} ellipsizeMode="tail">
-                                        {'. '}
-                                        {t("products.staking.subtitle.rewards")}
-                                        <Text style={{ color: '#4FAE42', fontWeight: '600', fontSize: 16 }}>
-                                            {' (~'}
-                                            <ValueComponent
-                                                value={account.balance.muln(0.133)}
-                                                centFontStyle={{ fontSize: 14, fontWeight: '500', opacity: 0.8 }}
-                                                centLength={3}
-                                            />
-                                            {price && !AppConfig.isTestnet && (
-                                                <Text style={{
-                                                    fontSize: 16
-                                                }}>
-                                                    {`/ $ ${(parseFloat(fromNano(account.balance.muln(0.133))) * price.price.usd)
-                                                        .toFixed(2)
-                                                        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`
-                                                    }
-                                                </Text>
-                                            )}
-                                            {')'}
-                                        </Text>
-                                    </Text>
-                                )}
                             </Text>
                         </View>
                     </View>

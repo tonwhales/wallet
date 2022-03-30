@@ -36,10 +36,11 @@ import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { useNavigationReady } from './utils/NavigationReadyContext';
-import { StakingFragment } from './fragments/wallet/StakingFragment';
+import { StakingFragment } from './fragments/staking/StakingFragment';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
+import { WalletFragment } from './fragments/wallet/WalletFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -116,7 +117,7 @@ const navigation = [
     fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment),
     genericScreen('LegalImport', LegalFragment),
-    modalScreen('Staking', StakingFragment),
+    genericScreen('Staking', StakingFragment),
     genericScreen('WalletImport', WalletImportFragment),
     genericScreen('WalletCreate', WalletCreateFragment),
     genericScreen('WalletCreated', WalletCreatedFragment),
@@ -134,6 +135,11 @@ const navigation = [
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
+
+export const walletNavigation = [
+    genericScreen('Staking', StakingFragment),
+    fullScreen('Wallet', WalletFragment),
+]
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();

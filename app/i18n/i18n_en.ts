@@ -22,7 +22,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         amount: 'Amount',
         today: 'Today',
         yesterday: 'Yesterday',
-        comment: 'Comment'
+        comment: 'Comment',
+        products: 'Products'
     },
     home: {
         wallet: 'Wallet',
@@ -125,7 +126,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Staking',
             balance: 'Staked with validator',
             subtitle: {
-                join: 'Stake your Toncoins and get rewarded with Tonwhales staking pool',
+                join: 'Earn ~13.3% on your TONs',
                 rewards: 'Estimated Interest',
                 apy: '~13.3 APY of the contribution'
             },
@@ -139,8 +140,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             join: {
                 title: 'Become a TON validator',
                 message: 'Staking is a public good for the TON ecosystem. You can help secure the network and earn rewards in the process',
-                buttonTitle: 'Start staking',
+                buttonTitle: 'Start Earning',
                 moreAbout: 'More about Tonwhales Staking Pool',
+                earn: 'Earn',
+                onYourTons: 'on your TONs',
+                apy: '~13.3%',
+                cycle: 'Get rewards for staking every 36h',
+                ownership: 'Staked TONs remain yours',
+                withdraw: 'Withdraw and Top Up at any time'
             },
             pool: {
                 balance: 'Total Stake',

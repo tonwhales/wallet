@@ -37,7 +37,7 @@ export const StakingProductMember = React.memo((
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
                 backgroundColor: 'white',
-                marginHorizontal: 16, marginVertical: 16
+                marginHorizontal: 16, marginVertical: 4
             }}
         >
             <View style={{

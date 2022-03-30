@@ -56,14 +56,6 @@ export const StakingFragment = fragment(() => {
             {member && (
                 <StakingMemberComponent pool={pool} member={member} />
             )}
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
         </View>
     );
 });

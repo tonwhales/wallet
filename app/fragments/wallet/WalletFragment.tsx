@@ -27,6 +27,7 @@ import { t } from '../../i18n/t';
 import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
 import { StakingProductComponent } from '../../components/Staking/StakingProductComponent';
+import { ProductsComponent } from '../../components/ProductsComponent';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -283,16 +284,7 @@ export const WalletFragment = fragment(() => {
                     </View>
                 </View>
 
-                {oldWalletsBalance.gt(new BN(0)) && (
-                    <ProductButton
-                        name={t('products.oldWallets.title')}
-                        subtitle={t("products.oldWallets.subtitle")}
-                        icon={OldWalletIcon}
-                        value={oldWalletsBalance}
-                        onPress={() => navigation.navigate('Migration')}
-                    />
-                )}
-                {AppConfig.isTestnet && (<StakingProductComponent />)}
+                <ProductsComponent />
 
                 {currentJob && currentJob.job.type === 'transaction' && (
                     <ProductButton

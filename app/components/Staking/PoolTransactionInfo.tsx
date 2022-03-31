@@ -6,7 +6,6 @@ import { fromNano, toNano } from "ton";
 import { StakingPoolState } from "../../storage/cache";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
-import { ValueComponent } from "../ValueComponent";
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPoolState | null, fee?: BN | null }) => {
     if (!pool) { return null; }
@@ -18,7 +17,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingVertical: 11,
+            paddingVertical: 0,
             paddingLeft: 16,
             marginTop: 20
         }}>
@@ -26,7 +25,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingRight: 16,
-                paddingVertical: 11.5
+                height: 56
             }}>
                 <Text style={{
                     fontSize: 16,
@@ -47,7 +46,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingRight: 16,
-                paddingVertical: 11.5
+                height: 56
             }}>
                 <Text style={{
                     fontSize: 16,
@@ -68,7 +67,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingRight: 16,
-                paddingVertical: 11.5
+                height: 56
             }}>
                 <Text style={{
                     fontSize: 16,
@@ -89,7 +88,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingRight: 16,
-                paddingVertical: 11.5
+                height: 56
             }}>
                 <Text style={{
                     fontSize: 16,
@@ -110,7 +109,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingRight: 16,
-                paddingVertical: 11.5
+                height: 56
             }}>
                 <Text style={{
                     fontSize: 16,
@@ -118,12 +117,11 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 }}>
                     {t('products.staking.info.depositFee')}
                 </Text>
-                <View>
+                <View style={{ justifyContent: 'center' }}>
                     <Text style={{
                         fontWeight: '600',
                         fontSize: 16,
                         color: Theme.textColor,
-                        marginVertical: 14
                     }}>
                         {fromNano(toNano(0.2)) + ' ' + 'TON'}
                     </Text>
@@ -132,7 +130,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                         style={{
                             backgroundColor: 'transparent',
                             paddingHorizontal: 0,
-                            alignSelf: 'flex-end'
+                            alignSelf: 'flex-end',
                         }}
                         textStyle={{ color: '#6D6D71', fontWeight: '400' }}
                     />
@@ -143,7 +141,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingRight: 16,
-                paddingVertical: 11.5
+                height: 56
             }}>
                 <Text style={{
                     fontSize: 16,
@@ -151,7 +149,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 }}>
                     {t('products.staking.info.blockchainFee')}
                 </Text>
-                <View>
+                <View style={{ justifyContent: 'center' }}>
                     <Text style={{
                         fontWeight: '600',
                         fontSize: 16,

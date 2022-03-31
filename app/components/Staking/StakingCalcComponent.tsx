@@ -20,14 +20,14 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                 borderRadius: 14,
                 justifyContent: 'center',
                 alignItems: 'center',
-                paddingVertical: 11,
                 paddingLeft: 16,
                 marginVertical: 14
             }}>
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
-                    paddingRight: 16
+                    paddingRight: 16,
+                    height: 56
                 }}>
                     <Text style={{
                         fontSize: 16,
@@ -57,12 +57,12 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                 <View style={{
                     height: 1, width: '100%',
                     backgroundColor: Theme.divider,
-                    marginVertical: 8
                 }} />
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
-                    paddingRight: 16
+                    paddingRight: 16,
+                    height: 56
                 }}>
                     <Text style={{
                         fontSize: 16,
@@ -92,12 +92,12 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                 <View style={{
                     height: 1, width: '100%',
                     backgroundColor: Theme.divider,
-                    marginVertical: 8
                 }} />
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
-                    paddingRight: 16
+                    paddingRight: 16,
+                    height: 56
                 }}>
                     <Text style={{
                         fontSize: 16,

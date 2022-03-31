@@ -550,7 +550,7 @@ export const TransferFragment = fragment(() => {
                                             </Text>
                                         </View>
                                         <View style={{
-                                            width: '100%'
+                                            width: '100%',
                                         }}>
                                             <ATextInput
                                                 index={0}
@@ -561,8 +561,8 @@ export const TransferFragment = fragment(() => {
                                                 placeholder={'0'}
                                                 keyboardType={'numeric'}
                                                 textAlign={'center'}
-                                                style={{ backgroundColor: 'transparent', paddingHorizontal: 0 }}
-                                                inputStyle={{ color: Theme.accent, flexGrow: 0 }}
+                                                style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4 }}
+                                                inputStyle={{ color: Theme.accent, flexGrow: 0, paddingTop: 0 }}
                                                 fontWeight={'800'}
                                                 fontSize={30}
                                                 preventDefaultHeight

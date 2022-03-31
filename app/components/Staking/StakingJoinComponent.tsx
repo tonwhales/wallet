@@ -1,6 +1,6 @@
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { View, Text, Image, Pressable, Platform } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +11,7 @@ import { useAccount } from "../../sync/Engine";
 import { useNavigation } from "@react-navigation/native";
 import { Theme } from "../../Theme";
 import CheckIcon from '../../../assets/ic_check.svg';
-import { BlurView } from "expo-blur";
+import { openLink } from "../../utils/InAppBrowser";
 
 export const StakingJoinComponent = React.memo((props: {
     pool: StakingPoolState
@@ -50,11 +50,10 @@ export const StakingJoinComponent = React.memo((props: {
 
     const openMoreInfo = useCallback(
         () => {
-            navigation.navigate('StakingWeb');
+            openLink(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking');
         },
         [],
     );
-
 
     useLayoutEffect(() => {
         baseNavigation.setOptions({

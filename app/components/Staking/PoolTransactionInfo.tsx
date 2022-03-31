@@ -122,7 +122,8 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                     <Text style={{
                         fontWeight: '600',
                         fontSize: 16,
-                        color: Theme.textColor
+                        color: Theme.textColor,
+                        marginVertical: 14
                     }}>
                         {fromNano(toNano(0.2)) + ' ' + 'TON'}
                     </Text>

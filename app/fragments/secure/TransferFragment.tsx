@@ -93,6 +93,7 @@ export const TransferFragment = fragment(() => {
 
         if (amountInputFocused) {
             refs[0].current?.blur();
+            setAmountInputFocused(false);
             return;
         }
 

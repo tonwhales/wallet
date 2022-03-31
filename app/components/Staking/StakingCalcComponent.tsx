@@ -24,7 +24,11 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                 paddingLeft: 16,
                 marginVertical: 14
             }}>
-                <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 16 }}>
+                <View style={{
+                    flexDirection: 'row', width: '100%',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    paddingRight: 16
+                }}>
                     <Text style={{
                         fontSize: 16,
                         color: '#7D858A'
@@ -50,8 +54,16 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                         />
                     </View>
                 </View>
-                <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4, marginVertical: 8 }} />
-                <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 16 }}>
+                <View style={{
+                    height: 1, width: '100%',
+                    backgroundColor: Theme.divider,
+                    marginVertical: 8
+                }} />
+                <View style={{
+                    flexDirection: 'row', width: '100%',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    paddingRight: 16
+                }}>
                     <Text style={{
                         fontSize: 16,
                         color: '#7D858A'
@@ -77,8 +89,16 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                         />
                     </View>
                 </View>
-                <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginLeft: 4, marginVertical: 8 }} />
-                <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 16 }}>
+                <View style={{
+                    height: 1, width: '100%',
+                    backgroundColor: Theme.divider,
+                    marginVertical: 8
+                }} />
+                <View style={{
+                    flexDirection: 'row', width: '100%',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    paddingRight: 16
+                }}>
                     <Text style={{
                         fontSize: 16,
                         color: '#7D858A'

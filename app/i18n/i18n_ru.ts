@@ -23,7 +23,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         today: 'Сегодня',
         yesterday: 'Вчера',
         comment: 'Комментарий',
-        products: 'Продукты'
+        products: 'Продукты',
+        confirm: 'Подтвердить'
     },
     home: {
         wallet: 'Кошелек',
@@ -142,9 +143,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: 'Стейкинг — это общественное благо для экосистемы TON. Вы можете помочь защитить сеть и получить вознаграждение в процессе',
                 buttonTitle: 'Начать зарабатывать',
                 moreAbout: 'Подробнее о Tonwhales Staking Pool',
-                earn: 'Зарабатывайте',
+                earn: 'Зарабатывайте до',
                 onYourTons: 'на ваших TON',
-                apy: '~13.3%',
+                apy: '13.3%',
                 cycle: 'Получайте вознаграждение за ставку каждые 36 часов',
                 ownership: 'Застейканые TONы пренадлежат только вам',
                 withdraw: 'Снимайте и пополняйте в любое время'
@@ -191,9 +192,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 poolFeeTitle: 'Комиссия пула',
                 depositFee: 'Комиссия за депозит',
                 blockchainFee: 'Комиссия сети',
-            }
+            },
+            minAmountWarning: 'Минимальное количество {{minAmount}} TON'
         },
-        transactionRequest: 'Запрос транзакции'
+        transactionRequest: 'Запрос транзакции',
     },
     welcome: {
         title: 'Tonhub',

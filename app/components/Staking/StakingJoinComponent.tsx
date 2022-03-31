@@ -95,7 +95,7 @@ export const StakingJoinComponent = React.memo((props: {
                     letterSpacing: -0.5,
                     color: Theme.textColor,
                     textAlign: 'center',
-                    maxWidth: 200,
+                    maxWidth: 250,
                     marginTop: 19
                 }}>
                     {t('products.staking.join.earn') + ' '}

@@ -23,7 +23,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         today: 'Today',
         yesterday: 'Yesterday',
         comment: 'Comment',
-        products: 'Products'
+        products: 'Products',
+        confirm: 'Confirm'
     },
     home: {
         wallet: 'Wallet',
@@ -142,9 +143,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Staking is a public good for the TON ecosystem. You can help secure the network and earn rewards in the process',
                 buttonTitle: 'Start Earning',
                 moreAbout: 'More about Tonwhales Staking Pool',
-                earn: 'Earn',
+                earn: 'Earn up to',
                 onYourTons: 'on your TONs',
-                apy: '~13.3%',
+                apy: '13.3%',
                 cycle: 'Get rewards for staking every 36h',
                 ownership: 'Staked TONs remain yours',
                 withdraw: 'Withdraw and Top Up at any time'
@@ -191,7 +192,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 poolFeeTitle: 'Pool Fee',
                 depositFee: 'Deposit Gas',
                 blockchainFee: 'Blockhain fee',
-            }
+            },
+            minAmountWarning: 'Minimum amount is {{minAmount}} TON'
         },
         transactionRequest: 'Request transaction'
     },

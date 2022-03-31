@@ -38,6 +38,7 @@ const labelStyle: StyleProp<TextStyle> = {
 
 export type ATextInputRef = {
     focus: () => void;
+    blur: () => void;
 }
 
 export const TransferFragment = fragment(() => {
@@ -66,6 +67,8 @@ export const TransferFragment = fragment(() => {
     const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
+    const [amountInputFocused, setAmountInputFocused] = React.useState(false);
+    const [minAmountWarn, setMinAmountWarn] = React.useState(false);
     const acc = React.useMemo(() => getCurrentAddress(), []);
     React.useEffect(() => {
         return () => {
@@ -74,7 +77,24 @@ export const TransferFragment = fragment(() => {
             }
         }
     }, []);
+
+    const onSetAmount = React.useCallback(
+        (newAmount: string) => {
+            setMinAmountWarn(false);
+            setAmount(newAmount);
+        }, []);
+
     const doSend = React.useCallback(async () => {
+
+        if (pool && params?.staking && pool.minStake.gt(toNano(amount.replace(',', '.')))) {
+            setMinAmountWarn(true);
+            return;
+        }
+
+        if (amountInputFocused) {
+            refs[0].current?.blur();
+            return;
+        }
 
         async function confirm(title: LocalizedResources) {
             return await new Promise<boolean>(resolve => {
@@ -230,7 +250,7 @@ export const TransferFragment = fragment(() => {
         } else {
             navigation.goBack();
         }
-    }, [amount, target, comment, account.seqno, payload, stateInit, params]);
+    }, [amountInputFocused, amount, target, comment, account.seqno, payload, stateInit, params]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -371,6 +391,9 @@ export const TransferFragment = fragment(() => {
         console.log('[onFocus]', index);
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
+        if (index === 0 && params?.staking) {
+            setAmountInputFocused(true);
+        }
     }, []);
 
     const onSubmit = React.useCallback((index: number) => {
@@ -378,6 +401,12 @@ export const TransferFragment = fragment(() => {
         console.log('[onSubmit] next', index, next);
         if (next) {
             next.focus();
+        }
+    }, []);
+
+    const onBlur = React.useCallback((index: number) => {
+        if (index === 0 && params?.staking) {
+            setAmountInputFocused(false);
         }
     }, []);
 
@@ -399,7 +428,7 @@ export const TransferFragment = fragment(() => {
                 style={{ marginTop: safeArea.top }}
                 pageTitle={title}
             />
-            <StatusBar style="dark" />
+            <StatusBar style="light" />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,
@@ -490,65 +519,77 @@ export const TransferFragment = fragment(() => {
                                 </View>
                             )}
                             {params?.staking && (
-                                <View style={{
-                                    marginBottom: 0,
-                                    backgroundColor: "white",
-                                    borderRadius: 14,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    padding: 15,
-                                }}>
+                                <>
                                     <View style={{
-                                        flexDirection: 'row',
-                                        width: '100%',
-                                        justifyContent: 'space-between'
+                                        marginBottom: 0,
+                                        backgroundColor: "white",
+                                        borderRadius: 14,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        padding: 15,
                                     }}>
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            width: '100%',
+                                            justifyContent: 'space-between'
+                                        }}>
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 16,
+                                                color: '#8E979D',
+                                            }}>
+                                                {t('common.amount')}
+                                            </Text>
+                                            <Text style={{
+                                                fontWeight: '600',
+                                                fontSize: 16,
+                                                color: '#6D6D71',
+                                            }}>
+                                                {fromNano(account?.balance || new BN(0))} TON
+                                            </Text>
+                                        </View>
+                                        <View style={{
+                                            width: '100%'
+                                        }}>
+                                            <ATextInput
+                                                index={0}
+                                                ref={refs[0]}
+                                                onFocus={onFocus}
+                                                value={amount}
+                                                onValueChange={onSetAmount}
+                                                placeholder={'0'}
+                                                keyboardType={'numeric'}
+                                                textAlign={'center'}
+                                                style={{ backgroundColor: 'transparent', paddingHorizontal: 0 }}
+                                                inputStyle={{ color: Theme.accent, flexGrow: 0 }}
+                                                fontWeight={'800'}
+                                                fontSize={30}
+                                                preventDefaultHeight
+                                                preventDefaultLineHeight
+                                                preventDefaultValuePadding
+                                                blurOnSubmit={false}
+                                            />
+                                            <PriceComponent
+                                                amount={toNano(parseFloat(amount.replace(',', '.')))}
+                                                style={{
+                                                    backgroundColor: 'transparent',
+                                                    paddingHorizontal: 0
+                                                }}
+                                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                            />
+                                        </View>
+                                    </View>
+                                    {minAmountWarn && (
                                         <Text style={{
+                                            color: '#FF0000',
                                             fontWeight: '400',
-                                            fontSize: 16,
-                                            color: '#8E979D',
+                                            fontSize: 14,
+                                            marginTop: 10
                                         }}>
-                                            {t('common.amount')}
+                                            {t('products.staking.minAmountWarning', { minAmount: fromNano(pool!.minStake) })}
                                         </Text>
-                                        <Text style={{
-                                            fontWeight: '600',
-                                            fontSize: 16,
-                                            color: '#6D6D71',
-                                        }}>
-                                            {fromNano(account?.balance || new BN(0))} TON
-                                        </Text>
-                                    </View>
-                                    <View style={{
-                                        width: '100%'
-                                    }}>
-                                        <ATextInput
-                                            index={0}
-                                            ref={refs[0]}
-                                            onFocus={onFocus}
-                                            value={amount}
-                                            onValueChange={setAmount}
-                                            placeholder={'0'}
-                                            keyboardType={'numeric'}
-                                            textAlign={'center'}
-                                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0 }}
-                                            inputStyle={{ color: Theme.accent, flexGrow: 0 }}
-                                            fontWeight={'800'}
-                                            fontSize={30}
-                                            preventDefaultHeight
-                                            preventDefaultLineHeight
-                                            preventDefaultValuePadding
-                                            blurOnSubmit={false}
-                                        />
-                                        <PriceComponent
-                                            amount={toNano(parseFloat(amount.replace(',', '.')))}
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                paddingHorizontal: 0
-                                            }}
-                                            textStyle={{ color: '#6D6D71', fontWeight: '400' }}
-                                        />
-                                    </View>
-                                </View>
+                                    )}
+                                </>
                             )}
                             {!params?.staking && (
                                 <View style={{ flexDirection: 'row' }} collapsable={false}>
@@ -599,7 +640,7 @@ export const TransferFragment = fragment(() => {
                     {!params?.staking && (
                         <View style={{
                             marginBottom: 16, marginTop: payload ? 0 : 17,
-                            backgroundColor: "white",
+                            backgroundColor: 'white',
                             borderRadius: 14,
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -633,6 +674,7 @@ export const TransferFragment = fragment(() => {
                                 enabled={!lockAddress}
                                 editable={!lockAddress}
                                 onSubmit={onSubmit}
+                                onBlur={onBlur}
                                 returnKeyType="next"
                                 blurOnSubmit={false}
                             />
@@ -683,7 +725,6 @@ export const TransferFragment = fragment(() => {
                             )}
                         </View>
                     )}
-
                     {params?.staking && (
                         <>
                             {params.staking.action === 'deposit' && (
@@ -704,7 +745,13 @@ export const TransferFragment = fragment(() => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
                 <RoundButton
-                    title={t('common.send')}
+                    title={
+                        amountInputFocused
+                            ? t('common.continue')
+                            : params?.staking
+                                ? t('common.confirm')
+                                : t('common.send')
+                    }
                     action={doSend}
                 />
             </KeyboardAvoidingView>

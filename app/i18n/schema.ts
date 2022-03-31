@@ -26,7 +26,8 @@ export type LocalizationSchema = {
         today: string,
         yesterday: string,
         comment: string,
-        products: string
+        products: string,
+        confirm: string
     }
     home: {
         wallet: string,
@@ -194,7 +195,8 @@ export type LocalizationSchema = {
                 poolFeeTitle: string,
                 depositFee: string,
                 blockchainFee: string,
-            }
+            },
+            minAmountWarning: string
         },
         transactionRequest: string
     }

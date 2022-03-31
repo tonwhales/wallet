@@ -32,7 +32,7 @@ export async function openLink(link: string) {
                     endExit: 'slide_out_right'
                 },
             })
-            Alert.alert(JSON.stringify(result))
+            // Alert.alert(JSON.stringify(result))
         }
         else Linking.openURL(link)
     } catch (error: any) {

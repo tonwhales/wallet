@@ -34,7 +34,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                     {t('products.staking.info.rateTitle')}
                 </Text>
                 <Text style={{
-                    fontWeight: '600',
+                    fontWeight: '400',
                     fontSize: 16,
                     color: Theme.textColor
                 }}>
@@ -55,7 +55,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                     {t('products.staking.info.frequencyTitle')}
                 </Text>
                 <Text style={{
-                    fontWeight: '600',
+                    fontWeight: '400',
                     fontSize: 16,
                     color: Theme.textColor
                 }}>
@@ -76,7 +76,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                     {t('products.staking.info.minDeposit')}
                 </Text>
                 <Text style={{
-                    fontWeight: '600',
+                    fontWeight: '400',
                     fontSize: 16,
                     color: Theme.textColor
                 }}>
@@ -97,7 +97,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                     {t('products.staking.info.poolFeeTitle')}
                 </Text>
                 <Text style={{
-                    fontWeight: '600',
+                    fontWeight: '400',
                     fontSize: 16,
                     color: Theme.textColor
                 }}>
@@ -119,7 +119,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 </Text>
                 <View style={{ justifyContent: 'center' }}>
                     <Text style={{
-                        fontWeight: '600',
+                        fontWeight: '400',
                         fontSize: 16,
                         color: Theme.textColor,
                     }}>
@@ -151,7 +151,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                 </Text>
                 <View style={{ justifyContent: 'center' }}>
                     <Text style={{
-                        fontWeight: '600',
+                        fontWeight: '400',
                         fontSize: 16,
                         color: Theme.textColor
                     }}>

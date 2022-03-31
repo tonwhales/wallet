@@ -13,9 +13,6 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
     const monthly = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(30 / 366);
     const daily = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(1 / 366);
 
-
-    console.log({ yearly, monthly, daily });
-
     return (
         <>
             <View style={{

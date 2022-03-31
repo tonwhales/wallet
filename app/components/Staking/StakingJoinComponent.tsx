@@ -50,7 +50,7 @@ export const StakingJoinComponent = React.memo((props: {
 
     const openMoreInfo = useCallback(
         () => {
-            // TODO
+            navigation.navigate('StakingWeb');
         },
         [],
     );

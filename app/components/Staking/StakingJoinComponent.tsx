@@ -12,15 +12,16 @@ import { useNavigation } from "@react-navigation/native";
 import { Theme } from "../../Theme";
 import CheckIcon from '../../../assets/ic_check.svg';
 import { openLink } from "../../utils/InAppBrowser";
+import { AndroidToolbar } from "../AndroidToolbar";
+import { fragment } from "../../fragment";
 
-export const StakingJoinComponent = React.memo((props: {
-    pool: StakingPoolState
-}) => {
+export const StakingJoinFragment = fragment(() => {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const baseNavigation = useNavigation();
     const safeArea = useSafeAreaInsets();
     const [account, engine] = useAccount();
+    const pool = engine.products.stakingPool.useState();
     const price = engine.products.price.useState();
 
     const setTab = useCallback(
@@ -35,13 +36,13 @@ export const StakingJoinComponent = React.memo((props: {
         navigation.navigate(
             'Transfer',
             {
-                target: props.pool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 comment: 'Deposit',
-                amount: props.pool.minStake.add(toNano('0.2')),
+                amount: pool?.minStake.add(toNano('0.2')),
                 lockAddress: true,
                 lockComment: true,
                 staking: {
-                    minAmount: props.pool.minStake,
+                    minAmount: pool?.minStake,
                     action: 'deposit',
                 }
             }
@@ -82,8 +83,11 @@ export const StakingJoinComponent = React.memo((props: {
 
     return (
         <View style={{
-            flexGrow: 1,
+            flex: 1,
+            backgroundColor: Theme.background,
+            paddingTop: 16
         }}>
+            <AndroidToolbar style={{ marginTop: safeArea.top }} />
             <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
                 <View style={{ flex: 1, flexGrow: 1 }} />
                 <Image source={require('../../../assets/ic_staking.png')} />

@@ -8,7 +8,7 @@ import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { StakingJoinComponent } from "../../components/Staking/StakingJoinComponent";
+import { StakingJoinFragment } from "../../components/Staking/StakingJoinComponent";
 import { StakingMemberComponent } from "../../components/Staking/StakingMemberComponent";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -51,7 +51,7 @@ export const StakingFragment = fragment(() => {
         }}>
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             {!member && (
-                <StakingJoinComponent pool={pool} />
+                <StakingJoinFragment pool={pool} />
             )}
             {member && (
                 <StakingMemberComponent pool={pool} member={member} />

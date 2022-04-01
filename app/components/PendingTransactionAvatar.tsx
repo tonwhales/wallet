@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react"
 import { StyleProp, View, ViewStyle } from "react-native"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 import { Theme } from "../Theme"
+import { addAlpha } from "../utils/addAlpha";
 import { avatarHash } from "../utils/avatarHash";
+import { shadeColor } from "../utils/shadeColor";
 import { Avatar, avatarColors, avatarImages } from "./Avatar";
-const Color = require('color');
 
 export const PendingTransactionProgress = React.memo(({
     style,
@@ -16,22 +17,24 @@ export const PendingTransactionProgress = React.memo(({
     const ref = useRef<AnimatedCircularProgress>(null);
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
+    const lighter = shadeColor(color, 10);
+    const darker = shadeColor(color, -1)
     const [colors, setColors] = useState({
-        backgroundColor: Color(color).lighten(0.5).hex(),
-        tintColor: Color(color).lighten(0.1).hex()
-    })
+        tintColor: darker,
+        backgroundColor: lighter
+    });
 
     useEffect(() => {
         const timerId = setInterval(() => {
-            if (colors.tintColor === Color(color).lighten(0.1).hex()) {
+            if (colors.tintColor === darker) {
                 setColors({
-                    tintColor: Color(color).lighten(0.5).hex(),
-                    backgroundColor: Color(color).lighten(0.1).hex()
+                    tintColor: lighter,
+                    backgroundColor: darker
                 });
             } else {
                 setColors({
-                    tintColor: Color(color).lighten(0.1).hex(),
-                    backgroundColor: Color(color).lighten(0.5).hex()
+                    tintColor: darker,
+                    backgroundColor: lighter
                 });
             }
             ref.current?.reAnimate(0, 100, 6000);

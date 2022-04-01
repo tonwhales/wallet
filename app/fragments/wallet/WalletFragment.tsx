@@ -16,17 +16,14 @@ import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useShared
 import { resolveUrl } from '../../utils/resolveUrl';
 import { useAccount } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
-import { Address, fromNano } from 'ton';
+import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
-import { BN } from 'bn.js';
 import { WalletAddress } from '../../components/WalletAddress';
 import { ProductButton } from './products/ProductButton';
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
-import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
-import { StakingProductComponent } from '../../components/Staking/StakingProductComponent';
 import { ProductsComponent } from '../../components/ProductsComponent';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {

@@ -125,7 +125,7 @@ import Img_wombat from '../../assets/images/img_wombat.svg';
 import Img_yak from '../../assets/images/img_yak.svg';
 import Img_zebra from '../../assets/images/img_zebra.svg';
 
-let images = [
+export const avatarImages = [
     Img_ant,
     Img_antelope,
     Img_bass,
@@ -250,7 +250,7 @@ let images = [
     Img_zebra,
 ];
 
-let colors = [
+export const avatarColors = [
     '#294659',
     '#e56555',
     '#f28c48',
@@ -263,8 +263,8 @@ let colors = [
 ];
 
 export const Avatar = React.memo((props: { size: number, id: string }) => {
-    let Img = images[avatarHash(props.id, images.length)];
-    let color = colors[avatarHash(props.id, colors.length)];
+    let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
+    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
     return (
         <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
             <Img width={Math.floor(props.size * 0.7)} height={Math.floor(props.size * 0.7)} color="white" />

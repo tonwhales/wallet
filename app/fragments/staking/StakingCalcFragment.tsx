@@ -27,12 +27,18 @@ export const StakingCalcFragment = fragment(() => {
     const [amountInputFocused, setAmountInputFocused] = React.useState(false);
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
-    const ref: React.RefObject<ATextInputRef> = createRef();
+    const refs = React.useMemo(() => {
+        let r: React.RefObject<ATextInputRef>[] = [];
+        r.push(React.createRef());
+        return r;
+    }, []);
 
     const onFocus = useCallback((index: number) => {
-        console.log('[onFocus]', index);
+        if (amount === '0') {
+            setAmount('')
+        }
         setAmountInputFocused(true);
-    }, []);
+    }, [amount]);
 
     const onSetAmount = useCallback(
         (newAmount: string) => {
@@ -47,7 +53,7 @@ export const StakingCalcFragment = fragment(() => {
 
     const onDone = useCallback(() => {
         if (amountInputFocused) {
-            ref.current?.blur();
+            refs[0].current?.blur();
         } else {
             navigation.goBack();
         }
@@ -123,7 +129,7 @@ export const StakingCalcFragment = fragment(() => {
                         }}>
                             <ATextInput
                                 index={0}
-                                ref={ref}
+                                ref={refs[0]}
                                 onFocus={onFocus}
                                 value={amount}
                                 onValueChange={onSetAmount}

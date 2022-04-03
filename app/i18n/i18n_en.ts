@@ -138,6 +138,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawStakeConfirmTitle: 'Confirm Unstake',
                 topUpTitle: 'Top Up',
                 topUpConfirmTitle: 'Confirm Top Up',
+                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked for this transaction'
             },
             nextSycle: 'Next sycle',
             sycleNote: 'All transactions take effect once the cycle ends',

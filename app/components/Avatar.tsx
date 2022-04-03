@@ -131,6 +131,7 @@ import Img_Whales from '../../assets/images/Whales.svg';
 import Img_OKX from '../../assets/images/OKX.svg';
 import Img_FTX from '../../assets/images/FTX.svg';
 import { Address } from 'ton';
+import { AppConfig } from '../AppConfig';
 
 export const avatarImages = [
     Img_ant,
@@ -268,6 +269,8 @@ export const KnownWallets: { [key: string]: { name: string, ic?: any, color?: st
     [Address.parse('EQDd3NPNrWCvTA1pOJ9WetUdDCY_pJaNZVq0JMaara-TIp90').toFriendly()]: { name: 'FTX 2', color: '#8E85EE', ic: Img_FTX },
 
     [Address.parse('EQAAFhjXzKuQ5N0c96nsdZQWATcJm909LYSaCAvWFxVJP80D').toFriendly()]: { name: 'Whales Pool', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toFriendly()]: { name: 'Whales Staking Pool', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs').toFriendly({ testOnly: AppConfig.isTestnet })]: { name: 'Whales Staking Pool', color: '#5FBED5', ic: Img_Whales },
     [Address.parse('EQBeNwQShukLyOWjKWZ0Oxoe5U3ET-ApQIWYeC4VLZ4tmeTm').toFriendly()]: { name: 'Whales Pool Withdraw 1', color: '#5FBED5', ic: Img_Whales },
     [Address.parse('EQAQwQc4N7k_2q1ZQoTOi47_e5zyVCdEDrL8aCdi4UcTZef4').toFriendly()]: { name: 'Whales Pool Withdraw 2', color: '#5FBED5', ic: Img_Whales },
     [Address.parse('EQDQA68_iHZrDEdkqjJpXcVqEM3qQC9u0w4nAhYJ4Ddsjttc').toFriendly()]: { name: 'Whales Pool Withdraw 3', color: '#5FBED5', ic: Img_Whales },

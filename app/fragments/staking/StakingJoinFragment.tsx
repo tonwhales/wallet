@@ -14,6 +14,7 @@ import CheckIcon from '../../../assets/ic_check.svg';
 import { openLink } from "../../utils/InAppBrowser";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { fragment } from "../../fragment";
+import { StakingTransferParams } from "./StakingTransferFragment";
 
 export const StakingJoinFragment = fragment(() => {
     const { t } = useTranslation();
@@ -41,11 +42,8 @@ export const StakingJoinFragment = fragment(() => {
                 amount: pool?.minStake.add(toNano('0.2')),
                 lockAddress: true,
                 lockComment: true,
-                staking: {
-                    minAmount: pool?.minStake,
-                    action: 'deposit',
-                }
-            }
+                action: 'deposit',
+            } as StakingTransferParams
         );
     }, []);
 

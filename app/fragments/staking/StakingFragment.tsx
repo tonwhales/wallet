@@ -30,6 +30,7 @@ import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
 import { openLink } from "../../utils/InAppBrowser";
+import { StakingTransferParams } from "./StakingTransferFragment";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
@@ -148,11 +149,8 @@ export const StakingFragment = fragment(() => {
                 amount: pool?.minStake.add(toNano('0.2')),
                 lockAddress: true,
                 lockComment: true,
-                staking: {
-                    minAmount: pool?.minStake,
-                    action: 'top_up',
-                }
-            }
+                action: 'top_up',
+            } as StakingTransferParams
         );
     }, []);
 
@@ -165,11 +163,8 @@ export const StakingFragment = fragment(() => {
                 amount: toNano('0.2'),
                 lockAddress: true,
                 lockComment: true,
-                staking: {
-                    minAmount: toNano('0.2'),
-                    action: 'withdraw',
-                }
-            }
+                action: 'withdraw',
+            } as StakingTransferParams
         );
     }, []);
 

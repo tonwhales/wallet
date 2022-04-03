@@ -48,7 +48,7 @@ export const StakingPendingTransaction = React.memo((
             <TouchableHighlight onPress={() => onPress(tx)} underlayColor={Theme.selector}>
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                     <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, margin: 10 }}>
-                        <PendingTransactionAvatar avatarId={avatarId} staking />
+                        <PendingTransactionAvatar address={pool.address.toFriendly({ testOnly: AppConfig.isTestnet })} avatarId={avatarId} staking />
                     </View>
                     <View style={{
                         justifyContent: 'space-between',

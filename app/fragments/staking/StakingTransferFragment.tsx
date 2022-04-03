@@ -13,7 +13,6 @@ import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
-import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
@@ -39,26 +38,38 @@ export type ATextInputRef = {
     blur: () => void;
 }
 
+export type StakingTransferParams = {
+    target?: string,
+    comment?: string | null,
+    amount?: BN | null,
+    minAmount?: BN | null
+    payload?: Cell | null,
+    stateInit?: Cell | null,
+    lockAmount?: boolean,
+    lockComment?: boolean,
+    lockAddress?: boolean,
+    goBack?: boolean,
+    action?: 'deposit' | 'withdraw' | 'top_up'
+    job?: string | null
+}
+
 export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const params: {
-        target?: string,
-        comment?: string | null,
-        amount?: BN | null,
-        payload?: Cell | null,
-        stateInit?: Cell | null,
-        lockAmount?: boolean,
-        lockComment?: boolean,
-        lockAddress?: boolean,
-        goBack?: boolean,
-        action?: 'deposit' | 'withdraw' | 'top_up'
-        job?: string | null
-    } | undefined = useRoute().params;
+    const params: StakingTransferParams | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
     const pool = engine.products.stakingPool.useState();
-    const [title, setTitle] = React.useState('');
+    const address = React.useMemo(() => getCurrentAddress().address, []);
 
+    const member = pool
+        ?.members
+        .find((m) => {
+            return m.address
+                .toFriendly({ testOnly: AppConfig.isTestnet }) === address
+                    .toFriendly({ testOnly: AppConfig.isTestnet })
+        });
+
+    const [title, setTitle] = React.useState('');
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
@@ -92,6 +103,11 @@ export const StakingTransferFragment = fragment(() => {
             && pool.minStake.gt(toNano(amount.replace(',', '.')))
         ) {
             setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: fromNano(pool!.minStake) }));
+            return;
+        }
+
+        if (params?.action === 'withdraw' && toNano('0.2').gt(toNano(amount.replace(',', '.')))) {
+            setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: '0.2' }));
             return;
         }
 
@@ -148,12 +164,27 @@ export const StakingTransferFragment = fragment(() => {
             return;
         }
 
+        if ((params?.action === 'withdraw')) {
+            // Check min widthdraw
+            if (value.lt(toNano('0.2'))) {
+                setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: '0.2' }));
+                return;
+            }
+            // Check staked balance
+            if (member && member.balance.lt(value)) {
+                setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
+                Alert.alert(t('products.staking.transfer.notEnoughStaked'));
+                return;
+            }
+        }
+
         // Check amount
-        if (!value.eq(account.balance) && account.balance.lt(value)) {
+        if ((!value.eq(account.balance) && account.balance.lt(value))) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
         if (value.eq(new BN(0))) {
+            setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: fromNano(pool!.minStake) }));
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -255,7 +286,7 @@ export const StakingTransferFragment = fragment(() => {
         //     navigation.goBack();
         // }
         navigation.goBack();
-    }, [amountInputFocused, amount, target, comment, account.seqno, payload, stateInit, params]);
+    }, [amountInputFocused, amount, target, comment, account.seqno, payload, stateInit, params, member, pool]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -400,7 +431,7 @@ export const StakingTransferFragment = fragment(() => {
                             : t('products.staking.title')
             );
         }
-    }, [amountInputFocused]);
+    }, [amountInputFocused, params?.action]);
 
 
     return (
@@ -461,7 +492,11 @@ export const StakingTransferFragment = fragment(() => {
                                     fontSize: 16,
                                     color: '#6D6D71',
                                 }}>
-                                    {fromNano(account?.balance || new BN(0))} TON
+                                    {fromNano(
+                                        (params?.action === 'withdraw' && member)
+                                            ? member.balance
+                                            : account?.balance || new BN(0)
+                                    )} TON
                                 </Text>
                             </View>
                             <View style={{

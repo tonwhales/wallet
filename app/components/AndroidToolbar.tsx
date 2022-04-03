@@ -4,7 +4,7 @@ import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } f
 import { Theme } from "../Theme";
 import { Ionicons } from '@expo/vector-icons';
 
-export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string }) => {
+export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string, headerRight?: any }) => {
     if (Platform.OS === 'ios') {
         return null;
     }
@@ -49,6 +49,7 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
                     {`${props.pageTitle}`}
                 </Text>
             )}
+            {props.headerRight}
         </View>
     );
 });

@@ -87,7 +87,28 @@ export const StakingJoinFragment = fragment(() => {
             backgroundColor: Theme.background,
             paddingTop: 16
         }}>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} />
+            <AndroidToolbar
+                style={{ marginTop: safeArea.top }}
+                headerRight={<Pressable
+                    onPress={openMoreInfo}
+                    style={({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.3 : 1,
+                            position: 'absolute',
+                            bottom: 10, right: 16
+                        }
+                    }}
+                >
+                    <Text
+                        style={{
+                            color: Theme.accent,
+                            fontSize: 17
+                        }}
+                    >
+                        {t('products.staking.learnMore')}
+                    </Text>
+                </Pressable>}
+            />
             <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
                 <View style={{ flex: 1, flexGrow: 1 }} />
                 <Image source={require('../../../assets/ic_staking.png')} />

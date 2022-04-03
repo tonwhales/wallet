@@ -139,7 +139,7 @@ const navigation = [
 ];
 
 export const walletNavigation = [
-    genericScreen('Staking', StakingFragment),
+    fullScreen('Staking', StakingFragment),
     genericScreen('StakingJoin', StakingJoinFragment),
     fullScreen('Wallet', WalletFragment),
 ]

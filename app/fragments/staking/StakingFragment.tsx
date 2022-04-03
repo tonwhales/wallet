@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from "react-i18next";
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
@@ -28,6 +28,8 @@ import { StakingPendingTransaction } from "../../components/Staking/StakingPendi
 import CalcIcon from '../../../assets/ic_calc.svg'
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { StakingCycle } from "../../components/Staking/StakingCycle";
+import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
+import { openLink } from "../../utils/InAppBrowser";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
@@ -171,6 +173,13 @@ export const StakingFragment = fragment(() => {
         );
     }, []);
 
+    const openMoreInfo = useCallback(
+        () => {
+            openLink(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking');
+        },
+        [],
+    );
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
@@ -245,6 +254,7 @@ export const StakingFragment = fragment(() => {
                     />
                 </Animated.View>
                 <StakingPendingTransaction onPress={openTransactionFragment} />
+                <StakingPendingComponent style={{ marginHorizontal: 16 }} member={member} />
                 {pool && (
                     <StakingCycle
                         stakeUntil={pool.stakeUntil}
@@ -304,9 +314,22 @@ export const StakingFragment = fragment(() => {
                             paddingTop: safeArea.top,
                             flexDirection: 'row',
                             overflow: 'hidden'
-                        }}
-                        >
-                            <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                        }}>
+                            <View style={{
+                                width: '100%', height: 44,
+                                alignItems: 'center', justifyContent: 'center',
+                                flexDirection: 'row'
+                            }}>
+                                <HeaderBackButton
+                                    style={{
+                                        position: 'absolute',
+                                        left: 8, bottom: 0
+                                    }}
+                                    label={t('common.back')}
+                                    onPress={() => {
+                                        navigation.goBack();
+                                    }}
+                                />
                                 <Animated.Text style={[
                                     { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
                                     { position: 'relative', ...titleOpacityStyle },
@@ -365,7 +388,26 @@ export const StakingFragment = fragment(() => {
                                         </Text>
                                     </View>
                                 </Animated.View>
-                                <HeaderBackButton />
+                                <Pressable
+                                    onPress={openMoreInfo}
+                                    style={({ pressed }) => {
+                                        return {
+                                            opacity: pressed ? 0.3 : 1,
+                                            position: 'absolute',
+                                            bottom: 10, right: 16
+                                        }
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            color: Theme.accent,
+                                            fontSize: 17
+                                        }}
+                                    >
+                                        {t('products.staking.learnMore')}
+                                    </Text>
+                                </Pressable>
+                                {/* TODO */}
                             </View>
                         </BlurView>
                         <View style={{
@@ -393,9 +435,11 @@ export const StakingFragment = fragment(() => {
                     }}>
                         <View style={{
                             width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                            flexDirection: 'row'
                         }}>
                             <View style={{
-                                position: 'absolute', left: 16, bottom: 8,
+                                position: 'absolute',
+                                left: 16, bottom: 8
                             }}>
                                 <TouchableNativeFeedback
                                     onPress={() => navigation.goBack()}
@@ -470,6 +514,21 @@ export const StakingFragment = fragment(() => {
                                     </Text>
                                 </View>
                             </Animated.View>
+                            <Pressable onPress={openMoreInfo} style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.3 : 1,
+                                    position: 'absolute', right: 16, bottom: 10,
+                                }
+                            }}>
+                                <Text
+                                    style={{
+                                        color: Theme.accent,
+                                        fontSize: 17
+                                    }}
+                                >
+                                    {t('products.staking.learnMore')}
+                                </Text>
+                            </Pressable>
                         </View>
                         <View style={{
                             position: 'absolute',
@@ -485,7 +544,7 @@ export const StakingFragment = fragment(() => {
             <View style={{
                 height: 64,
                 position: 'absolute',
-                bottom: safeArea.bottom + 52 + safeArea.bottom + 16,
+                bottom: safeArea.bottom + 52 + 16,
                 left: 16, right: 16,
                 flexDirection: 'row',
                 justifyContent: 'space-evenly'

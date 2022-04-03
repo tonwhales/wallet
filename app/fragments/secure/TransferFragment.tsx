@@ -54,7 +54,7 @@ export const TransferFragment = fragment(() => {
         lockAddress?: boolean,
         staking?: {
             goBack?: boolean,
-            action?: 'deposit' | 'withdraw'
+            action?: 'deposit' | 'withdraw' | 'top_up'
         }
         job?: string | null
     } | undefined = useRoute().params;

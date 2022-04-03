@@ -43,6 +43,7 @@ import axios from 'axios';
 import { WalletFragment } from './fragments/wallet/WalletFragment';
 import { StakingJoinFragment } from './fragments/staking/StakingJoinFragment';
 import { StakingCalcFragment } from './fragments/staking/StakingCalcFragment';
+import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -129,6 +130,7 @@ const navigation = [
     genericScreen('Terms', TermsFragment),
     genericScreen('Connections', ConnectionsFragment),
     modalScreen('Transfer', TransferFragment),
+    modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('StakingCalc', StakingCalcFragment),
     modalScreen('Transaction', TransactionPreviewFragment),

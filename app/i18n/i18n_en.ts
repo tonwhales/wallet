@@ -90,9 +90,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         fee: 'Blockchain fee: {{fee}}',
         purpose: 'Purpose of transaction',
         comment: 'Message to recipient (optional)',
-        stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
-        depositStakeTitle: 'Confirm Staking',
-        withdrawStakeTitle: 'Withdraw stake'
     },
     auth: {
         title: 'Authentication',
@@ -134,12 +131,21 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 rewards: 'Estimated Interest',
                 apy: '~13.3 APY of the contribution'
             },
+            transfer: {
+                stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
+                depositStakeTitle: 'Confirm Staking',
+                withdrawStakeTitle: 'Unstake',
+                withdrawStakeConfirmTitle: 'Confirm Unstake',
+                topUpTitle: 'Top Up',
+                topUpConfirmTitle: 'Confirm Top Up',
+            },
             nextSycle: 'Next sycle',
             sycleNote: 'All transactions take effect once the cycle ends',
             buttonTitle: 'stake',
             balanceTitle: 'Staking Balance',
             actions: {
-                deposit: 'Top Up',
+                deposit: 'Deposit',
+                top_up: 'Top Up',
                 withdraw: 'Unstake'
             },
             join: {

@@ -80,10 +80,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
         purpose: 'Цель транзакции',
-        comment: 'Сообщение получателю (необязательное)',
-        stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
-        depositStakeTitle: 'Внести на стейкинг',
-        withdrawStakeTitle: 'Вывести со стейкинга'
+        comment: 'Сообщение получателю (необязательное)'
     },
     auth: {
         title: 'Авторизация',
@@ -134,12 +131,21 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада'
             },
+            transfer: {
+                stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
+                depositStakeTitle: 'Внести',
+                withdrawStakeTitle: 'Вывести',
+                withdrawStakeConfirmTitle: 'Подтвердить внесение',
+                topUpTitle: 'Пополнить',
+                topUpConfirmTitle: 'Подтвердить пополнение',
+            },
             nextSycle: 'Следующий цикл',
             sycleNote: 'Все транзакции вступают в силу после завершения цикла',
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',
             actions: {
-                deposit: 'Пополнить',
+                deposit: 'Внести',
+                top_up: 'Пополнить',
                 withdraw: 'Вывести'
             },
             join: {

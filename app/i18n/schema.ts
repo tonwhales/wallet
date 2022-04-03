@@ -93,9 +93,6 @@ export type LocalizationSchema = {
         fee: string,
         purpose: string,
         comment: string,
-        stakingWarning: string,
-        depositStakeTitle: string,
-        withdrawStakeTitle: string,
     },
     auth: {
         title: string,
@@ -142,8 +139,17 @@ export type LocalizationSchema = {
             buttonTitle: string,
             balanceTitle: string,
             actions: {
+                top_up: string,
                 deposit: string,
                 withdraw: string,
+            },
+            transfer: {
+                stakingWarning: string,
+                depositStakeTitle: string,
+                withdrawStakeTitle: string,
+                withdrawStakeConfirmTitle: string,
+                topUpTitle: string,
+                topUpConfirmTitle: string,
             },
             join: {
                 title: string,

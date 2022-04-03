@@ -139,9 +139,9 @@ export const StakingFragment = fragment(() => {
         };
     }, []);
 
-    const onDeposit = useCallback(() => {
+    const onTopUp = useCallback(() => {
         navigation.navigate(
-            'Transfer',
+            'StakingTransfer',
             {
                 target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 comment: 'Deposit',
@@ -150,7 +150,7 @@ export const StakingFragment = fragment(() => {
                 lockComment: true,
                 staking: {
                     minAmount: pool?.minStake,
-                    action: 'deposit',
+                    action: 'top_up',
                 }
             }
         );
@@ -158,7 +158,7 @@ export const StakingFragment = fragment(() => {
 
     const onUnstake = useCallback(() => {
         navigation.navigate(
-            'Transfer',
+            'StakingTransfer',
             {
                 target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 comment: 'Withdraw',
@@ -562,8 +562,8 @@ export const StakingFragment = fragment(() => {
                     }}
                 />
                 <RoundButton
-                    title={t('products.staking.actions.deposit')}
-                    onPress={onDeposit}
+                    title={t('products.staking.actions.top_up')}
+                    onPress={onTopUp}
                     style={{
                         marginLeft: 7,
                         height: 56,

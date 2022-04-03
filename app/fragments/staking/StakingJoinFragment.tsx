@@ -34,7 +34,7 @@ export const StakingJoinFragment = fragment(() => {
 
     const onJoin = useCallback(() => {
         navigation.navigate(
-            'Transfer',
+            'StakingTransfer',
             {
                 target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 comment: 'Deposit',

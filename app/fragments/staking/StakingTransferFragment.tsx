@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keyboard, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
@@ -25,6 +25,9 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
+import { PriceComponent } from '../../components/PriceComponent';
+import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
+import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -36,7 +39,7 @@ export type ATextInputRef = {
     blur: () => void;
 }
 
-export const TransferFragment = fragment(() => {
+export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: {
         target?: string,
@@ -47,17 +50,23 @@ export const TransferFragment = fragment(() => {
         lockAmount?: boolean,
         lockComment?: boolean,
         lockAddress?: boolean,
+        goBack?: boolean,
+        action?: 'deposit' | 'withdraw' | 'top_up'
         job?: string | null
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
     const pool = engine.products.stakingPool.useState();
+    const [title, setTitle] = React.useState('');
+
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
     const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
+    const [amountInputFocused, setAmountInputFocused] = React.useState(false);
+    const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     React.useEffect(() => {
         return () => {
@@ -67,7 +76,30 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
+    const onSetAmount = React.useCallback(
+        (newAmount: string) => {
+            setMinAmountWarn(undefined);
+            setAmount(newAmount);
+        }, []);
+
     const doSend = React.useCallback(async () => {
+        if (
+            pool
+            && (
+                params?.action === 'deposit'
+                || params?.action === 'top_up'
+            )
+            && pool.minStake.gt(toNano(amount.replace(',', '.')))
+        ) {
+            setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: fromNano(pool!.minStake) }));
+            return;
+        }
+
+        if (amountInputFocused) {
+            refs[0].current?.blur();
+            setAmountInputFocused(false);
+            return;
+        }
 
         async function confirm(title: LocalizedResources) {
             return await new Promise<boolean>(resolve => {
@@ -85,7 +117,6 @@ export const TransferFragment = fragment(() => {
                 }])
             });
         }
-
 
         let address: Address;
         let isTestnet: boolean;
@@ -217,8 +248,14 @@ export const TransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
+        // Reset stack to root
+        // if (!params?.staking || !params.goBack) {
+        //     navigation.popToTop();
+        // } else {
+        //     navigation.goBack();
+        // }
         navigation.goBack();
-    }, [amount, target, comment, account.seqno, payload, stateInit, params]);
+    }, [amountInputFocused, amount, target, comment, account.seqno, payload, stateInit, params]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -288,33 +325,6 @@ export const TransferFragment = fragment(() => {
         }
     }, [amount, target, comment, account.seqno, payload, stateInit]);
 
-    const onQRCodeRead = React.useCallback((src: string) => {
-        let res = resolveUrl(src);
-        if (res && res.type === 'transaction') {
-            setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            if (res.amount) {
-                setAmount(fromNano(res.amount));
-            }
-            if (res.comment) {
-                setComment(res.comment);
-            }
-            if (res.payload) {
-                setPayload(res.payload);
-            } else {
-                setPayload(null);
-            }
-            if (res.stateInit) {
-                setStateInit(res.stateInit);
-            } else {
-                setStateInit(null);
-            }
-        }
-    }, []);
-
-    const onAddAll = React.useCallback(() => {
-        setAmount(fromNano(account.balance));
-    }, [setAmount, account]);
-
     //
     // Scroll state tracking
     //
@@ -356,27 +366,42 @@ export const TransferFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
-        if (index === 0 && amount === '0') {
+        if (amount === '0') {
             setAmount('');
         }
-        console.log('[onFocus]', index);
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
+        setAmountInputFocused(true);
     }, [amount]);
 
-    const onSubmit = React.useCallback((index: number) => {
-        let next = refs[index + 1].current;
-        console.log('[onSubmit] next', index, next);
-        if (next) {
-            next.focus();
-        }
+    const onBlur = React.useCallback((index: number) => {
+        setAmountInputFocused(false);
     }, []);
 
-    const lockAmount = payload ? true : params?.lockAmount;
-    const lockAddress = payload ? true : params?.lockAddress;
-    const lockComment = payload ? true : params?.lockComment;
+    React.useEffect(() => {
+        if (amountInputFocused) {
+            setTitle(
+                params?.action === 'deposit'
+                    ? t('products.staking.transfer.depositStakeTitle')
+                    : params?.action === 'withdraw'
+                        ? t('products.staking.transfer.withdrawStakeTitle')
+                        : params?.action === 'top_up'
+                            ? t('products.staking.transfer.topUpTitle')
+                            : t('products.staking.title')
+            );
+        } else {
+            setTitle(
+                params?.action === 'deposit'
+                    ? t('products.staking.transfer.depositStakeTitle')
+                    : params?.action === 'withdraw'
+                        ? t('products.staking.transfer.withdrawStakeConfirmTitle')
+                        : params?.action === 'top_up'
+                            ? t('products.staking.transfer.topUpConfirmTitle')
+                            : t('products.staking.title')
+            );
+        }
+    }, [amountInputFocused]);
 
-    let title = payload ? t('transfer.titleAction') : t('transfer.title');
 
     return (
         <>
@@ -410,198 +435,82 @@ export const TransferFragment = fragment(() => {
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-                    {lockAmount && (
+                    <>
                         <View style={{
-                            marginBottom: 14,
+                            marginBottom: 0,
                             backgroundColor: "white",
                             borderRadius: 14,
                             justifyContent: 'center',
-                            paddingHorizontal: 16,
-                            paddingVertical: 19
+                            alignItems: 'center',
+                            padding: 15,
                         }}>
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D'
-                            }}>
-                                {t('common.amount')}
-                            </Text>
-                            <Text style={{
-                                fontWeight: '800',
-                                fontSize: 38,
-                                color: Theme.accent,
-                                marginTop: 4
-                            }}>
-                                {amount}
-                            </Text>
-                        </View>
-                    )}
-                    {!lockAmount && (
-                        <>
                             <View style={{
-                                marginBottom: 16,
-                                backgroundColor: "white",
-                                borderRadius: 14,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                padding: 15
+                                flexDirection: 'row',
+                                width: '100%',
+                                justifyContent: 'space-between'
+                            }}>
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    color: '#8E979D',
+                                }}>
+                                    {t('common.amount')}
+                                </Text>
+                                <Text style={{
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    color: '#6D6D71',
+                                }}>
+                                    {fromNano(account?.balance || new BN(0))} TON
+                                </Text>
+                            </View>
+                            <View style={{
+                                width: '100%',
                             }}>
                                 <ATextInput
                                     index={0}
                                     ref={refs[0]}
                                     onFocus={onFocus}
                                     value={amount}
-                                    onValueChange={setAmount}
+                                    onValueChange={onSetAmount}
                                     placeholder={'0'}
                                     keyboardType={'numeric'}
                                     textAlign={'center'}
-                                    style={{ backgroundColor: 'transparent' }}
+                                    style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4 }}
+                                    inputStyle={{ color: Theme.accent, flexGrow: 0, paddingTop: 0 }}
                                     fontWeight={'800'}
                                     fontSize={30}
+                                    onBlur={onBlur}
                                     preventDefaultHeight
                                     preventDefaultLineHeight
                                     preventDefaultValuePadding
                                     blurOnSubmit={false}
                                 />
-                                <Text style={{
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    color: '#6D6D71',
-                                    marginBottom: 5
-                                }}>
-                                    {fromNano(account?.balance || new BN(0))} TON
-                                </Text>
+                                <PriceComponent
+                                    amount={toNano(parseFloat(amount.replace(',', '.')))}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0
+                                    }}
+                                    textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                />
                             </View>
-                            <View style={{ flexDirection: 'row' }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                    <Pressable
-                                        onPress={onAddAll}
-                                        style={({ pressed }) => [
-                                            {
-                                                backgroundColor: pressed
-                                                    ? Theme.selector
-                                                    : 'white',
-                                            },
-                                            { borderRadius: 14 }
-                                        ]}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                <Image source={require('../../../assets/ic_all_coins.png')} />
-                                            </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
-                                        </View>
-                                    </Pressable>
-                                </View>
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                    <Pressable
-                                        onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                        style={({ pressed }) => [
-                                            {
-                                                backgroundColor: pressed
-                                                    ? Theme.selector
-                                                    : 'white',
-                                            },
-                                            { borderRadius: 14 }
-                                        ]}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                <Image source={require('../../../assets/ic_scan_qr.png')} />
-                                            </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
-                                        </View>
-                                    </Pressable>
-                                </View>
-                            </View>
-                        </>
-                    )}
-                    <View style={{
-                        marginBottom: 16, marginTop: payload ? 0 : 17,
-                        backgroundColor: 'white',
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        {payload && (
+                        </View>
+                        {minAmountWarn && (
                             <Text style={{
+                                color: '#FF0000',
                                 fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
+                                fontSize: 14,
+                                marginTop: 10
                             }}>
-                                {t('common.walletAddress')}
+                                {minAmountWarn}
                             </Text>
                         )}
-                        <ATextInput
-                            value={target}
-                            index={1}
-                            ref={refs[1]}
-                            onFocus={onFocus}
-                            onValueChange={setTarget}
-                            placeholder={t('common.walletAddress')}
-                            keyboardType="ascii-capable"
-                            preventDefaultHeight
-                            multiline
-                            autoCorrect={false}
-                            autoCompleteType={'off'}
-                            inputStyle={payload ? { paddingTop: 4 } : undefined}
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!lockAddress}
-                            editable={!lockAddress}
-                            onSubmit={onSubmit}
-                            returnKeyType="next"
-                            blurOnSubmit={false}
-                        />
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
-                        {payload && (
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
-                            }}>
-                                {t('transfer.purpose')}
-                            </Text>
+                        {(params?.action === 'deposit' || params?.action === 'top_up') && (
+                            <StakingCalcComponent amount={amount} />
                         )}
-                        <ATextInput
-                            value={comment}
-                            index={2}
-                            ref={refs[2]}
-                            onFocus={onFocus}
-                            onValueChange={setComment}
-                            placeholder={t('transfer.comment')}
-                            keyboardType="default"
-                            autoCapitalize="sentences"
-                            inputStyle={payload ? { paddingTop: 4 } : undefined}
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!lockComment}
-                            editable={!lockComment}
-                            preventDefaultHeight
-                            multiline
-                        />
-                        {payload && (
-                            <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 16,
-                                    color: '#8E979D',
-                                    alignSelf: 'flex-start',
-                                    marginTop: 10,
-                                    marginLeft: 16
-                                }}>
-                                    {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
-                                </Text>
-                            </>
-
-                        )}
-                    </View>
-                    {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 0, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>)}
+                        <PoolTransactionInfo pool={pool} fee={estimation} />
+                    </>
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView
@@ -613,7 +522,11 @@ export const TransferFragment = fragment(() => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
                 <RoundButton
-                    title={t('common.send')}
+                    title={
+                        amountInputFocused
+                            ? t('common.continue')
+                            : t('common.confirm')
+                    }
                     action={doSend}
                 />
             </KeyboardAvoidingView>

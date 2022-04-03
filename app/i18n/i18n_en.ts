@@ -17,6 +17,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         copied: 'Copied to clipboard',
         share: 'Share',
         send: 'Send',
+        sending: 'Sending',
         yes: 'Yes',
         no: 'No',
         amount: 'Amount',
@@ -24,7 +25,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         yesterday: 'Yesterday',
         comment: 'Comment',
         products: 'Products',
-        confirm: 'Confirm'
+        confirm: 'Confirm',
+        done: 'Done',
+        left: 'left'
     },
     home: {
         wallet: 'Wallet',
@@ -132,11 +135,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 apy: '~13.3 APY of the contribution'
             },
             nextSycle: 'Next sycle',
+            sycleNote: 'All transactions take effect once the cycle ends',
             buttonTitle: 'stake',
             balanceTitle: 'Staking Balance',
             actions: {
-                deposit: 'deposit',
-                withdraw: 'unstake'
+                deposit: 'Top Up',
+                withdraw: 'Unstake'
             },
             join: {
                 title: 'Become a TON validator',
@@ -180,7 +184,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 yearly: 'Yearly rewards',
                 monthly: 'Monthly rewards',
                 daily: 'Daily rewards',
-                note: 'Calculated including all fees'
+                note: 'Calculated including all fees',
+                text: 'Calculate your earingns'
             },
             info: {
                 rate: '13.3%',
@@ -193,7 +198,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 depositFee: 'Deposit Gas',
                 blockchainFee: 'Blockhain fee',
             },
-            minAmountWarning: 'Minimum amount is {{minAmount}} TON'
+            minAmountWarning: 'Minimum amount is {{minAmount}} TON',
         },
         transactionRequest: 'Request transaction'
     },

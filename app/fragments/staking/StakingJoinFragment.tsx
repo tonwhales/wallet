@@ -2,7 +2,7 @@ import React, { useCallback, useLayoutEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { View, Text, Image, Pressable } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { RoundButton } from "../RoundButton";
+import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StakingPoolState } from "../../storage/cache";
 import { AppConfig } from "../../AppConfig";
@@ -12,7 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Theme } from "../../Theme";
 import CheckIcon from '../../../assets/ic_check.svg';
 import { openLink } from "../../utils/InAppBrowser";
-import { AndroidToolbar } from "../AndroidToolbar";
+import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { fragment } from "../../fragment";
 
 export const StakingJoinFragment = fragment(() => {
@@ -46,7 +46,7 @@ export const StakingJoinFragment = fragment(() => {
                     action: 'deposit',
                 }
             }
-        )
+        );
     }, []);
 
     const openMoreInfo = useCallback(

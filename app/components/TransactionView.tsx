@@ -11,8 +11,7 @@ import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../AppConfig';
 import { Avatar } from './Avatar';
 import { t } from '../i18n/t';
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { PendingTransactionProgress as PendingTransactionAvatar } from './PendingTransactionAvatar';
+import { PendingTransactionAvatar } from './PendingTransactionAvatar';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;

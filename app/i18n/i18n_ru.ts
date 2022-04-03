@@ -16,6 +16,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copy: 'Скопировать',
         copied: 'Скопировано в буфер обмена',
         share: 'Поделиться',
+        sending: 'Отправляется',
         send: 'Отправить',
         yes: 'Да',
         no: 'Нет',
@@ -24,7 +25,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         yesterday: 'Вчера',
         comment: 'Комментарий',
         products: 'Продукты',
-        confirm: 'Подтвердить'
+        confirm: 'Подтвердить',
+        done: 'Готово',
+        left: 'осталось'
     },
     home: {
         wallet: 'Кошелек',
@@ -132,11 +135,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 apy: '~13.3% годовых от вклада'
             },
             nextSycle: 'Следующий цикл',
+            sycleNote: 'Все транзакции вступают в силу после завершения цикла',
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',
             actions: {
-                deposit: 'внести',
-                withdraw: 'вывести'
+                deposit: 'Пополнить',
+                withdraw: 'Вывести'
             },
             join: {
                 title: 'Стань валидатором TON',
@@ -180,7 +184,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 yearly: 'Ежегодное вознаграждение',
                 monthly: 'Ежемесячное вознаграждение',
                 daily: 'Ежедневное вознаграждение',
-                note: 'Рассчитано с учетом всех комиссий'
+                note: 'Рассчитано с учетом всех комиссий',
+                text: 'Рассчитайте свой заработок'
             },
             info: {
                 rate: '13.3%',

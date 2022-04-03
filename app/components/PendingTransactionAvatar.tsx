@@ -7,7 +7,7 @@ import { avatarHash } from "../utils/avatarHash";
 import { shadeColor } from "../utils/shadeColor";
 import { Avatar, avatarColors, avatarImages } from "./Avatar";
 
-export const PendingTransactionProgress = React.memo(({
+export const PendingTransactionAvatar = React.memo(({
     style,
     avatarId
 }: {

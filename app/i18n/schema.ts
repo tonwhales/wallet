@@ -20,6 +20,7 @@ export type LocalizationSchema = {
         copied: string,
         share: string,
         send: string,
+        sending: string,
         yes: string,
         no: string,
         amount: string,
@@ -27,7 +28,9 @@ export type LocalizationSchema = {
         yesterday: string,
         comment: string,
         products: string,
-        confirm: string
+        confirm: string,
+        done: string,
+        left: string
     }
     home: {
         wallet: string,
@@ -135,6 +138,7 @@ export type LocalizationSchema = {
                 apy: string
             },
             nextSycle: string,
+            sycleNote: string,
             buttonTitle: string,
             balanceTitle: string,
             actions: {
@@ -183,7 +187,8 @@ export type LocalizationSchema = {
                 yearly: string,
                 monthly: string,
                 daily: string,
-                note: string
+                note: string,
+                text: string
             },
             info: {
                 rate: string,

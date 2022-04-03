@@ -64,7 +64,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
     }
 
     return <>{components}</>;
-})
+});
 
 export const WalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

@@ -86,7 +86,7 @@ export const TransferFragment = fragment(() => {
 
     const doSend = React.useCallback(async () => {
 
-        if (pool && params?.staking && pool.minStake.gt(toNano(amount.replace(',', '.')))) {
+        if (pool && params?.staking?.action === 'deposit' && pool.minStake.gt(toNano(amount.replace(',', '.')))) {
             setMinAmountWarn(true);
             return;
         }

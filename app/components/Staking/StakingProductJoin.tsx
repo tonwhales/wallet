@@ -5,12 +5,8 @@ import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { useTranslation } from "react-i18next";
-import { ValueComponent } from "../ValueComponent";
 import { useAccount } from "../../sync/Engine";
 import { StakingPoolState } from "../../storage/cache";
-import { AppConfig } from "../../AppConfig";
-import { fromNano } from "ton";
-import { BN } from "bn.js";
 
 export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState }) => {
     const navigation = useTypedNavigation();

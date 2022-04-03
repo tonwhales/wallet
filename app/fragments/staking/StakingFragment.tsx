@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import { HeaderBackButton } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
 import React, { useCallback } from "react";
 import { Ionicons } from '@expo/vector-icons';
@@ -27,31 +28,6 @@ import { StakingPendingTransaction } from "../../components/Staking/StakingPendi
 import CalcIcon from '../../../assets/ic_calc.svg'
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { StakingCycle } from "../../components/Staking/StakingCycle";
-
-const StakingPendingDepositTransactions = React.memo((props: { pool: StakingPoolState | null, txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
-    if (!props.pool) {
-        return null;
-    }
-
-    const t = props.txs.find((t) => {
-        return (
-            t.status === 'pending'
-            && t.address
-                ?.toFriendly({ testOnly: AppConfig.isTestnet }) === props.pool
-                    ?.address.toFriendly({ testOnly: AppConfig.isTestnet })
-        );
-    });
-
-    if (!t) {
-        return null;
-    }
-
-    return (
-        <View style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false} >
-            <TransactionView separator={false} own={props.address} tx={t} onPress={props.onPress} />
-        </View>
-    );
-});
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
@@ -173,6 +149,23 @@ export const StakingFragment = fragment(() => {
                 staking: {
                     minAmount: pool?.minStake,
                     action: 'deposit',
+                }
+            }
+        );
+    }, []);
+
+    const onUnstake = useCallback(() => {
+        navigation.navigate(
+            'Transfer',
+            {
+                target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                comment: 'Withdraw',
+                amount: toNano('0.2'),
+                lockAddress: true,
+                lockComment: true,
+                staking: {
+                    minAmount: toNano('0.2'),
+                    action: 'withdraw',
                 }
             }
         );
@@ -372,6 +365,7 @@ export const StakingFragment = fragment(() => {
                                         </Text>
                                     </View>
                                 </Animated.View>
+                                <HeaderBackButton />
                             </View>
                         </BlurView>
                         <View style={{
@@ -499,7 +493,7 @@ export const StakingFragment = fragment(() => {
                 <RoundButton
                     display={'secondary'}
                     title={t('products.staking.actions.withdraw')}
-                    onPress={() => { }}
+                    onPress={onUnstake}
                     style={{
                         flexGrow: 1,
                         marginRight: 7,

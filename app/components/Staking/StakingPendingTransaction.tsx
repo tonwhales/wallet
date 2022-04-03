@@ -36,10 +36,7 @@ export const StakingPendingTransaction = React.memo((
                 .toFriendly({ testOnly: AppConfig.isTestnet })
             === t.address
                 ?.toFriendly({ testOnly: AppConfig.isTestnet })
-        )
-        // && (
-        //         t.body?.type === 'comment' && t.body.comment === 'Deposit'
-        //     )
+        );
     });
 
     if (!tx) return null;
@@ -47,20 +44,25 @@ export const StakingPendingTransaction = React.memo((
     let avatarId = tx.address!.toFriendly({ testOnly: AppConfig.isTestnet });
 
     return (
-        <View style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false} >
+        <View style={{ marginHorizontal: 16, marginBottom: 14, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }} collapsable={false} >
             <TouchableHighlight onPress={() => onPress(tx)} underlayColor={Theme.selector}>
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
-                    <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                        <PendingTransactionAvatar avatarId={avatarId} />
+                    <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, margin: 10 }}>
+                        <PendingTransactionAvatar avatarId={avatarId} staking />
                     </View>
                     <View style={{
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        flexDirection: 'row'
+                        flexDirection: 'row',
+                        flexGrow: 1
                     }}>
                         <Text
-                            style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }}
-                            ellipsizeMode="middle"
+                            style={{
+                                color: '#7D858A',
+                                fontSize: 16, flexGrow: 1,
+                                marginRight: 16,
+                                fontWeight: '600',
+                            }}
                             numberOfLines={1}
                         >
                             {t('common.sending')}
@@ -68,17 +70,17 @@ export const StakingPendingTransaction = React.memo((
                         <View style={{
                             flexDirection: 'column',
                             alignItems: 'center',
-                            // justifyContent: 'flex-end'
+                            marginRight: 16
                         }}>
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>
-                                {fromNano(tx.amount) + ' ' + 'TON'}
+                                {fromNano(tx.amount.abs()) + ' ' + 'TON'}
                             </Text>
                             <PriceComponent
-                                amount={tx.amount}
+                                amount={tx.amount.abs()}
                                 style={{
                                     backgroundColor: 'transparent',
                                     paddingHorizontal: 0,

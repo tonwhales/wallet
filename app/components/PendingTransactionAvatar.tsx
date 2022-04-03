@@ -5,20 +5,37 @@ import { Theme } from "../Theme"
 import { addAlpha } from "../utils/addAlpha";
 import { avatarHash } from "../utils/avatarHash";
 import { shadeColor } from "../utils/shadeColor";
-import { Avatar, avatarColors, avatarImages } from "./Avatar";
+import { Avatar, avatarColors, avatarImages, KnownWallets } from "./Avatar";
+import Staking_ava from '../../assets/images/Staking_ava.svg';
 
 export const PendingTransactionAvatar = React.memo(({
     style,
-    avatarId
+    avatarId,
+    address,
+    staking
 }: {
     style?: StyleProp<ViewStyle>,
-    avatarId: string
+    avatarId: string,
+    address?: string,
+    staking?: boolean
 }) => {
     const ref = useRef<AnimatedCircularProgress>(null);
+
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
-    const lighter = shadeColor(color, 10);
-    const darker = shadeColor(color, -1)
+    let known = address ? KnownWallets[address] : undefined;
+    if (known) {
+        if (known.ic) Img = known.ic;
+        if (known.color) color = known.color
+    }
+
+    if (staking) {
+        Img = Staking_ava;
+        color = Theme.accent
+    }
+
+    const lighter = shadeColor(color, 20);
+    const darker = shadeColor(color, -5)
     const [colors, setColors] = useState({
         tintColor: darker,
         backgroundColor: lighter
@@ -43,12 +60,12 @@ export const PendingTransactionAvatar = React.memo(({
         return () => {
             clearInterval(timerId);
         }
-    }, []);
+    }, [colors]);
 
 
     return (
         <View style={{ flex: 1, height: 42, width: 42, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: 39, height: 39, borderRadius: 39, backgroundColor: color }} />
+            <View style={{ width: 39, height: 39, borderRadius: 39, backgroundColor: staking ? '#F6FBFF' : color }} />
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0,

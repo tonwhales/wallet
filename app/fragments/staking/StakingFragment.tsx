@@ -323,12 +323,14 @@ export const StakingFragment = fragment(() => {
                                 <HeaderBackButton
                                     style={{
                                         position: 'absolute',
-                                        left: 8, bottom: 0
+                                        left: 7, bottom: 0
                                     }}
                                     label={t('common.back')}
+                                    labelVisible
                                     onPress={() => {
                                         navigation.goBack();
                                     }}
+                                    tintColor={Theme.accent}
                                 />
                                 <Animated.Text style={[
                                     { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
@@ -394,7 +396,7 @@ export const StakingFragment = fragment(() => {
                                         return {
                                             opacity: pressed ? 0.3 : 1,
                                             position: 'absolute',
-                                            bottom: 10, right: 16
+                                            bottom: 12, right: 16
                                         }
                                     }}
                                 >

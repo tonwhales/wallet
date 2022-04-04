@@ -2,13 +2,153 @@ import BN from "bn.js";
 import React from "react"
 import { useTranslation } from "react-i18next";
 import { View, Text } from "react-native";
-import { fromNano, toNano } from "ton";
+import { Address, fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 
-export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) => {
+export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
+    amount: string, topUp?: boolean, member?: {
+        address: Address,
+        balance: BN,
+        pendingDeposit: BN,
+        pendingWithdraw: BN,
+        withdraw: BN
+    }
+}) => {
     const { t } = useTranslation();
+
+    if (topUp && member) {
+        const plus = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
+        const yearly = member.balance.muln(0.133);
+        const yearlyPlus = toNano(parseFloat(amount.replace(',', '.'))).add(member.balance).muln(0.133);
+        return (
+            <>
+                <View style={{
+                    backgroundColor: 'white',
+                    borderRadius: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingLeft: 16,
+                    marginVertical: 14
+                }}>
+                    <View style={{
+                        flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingRight: 16,
+                        height: 56
+                    }}>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#7D858A'
+                        }}>
+                            {t('products.staking.calc.yearlyCurrent')}
+                        </Text>
+                        <View>
+                            <Text style={{
+                                fontWeight: '600',
+                                fontSize: 16,
+                                color: Theme.textColor
+                            }}>
+                                <ValueComponent centLength={2} value={yearly} />
+                                {' TON'}
+                            </Text>
+                            <PriceComponent
+                                amount={yearly}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 2,
+                                    alignSelf: 'flex-end'
+                                }}
+                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                            />
+                        </View>
+                    </View>
+                    <View style={{
+                        height: 1, width: '100%',
+                        backgroundColor: Theme.divider,
+                    }} />
+                    <View style={{
+                        flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingRight: 16,
+                        height: 56
+                    }}>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#7D858A'
+                        }}>
+                            {t('products.staking.calc.yearlyTopUp')}
+                        </Text>
+                        <View>
+                            <Text style={{
+                                fontWeight: '600',
+                                fontSize: 16,
+                                color: '#4FAE42'
+                            }}>
+                                {'+'}
+                                <ValueComponent centLength={2} value={plus} />
+                                {' TON'}
+                            </Text>
+                            <PriceComponent
+                                amount={plus}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 2,
+                                    alignSelf: 'flex-end'
+                                }}
+                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                            />
+                        </View>
+                    </View>
+                    <View style={{
+                        height: 1, width: '100%',
+                        backgroundColor: Theme.divider,
+                    }} />
+                    <View style={{
+                        flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingRight: 16,
+                        height: 56
+                    }}>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#7D858A'
+                        }}>
+                            {t('products.staking.calc.yearlyTotal')}
+                        </Text>
+                        <View>
+                            <Text style={{
+                                fontWeight: '600',
+                                fontSize: 16,
+                                color: Theme.textColor
+                            }}>
+                                <ValueComponent centLength={2} value={yearlyPlus} />
+                                {' TON'}
+                            </Text>
+                            <PriceComponent
+                                amount={yearlyPlus}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 2,
+                                    alignSelf: 'flex-end'
+                                }}
+                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                            />
+                        </View>
+                    </View>
+                </View>
+                <Text style={{
+                    color: '#8E979D',
+                    marginTop: -4,
+                    fontSize: 13,
+                    fontWeight: '400'
+                }}>
+                    {t('products.staking.calc.note')}
+                </Text>
+            </>
+        )
+    }
 
     const yearly = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
     const monthly = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(30 / 366);

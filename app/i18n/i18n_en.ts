@@ -192,7 +192,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 monthly: 'Monthly rewards',
                 daily: 'Daily rewards',
                 note: 'Calculated including all fees',
-                text: 'Calculate your earingns'
+                text: 'Calculate your earingns',
+                yearlyTopUp: 'Est. yearly rewards',
+                yearlyTotal: 'Total rewards in a year',
+                yearlyCurrent: 'Current yearly rewards'
             },
             info: {
                 rate: '13.3%',

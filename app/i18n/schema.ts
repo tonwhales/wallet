@@ -195,7 +195,10 @@ export type LocalizationSchema = {
                 monthly: string,
                 daily: string,
                 note: string,
-                text: string
+                text: string,
+                yearlyTopUp: string,
+                yearlyTotal: string,
+                yearlyCurrent: string
             },
             info: {
                 rate: string,

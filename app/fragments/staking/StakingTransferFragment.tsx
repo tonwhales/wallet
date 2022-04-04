@@ -180,6 +180,7 @@ export const StakingTransferFragment = fragment(() => {
 
         // Check amount
         if ((!value.eq(account.balance) && account.balance.lt(value))) {
+            setMinAmountWarn(t('transfer.error.notEnoughCoins'));
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -551,7 +552,11 @@ export const StakingTransferFragment = fragment(() => {
                         )}
                         {(params?.action === 'deposit' || params?.action === 'top_up') && (
                             <>
-                                <StakingCalcComponent amount={amount} />
+                                <StakingCalcComponent
+                                    amount={amount}
+                                    topUp={params?.action === 'top_up'}
+                                    member={member}
+                                />
                                 <PoolTransactionInfo pool={pool} fee={estimation} />
                             </>
                         )}

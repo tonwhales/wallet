@@ -5,6 +5,7 @@ import { View, Text } from "react-native";
 import { fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
+import { ValueComponent } from "../ValueComponent";
 
 export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) => {
     const { t } = useTranslation();
@@ -41,13 +42,14 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                             fontSize: 16,
                             color: '#4FAE42'
                         }}>
-                            {fromNano(yearly) + ' ' + 'TON'}
+                            <ValueComponent centLength={2} value={yearly} />
+                            {' TON'}
                         </Text>
                         <PriceComponent
                             amount={yearly}
                             style={{
                                 backgroundColor: 'transparent',
-                                paddingHorizontal: 0,
+                                paddingHorizontal: 0, paddingVertical: 2,
                                 alignSelf: 'flex-end'
                             }}
                             textStyle={{ color: '#6D6D71', fontWeight: '400' }}
@@ -76,13 +78,14 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                             fontSize: 16,
                             color: '#4FAE42'
                         }}>
-                            {fromNano(monthly) + ' ' + 'TON'}
+                            <ValueComponent centLength={2} value={monthly} />
+                            {' TON'}
                         </Text>
                         <PriceComponent
                             amount={monthly}
                             style={{
                                 backgroundColor: 'transparent',
-                                paddingHorizontal: 0,
+                                paddingHorizontal: 0, paddingVertical: 2,
                                 alignSelf: 'flex-end'
                             }}
                             textStyle={{ color: '#6D6D71', fontWeight: '400' }}
@@ -111,13 +114,14 @@ export const StakingCalcComponent = React.memo(({ amount }: { amount: string }) 
                             fontSize: 16,
                             color: '#4FAE42'
                         }}>
-                            {fromNano(daily) + ' ' + 'TON'}
+                            <ValueComponent centLength={2} value={daily} />
+                            {' TON'}
                         </Text>
                         <PriceComponent
                             amount={daily}
                             style={{
                                 backgroundColor: 'transparent',
-                                paddingHorizontal: 0,
+                                paddingHorizontal: 0, paddingVertical: 2,
                                 alignSelf: 'flex-end'
                             }}
                             textStyle={{ color: '#6D6D71', fontWeight: '400' }}

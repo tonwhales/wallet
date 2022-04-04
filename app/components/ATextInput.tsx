@@ -3,6 +3,7 @@ import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, V
 import { TextInput } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 import { ATextInputRef } from '../fragments/secure/TransferFragment';
+import { Theme } from '../Theme';
 
 export interface ATextInputProps {
     style?: StyleProp<ViewStyle>;
@@ -151,6 +152,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                     autoFocus={props.autoFocus}
                     placeholder={props.placeholder}
                     placeholderTextColor="#9D9FA3"
+                    selectionColor={Theme.accent}
                     autoCapitalize={props.autoCapitalize}
                     autoCorrect={props.autoCorrect}
                     keyboardType={props.keyboardType}

@@ -125,7 +125,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         staking: {
             title: 'Staking',
-            balance: 'Staked with validator',
+            balance: 'Staking balance',
             subtitle: {
                 join: 'Earn up to 13.3% on your TONs',
                 rewards: 'Estimated Interest',

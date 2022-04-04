@@ -8,7 +8,7 @@ export function secToFormatTime(seconds: number) {
     var h = Math.floor(seconds / 3600);
     var m = Math.floor(seconds % 3600 / 60);
 
-    var hDisplay = h > 0 ? `${h}${hLabel}` : `0${hLabel}`;
+    var hDisplay = h > 0 ? `${h}${hLabel}` : '';
     var mDisplay = m > 0 ? `${m}${minLabel}` : '';
     return `${hDisplay} ${mDisplay}`;
 }

@@ -135,8 +135,8 @@ export type LocalizationSchema = {
                 rewards: string,
                 apy: string
             },
-            nextSycle: string,
-            sycleNote: string,
+            nextCycle: string,
+            cycleNote: string,
             buttonTitle: string,
             balanceTitle: string,
             actions: {

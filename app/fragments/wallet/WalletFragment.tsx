@@ -52,7 +52,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
     for (let s of transactionsSectioned) {
         components.push(
             <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 12 }}>{s.title}</Text>
             </View>
         );
         components.push(

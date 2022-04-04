@@ -117,13 +117,13 @@ export const StakingCalcFragment = fragment(() => {
                             }}>
                                 {t('common.amount')}
                             </Text>
-                            <Text style={{
+                            {/* <Text style={{
                                 fontWeight: '600',
                                 fontSize: 16,
                                 color: '#6D6D71',
                             }}>
                                 {fromNano(account?.balance || new BN(0))} TON
-                            </Text>
+                            </Text> */}
                         </View>
                         <View style={{
                             width: '100%',

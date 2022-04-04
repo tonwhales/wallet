@@ -1,6 +1,6 @@
 import React, { useCallback, useLayoutEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Image, Pressable, Platform } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -43,6 +43,7 @@ export const StakingJoinFragment = fragment(() => {
                 lockAddress: true,
                 lockComment: true,
                 action: 'deposit',
+                navigateToStakingAfter: true
             } as StakingTransferParams
         );
     }, []);
@@ -83,7 +84,7 @@ export const StakingJoinFragment = fragment(() => {
         <View style={{
             flex: 1,
             backgroundColor: Theme.background,
-            paddingTop: 16
+            paddingTop: Platform.OS === 'ios' ? 16 : undefined
         }}>
             <AndroidToolbar
                 style={{ marginTop: safeArea.top }}
@@ -110,37 +111,80 @@ export const StakingJoinFragment = fragment(() => {
             <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
                 <View style={{ flex: 1, flexGrow: 1 }} />
                 <Image source={require('../../../assets/ic_staking.png')} />
-                <Text style={{
-                    fontSize: 30,
-                    fontWeight: '800',
-                    lineHeight: 41,
-                    letterSpacing: -0.5,
-                    color: Theme.textColor,
-                    textAlign: 'center',
-                    maxWidth: 250,
-                    marginTop: 19
-                }}>
-                    {t('products.staking.join.earn') + ' '}
-                    <View style={{
-                        borderRadius: 6,
-                        overflow: 'hidden',
-                        backgroundColor: '#4DC47D',
-                        justifyContent: 'center',
+
+                {Platform.OS === 'ios' && (
+                    <Text style={{
+                        fontSize: 30,
+                        fontWeight: '800',
+                        lineHeight: 41,
+                        letterSpacing: -0.5,
+                        color: Theme.textColor,
+                        textAlign: 'center',
+                        maxWidth: 250,
+                        marginTop: 19,
                         alignItems: 'center',
-                        height: 41,
+                        justifyContent: 'center',
                     }}>
+                        {t('products.staking.join.earn') + ' '}
                         <Text style={{
                             color: 'white',
+                            borderRadius: 6,
                             fontSize: 30,
                             fontWeight: '800',
                             letterSpacing: -0.5,
-                            paddingHorizontal: 4,
                         }}>
+                            <View style={{
+                                backgroundColor: '#4DC47D',
+                                position: 'absolute',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                height: 100
+                            }} />
                             {t('products.staking.join.apy')}
                         </Text>
+                        {' ' + t('products.staking.join.onYourTons')}
+                    </Text>
+                )}
+                {Platform.OS === 'android' && (
+                    <View style={{
+                        maxWidth: 250,
+                        marginTop: 19,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap'
+                    }}>
+                        <Text style={{
+                            fontSize: 30,
+                            fontWeight: '800',
+                            lineHeight: 41,
+                            letterSpacing: -0.5,
+                            color: Theme.textColor,
+                            textAlign: 'center',
+                        }}>
+                            {t('products.staking.join.earn') + ' '}
+                        </Text>
+                        <View style={{
+                            backgroundColor: '#4DC47D',
+                            height: 41,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: 6
+                        }}>
+
+                            <Text style={{
+                                color: 'white',
+                                borderRadius: 6,
+                                fontSize: 30,
+                                fontWeight: '800',
+                                letterSpacing: -0.5,
+                                textAlign: 'center',
+                            }}>
+                                {t('products.staking.join.apy')}
+                            </Text>
+                        </View>
+                        {' ' + t('products.staking.join.onYourTons')}
                     </View>
-                    {' ' + t('products.staking.join.onYourTons')}
-                </Text>
+                )}
                 <View style={{
                     marginTop: 30,
                     alignItems: 'flex-start',

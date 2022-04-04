@@ -295,14 +295,16 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
 
     let known = props.address ? KnownWallets[props.address] : undefined;
+    let size = props.size * 0.7;
     if (known) {
         if (known.ic) Img = known.ic;
         if (known.color) color = known.color
+        size = props.size;
     }
 
     return (
         <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
-            <Img width={Math.floor(props.size * 0.7)} height={Math.floor(props.size * 0.7)} color="white" />
+            <Img width={size} height={size} color="white" />
         </View>
     );
 });

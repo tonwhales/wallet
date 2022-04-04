@@ -35,7 +35,7 @@ export const StakingCycle = React.memo(({ stakeUntil, style }: { stakeUntil: num
                     fontWeight: '600',
                     fontSize: 16
                 }}>
-                    {t('products.staking.nextSycle')}
+                    {t('products.staking.nextCycle')}
                 </Text>
                 <Countdown strict until={stakeUntil} textStyle={{
                     fontWeight: '400',
@@ -49,7 +49,7 @@ export const StakingCycle = React.memo(({ stakeUntil, style }: { stakeUntil: num
                 fontSize: 13,
                 marginTop: 8
             }}>
-                {t('products.staking.sycleNote')}
+                {t('products.staking.cycleNote')}
             </Text>
         </View>
     )

@@ -76,10 +76,10 @@ export const StakingProductMember = React.memo((
                             amount={member.balance}
                             style={{
                                 backgroundColor: 'transparent',
-                                paddingHorizontal: 0,
+                                paddingHorizontal: 0, paddingVertical: 0,
                                 alignSelf: 'flex-end'
                             }}
-                            textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                            textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
                         />
                     </View>
                 </View>

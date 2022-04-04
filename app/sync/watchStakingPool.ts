@@ -12,7 +12,7 @@ export function watchStakingPool(handler: (state: StakingPoolData[]) => Promise<
     });
     const timer = setInterval(() => {
         invalidateSync.invalidate();
-    }, 15 * 1000);
+    }, 6 * 1000);
     return () => {
         if (!ended) {
             ended = true;

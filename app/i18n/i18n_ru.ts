@@ -141,8 +141,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 topUpConfirmTitle: 'Подтвердить пополнение',
                 notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке для этой транзакции'
             },
-            nextSycle: 'Следующий цикл',
-            sycleNote: 'Все транзакции вступают в силу после завершения цикла',
+            nextCycle: 'Следующий цикл',
+            cycleNote: 'Все транзакции вступают в силу после завершения цикла',
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',
             actions: {

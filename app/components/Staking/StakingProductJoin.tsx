@@ -33,10 +33,9 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                             <StakingIcon width={42} height={42} color={'white'} />
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0, }}>
+                    <View style={{ flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }}>
                         <Text style={{
                             color: Theme.textColor, fontSize: 16,
-                            flexGrow: 1, flexBasis: 0,
                             marginRight: 16, fontWeight: '600'
                         }}
                             ellipsizeMode="tail"

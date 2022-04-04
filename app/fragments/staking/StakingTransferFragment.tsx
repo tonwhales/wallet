@@ -53,7 +53,8 @@ export type StakingTransferParams = {
     lockAddress?: boolean,
     goBack?: boolean,
     action?: 'deposit' | 'withdraw' | 'top_up'
-    job?: string | null
+    job?: string | null,
+    navigateToStakingAfter?: boolean
 }
 
 export const StakingTransferFragment = fragment(() => {
@@ -167,13 +168,8 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         if ((params?.action === 'withdraw')) {
-            // Check min widthdraw
-            if (value.lt(toNano('0.2'))) {
-                setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: '0.2' }));
-                return;
-            }
             // Check staked balance
-            if (member && member.balance.lt(value)) {
+            if (member && member.balance.add(member.withdraw).add(member.pendingDeposit).lt(value)) {
                 setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
                 Alert.alert(t('products.staking.transfer.notEnoughStaked'));
                 return;
@@ -286,7 +282,11 @@ export const StakingTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
-        navigation.goBack();
+        if (params?.navigateToStakingAfter) {
+            navigation.navigate('Staking')
+        } else {
+            navigation.goBack();
+        }
     }, [amountInputFocused, amount, target, comment, account.seqno, stateInit, params, member, pool]);
 
     // Estimate fee
@@ -498,7 +498,7 @@ export const StakingTransferFragment = fragment(() => {
                                 }}>
                                     {fromNano(
                                         (params?.action === 'withdraw' && member)
-                                            ? member.balance
+                                            ? member.balance.add(member.withdraw)
                                             : account?.balance || new BN(0)
                                     )} TON
                                 </Text>

@@ -160,7 +160,6 @@ export const StakingFragment = fragment(() => {
             {
                 target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 comment: 'Withdraw',
-                amount: toNano('0.2'),
                 lockAddress: true,
                 lockComment: true,
                 action: 'withdraw',

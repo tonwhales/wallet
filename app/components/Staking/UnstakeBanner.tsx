@@ -60,8 +60,8 @@ export const UnstakeBanner = React.memo((
             }}>
                 {t('products.staking.banner.estimatedEarnings',
                     {
-                        amount: parseFloat(fromNano(member.balance.muln(0.133))).toFixed(2),
-                        price: parseFloat(fromNano(member.balance.muln(0.133).muln(price.price.usd))).toFixed(2)
+                        amount: parseFloat(fromNano(member.balance.add(member.pendingDeposit).muln(0.133))).toFixed(2),
+                        price: parseFloat(fromNano(member.balance.add(member.pendingDeposit).muln(0.133).muln(price.price.usd))).toFixed(2)
                     })}
             </Text>
             <Text style={{

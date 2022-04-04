@@ -1,15 +1,37 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react"
-import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } from "react-native"
+import React, { useCallback, useEffect } from "react"
+import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback, BackHandler } from "react-native"
 import { Theme } from "../Theme";
 import { Ionicons } from '@expo/vector-icons';
+import { useTypedNavigation } from "../utils/useTypedNavigation";
 
-export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string, headerRight?: any }) => {
+export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string, headerRight?: any, backRoute?: string }) => {
+    const baseNavigation = useNavigation();
+    const navigation = useTypedNavigation();
+
+    const backAction = useCallback(
+        () => {
+            if (props.backRoute) {
+                navigation.popToTop();
+                setTimeout(() => navigation.navigate(props.backRoute!), 200);
+            }
+            return false;
+        },
+        [props.backRoute],
+    );
+
+    useEffect(() => {
+        if (props.backRoute) BackHandler.addEventListener("hardwareBackPress", backAction);
+
+        if (props.backRoute) {
+            return () => BackHandler.removeEventListener("hardwareBackPress", backAction);
+        }
+    }, []);
+
     if (Platform.OS === 'ios') {
         return null;
     }
 
-    const navigation = useNavigation();
 
     return (
         <View style={[
@@ -22,9 +44,16 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
             },
             props.style
         ]}>
-            {navigation.canGoBack() && (
+            {(baseNavigation.canGoBack() || props.backRoute) && (
                 <TouchableNativeFeedback
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        if (props.backRoute) {
+                            navigation.popToTop();
+                            setTimeout(() => navigation.navigate(props.backRoute!), 200);
+                            return;
+                        }
+                        baseNavigation.goBack();
+                    }}
                     background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                 >
                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>

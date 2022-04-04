@@ -133,7 +133,8 @@ export type LocalizationSchema = {
             subtitle: {
                 join: string,
                 rewards: string,
-                apy: string
+                apy: string,
+                joined: string
             },
             nextCycle: string,
             cycleNote: string,
@@ -163,7 +164,10 @@ export type LocalizationSchema = {
                 apy: string,
                 cycle: string,
                 ownership: string,
-                withdraw: string
+                withdraw: string,
+                successTitle: string,
+                successEtimation: string,
+                successNote: string
             },
             pool: {
                 balance: string,

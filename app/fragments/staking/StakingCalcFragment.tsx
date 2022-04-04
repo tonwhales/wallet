@@ -69,22 +69,25 @@ export const StakingCalcFragment = fragment(() => {
                 style={{ marginTop: safeArea.top }}
                 pageTitle={t('products.staking.calc.text')}
             />
-            <StatusBar style="light" />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
-                }}>
-                    <Text style={{
-                        textAlign: 'center',
-                        fontWeight: '600',
-                        fontSize: 17
+            <StatusBar style={Platform.OS === 'ios' ? "light" : 'dark'} />
+            {
+                Platform.OS === 'ios' && (
+                    <View style={{
+                        paddingTop: 12,
+                        paddingBottom: 17
                     }}>
-                        {t('products.staking.calc.text')}
-                    </Text>
-                </View>
-            )}
-            <ScrollView
+                        <Text style={{
+                            textAlign: 'center',
+                            fontWeight: '600',
+                            fontSize: 17,
+                            lineHeight: 32
+                        }}>
+                            {t('products.staking.calc.text')}
+                        </Text>
+                    </View>
+                )
+            }
+            < ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
@@ -117,13 +120,6 @@ export const StakingCalcFragment = fragment(() => {
                             }}>
                                 {t('common.amount')}
                             </Text>
-                            {/* <Text style={{
-                                fontWeight: '600',
-                                fontSize: 16,
-                                color: '#6D6D71',
-                            }}>
-                                {fromNano(account?.balance || new BN(0))} TON
-                            </Text> */}
                         </View>
                         <View style={{
                             width: '100%',
@@ -148,7 +144,7 @@ export const StakingCalcFragment = fragment(() => {
                                 blurOnSubmit={false}
                             />
                             <PriceComponent
-                                amount={toNano(parseFloat(amount.replace(',', '.')))}
+                                amount={amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.')))}
                                 style={{
                                     backgroundColor: 'transparent',
                                     paddingHorizontal: 0

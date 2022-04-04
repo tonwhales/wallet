@@ -31,10 +31,12 @@ import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
 import { openLink } from "../../utils/InAppBrowser";
 import { StakingTransferParams } from "./StakingTransferFragment";
+import { useParams } from "../../utils/useParams";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
+    const params = useParams<{ backToHome?: boolean }>();
     const navigation = useTypedNavigation();
     const baseNavigation = useNavigation();
     const [account, engine] = useAccount();
@@ -322,6 +324,10 @@ export const StakingFragment = fragment(() => {
                                     label={t('common.back')}
                                     labelVisible
                                     onPress={() => {
+                                        if (params.backToHome) {
+                                            navigation.popToTop();
+                                            return;
+                                        }
                                         navigation.goBack();
                                     }}
                                     tintColor={Theme.accent}
@@ -438,7 +444,13 @@ export const StakingFragment = fragment(() => {
                                 left: 16, bottom: 8
                             }}>
                                 <TouchableNativeFeedback
-                                    onPress={() => navigation.goBack()}
+                                    onPress={() => {
+                                        if (params.backToHome) {
+                                            navigation.popToTop();
+                                            return;
+                                        }
+                                        navigation.goBack();
+                                    }}
                                     background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                                 >
                                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>

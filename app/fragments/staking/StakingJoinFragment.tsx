@@ -15,6 +15,8 @@ import { openLink } from "../../utils/InAppBrowser";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { fragment } from "../../fragment";
 import { StakingTransferParams } from "./StakingTransferFragment";
+import { CloseButton } from "../../components/CloseButton";
+import { StatusBar } from "expo-status-bar";
 
 export const StakingJoinFragment = fragment(() => {
     const { t } = useTranslation();
@@ -24,14 +26,6 @@ export const StakingJoinFragment = fragment(() => {
     const [account, engine] = useAccount();
     const pool = engine.products.stakingPool.useState();
     const price = engine.products.price.useState();
-
-    const setTab = useCallback(
-        (value: number) => {
-            navigation.navigateAndReplaceAll('Home', { tab: value })
-        },
-        [],
-    );
-
 
     const onJoin = useCallback(() => {
         navigation.navigate(
@@ -84,73 +78,37 @@ export const StakingJoinFragment = fragment(() => {
         <View style={{
             flex: 1,
             backgroundColor: Theme.background,
-            paddingTop: Platform.OS === 'ios' ? 16 : undefined
         }}>
             <AndroidToolbar
                 style={{ marginTop: safeArea.top }}
-                headerRight={<Pressable
-                    onPress={openMoreInfo}
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.3 : 1,
-                            position: 'absolute',
-                            bottom: 10, right: 16
-                        }
-                    }}
-                >
-                    <Text
-                        style={{
-                            color: Theme.accent,
-                            fontSize: 17, fontWeight: '600'
-                        }}
-                    >
-                        {t('products.staking.learnMore')}
-                    </Text>
-                </Pressable>}
+                pageTitle={t('products.staking.title')}
             />
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            {Platform.OS === 'ios' && (
+                <View style={{
+                    paddingTop: 12,
+                    paddingBottom: 17
+                }}>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontWeight: '600',
+                        fontSize: 17,
+                        lineHeight: 32
+                    }}>
+                        {t('products.staking.title')}
+                    </Text>
+                </View>
+            )}
             <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
                 <View style={{ flex: 1, flexGrow: 1 }} />
                 <Image source={require('../../../assets/ic_staking.png')} />
-
-                {Platform.OS === 'ios' && (
-                    <Text style={{
-                        fontSize: 30,
-                        fontWeight: '800',
-                        lineHeight: 41,
-                        letterSpacing: -0.5,
-                        color: Theme.textColor,
-                        textAlign: 'center',
-                        maxWidth: 250,
-                        marginTop: 19,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}>
-                        {t('products.staking.join.earn') + ' '}
-                        <Text style={{
-                            color: 'white',
-                            borderRadius: 6,
-                            fontSize: 30,
-                            fontWeight: '800',
-                            letterSpacing: -0.5,
-                        }}>
-                            <View style={{
-                                backgroundColor: '#4DC47D',
-                                position: 'absolute',
-                                top: 0, left: 0, right: 0, bottom: 0,
-                                height: 100
-                            }} />
-                            {t('products.staking.join.apy')}
-                        </Text>
-                        {' ' + t('products.staking.join.onYourTons')}
-                    </Text>
-                )}
-                {Platform.OS === 'android' && (
+                <View style={{
+                    marginTop: 19
+                }}>
                     <View style={{
-                        maxWidth: 250,
-                        marginTop: 19,
+                        flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexDirection: 'row',
                         flexWrap: 'wrap'
                     }}>
                         <Text style={{
@@ -160,31 +118,42 @@ export const StakingJoinFragment = fragment(() => {
                             letterSpacing: -0.5,
                             color: Theme.textColor,
                             textAlign: 'center',
+                            maxWidth: 250,
                         }}>
                             {t('products.staking.join.earn') + ' '}
                         </Text>
                         <View style={{
+                            borderRadius: 6,
+                            overflow: 'hidden',
                             backgroundColor: '#4DC47D',
-                            height: 41,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            borderRadius: 6
+                            height: 41,
+                            paddingHorizontal: 4
                         }}>
-
                             <Text style={{
                                 color: 'white',
-                                borderRadius: 6,
                                 fontSize: 30,
                                 fontWeight: '800',
                                 letterSpacing: -0.5,
-                                textAlign: 'center',
                             }}>
+
                                 {t('products.staking.join.apy')}
                             </Text>
                         </View>
-                        {' ' + t('products.staking.join.onYourTons')}
                     </View>
-                )}
+                    <Text style={{
+                        fontSize: 30,
+                        fontWeight: '800',
+                        lineHeight: 41,
+                        letterSpacing: -0.5,
+                        color: Theme.textColor,
+                        textAlign: 'center',
+                    }}>
+                        {' ' + t('products.staking.join.onYourTons')}
+                    </Text>
+                </View>
+
                 <View style={{
                     marginTop: 30,
                     alignItems: 'flex-start',
@@ -227,12 +196,32 @@ export const StakingJoinFragment = fragment(() => {
                     </View>
                 </View>
                 <View style={{ flex: 1, flexGrow: 1 }} />
-                <RoundButton
-                    title={t('products.staking.join.buttonTitle')}
-                    onPress={onJoin}
-                    style={{ alignSelf: 'stretch', marginBottom: 30 + safeArea.bottom + 52, marginTop: 30 }}
-                />
+                <View style={{
+                    width: '100%'
+                }}>
+                    <RoundButton
+                        title={t('products.staking.learnMore')}
+                        onPress={openMoreInfo}
+                        style={{ alignSelf: 'stretch', marginBottom: 14 }}
+                        display={'secondary'}
+                    />
+                    <RoundButton
+                        title={t('products.staking.join.buttonTitle')}
+                        onPress={onJoin}
+                        style={{ alignSelf: 'stretch', marginBottom: 22 + safeArea.bottom, }}
+                    />
+                </View>
             </View>
+            {
+                Platform.OS === 'ios' && (
+                    <CloseButton
+                        style={{ position: 'absolute', top: 12, right: 10 }}
+                        onPress={() => {
+                            navigation.goBack();
+                        }}
+                    />
+                )
+            }
         </View>
     );
 })

@@ -19,9 +19,9 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
     const { t } = useTranslation();
 
     if (topUp && member) {
-        const plus = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
-        const yearly = member.balance.muln(0.133);
-        const yearlyPlus = toNano(parseFloat(amount.replace(',', '.'))).add(member.balance).muln(0.133);
+        const plus = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
+        const yearly = amount === '' ? toNano(0) : member.balance.muln(0.133);
+        const yearlyPlus = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).add(member.balance).muln(0.133);
         return (
             <>
                 <View style={{
@@ -150,9 +150,9 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
         )
     }
 
-    const yearly = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
-    const monthly = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(30 / 366);
-    const daily = toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(1 / 366);
+    const yearly = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
+    const monthly = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(30 / 366);
+    const daily = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(1 / 366);
 
     return (
         <>

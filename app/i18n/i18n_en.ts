@@ -47,8 +47,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         sync: 'Downloading wallet data',
         balanceTitle: 'Ton balance',
         actions: {
-            receive: 'receive',
-            send: 'send'
+            receive: 'Receive',
+            send: 'Send'
         },
         empty: {
             message: 'You have no transactions',
@@ -129,17 +129,18 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             balance: 'Staking balance',
             subtitle: {
                 join: 'Earn up to 13.3% on your TONs',
+                joined: 'Earn up to 13.3%',
                 rewards: 'Estimated Interest',
                 apy: '~13.3 APY of the contribution'
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
-                depositStakeTitle: 'Confirm Staking',
+                depositStakeTitle: 'Staking',
                 withdrawStakeTitle: 'Unstake',
                 withdrawStakeConfirmTitle: 'Confirm Unstake',
                 topUpTitle: 'Top Up',
                 topUpConfirmTitle: 'Confirm Top Up',
-                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked for this transaction'
+                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked'
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
@@ -160,7 +161,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 apy: '13.3%',
                 cycle: 'Get rewards for staking every 36h',
                 ownership: 'Staked TONs remain yours',
-                withdraw: 'Withdraw and Top Up at any time'
+                withdraw: 'Withdraw and Top Up at any time',
+                successTitle: '{{amount}} TON staked',
+                successEtimation: 'Your estimated yearly earnings are {{amount}} TON (${{price}}).',
+                successNote: 'Your staked TON will be activated once the next cycle starts.'
             },
             pool: {
                 balance: 'Total Stake',
@@ -189,9 +193,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             learnMore: 'More info',
             calc: {
-                yearly: 'Yearly rewards',
-                monthly: 'Monthly rewards',
-                daily: 'Daily rewards',
+                yearly: 'Est. yearly rewards',
+                monthly: 'Est. monthly rewards',
+                daily: 'Est. daily rewards',
                 note: 'Calculated including all fees',
                 text: 'Calculate your earingns',
                 yearlyTopUp: 'Est. yearly rewards',

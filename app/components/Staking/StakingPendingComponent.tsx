@@ -60,7 +60,7 @@ export const StakingPendingComponent = React.memo((
                             fontSize: 16,
                             color: Theme.textColor
                         }}>
-                            {parseFloat(fromNano(member.pendingDeposit)).toPrecision(3) + ' ' + 'TON'}
+                            {parseFloat(parseFloat(fromNano(member.pendingDeposit)).toFixed(3)) + ' ' + 'TON'}
                         </Text>
                         <PriceComponent
                             amount={member.pendingDeposit}
@@ -98,7 +98,7 @@ export const StakingPendingComponent = React.memo((
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>
-                                {parseFloat(fromNano(member.pendingWithdraw)).toPrecision(3) + ' ' + 'TON'}
+                                {parseFloat(parseFloat(fromNano(member.pendingWithdraw)).toFixed(3)) + ' ' + 'TON'}
                             </Text>
                             <PriceComponent
                                 amount={member.pendingWithdraw}
@@ -138,7 +138,7 @@ export const StakingPendingComponent = React.memo((
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>
-                                {parseFloat(fromNano(member.withdraw)).toPrecision(3) + ' ' + 'TON'}
+                                {parseFloat(parseFloat(fromNano(member.withdraw)).toFixed(3)) + ' ' + 'TON'}
                             </Text>
                             <PriceComponent
                                 amount={member.withdraw}

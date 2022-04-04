@@ -76,10 +76,10 @@ export const StakingTransferFragment = fragment(() => {
     const [title, setTitle] = React.useState('');
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
+    const [amount, setAmount] = React.useState('');
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
-    const [amountInputFocused, setAmountInputFocused] = React.useState(false);
+    const [notConfirmed, setNotConfirmed] = React.useState(true);
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     React.useEffect(() => {
@@ -109,34 +109,6 @@ export const StakingTransferFragment = fragment(() => {
             return;
         }
 
-        if (params?.action === 'withdraw' && toNano('0.2').gt(toNano(amount.replace(',', '.')))) {
-            setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: '0.2' }));
-            return;
-        }
-
-        if (amountInputFocused) {
-            refs[0].current?.blur();
-            setAmountInputFocused(false);
-            return;
-        }
-
-        async function confirm(title: LocalizedResources) {
-            return await new Promise<boolean>(resolve => {
-                Alert.alert(t(title), t('transfer.confirm'), [{
-                    text: t('common.yes'),
-                    style: 'destructive',
-                    onPress: () => {
-                        resolve(true)
-                    }
-                }, {
-                    text: t('common.no'),
-                    onPress: () => {
-                        resolve(false);
-                    }
-                }])
-            });
-        }
-
         let address: Address;
         let isTestnet: boolean;
         let value: BN;
@@ -158,6 +130,56 @@ export const StakingTransferFragment = fragment(() => {
             return;
         }
 
+        if (params?.action === 'withdraw' && toNano('0.2').gt(toNano(amount.replace(',', '.')))) {
+            setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: '0.2' }));
+            return;
+        }
+
+        if ((params?.action === 'withdraw')) {
+            // Check staked balance
+            if (!member || member.balance.add(member.withdraw).add(member.pendingDeposit).lt(value)) {
+                setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
+                // Alert.alert(t('products.staking.transfer.notEnoughStaked'));
+                return;
+            }
+        }
+
+        // Check amount
+        if ((!value.eq(account.balance) && account.balance.lt(value))) {
+            setMinAmountWarn(t('transfer.error.notEnoughCoins'));
+            // Alert.alert(t('transfer.error.notEnoughCoins'));
+            return;
+        }
+
+        if (value.eq(new BN(0))) {
+            setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: fromNano(pool!.minStake) }));
+            // Alert.alert(t('transfer.error.zeroCoins'));
+            return;
+        }
+
+        if (notConfirmed) {
+            refs[0].current?.blur();
+            setNotConfirmed(false);
+            return;
+        }
+
+        async function confirm(title: LocalizedResources) {
+            return await new Promise<boolean>(resolve => {
+                Alert.alert(t(title), t('transfer.confirm'), [{
+                    text: t('common.yes'),
+                    style: 'destructive',
+                    onPress: () => {
+                        resolve(true)
+                    }
+                }, {
+                    text: t('common.no'),
+                    onPress: () => {
+                        resolve(false);
+                    }
+                }])
+            });
+        }
+
         // Load contract
         const contract = await contractFromPublicKey(acc.publicKey);
 
@@ -169,9 +191,9 @@ export const StakingTransferFragment = fragment(() => {
 
         if ((params?.action === 'withdraw')) {
             // Check staked balance
-            if (member && member.balance.add(member.withdraw).add(member.pendingDeposit).lt(value)) {
+            if (!member || member.balance.add(member.withdraw).add(member.pendingDeposit).lt(value)) {
                 setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
-                Alert.alert(t('products.staking.transfer.notEnoughStaked'));
+                // Alert.alert(t('products.staking.transfer.notEnoughStaked'));
                 return;
             }
         }
@@ -179,12 +201,13 @@ export const StakingTransferFragment = fragment(() => {
         // Check amount
         if ((!value.eq(account.balance) && account.balance.lt(value))) {
             setMinAmountWarn(t('transfer.error.notEnoughCoins'));
-            Alert.alert(t('transfer.error.notEnoughCoins'));
+            // Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
+
         if (value.eq(new BN(0))) {
             setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: fromNano(pool!.minStake) }));
-            Alert.alert(t('transfer.error.zeroCoins'));
+            // Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
 
@@ -283,11 +306,11 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         if (params?.navigateToStakingAfter) {
-            navigation.navigate('Staking')
+            navigation.navigate('StakingJoinSuccess', { amount: value })
         } else {
             navigation.goBack();
         }
-    }, [amountInputFocused, amount, target, comment, account.seqno, stateInit, params, member, pool]);
+    }, [notConfirmed, amount, target, comment, account.seqno, stateInit, params, member, pool]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -407,15 +430,15 @@ export const StakingTransferFragment = fragment(() => {
         }
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
-        setAmountInputFocused(true);
+        setNotConfirmed(true);
     }, [amount]);
 
     const onBlur = React.useCallback((index: number) => {
-        setAmountInputFocused(false);
+        setNotConfirmed(false);
     }, []);
 
     React.useEffect(() => {
-        if (amountInputFocused) {
+        if (notConfirmed) {
             setTitle(
                 params?.action === 'deposit'
                     ? t('products.staking.transfer.depositStakeTitle')
@@ -436,7 +459,11 @@ export const StakingTransferFragment = fragment(() => {
                             : t('products.staking.title')
             );
         }
-    }, [amountInputFocused, params?.action]);
+    }, [notConfirmed, params?.action]);
+
+    React.useLayoutEffect(() => {
+        setTimeout(() => refs[0]?.current?.focus(), 100);
+    }, []);
 
     return (
         <>
@@ -448,9 +475,9 @@ export const StakingTransferFragment = fragment(() => {
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,
-                    paddingBottom: 17
+                    paddingBottom: 17,
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>
+                    <Text style={[labelStyle, { textAlign: 'center', lineHeight: 32 }]}>
                         {title}
                     </Text>
                 </View>
@@ -461,7 +488,7 @@ export const StakingTransferFragment = fragment(() => {
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior="never"
                 keyboardShouldPersistTaps="always"
-                keyboardDismissMode="none"
+                // keyboardDismissMode="on-drag"
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 scrollEventThrottle={16}
@@ -497,8 +524,10 @@ export const StakingTransferFragment = fragment(() => {
                                     color: '#6D6D71',
                                 }}>
                                     {fromNano(
-                                        (params?.action === 'withdraw' && member)
-                                            ? member.balance.add(member.withdraw)
+                                        (params?.action === 'withdraw')
+                                            ? !member
+                                                ? toNano(0)
+                                                : member.balance.add(member.withdraw).add(member.pendingDeposit)
                                             : account?.balance || new BN(0)
                                     )} TON
                                 </Text>
@@ -526,7 +555,7 @@ export const StakingTransferFragment = fragment(() => {
                                     blurOnSubmit={false}
                                 />
                                 <PriceComponent
-                                    amount={toNano(parseFloat(amount.replace(',', '.')))}
+                                    amount={amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.')))}
                                     style={{
                                         backgroundColor: 'transparent',
                                         paddingHorizontal: 0
@@ -563,7 +592,7 @@ export const StakingTransferFragment = fragment(() => {
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     paddingLeft: 16,
-                                    marginTop: 20,
+                                    marginTop: 14,
                                     marginBottom: 15
                                 }}>
                                     <View style={{
@@ -606,7 +635,7 @@ export const StakingTransferFragment = fragment(() => {
                                         }}
                                     />
                                 )}
-                                {!!member && !amountInputFocused && (
+                                {!!member && !notConfirmed && (
                                     <UnstakeBanner member={member} />
                                 )}
                             </>
@@ -624,7 +653,7 @@ export const StakingTransferFragment = fragment(() => {
             >
                 <RoundButton
                     title={
-                        amountInputFocused
+                        notConfirmed
                             ? t('common.continue')
                             : t('common.confirm')
                     }

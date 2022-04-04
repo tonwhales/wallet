@@ -62,7 +62,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
             </View>
             <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, marginTop: 24, backgroundColor: '#5fbed5', alignItems: 'center', justifyContent: 'center' }}>
-                <Avatar id={avatarId} size={84} />
+                <Avatar address={transaction?.address?.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={84} />
             </View>
             <View style={{ marginTop: 34 }}>
                 {transaction.status === 'failed' ? (

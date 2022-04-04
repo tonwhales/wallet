@@ -72,6 +72,7 @@ export const HomeFragment = fragment(() => {
                 >
                     {walletNavigation}
                 </Stack.Navigator>
+                {/* <WalletFragment /> */}
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
                 <SettingsFragment />

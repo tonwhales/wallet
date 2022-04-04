@@ -47,8 +47,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sync: 'Синхронизация кошелька',
         balanceTitle: 'Баланс Ton',
         actions: {
-            receive: 'получить',
-            send: 'отправить'
+            receive: 'Получить',
+            send: 'Отправить'
         },
         empty: {
             message: 'У вас нет транзакций',
@@ -129,17 +129,18 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             balance: 'Ставка с валидатором',
             subtitle: {
                 join: 'Заработайте до 13,3% на ваших TON',
+                joined: 'Заработайте до 13,3%',
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада'
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
-                depositStakeTitle: 'Внести',
-                withdrawStakeTitle: 'Вывести',
+                depositStakeTitle: 'Стейкинг',
+                withdrawStakeTitle: 'Вывести со Стейкинга',
                 withdrawStakeConfirmTitle: 'Подтвердить вывод',
                 topUpTitle: 'Пополнить',
                 topUpConfirmTitle: 'Подтвердить пополнение',
-                notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке для этой транзакции'
+                notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке'
             },
             nextCycle: 'Следующий цикл',
             cycleNote: 'Все транзакции вступают в силу после завершения цикла',
@@ -160,7 +161,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 apy: '13.3%',
                 cycle: 'Получайте вознаграждение за ставку каждые 36 часов',
                 ownership: 'Застейканые TONы пренадлежат только вам',
-                withdraw: 'Снимайте и пополняйте в любое время'
+                withdraw: 'Снимайте и пополняйте в любое время',
+                successTitle: '{{amount}} TON',
+                successEtimation: 'Ваш расчетный годовой доход составляет {{amount}} TON (${{price}}).',
+                successNote: 'Ваш застейканый TON будет активен после начала следующего цикла.'
             },
             pool: {
                 balance: 'Общая ставка',
@@ -189,9 +193,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             learnMore: 'Узнать больше',
             calc: {
-                yearly: 'Ежегодное вознаграждение',
-                monthly: 'Ежемесячное вознаграждение',
-                daily: 'Ежедневное вознаграждение',
+                yearly: 'Прим. ежегодное вознаграждение',
+                monthly: 'Прим. ежемесячное вознаграждение',
+                daily: 'Прим. ежедневное вознаграждение',
                 note: 'Рассчитано с учетом всех комиссий',
                 text: 'Рассчитайте свой заработок',
                 yearlyTopUp: 'Прим. ежегодные награды',

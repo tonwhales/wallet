@@ -44,6 +44,7 @@ import { WalletFragment } from './fragments/wallet/WalletFragment';
 import { StakingJoinFragment } from './fragments/staking/StakingJoinFragment';
 import { StakingCalcFragment } from './fragments/staking/StakingCalcFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
+import { StakingJoinSuccessFragment } from './fragments/staking/StakingJoinSuccessFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -133,6 +134,8 @@ const navigation = [
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('StakingCalc', StakingCalcFragment),
+    modalScreen('StakingJoinSuccess', StakingJoinSuccessFragment),
+    modalScreen('StakingJoin', StakingJoinFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
     modalScreen('Migration', MigrationFragment),
@@ -142,7 +145,6 @@ const navigation = [
 
 export const walletNavigation = [
     fullScreen('Staking', StakingFragment),
-    genericScreen('StakingJoin', StakingJoinFragment),
     fullScreen('Wallet', WalletFragment),
 ]
 

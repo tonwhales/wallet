@@ -23,19 +23,23 @@ export const PendingTransactionAvatar = React.memo(({
 
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
+    
     let known = address ? KnownWallets[address] : undefined;
     if (known) {
         if (known.ic) Img = known.ic;
         if (known.color) color = known.color
     }
 
+    let lighter = shadeColor(color, 20);
+    let darker = shadeColor(color, -5)
+
     if (staking) {
         Img = Staking_ava;
-        color = Theme.accent
+        lighter = shadeColor(color, 20);
+        darker = Theme.accent;
+        lighter = '#DEEFFC';
     }
 
-    const lighter = shadeColor(color, 20);
-    const darker = shadeColor(color, -5)
     const [colors, setColors] = useState({
         tintColor: darker,
         backgroundColor: lighter

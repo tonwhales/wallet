@@ -34,14 +34,24 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                         </View>
                     </View>
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0, }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
+                        <Text style={{
+                            color: Theme.textColor, fontSize: 16,
+                            flexGrow: 1, flexBasis: 0,
+                            marginRight: 16, fontWeight: '600'
+                        }}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
                             {t('products.staking.title')}
                         </Text>
-                        <View style={{ flexDirection: 'column', alignItems: 'baseline', flexGrow: 1, flexBasis: 0, }}>
-                            <Text style={{ color: '#787F83', fontSize: 13, flexGrow: 1, flexBasis: 0, marginTop: 4 }} ellipsizeMode="tail">
-                                {t("products.staking.subtitle.join")}
-                            </Text>
-                        </View>
+                        <Text style={{
+                            color: '#787F83', fontSize: 13,
+                            marginTop: 3
+                        }}
+                            ellipsizeMode="tail"
+                        >
+                            {t("products.staking.subtitle.join")}
+                        </Text>
                     </View>
                 </View>
             </View>

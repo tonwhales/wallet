@@ -23,7 +23,7 @@ export const StakingSycleProgress = React.memo(({ stakeUntil, style }: { stakeUn
                 style={{
                     backgroundColor: Theme.accent,
                     flexGrow: 1,
-                    opacity: 0.2,
+                    opacity: 0.1,
                     width: `${progress}%`
                 }}
             />

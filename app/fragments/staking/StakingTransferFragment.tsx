@@ -28,6 +28,8 @@ import { PriceComponent } from '../../components/PriceComponent';
 import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
 import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
+import { StakingCycle } from "../../components/Staking/StakingCycle";
+import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -284,12 +286,6 @@ export const StakingTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
-        // Reset stack to root
-        // if (!params?.staking || !params.goBack) {
-        //     navigation.popToTop();
-        // } else {
-        //     navigation.goBack();
-        // }
         navigation.goBack();
     }, [amountInputFocused, amount, target, comment, account.seqno, stateInit, params, member, pool]);
 
@@ -442,14 +438,13 @@ export const StakingTransferFragment = fragment(() => {
         }
     }, [amountInputFocused, params?.action]);
 
-
     return (
         <>
             <AndroidToolbar
                 style={{ marginTop: safeArea.top }}
                 pageTitle={title}
             />
-            <StatusBar style="light" />
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,
@@ -540,7 +535,7 @@ export const StakingTransferFragment = fragment(() => {
                                 />
                             </View>
                         </View>
-                        {minAmountWarn && (
+                        {!!minAmountWarn && (
                             <Text style={{
                                 color: '#FF0000',
                                 fontWeight: '400',
@@ -558,6 +553,62 @@ export const StakingTransferFragment = fragment(() => {
                                     member={member}
                                 />
                                 <PoolTransactionInfo pool={pool} fee={estimation} />
+                            </>
+                        )}
+                        {params?.action === 'withdraw' && (
+                            <>
+                                <View style={{
+                                    backgroundColor: 'white',
+                                    borderRadius: 14,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    paddingLeft: 16,
+                                    marginTop: 20,
+                                    marginBottom: 15
+                                }}>
+                                    <View style={{
+                                        flexDirection: 'row', width: '100%',
+                                        justifyContent: 'space-between', alignItems: 'center',
+                                        paddingRight: 16,
+                                        height: 55
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 16,
+                                            color: '#7D858A'
+                                        }}>
+                                            {t('products.staking.info.withdrawFee')}
+                                        </Text>
+                                        <View style={{ justifyContent: 'center' }}>
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 16,
+                                                color: Theme.textColor
+                                            }}>
+                                                {'0.2 TON'}
+                                            </Text>
+                                            <PriceComponent
+                                                amount={toNano('0.2')}
+                                                style={{
+                                                    backgroundColor: 'transparent',
+                                                    paddingHorizontal: 0, paddingVertical: 2,
+                                                    alignSelf: 'flex-end'
+                                                }}
+                                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                            />
+                                        </View>
+                                    </View>
+                                </View>
+                                {!!pool && (
+                                    <StakingCycle
+                                        stakeUntil={pool.stakeUntil}
+                                        style={{
+                                            marginBottom: 15
+                                        }}
+                                    />
+                                )}
+                                {!!member && !amountInputFocused && (
+                                    <UnstakeBanner member={member} />
+                                )}
                             </>
                         )}
                     </>

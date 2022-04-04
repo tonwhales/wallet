@@ -14,23 +14,27 @@ if (t('lang') === 'ru') {
 export const Countdown = React.memo(({ until, textStyle, strict }: { until: number, textStyle?: StyleProp<TextStyle>, strict?: boolean }) => {
     const { t } = useTranslation()
     const [text, setText] = useState(
-        strict
-            ? secToFormatTime(until - (Date.now() / 1000) ) + ' ' + t('common.left')
-            : formatDistanceToNow(
-                new Date(until * 1000),
-                { addSuffix: true, locale: locale, includeSeconds: true }
-            )
+        !until
+            ? t('common.soon')
+            : strict
+                ? secToFormatTime(until - (Date.now() / 1000)) + ' ' + t('common.left')
+                : formatDistanceToNow(
+                    new Date(until * 1000),
+                    { addSuffix: true, locale: locale, includeSeconds: true }
+                )
     );
 
     useEffect(() => {
         const timerId = setInterval(() => {
             setText(
-                strict
-                    ? secToFormatTime(until - (Date.now() / 1000)) + ' ' + t('common.left')
-                    : formatDistanceToNow(
-                        new Date(until * 1000),
-                        { addSuffix: true, locale: locale, includeSeconds: true }
-                    )
+                !until
+                    ? t('common.soon')
+                    : strict
+                        ? secToFormatTime(until - (Date.now() / 1000)) + ' ' + t('common.left')
+                        : formatDistanceToNow(
+                            new Date(until * 1000),
+                            { addSuffix: true, locale: locale, includeSeconds: true }
+                        )
             )
         }, 1000);
         return () => {

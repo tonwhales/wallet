@@ -27,7 +27,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         products: 'Products',
         confirm: 'Confirm',
         done: 'Done',
-        left: 'left'
+        left: 'left',
+        soon: 'soon'
     },
     home: {
         wallet: 'Wallet',
@@ -206,9 +207,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 poolFee: '3.3% from APY',
                 poolFeeTitle: 'Pool Fee',
                 depositFee: 'Deposit Gas',
+                withdrawFee: 'Withdraw Gas',
                 blockchainFee: 'Blockhain fee',
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
+            banner: {
+                estimatedEarnings: 'Your estimated yearly earnings are {{amount}} TON (${{price}})',
+                message: 'Are you sure about the unstaking?'
+            }
         },
         transactionRequest: 'Request transaction'
     },

@@ -32,7 +32,7 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
                     </View>
                 </TouchableNativeFeedback>
             )}
-            {props.pageTitle && (
+            {!!props.pageTitle && (
                 <Text
                     style={{
                         alignItems: 'center',

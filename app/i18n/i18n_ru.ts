@@ -27,7 +27,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         products: 'Продукты',
         confirm: 'Подтвердить',
         done: 'Готово',
-        left: 'осталось'
+        left: 'осталось',
+        soon: 'скоро'
     },
     home: {
         wallet: 'Кошелек',
@@ -135,7 +136,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
                 depositStakeTitle: 'Внести',
                 withdrawStakeTitle: 'Вывести',
-                withdrawStakeConfirmTitle: 'Подтвердить внесение',
+                withdrawStakeConfirmTitle: 'Подтвердить вывод',
                 topUpTitle: 'Пополнить',
                 topUpConfirmTitle: 'Подтвердить пополнение',
                 notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке для этой транзакции'
@@ -206,9 +207,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 poolFee: '3.3% от APY',
                 poolFeeTitle: 'Комиссия пула',
                 depositFee: 'Комиссия за депозит',
+                withdrawFee: 'Комиссия за вывод',
                 blockchainFee: 'Комиссия сети',
             },
-            minAmountWarning: 'Минимальное количество {{minAmount}} TON'
+            minAmountWarning: 'Минимальное количество {{minAmount}} TON',
+            banner: {
+                estimatedEarnings: "Ваш расчетный годовой доход составляет {{amount}} TON (${{price}})",
+                message: "Вы уверены, что хотите вывести?"
+            }
         },
         transactionRequest: 'Запрос транзакции',
     },

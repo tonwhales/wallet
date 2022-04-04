@@ -237,7 +237,7 @@ export const StakingFragment = fragment(() => {
                         }
                         style={{
                             marginLeft: 22,
-                            marginBottom: 24,
+                            marginBottom: 16,
                             alignSelf: 'flex-start',
                         }}
                         textStyle={{
@@ -318,7 +318,7 @@ export const StakingFragment = fragment(() => {
                                 <HeaderBackButton
                                     style={{
                                         position: 'absolute',
-                                        left: 7, bottom: 0
+                                        left: 0, bottom: 0
                                     }}
                                     label={t('common.back')}
                                     labelVisible
@@ -328,7 +328,7 @@ export const StakingFragment = fragment(() => {
                                     tintColor={Theme.accent}
                                 />
                                 <Animated.Text style={[
-                                    { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
+                                    { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
                                     { position: 'relative', ...titleOpacityStyle },
                                 ]}>
                                     {t('products.staking.title')}
@@ -380,7 +380,7 @@ export const StakingFragment = fragment(() => {
                                         <View style={{ flexGrow: 1 }}>
 
                                         </View>
-                                        <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
+                                        <Text style={{ color: 'white', marginLeft: 22, marginBottom: 16, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
                                             <AddressComponent address={address} />
                                         </Text>
                                     </View>
@@ -398,7 +398,7 @@ export const StakingFragment = fragment(() => {
                                     <Text
                                         style={{
                                             color: Theme.accent,
-                                            fontSize: 17
+                                            fontSize: 17, fontWeight: '600'
                                         }}
                                     >
                                         {t('products.staking.learnMore')}
@@ -448,7 +448,7 @@ export const StakingFragment = fragment(() => {
                                 </TouchableNativeFeedback>
                             </View>
                             <Animated.Text style={[
-                                { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
+                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
                                 { position: 'relative', ...titleOpacityStyle },
                             ]}>
                                 {t('products.staking.title')}
@@ -520,7 +520,7 @@ export const StakingFragment = fragment(() => {
                                 <Text
                                     style={{
                                         color: Theme.accent,
-                                        fontSize: 17
+                                        fontSize: 17, fontWeight: '600'
                                     }}
                                 >
                                     {t('products.staking.learnMore')}

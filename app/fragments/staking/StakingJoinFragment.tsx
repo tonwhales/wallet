@@ -69,7 +69,7 @@ export const StakingJoinFragment = fragment(() => {
                     <Text
                         style={{
                             color: Theme.accent,
-                            fontSize: 17
+                            fontSize: 17, fontWeight: '600'
                         }}
                     >
                         {t('products.staking.learnMore')}
@@ -100,7 +100,7 @@ export const StakingJoinFragment = fragment(() => {
                     <Text
                         style={{
                             color: Theme.accent,
-                            fontSize: 17
+                            fontSize: 17, fontWeight: '600'
                         }}
                     >
                         {t('products.staking.learnMore')}

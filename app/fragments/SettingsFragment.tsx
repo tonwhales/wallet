@@ -42,7 +42,7 @@ export const SettingsFragment = fragment(() => {
                 }}>
                     <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={[
-                            { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
+                            { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
                         ]}>
                             {t('settings.title')}
                         </Text>
@@ -67,7 +67,7 @@ export const SettingsFragment = fragment(() => {
                 }}>
                     <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={[
-                            { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
+                            { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
                         ]}>
                             {t('settings.title')}
                         </Text>

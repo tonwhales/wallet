@@ -46,7 +46,7 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                         </Text>
                         <Text style={{
                             color: '#787F83', fontSize: 13,
-                            marginTop: 3
+                            marginTop: 3, fontWeight: '400'
                         }}
                             ellipsizeMode="tail"
                         >

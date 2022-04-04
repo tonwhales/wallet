@@ -53,7 +53,7 @@ export const StakingProductMember = React.memo((
                         <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
                             {t('products.staking.title')}
                         </Text>
-                        <Text style={{ color: '#787F83', fontSize: 13, marginTop: 3 }} ellipsizeMode="tail">
+                        <Text style={{ color: '#787F83', fontSize: 13, marginTop: 3, fontWeight: '400' }} ellipsizeMode="tail">
                             {t("products.staking.subtitle.join")}
                         </Text>
                     </View>

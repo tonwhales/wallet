@@ -65,7 +65,7 @@ export const StakingPendingTransaction = React.memo((
                                 color: '#7D858A',
                                 fontSize: 16, flexGrow: 1,
                                 marginRight: 16,
-                                fontWeight: '600',
+                                fontWeight: '400',
                             }}
                             numberOfLines={1}
                         >

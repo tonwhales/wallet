@@ -27,6 +27,7 @@ import { LocalizedResources } from '../../i18n/schema';
 import { PriceComponent } from '../../components/PriceComponent';
 import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
 import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
+import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -73,7 +74,6 @@ export const StakingTransferFragment = fragment(() => {
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '0');
-    const [payload, setPayload] = React.useState<Cell | null>(params?.payload || null);
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const [amountInputFocused, setAmountInputFocused] = React.useState(false);
@@ -240,11 +240,15 @@ export const StakingTransferFragment = fragment(() => {
                 : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
             order: new InternalMessage({
                 to: address,
-                value: value.eq(account.balance) ? toNano('0') : value,
+                value: params?.action === 'withdraw'
+                    ? toNano('0.2')
+                    : value.eq(account.balance) ? toNano('0') : value,
                 bounce,
                 body: new CommonMessageInfo({
                     stateInit: stateInit ? new CellMessage(stateInit) : null,
-                    body: payload ? new CellMessage(payload) : new CommentMessage(comment)
+                    body: params?.action === 'withdraw'
+                        ? new CellMessage(createWithdrawStakeCell(value))
+                        : new CommentMessage(comment)
                 })
             })
         });
@@ -286,7 +290,7 @@ export const StakingTransferFragment = fragment(() => {
         //     navigation.goBack();
         // }
         navigation.goBack();
-    }, [amountInputFocused, amount, target, comment, account.seqno, payload, stateInit, params, member, pool]);
+    }, [amountInputFocused, amount, target, comment, account.seqno, stateInit, params, member, pool]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -331,11 +335,15 @@ export const StakingTransferFragment = fragment(() => {
                     sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
                     order: new InternalMessage({
                         to: address,
-                        value,
+                        value: params?.action === 'withdraw'
+                            ? toNano('0.2')
+                            : value,
                         bounce: false,
                         body: new CommonMessageInfo({
                             stateInit: stateInit ? new CellMessage(stateInit) : null,
-                            body: payload ? new CellMessage(payload) : new CommentMessage(comment)
+                            body: params?.action === 'withdraw'
+                                ? new CellMessage(createWithdrawStakeCell(value))
+                                : new CommentMessage(comment)
                         })
                     })
                 });
@@ -354,7 +362,7 @@ export const StakingTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [amount, target, comment, account.seqno, payload, stateInit]);
+    }, [amount, target, comment, account.seqno, stateInit]);
 
     //
     // Scroll state tracking
@@ -542,9 +550,11 @@ export const StakingTransferFragment = fragment(() => {
                             </Text>
                         )}
                         {(params?.action === 'deposit' || params?.action === 'top_up') && (
-                            <StakingCalcComponent amount={amount} />
+                            <>
+                                <StakingCalcComponent amount={amount} />
+                                <PoolTransactionInfo pool={pool} fee={estimation} />
+                            </>
                         )}
-                        <PoolTransactionInfo pool={pool} fee={estimation} />
                     </>
                 </View>
             </Animated.ScrollView>

@@ -23,7 +23,7 @@ export const PendingTransactionAvatar = React.memo(({
 
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
-    
+
     let known = address ? KnownWallets[address] : undefined;
     if (known) {
         if (known.ic) Img = known.ic;
@@ -78,8 +78,8 @@ export const PendingTransactionAvatar = React.memo(({
                 justifyContent: 'center'
             }}>
                 <Img
-                    width={Math.floor(42 * 0.7)}
-                    height={Math.floor(42 * 0.7)}
+                    width={Math.floor(42)}
+                    height={Math.floor(42)}
                     color="white"
                 />
             </View>

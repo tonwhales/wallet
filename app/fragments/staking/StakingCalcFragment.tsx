@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { ATextInput } from "../../components/ATextInput";
+import { CloseButton } from "../../components/CloseButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
 import { StakingCalcComponent } from "../../components/Staking/StakingCalcComponent";
@@ -182,6 +183,16 @@ export const StakingCalcFragment = fragment(() => {
                     onPress={onDone}
                 />
             </KeyboardAvoidingView>
+            {
+                Platform.OS === 'ios' && (
+                    <CloseButton
+                        style={{ position: 'absolute', top: 12, right: 10 }}
+                        onPress={() => {
+                            navigation.goBack();
+                        }}
+                    />
+                )
+            }
         </View>
     );
 })

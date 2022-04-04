@@ -56,7 +56,7 @@ export const StakingPendingComponent = React.memo((
                     </Text>
                     <View>
                         <Text style={{
-                            fontWeight: '600',
+                            fontWeight: '400',
                             fontSize: 16,
                             color: Theme.textColor
                         }}>
@@ -94,7 +94,7 @@ export const StakingPendingComponent = React.memo((
                         </Text>
                         <View>
                             <Text style={{
-                                fontWeight: '600',
+                                fontWeight: '400',
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>
@@ -136,7 +136,7 @@ export const StakingPendingComponent = React.memo((
                             <Text style={{
                                 fontWeight: '600',
                                 fontSize: 16,
-                                color: Theme.textColor
+                                color: '#4FAE42'
                             }}>
                                 {parseFloat(parseFloat(fromNano(member.withdraw)).toFixed(3)) + ' ' + 'TON'}
                             </Text>

@@ -28,7 +28,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         confirm: 'Подтвердить',
         done: 'Готово',
         left: 'осталось',
-        soon: 'скоро'
+        soon: 'скоро',
+        approve: 'Подтвердить'
     },
     home: {
         wallet: 'Кошелек',
@@ -126,10 +127,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         staking: {
             title: 'Стейкинг',
-            balance: 'Ставка с валидатором',
+            balance: 'Баланс на стейкинге',
             subtitle: {
-                join: 'Заработайте до 13,3% на ваших TON',
-                joined: 'Заработайте до 13,3%',
+                join: 'Зарабатывайте до 13,3% на ваших TON',
+                joined: 'Зарабатывайте до 13,3%',
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада'
             },
@@ -162,7 +163,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 cycle: 'Получайте вознаграждение за ставку каждые 36 часов',
                 ownership: 'Застейканые TONы пренадлежат только вам',
                 withdraw: 'Снимайте и пополняйте в любое время',
-                successTitle: '{{amount}} TON',
+                successTitle: 'Отправлено {{amount}} TON',
                 successEtimation: 'Ваш расчетный годовой доход составляет {{amount}} TON (${{price}}).',
                 successNote: 'Ваш застейканый TON будет активен после начала следующего цикла.'
             },
@@ -191,11 +192,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 title: 'Вы уверены что хотите запросить вывод?',
                 message: 'Обратите внимание, что при запросе на вывод все незавершенные депозиты также будут возвращены.'
             },
-            learnMore: 'Узнать больше',
+            learnMore: 'Инфо.',
             calc: {
-                yearly: 'Прим. ежегодное вознаграждение',
-                monthly: 'Прим. ежемесячное вознаграждение',
-                daily: 'Прим. ежедневное вознаграждение',
+                yearly: 'Прим. в год',
+                monthly: 'Прим. в мес.',
+                daily: 'Прим. в день',
                 note: 'Рассчитано с учетом всех комиссий',
                 text: 'Рассчитайте свой заработок',
                 yearlyTopUp: 'Прим. ежегодные награды',
@@ -205,8 +206,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             info: {
                 rate: '13.3%',
                 rateTitle: 'Прим. курс APY',
-                frequency: 'Каждые 36 часов',
-                frequencyTitle: 'Частота вознаграждения',
+                frequency: 'Каждые 36ч',
+                frequencyTitle: 'Частота наград',
                 minDeposit: 'Минимальный депозит',
                 poolFee: '3.3% от APY',
                 poolFeeTitle: 'Комиссия пула',

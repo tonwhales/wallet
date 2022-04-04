@@ -31,7 +31,8 @@ export type LocalizationSchema = {
         confirm: string,
         done: string,
         left: string,
-        soon: string
+        soon: string,
+        approve: string
     }
     home: {
         wallet: string,

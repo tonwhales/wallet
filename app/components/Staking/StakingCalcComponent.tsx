@@ -40,13 +40,13 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                     }}>
                         <Text style={{
                             fontSize: 16,
-                            color: '#7D858A'
+                            color: '#7D858A',
                         }}>
                             {t('products.staking.calc.yearlyCurrent')}
                         </Text>
                         <View>
                             <Text style={{
-                                fontWeight: '600',
+                                fontWeight: '400',
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>
@@ -119,7 +119,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                         </Text>
                         <View>
                             <Text style={{
-                                fontWeight: '600',
+                                fontWeight: '400',
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>

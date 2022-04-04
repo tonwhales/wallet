@@ -655,7 +655,7 @@ export const StakingTransferFragment = fragment(() => {
                     title={
                         notConfirmed
                             ? t('common.continue')
-                            : t('common.confirm')
+                            : t('common.approve')
                     }
                     action={doSend}
                 />

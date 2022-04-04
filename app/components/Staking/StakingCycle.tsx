@@ -14,7 +14,7 @@ export const StakingCycle = React.memo(({ stakeUntil, style }: { stakeUntil: num
         <View style={[
             {
                 backgroundColor: 'white',
-                height: 70,
+                minHeight: 70,
                 borderRadius: 14,
                 paddingHorizontal: 16,
                 paddingTop: 15,

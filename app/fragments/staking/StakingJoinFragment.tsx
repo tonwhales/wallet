@@ -117,8 +117,7 @@ export const StakingJoinFragment = fragment(() => {
                             lineHeight: 41,
                             letterSpacing: -0.5,
                             color: Theme.textColor,
-                            textAlign: 'center',
-                            maxWidth: 250,
+                            textAlign: 'right',
                         }}>
                             {t('products.staking.join.earn') + ' '}
                         </Text>

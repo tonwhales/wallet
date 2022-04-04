@@ -67,7 +67,7 @@ export const StakingJoinSuccessFragment = fragment(() => {
                     fontSize: 16,
                     color: Theme.textColor,
                     textAlign: 'center',
-                    maxWidth: 250,
+                    maxWidth: 260,
                     marginTop: 18,
                 }}>
                     {t('products.staking.join.successNote')}
@@ -78,7 +78,7 @@ export const StakingJoinSuccessFragment = fragment(() => {
                         fontSize: 16,
                         color: Theme.textColor,
                         textAlign: 'center',
-                        maxWidth: 240,
+                        maxWidth: 260,
                         marginTop: 18,
                     }}>
                         {t('products.staking.join.successEtimation',

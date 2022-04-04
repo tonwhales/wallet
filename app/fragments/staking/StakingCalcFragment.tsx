@@ -60,6 +60,9 @@ export const StakingCalcFragment = fragment(() => {
         }
     }, [amountInputFocused]);
 
+    React.useLayoutEffect(() => {
+        setTimeout(() => refs[0]?.current?.focus(), 100);
+    }, []);
 
     return (
         <View style={{

@@ -544,7 +544,7 @@ export const StakingFragment = fragment(() => {
             <View style={{
                 height: 64,
                 position: 'absolute',
-                bottom: safeArea.bottom + 52 + 16,
+                bottom: safeArea.bottom + 16,
                 left: 16, right: 16,
                 flexDirection: 'row',
                 justifyContent: 'space-evenly'

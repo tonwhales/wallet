@@ -12,11 +12,8 @@ import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { walletNavigation } from '../Navigation';
 import { useNavigation } from '@react-navigation/native';
 
-const Stack = createNativeStackNavigator();
 import * as SplashScreen from 'expo-splash-screen';
 
 export const HomeFragment = fragment(() => {
@@ -68,13 +65,7 @@ export const HomeFragment = fragment(() => {
             <View style={{ flexGrow: 1 }} />
             <StatusBar style={'dark'} />
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
-                <Stack.Navigator
-                    initialRouteName={'Wallet'}
-                    screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
-                >
-                    {walletNavigation}
-                </Stack.Navigator>
-                {/* <WalletFragment /> */}
+                <WalletFragment />
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
                 <SettingsFragment />

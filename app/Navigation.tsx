@@ -39,7 +39,6 @@ import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { StakingFragment } from './fragments/staking/StakingFragment';
-import { WalletFragment } from './fragments/wallet/WalletFragment';
 import { StakingJoinFragment } from './fragments/staking/StakingJoinFragment';
 import { StakingCalcFragment } from './fragments/staking/StakingCalcFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
@@ -132,6 +131,7 @@ const navigation = [
     modalScreen('Transfer', TransferFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Receive', ReceiveFragment),
+    fullScreen('Staking', StakingFragment),
     modalScreen('StakingCalc', StakingCalcFragment),
     modalScreen('StakingJoinSuccess', StakingJoinSuccessFragment),
     modalScreen('StakingJoin', StakingJoinFragment),
@@ -141,11 +141,6 @@ const navigation = [
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment)
 ];
-
-export const walletNavigation = [
-    fullScreen('Staking', StakingFragment),
-    fullScreen('Wallet', WalletFragment),
-]
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
@@ -300,7 +295,7 @@ export const Navigation = React.memo(() => {
             ended = true;
         };
     }, []);
-    
+
     return (
         <EngineContext.Provider value={engine}>
             <View style={{ flexGrow: 1, alignItems: 'stretch' }}>

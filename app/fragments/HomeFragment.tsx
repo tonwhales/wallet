@@ -12,23 +12,19 @@ import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
-import { useNavigationReady } from '../utils/NavigationReadyContext';
+import * as SplashScreen from 'expo-splash-screen';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
-    const navState: {
-        ready: boolean,
-        setReady: (value: boolean) => void
-    } | undefined = useNavigationReady();
 
     // Subscribe for links
     React.useEffect(() => {
         return CachedLinking.setListener((link: string) => {
             let resolved = resolveUrl(link);
             if (resolved && resolved.type === 'transaction') {
-                navState?.setReady(true);
+                SplashScreen.hideAsync();
                 navigation.navigate('Transfer', {
                     target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     comment: resolved.comment,
@@ -38,14 +34,14 @@ export const HomeFragment = fragment(() => {
                 });
             }
             if (resolved && resolved.type === 'sign') {
-                navState?.setReady(true);
+                SplashScreen.hideAsync();
                 navigation.navigate('Authenticate', {
                     session: resolved.session,
                     endpoint: resolved.endpoint
                 });
             }
         });
-    }, [navState]);
+    }, []);
 
     return (
         <View style={{ flexGrow: 1 }}>

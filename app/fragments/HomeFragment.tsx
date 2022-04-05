@@ -12,12 +12,12 @@ import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
-import { useParams } from '../utils/useParams';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { walletNavigation } from '../Navigation';
 import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
+import * as SplashScreen from 'expo-splash-screen';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -44,6 +44,7 @@ export const HomeFragment = fragment(() => {
         return CachedLinking.setListener((link: string) => {
             let resolved = resolveUrl(link);
             if (resolved && resolved.type === 'transaction') {
+                SplashScreen.hideAsync();
                 navigation.navigate('Transfer', {
                     target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     comment: resolved.comment,
@@ -53,6 +54,7 @@ export const HomeFragment = fragment(() => {
                 });
             }
             if (resolved && resolved.type === 'sign') {
+                SplashScreen.hideAsync();
                 navigation.navigate('Authenticate', {
                     session: resolved.session,
                     endpoint: resolved.endpoint

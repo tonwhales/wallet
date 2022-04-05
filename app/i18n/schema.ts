@@ -139,6 +139,7 @@ export type LocalizationSchema = {
             },
             nextCycle: string,
             cycleNote: string,
+            cycleNoteWithdraw: string,
             buttonTitle: string,
             balanceTitle: string,
             actions: {

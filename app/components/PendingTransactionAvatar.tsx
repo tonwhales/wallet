@@ -7,6 +7,8 @@ import { avatarHash } from "../utils/avatarHash";
 import { shadeColor } from "../utils/shadeColor";
 import { Avatar, avatarColors, avatarImages, KnownWallets } from "./Avatar";
 import Staking_ava from '../../assets/images/Staking_ava.svg';
+import Staking_ava_test from '../../assets/images/Staking_ava_test.svg';
+import { AppConfig } from "../AppConfig";
 
 export const PendingTransactionAvatar = React.memo(({
     style,
@@ -34,10 +36,10 @@ export const PendingTransactionAvatar = React.memo(({
     let darker = shadeColor(color, -5)
 
     if (staking) {
-        Img = Staking_ava;
+        Img = AppConfig.isTestnet ? Staking_ava_test : Staking_ava;
         lighter = shadeColor(color, 20);
         darker = Theme.accent;
-        lighter = '#DEEFFC';
+        lighter = AppConfig.isTestnet ? '#FBECD9' : '#DEEFFC';
     }
 
     const [colors, setColors] = useState({
@@ -69,7 +71,7 @@ export const PendingTransactionAvatar = React.memo(({
 
     return (
         <View style={{ flex: 1, height: 42, width: 42, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: 39, height: 39, borderRadius: 39, backgroundColor: staking ? '#F6FBFF' : color }} />
+            <View style={{ width: 39, height: 39, borderRadius: 39, backgroundColor: staking ? AppConfig.isTestnet ? '#FFFBF5' : '#F6FBFF' : color }} />
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0,

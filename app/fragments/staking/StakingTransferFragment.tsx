@@ -633,6 +633,7 @@ export const StakingTransferFragment = fragment(() => {
                                         style={{
                                             marginBottom: 15
                                         }}
+                                        withdraw={params.action === 'withdraw'}
                                     />
                                 )}
                                 {!!member && !notConfirmed && (

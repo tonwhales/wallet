@@ -145,6 +145,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
+            cycleNoteWithdraw: 'Withdrawals take effect once the cycle ends',
             buttonTitle: 'stake',
             balanceTitle: 'Staking Balance',
             actions: {
@@ -165,7 +166,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 ownership: 'Staked TONs remain yours',
                 withdraw: 'Withdraw and Top Up at any time',
                 successTitle: '{{amount}} TON staked',
-                successEtimation: 'Your estimated yearly earnings are {{amount}} TON (${{price}}).',
+                successEtimation: 'Your estimated yearly earnings are {{amount}}\u00A0TON\u00A0(${{price}}).',
                 successNote: 'Your staked TON will be activated once the next cycle starts.'
             },
             pool: {

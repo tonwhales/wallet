@@ -5,10 +5,17 @@ import { Theme } from "../../Theme"
 import { Countdown } from "../Countdown"
 import { StakingSycleProgress } from "./StakingSycleProgress"
 
-export const StakingCycle = React.memo(({ stakeUntil, style }: { stakeUntil: number, style?: StyleProp<ViewStyle> }) => {
+export const StakingCycle = React.memo((
+    {
+        stakeUntil,
+        style,
+        withdraw
+    }: {
+        stakeUntil: number,
+        style?: StyleProp<ViewStyle>,
+        withdraw?: boolean
+    }) => {
     const { t } = useTranslation();
-
-    console.log({ stakeUntil })
 
     return (
         <View style={[
@@ -49,7 +56,7 @@ export const StakingCycle = React.memo(({ stakeUntil, style }: { stakeUntil: num
                 fontSize: 13,
                 marginTop: 8
             }}>
-                {t('products.staking.cycleNote')}
+                {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
             </Text>
         </View>
     )

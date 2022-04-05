@@ -145,6 +145,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             nextCycle: 'След. цикл',
             cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',
+            cycleNoteWithdraw: 'Транзакции по выводу исполняются только после завершения цикла',
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',
             actions: {
@@ -165,7 +166,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 ownership: 'Застейканные монеты принадлежат только вам',
                 withdraw: 'Выводите и пополняйте баланс стейкинга в любое время',
                 successTitle: 'Отправлено {{amount}} TON',
-                successEtimation: 'Ваш расчетный годовой доход составляет {{amount}} TON (${{price}}).',
+                successEtimation: 'Ваш расчетный годовой доход составляет {{amount}}\u00A0TON\u00A0(${{price}}).',
                 successNote: 'Ваш застейканый TON будет активен после начала следующего цикла.'
             },
             pool: {
@@ -207,14 +208,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 topUpTitle: 'Ваша годовая доходность'
             },
             info: {
-                rate: '13.3%',
-                rateTitle: 'Прим. курс APY',
+                rate: '~13.3%',
+                rateTitle: 'Годовая доходность',
                 frequency: 'Каждые 36ч',
-                frequencyTitle: 'Частота наград',
+                frequencyTitle: 'Частота выплат',
                 minDeposit: 'Минимальный депозит',
                 poolFee: '3.3% от APY',
                 poolFeeTitle: 'Комиссия пула',
-                depositFee: 'Комиссия за депозит',
+                depositFee: 'Газ за отправку',
                 withdrawFee: 'Комиссия за вывод',
                 blockchainFee: 'Комиссия сети',
             },

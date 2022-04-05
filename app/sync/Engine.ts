@@ -12,7 +12,6 @@ import { OldWalletsProduct } from './products/OldWalletsProduct';
 import { AddressProduct } from './products/AddressProduct';
 import { AppConfig } from '../AppConfig';
 import { PriceProduct } from './products/PriceProduct';
-import { StakingProduct } from './products/StakingProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { JobsProduct } from './products/JobsProduct';
 
@@ -87,7 +86,6 @@ export class Engine {
         this.products = {
             oldWallets: new OldWalletsProduct(this),
             price: this.createPriceProduct(),
-            stake: this.createStakingProduct(),
             stakingPool: this.createStakingPoolProduct(),
             apps: new JobsProduct(this)
         };
@@ -131,15 +129,6 @@ export class Engine {
         let ex = this._products.get(key);
         if (ex) return ex as PriceProduct;
         let n = new PriceProduct(this);
-        this._products.set(key, n);
-        return n;
-    }
-
-    createStakingProduct(): StakingProduct {
-        const key = 'staking_product';
-        let ex = this._products.get(key);
-        if (ex) return ex as StakingProduct;
-        let n = new StakingProduct(this);
         this._products.set(key, n);
         return n;
     }

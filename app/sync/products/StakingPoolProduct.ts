@@ -1,10 +1,8 @@
-import { StakeState, StakingPoolState } from "../../storage/cache";
+import { StakingPoolState } from "../../storage/cache";
 import { Engine } from "../Engine";
 import EventEmitter from "events";
 import { backoff } from "../../utils/time";
 import React from "react";
-import { fetchStaking } from "../fetchStaking";
-import { watchStaking } from "../watchStaking";
 import { fetchStakingPool } from "../fetchStakingPool";
 import { watchStakingPool } from "../watchStakingPool";
 

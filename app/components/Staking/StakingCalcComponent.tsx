@@ -20,8 +20,8 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
 
     if (topUp && member) {
         const plus = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
-        const yearly = amount === '' ? toNano(0) : member.balance.muln(0.133);
-        const yearlyPlus = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).add(member.balance).muln(0.133);
+        const yearly = member.balance.muln(0.133);
+        const yearlyPlus = amount === '' ? member.balance.muln(0.133) : toNano(parseFloat(amount.replace(',', '.'))).add(member.balance).muln(0.133);
         return (
             <>
                 <Text style={{

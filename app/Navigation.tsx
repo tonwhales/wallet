@@ -35,10 +35,10 @@ import { registerForPushNotificationsAsync, registerPushToken } from './utils/re
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
-import { StakingFragment } from './fragments/staking/StakingFragment';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
+import { StakingFragment } from './fragments/staking/StakingFragment';
 import { WalletFragment } from './fragments/wallet/WalletFragment';
 import { StakingJoinFragment } from './fragments/staking/StakingJoinFragment';
 import { StakingCalcFragment } from './fragments/staking/StakingCalcFragment';

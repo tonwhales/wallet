@@ -1,27 +1,23 @@
-import { useNavigation } from "@react-navigation/native";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
-import React, { useCallback, useLayoutEffect } from "react";
+import React, { useCallback } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from "react-i18next";
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, toNano } from "ton";
+import { toNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
-import { TransactionView } from "../../components/TransactionView";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { StakingPoolState } from "../../storage/cache";
 import { useAccount } from "../../sync/Engine";
 import { Transaction } from "../../sync/Transaction";
 import { Theme } from "../../Theme";
-import { resolveUrl } from "../../utils/resolveUrl";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
 import { StakingPendingTransaction } from "../../components/Staking/StakingPendingTransaction";
@@ -39,14 +35,9 @@ export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean }>();
     const navigation = useTypedNavigation();
-    const baseNavigation = useNavigation();
     const [account, engine] = useAccount();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const pool = engine.products.stakingPool.useState();
-    const transactions = React.useMemo<Transaction[]>(() => {
-        let txs = account.transactions.map((v) => engine.getTransaction(v));
-        return [...account.pending, ...txs];
-    }, [account.transactions, account.pending]);
 
     const member = pool
         ?.members

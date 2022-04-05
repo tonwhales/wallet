@@ -2,7 +2,7 @@ import BN from "bn.js";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
-import { Address, fromNano } from "ton";
+import { Address, fromNano, toNano } from "ton";
 import { StakingTransferParams } from "../../fragments/staking/StakingTransferFragment";
 import { Theme } from "../../Theme";
 import { PoolAddress } from "../../utils/PoolAddress";
@@ -28,6 +28,7 @@ export const StakingPendingComponent = React.memo((
     }
 ) => {
     const navigation = useTypedNavigation();
+    const { t } = useTranslation();
 
     if (!member) return null;
     if (
@@ -36,7 +37,6 @@ export const StakingPendingComponent = React.memo((
         && member.withdraw.eqn(0)
     ) return null;
 
-    const { t } = useTranslation();
 
     return (
         <View style={[{
@@ -165,11 +165,11 @@ export const StakingPendingComponent = React.memo((
                         <Pressable
                             style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })}
                             onPress={() => {
-                                navigation.navigate('StakingTransfer',
+                                navigation.navigate('Transfer',
                                     {
                                         target: PoolAddress,
                                         comment: 'Withdraw',
-                                        amount: member.withdraw,
+                                        amount: toNano('0.2'),
                                         lockAmount: true,
                                         lockAddress: true,
                                         lockComment: true,

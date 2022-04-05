@@ -8,6 +8,7 @@ import { getCurrentAddress } from "../../storage/appState";
 import { useAccount } from "../../sync/Engine";
 import { Transaction } from "../../sync/Transaction";
 import { Theme } from "../../Theme";
+import { PoolAddress } from "../../utils/PoolAddress";
 import { PendingTransactionAvatar } from "../PendingTransactionAvatar";
 import { PriceComponent } from "../PriceComponent";
 
@@ -32,9 +33,7 @@ export const StakingPendingTransaction = React.memo((
     const tx = transactions.find((t) => {
         return (
             t.status === 'pending'
-            && pool.address
-                .toFriendly({ testOnly: AppConfig.isTestnet })
-            === t.address
+            && PoolAddress === t.address
                 ?.toFriendly({ testOnly: AppConfig.isTestnet })
         );
     });
@@ -49,7 +48,7 @@ export const StakingPendingTransaction = React.memo((
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                     <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, margin: 10 }}>
                         <PendingTransactionAvatar
-                            address={pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            address={PoolAddress}
                             avatarId={avatarId}
                             staking
                         />

@@ -32,6 +32,7 @@ import { StakingPendingComponent } from "../../components/Staking/StakingPending
 import { openLink } from "../../utils/InAppBrowser";
 import { StakingTransferParams } from "./StakingTransferFragment";
 import { useParams } from "../../utils/useParams";
+import { PoolAddress } from "../../utils/PoolAddress";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
@@ -146,9 +147,9 @@ export const StakingFragment = fragment(() => {
         navigation.navigate(
             'StakingTransfer',
             {
-                target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: PoolAddress,
                 comment: 'Deposit',
-                amount: pool?.minStake.add(toNano('0.2')),
+                amount: pool?.minStake.add(toNano('0.2')) || toNano('50.2'),
                 lockAddress: true,
                 lockComment: true,
                 action: 'top_up',
@@ -160,7 +161,7 @@ export const StakingFragment = fragment(() => {
         navigation.navigate(
             'StakingTransfer',
             {
-                target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: PoolAddress,
                 comment: 'Withdraw',
                 lockAddress: true,
                 lockComment: true,

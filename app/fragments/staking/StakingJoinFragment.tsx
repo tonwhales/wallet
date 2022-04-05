@@ -17,6 +17,7 @@ import { fragment } from "../../fragment";
 import { StakingTransferParams } from "./StakingTransferFragment";
 import { CloseButton } from "../../components/CloseButton";
 import { StatusBar } from "expo-status-bar";
+import { PoolAddress } from "../../utils/PoolAddress";
 
 export const StakingJoinFragment = fragment(() => {
     const { t } = useTranslation();
@@ -31,9 +32,9 @@ export const StakingJoinFragment = fragment(() => {
         navigation.navigate(
             'StakingTransfer',
             {
-                target: pool?.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: PoolAddress,
                 comment: 'Deposit',
-                amount: pool?.minStake.add(toNano('0.2')),
+                amount: pool?.minStake.add(toNano('0.2')) || toNano('50.2'),
                 lockAddress: true,
                 lockComment: true,
                 action: 'deposit',

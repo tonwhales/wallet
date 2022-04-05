@@ -10,9 +10,9 @@ export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount
     const [account, engine] = useAccount();
     const price = engine.products.price.useState();
 
-    // if (!price || AppConfig.isTestnet) {
-    //     return <></>;
-    // }
+    if (!price || AppConfig.isTestnet) {
+        return <></>;
+    }
 
     return (
         <View style={[{

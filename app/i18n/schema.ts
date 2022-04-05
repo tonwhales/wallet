@@ -186,7 +186,8 @@ export type LocalizationSchema = {
             },
             withdrawStatus: {
                 pending: string,
-                ready: string
+                ready: string,
+                withdrawNow: string
             },
             depositStatus: {
                 pending: string

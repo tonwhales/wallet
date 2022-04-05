@@ -183,7 +183,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             withdrawStatus: {
                 pending: 'Withdraw pending',
-                ready: 'Withdraw ready'
+                ready: 'Withdraw ready',
+                withdrawNow: 'Withdraw now'
             },
             depositStatus: {
                 pending: 'Deposit pending'

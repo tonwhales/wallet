@@ -183,7 +183,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             withdrawStatus: {
                 pending: 'Вывод ожидает',
-                ready: 'Вывод готов'
+                ready: 'Готово к выводу',
+                withdrawNow: 'Вывести сейчас'
             },
             depositStatus: {
                 pending: 'Взнос ожидает'

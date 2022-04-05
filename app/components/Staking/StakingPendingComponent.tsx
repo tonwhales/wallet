@@ -1,11 +1,16 @@
 import BN from "bn.js";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { View, Text, StyleProp, ViewStyle } from "react-native";
+import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { Address, fromNano } from "ton";
+import { StakingTransferParams } from "../../fragments/staking/StakingTransferFragment";
 import { Theme } from "../../Theme";
+import { PoolAddress } from "../../utils/PoolAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { ItemButton } from "../ItemButton";
 import { PriceComponent } from "../PriceComponent";
+import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstake.svg';
+import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 
 export const StakingPendingComponent = React.memo((
     {
@@ -113,6 +118,7 @@ export const StakingPendingComponent = React.memo((
                     </View>
                 </>
             )}
+
             {member.withdraw.gtn(0) && (
                 <>
                     {(member.pendingWithdraw.gtn(0) || member.pendingDeposit.gtn(0)) && (
@@ -150,6 +156,54 @@ export const StakingPendingComponent = React.memo((
                                 }}
                                 textStyle={{ color: '#6D6D71', fontWeight: '400' }} />
                         </View>
+                    </View>
+                    <View style={{
+                        height: 1, width: '100%',
+                        backgroundColor: Theme.divider,
+                    }} />
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Pressable
+                            style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })}
+                            onPress={() => {
+                                navigation.navigate('StakingTransfer',
+                                    {
+                                        target: PoolAddress,
+                                        comment: 'Withdraw',
+                                        amount: member.withdraw,
+                                        lockAmount: true,
+                                        lockAddress: true,
+                                        lockComment: true,
+                                        action: 'withdraw',
+                                    } as StakingTransferParams)
+                            }}
+                        >
+                            <View style={{ height: 48, paddingLeft: 0, paddingRight: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', flexGrow: 1, flexBasis: 0 }}>
+                                <View style={{ flexGrow: 1, flexShrink: 1, flexDirection: 'row', alignItems: 'center' }}>
+                                    <Img_Widthdraw_ready_action />
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        flexGrow: 1,
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 16,
+                                                color: '#7D858A',
+                                                textAlignVertical: 'center',
+                                                marginLeft: 10,
+                                                lineHeight: 24,
+                                            }}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {t('products.staking.withdrawStatus.withdrawNow')}
+                                        </Text>
+                                        <ForwardIcon />
+                                    </View>
+                                </View>
+                            </View>
+                        </Pressable>
                     </View>
                 </>
             )}

@@ -206,7 +206,8 @@ export type LocalizationSchema = {
                 text: string,
                 yearlyTopUp: string,
                 yearlyTotal: string,
-                yearlyCurrent: string
+                yearlyCurrent: string,
+                topUpTitle: string
             },
             info: {
                 rate: string,

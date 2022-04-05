@@ -201,9 +201,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 daily: 'Доходность в день',
                 note: 'Рассчитано с учетом всех комиссий',
                 text: 'Калькулятор доходности',
-                yearlyTopUp: 'Прим. ежегодные награды',
+                yearlyTopUp: 'После пополнения',
                 yearlyTotal: 'Всего вознаграждений за год',
-                yearlyCurrent: 'Текущие годовые награды'
+                yearlyCurrent: 'Текущая',
+                topUpTitle: 'Ваша годовая доходность'
             },
             info: {
                 rate: '13.3%',

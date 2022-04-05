@@ -166,7 +166,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 ownership: 'Застейканные монеты принадлежат только вам',
                 withdraw: 'Выводите и пополняйте баланс стейкинга в любое время',
                 successTitle: 'Отправлено {{amount}} TON',
-                successEtimation: 'Ваш расчетный годовой доход составляет {{amount}}\u00A0TON\u00A0(${{price}}).',
+                successEtimation: 'Ваш предполагаемый годовой доход составляет {{amount}}\u00A0TON\u00A0(${{price}}).',
                 successNote: 'Ваш застейканый TON будет активен после начала следующего цикла.'
             },
             pool: {
@@ -198,7 +198,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             moreInfo: 'Больше информации',
             calc: {
                 yearly: 'Доходность в год',
-                monthly: 'Доходность в мес.',
+                monthly: 'Доходность в месяц',
                 daily: 'Доходность в день',
                 note: 'Рассчитано с учетом всех комиссий',
                 text: 'Калькулятор доходности',
@@ -213,7 +213,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 frequency: 'Каждые 36ч',
                 frequencyTitle: 'Частота выплат',
                 minDeposit: 'Минимальный депозит',
-                poolFee: '3.3% от APY',
+                poolFee: '3.3%',
                 poolFeeTitle: 'Комиссия пула',
                 depositFee: 'Газ за отправку',
                 withdrawFee: 'Комиссия за вывод',
@@ -221,7 +221,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             minAmountWarning: 'Минимальное количество {{minAmount}} TON',
             banner: {
-                estimatedEarnings: "Ваш расчетный годовой доход составляет {{amount}} TON (${{price}})",
+                estimatedEarnings: "Ваш предполагаемый годовой доход уменьшится на {{amount}}\u00A0TON\u00A0(${{price}})",
                 message: "Уверены, что хотите вывести?"
             }
         },

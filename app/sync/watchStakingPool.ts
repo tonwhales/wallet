@@ -5,7 +5,6 @@ export function watchStakingPool(handler: (state: StakingPoolData[]) => Promise<
     let ended = false;
     const invalidateSync = new InvalidateSync(async () => {
         const state = await fetchStakingPool();
-        console.log('poolState', { state });
         if (ended) {
             return;
         }

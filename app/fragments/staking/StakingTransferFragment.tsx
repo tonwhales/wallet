@@ -637,7 +637,7 @@ export const StakingTransferFragment = fragment(() => {
                                     />
                                 )}
                                 {!!member && !notConfirmed && (
-                                    <UnstakeBanner member={member} />
+                                    <UnstakeBanner amount={amount} member={member} />
                                 )}
                             </>
                         )}

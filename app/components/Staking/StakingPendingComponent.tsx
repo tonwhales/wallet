@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { View, Text, StyleProp, ViewStyle } from "react-native";
 import { Address, fromNano } from "ton";
 import { Theme } from "../../Theme";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PriceComponent } from "../PriceComponent";
 
 export const StakingPendingComponent = React.memo((
@@ -21,6 +22,7 @@ export const StakingPendingComponent = React.memo((
         style?: StyleProp<ViewStyle>
     }
 ) => {
+    const navigation = useTypedNavigation();
 
     if (!member) return null;
     if (
@@ -30,7 +32,6 @@ export const StakingPendingComponent = React.memo((
     ) return null;
 
     const { t } = useTranslation();
-
 
     return (
         <View style={[{

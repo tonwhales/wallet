@@ -213,7 +213,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 frequency: 'Every 36 hours',
                 frequencyTitle: 'Reward Frequency',
                 minDeposit: 'Minimal deposit',
-                poolFee: '3.3% from APY',
+                poolFee: '3.3%',
                 poolFeeTitle: 'Pool Fee',
                 depositFee: 'Deposit Gas',
                 withdrawFee: 'Withdraw Gas',
@@ -221,7 +221,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
             banner: {
-                estimatedEarnings: 'Your estimated yearly earnings are {{amount}} TON (${{price}})',
+                estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0(${{price}})',
                 message: 'Are you sure about the unstaking?'
             }
         },

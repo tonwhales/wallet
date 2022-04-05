@@ -123,7 +123,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
 
     const yearly = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133);
     const monthly = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(30 / 366);
-    const daily = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).muln(1 / 366);
+    const daily = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.133).divn(366);
 
     return (
         <>
@@ -191,7 +191,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={2} value={monthly} />
+                            <ValueComponent centLength={parseFloat(fromNano(monthly)) < 0.01 ? 6 : 2} value={monthly} />
                             {' TON'}
                         </Text>
                         <PriceComponent
@@ -228,7 +228,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={2} value={daily} />
+                            <ValueComponent centLength={parseFloat(fromNano(daily)) < 0.01 ? 6 : 2} value={daily} />
                             {' TON'}
                         </Text>
                         <PriceComponent

@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
 import BN from "bn.js";
-import { Address, fromNano } from "ton";
+import { Address, fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
 import { useTranslation } from "react-i18next";
 import { useAccount } from "../../sync/Engine";
@@ -10,7 +10,8 @@ import { useAccount } from "../../sync/Engine";
 export const UnstakeBanner = React.memo((
     {
         member,
-        style
+        style,
+        amount
     }: {
         member: {
             address: Address,
@@ -19,7 +20,8 @@ export const UnstakeBanner = React.memo((
             pendingWithdraw: BN,
             withdraw: BN
         },
-        style?: StyleProp<ViewStyle>
+        style?: StyleProp<ViewStyle>,
+        amount?: string
     }
 ) => {
     const [account, engine] = useAccount();
@@ -34,6 +36,13 @@ export const UnstakeBanner = React.memo((
             }, 300);
         }
     }, []);
+
+    const validAmount = amount?.replace(',', '.') || '0';
+    const value = toNano(validAmount);
+    const estInc = parseFloat(fromNano(value.muln(0.133)));
+    const estIncPrice = parseFloat(fromNano(value.muln(0.133).muln(price.price.usd)));
+
+    console.log({ estInc, estIncPrice });
 
     return (
         <View style={{
@@ -60,9 +69,13 @@ export const UnstakeBanner = React.memo((
             }}>
                 {t('products.staking.banner.estimatedEarnings',
                     {
-                        amount: parseFloat(fromNano(member.balance.add(member.pendingDeposit).muln(0.133))).toFixed(2),
-                        price: parseFloat(fromNano(member.balance.add(member.pendingDeposit).muln(0.133).muln(price.price.usd))).toFixed(2)
-                    })}
+                        // amount: parseFloat(fromNano(member.balance.add(member.pendingDeposit).muln(0.133))).toFixed(2),
+                        // price: parseFloat(fromNano(member.balance.add(member.pendingDeposit).muln(0.133).muln(price.price.usd))).toFixed(2)
+                        amount: estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2),
+                        price: estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2),
+                    }
+                )
+                }
             </Text>
             <Text style={{
                 color: '#7D858A',

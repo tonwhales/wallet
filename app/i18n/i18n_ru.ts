@@ -194,9 +194,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             learnMore: 'Инфо.',
             calc: {
-                yearly: 'Прим. в год',
-                monthly: 'Прим. в мес.',
-                daily: 'Прим. в день',
+                yearly: 'Доходность в год',
+                monthly: 'Доходность в мес.',
+                daily: 'Доходность в день',
                 note: 'Рассчитано с учетом всех комиссий',
                 text: 'Рассчитайте свой заработок',
                 yearlyTopUp: 'Прим. ежегодные награды',

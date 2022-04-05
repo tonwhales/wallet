@@ -182,6 +182,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                             fontSize: 16,
                             color: '#4FAE42'
                         }}>
+                            {'~'}
                             <ValueComponent centLength={2} value={yearly} />
                             {' TON'}
                         </Text>
@@ -218,6 +219,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                             fontSize: 16,
                             color: '#4FAE42'
                         }}>
+                            {'~'}
                             <ValueComponent centLength={2} value={monthly} />
                             {' TON'}
                         </Text>
@@ -254,6 +256,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                             fontSize: 16,
                             color: '#4FAE42'
                         }}>
+                            {'~'}
                             <ValueComponent centLength={2} value={daily} />
                             {' TON'}
                         </Text>

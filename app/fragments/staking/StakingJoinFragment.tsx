@@ -67,7 +67,7 @@ export const StakingJoinFragment = fragment(() => {
                             fontSize: 17, fontWeight: '600'
                         }}
                     >
-                        {t('products.staking.learnMore')}
+                        {t('products.staking.moreInfo')}
                     </Text>
                 </Pressable>
             )
@@ -128,7 +128,8 @@ export const StakingJoinFragment = fragment(() => {
                             justifyContent: 'center',
                             alignItems: 'center',
                             height: 41,
-                            paddingHorizontal: 4
+                            paddingHorizontal: 4,
+                            marginLeft: 2
                         }}>
                             <Text style={{
                                 color: 'white',
@@ -199,7 +200,7 @@ export const StakingJoinFragment = fragment(() => {
                     width: '100%'
                 }}>
                     <RoundButton
-                        title={t('products.staking.learnMore')}
+                        title={t('products.staking.moreInfo')}
                         onPress={openMoreInfo}
                         style={{ alignSelf: 'stretch', marginBottom: 14 }}
                         display={'secondary'}

@@ -162,6 +162,7 @@ export type LocalizationSchema = {
                 moreAbout: string,
                 earn: string,
                 onYourTons: string,
+                yearly: string,
                 apy: string,
                 cycle: string,
                 ownership: string,
@@ -196,6 +197,7 @@ export type LocalizationSchema = {
                 message: string
             },
             learnMore: string,
+            moreInfo: string,
             calc: {
                 yearly: string,
                 monthly: string,

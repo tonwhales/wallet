@@ -160,6 +160,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 earn: 'Earn up to',
                 onYourTons: 'on your TONs',
                 apy: '13.3%',
+                yearly: 'yearly',
                 cycle: 'Get rewards for staking every 36h',
                 ownership: 'Staked TONs remain yours',
                 withdraw: 'Withdraw and Top Up at any time',
@@ -192,13 +193,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 title: 'Are you sure want to request withdrawal?',
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
             },
-            learnMore: 'More info',
+            learnMore: 'Info',
+            moreInfo: 'More info',
             calc: {
                 yearly: 'Yearly rewards',
                 monthly: 'Monthly rewards',
                 daily: 'Daily rewards',
                 note: 'Calculated including all fees',
-                text: 'Calculate your earingns',
+                text: 'Earnings calculator',
                 yearlyTopUp: 'Yearly rewards',
                 yearlyTotal: 'Total rewards in a year',
                 yearlyCurrent: 'Current yearly rewards'

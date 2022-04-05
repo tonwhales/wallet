@@ -28,15 +28,20 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                 padding: 10
             }}>
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
-                    <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginRight: 10 }}>
+                    <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginRight: 10, alignSelf: 'center' }}>
                         <View style={{ backgroundColor: '#4DC47D', borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
                             <StakingIcon width={42} height={42} color={'white'} />
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }}>
+                    <View style={{
+                        flexDirection: 'column',
+                        flexGrow: 1,
+                        paddingVertical: 2,
+                        justifyContent: 'space-between'
+                    }}>
                         <Text style={{
                             color: Theme.textColor, fontSize: 16,
-                            marginRight: 16, fontWeight: '600'
+                            marginRight: 16, fontWeight: '600',
                         }}
                             ellipsizeMode="tail"
                             numberOfLines={1}
@@ -45,11 +50,32 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                         </Text>
                         <Text style={{
                             color: '#787F83', fontSize: 13,
-                            marginTop: 3, fontWeight: '400'
+                            marginTop: 3, fontWeight: '400',
                         }}
                             ellipsizeMode="tail"
                         >
                             {t("products.staking.subtitle.join")}
+                        </Text>
+                    </View>
+                    <View style={{
+                        alignItems: 'flex-end',
+                        justifyContent: 'space-between',
+                        paddingVertical: 2,
+                    }}>
+                        <Text style={{
+                            fontSize: 16,
+                            fontWeight: '700',
+                            color: '#4FAE42',
+                            marginBottom: 3,
+                        }}>
+                            {'~' + t('products.staking.join.apy')}
+                        </Text>
+                        <Text style={{
+                            fontSize: 12,
+                            fontWeight: '400',
+                            color: '#8E979D',
+                        }}>
+                            {t('products.staking.join.yearly')}
                         </Text>
                     </View>
                 </View>

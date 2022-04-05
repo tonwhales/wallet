@@ -129,8 +129,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Стейкинг',
             balance: 'Баланс на стейкинге',
             subtitle: {
-                join: 'Зарабатывайте до 13,3% на ваших TON',
-                joined: 'Зарабатывайте до 13,3%',
+                join: 'Зарабатывайте на TON',
+                joined: 'Зарабатывайте на TON',
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада'
             },
@@ -143,8 +143,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 topUpConfirmTitle: 'Подтвердить пополнение',
                 notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке'
             },
-            nextCycle: 'Следующий цикл',
-            cycleNote: 'Все транзакции вступают в силу после завершения цикла',
+            nextCycle: 'След. цикл',
+            cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',
             actions: {
@@ -157,12 +157,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: 'Стейкинг — это общественное благо для экосистемы TON. Вы можете помочь защитить сеть и получить вознаграждение в процессе',
                 buttonTitle: 'Начать зарабатывать',
                 moreAbout: 'Подробнее о Tonwhales Staking Pool',
-                earn: 'Зарабатывайте до',
-                onYourTons: 'на ваших TON',
+                earn: 'Получайте до',
+                onYourTons: 'дохода со стейкинга',
                 apy: '13.3%',
-                cycle: 'Получайте вознаграждение за ставку каждые 36 часов',
-                ownership: 'Застейканые TONы пренадлежат только вам',
-                withdraw: 'Снимайте и пополняйте в любое время',
+                yearly: 'годовых',
+                cycle: 'Вознаграждения за стейкинг приходят каждые 36ч',
+                ownership: 'Застейканные монеты принадлежат только вам',
+                withdraw: 'Выводите и пополняйте баланс стейкинга в любое время',
                 successTitle: 'Отправлено {{amount}} TON',
                 successEtimation: 'Ваш расчетный годовой доход составляет {{amount}} TON (${{price}}).',
                 successNote: 'Ваш застейканый TON будет активен после начала следующего цикла.'
@@ -192,13 +193,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 title: 'Вы уверены что хотите запросить вывод?',
                 message: 'Обратите внимание, что при запросе на вывод все незавершенные депозиты также будут возвращены.'
             },
-            learnMore: 'Инфо.',
+            learnMore: 'Инфо',
+            moreInfo: 'Больше информации',
             calc: {
                 yearly: 'Доходность в год',
                 monthly: 'Доходность в мес.',
                 daily: 'Доходность в день',
                 note: 'Рассчитано с учетом всех комиссий',
-                text: 'Рассчитайте свой заработок',
+                text: 'Калькулятор доходности',
                 yearlyTopUp: 'Прим. ежегодные награды',
                 yearlyTotal: 'Всего вознаграждений за год',
                 yearlyCurrent: 'Текущие годовые награды'
@@ -218,7 +220,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             minAmountWarning: 'Минимальное количество {{minAmount}} TON',
             banner: {
                 estimatedEarnings: "Ваш расчетный годовой доход составляет {{amount}} TON (${{price}})",
-                message: "Вы уверены, что хотите вывести?"
+                message: "Уверены, что хотите вывести?"
             }
         },
         transactionRequest: 'Запрос транзакции',

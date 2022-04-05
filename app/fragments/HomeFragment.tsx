@@ -12,7 +12,6 @@ import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
-import { useNavigation } from '@react-navigation/native';
 
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -20,20 +19,6 @@ export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
-    const baseNavigation = useNavigation();
-
-    const onSetTab = React.useCallback(
-        (newTab: number) => {
-            if (newTab === 0 && tab !== 1) {
-                const canGoBack = baseNavigation.getState().routes.find((r) => r.name === 'Home')?.state?.index || 0 > 0
-                if (canGoBack) {
-                    navigation.popToTop();
-                }
-            }
-            setTab(newTab);
-        },
-        [tab],
-    );
 
 
     // Subscribe for links
@@ -86,7 +71,7 @@ export const HomeFragment = fragment(() => {
                                 opacity: 0.9
                             }}
                         />
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => onSetTab(0)}>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
                                 source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
                                 style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
@@ -97,7 +82,7 @@ export const HomeFragment = fragment(() => {
                                 {t('home.wallet')}
                             </Text>
                         </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => onSetTab(1)}>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                             <Image
                                 source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
                                 style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
@@ -117,7 +102,7 @@ export const HomeFragment = fragment(() => {
                         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
                         backgroundColor: 'white'
                     }}>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => onSetTab(0)}>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
                                 source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
                                 style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
@@ -128,7 +113,7 @@ export const HomeFragment = fragment(() => {
                                 {t('home.wallet')}
                             </Text>
                         </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => onSetTab(1)}>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                             <Image
                                 source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
                                 style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}

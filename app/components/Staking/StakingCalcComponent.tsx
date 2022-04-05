@@ -4,24 +4,34 @@ import { useTranslation } from "react-i18next";
 import { View, Text } from "react-native";
 import { Address, fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
+import { bnToFloat } from "../../utils/bnToFloat";
+import { parseAmount, parseAmountToBn, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 
-export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
-    amount: string, topUp?: boolean, member?: {
-        address: Address,
-        balance: BN,
-        pendingDeposit: BN,
-        pendingWithdraw: BN,
-        withdraw: BN
-    }
-}) => {
+export const StakingCalcComponent = React.memo((
+    {
+        amount,
+        topUp,
+        member
+    }: {
+        amount: string,
+        topUp?: boolean,
+        member?: {
+            address: Address,
+            balance: BN,
+            pendingDeposit: BN,
+            pendingWithdraw: BN,
+            withdraw: BN
+        }
+    }) => {
     const { t } = useTranslation();
 
+    // console.log((parseAmount(fromNano(member.balance)) * 0.1).toFixed(8));/
+
     if (topUp && member) {
-        const plus = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.1);
-        const yearly = member.balance.muln(0.1);
-        const yearlyPlus = amount === '' ? member.balance.muln(0.1) : toNano(parseFloat(amount.replace(',', '.'))).add(member.balance).muln(0.1);
+        const yearly = toFixedBN(parseAmount(fromNano(member.balance)) * 0.1);
+        const yearlyPlus = yearly.add(toFixedBN(parseAmount(amount) * 0.1));
         return (
             <>
                 <Text style={{
@@ -121,9 +131,10 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
         )
     }
 
-    const yearly = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.1);
-    const monthly = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.1).muln(30 / 366);
-    const daily = amount === '' ? toNano(0) : toNano(parseFloat(amount.replace(',', '.'))).muln(0.1).divn(366);
+    const parsed = parseAmount(amount);
+    const yearly = toFixedBN(parsed * 0.1);
+    const monthly = toFixedBN(parsed * (Math.pow((1 + 0.1 / 366), 30)) - parsed);
+    const daily = toFixedBN(parsed * (1 + 0.1 / 366) - parsed)
 
     return (
         <>
@@ -191,7 +202,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={parseFloat(fromNano(monthly)) < 0.01 ? 6 : 2} value={monthly} />
+                            <ValueComponent centLength={monthly.gtn(0.01) ? 6 : 2} value={monthly} />
                             {' TON'}
                         </Text>
                         <PriceComponent
@@ -228,7 +239,7 @@ export const StakingCalcComponent = React.memo(({ amount, topUp, member }: {
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={parseFloat(fromNano(daily)) < 0.01 ? 6 : 2} value={daily} />
+                            <ValueComponent centLength={daily.gtn(0.01) ? 6 : 2} value={daily} />
                             {' TON'}
                         </Text>
                         <PriceComponent

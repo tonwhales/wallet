@@ -295,11 +295,10 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
 
     let known = props.address ? KnownWallets[props.address] : undefined;
-    let size = props.size * 0.7;
+    let size = props.size * 0.6;
     if (known) {
         if (known.ic) Img = known.ic;
         if (known.color) color = known.color
-        size = props.size;
     }
 
     return (

@@ -6,8 +6,7 @@ import { addAlpha } from "../utils/addAlpha";
 import { avatarHash } from "../utils/avatarHash";
 import { shadeColor } from "../utils/shadeColor";
 import { Avatar, avatarColors, avatarImages, KnownWallets } from "./Avatar";
-import Staking_ava from '../../assets/images/Staking_ava.svg';
-import Staking_ava_test from '../../assets/images/Staking_ava_test.svg';
+import Staking from '../../assets/images/ic_staking_pending.svg';
 import { AppConfig } from "../AppConfig";
 
 export const PendingTransactionAvatar = React.memo(({
@@ -26,19 +25,18 @@ export const PendingTransactionAvatar = React.memo(({
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
 
-    let size = Math.floor(42 * 0.7);
+    let size = Math.floor(42 * 0.6);
     let known = address ? KnownWallets[address] : undefined;
     if (known) {
         if (known.ic) Img = known.ic;
         if (known.color) color = known.color
-        size = 42
     }
 
     let lighter = shadeColor(color, 20);
     let darker = shadeColor(color, -5)
 
     if (staking) {
-        Img = AppConfig.isTestnet ? Staking_ava_test : Staking_ava;
+        Img = Staking;
         lighter = shadeColor(color, 20);
         darker = Theme.accent;
         lighter = AppConfig.isTestnet ? '#FBECD9' : '#DEEFFC';
@@ -84,7 +82,7 @@ export const PendingTransactionAvatar = React.memo(({
                 <Img
                     width={size}
                     height={size}
-                    color="white"
+                    color={staking && AppConfig.isTestnet ? Theme.accent : "white"}
                 />
             </View>
             <AnimatedCircularProgress

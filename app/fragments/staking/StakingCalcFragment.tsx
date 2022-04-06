@@ -53,11 +53,7 @@ export const StakingCalcFragment = fragment(() => {
     }, []);
 
     const onDone = useCallback(() => {
-        if (amountInputFocused) {
-            refs[0].current?.blur();
-        } else {
-            navigation.goBack();
-        }
+        navigation.goBack();
     }, [amountInputFocused]);
 
     React.useLayoutEffect(() => {

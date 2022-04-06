@@ -2,11 +2,10 @@ import BN from "bn.js";
 import React from "react"
 import { useTranslation } from "react-i18next";
 import { View, Text } from "react-native";
-import { Address, fromNano, toNano } from "ton";
+import { Address, fromNano } from "ton";
 import { Theme } from "../../Theme";
 import { bnIsLess } from "../../utils/bnIsLess";
-import { bnToFloat } from "../../utils/bnToFloat";
-import { parseAmount, parseAmountToBn, toFixedBN } from "../../utils/parseAmount";
+import { parseAmount, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 
@@ -27,8 +26,6 @@ export const StakingCalcComponent = React.memo((
         }
     }) => {
     const { t } = useTranslation();
-
-    // console.log((parseAmount(fromNano(member.balance)) * 0.1).toFixed(8));/
 
     if (topUp && member) {
         const yearly = toFixedBN(parseAmount(fromNano(member.balance)) * 0.1);

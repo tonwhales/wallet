@@ -127,7 +127,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         staking: {
             title: 'Стейкинг',
-            balance: 'Баланс на стейкинге',
+            balance: 'Баланс стейкинга',
             subtitle: {
                 join: 'Зарабатывайте на TON',
                 joined: 'Зарабатывайте на TON',

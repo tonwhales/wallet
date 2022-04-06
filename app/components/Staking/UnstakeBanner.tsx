@@ -42,8 +42,6 @@ export const UnstakeBanner = React.memo((
     const estInc = parseFloat(fromNano(value)) * 0.1;
     const estIncPrice = estInc * price.price.usd;
 
-    console.log({ estInc, estIncPrice });
-
     return (
         <View style={{
             backgroundColor: 'white',

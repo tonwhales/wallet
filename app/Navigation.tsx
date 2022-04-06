@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createStackNavigator } from '@react-navigation/stack';
+import { CardStyleInterpolators, createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { Platform, View, Image } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -53,7 +53,10 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
             key={`fullScreen-${name}`}
             name={name}
             component={component}
-            options={{ headerShown: false }}
+            options={{
+                headerShown: false,
+                animation: Platform.OS === 'android' ? 'fade': undefined
+            }}
         />
     );
 }
@@ -64,7 +67,10 @@ function genericScreen(name: string, component: React.ComponentType<any>) {
             key={`genericScreen-${name}`}
             name={name}
             component={component}
-            options={{ headerShown: Platform.OS === 'ios' }}
+            options={{ 
+                headerShown: Platform.OS === 'ios',
+                animation: Platform.OS === 'android' ? 'fade': undefined
+             }}
         />
     );
 }
@@ -86,7 +92,11 @@ function modalScreen(name: string, component: React.ComponentType<any>) {
             key={`modalScreen-${name}`}
             name={name}
             component={component}
-            options={{ presentation: 'modal', headerShown: false }}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                animation: Platform.OS === 'android' ? 'fade': undefined
+            }}
         />
     );
 }
@@ -305,7 +315,11 @@ export const Navigation = React.memo(() => {
                 >
                     <Stack.Navigator
                         initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+                        screenOptions={{
+                            headerBackTitle: t('common.back'), title: '',
+                            headerShadowVisible: false, headerTransparent: false,
+                            headerStyle: { backgroundColor: 'white' },
+                        }}
                     >
                         {navigation}
                     </Stack.Navigator>

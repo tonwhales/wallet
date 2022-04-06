@@ -27,6 +27,6 @@ export const StakingProductComponent = React.memo(() => {
     }
 
     return (
-        <StakingProductJoin pool={pool} />
+        <StakingProductJoin />
     )
 })

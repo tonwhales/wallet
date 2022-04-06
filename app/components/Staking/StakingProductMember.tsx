@@ -49,38 +49,49 @@ export const StakingProductMember = React.memo((
                             <StakingIcon width={42} height={42} color={'white'} />
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0, }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
-                            {t('products.staking.title')}
-                        </Text>
-                        <Text style={{ color: '#787F83', fontSize: 13, marginTop: 3, fontWeight: '400' }} ellipsizeMode="tail">
-                            {t("products.staking.subtitle.joined")}
-                        </Text>
-                    </View>
                     <View style={{
                         flexDirection: 'column',
-                        alignItems: 'center',
+                        flexGrow: 1,
+                        paddingVertical: 2,
                     }}>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 16,
-                            color: Theme.textColor
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginBottom: 3
                         }}>
-                            <ValueComponent
-                                value={member?.balance}
-                                centLength={3}
+                            <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
+                                {t('products.staking.title')}
+                            </Text>
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 16,
+                                color: Theme.textColor
+                            }}>
+                                <ValueComponent
+                                    value={member?.balance}
+                                    centLength={3}
+                                />
+                                {' TON'}
+                            </Text>
+                        </View>
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{ color: '#787F83', fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
+                                {t("products.staking.subtitle.joined")}
+                            </Text>
+                            <PriceComponent
+                                amount={member.balance}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    marginTop: 2, height: 14
+                                }}
+                                textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
                             />
-                            {' TON'}
-                        </Text>
-                        <PriceComponent
-                            amount={member.balance}
-                            style={{
-                                backgroundColor: 'transparent',
-                                paddingHorizontal: 0, paddingVertical: 0,
-                                alignSelf: 'flex-end'
-                            }}
-                            textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
-                        />
+                        </View>
                     </View>
                 </View>
             </View>

@@ -5,14 +5,10 @@ import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { useTranslation } from "react-i18next";
-import { useAccount } from "../../sync/Engine";
-import { StakingPoolState } from "../../storage/cache";
 
-export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState }) => {
+export const StakingProductJoin = React.memo(() => {
     const navigation = useTypedNavigation();
     const { t } = useTranslation();
-    const [account, engine] = useAccount();
-    const price = engine.products.price.useState();
 
     return (
         <TouchableHighlight
@@ -37,46 +33,50 @@ export const StakingProductJoin = React.memo(({ pool }: { pool: StakingPoolState
                         flexDirection: 'column',
                         flexGrow: 1,
                         paddingVertical: 2,
-                        justifyContent: 'space-between'
                     }}>
-                        <Text style={{
-                            color: Theme.textColor, fontSize: 16,
-                            marginRight: 16, fontWeight: '600',
-                        }}
-                            ellipsizeMode="tail"
-                            numberOfLines={1}
-                        >
-                            {t('products.staking.title')}
-                        </Text>
-                        <Text style={{
-                            color: '#787F83', fontSize: 13,
-                            marginTop: 3, fontWeight: '400',
-                        }}
-                            ellipsizeMode="tail"
-                        >
-                            {t("products.staking.subtitle.join")}
-                        </Text>
-                    </View>
-                    <View style={{
-                        alignItems: 'flex-end',
-                        justifyContent: 'space-between',
-                        paddingVertical: 2,
-                    }}>
-                        <Text style={{
-                            fontSize: 16,
-                            fontWeight: '700',
-                            color: '#4FAE42',
-                            marginBottom: 3,
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginBottom: 3
                         }}>
-                            {'~' + t('products.staking.join.apy')}
-                        </Text>
-                        <Text style={{
-                            fontSize: 12,
-                            fontWeight: '400',
-                            color: '#8E979D',
+                            <Text style={{
+                                color: Theme.textColor, fontSize: 16,
+                                marginRight: 16, fontWeight: '600',
+                            }}
+                                ellipsizeMode="tail"
+                                numberOfLines={1}
+                            >
+                                {t('products.staking.title')}
+                            </Text>
+                            <Text style={{
+                                fontSize: 16,
+                                fontWeight: '700',
+                                color: '#4FAE42',
+                            }}>
+                                {'~' + t('products.staking.join.apy')}
+                            </Text>
+                        </View>
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
                         }}>
-                            {t('products.staking.join.yearly')}
-                        </Text>
+                            <Text style={{
+                                color: '#787F83', fontSize: 13,
+                                fontWeight: '400',
+                            }}
+                                ellipsizeMode="tail"
+                            >
+                                {t("products.staking.subtitle.join")}
+                            </Text>
+                            <Text style={{
+                                fontSize: 12,
+                                fontWeight: '400',
+                                color: '#8E979D',
+                                marginTop: 2
+                            }}>
+                                {t('products.staking.join.yearly')}
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </View>

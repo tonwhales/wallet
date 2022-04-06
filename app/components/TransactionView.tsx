@@ -12,6 +12,7 @@ import { AppConfig } from '../AppConfig';
 import { Avatar, KnownWallets } from './Avatar';
 import { t } from '../i18n/t';
 import { PendingTransactionAvatar } from './PendingTransactionAvatar';
+import Img_comment from '../../assets/ic_comment.svg';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
@@ -41,6 +42,88 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+                    {parsed.status !== 'pending' && (<Avatar address={parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={42} />)}
+                    {parsed.status === 'pending' && (
+                        <PendingTransactionAvatar address={parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet })} avatarId={avatarId} />
+                    )}
+                </View>
+                <View style={{
+                    flexGrow: 1, paddingVertical: 12, paddingRight: 10
+                }}>
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginBottom: 2
+                    }}>
+                        <Text
+                            style={{
+                                color: Theme.textColor, fontSize: 16,
+                                flexGrow: 1, marginRight: 16,
+                                fontWeight: '600'
+                            }}
+                            ellipsizeMode="middle"
+                            numberOfLines={1}
+                        >
+                            {transactionType}
+                        </Text>
+                        {parsed.status === 'failed' ? (
+                            <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
+                        ) : (
+                            <Text
+                                style={{
+                                    color: parsed.amount.gte(new BN(0))
+                                        ? '#4FAE42'
+                                        : '#FF0000',
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    marginRight: 2
+                                }}>
+                                <ValueComponent value={parsed.amount} />
+                            </Text>
+                        )}
+                    </View>
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                    }}>
+                        <Text
+                            style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
+                            ellipsizeMode="middle"
+                            numberOfLines={1}
+                        >
+                            {known && known.name
+                                ? known.name
+                                : parsed.address
+                                    ? <AddressComponent address={parsed.address} />
+                                    : 'no address'
+                            }
+                        </Text>
+                        <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                            {
+                                parsed.body
+                                    ? (
+                                        <Img_comment
+                                            style={{
+                                                marginRight: 2,
+                                                alignSelf: 'center'
+                                            }}
+                                        />
+                                    )
+                                    : null
+                            }
+                            <Text style={{ color: Theme.textSecondary, fontSize: 12, }}>{formatTime(parsed.time)}</Text>
+                        </View>
+                    </View>
+                    {props.separator && (
+                        <View style={{
+                            height: 1,
+                            alignSelf: 'stretch',
+                            backgroundColor: Theme.divider,
+                            position: 'absolute', bottom: 0, left: 0, right: 0
+                        }} />
+                    )}
+                </View>
+                {/* <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     {parsed.status !== 'pending' && (<Avatar address={parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={42} />)}
                     {parsed.status === 'pending' && (
                         <PendingTransactionAvatar address={parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet })} avatarId={avatarId} />
@@ -76,21 +159,28 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                                     : 'no address'
                             }
                         </Text>
+                        <View style={{ flexDirection: 'row'}}>
                         {
                             parsed.body
                                 ? (
-                                    <Image
-                                        source={require('../../assets/comment.png')}
-                                        style={{ marginRight: 4, transform: [{ translateY: Platform.OS === 'android' ? -1 : 1.5 }] }}
+                                    <Img_comment
+                                        // source={require('../../assets/comment.png')}
+                                        style={{
+                                            marginRight: 2,
+                                            alignSelf: 'center'
+                                            // transform: [{ translateY: Platform.OS === 'android' ? 0 : 1.5 }],
+                                            // height: 13, width: 13
+                                        }}
                                     />
                                 )
                                 : null
                         }
-                        <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
+                        <Text style={{ color: Theme.textSecondary, fontSize: 12, }}>{formatTime(parsed.time)}</Text>
+                        </View>
                     </View>
                     <View style={{ flexGrow: 1 }} />
                     {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
-                </View>
+                </View> */}
             </View>
         </TouchableHighlight>
     );

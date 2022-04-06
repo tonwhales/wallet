@@ -20,7 +20,6 @@ export const HomeFragment = fragment(() => {
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
 
-
     // Subscribe for links
     React.useEffect(() => {
         return CachedLinking.setListener((link: string) => {

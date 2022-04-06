@@ -222,6 +222,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 blockchainFee: 'Blockhain fee',
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
+            tryAgainLater: 'Please, try again later',
             banner: {
                 estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0(${{price}})',
                 message: 'Are you sure about the unstaking?'

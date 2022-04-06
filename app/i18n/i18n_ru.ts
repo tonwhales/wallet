@@ -222,6 +222,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 blockchainFee: 'Комиссия сети',
             },
             minAmountWarning: 'Минимальное количество {{minAmount}} TON',
+            tryAgainLater: 'Пожалуйста, повторите попытку позже',
             banner: {
                 estimatedEarnings: "Ваш предполагаемый годовой доход уменьшится на {{amount}}\u00A0TON\u00A0(${{price}})",
                 message: "Уверены, что хотите вывести?"

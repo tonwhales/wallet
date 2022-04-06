@@ -225,6 +225,7 @@ export type LocalizationSchema = {
                 blockchainFee: string,
             },
             minAmountWarning: string,
+            tryAgainLater: string,
             banner: {
                 estimatedEarnings: string,
                 message: string

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { View, Text } from "react-native";
 import { Address, fromNano } from "ton";
 import { Theme } from "../../Theme";
-import { bnIsLess } from "../../utils/bnIsLess";
+import { bnIsLess } from "../../utils/bnComparison";
 import { parseAmount, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";

@@ -30,6 +30,8 @@ import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInf
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
 import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
+import { parseAmount } from '../../utils/parseAmount';
+import { bnIsGreater, bnIsLess } from '../../utils/bnComparison';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -97,16 +99,32 @@ export const StakingTransferFragment = fragment(() => {
         }, []);
 
     const doSend = React.useCallback(async () => {
+        // Check pool
+        if (pool) {
+            setMinAmountWarn(t('products.staking.tryAgainLater'));
+            return;
+        }
+
+        // Check min stake amount
         if (
-            pool
-            && (
-                params?.action === 'deposit'
-                || params?.action === 'top_up'
-            )
-            && pool.minStake.gt(toNano(amount.replace(',', '.')))
+            (params?.action === 'deposit' || params?.action === 'top_up')
+            && bnIsGreater(pool!.minStake, parseAmount(amount))
         ) {
             setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: fromNano(pool!.minStake) }));
             return;
+        }
+
+        if (params?.action === 'withdraw') {
+            if (0.2 > parseAmount(amount)) {
+                setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: '0.2' }));
+                return;
+            }
+            // Check availible 
+            const availible = member ? member.balance.add(member.withdraw).add(member.pendingDeposit) : undefined;
+            if (!availible || bnIsLess(availible, parseAmount(amount))) {
+                setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
+                return;
+            }
         }
 
         let address: Address;
@@ -128,20 +146,6 @@ export const StakingTransferFragment = fragment(() => {
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
-        }
-
-        if (params?.action === 'withdraw' && toNano('0.2').gt(toNano(amount.replace(',', '.')))) {
-            setMinAmountWarn(t('products.staking.minAmountWarning', { minAmount: '0.2' }));
-            return;
-        }
-
-        if ((params?.action === 'withdraw')) {
-            // Check staked balance
-            if (!member || member.balance.add(member.withdraw).add(member.pendingDeposit).lt(value)) {
-                setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
-                // Alert.alert(t('products.staking.transfer.notEnoughStaked'));
-                return;
-            }
         }
 
         // Check amount
@@ -189,19 +193,9 @@ export const StakingTransferFragment = fragment(() => {
             return;
         }
 
-        if ((params?.action === 'withdraw')) {
-            // Check staked balance
-            if (!member || member.balance.add(member.withdraw).add(member.pendingDeposit).lt(value)) {
-                setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
-                // Alert.alert(t('products.staking.transfer.notEnoughStaked'));
-                return;
-            }
-        }
-
         // Check amount
         if ((!value.eq(account.balance) && account.balance.lt(value))) {
             setMinAmountWarn(t('transfer.error.notEnoughCoins'));
-            // Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
 
@@ -316,7 +310,7 @@ export const StakingTransferFragment = fragment(() => {
     const lock = React.useMemo(() => {
         return new AsyncLock();
     }, []);
-    
+
     React.useEffect(() => {
         let ended = false;
         lock.inLock(async () => {

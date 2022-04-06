@@ -100,7 +100,7 @@ export const StakingTransferFragment = fragment(() => {
 
     const doSend = React.useCallback(async () => {
         // Check pool
-        if (pool) {
+        if (!pool) {
             setMinAmountWarn(t('products.staking.tryAgainLater'));
             return;
         }

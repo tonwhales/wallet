@@ -137,6 +137,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
                 depositStakeTitle: 'Staking',
+                depositStakeConfirmTitle: 'Confirm Staking',
                 withdrawStakeTitle: 'Unstake',
                 withdrawStakeConfirmTitle: 'Confirm Unstake',
                 topUpTitle: 'Top Up',
@@ -161,7 +162,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 earn: 'Earn up to',
                 onYourTons: 'on your TONs',
                 apy: '13.3%',
-                yearly: 'yearly',
+                yearly: 'APY',
                 cycle: 'Get rewards for staking every 36h',
                 ownership: 'Staked TONs remain yours',
                 withdraw: 'Withdraw and Top Up at any time',

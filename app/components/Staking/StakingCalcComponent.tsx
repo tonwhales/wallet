@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { View, Text } from "react-native";
 import { Address, fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
+import { bnIsLess } from "../../utils/bnIsLess";
 import { bnToFloat } from "../../utils/bnToFloat";
 import { parseAmount, parseAmountToBn, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
@@ -202,7 +203,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={monthly.gtn(0.01) ? 6 : 2} value={monthly} />
+                            <ValueComponent centLength={bnIsLess(monthly, 0.01) ? 6 : 2} value={monthly} />
                             {' TON'}
                         </Text>
                         <PriceComponent
@@ -239,7 +240,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={daily.gtn(0.01) ? 6 : 2} value={daily} />
+                            <ValueComponent centLength={bnIsLess(daily, 0.01) ? 6 : 2} value={daily} />
                             {' TON'}
                         </Text>
                         <PriceComponent

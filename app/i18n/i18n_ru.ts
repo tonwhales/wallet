@@ -137,6 +137,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
                 depositStakeTitle: 'Стейкинг',
+                depositStakeConfirmTitle: 'Подтвердить стекинг',
                 withdrawStakeTitle: 'Вывести со Стейкинга',
                 withdrawStakeConfirmTitle: 'Подтвердить вывод',
                 topUpTitle: 'Пополнить',
@@ -178,8 +179,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: 'У вас нет транзакций'
             },
             pending: {
-                deposit: 'Ожидает внесения',
-                withdraw: 'Ожидает вывода'
+                deposit: 'Выполняется внесение',
+                withdraw: 'Ожидание вывода'
             },
             withdrawStatus: {
                 pending: 'Вывод ожидает',

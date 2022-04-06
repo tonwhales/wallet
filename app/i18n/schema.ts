@@ -150,6 +150,7 @@ export type LocalizationSchema = {
             transfer: {
                 stakingWarning: string,
                 depositStakeTitle: string,
+                depositStakeConfirmTitle: string,
                 withdrawStakeTitle: string,
                 withdrawStakeConfirmTitle: string,
                 topUpTitle: string,

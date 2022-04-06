@@ -316,6 +316,7 @@ export const StakingTransferFragment = fragment(() => {
     const lock = React.useMemo(() => {
         return new AsyncLock();
     }, []);
+    
     React.useEffect(() => {
         let ended = false;
         lock.inLock(async () => {
@@ -419,9 +420,6 @@ export const StakingTransferFragment = fragment(() => {
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
     React.useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
-        if (keyboard.keyboardShown) {
-            runOnUI(scrollToInput)(selectedInput);
-        }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
@@ -656,7 +654,7 @@ export const StakingTransferFragment = fragment(() => {
                     title={
                         notConfirmed
                             ? t('common.continue')
-                            : t('common.approve')
+                            : t('common.confirm')
                     }
                     action={doSend}
                 />

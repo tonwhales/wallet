@@ -1,17 +1,35 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { Alert, View, Text } from "react-native";
 import WebView from "react-native-webview";
 import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { storage } from "../../storage/storage";
+import { Theme } from "../../Theme";
 import { useParams } from "../../utils/useParams";
 
 
 export const NeocryptoFragment = fragment(() => {
+
+    if (AppConfig.isTestnet) {
+
+        return (
+            <View style={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{
+                    color: Theme.textColor
+                }}>
+                    {'Neocrypto service availible only on mainnet'}
+                </Text>
+            </View>
+        );
+    }
     const params = useParams<{
         amount?: string,
         fix_amount?: 'true' | 'false'

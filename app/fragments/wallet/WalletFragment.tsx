@@ -280,21 +280,25 @@ export const WalletFragment = fragment(() => {
                             </View>
                         </TouchableHighlight>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigate('Buy')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                    <Text style={{
-                                        fontWeight: '700',
-                                        color: 'white'
-                                    }}>
-                                        {'$'}
-                                    </Text>
-                                </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{'Buy'}</Text>
+                    {
+                        !AppConfig.isTestnet && (
+                            <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                <TouchableHighlight onPress={() => navigation.navigate('Buy')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                        <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                            <Text style={{
+                                                fontWeight: '700',
+                                                color: 'white'
+                                            }}>
+                                                {'$'}
+                                            </Text>
+                                        </View>
+                                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{'Buy'}</Text>
+                                    </View>
+                                </TouchableHighlight>
                             </View>
-                        </TouchableHighlight>
-                    </View>
+                        )
+                    }
                 </View>
 
                 {oldWalletsBalance.gt(new BN(0)) && (

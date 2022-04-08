@@ -133,6 +133,8 @@ import Img_Whales from '../../assets/images/Whales.svg';
 import Img_OKX from '../../assets/images/OKX.svg';
 import Img_FTX from '../../assets/images/FTX.svg';
 
+import Verified from '../../assets/ic_verified.svg';
+
 export const avatarImages = [
     Img_ant,
     Img_antelope,
@@ -294,15 +296,25 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
 
     let known = props.address ? KnownWallets[props.address] : undefined;
-    let size = props.size * 0.6;
+    let size = Math.floor(props.size * 0.6);
     if (known) {
         if (known.ic) Img = known.ic;
         if (known.color) color = known.color
     }
+    const verifiedSize = Math.floor(props.size * 0.3);
 
     return (
         <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
             <Img width={size} height={size} color="white" />
+            {!!known && (
+                <Verified
+                    style={{
+                        position: 'absolute', top: -2, right: -2
+                    }}
+                    height={verifiedSize}
+                    width={verifiedSize}
+                />
+            )}
         </View>
     );
 });

@@ -310,7 +310,15 @@ export const TransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        setAmount(fromNano(account.balance));
+        Alert.alert(t('transfer.confirmAddAll'), undefined, [{
+            text: t('common.yes'),
+            style: 'destructive',
+            onPress: () => {
+                setAmount(fromNano(account.balance));
+            }
+        }, {
+            text: t('common.no'),
+        }]);
     }, [setAmount, account]);
 
     //
@@ -354,7 +362,9 @@ export const TransferFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
-        console.log('[onFocus]', index);
+        if (index === 0 && amount === '0') {
+            setAmount('');
+        }
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);

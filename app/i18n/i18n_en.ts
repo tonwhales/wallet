@@ -83,7 +83,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',
         purpose: 'Purpose of transaction',
-        comment: 'Message to recipient (optional)'
+        comment: 'Message to recipient (optional)',
+        confirmAddAll: 'Are you sire you want to send all coins?',
+        addAllTitle: 'Add all coins'
     },
     auth: {
         title: 'Authentication',

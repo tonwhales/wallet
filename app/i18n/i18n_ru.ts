@@ -74,7 +74,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
         purpose: 'Цель транзакции',
-        comment: 'Сообщение получателю (необязательное)'
+        comment: 'Сообщение получателю (необязательное)',
+        confirmAddAll: 'Вы уверены, что хотите отправить все монеты?',
+        addAllTitle: 'Добавить все монеты'
     },
     auth: {
         title: 'Авторизация',

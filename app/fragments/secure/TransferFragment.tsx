@@ -354,9 +354,7 @@ export const TransferFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
-        if (index === 0 && amount === '0') {
-            setAmount('');
-        }
+        console.log('[onFocus]', index);
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);

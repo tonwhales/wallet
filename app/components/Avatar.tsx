@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
+import { Address } from 'ton';
+import { AppConfig } from '../AppConfig';
 
 import Img_ant from '../../assets/images/img_ant.svg';
 import Img_antelope from '../../assets/images/img_antelope.svg';
@@ -125,7 +127,13 @@ import Img_wombat from '../../assets/images/img_wombat.svg';
 import Img_yak from '../../assets/images/img_yak.svg';
 import Img_zebra from '../../assets/images/img_zebra.svg';
 
-let images = [
+import Img_EXMO from '../../assets/images/EXMO.svg';
+import Img_Foundation from '../../assets/images/Foundation.svg';
+import Img_Whales from '../../assets/images/Whales.svg';
+import Img_OKX from '../../assets/images/OKX.svg';
+import Img_FTX from '../../assets/images/FTX.svg';
+
+export const avatarImages = [
     Img_ant,
     Img_antelope,
     Img_bass,
@@ -250,7 +258,26 @@ let images = [
     Img_zebra,
 ];
 
-let colors = [
+export const KnownWallets: { [key: string]: { name: string, ic?: any, color?: string } } = {
+    [Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N').toFriendly()]: { name: 'TON Foundation', color: '#D55F5F', ic: Img_Foundation },
+    [Address.parse('EQABMMdzRuntgt9nfRB61qd1wR-cGPagXA3ReQazVYUNrT7p').toFriendly()]: { name: 'EXMO Deposit', color: '#D5AD5F', ic: Img_EXMO },
+    [Address.parse('EQB5lISMH8vLxXpqWph7ZutCS4tU4QdZtrUUpmtgDCsO73JR').toFriendly()]: { name: 'EXMO Withdraw', color: '#D5AD5F', ic: Img_EXMO },
+    [Address.parse('EQCNGVeTuq2aCMRtw1OuvpmTQdq9B3IblyXxnhirw9ENkhLa').toFriendly()]: { name: 'EXMO Cold', color: '#D5AD5F', ic: Img_EXMO },
+    [Address.parse('EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka95J1JJwXXf4a8').toFriendly()]: { name: 'OKX', color: '#76C84D', ic: Img_OKX },
+    [Address.parse('EQCzFTXpNNsFu8IgJnRnkDyBCL2ry8KgZYiDi3Jt31ie8EIQ').toFriendly()]: { name: 'FTX', color: '#8E85EE', ic: Img_FTX },
+    [Address.parse('EQDd3NPNrWCvTA1pOJ9WetUdDCY_pJaNZVq0JMaara-TIp90').toFriendly()]: { name: 'FTX 2', color: '#8E85EE', ic: Img_FTX },
+
+    [Address.parse('EQAAFhjXzKuQ5N0c96nsdZQWATcJm909LYSaCAvWFxVJP80D').toFriendly()]: { name: 'Whales Pool', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toFriendly()]: { name: 'Whales Staking Pool', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs').toFriendly({ testOnly: AppConfig.isTestnet })]: { name: 'Whales Staking Pool', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('EQBeNwQShukLyOWjKWZ0Oxoe5U3ET-ApQIWYeC4VLZ4tmeTm').toFriendly()]: { name: 'Whales Pool Withdraw 1', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('EQAQwQc4N7k_2q1ZQoTOi47_e5zyVCdEDrL8aCdi4UcTZef4').toFriendly()]: { name: 'Whales Pool Withdraw 2', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('EQDQA68_iHZrDEdkqjJpXcVqEM3qQC9u0w4nAhYJ4Ddsjttc').toFriendly()]: { name: 'Whales Pool Withdraw 3', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('EQCr1U4EVmSWpx2sunO1jhtHveatorjfDpttMCCkoa0JyD1P').toFriendly()]: { name: 'Whales Pool Withdraw 4', color: '#5FBED5', ic: Img_Whales },
+    [Address.parse('EQAB_3oC0MH1r4fz1kztk6Nhq9GFQnrBUgObzrhyAXjzzjrc').toFriendly()]: { name: 'Whales Pool Withdraw 5', color: '#5FBED5', ic: Img_Whales },
+}
+
+export const avatarColors = [
     '#294659',
     '#e56555',
     '#f28c48',
@@ -262,12 +289,20 @@ let colors = [
     '#d1b04d'
 ];
 
-export const Avatar = React.memo((props: { size: number, id: string }) => {
-    let Img = images[avatarHash(props.id, images.length)];
-    let color = colors[avatarHash(props.id, colors.length)];
+export const Avatar = React.memo((props: { size: number, id: string, address?: string }) => {
+    let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
+    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
+
+    let known = props.address ? KnownWallets[props.address] : undefined;
+    let size = props.size * 0.6;
+    if (known) {
+        if (known.ic) Img = known.ic;
+        if (known.color) color = known.color
+    }
+
     return (
         <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
-            <Img width={Math.floor(props.size * 0.7)} height={Math.floor(props.size * 0.7)} color="white" />
+            <Img width={size} height={size} color="white" />
         </View>
     );
 });

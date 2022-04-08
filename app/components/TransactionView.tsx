@@ -9,8 +9,9 @@ import { AddressComponent } from './AddressComponent';
 import { Transaction } from '../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../AppConfig';
-import { Avatar } from './Avatar';
+import { Avatar, KnownWallets } from './Avatar';
 import { t } from '../i18n/t';
+import { PendingTransactionAvatar } from './PendingTransactionAvatar';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
@@ -34,11 +35,17 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         transactionType = t('tx.received');
     }
 
+    let friendlyAddress = parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet });
+    let known = friendlyAddress ? KnownWallets[friendlyAddress] : undefined;
+
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    <Avatar id={avatarId} size={42} />
+                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} />)}
+                    {parsed.status === 'pending' && (
+                        <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
+                    )}
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
@@ -58,7 +65,19 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
-                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }} ellipsizeMode="middle" numberOfLines={1}>{parsed.address ? <AddressComponent address={parsed.address} /> : 'no address'}</Text>
+                        <Text
+                            style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
+                            ellipsizeMode="middle"
+                            numberOfLines={1}
+                        >
+                            {
+                                known
+                                    ? known.name
+                                    : parsed.address
+                                        ? <AddressComponent address={parsed.address} />
+                                        : 'no address'
+                            }
+                        </Text>
                         {parsed.body ? <Image source={require('../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                         <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
                     </View>

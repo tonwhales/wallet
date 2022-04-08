@@ -11,6 +11,7 @@ import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../AppConfig';
 import { Avatar } from './Avatar';
 import { t } from '../i18n/t';
+import { PendingTransactionAvatar } from './PendingTransactionAvatar';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
@@ -38,7 +39,10 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    <Avatar id={avatarId} size={42} />
+                {parsed.status !== 'pending' && (<Avatar address={parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={42} />)}
+                    {parsed.status === 'pending' && (
+                        <PendingTransactionAvatar address={parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet })} avatarId={avatarId} />
+                    )}
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>

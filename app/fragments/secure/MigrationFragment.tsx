@@ -120,6 +120,14 @@ export const MigrationFragment = fragment(() => {
     const [confirm, setConfirm] = React.useState(false);
     const navigation = useTypedNavigation();
     const [account, engine] = useAccount();
+    const animRef = React.useRef<LottieView>(null);
+
+    React.useEffect(() => {
+        if (Platform.OS === 'ios') {
+            setTimeout(() => animRef.current?.play(), 500);
+        }
+    }, []);
+
     const state = engine.products.oldWallets.useStateFull();
     let s = new BN(0);
     for (let w of state) {
@@ -151,6 +159,7 @@ export const MigrationFragment = fragment(() => {
 
                     <View style={{ alignSelf: 'center' }}>
                         <LottieView
+                            ref={animRef}
                             source={require('../../../assets/animations/zombie.json')}
                             autoPlay={true}
                             loop={true}

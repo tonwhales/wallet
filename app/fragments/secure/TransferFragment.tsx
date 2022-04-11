@@ -541,7 +541,7 @@ export const TransferFragment = fragment(() => {
                                     overflow: 'hidden',
                                 }}>
                                     <Text style={{
-                                        fontWeight: '400',
+                                        fontWeight: '500',
                                         fontSize: 12,
                                         color: '#7D858A',
                                         alignSelf: 'flex-start',
@@ -630,7 +630,7 @@ export const TransferFragment = fragment(() => {
                                     overflow: 'hidden',
                                 }}>
                                     <Text style={{
-                                        fontWeight: '400',
+                                        fontWeight: '500',
                                         fontSize: 12,
                                         color: '#7D858A',
                                         alignSelf: 'flex-start',

@@ -118,7 +118,110 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'
         },
-        transactionRequest: 'Запрос транзакции'
+        transactionRequest: 'Запрос транзакции',
+        staking: {
+            title: 'Стейкинг',
+            balance: 'Баланс стейкинга',
+            subtitle: {
+                join: 'Зарабатывайте на TON',
+                joined: 'Зарабатывайте на TON',
+                rewards: 'Расчетная доходность',
+                apy: '~13.3% годовых от вклада'
+            },
+            transfer: {
+                stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
+                depositStakeTitle: 'Стейкинг',
+                depositStakeConfirmTitle: 'Подтвердить стекинг',
+                withdrawStakeTitle: 'Вывести со Стейкинга',
+                withdrawStakeConfirmTitle: 'Подтвердить вывод',
+                topUpTitle: 'Пополнить',
+                topUpConfirmTitle: 'Подтвердить пополнение',
+                notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке'
+            },
+            nextCycle: 'След. цикл',
+            cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',
+            cycleNoteWithdraw: 'Транзакции по выводу исполняются только после завершения цикла',
+            buttonTitle: 'cтейкинг',
+            balanceTitle: 'Стейкинг Баланс',
+            actions: {
+                deposit: 'Внести',
+                top_up: 'Пополнить',
+                withdraw: 'Вывести'
+            },
+            join: {
+                title: 'Стань валидатором TON',
+                message: 'Стейкинг — это общественное благо для экосистемы TON. Вы можете помочь защитить сеть и получить вознаграждение в процессе',
+                buttonTitle: 'Начать зарабатывать',
+                moreAbout: 'Подробнее о Tonwhales Staking Pool',
+                earn: 'Получайте до',
+                onYourTons: 'дохода со стейкинга',
+                apy: '13.3%',
+                yearly: 'годовых',
+                cycle: 'Вознаграждения за стейкинг приходят каждые 36ч',
+                ownership: 'Застейканные монеты принадлежат только вам',
+                withdraw: 'Выводите и пополняйте баланс стейкинга в любое время',
+                successTitle: 'Отправлено {{amount}} TON',
+                successEtimation: 'Ваш предполагаемый годовой доход составляет {{amount}}\u00A0TON\u00A0(${{price}}).',
+                successNote: 'Ваш застейканый TON будет активен после начала следующего цикла.'
+            },
+            pool: {
+                balance: 'Общая ставка',
+                members: 'Номинаторы',
+                profitability: 'Прибыльность'
+            },
+            empty: {
+                message: 'У вас нет транзакций'
+            },
+            pending: {
+                deposit: 'Выполняется внесение',
+                withdraw: 'Ожидание вывода'
+            },
+            withdrawStatus: {
+                pending: 'Вывод ожидает',
+                ready: 'Готово к выводу',
+                withdrawNow: 'Вывести сейчас'
+            },
+            depositStatus: {
+                pending: 'Взнос ожидает'
+            },
+            withdraw: 'Вывод',
+            sync: 'Синхронизация данных',
+            unstake: {
+                title: 'Вы уверены что хотите запросить вывод?',
+                message: 'Обратите внимание, что при запросе на вывод все незавершенные депозиты также будут возвращены.'
+            },
+            learnMore: 'Инфо',
+            moreInfo: 'Больше информации',
+            calc: {
+                yearly: 'Доходность в год',
+                monthly: 'Доходность в месяц',
+                daily: 'Доходность в день',
+                note: 'Рассчитано с учетом всех комиссий',
+                text: 'Калькулятор доходности',
+                yearlyTopUp: 'После пополнения',
+                yearlyTotal: 'Всего вознаграждений за год',
+                yearlyCurrent: 'Текущая',
+                topUpTitle: 'Ваша годовая доходность'
+            },
+            info: {
+                rate: '~13.3%',
+                rateTitle: 'Годовая доходность',
+                frequency: 'Каждые 36ч',
+                frequencyTitle: 'Частота выплат',
+                minDeposit: 'Минимальный депозит',
+                poolFee: '3.3%',
+                poolFeeTitle: 'Комиссия пула',
+                depositFee: 'Газ за отправку',
+                withdrawFee: 'Комиссия за вывод',
+                blockchainFee: 'Комиссия сети',
+            },
+            minAmountWarning: 'Минимальное количество {{minAmount}} TON',
+            tryAgainLater: 'Пожалуйста, повторите попытку позже',
+            banner: {
+                estimatedEarnings: "Ваш предполагаемый годовой доход уменьшится на {{amount}}\u00A0TON\u00A0(${{price}})",
+                message: "Уверены, что хотите вывести?"
+            }
+        },
     },
     welcome: {
         title: 'Tonhub',

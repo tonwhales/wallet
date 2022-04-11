@@ -118,7 +118,110 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
         },
-        transactionRequest: 'Request transaction'
+        transactionRequest: 'Request transaction',
+        staking: {
+            title: 'Staking',
+            balance: 'Staking balance',
+            subtitle: {
+                join: 'Earn up to 13.3% on your TONs',
+                joined: 'Earn up to 13.3%',
+                rewards: 'Estimated Interest',
+                apy: '~13.3 APY of the contribution'
+            },
+            transfer: {
+                stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
+                depositStakeTitle: 'Staking',
+                depositStakeConfirmTitle: 'Confirm Staking',
+                withdrawStakeTitle: 'Unstake',
+                withdrawStakeConfirmTitle: 'Confirm Unstake',
+                topUpTitle: 'Top Up',
+                topUpConfirmTitle: 'Confirm Top Up',
+                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked'
+            },
+            nextCycle: 'Next cycle',
+            cycleNote: 'All transactions take effect once the cycle ends',
+            cycleNoteWithdraw: 'Withdrawals take effect once the cycle ends',
+            buttonTitle: 'stake',
+            balanceTitle: 'Staking Balance',
+            actions: {
+                deposit: 'Deposit',
+                top_up: 'Top Up',
+                withdraw: 'Unstake'
+            },
+            join: {
+                title: 'Become a TON validator',
+                message: 'Staking is a public good for the TON ecosystem. You can help secure the network and earn rewards in the process',
+                buttonTitle: 'Start Earning',
+                moreAbout: 'More about Tonwhales Staking Pool',
+                earn: 'Earn up to',
+                onYourTons: 'on your TONs',
+                apy: '13.3%',
+                yearly: 'APY',
+                cycle: 'Get rewards for staking every 36h',
+                ownership: 'Staked TONs remain yours',
+                withdraw: 'Withdraw and Top Up at any time',
+                successTitle: '{{amount}} TON staked',
+                successEtimation: 'Your estimated yearly earnings are {{amount}}\u00A0TON\u00A0(${{price}}).',
+                successNote: 'Your staked TON will be activated once the next cycle starts.'
+            },
+            pool: {
+                balance: 'Total Stake',
+                members: 'Nominators',
+                profitability: 'Profitability'
+            },
+            empty: {
+                message: 'You have no transactions'
+            },
+            pending: {
+                deposit: 'Pending Deposit',
+                withdraw: 'Pending Withdraw'
+            },
+            withdrawStatus: {
+                pending: 'Withdraw pending',
+                ready: 'Withdraw ready',
+                withdrawNow: 'Withdraw now'
+            },
+            depositStatus: {
+                pending: 'Deposit pending'
+            },
+            withdraw: 'Withdraw',
+            sync: 'Downloading staking data',
+            unstake: {
+                title: 'Are you sure want to request withdrawal?',
+                message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
+            },
+            learnMore: 'Info',
+            moreInfo: 'More info',
+            calc: {
+                yearly: 'Yearly rewards',
+                monthly: 'Monthly rewards',
+                daily: 'Daily rewards',
+                note: 'Calculated including all fees',
+                text: 'Earnings calculator',
+                yearlyTopUp: 'After Top Up',
+                yearlyTotal: 'Total rewards in a year',
+                yearlyCurrent: 'Current',
+                topUpTitle: 'Your yearly rewards'
+            },
+            info: {
+                rate: '13.3%',
+                rateTitle: 'Est. APY rate',
+                frequency: 'Every 36 hours',
+                frequencyTitle: 'Reward Frequency',
+                minDeposit: 'Minimal deposit',
+                poolFee: '3.3%',
+                poolFeeTitle: 'Pool Fee',
+                depositFee: 'Deposit Gas',
+                withdrawFee: 'Withdraw Gas',
+                blockchainFee: 'Blockhain fee',
+            },
+            minAmountWarning: 'Minimum amount is {{minAmount}} TON',
+            tryAgainLater: 'Please, try again later',
+            banner: {
+                estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0(${{price}})',
+                message: 'Are you sure about the unstaking?'
+            }
+        },
     },
     welcome: {
         title: 'Tonhub',

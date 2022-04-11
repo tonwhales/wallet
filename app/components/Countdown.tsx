@@ -1,46 +1,57 @@
-import { formatDistanceToNow, formatDistanceToNowStrict, formatDuration } from "date-fns";
+import { formatDuration } from "date-fns";
+import { ru } from 'date-fns/locale';
 import React, { useEffect, useState } from "react"
 import { StyleProp, Text, TextStyle } from "react-native"
-import { t } from "../i18n/t";
-import { ru } from 'date-fns/locale';
-import { secToFormatTime } from "../utils/secToFormatTime";
 import { useTranslation } from "react-i18next";
+import { t } from "../i18n/t";
 
-let locale: Locale | undefined = undefined;
-if (t('lang') === 'ru') {
-    locale = ru;
+function getDuration(seconds: number) {
+    let left = seconds;
+    const days = Math.floor(left / (24 * 60 * 60));
+    left = left - days * (24 * 60 * 60);
+    const hours = Math.floor(left / (60 * 60));
+    left = left - hours * 60 * 60
+    const minutes = Math.floor(left / 60);
+
+    return {
+        days,
+        hours,
+        minutes
+    }
 }
 
-export const Countdown = React.memo(({ until, textStyle, strict }: { until: number, textStyle?: StyleProp<TextStyle>, strict?: boolean }) => {
+function format(duration: number) {
+    return t('common.in')
+        + ' '
+        + formatDuration(getDuration(duration), { locale: t('lang') === 'ru' ? ru : undefined });
+}
+
+export const Countdown = React.memo(({ until, textStyle }: { until: number, textStyle?: StyleProp<TextStyle> }) => {
     const { t } = useTranslation()
-    const [text, setText] = useState(
-        !until
-            ? t('common.soon')
-            : strict
-                ? secToFormatTime(until - (Date.now() / 1000)) + ' ' + t('common.left')
-                : formatDistanceToNow(
-                    new Date(until * 1000),
-                    { addSuffix: true, locale: locale, includeSeconds: true }
-                )
-    );
+    const [text, setText] = useState(format(Math.floor(until - (Date.now() / 1000))));
 
     useEffect(() => {
         const timerId = setInterval(() => {
-            setText(
-                !until
-                    ? t('common.soon')
-                    : strict
-                        ? secToFormatTime(until - (Date.now() / 1000)) + ' ' + t('common.left')
-                        : formatDistanceToNow(
-                            new Date(until * 1000),
-                            { addSuffix: true, locale: locale, includeSeconds: true }
-                        )
-            )
+            setText(format(Math.floor(until - (Date.now() / 1000))));
         }, 1000);
         return () => {
             clearInterval(timerId);
         };
     }, [until]);
+
+    if (!until) {
+        return (
+            <Text style={[{
+                color: '#8E979D',
+                fontSize: 13,
+            }, textStyle]}
+                ellipsizeMode="tail"
+                numberOfLines={1}
+            >
+                {t('common.soon')}
+            </Text>
+        );
+    }
 
     return (
         <Text style={[{

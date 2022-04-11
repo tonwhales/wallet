@@ -25,6 +25,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         comment: 'Комментарий',
         products: 'Продукты',
         confirm: 'Подтвердить',
+        soon: 'скоро',
+        in: 'через'
     },
     home: {
         wallet: 'Кошелек',

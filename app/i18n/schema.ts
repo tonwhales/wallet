@@ -27,6 +27,8 @@ export type LocalizationSchema = {
         comment: string, 
         products: string,
         confirm: string,
+        soon: string,
+        in: string
     }
     home: {
         wallet: string,

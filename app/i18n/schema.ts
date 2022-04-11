@@ -24,7 +24,8 @@ export type LocalizationSchema = {
         amount: string,
         today: string,
         yesterday: string,
-        comment: string
+        comment: string, 
+        products: string
     }
     home: {
         wallet: string,

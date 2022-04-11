@@ -26,6 +26,7 @@ import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
 import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
+import { ProductsComponent } from '../../components/ProductsComponent';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -281,36 +282,8 @@ export const WalletFragment = fragment(() => {
                         </TouchableHighlight>
                     </View>
                 </View>
-
-                {oldWalletsBalance.gt(new BN(0)) && (
-                    <ProductButton
-                        name={t('products.oldWallets.title')}
-                        subtitle={t("products.oldWallets.subtitle")}
-                        icon={OldWalletIcon}
-                        value={oldWalletsBalance}
-                        onPress={() => navigation.navigate('Migration')}
-                    />
-                )}
-
-                {currentJob && currentJob.job.type === 'transaction' && (
-                    <ProductButton
-                        name={t('products.transactionRequest')}
-                        subtitle={currentJob.job.text}
-                        icon={OldWalletIcon}
-                        value={null}
-                        onPress={() => {
-                            if (currentJob.job.type === 'transaction') {
-                                navigation.navigate('Transfer', {
-                                    target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    comment: currentJob.job.text,
-                                    amount: currentJob.job.amount.toString(10),
-                                    payload: currentJob.job.payload,
-                                    job: currentJob.jobRaw
-                                });
-                            }
-                        }}
-                    />
-                )}
+                
+                <ProductsComponent />
 
                 {
                     transactions.length === 0 && (

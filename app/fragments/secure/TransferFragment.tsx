@@ -147,8 +147,17 @@ export const TransferFragment = fragment(() => {
             return;
         }
 
+        // Check balance for gas
+        if (params?.action === 'staking_withdraw' && account.balance.lt(toNano('0.2'))) {
+            Alert.alert(t('transfer.error.notEnoughCoins'));
+            return;
+        }
+
         // Check amount
-        if (!value.eq(account.balance) && account.balance.lt(value)) {
+        if (
+            !(params?.action === 'staking_withdraw')
+            && !value.eq(account.balance) && account.balance.lt(value)
+        ) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }

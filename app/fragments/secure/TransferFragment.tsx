@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView
 import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
@@ -26,6 +26,8 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
+import { KnownWallets } from '../../components/Avatar';
+import Verified from '../../../assets/ic_verified.svg';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -530,11 +532,61 @@ export const TransferFragment = fragment(() => {
                             placeholder={t('common.walletAddress')}
                             keyboardType="ascii-capable"
                             preventDefaultHeight
+                            label={
+                                <View style={{
+                                    flexDirection: 'row',
+                                    width: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    overflow: 'hidden',
+                                }}>
+                                    <Text style={{
+                                        fontWeight: '400',
+                                        fontSize: 14,
+                                        color: '#8E979D',
+                                        alignSelf: 'flex-start',
+                                    }}>
+                                        {t('common.walletAddress')}
+                                    </Text>
+                                    {!!KnownWallets[target] && (
+                                        <Animated.View
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            entering={FadeIn.duration(150)}
+                                            exiting={FadeOut.duration(150)}
+                                        >
+                                            <Verified
+                                                width={16}
+                                                height={16}
+                                                style={{ alignSelf: 'center', marginRight: 4 }}
+                                            />
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 14,
+                                                color: '#8E979D',
+                                                alignSelf: 'flex-start',
+                                            }}>
+                                                {KnownWallets[target].name}
+                                            </Text>
+                                        </Animated.View>
+                                    )}
+                                </View>
+                            }
                             multiline
                             autoCorrect={false}
                             autoCompleteType={'off'}
-                            inputStyle={payload ? { paddingTop: 4 } : undefined}
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
+                            inputStyle={[
+                                {},
+                                payload ? { paddingTop: 4 } : undefined,
+                            ]}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0,
+                                marginHorizontal: 16,
+                            }}
                             enabled={!payload}
                             editable={!payload}
                             onSubmit={onSubmit}

@@ -38,6 +38,7 @@ import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
+import { StakingFragment } from './fragments/staking/StakingFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -129,7 +130,8 @@ const navigation = [
     modalScreen('Authenticate', AuthenticateFragment),
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
-    genericScreen('DeveloperTools', DeveloperToolsFragment)
+    genericScreen('DeveloperTools', DeveloperToolsFragment),
+    fullScreen('Staking', StakingFragment),
 ];
 
 export const Navigation = React.memo(() => {
@@ -284,7 +286,7 @@ export const Navigation = React.memo(() => {
             ended = true;
         };
     }, []);
-    
+
     return (
         <EngineContext.Provider value={engine}>
             <View style={{ flexGrow: 1, alignItems: 'stretch' }}>

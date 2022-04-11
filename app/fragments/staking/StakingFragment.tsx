@@ -24,6 +24,9 @@ import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
+import BN from "bn.js";
+import { PoolAddress } from "../../utils/PoolAddress";
+import { TransferAction } from "../secure/TransferFragment";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
@@ -33,27 +36,11 @@ export const StakingFragment = fragment(() => {
     const [account, engine] = useAccount();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const pool = engine.products.stakingPool.useState();
-
     const member = pool?.member;
-
-    const openTransactionFragment = React.useCallback(
-        (transaction: Transaction | null) => {
-            if (transaction) {
-                navigation.navigate('Transaction', {
-                    transaction: {
-                        ...transaction
-                    }
-                });
-            }
-        },
-        [navigation],
-    );
-
     const window = useWindowDimensions();
 
     // Animating wallet card
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
-
     const cardOpacity = useSharedValue(1);
     const smallCardOpacity = useSharedValue(0);
     const titleOpacity = useSharedValue(1);
@@ -124,30 +111,30 @@ export const StakingFragment = fragment(() => {
     }, []);
 
     const onTopUp = useCallback(() => {
-        // navigation.navigate(
-        //     'StakingTransfer',
-        //     {
-        //         target: PoolAddress,
-        //         comment: 'Deposit',
-        //         amount: pool?.params.minStake.add(toNano('0.2')) || toNano('50.2'),
-        //         lockAddress: true,
-        //         lockComment: true,
-        //         action: 'top_up',
-        //     }
-        // );
+        navigation.navigate(
+            'Transfer',
+            {
+                target: PoolAddress,
+                comment: 'Deposit',
+                amount: pool?.params.minStake,
+                lockAddress: true,
+                lockComment: true,
+                action: 'staking_top_up' as TransferAction,
+            }
+        );
     }, []);
 
     const onUnstake = useCallback(() => {
-        // navigation.navigate(
-        //     'StakingTransfer',
-        //     {
-        //         target: PoolAddress,
-        //         comment: 'Withdraw',
-        //         lockAddress: true,
-        //         lockComment: true,
-        //         action: 'withdraw',
-        //     }
-        // );
+        navigation.navigate(
+            'Transfer',
+            {
+                target: PoolAddress,
+                comment: 'Withdraw',
+                lockAddress: true,
+                lockComment: true,
+                action: 'staking_withdraw' as TransferAction,
+            }
+        );
     }, []);
 
     const openMoreInfo = useCallback(

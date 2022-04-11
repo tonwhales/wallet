@@ -6,7 +6,6 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { useTranslation } from "react-i18next"
 import BN from "bn.js"
-import { Address, fromNano } from "ton"
 import { StakingPoolState } from "../../storage/cache"
 import { PriceComponent } from "../PriceComponent"
 import { ValueComponent } from "../ValueComponent"

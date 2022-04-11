@@ -237,7 +237,7 @@ export const WalletFragment = fragment(() => {
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>
-                    <PriceComponent style={{ marginHorizontal: 22, marginTop: 6 }} />
+                    <PriceComponent amount={account.balance} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
@@ -282,7 +282,7 @@ export const WalletFragment = fragment(() => {
                         </TouchableHighlight>
                     </View>
                 </View>
-                
+
                 <ProductsComponent />
 
                 {

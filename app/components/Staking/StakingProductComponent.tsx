@@ -1,5 +1,4 @@
 import React from "react";
-import { useAccount } from "../../sync/Engine";
 import { StakingProductMember } from "./StakingProductMember";
 import { StakingProductJoin } from "./StakingProductJoin";
 import { StakingPoolState } from "../../storage/cache";
@@ -12,11 +11,7 @@ export const StakingProductComponent = React.memo(({ pool }: { pool: StakingPool
 
     const member = pool.member
 
-    if (member) {
-        return <StakingProductMember pool={pool} member={member} />
-    }
+    if (member) return <StakingProductMember pool={pool} member={member} />;
 
-    return (
-        <StakingProductJoin />
-    )
+    return <StakingProductJoin />;
 })

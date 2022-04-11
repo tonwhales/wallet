@@ -164,8 +164,6 @@ export async function fetchStakingPool(): Promise<StakingPoolData[]> {
             ctxLocked: statusRes.readNumber()
         }
 
-        console.log({ member, poolParams, statusRes });
-
         return {
             name: v.name,
             address: v.pool,

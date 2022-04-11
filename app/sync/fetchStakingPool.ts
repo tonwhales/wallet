@@ -114,8 +114,6 @@ export async function fetchStakingPool(): Promise<StakingPoolData[]> {
             backoff(() => getMember(v.pool, address))
         ]);
 
-        console.log(JSON.stringify(paramsRaw));
-
         let paramsRes = new TupleSlice(paramsRaw.stack);
         let memberRes = new TupleSlice(memberRaw.stack);
         let statusRes = new TupleSlice(statusRaw.stack);

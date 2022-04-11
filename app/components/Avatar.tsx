@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
 import { Address } from 'ton';
 import { AppConfig } from '../AppConfig';
@@ -127,11 +127,11 @@ import Img_wombat from '../../assets/images/img_wombat.svg';
 import Img_yak from '../../assets/images/img_yak.svg';
 import Img_zebra from '../../assets/images/img_zebra.svg';
 
-import Img_EXMO from '../../assets/images/EXMO.svg';
-import Img_Foundation from '../../assets/images/Foundation.svg';
-import Img_Whales from '../../assets/images/Whales.svg';
-import Img_OKX from '../../assets/images/OKX.svg';
-import Img_FTX from '../../assets/images/FTX.svg';
+const Img_EXMO = require('../../assets/images/exmo.png');
+const Img_Foundation = require('../../assets/images/foundation.png');
+const Img_Whales = require('../../assets/images/whales.png');
+const Img_OKX = require('../../assets/images/okx.png');
+const Img_FTX = require('../../assets/images/ftx.png');
 
 import Verified from '../../assets/ic_verified.svg';
 
@@ -294,22 +294,40 @@ export const avatarColors = [
 export const Avatar = React.memo((props: { size: number, id: string, address?: string }) => {
     let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
+    let KnownAvatar;
 
     let known = props.address ? KnownWallets[props.address] : undefined;
     let size = Math.floor(props.size * 0.6);
     if (known) {
-        if (known.ic) Img = known.ic;
+        if (known.ic) KnownAvatar = <Image
+            style={{
+                width: props.size,
+                height: props.size,
+                borderRadius: props.size / 2,
+                overflow: 'hidden'
+            }}
+            source={known.ic}
+        />;
         if (known.color) color = known.color
     }
-    const verifiedSize = Math.floor(props.size * 0.3);
+    const verifiedSize = Math.floor(props.size * 0.35);
 
     return (
-        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
-            <Img width={size} height={size} color="white" />
+        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: !known ? color : undefined, alignItems: 'center', justifyContent: 'center' }}>
+            {!known && (<Img width={size} height={size} color="white" />)}
+            {known && KnownAvatar}
+            <View style={{
+                width: props.size, height: props.size,
+                borderRadius: props.size / 2,
+                borderWidth: 0.5,
+                borderColor: 'black',
+                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                opacity: 0.06
+            }} />
             {!!known && (
                 <Verified
                     style={{
-                        position: 'absolute', top: -2, right: -2
+                        position: 'absolute', top: -1, right: -4
                     }}
                     height={verifiedSize}
                     width={verifiedSize}

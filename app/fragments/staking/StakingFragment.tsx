@@ -20,13 +20,10 @@ import { Transaction } from "../../sync/Transaction";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
-import CalcIcon from '../../../assets/ic_calc.svg'
-import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
-import { PoolAddress } from "../../utils/PoolAddress";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();

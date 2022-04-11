@@ -115,7 +115,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     products: {
         oldWallets: {
             title: 'Старые кошельки',
-            subtitle: 'Нажмите что бы перенести кошельки'
+            subtitle: 'Нажмите, чтобы перенести кошельки'
         },
         transactionRequest: 'Запрос транзакции'
     },

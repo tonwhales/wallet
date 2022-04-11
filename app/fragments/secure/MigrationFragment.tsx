@@ -21,6 +21,7 @@ import { CloseButton } from '../../components/CloseButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
+import { StatusBar } from 'expo-status-bar';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -106,6 +107,7 @@ const MigrationProcessFragment = fragment(() => {
 
     return (
         <>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
@@ -129,6 +131,7 @@ export const MigrationFragment = fragment(() => {
     if (!confirm) {
         return (
             <>
+                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
                 <AndroidToolbar style={{ marginTop: safeArea.top }} />
                 {Platform.OS === 'ios' && (
                     <View style={{

@@ -372,7 +372,7 @@ export const TransferFragment = fragment(() => {
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
-            <StatusBar style="dark" />
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,

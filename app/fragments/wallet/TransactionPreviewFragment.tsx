@@ -19,6 +19,7 @@ import { Avatar } from "../../components/Avatar";
 import { useAccount } from "../../sync/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
+import { StatusBar } from "expo-status-bar";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -53,6 +54,7 @@ export const TransactionPreviewFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
             paddingHorizontal: 16
         }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={transactionType} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (

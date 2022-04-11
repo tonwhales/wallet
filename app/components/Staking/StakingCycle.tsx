@@ -44,7 +44,7 @@ export const StakingCycle = React.memo((
                 }}>
                     {t('products.staking.nextCycle')}
                 </Text>
-                <Countdown strict until={stakeUntil} textStyle={{
+                <Countdown until={stakeUntil} textStyle={{
                     fontWeight: '400',
                     color: Theme.textColor,
                     fontSize: 16

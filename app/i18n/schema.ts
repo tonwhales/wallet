@@ -86,6 +86,7 @@ export type LocalizationSchema = {
         fee: string,
         purpose: string,
         comment: string,
+        commentReuiered: string,
         commentLabel: string,
         checkComment: string
     },

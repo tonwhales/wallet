@@ -371,6 +371,8 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
+    const isKnown: boolean = !!KnownWallets[target];
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
@@ -548,7 +550,7 @@ export const TransferFragment = fragment(() => {
                                     }}>
                                         {t('transfer.sendTo')}
                                     </Text>
-                                    {!!KnownWallets[target] && (
+                                    {isKnown && (
                                         <Animated.View
                                             style={{
                                                 flexDirection: 'row',
@@ -612,7 +614,7 @@ export const TransferFragment = fragment(() => {
                             ref={refs[2]}
                             onFocus={onFocus}
                             onValueChange={setComment}
-                            placeholder={t('transfer.comment')}
+                            placeholder={isKnown ? t('transfer.commentReuiered') : t('transfer.comment')}
                             keyboardType="default"
                             autoCapitalize="sentences"
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
@@ -637,7 +639,7 @@ export const TransferFragment = fragment(() => {
                                     }}>
                                         {t('transfer.commentLabel')}
                                     </Text>
-                                    {!!KnownWallets[target] && (
+                                    {isKnown && (
                                         <Animated.View
                                             style={{
                                                 flexDirection: 'row',

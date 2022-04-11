@@ -105,6 +105,13 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
             tref.current!.focus();
         }
     }));
+
+    let paddingTop = props.multiline ? 12 : 10;
+    let paddingBottom = props.preventDefaultValuePadding
+        ? undefined
+        : props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10);
+    if (props.label) paddingTop = 6;
+
     return (
         <Animated.View style={[{
             backgroundColor: '#F2F2F2',
@@ -113,30 +120,12 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
             flexDirection: 'row'
         }, props.style]}>
             <View style={{ flex: 1, alignItems: 'center' }}>
-                {(!!props.value && props.value.length > 0) && !!props.label && (
+                {!!props.label && (
                     <View style={{
                         width: '100%',
                         overflow: 'hidden',
-                        marginTop: 5,
                         position: 'relative',
-                        top: 10
-                    }}>
-                        <Animated.View
-                            entering={FadeIn.duration(200).delay(100)}
-                            exiting={FadeOut.duration(150)}
-                        >
-                            {props.label}
-                        </Animated.View>
-                    </View>
-                )}
-                {(!props.value || props.value.length < 0) && !!props.label && (
-                    <View style={{
-                        width: '100%',
-                        overflow: 'hidden',
-                        marginTop: 5,
-                        position: 'relative',
-                        top: 10,
-                        opacity: 0
+                        marginTop: 10
                     }}>
                         {props.label}
                     </View>
@@ -162,10 +151,8 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                             height: props.preventDefaultHeight
                                 ? undefined
                                 : props.multiline ? 44 * 3 : 48,
-                            paddingTop: props.multiline ? 12 : 10,
-                            paddingBottom: props.preventDefaultValuePadding
-                                ? undefined
-                                : props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10),
+                            paddingTop: paddingTop,
+                            paddingBottom: paddingBottom,
                             flexGrow: 1,
                             fontSize: props.fontSize ? props.fontSize : 17,
                             lineHeight: props.lineHeight

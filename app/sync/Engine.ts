@@ -13,6 +13,7 @@ import { AddressProduct } from './products/AddressProduct';
 import { AppConfig } from '../AppConfig';
 import { PriceProduct } from './products/PriceProduct';
 import { JobsProduct } from './products/JobsProduct';
+import { StakingPoolProduct } from './products/StakingPoolProduct';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -85,7 +86,8 @@ export class Engine {
         this.products = {
             oldWallets: new OldWalletsProduct(this),
             price: this.createPriceProduct(),
-            apps: new JobsProduct(this)
+            apps: new JobsProduct(this),
+            stakingPool: this.createStakingPoolProduct(),
         };
         this._products.set('apps', this.products.apps);
     }
@@ -127,6 +129,15 @@ export class Engine {
         let ex = this._products.get(key);
         if (ex) return ex as PriceProduct;
         let n = new PriceProduct(this);
+        this._products.set(key, n);
+        return n;
+    }
+
+    createStakingPoolProduct(): StakingPoolProduct {
+        const key = 'staking_pool_product';
+        let ex = this._products.get(key);
+        if (ex) return ex as StakingPoolProduct;
+        let n = new StakingPoolProduct(this);
         this._products.set(key, n);
         return n;
     }

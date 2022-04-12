@@ -39,6 +39,7 @@ import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { StakingFragment } from './fragments/staking/StakingFragment';
+import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -132,6 +133,7 @@ const navigation = [
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment),
     fullScreen('Staking', StakingFragment),
+    modalScreen('StakingTransfer', StakingTransferFragment),
 ];
 
 export const Navigation = React.memo(() => {

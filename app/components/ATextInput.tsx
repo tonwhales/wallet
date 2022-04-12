@@ -102,6 +102,9 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
     React.useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
+        },
+        blur: () => {
+            tref.current!.blur();
         }
     }));
     return (

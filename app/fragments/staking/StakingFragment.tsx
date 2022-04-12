@@ -26,7 +26,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import BN from "bn.js";
 import { PoolAddress } from "../../utils/PoolAddress";
-import { TransferAction } from "../secure/TransferFragment";
+import { TransferAction } from "./StakingTransferFragment";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
@@ -112,27 +112,27 @@ export const StakingFragment = fragment(() => {
 
     const onTopUp = useCallback(() => {
         navigation.navigate(
-            'Transfer',
+            'StakingTransfer',
             {
                 target: PoolAddress,
                 comment: 'Deposit',
                 amount: pool?.params.minStake,
                 lockAddress: true,
                 lockComment: true,
-                action: 'staking_top_up' as TransferAction,
+                action: 'top_up' as TransferAction,
             }
         );
     }, []);
 
     const onUnstake = useCallback(() => {
         navigation.navigate(
-            'Transfer',
+            'StakingTransfer',
             {
                 target: PoolAddress,
                 comment: 'Withdraw',
                 lockAddress: true,
                 lockComment: true,
-                action: 'staking_withdraw' as TransferAction,
+                action: 'withdraw' as TransferAction,
             }
         );
     }, []);

@@ -74,27 +74,20 @@ export interface ATextInputProps {
     blurOnSubmit?: boolean,
     innerRef?: React.RefObject<View>,
     onFocus?: (index: number) => void,
+    onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
     index?: number,
     label?: any,
 }
 
 export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {
-    const [focused, setFocused] = React.useState(false);
-
     const onFocus = React.useCallback(() => {
-        setFocused(true);
         if (props.onFocus && typeof props.index === 'number') {
             props.onFocus(props.index);
         }
     }, [props.index]);
-    const onBlur = React.useCallback(() => {
-        setFocused(false);
-    }, []);
     const onSubmit = React.useCallback(() => {
-        console.log('[onSubmit]');
         if (props.onSubmit && props.index) {
-            console.log('[onSubmit] submiting...');
             props.onSubmit(props.index);
         }
     }, [props.index]);

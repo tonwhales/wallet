@@ -38,7 +38,7 @@ import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
-import { PriceContext } from './sync/products/PriceProduct';
+import { PriceLoader } from './sync/PriceContext';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -288,7 +288,7 @@ export const Navigation = React.memo(() => {
 
     return (
         <EngineContext.Provider value={engine}>
-            <PriceContext.Provider value={engine?.products.price.useState() || null}>
+            <PriceLoader engine={engine}>
                 <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
                     <NavigationContainer
                         theme={NavigationTheme}
@@ -303,7 +303,7 @@ export const Navigation = React.memo(() => {
                     </NavigationContainer>
                     {splash}
                 </View>
-            </PriceContext.Provider>
+            </PriceLoader>
         </EngineContext.Provider>
     );
 });

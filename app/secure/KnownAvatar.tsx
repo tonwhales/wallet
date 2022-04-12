@@ -1,0 +1,17 @@
+import React from "react";
+import { Image } from 'react-native';
+import { KnownWallet } from "./KnownWallets";
+
+export const KnownAvatar = React.memo((props: { size: number, wallet: KnownWallet }) => {
+    return (
+        <Image
+            style={{
+                width: props.size,
+                height: props.size,
+                borderRadius: props.size / 2,
+                overflow: 'hidden'
+            }}
+            source={props.wallet.ic}
+        />
+    );
+});

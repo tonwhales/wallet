@@ -1,13 +1,13 @@
+import BN from "bn.js"
 import React from "react"
-import { View, Text, StyleProp, ViewStyle } from "react-native"
+import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "ton"
 import { AppConfig } from "../AppConfig"
-import { useAccount } from "../sync/Engine"
+import { usePrice } from "../sync/products/PriceProduct"
 import { Theme } from "../Theme"
 
-export const PriceComponent = React.memo(({ style }: { style?: StyleProp<ViewStyle> }) => {
-    const [account, engine] = useAccount();
-    const price = engine.products.price.useState();
+export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount: BN, style?: StyleProp<ViewStyle>, textStyle?: StyleProp<TextStyle> }) => {
+    const price = usePrice();
 
     if (!price || AppConfig.isTestnet) {
         return <></>;
@@ -23,13 +23,13 @@ export const PriceComponent = React.memo(({ style }: { style?: StyleProp<ViewSty
             alignSelf: 'flex-start',
             paddingVertical: 4, paddingHorizontal: 8
         }, style]}>
-            <Text style={{
+            <Text style={[{
                 color: 'white',
                 fontSize: 14, fontWeight: '600',
                 textAlign: "center",
                 lineHeight: 16
-            }}>
-                {`$ ${(parseFloat(fromNano(account.balance)) * price.price.usd)
+            }, textStyle]}>
+                {`$${(parseFloat(fromNano(amount)) * price.price.usd)
                     .toFixed(2)
                     .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`
                 }

@@ -123,3 +123,12 @@ export class PriceProduct {
         });
     }
 }
+
+// Price context
+export const PriceContext = React.createContext<PriceState | null>(null);
+
+// Price
+export function usePrice(): PriceState | null {
+    const price = React.useContext(PriceContext)
+    return price;
+}

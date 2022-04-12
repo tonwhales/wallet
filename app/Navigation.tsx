@@ -38,6 +38,7 @@ import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
+import { PriceContext } from './sync/products/PriceProduct';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -284,23 +285,25 @@ export const Navigation = React.memo(() => {
             ended = true;
         };
     }, []);
-    
+
     return (
         <EngineContext.Provider value={engine}>
-            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-                <NavigationContainer
-                    theme={NavigationTheme}
-                    onReady={onMounted}
-                >
-                    <Stack.Navigator
-                        initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+            <PriceContext.Provider value={engine?.products.price.useState() || null}>
+                <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+                    <NavigationContainer
+                        theme={NavigationTheme}
+                        onReady={onMounted}
                     >
-                        {navigation}
-                    </Stack.Navigator>
-                </NavigationContainer>
-                {splash}
-            </View>
+                        <Stack.Navigator
+                            initialRouteName={initial}
+                            screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+                        >
+                            {navigation}
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                    {splash}
+                </View>
+            </PriceContext.Provider>
         </EngineContext.Provider>
     );
 });

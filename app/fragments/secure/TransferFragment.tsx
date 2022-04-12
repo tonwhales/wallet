@@ -676,6 +676,7 @@ export const TransferFragment = fragment(() => {
                                     color: '#8E979D',
                                     alignSelf: 'flex-start',
                                     marginTop: 10,
+                                    marginBottom: 10,
                                     marginLeft: 16
                                 }}>
                                     {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}

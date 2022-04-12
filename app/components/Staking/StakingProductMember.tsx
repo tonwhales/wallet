@@ -67,7 +67,7 @@ export const StakingProductMember = React.memo((
                             }}>
                                 <ValueComponent
                                     value={member?.balance}
-                                    centLength={3}
+                                    precision={3}
                                 />
                                 {' TON'}
                             </Text>

@@ -6,6 +6,7 @@ import { avatarHash } from "../utils/avatarHash";
 import { avatarColors, avatarImages } from "./Avatar";
 import { AppConfig } from "../AppConfig";
 import { KnownWallets } from "../secure/KnownWallets";
+import { KnownAvatar } from "../secure/KnownAvatar";
 const Color = require('color');
 
 export const PendingTransactionAvatar = React.memo(({
@@ -24,10 +25,6 @@ export const PendingTransactionAvatar = React.memo(({
 
     let size = Math.floor(42 * 0.6);
     let known = address ? KnownWallets[address] : undefined;
-    if (known) {
-        if (known.ic) Img = known.ic;
-        if (known.color) color = known.color
-    }
 
     let lighter = Color(color).lighten(0.2).hex();
     let darker = Color(color).darken(0.2).hex();
@@ -69,11 +66,12 @@ export const PendingTransactionAvatar = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <Img
+                {!known && (<Img
                     width={size}
                     height={size}
                     color="white"
-                />
+                />)}
+                {known && <KnownAvatar size={42} wallet={known} />}
             </View>
             <AnimatedCircularProgress
                 ref={ref}

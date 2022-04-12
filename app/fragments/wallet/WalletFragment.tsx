@@ -71,6 +71,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
 export const WalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
     const oldWalletsBalance = engine.products.oldWallets.useState();
@@ -288,13 +289,19 @@ export const WalletFragment = fragment(() => {
                 {
                     transactions.length === 0 && (
                         <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: window.height * 0.095 }}>
-                            <LottieView
-                                source={require('../../../assets/animations/duck.json')}
-                                autoPlay={true}
-                                loop={false}
-                                progress={0.2}
-                                style={{ width: window.height * 0.15, height: window.height * 0.15, marginBottom: window.height * 0.1 * 0.3 }}
-                            />
+                            <Pressable
+                                onPress={() => {
+                                    animRef.current?.play();
+                                }}>
+                                <LottieView
+                                    ref={animRef}
+                                    source={require('../../../assets/animations/duck.json')}
+                                    autoPlay={true}
+                                    loop={false}
+                                    progress={0.2}
+                                    style={{ width: window.height * 0.15, height: window.height * 0.15, marginBottom: window.height * 0.1 * 0.3 }}
+                                />
+                            </Pressable>
                             <Text style={{ fontSize: 16, marginBottom: window.height * 0.1 * 0.3, color: '#7D858A' }}>
                                 {t('wallet.empty.message')}
                             </Text>

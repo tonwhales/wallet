@@ -13,6 +13,7 @@ import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";
+import { StatusBar } from "expo-status-bar";
 
 export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -39,6 +40,7 @@ export const ReceiveFragment = fragment(() => {
             backgroundColor: Theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined
         }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t('receive.title')} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (

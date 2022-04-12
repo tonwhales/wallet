@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import Animated, {  } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ATextInputRef } from '../fragments/secure/TransferFragment';
 
 export interface ATextInputProps {
@@ -75,17 +75,22 @@ export interface ATextInputProps {
     innerRef?: React.RefObject<View>,
     onFocus?: (index: number) => void,
     onSubmit?: (index: number) => void,
-    onBlur?: (index: number) => void,
     index?: number,
     label?: any,
 }
 
 export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {
+    const [focused, setFocused] = React.useState(false);
+
     const onFocus = React.useCallback(() => {
+        setFocused(true);
         if (props.onFocus && typeof props.index === 'number') {
             props.onFocus(props.index);
         }
     }, [props.index]);
+    const onBlur = React.useCallback(() => {
+        setFocused(false);
+    }, []);
     const onSubmit = React.useCallback(() => {
         console.log('[onSubmit]');
         if (props.onSubmit && props.index) {

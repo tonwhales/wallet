@@ -26,7 +26,6 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
-import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -38,8 +37,6 @@ export type ATextInputRef = {
     focus: () => void;
 }
 
-export type TransferAction = 'staking_withdraw' | 'staking_top_up'
-
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: {
@@ -48,16 +45,10 @@ export const TransferFragment = fragment(() => {
         amount?: BN | null,
         payload?: Cell | null,
         stateInit?: Cell | null,
-        job?: string | null,
-        action?: TransferAction,
-        lockAddress?: boolean,
-        lockComment?: boolean,
-        lockAmount?: boolean
+        job?: string | null
     } | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.stakingPool.useState();
-    const member = pool?.member;
 
     const [target, setTarget] = React.useState(params?.target || '');
     const [comment, setComment] = React.useState(params?.comment || '');
@@ -117,47 +108,14 @@ export const TransferFragment = fragment(() => {
         // Load contract
         const contract = await contractFromPublicKey(acc.publicKey);
 
-        if (pool) {
-            // Check staking balance if action === withdraw
-            if (params?.action === 'staking_withdraw') {
-                const availible = member?.balance.add(member.pendingDeposit).add(member.withdraw);
-                if (availible?.lt(value)) {
-                    Alert.alert(t('products.staking.transfer.notEnoughStaked'));
-                    return;
-                }
-            }
-
-            // Check minDeposit if action === top_up
-            if (params?.action === 'staking_top_up') {
-                if (value.lt(pool.params.minStake)) {
-                    Alert.alert(
-                        t('products.staking.info.minDeposit')
-                        + ': '
-                        + fromNano(pool.params.minStake)
-                        + 'TON'
-                    );
-                    return;
-                }
-            }
-        }
-
         // Check if same address
         if (address.equals(contract.address)) {
             Alert.alert(t('transfer.error.sendingToYourself'));
             return;
         }
 
-        // Check balance for gas
-        if (params?.action === 'staking_withdraw' && account.balance.lt(toNano('0.2'))) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
-            return;
-        }
-
         // Check amount
-        if (
-            !(params?.action === 'staking_withdraw')
-            && !value.eq(account.balance) && account.balance.lt(value)
-        ) {
+        if (!value.eq(account.balance) && account.balance.lt(value)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -207,13 +165,6 @@ export const TransferFragment = fragment(() => {
             return;
         }
 
-        let bodyPayload = payload;
-
-        if (params?.action === 'staking_withdraw') {
-            bodyPayload = createWithdrawStakeCell(value);
-            value = toNano('0.2');
-        }
-
         // Create transfer
         let transfer = await contract.createTransfer({
             seqno: account.seqno,
@@ -228,7 +179,7 @@ export const TransferFragment = fragment(() => {
                 bounce,
                 body: new CommonMessageInfo({
                     stateInit: stateInit ? new CellMessage(stateInit) : null,
-                    body: bodyPayload ? new CellMessage(bodyPayload) : new CommentMessage(comment)
+                    body: payload ? new CellMessage(payload) : new CommentMessage(comment)
                 })
             })
         });
@@ -265,7 +216,7 @@ export const TransferFragment = fragment(() => {
 
         // Reset stack to root
         navigation.popToTop();
-    }, [amount, target, comment, account.seqno, payload, stateInit, params?.action]);
+    }, [amount, target, comment, account.seqno, payload, stateInit]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -302,13 +253,6 @@ export const TransferFragment = fragment(() => {
                     return;
                 }
 
-                let bodyPayload = payload;
-
-                if (params?.action === 'staking_withdraw') {
-                    bodyPayload = createWithdrawStakeCell(value);
-                    value = toNano('0.2');
-                }
-
                 // Create transfer
                 let transfer = await contract.createTransfer({
                     seqno: account.seqno,
@@ -321,7 +265,7 @@ export const TransferFragment = fragment(() => {
                         bounce: false,
                         body: new CommonMessageInfo({
                             stateInit: stateInit ? new CellMessage(stateInit) : null,
-                            body: bodyPayload ? new CellMessage(bodyPayload) : new CommentMessage(comment)
+                            body: payload ? new CellMessage(payload) : new CommentMessage(comment)
                         })
                     })
                 });
@@ -504,8 +448,6 @@ export const TransferFragment = fragment(() => {
                                     preventDefaultLineHeight
                                     preventDefaultValuePadding
                                     blurOnSubmit={false}
-                                    editable={!params?.lockAmount}
-                                    enabled={!params?.lockAmount}
                                 />
                                 <Text style={{
                                     fontWeight: '600',
@@ -513,58 +455,50 @@ export const TransferFragment = fragment(() => {
                                     color: '#6D6D71',
                                     marginBottom: 5
                                 }}>
-                                    {
-                                        member && params?.action === 'staking_withdraw'
-                                            ? fromNano(member.balance.add(member.withdraw).add(member.pendingDeposit))
-                                            : fromNano(account?.balance || new BN(0))
-                                    } TON
+                                    {fromNano(account?.balance || new BN(0))} TON
                                 </Text>
                             </View>
                             <View style={{ flexDirection: 'row' }} collapsable={false}>
-                                {params?.action !== 'staking_withdraw' && (
-                                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                        <Pressable
-                                            onPress={onAddAll}
-                                            style={({ pressed }) => [
-                                                {
-                                                    backgroundColor: pressed
-                                                        ? Theme.selector
-                                                        : 'white',
-                                                },
-                                                { borderRadius: 14 }
-                                            ]}
-                                        >
-                                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Image source={require('../../../assets/ic_all_coins.png')} />
-                                                </View>
-                                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                    <Pressable
+                                        onPress={onAddAll}
+                                        style={({ pressed }) => [
+                                            {
+                                                backgroundColor: pressed
+                                                    ? Theme.selector
+                                                    : 'white',
+                                            },
+                                            { borderRadius: 14 }
+                                        ]}
+                                    >
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={require('../../../assets/ic_all_coins.png')} />
                                             </View>
-                                        </Pressable>
-                                    </View>
-                                )}
-                                {!params?.action && (
-                                    <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                        <Pressable
-                                            onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                            style={({ pressed }) => [
-                                                {
-                                                    backgroundColor: pressed
-                                                        ? Theme.selector
-                                                        : 'white',
-                                                },
-                                                { borderRadius: 14 }
-                                            ]}
-                                        >
-                                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Image source={require('../../../assets/ic_scan_qr.png')} />
-                                                </View>
-                                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
+                                        </View>
+                                    </Pressable>
+                                </View>
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                    <Pressable
+                                        onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                        style={({ pressed }) => [
+                                            {
+                                                backgroundColor: pressed
+                                                    ? Theme.selector
+                                                    : 'white',
+                                            },
+                                            { borderRadius: 14 }
+                                        ]}
+                                    >
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                            <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={require('../../../assets/ic_scan_qr.png')} />
                                             </View>
-                                        </Pressable>
-                                    </View>
-                                )}
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
+                                        </View>
+                                    </Pressable>
+                                </View>
                             </View>
                         </>
                     )}
@@ -601,8 +535,8 @@ export const TransferFragment = fragment(() => {
                             autoCompleteType={'off'}
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!payload && !params?.lockAddress}
-                            editable={!payload && !params?.lockAddress}
+                            enabled={!payload}
+                            editable={!payload}
                             onSubmit={onSubmit}
                             returnKeyType="next"
                             blurOnSubmit={false}
@@ -631,8 +565,8 @@ export const TransferFragment = fragment(() => {
                             autoCapitalize="sentences"
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            enabled={!payload && !params?.lockComment}
-                            editable={!payload && !params?.lockComment}
+                            enabled={!payload}
+                            editable={!payload}
                             preventDefaultHeight
                             multiline
                         />

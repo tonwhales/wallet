@@ -13,6 +13,8 @@ import { Avatar } from './Avatar';
 import { t } from '../i18n/t';
 import { PendingTransactionAvatar } from './PendingTransactionAvatar';
 import { KnownWallets } from '../secure/KnownWallets';
+import { shortAddress } from '../utils/shortAddress';
+import { knownAddressLabel } from '../secure/knownAddressLabel';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
@@ -73,7 +75,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                         >
                             {
                                 known
-                                    ? known.name
+                                    ? knownAddressLabel(known, friendlyAddress)
                                     : parsed.address
                                         ? <AddressComponent address={parsed.address} />
                                         : 'no address'

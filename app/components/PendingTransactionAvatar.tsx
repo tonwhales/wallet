@@ -3,8 +3,9 @@ import { StyleProp, View, ViewStyle } from "react-native"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 import { Theme } from "../Theme"
 import { avatarHash } from "../utils/avatarHash";
-import { avatarColors, avatarImages, KnownWallets } from "./Avatar";
+import { avatarColors, avatarImages } from "./Avatar";
 import { AppConfig } from "../AppConfig";
+import { KnownWallets } from "../secure/KnownWallets";
 const Color = require('color');
 
 export const PendingTransactionAvatar = React.memo(({

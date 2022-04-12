@@ -9,9 +9,10 @@ import { AddressComponent } from './AddressComponent';
 import { Transaction } from '../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../AppConfig';
-import { Avatar, KnownWallets } from './Avatar';
+import { Avatar } from './Avatar';
 import { t } from '../i18n/t';
 import { PendingTransactionAvatar } from './PendingTransactionAvatar';
+import { KnownWallets } from '../secure/KnownWallets';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;

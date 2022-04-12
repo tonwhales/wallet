@@ -25,9 +25,9 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
-import { KnownWallets } from '../../components/Avatar';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import MessageIcon from '../../../assets/ic_message.svg';
+import { KnownWallets } from '../../secure/KnownWallets';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

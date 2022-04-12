@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
+import Animated, {  } from 'react-native-reanimated';
 import { ATextInputRef } from '../fragments/secure/TransferFragment';
 
 export interface ATextInputProps {
@@ -76,7 +76,8 @@ export interface ATextInputProps {
     onFocus?: (index: number) => void,
     onSubmit?: (index: number) => void,
     onBlur?: (index: number) => void,
-    index?: number
+    index?: number,
+    label?: any,
 }
 
 export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {
@@ -107,6 +108,13 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
             tref.current!.blur();
         }
     }));
+
+    let paddingTop = props.multiline ? 12 : 10;
+    let paddingBottom = props.preventDefaultValuePadding
+        ? undefined
+        : props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10);
+    if (props.label) paddingTop = 6;
+
     return (
         <Animated.View style={[{
             backgroundColor: '#F2F2F2',
@@ -114,62 +122,72 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
             paddingHorizontal: 16,
             flexDirection: 'row'
         }, props.style]}>
-            <View style={{ flex: 1, flexDirection: 'row' }} ref={props.innerRef} >
-                {props.prefix && (
-                    <Text
-                        numberOfLines={1}
-                        style={{
-                            marginTop: 3,
-                            fontSize: 17,
-                            fontWeight: '400',
-                            alignSelf: 'center',
-                            color: '#9D9FA3',
-                        }}
-                    >
-                        {props.prefix}
-                    </Text>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+                {!!props.label && (
+                    <View style={{
+                        width: '100%',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        marginTop: 10
+                    }}>
+                        {props.label}
+                    </View>
                 )}
-                <TextInput
-                    ref={tref}
-                    style={[{
-                        height: props.preventDefaultHeight
-                            ? undefined
-                            : props.multiline ? 44 * 3 : 48,
-                        paddingTop: props.multiline ? 12 : 10,
-                        paddingBottom: props.preventDefaultValuePadding
-                            ? undefined
-                            : props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10),
-                        flexGrow: 1,
-                        fontSize: props.fontSize ? props.fontSize : 17,
-                        lineHeight: props.lineHeight
-                            ? props.lineHeight
-                            : props.preventDefaultLineHeight ? undefined : 22,
-                        fontWeight: props.fontWeight ? props.fontWeight : '400',
-                        textAlignVertical: props.multiline ? 'top' : 'center'
-                    }, props.inputStyle]}
-                    textAlign={props.textAlign}
-                    autoFocus={props.autoFocus}
-                    placeholder={props.placeholder}
-                    placeholderTextColor="#9D9FA3"
-                    autoCapitalize={props.autoCapitalize}
-                    autoCorrect={props.autoCorrect}
-                    keyboardType={props.keyboardType}
-                    returnKeyType={props.returnKeyType}
-                    autoCompleteType={props.autoCompleteType}
-                    multiline={props.multiline}
-                    enabled={props.enabled}
-                    blurOnSubmit={props.blurOnSubmit}
-                    editable={props.editable}
-                    value={props.value}
-                    textContentType={props.textContentType}
-                    onChangeText={props.onValueChange}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
-                    onSubmitEditing={onSubmit}
-                />
-                {props.actionButtonRight && (
-                    props.actionButtonRight
-                )}
+                <View style={{ flex: 1, flexDirection: 'row' }} ref={props.innerRef} >
+                    {props.prefix && (
+                        <Text
+                            numberOfLines={1}
+                            style={{
+                                marginTop: 3,
+                                fontSize: 17,
+                                fontWeight: '400',
+                                alignSelf: 'center',
+                                color: '#9D9FA3',
+                            }}
+                        >
+                            {props.prefix}
+                        </Text>
+                    )}
+                    <TextInput
+                        ref={tref}
+                        style={[{
+                            height: props.preventDefaultHeight
+                                ? undefined
+                                : props.multiline ? 44 * 3 : 48,
+                            paddingTop: paddingTop,
+                            paddingBottom: paddingBottom,
+                            flexGrow: 1,
+                            fontSize: props.fontSize ? props.fontSize : 17,
+                            lineHeight: props.lineHeight
+                                ? props.lineHeight
+                                : props.preventDefaultLineHeight ? undefined : 22,
+                            fontWeight: props.fontWeight ? props.fontWeight : '400',
+                            textAlignVertical: props.multiline ? 'top' : 'center'
+                        }, props.inputStyle]}
+                        textAlign={props.textAlign}
+                        autoFocus={props.autoFocus}
+                        placeholder={props.placeholder}
+                        placeholderTextColor="#9D9FA3"
+                        autoCapitalize={props.autoCapitalize}
+                        autoCorrect={props.autoCorrect}
+                        keyboardType={props.keyboardType}
+                        returnKeyType={props.returnKeyType}
+                        autoCompleteType={props.autoCompleteType}
+                        multiline={props.multiline}
+                        enabled={props.enabled}
+                        blurOnSubmit={props.blurOnSubmit}
+                        editable={props.editable}
+                        value={props.value}
+                        textContentType={props.textContentType}
+                        onChangeText={props.onValueChange}
+                        onFocus={onFocus}
+                        onBlur={onBlur}
+                        onSubmitEditing={onSubmit}
+                    />
+                    {props.actionButtonRight && (
+                        props.actionButtonRight
+                    )}
+                </View>
             </View>
         </Animated.View>
     )

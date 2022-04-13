@@ -189,7 +189,11 @@ export type LocalizationSchema = {
         alert: {
             title: string,
             message: string
-        }
+        },
+        title: string,
+        description: string,
+        doNotShow: string,
+        termsAndPrivacy: string
     }
 };
 

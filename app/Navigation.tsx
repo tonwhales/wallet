@@ -124,7 +124,6 @@ const navigation = [
     genericScreen('Settings', SettingsFragment),
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
-    genericScreen('Buy', NeocryptoFragment),
     genericScreen('Connections', ConnectionsFragment),
     modalScreen('Transfer', TransferFragment),
     modalScreen('Receive', ReceiveFragment),
@@ -132,7 +131,8 @@ const navigation = [
     modalScreen('Authenticate', AuthenticateFragment),
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
-    genericScreen('DeveloperTools', DeveloperToolsFragment)
+    genericScreen('DeveloperTools', DeveloperToolsFragment),
+    modalScreen('Buy', NeocryptoFragment)
 ];
 
 export const Navigation = React.memo(() => {

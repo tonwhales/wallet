@@ -1,10 +1,12 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, View, Text } from "react-native";
+import { Alert, View, Text, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { storage } from "../../storage/storage";
@@ -15,7 +17,6 @@ import { useParams } from "../../utils/useParams";
 export const NeocryptoFragment = fragment(() => {
 
     if (AppConfig.isTestnet) {
-
         return (
             <View style={{
                 flexGrow: 1,
@@ -30,13 +31,15 @@ export const NeocryptoFragment = fragment(() => {
             </View>
         );
     }
+
     const params = useParams<{
         amount?: string,
         fix_amount?: 'true' | 'false'
     }>();
-    const [showTip, setShowTip] = useState(storage.getBoolean('hide_neocrypto_tip'))
     const address = getCurrentAddress();
     const baseNavigation = useNavigation();
+    const safeArea = useSafeAreaInsets();
+
     const { t } = useTranslation();
     const wref = React.useRef<WebView>(null);
 
@@ -59,35 +62,31 @@ export const NeocryptoFragment = fragment(() => {
         });
     }, []);
 
-    useEffect(() => {
-        if (showTip) {
-            Alert.alert(t('neocrypto.alert.title'), t('neocrypto.alert.message'), [{
-                onPress: () => {
-                    storage.set('hide_neocrypto_tip', true);
-                },
-            }])
-        }
-    }, []);
-
     const link = `https://demo2.neocrypto.net/buy.html?${queryParams.toString()}`
     console.log(link);
 
     return (
         <View style={{
             flex: 1,
-            backgroundColor: '#2C3556'
+            backgroundColor: Theme.background,
+            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
+            paddingHorizontal: 16
         }}>
             <AndroidToolbar />
-            <WebView
-                ref={wref}
-                source={{
-                    uri: link
-                }}
-                onError={(e) => console.log(e, link)}
-                style={{
-                    backgroundColor: '#2C3556'
-                }}
-            />
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                {Platform.OS === 'ios' && (
+                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
+                        {'Neorcypto'}
+                    </Text>
+                )}
+            </View>
+            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <RoundButton title={t('common.continue')}
+                    onPress={() => {
+
+                    }}
+                />
+            </View>
         </View>
     );
 })

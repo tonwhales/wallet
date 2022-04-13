@@ -5,6 +5,7 @@ import { avatarColors, avatarImages } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
 import { KnownAvatar } from "../secure/KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
+import { Theme } from "../Theme";
 
 const Color = require('color');
 
@@ -24,8 +25,12 @@ export const PendingTransactionAvatar = React.memo(({
     let size = Math.floor(42 * 0.6);
     let known = address ? KnownWallets[address] : undefined;
 
-    let lighter = Color(color).lighten(0.2).hex();
-    let darker = Color(color).darken(0.2).hex();
+    if (known) {
+        color = Theme.accent;
+    }
+
+    let lighter = Color(color).lighten(0.4).hex();
+    let darker = Color(color).lighten(0.2).hex();
 
     const [progressParams, setProgressParams] = useState({
         tintColor: darker,

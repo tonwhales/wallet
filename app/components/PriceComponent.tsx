@@ -3,12 +3,11 @@ import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "ton"
 import { AppConfig } from "../AppConfig"
-import { useAccount } from "../sync/Engine"
+import { usePrice } from "../sync/PriceContext"
 import { Theme } from "../Theme"
 
 export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount: BN, style?: StyleProp<ViewStyle>, textStyle?: StyleProp<TextStyle> }) => {
-    const [account, engine] = useAccount();
-    const price = engine.products.price.useState();
+    const price = usePrice();
 
     if (!price || AppConfig.isTestnet) {
         return <></>;

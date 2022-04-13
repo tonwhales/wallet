@@ -9,6 +9,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PriceComponent } from "../PriceComponent";
 import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstake.svg';
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
+import { createWithdrawStakeCell } from "../../utils/createWithdrawStakeCommand";
 
 export const StakingPendingComponent = React.memo((
     {
@@ -171,6 +172,7 @@ export const StakingPendingComponent = React.memo((
                                         lockAddress: true,
                                         lockComment: true,
                                         action: 'withdraw',
+                                        payload: createWithdrawStakeCell(member.withdraw)
                                     }
                                 )
                             }}

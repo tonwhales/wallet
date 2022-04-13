@@ -74,7 +74,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
         purpose: 'Цель транзакции',
-        comment: 'Сообщение получателю (необязательное)'
+        comment: 'Необязательное сообщение',
+        commentReuiered: 'Обязательный комментарий',
+        commentLabel: 'Сообщение',
+        checkComment: 'Проверьте перед отправкой'
     },
     auth: {
         title: 'Авторизация',
@@ -115,7 +118,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     products: {
         oldWallets: {
             title: 'Старые кошельки',
-            subtitle: 'Нажмите что бы перенести кошельки'
+            subtitle: 'Нажмите, чтобы перенести кошельки'
         },
         transactionRequest: 'Запрос транзакции'
     },

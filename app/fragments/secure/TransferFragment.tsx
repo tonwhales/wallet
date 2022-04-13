@@ -2,10 +2,9 @@ import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
-import { ScrollView, TouchableHighlight } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
@@ -26,6 +25,9 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
+import VerifiedIcon from '../../../assets/ic_verified.svg';
+import MessageIcon from '../../../assets/ic_message.svg';
+import { KnownWallets } from '../../secure/KnownWallets';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -354,7 +356,9 @@ export const TransferFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
-        console.log('[onFocus]', index);
+        if (index === 0 && amount === '0') {
+            setAmount('');
+        }
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
@@ -367,10 +371,12 @@ export const TransferFragment = fragment(() => {
         }
     }, []);
 
+    const isKnown: boolean = !!KnownWallets[target];
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
-            <StatusBar style="dark" />
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,
@@ -528,11 +534,61 @@ export const TransferFragment = fragment(() => {
                             placeholder={t('common.walletAddress')}
                             keyboardType="ascii-capable"
                             preventDefaultHeight
+                            label={
+                                <View style={{
+                                    flexDirection: 'row',
+                                    width: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    overflow: 'hidden',
+                                }}>
+                                    <Text style={{
+                                        fontWeight: '500',
+                                        fontSize: 12,
+                                        color: '#7D858A',
+                                        alignSelf: 'flex-start',
+                                    }}>
+                                        {t('transfer.sendTo')}
+                                    </Text>
+                                    {isKnown && (
+                                        <Animated.View
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            entering={FadeIn.duration(150)}
+                                            exiting={FadeOut.duration(150)}
+                                        >
+                                            <VerifiedIcon
+                                                width={14}
+                                                height={14}
+                                                style={{ alignSelf: 'center', marginRight: 4 }}
+                                            />
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 12,
+                                                color: '#858B93',
+                                                alignSelf: 'flex-start',
+                                            }}>
+                                                {KnownWallets[target].name}
+                                            </Text>
+                                        </Animated.View>
+                                    )}
+                                </View>
+                            }
                             multiline
                             autoCorrect={false}
                             autoCompleteType={'off'}
-                            inputStyle={payload ? { paddingTop: 4 } : undefined}
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
+                            inputStyle={[
+                                {},
+                                payload ? { paddingTop: 4 } : undefined,
+                            ]}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0,
+                                marginHorizontal: 16,
+                            }}
                             enabled={!payload}
                             editable={!payload}
                             onSubmit={onSubmit}
@@ -558,7 +614,7 @@ export const TransferFragment = fragment(() => {
                             ref={refs[2]}
                             onFocus={onFocus}
                             onValueChange={setComment}
-                            placeholder={t('transfer.comment')}
+                            placeholder={isKnown ? t('transfer.commentReuiered') : t('transfer.comment')}
                             keyboardType="default"
                             autoCapitalize="sentences"
                             inputStyle={payload ? { paddingTop: 4 } : undefined}
@@ -567,6 +623,49 @@ export const TransferFragment = fragment(() => {
                             editable={!payload}
                             preventDefaultHeight
                             multiline
+                            label={
+                                <View style={{
+                                    flexDirection: 'row',
+                                    width: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    overflow: 'hidden',
+                                }}>
+                                    <Text style={{
+                                        fontWeight: '500',
+                                        fontSize: 12,
+                                        color: '#7D858A',
+                                        alignSelf: 'flex-start',
+                                    }}>
+                                        {t('transfer.commentLabel')}
+                                    </Text>
+                                    {isKnown && (
+                                        <Animated.View
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            entering={FadeIn.duration(150)}
+                                            exiting={FadeOut.duration(150)}
+                                        >
+                                            <MessageIcon
+                                                width={12}
+                                                height={12}
+                                                style={{ alignSelf: 'center', marginRight: 4 }}
+                                            />
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 12,
+                                                color: '#858B93',
+                                                alignSelf: 'flex-start',
+                                            }}>
+                                                {t('transfer.checkComment')}
+                                            </Text>
+                                        </Animated.View>
+                                    )}
+                                </View>
+                            }
                         />
                         {payload && (
                             <>
@@ -577,6 +676,7 @@ export const TransferFragment = fragment(() => {
                                     color: '#8E979D',
                                     alignSelf: 'flex-start',
                                     marginTop: 10,
+                                    marginBottom: 10,
                                     marginLeft: 16
                                 }}>
                                     {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}

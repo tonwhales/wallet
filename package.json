@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -63,6 +63,7 @@
     "react-native": "0.66.4",
     "react-native-boring-avatars": "^1.0.1",
     "react-native-bouncy-checkbox": "^2.1.9",
+    "react-native-circular-progress": "^1.3.7",
     "react-native-fast-animations": "^0.0.4",
     "react-native-fast-image": "^8.5.11",
     "react-native-fast-pbkdf2": "^0.3.1",

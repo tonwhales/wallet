@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
 
 import Img_ant from '../../assets/images/img_ant.svg';
@@ -125,7 +125,11 @@ import Img_wombat from '../../assets/images/img_wombat.svg';
 import Img_yak from '../../assets/images/img_yak.svg';
 import Img_zebra from '../../assets/images/img_zebra.svg';
 
-let images = [
+import Verified from '../../assets/ic_verified.svg';
+import { KnownWallets } from '../secure/KnownWallets';
+import { KnownAvatar } from '../secure/KnownAvatar';
+
+export const avatarImages = [
     Img_ant,
     Img_antelope,
     Img_bass,
@@ -250,7 +254,7 @@ let images = [
     Img_zebra,
 ];
 
-let colors = [
+export const avatarColors = [
     '#294659',
     '#e56555',
     '#f28c48',
@@ -262,12 +266,35 @@ let colors = [
     '#d1b04d'
 ];
 
-export const Avatar = React.memo((props: { size: number, id: string }) => {
-    let Img = images[avatarHash(props.id, images.length)];
-    let color = colors[avatarHash(props.id, colors.length)];
+export const Avatar = React.memo((props: { size: number, id: string, address?: string }) => {
+    let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
+    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
+
+    let known = props.address ? KnownWallets[props.address] : undefined;
+    let size = Math.floor(props.size * 0.6);
+    let verifiedSize = Math.floor(props.size * 0.35);
+
     return (
-        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
-            <Img width={Math.floor(props.size * 0.7)} height={Math.floor(props.size * 0.7)} color="white" />
+        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: !known ? color : undefined, alignItems: 'center', justifyContent: 'center' }}>
+            {!known && (<Img width={size} height={size} color="white" />)}
+            {known && <KnownAvatar size={props.size} wallet={known} />}
+            <View style={{
+                width: props.size, height: props.size,
+                borderRadius: props.size / 2,
+                borderWidth: 0.5,
+                borderColor: 'black',
+                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                opacity: 0.06
+            }} />
+            {!!known && (
+                <Verified
+                    style={{
+                        position: 'absolute', top: -1, right: -4
+                    }}
+                    height={verifiedSize}
+                    width={verifiedSize}
+                />
+            )}
         </View>
     );
 });

@@ -513,18 +513,6 @@ export const TransferFragment = fragment(() => {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        {payload && (
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
-                            }}>
-                                {t('common.walletAddress')}
-                            </Text>
-                        )}
                         <ATextInput
                             value={target}
                             index={1}
@@ -548,7 +536,7 @@ export const TransferFragment = fragment(() => {
                                         color: '#7D858A',
                                         alignSelf: 'flex-start',
                                     }}>
-                                        {t('transfer.sendTo')}
+                                        {payload ? t('common.walletAddress') : t('transfer.sendTo')}
                                     </Text>
                                     {isKnown && (
                                         <Animated.View
@@ -596,18 +584,6 @@ export const TransferFragment = fragment(() => {
                             blurOnSubmit={false}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
-                        {payload && (
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
-                            }}>
-                                {t('transfer.purpose')}
-                            </Text>
-                        )}
                         <ATextInput
                             value={comment}
                             index={2}
@@ -637,7 +613,7 @@ export const TransferFragment = fragment(() => {
                                         color: '#7D858A',
                                         alignSelf: 'flex-start',
                                     }}>
-                                        {t('transfer.commentLabel')}
+                                        {payload ? t('transfer.purpose') : t('transfer.commentLabel')}
                                     </Text>
                                     {isKnown && (
                                         <Animated.View

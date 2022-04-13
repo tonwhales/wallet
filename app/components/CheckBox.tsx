@@ -21,7 +21,7 @@ export const CheckBox = React.memo((
     const toggle = useCallback(
         () => {
             setIsChecked(!isChecked);
-            if (isChecked !== checked && onToggle) {
+            if (onToggle) {
                 onToggle(!isChecked);
             }
         },

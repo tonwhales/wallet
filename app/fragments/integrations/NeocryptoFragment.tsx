@@ -7,13 +7,17 @@ import WebView from "react-native-webview";
 import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CheckBox } from "../../components/CheckBox";
+import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
+import { storage } from "../../storage/storage";
 import { Theme } from "../../Theme";
 import { useParams } from "../../utils/useParams";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 const Logo = require('../../../assets/known/neocrypto_logo.png');
+export const skipLegalNeocrypto = 'skip_legal_neocrypto';
 
 export const NeocryptoFragment = fragment(() => {
 
@@ -38,9 +42,10 @@ export const NeocryptoFragment = fragment(() => {
         fix_amount?: 'true' | 'false'
     }>();
     const address = getCurrentAddress();
-    const baseNavigation = useNavigation();
+    const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(false);
+    const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
 
     const { t } = useTranslation();
     const wref = React.useRef<WebView>(null);
@@ -55,18 +60,13 @@ export const NeocryptoFragment = fragment(() => {
         ...params
     }), [params]);
 
-    useLayoutEffect(() => {
-        baseNavigation.setOptions({
-            headerStyle: {
-                backgroundColor: '#2C3556',
-            },
-            headerTintColor: 'white'
-        });
-    }, []);
-
     const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
     const privacy = 'https://neocrypto.net/privacypolicy.html';
     const terms = 'https://neocrypto.net/terms.html';
+
+    const onDoNotShowToggle = useCallback((newVal) => {
+        setDoNotShow(newVal);
+    }, []);
 
     const openTerms = useCallback(
         () => {
@@ -81,6 +81,12 @@ export const NeocryptoFragment = fragment(() => {
         [],
     );
 
+    const onOpenBuy = useCallback(() => {
+        if (accepted) {
+            storage.set(skipLegalNeocrypto, doNotShow);
+            // Close this modl & open in app
+        }
+    }, [accepted, doNotShow]);
 
     return (
         <View style={{
@@ -93,7 +99,7 @@ export const NeocryptoFragment = fragment(() => {
             <AndroidToolbar />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
+                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
                         {'Neorcypto'}
                     </Text>
                 )}
@@ -151,16 +157,31 @@ export const NeocryptoFragment = fragment(() => {
                         marginTop: 16
                     }}
                 />
+                <CheckBox
+                    checked={doNotShow}
+                    onToggle={onDoNotShowToggle}
+                    text={t('neocrypto.doNotShow')}
+                    style={{
+                        marginTop: 16
+                    }}
+                />
             </View>
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                 <RoundButton
                     disabled={!accepted}
                     title={t('common.continue')}
-                    onPress={() => {
-                    }}
+                    onPress={onOpenBuy}
                 />
             </View>
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+            )}
         </View>
     );
 })

@@ -26,6 +26,8 @@ import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
 import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
+import { storage } from '../../storage/storage';
+import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -193,6 +195,18 @@ export const WalletFragment = fragment(() => {
         }
     };
 
+    const onOpenBuy = React.useCallback(
+        () => {
+            if (storage.getBoolean(skipLegalNeocrypto)) {
+
+            } else {
+                navigation.navigate('Buy')
+            }
+        },
+        [],
+    );
+
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
@@ -284,7 +298,7 @@ export const WalletFragment = fragment(() => {
                     {
                         !AppConfig.isTestnet && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                <TouchableHighlight onPress={() => navigation.navigate('Buy')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                         <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                             <Text style={{

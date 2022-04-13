@@ -38,8 +38,6 @@ import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
-import { StakingFragment } from './fragments/staking/StakingFragment';
-import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { PriceLoader } from './sync/PriceContext';
 
 const Stack = createNativeStackNavigator();

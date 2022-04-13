@@ -39,6 +39,8 @@ import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { PriceLoader } from './sync/PriceContext';
+import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
+import { StakingFragment } from './fragments/staking/StakingFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();

@@ -55,7 +55,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
         },
         // Whales
         [Address.parse('EQAAFhjXzKuQ5N0c96nsdZQWATcJm909LYSaCAvWFxVJP80D').toFriendly()]: {
-            name: 'Whales Pool',
+            name: 'Whales Mining Pool',
             color: '#5FBED5',
             ic: Img_Whales
         },

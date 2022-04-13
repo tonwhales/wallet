@@ -44,8 +44,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         sync: 'Downloading wallet data',
         balanceTitle: 'Ton balance',
         actions: {
-            receive: 'receive',
-            send: 'send'
+            receive: 'Receive',
+            send: 'Send'
         },
         empty: {
             message: 'You have no transactions',

@@ -44,8 +44,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sync: 'Синхронизация кошелька',
         balanceTitle: 'Баланс Ton',
         actions: {
-            receive: 'получить',
-            send: 'отправить'
+            receive: 'Получить',
+            send: 'Отправить'
         },
         empty: {
             message: 'У вас нет транзакций',

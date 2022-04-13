@@ -42,16 +42,10 @@ export type StakingTransferParams = {
     target?: string,
     comment?: string | null,
     amount?: BN | null,
-    minAmount?: BN | null
-    payload?: Cell | null,
-    stateInit?: Cell | null,
     lockAmount?: boolean,
     lockComment?: boolean,
     lockAddress?: boolean,
-    goBack?: boolean,
     action?: TransferAction
-    job?: string | null,
-    navigateToStakingAfter?: boolean
 }
 
 export const StakingTransferFragment = fragment(() => {
@@ -60,26 +54,12 @@ export const StakingTransferFragment = fragment(() => {
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
     const pool = engine.products.stakingPool.useState();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
-
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');
-    const [target, setTarget] = React.useState(params?.target || '');
-    const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState('');
-    const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
-    const [estimation, setEstimation] = React.useState<BN | null>(null);
     const [notConfirmed, setNotConfirmed] = React.useState(true);
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
-    const acc = React.useMemo(() => getCurrentAddress(), []);
-    React.useEffect(() => {
-        return () => {
-            if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
-            }
-        }
-    }, []);
 
     const onSetAmount = React.useCallback(
         (newAmount: string) => {
@@ -91,8 +71,13 @@ export const StakingTransferFragment = fragment(() => {
         let address: Address;
         let value: BN;
 
+        if (!params?.target) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+
         try {
-            let parsed = Address.parseFriendly(target);
+            let parsed = Address.parseFriendly(params.target);
             address = parsed.address;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
@@ -166,12 +151,12 @@ export const StakingTransferFragment = fragment(() => {
         // Navigate to TransferFragment
         navigation.navigate('Transfer', {
             target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            comment: comment,
+            comment: params?.comment,
             amount: transferAmount,
             payload: payload,
         });
 
-    }, [notConfirmed, amount, target, comment, stateInit, params, member, pool]);
+    }, [notConfirmed, amount, params, member, pool]);
 
     //
     // Scroll state tracking
@@ -383,7 +368,7 @@ export const StakingTransferFragment = fragment(() => {
                                     topUp={params?.action === 'top_up'}
                                     member={member}
                                 />
-                                <PoolTransactionInfo pool={pool} fee={estimation} />
+                                <PoolTransactionInfo pool={pool} />
                             </>
                         )}
                         {params?.action === 'withdraw' && (

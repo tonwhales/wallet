@@ -5,7 +5,7 @@ import { View, Text } from "react-native";
 import { Address, fromNano } from "ton";
 import { Theme } from "../../Theme";
 import { bnIsLess } from "../../utils/bnComparison";
-import { parseAmount, toFixedBN } from "../../utils/parseAmount";
+import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 
@@ -27,8 +27,8 @@ export const StakingCalcComponent = React.memo((
     const { t } = useTranslation();
 
     if (topUp && member) {
-        const yearly = toFixedBN(parseAmount(fromNano(member.balance)) * 0.1);
-        const yearlyPlus = yearly.add(toFixedBN(parseAmount(amount) * 0.1));
+        const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * 0.1);
+        const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * 0.1));
         return (
             <>
                 <Text style={{
@@ -65,7 +65,7 @@ export const StakingCalcComponent = React.memo((
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>
-                                <ValueComponent centLength={2} value={yearly} />
+                                <ValueComponent precision={2} value={yearly} />
                                 {' TON'}
                             </Text>
                             <PriceComponent
@@ -101,7 +101,7 @@ export const StakingCalcComponent = React.memo((
                                 fontSize: 16,
                                 color: '#4FAE42'
                             }}>
-                                <ValueComponent centLength={2} value={yearlyPlus} />
+                                <ValueComponent precision={2} value={yearlyPlus} />
                                 {' TON'}
                             </Text>
                             <PriceComponent
@@ -128,7 +128,7 @@ export const StakingCalcComponent = React.memo((
         )
     }
 
-    const parsed = parseAmount(amount);
+    const parsed = parseAmountToNumber(amount);
     const yearly = toFixedBN(parsed * 0.1);
     const monthly = toFixedBN(parsed * (Math.pow((1 + 0.1 / 366), 30)) - parsed);
     const daily = toFixedBN(parsed * (1 + 0.1 / 366) - parsed)
@@ -162,7 +162,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={2} value={yearly} />
+                            <ValueComponent precision={2} value={yearly} />
                             {' TON'}
                         </Text>
                         <PriceComponent
@@ -199,7 +199,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={bnIsLess(monthly, 0.01) ? 6 : 2} value={monthly} />
+                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 6 : 2} value={monthly} />
                             {' TON'}
                         </Text>
                         <PriceComponent
@@ -236,7 +236,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent centLength={bnIsLess(daily, 0.01) ? 6 : 2} value={daily} />
+                            <ValueComponent precision={bnIsLess(daily, 0.01) ? 6 : 2} value={daily} />
                             {' TON'}
                         </Text>
                         <PriceComponent

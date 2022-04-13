@@ -5,33 +5,26 @@ import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keybo
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { Address, Cell, fromNano, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
-import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
-import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
 import { useAccount } from '../../sync/Engine';
-import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
-import { fetchConfig } from '../../sync/fetchConfig';
 import { t } from '../../i18n/t';
-import { LocalizedResources } from '../../i18n/schema';
 import { PriceComponent } from '../../components/PriceComponent';
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
 import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
 import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
 import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
-import { parseAmount, parseAmountToBn } from '../../utils/parseAmount';
-import { bnIsGreater, bnIsLess } from '../../utils/bnComparison';
+import { parseAmountToBn, parseAmountToValidBN } from '../../utils/parseAmount';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -364,7 +357,7 @@ export const StakingTransferFragment = fragment(() => {
                                     blurOnSubmit={false}
                                 />
                                 <PriceComponent
-                                    amount={amount === '' ? toNano(0) : toNano(parseAmount(amount))}
+                                    amount={parseAmountToValidBN(amount)}
                                     style={{
                                         backgroundColor: 'transparent',
                                         paddingHorizontal: 0

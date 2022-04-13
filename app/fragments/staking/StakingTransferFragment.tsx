@@ -105,7 +105,9 @@ export const StakingTransferFragment = fragment(() => {
 
         // Check availible 
         if (params?.action === 'withdraw') {
-            const availible = member ? member.balance.add(member.withdraw).add(member.pendingDeposit) : undefined;
+            const availible = member
+                ? member.balance.add(member.withdraw).add(member.pendingDeposit)
+                : undefined;
             if (!availible || availible.lt(value)) {
                 setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
                 return;
@@ -119,12 +121,12 @@ export const StakingTransferFragment = fragment(() => {
             console.log('[doContinue]', 'with');
             payload = createWithdrawStakeCell(transferAmount);
             console.log('[doContinue]', 'payload');
-            transferAmount = toNano('0.2');
+            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
             console.log('[doContinue]', 'transferAmount');
         }
 
         // Check amount
-        if ((!transferAmount.eq(account.balance) && account.balance.lt(value))) {
+        if ((transferAmount.eq(account.balance) || account.balance.lt(transferAmount))) {
             setMinAmountWarn(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -330,9 +332,9 @@ export const StakingTransferFragment = fragment(() => {
                                     onValueChange={onSetAmount}
                                     placeholder={'0'}
                                     keyboardType={'numeric'}
-                                    textAlign={'center'}
+                                    textAlign={'left'}
                                     style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4 }}
-                                    inputStyle={{ color: Theme.accent, flexGrow: 0, paddingTop: 0 }}
+                                    inputStyle={{ color: Theme.accent, flexGrow: 0, paddingTop: 0, width: '100%' }}
                                     fontWeight={'800'}
                                     fontSize={30}
                                     onBlur={onBlur}
@@ -400,10 +402,10 @@ export const StakingTransferFragment = fragment(() => {
                                                 fontSize: 16,
                                                 color: Theme.textColor
                                             }}>
-                                                {'0.2 TON'}
+                                                {`${pool?.params.withdrawFee ? fromNano(pool?.params.withdrawFee) : '0.1'} TON`}
                                             </Text>
                                             <PriceComponent
-                                                amount={toNano('0.2')}
+                                                amount={pool ? pool.params.withdrawFee : toNano('0.1')}
                                                 style={{
                                                     backgroundColor: 'transparent',
                                                     paddingHorizontal: 0, paddingVertical: 2,

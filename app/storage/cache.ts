@@ -134,6 +134,7 @@ const stakingPoolStateStorage = t.type({
         depositFee: t.string,
         withdrawFee: t.string,
         stakeUntil: t.number,
+        receiptPrice: t.string
     }),
     member: t.union([
         t.type({
@@ -155,6 +156,7 @@ function serializeStakingPool(stakingPool: StakingPoolState): t.TypeOf<typeof st
             depositFee: stakingPool.params.depositFee.toString(10),
             withdrawFee: stakingPool.params.withdrawFee.toString(10),
             stakeUntil: stakingPool.params.stakeUntil,
+            receiptPrice: stakingPool.params.receiptPrice.toString(10)
         },
         member: stakingPool.member ? {
             balance: stakingPool.member.balance.toString(10),
@@ -179,6 +181,7 @@ function parseStakingPoolState(src: any): StakingPoolState | null {
             depositFee: new BN(stored.params.depositFee, 10),
             withdrawFee: new BN(stored.params.withdrawFee, 10),
             stakeUntil: stored.params.stakeUntil,
+            receiptPrice: new BN(stored.params.receiptPrice, 10)
         },
         member: stored.member ? {
             balance: new BN(stored.member.balance, 10),
@@ -232,6 +235,7 @@ export type StakingPoolState = {
         depositFee: BN,
         withdrawFee: BN,
         stakeUntil: number,
+        receiptPrice: BN
     },
     member: { balance: BN, pendingDeposit: BN, pendingWithdraw: BN, withdraw: BN } | null
 }

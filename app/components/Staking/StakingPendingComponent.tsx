@@ -14,6 +14,7 @@ import { createWithdrawStakeCell } from "../../utils/createWithdrawStakeCommand"
 export const StakingPendingComponent = React.memo((
     {
         member,
+        params,
         style
     }: {
         member?: {
@@ -21,6 +22,13 @@ export const StakingPendingComponent = React.memo((
             pendingDeposit: BN,
             pendingWithdraw: BN,
             withdraw: BN
+        } | null,
+        params?: {
+            minStake: BN,
+            depositFee: BN,
+            withdrawFee: BN,
+            receiptPrice: BN,
+            stakeUntil: number,
         } | null,
         style?: StyleProp<ViewStyle>
     }
@@ -167,7 +175,7 @@ export const StakingPendingComponent = React.memo((
                                     {
                                         target: PoolAddress,
                                         comment: 'Withdraw',
-                                        amount: toNano('0.2'),
+                                        amount: params ? params.withdrawFee.add(params.receiptPrice) : toNano('0.2'),
                                         lockAmount: true,
                                         lockAddress: true,
                                         lockComment: true,

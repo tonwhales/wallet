@@ -36,6 +36,7 @@ export const StakingFragment = fragment(() => {
     const [account, engine] = useAccount();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const pool = engine.products.stakingPool.useState();
+    const poolParams = pool?.params;
     const member = pool?.member;
     const window = useWindowDimensions();
 
@@ -217,7 +218,7 @@ export const StakingFragment = fragment(() => {
                         }}
                     />
                 </Animated.View>
-                <StakingPendingComponent style={{ marginHorizontal: 16 }} member={member} />
+                <StakingPendingComponent style={{ marginHorizontal: 16 }} params={poolParams} member={member} />
                 {pool && (
                     <StakingCycle
                         stakeUntil={pool.params.stakeUntil}

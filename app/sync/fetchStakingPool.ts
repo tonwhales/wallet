@@ -13,6 +13,7 @@ export interface StakingPoolData {
         depositFee: BN,
         withdrawFee: BN,
         stakeUntil: number,
+        receiptPrice: BN
     },
     member: { balance: BN, pendingDeposit: BN, pendingWithdraw: BN, withdraw: BN } | null
 }
@@ -173,6 +174,7 @@ export async function fetchStakingPool(): Promise<StakingPoolData[]> {
                 depositFee: poolParams.depositFee,
                 withdrawFee: poolParams.withdrawFee,
                 stakeUntil: status.proxyStakeUntil,
+                receiptPrice: poolParams.receiptPrice
             }
         }
     }));

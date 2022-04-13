@@ -129,7 +129,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Стейкинг',
             balance: 'Баланс стейкинга',
             subtitle: {
-                join: 'Зарабатывайте на TON',
+                join: 'Зарабатывайте на TON до 13,3%',
                 joined: 'Зарабатывайте на TON',
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада'

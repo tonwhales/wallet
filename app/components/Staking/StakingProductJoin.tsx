@@ -48,13 +48,6 @@ export const StakingProductJoin = React.memo(() => {
                             >
                                 {t('products.staking.title')}
                             </Text>
-                            <Text style={{
-                                fontSize: 16,
-                                fontWeight: '700',
-                                color: '#4FAE42',
-                            }}>
-                                {'~' + t('products.staking.join.apy')}
-                            </Text>
                         </View>
                         <View style={{
                             flexDirection: 'row',
@@ -67,14 +60,6 @@ export const StakingProductJoin = React.memo(() => {
                                 ellipsizeMode="tail"
                             >
                                 {t("products.staking.subtitle.join")}
-                            </Text>
-                            <Text style={{
-                                fontSize: 12,
-                                fontWeight: '400',
-                                color: '#8E979D',
-                                marginTop: 2
-                            }}>
-                                {t('products.staking.join.yearly')}
                             </Text>
                         </View>
                     </View>

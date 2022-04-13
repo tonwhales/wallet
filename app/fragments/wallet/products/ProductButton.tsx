@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { StyleProp, Text, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
@@ -12,18 +12,22 @@ export function ProductButton(props: {
     subtitle: string,
     icon: React.FC<SvgProps>,
     value: BN | null,
-    onPress: () => void
+    onPress: () => void,
+    style?: StyleProp<ViewStyle>,
 }) {
     const Icon = props.icon;
     return (
         <TouchableHighlight
             onPress={props.onPress}
             underlayColor={Theme.selector}
-            style={{
-                alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: 'white',
-                marginHorizontal: 16, marginVertical: 16
-            }}
+            style={[
+                {
+                    alignSelf: 'stretch', borderRadius: 14,
+                    backgroundColor: 'white',
+                    marginHorizontal: 16, marginVertical: 16
+                },
+                props.style
+            ]}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>

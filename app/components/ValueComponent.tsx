@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { StyleProp, Text, TextStyle } from "react-native";
 import { fromNano } from "ton";
 
-export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle> }) {
+export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle>, precision?: number }) {
     let t = fromNano(props.value);
     if (t.indexOf('.') < 0) {
         return <>{t}</>
@@ -20,5 +20,5 @@ export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<Tex
     }
     r = parts.join(' ');
 
-    return <Text><Text>{r}</Text><Text style={[props.centFontStyle]}>.{p[1]}</Text></Text>
+    return <Text><Text>{r}</Text><Text style={[props.centFontStyle]}>.{p[1].substring(0, props.precision ? props.precision : p[1].length)}</Text></Text>
 }

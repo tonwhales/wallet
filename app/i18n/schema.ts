@@ -24,7 +24,11 @@ export type LocalizationSchema = {
         amount: string,
         today: string,
         yesterday: string,
-        comment: string
+        comment: string, 
+        products: string,
+        confirm: string,
+        soon: string,
+        in: string
     }
     home: {
         wallet: string,
@@ -122,7 +126,110 @@ export type LocalizationSchema = {
             title: string,
             subtitle: string
         },
-        transactionRequest: string
+        transactionRequest: string,
+        staking: {
+            title: string,
+            balance: string,
+            subtitle: {
+                join: string,
+                rewards: string,
+                apy: string,
+                joined: string
+            },
+            nextCycle: string,
+            cycleNote: string,
+            cycleNoteWithdraw: string,
+            buttonTitle: string,
+            balanceTitle: string,
+            actions: {
+                top_up: string,
+                deposit: string,
+                withdraw: string,
+            },
+            transfer: {
+                stakingWarning: string,
+                depositStakeTitle: string,
+                depositStakeConfirmTitle: string,
+                withdrawStakeTitle: string,
+                withdrawStakeConfirmTitle: string,
+                topUpTitle: string,
+                topUpConfirmTitle: string,
+                notEnoughStaked: string
+            },
+            join: {
+                title: string,
+                message: string,
+                buttonTitle: string,
+                moreAbout: string,
+                earn: string,
+                onYourTons: string,
+                yearly: string,
+                apy: string,
+                cycle: string,
+                ownership: string,
+                withdraw: string,
+                successTitle: string,
+                successEtimation: string,
+                successNote: string
+            },
+            pool: {
+                balance: string,
+                members: string,
+                profitability: string
+            },
+            empty: {
+                message: string
+            },
+            pending: {
+                deposit: string,
+                withdraw: string
+            },
+            withdrawStatus: {
+                pending: string,
+                ready: string,
+                withdrawNow: string
+            },
+            depositStatus: {
+                pending: string
+            },
+            withdraw: string,
+            sync: string,
+            unstake: {
+                title: string,
+                message: string
+            },
+            learnMore: string,
+            moreInfo: string,
+            calc: {
+                yearly: string,
+                monthly: string,
+                daily: string,
+                note: string,
+                text: string,
+                yearlyTopUp: string,
+                yearlyTotal: string,
+                yearlyCurrent: string,
+                topUpTitle: string
+            },
+            info: {
+                rate: string,
+                rateTitle: string,
+                frequency: string,
+                frequencyTitle: string,
+                minDeposit: string,
+                poolFee: string,
+                poolFeeTitle: string,
+                depositFee: string,
+                withdrawFee: string,
+                blockchainFee: string,
+            },
+            minAmountWarning: string,
+            tryAgainLater: string,
+            banner: {
+                estimatedEarnings: string,
+                message: string
+            }
+        },
     }
     welcome: {
         title: string,

@@ -74,6 +74,10 @@ const addressStateStorage = t.type({
     storedAt: t.number
 });
 
+//
+// Price
+//
+
 const priceStateStorage = t.type({
     price: t.type({ usd: t.number })
 });
@@ -118,6 +122,76 @@ function parseAddressState(src: any): AddressState | null {
     };
 }
 
+// 
+// Staking Pool
+// 
+
+const stakingPoolStateStorage = t.type({
+    name: t.string,
+    address: t.string,
+    params: t.type({
+        minStake: t.string,
+        depositFee: t.string,
+        withdrawFee: t.string,
+        stakeUntil: t.number,
+        receiptPrice: t.string
+    }),
+    member: t.union([
+        t.type({
+            balance: t.string,
+            pendingDeposit: t.string,
+            pendingWithdraw: t.string,
+            withdraw: t.string
+        }),
+        t.null
+    ])
+})
+
+function serializeStakingPool(stakingPool: StakingPoolState): t.TypeOf<typeof stakingPoolStateStorage> {
+    return {
+        name: stakingPool.name,
+        address: stakingPool.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+        params: {
+            minStake: stakingPool.params.minStake.toString(10),
+            depositFee: stakingPool.params.depositFee.toString(10),
+            withdrawFee: stakingPool.params.withdrawFee.toString(10),
+            stakeUntil: stakingPool.params.stakeUntil,
+            receiptPrice: stakingPool.params.receiptPrice.toString(10)
+        },
+        member: stakingPool.member ? {
+            balance: stakingPool.member.balance.toString(10),
+            pendingDeposit: stakingPool.member.pendingDeposit.toString(10),
+            pendingWithdraw: stakingPool.member.pendingWithdraw.toString(10),
+            withdraw: stakingPool.member.withdraw.toString(10)
+        } : null
+    }
+}
+
+function parseStakingPoolState(src: any): StakingPoolState | null {
+    const parsed = stakingPoolStateStorage.decode(src);
+    if (isLeft(parsed)) {
+        return null;
+    }
+    const stored = parsed.right;
+    return {
+        name: stored.name,
+        address: Address.parseFriendly(stored.address).address,
+        params: {
+            minStake: new BN(stored.params.minStake, 10),
+            depositFee: new BN(stored.params.depositFee, 10),
+            withdrawFee: new BN(stored.params.withdrawFee, 10),
+            stakeUntil: stored.params.stakeUntil,
+            receiptPrice: new BN(stored.params.receiptPrice, 10)
+        },
+        member: stored.member ? {
+            balance: new BN(stored.member.balance, 10),
+            pendingDeposit: new BN(stored.member.pendingDeposit, 10),
+            pendingWithdraw: new BN(stored.member.pendingWithdraw, 10),
+            withdraw: new BN(stored.member.withdraw, 10)
+        } : null
+    };
+}
+
 //
 // Public
 //
@@ -151,6 +225,19 @@ export type PriceState = {
     price: {
         usd: number
     }
+}
+
+export type StakingPoolState = {
+    name: string,
+    address: Address,
+    params: {
+        minStake: BN,
+        depositFee: BN,
+        withdrawFee: BN,
+        stakeUntil: number,
+        receiptPrice: BN
+    },
+    member: { balance: BN, pendingDeposit: BN, pendingWithdraw: BN, withdraw: BN } | null
 }
 
 export function createCache(store: MMKV) {
@@ -230,6 +317,18 @@ export function createCache(store: MMKV) {
             } else {
                 return null;
             }
-        }
+        },
+        storeStakingPool: (stakingPool: StakingPoolState) => {
+            const serialized = JSON.stringify(serializeStakingPool(stakingPool));
+            store.set('staking_pool_', serialized);
+        },
+        loadStakingPool: () => {
+            let stakingPool = store.getString('staking_pool_');
+            if (stakingPool) {
+                return parseStakingPoolState(JSON.parse(stakingPool));
+            } else {
+                return null;
+            }
+        },
     };
 }

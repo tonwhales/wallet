@@ -1,18 +1,19 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, View, Text, Platform } from "react-native";
+import { View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { CheckBox } from "../../components/CheckBox";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { storage } from "../../storage/storage";
 import { Theme } from "../../Theme";
 import { useParams } from "../../utils/useParams";
 
+const Logo = require('../../../assets/known/neocrypto_logo.png');
 
 export const NeocryptoFragment = fragment(() => {
 
@@ -39,6 +40,7 @@ export const NeocryptoFragment = fragment(() => {
     const address = getCurrentAddress();
     const baseNavigation = useNavigation();
     const safeArea = useSafeAreaInsets();
+    const [accepted, setAccepted] = useState(false);
 
     const { t } = useTranslation();
     const wref = React.useRef<WebView>(null);
@@ -62,15 +64,31 @@ export const NeocryptoFragment = fragment(() => {
         });
     }, []);
 
-    const link = `https://demo2.neocrypto.net/buy.html?${queryParams.toString()}`
-    console.log(link);
+    const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
+    const privacy = 'https://neocrypto.net/privacypolicy.html';
+    const terms = 'https://neocrypto.net/terms.html';
+
+    const openTerms = useCallback(
+        () => {
+
+        },
+        [],
+    );
+    const openPrivacy = useCallback(
+        () => {
+
+        },
+        [],
+    );
+
 
     return (
         <View style={{
             flex: 1,
             backgroundColor: Theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
-            paddingHorizontal: 16
+            paddingHorizontal: 16,
+            justifyContent: 'center', alignItems: 'center'
         }}>
             <AndroidToolbar />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -80,10 +98,66 @@ export const NeocryptoFragment = fragment(() => {
                     </Text>
                 )}
             </View>
-            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title={t('common.continue')}
-                    onPress={() => {
+            <View style={{ flexGrow: 1 }} />
+            <Image
+                style={{
+                    width: 100,
+                    height: 100,
+                    overflow: 'hidden'
+                }}
+                source={Logo}
+            />
+            <Text style={{
+                fontWeight: '800',
+                fontSize: 24,
+                textAlign: 'center',
+                color: Theme.textColor,
+                marginTop: 16
+            }}>
+                {t('neocrypto.title')}
+            </Text>
+            <Text style={{
+                fontWeight: '400',
+                fontSize: 16,
+                marginTop: 24
+            }}>
+                {t('neocrypto.description')}
+            </Text>
+            <View style={{ flexGrow: 1 }} />
+            <View>
+                <CheckBox
+                    checked={accepted}
+                    onToggle={(newVal) => setAccepted(newVal)}
+                    text={
+                        <Text>
+                            {t('neocrypto.termsAndPrivacy')}
 
+                            <Text
+                                style={{ color: '#42A3EB' }}
+                                onPress={openTerms}
+                            >
+                                {t('legal.termsOfService')}
+                            </Text>
+                            {' ' + t('common.and') + ' '}
+                            <Text
+                                style={{ color: '#42A3EB' }}
+                                onPress={openPrivacy}
+                            >
+                                {t('legal.privacyPolicy')}
+                            </Text>
+                        </Text>
+                    }
+                    style={{
+                        marginTop: 16
+                    }}
+                />
+            </View>
+            <View style={{ flexGrow: 1 }} />
+            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <RoundButton
+                    disabled={!accepted}
+                    title={t('common.continue')}
+                    onPress={() => {
                     }}
                 />
             </View>

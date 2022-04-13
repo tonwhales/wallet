@@ -189,7 +189,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             message: 'Fill in the required fields -> Select cryptocurrency and specify wallet address and the amount to buy -> Proceed to checkout -> Enter your billing details correctly. Your credit card payment is securely processed by our Partners -> Complete purchase. No account needed!'
         },
         title: 'Buy TON with credit card for USD, EUR and RUB',
-        description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.Please read and agree to Neocrypto\'s Terms of Service before using their service. ',
+        description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service. ',
         doNotShow: 'Do not show it again for Neocrypto',
         termsAndPrivacy: 'I have read and agree to the '
     }

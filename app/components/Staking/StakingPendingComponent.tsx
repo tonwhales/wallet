@@ -10,6 +10,7 @@ import { PriceComponent } from "../PriceComponent";
 import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstake.svg';
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { createWithdrawStakeCell } from "../../utils/createWithdrawStakeCommand";
+import { TransferAction } from "../../fragments/staking/StakingTransferFragment";
 
 export const StakingPendingComponent = React.memo((
     {
@@ -171,18 +172,20 @@ export const StakingPendingComponent = React.memo((
                         <Pressable
                             style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })}
                             onPress={() => {
-                                navigation.navigate('Transfer',
+                                navigation.navigate(
+                                    'StakingTransfer',
                                     {
                                         target: PoolAddress,
                                         comment: 'Withdraw',
-                                        amount: params ? params.withdrawFee.add(params.receiptPrice) : toNano('0.2'),
+                                        amount: member.withdraw,
                                         lockAmount: true,
                                         lockAddress: true,
                                         lockComment: true,
-                                        action: 'withdraw',
-                                        payload: createWithdrawStakeCell(member.withdraw)
+                                        payload: createWithdrawStakeCell(member.withdraw),
+                                        action: 'withdraw_ready' as TransferAction,
                                     }
                                 )
+
                             }}
                         >
                             <View style={{ height: 48, paddingLeft: 0, paddingRight: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', flexGrow: 1, flexBasis: 0 }}>
@@ -215,7 +218,8 @@ export const StakingPendingComponent = React.memo((
                         </Pressable>
                     </View>
                 </>
-            )}
-        </View>
+            )
+            }
+        </View >
     );
 })

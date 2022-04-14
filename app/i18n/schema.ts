@@ -155,7 +155,9 @@ export type LocalizationSchema = {
                 withdrawStakeConfirmTitle: string,
                 topUpTitle: string,
                 topUpConfirmTitle: string,
-                notEnoughStaked: string
+                notEnoughStaked: string,
+                confirmWithdraw: string,
+                confirmWithdrawReady: string,
             },
             join: {
                 title: string,

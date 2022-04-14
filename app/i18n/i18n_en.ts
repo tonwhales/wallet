@@ -139,11 +139,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
                 depositStakeTitle: 'Staking',
                 depositStakeConfirmTitle: 'Confirm Staking',
-                withdrawStakeTitle: 'Unstake',
-                withdrawStakeConfirmTitle: 'Confirm Unstake',
+                withdrawStakeTitle: 'Withdrawal Request',
+                withdrawStakeConfirmTitle: 'Confirm Withdrawal',
                 topUpTitle: 'Top Up',
                 topUpConfirmTitle: 'Confirm Top Up',
-                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked'
+                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked',
+                confirmWithdraw: 'Request Withdrawal',
+                confirmWithdrawReady: 'Confirm Withdrawal'
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',

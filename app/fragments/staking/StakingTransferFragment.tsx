@@ -37,7 +37,7 @@ export type ATextInputRef = {
     blur: () => void;
 }
 
-export type TransferAction = 'deposit' | 'withdraw' | 'top_up';
+export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
 
 export type StakingTransferParams = {
     target?: string,
@@ -49,6 +49,36 @@ export type StakingTransferParams = {
     action?: TransferAction
 }
 
+export function actionTitle(confirmed: boolean, action?: TransferAction) {
+    if (!confirmed) {
+        switch (action) {
+            case 'deposit':
+                return t('products.staking.transfer.depositStakeTitle');
+            case 'withdraw':
+                return t('products.staking.transfer.withdrawStakeTitle');
+            case 'top_up':
+                return t('products.staking.transfer.topUpTitle');
+            case 'withdraw_ready':
+                return t('products.staking.transfer.confirmWithdrawReady');
+            default:
+                return t('products.staking.title')
+        }
+    } else {
+        switch (action) {
+            case 'deposit':
+                return t('products.staking.transfer.depositStakeTitle');
+            case 'withdraw':
+                return t('products.staking.transfer.withdrawStakeConfirmTitle');
+            case 'top_up':
+                return t('products.staking.transfer.topUpConfirmTitle');
+            case 'withdraw_ready':
+                return t('products.staking.transfer.confirmWithdrawReady');
+            default:
+                return t('products.staking.title')
+        }
+    }
+}
+
 export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: StakingTransferParams | undefined = useRoute().params;
@@ -58,15 +88,20 @@ export const StakingTransferFragment = fragment(() => {
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');
-    const [amount, setAmount] = React.useState('');
+    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [notConfirmed, setNotConfirmed] = React.useState(true);
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
 
-    const balance = params?.action === 'withdraw'
-        ? !member
-            ? toNano(0)
-            : member.balance.add(member.withdraw).add(member.pendingDeposit)
-        : account?.balance || new BN(0);
+    let balance = account?.balance || new BN(0);
+    if (params?.action === 'withdraw') {
+        balance = member
+            ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)
+            : toNano(0);
+    }
+
+    if (params?.action === 'withdraw_ready') {
+        balance = member?.withdraw || toNano(0);
+    }
 
     const onSetAmount = React.useCallback(
         (newAmount: string) => {
@@ -124,6 +159,12 @@ export const StakingTransferFragment = fragment(() => {
         // Add withdraw payload
         let payload;
         let transferAmount = value;
+
+        if (params.action === 'withdraw_ready') {
+            payload = createWithdrawStakeCell(transferAmount);
+            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+        }
+
         if (params?.action === 'withdraw') {
             if (transferAmount.eq(balance)) transferAmount = new BN(0);
             payload = createWithdrawStakeCell(transferAmount);
@@ -227,34 +268,14 @@ export const StakingTransferFragment = fragment(() => {
     }, [balance, params, pool]);
 
     React.useEffect(() => {
-        if (notConfirmed) {
-            setTitle(
-                params?.action === 'deposit'
-                    ? t('products.staking.transfer.depositStakeTitle')
-                    : params?.action === 'withdraw'
-                        ? t('products.staking.transfer.withdrawStakeTitle')
-                        : params?.action === 'top_up'
-                            ? t('products.staking.transfer.topUpTitle')
-                            : t('products.staking.title')
-            );
-        } else {
-            setTitle(
-                params?.action === 'deposit'
-                    ? t('products.staking.transfer.depositStakeTitle')
-                    : params?.action === 'withdraw'
-                        ? t('products.staking.transfer.withdrawStakeConfirmTitle')
-                        : params?.action === 'top_up'
-                            ? t('products.staking.transfer.topUpConfirmTitle')
-                            : t('products.staking.title')
-            );
-        }
+        setTitle(actionTitle(!notConfirmed, params?.action));
     }, [notConfirmed, params?.action]);
 
     React.useLayoutEffect(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
 
-    const withdrawFee = pool? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+    const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
 
     return (
         <>
@@ -336,13 +357,15 @@ export const StakingTransferFragment = fragment(() => {
                                         inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
                                         fontWeight={'800'}
                                         fontSize={30}
+                                        editable={!params?.lockAmount}
+                                        enabled={!params?.lockAmount}
                                         onBlur={onBlur}
                                         preventDefaultHeight
                                         preventDefaultLineHeight
                                         preventDefaultValuePadding
                                         blurOnSubmit={false}
                                     />
-                                    <Pressable
+                                    {!params?.lockAmount && <Pressable
                                         style={({ pressed }) => {
                                             return [
                                                 {
@@ -366,7 +389,7 @@ export const StakingTransferFragment = fragment(() => {
                                         }}>
                                             {t('common.max')}
                                         </Text>
-                                    </Pressable>
+                                    </Pressable>}
                                 </View>
                                 <PriceComponent
                                     amount={parseAmountToValidBN(amount)}
@@ -398,7 +421,7 @@ export const StakingTransferFragment = fragment(() => {
                                 <PoolTransactionInfo pool={pool} />
                             </>
                         )}
-                        {params?.action === 'withdraw' && (
+                        {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
                             <>
                                 <View style={{
                                     backgroundColor: 'white',
@@ -441,16 +464,16 @@ export const StakingTransferFragment = fragment(() => {
                                         </View>
                                     </View>
                                 </View>
-                                {!!pool && (
+                                {!!pool && params.action !== 'withdraw_ready' && (
                                     <StakingCycle
                                         stakeUntil={pool.params.stakeUntil}
                                         style={{
                                             marginBottom: 15
                                         }}
-                                        withdraw={params.action === 'withdraw'}
+                                        withdraw={true}
                                     />
                                 )}
-                                {!!member && !notConfirmed && (
+                                {!!member && !notConfirmed && params.action !== 'withdraw_ready' && (
                                     <UnstakeBanner amount={amount} member={member} />
                                 )}
                             </>
@@ -470,7 +493,9 @@ export const StakingTransferFragment = fragment(() => {
                     title={
                         notConfirmed
                             ? t('common.continue')
-                            : t('common.confirm')
+                            : params?.action === 'withdraw'
+                                ? t('products.staking.transfer.confirmWithdraw')
+                                : t('common.confirm')
                     }
                     action={doContinue}
                 />

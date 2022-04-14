@@ -145,7 +145,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 topUpConfirmTitle: 'Confirm Top Up',
                 notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked',
                 confirmWithdraw: 'Request Withdrawal',
-                confirmWithdrawReady: 'Confirm Withdrawal'
+                confirmWithdrawReady: 'Withdraw now'
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',

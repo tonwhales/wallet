@@ -24,7 +24,7 @@ import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
 import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
 import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
-import { parseAmountToBn, parseAmountToValidBN } from '../../utils/parseAmount';
+import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 
@@ -50,33 +50,18 @@ export type StakingTransferParams = {
     action?: TransferAction
 }
 
-export function actionTitle(confirmed: boolean, action?: TransferAction) {
-    if (!confirmed) {
-        switch (action) {
-            case 'deposit':
-                return t('products.staking.transfer.depositStakeTitle');
-            case 'withdraw':
-                return t('products.staking.transfer.withdrawStakeTitle');
-            case 'top_up':
-                return t('products.staking.transfer.topUpTitle');
-            case 'withdraw_ready':
-                return t('products.staking.transfer.confirmWithdrawReady');
-            default:
-                return t('products.staking.title')
-        }
-    } else {
-        switch (action) {
-            case 'deposit':
-                return t('products.staking.transfer.depositStakeTitle');
-            case 'withdraw':
-                return t('products.staking.transfer.withdrawStakeConfirmTitle');
-            case 'top_up':
-                return t('products.staking.transfer.topUpConfirmTitle');
-            case 'withdraw_ready':
-                return t('products.staking.transfer.confirmWithdrawReady');
-            default:
-                return t('products.staking.title')
-        }
+export function actionTitle(action?: TransferAction) {
+    switch (action) {
+        case 'deposit':
+            return t('products.staking.transfer.depositStakeTitle');
+        case 'withdraw':
+            return t('products.staking.transfer.withdrawStakeTitle');
+        case 'top_up':
+            return t('products.staking.transfer.topUpTitle');
+        case 'withdraw_ready':
+            return t('products.staking.transfer.confirmWithdrawReady');
+        default:
+            return t('products.staking.title')
     }
 }
 
@@ -90,7 +75,6 @@ export const StakingTransferFragment = fragment(() => {
 
     const [title, setTitle] = React.useState('');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
-    const [notConfirmed, setNotConfirmed] = React.useState(true);
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
 
     let balance = account?.balance || new BN(0);
@@ -187,12 +171,6 @@ export const StakingTransferFragment = fragment(() => {
             return;
         }
 
-        if (notConfirmed) {
-            refs[0].current?.blur();
-            setNotConfirmed(false);
-            return;
-        }
-
         // Dismiss keyboard for iOS
         if (Platform.OS === 'ios') {
             Keyboard.dismiss();
@@ -204,12 +182,11 @@ export const StakingTransferFragment = fragment(() => {
         // Navigate to TransferFragment
         navigation.navigate('Transfer', {
             target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            comment: params?.comment,
             amount: transferAmount,
             payload: payload,
         });
 
-    }, [notConfirmed, amount, params, member, pool, balance]);
+    }, [amount, params, member, pool, balance]);
 
     //
     // Scroll state tracking
@@ -254,12 +231,7 @@ export const StakingTransferFragment = fragment(() => {
         }
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
-        setNotConfirmed(true);
     }, [amount]);
-
-    const onBlur = React.useCallback((index: number) => {
-        setNotConfirmed(false);
-    }, []);
 
     const onAddAll = React.useCallback(() => {
         let addAmount = balance;
@@ -273,8 +245,8 @@ export const StakingTransferFragment = fragment(() => {
     }, [balance, params, pool]);
 
     React.useEffect(() => {
-        setTitle(actionTitle(!notConfirmed, params?.action));
-    }, [notConfirmed, params?.action]);
+        setTitle(actionTitle(params?.action));
+    }, [params?.action]);
 
     React.useLayoutEffect(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
@@ -364,7 +336,6 @@ export const StakingTransferFragment = fragment(() => {
                                         fontSize={30}
                                         editable={!params?.lockAmount}
                                         enabled={!params?.lockAmount}
-                                        onBlur={onBlur}
                                         preventDefaultHeight
                                         preventDefaultLineHeight
                                         preventDefaultValuePadding
@@ -478,7 +449,7 @@ export const StakingTransferFragment = fragment(() => {
                                         withdraw={true}
                                     />
                                 )}
-                                {!!member && !notConfirmed && params.action !== 'withdraw_ready' && (
+                                {!!member && params.action !== 'withdraw_ready' && parseAmountToNumber(amount) > 0 && (
                                     <UnstakeBanner amount={amount} member={member} />
                                 )}
                             </>
@@ -495,13 +466,7 @@ export const StakingTransferFragment = fragment(() => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
                 <RoundButton
-                    title={
-                        notConfirmed
-                            ? t('common.continue')
-                            : params?.action === 'withdraw'
-                                ? t('products.staking.transfer.confirmWithdraw')
-                                : t('common.confirm')
-                    }
+                    title={t('common.continue')}
                     action={doContinue}
                 />
             </KeyboardAvoidingView>

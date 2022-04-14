@@ -145,7 +145,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 topUpConfirmTitle: 'Подтвердить пополнение',
                 notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке',
                 confirmWithdraw: 'Запросить вывод',
-                confirmWithdrawReady: 'Подтверждение вывода',
+                confirmWithdrawReady: 'Вывести сейчас',
             },
             nextCycle: 'След. цикл',
             cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',

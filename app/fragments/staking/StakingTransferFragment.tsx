@@ -25,6 +25,7 @@ import { StakingCalcComponent } from '../../components/Staking/StakingCalcCompon
 import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
 import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
 import { parseAmountToBn, parseAmountToValidBN } from '../../utils/parseAmount';
+import { ValueComponent } from '../../components/ValueComponent';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -60,6 +61,12 @@ export const StakingTransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState('');
     const [notConfirmed, setNotConfirmed] = React.useState(true);
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
+
+    const balance = params?.action === 'withdraw'
+        ? !member
+            ? toNano(0)
+            : member.balance.add(member.withdraw).add(member.pendingDeposit)
+        : account?.balance || new BN(0);
 
     const onSetAmount = React.useCallback(
         (newAmount: string) => {
@@ -118,11 +125,9 @@ export const StakingTransferFragment = fragment(() => {
         let payload;
         let transferAmount = value;
         if (params?.action === 'withdraw') {
-            console.log('[doContinue]', 'with');
+            if (transferAmount.eq(balance)) transferAmount = new BN(0);
             payload = createWithdrawStakeCell(transferAmount);
-            console.log('[doContinue]', 'payload');
             transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
-            console.log('[doContinue]', 'transferAmount');
         }
 
         // Check amount
@@ -158,7 +163,7 @@ export const StakingTransferFragment = fragment(() => {
             payload: payload,
         });
 
-    }, [notConfirmed, amount, params, member, pool]);
+    }, [notConfirmed, amount, params, member, pool, balance]);
 
     //
     // Scroll state tracking
@@ -211,16 +216,15 @@ export const StakingTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        onSetAmount(
-            fromNano(
-                (params?.action === 'withdraw')
-                    ? !member
-                        ? toNano(0)
-                        : member.balance.add(member.withdraw).add(member.pendingDeposit)
-                    : account?.balance || new BN(0)
-            )
-        );
-    }, []);
+        let addAmount = balance;
+        if (params?.action === 'deposit' || params?.action === 'top_up') {
+            // Account for withdraw fee need to unstake 
+            addAmount = addAmount
+                .sub(pool?.params.withdrawFee || toNano('0.1'))
+                .sub(pool?.params.receiptPrice || toNano('0.1'))
+        }
+        onSetAmount(fromNano(addAmount));
+    }, [balance, params, pool]);
 
     React.useEffect(() => {
         if (notConfirmed) {
@@ -304,47 +308,66 @@ export const StakingTransferFragment = fragment(() => {
                                 }}>
                                     {t('common.amount')}
                                 </Text>
-                                <Pressable onPress={() => {
-                                    onAddAll();
+                                <Text style={{
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    color: '#6D6D71',
                                 }}>
-
-                                    <Text style={{
-                                        fontWeight: '600',
-                                        fontSize: 16,
-                                        color: '#6D6D71',
-                                    }}>
-                                        {fromNano(
-                                            (params?.action === 'withdraw')
-                                                ? !member
-                                                    ? toNano(0)
-                                                    : member.balance.add(member.withdraw).add(member.pendingDeposit)
-                                                : account?.balance || new BN(0)
-                                        )} TON
-                                    </Text>
-                                </Pressable>
+                                    <ValueComponent value={balance} precision={3} />
+                                    {' TON'}
+                                </Text>
                             </View>
-                            <View style={{
-                                width: '100%',
-                            }}>
-                                <ATextInput
-                                    index={0}
-                                    ref={refs[0]}
-                                    onFocus={onFocus}
-                                    value={amount}
-                                    onValueChange={onSetAmount}
-                                    placeholder={'0'}
-                                    keyboardType={'numeric'}
-                                    textAlign={'left'}
-                                    style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4 }}
-                                    inputStyle={{ color: Theme.accent, flexGrow: 0, paddingTop: 0, width: '100%' }}
-                                    fontWeight={'800'}
-                                    fontSize={30}
-                                    onBlur={onBlur}
-                                    preventDefaultHeight
-                                    preventDefaultLineHeight
-                                    preventDefaultValuePadding
-                                    blurOnSubmit={false}
-                                />
+                            <View style={{ width: '100%' }}>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <ATextInput
+                                        index={0}
+                                        ref={refs[0]}
+                                        onFocus={onFocus}
+                                        value={amount}
+                                        onValueChange={onSetAmount}
+                                        placeholder={'0'}
+                                        keyboardType={'numeric'}
+                                        textAlign={'left'}
+                                        style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4, flexShrink: 1 }}
+                                        inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
+                                        fontWeight={'800'}
+                                        fontSize={30}
+                                        onBlur={onBlur}
+                                        preventDefaultHeight
+                                        preventDefaultLineHeight
+                                        preventDefaultValuePadding
+                                        blurOnSubmit={false}
+                                    />
+                                    <Pressable
+                                        style={({ pressed }) => {
+                                            return [
+                                                {
+                                                    backgroundColor: Theme.accent,
+                                                    height: 24,
+                                                    borderRadius: 40,
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    paddingHorizontal: 10,
+                                                    paddingVertical: 3,
+                                                },
+                                                { opacity: pressed ? 0.3 : 1 }
+                                            ]
+                                        }}
+                                        onPress={onAddAll}
+                                    >
+                                        <Text style={{
+                                            fontWeight: '600',
+                                            fontSize: 16,
+                                            color: '#fff'
+                                        }}>
+                                            {t('common.max')}
+                                        </Text>
+                                    </Pressable>
+                                </View>
                                 <PriceComponent
                                     amount={parseAmountToValidBN(amount)}
                                     style={{

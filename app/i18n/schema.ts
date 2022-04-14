@@ -28,7 +28,8 @@ export type LocalizationSchema = {
         products: string,
         confirm: string,
         soon: string,
-        in: string
+        in: string,
+        max: string
     }
     home: {
         wallet: string,

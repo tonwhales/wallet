@@ -26,7 +26,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         products: 'Products',
         confirm: 'Confirm',
         soon: 'soon',
-        in: 'in'
+        in: 'in',
+        max: 'Max'
     },
     home: {
         wallet: 'Wallet',

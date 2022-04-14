@@ -81,7 +81,11 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                     fontSize: 16,
                     color: Theme.textColor
                 }}>
-                    {fromNano(pool.params.minStake) + ' TON'}
+                    {fromNano(
+                        pool.params.minStake
+                            .add(pool.params.depositFee)
+                            .add(pool.params.receiptPrice)
+                    ) + ' TON'}
                 </Text>
             </View>
             <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />

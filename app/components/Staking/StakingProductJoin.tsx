@@ -12,7 +12,7 @@ export const StakingProductJoin = React.memo(() => {
 
     return (
         <TouchableHighlight
-            onPress={() => navigation.navigate('StakingJoin')}
+            onPress={() => navigation.navigate('Staking')}
             underlayColor={Theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,

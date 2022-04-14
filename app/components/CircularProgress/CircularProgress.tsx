@@ -14,6 +14,7 @@ export type CircularProgressProps = {
     animateFromValue: number,
     fullColor: string | null,
     onAnimationComplete?: (finished: boolean) => void,
+    loop?: boolean,
     containerColor: string,
     style?: StyleProp<ViewStyle>
 }
@@ -80,6 +81,16 @@ class CircularProgress extends PureComponent<CircularProgressProps> {
         easing: (params: any) => number,
     ) => {
         this.state.animatedVal.setValue(0);
+        if (this.props.loop) {
+            Animated.loop(
+                Animated.timing(this.state.animatedVal, {
+                    toValue,
+                    duration,
+                    easing,
+                    useNativeDriver: true,
+                })
+            ).start();
+        }
         Animated.timing(this.state.animatedVal, {
             toValue,
             duration,

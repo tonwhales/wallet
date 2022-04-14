@@ -210,7 +210,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 topUpTitle: 'Your yearly rewards'
             },
             info: {
-                rate: '13.3%',
+                rate: 'up to 13.3%',
                 rateTitle: 'Est. APY rate',
                 frequency: 'Every 36 hours',
                 frequencyTitle: 'Reward Frequency',

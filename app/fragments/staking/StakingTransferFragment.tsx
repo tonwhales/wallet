@@ -176,9 +176,6 @@ export const StakingTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
-        // Close Staking Transfer modal
-        navigation.goBack();
-
         // Navigate to TransferFragment
         navigation.navigate('Transfer', {
             target: address.toFriendly({ testOnly: AppConfig.isTestnet }),

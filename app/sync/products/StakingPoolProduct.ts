@@ -96,7 +96,6 @@ export class StakingPoolProduct {
 
                 // Apply state
                 this._state = initialState[0];
-                console.log({ member: initialState[0].member });
                 this.engine.cache.storeStakingPool(this._state);
                 this._eventEmitter.emit('ready');
 

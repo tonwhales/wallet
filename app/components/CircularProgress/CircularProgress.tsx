@@ -53,7 +53,6 @@ class CircularProgress extends PureComponent<CircularProgressProps> {
     }
 
     componentDidUpdate(prevProps: { progress: number; }) {
-        console.log({ prevProps });
         if (prevProps.progress !== this.props.progress) {
             this.state.animatedVal.setValue(this.props.progress);
         }
@@ -135,7 +134,6 @@ class CircularProgress extends PureComponent<CircularProgressProps> {
     render() {
         const styles = generateStyles(this.props);
         const { fullColor } = this.props;
-        console.log('[render]', { props: this.props });
 
         return (
             <View style={[styles.container, this.props.style]}>

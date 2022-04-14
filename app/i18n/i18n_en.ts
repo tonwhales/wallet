@@ -149,7 +149,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
-            cycleNoteWithdraw: 'Withdrawals take effect once the cycle ends',
+            cycleNoteWithdraw: 'Your request will be executed after the cycle ends. The withdrawal will need to be confirmed again.',
             buttonTitle: 'stake',
             balanceTitle: 'Staking Balance',
             actions: {

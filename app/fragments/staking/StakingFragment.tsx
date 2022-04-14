@@ -117,7 +117,7 @@ export const StakingFragment = fragment(() => {
             {
                 target: PoolAddress,
                 comment: 'Deposit',
-                amount: pool?.params.minStake,
+                amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
                 lockAddress: true,
                 lockComment: true,
                 action: 'top_up' as TransferAction,

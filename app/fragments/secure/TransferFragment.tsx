@@ -410,7 +410,7 @@ export const TransferFragment = fragment(() => {
                 return t('known.deposit');
             }
             if (supportedMessage.type === 'withdraw') {
-                let coins = supportedMessage.data['coins'] as BN;
+                let coins = supportedMessage.data['stake'] as BN;
                 if (coins.eq(toNano(0))) {
                     return t('known.withdrawAll');
                 } else {

@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import { Cell } from "ton";
 
-function getRandomQueryId() {
+export function getRandomQueryId() {
   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 }
 

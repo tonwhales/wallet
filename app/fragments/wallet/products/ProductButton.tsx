@@ -41,12 +41,11 @@ export function ProductButton(props: {
                             {props.name}
                         </Text>
                         {props.value && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '600', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} /></Text>
+                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} /></Text>
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
-                        {/* <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{t('common.balance')}</Text> */}
                     </View>
                     <View style={{ flexGrow: 1 }} />
                 </View>

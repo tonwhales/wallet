@@ -6,6 +6,7 @@ import { Address, fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
 import { useTranslation } from "react-i18next";
 import { useAccount } from "../../sync/Engine";
+import { AppConfig } from "../../AppConfig";
 
 export const UnstakeBanner = React.memo((
     {
@@ -64,13 +65,14 @@ export const UnstakeBanner = React.memo((
                 maxWidth: 240,
                 marginBottom: 10
             }}>
-                {t('products.staking.banner.estimatedEarnings',
-                    {
-                        amount: estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2),
-                        price: estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2),
-                    }
-                )
-                }
+                {AppConfig.isTestnet
+                    ? t('products.staking.banner.estimatedEarningsDev')
+                    : t('products.staking.banner.estimatedEarnings',
+                        {
+                            amount: estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2),
+                            price: estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2),
+                        }
+                    )}
             </Text>
             <Text style={{
                 color: '#7D858A',

@@ -228,6 +228,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             tryAgainLater: 'Пожалуйста, повторите попытку позже',
             banner: {
                 estimatedEarnings: "Ваш предполагаемый годовой доход уменьшится на {{amount}}\u00A0TON\u00A0(${{price}})",
+                estimatedEarningsDev: "Ваш предполагаемый годовой доход уменьшится",
                 message: "Уверены, что хотите вывести?"
             }
         },

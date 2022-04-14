@@ -230,6 +230,7 @@ export type LocalizationSchema = {
             tryAgainLater: string,
             banner: {
                 estimatedEarnings: string,
+                estimatedEarningsDev: string,
                 message: string
             }
         },

@@ -26,6 +26,7 @@ import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInf
 import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
 import { parseAmountToBn, parseAmountToValidBN } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
+import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -128,6 +129,10 @@ export const StakingTransferFragment = fragment(() => {
             if (transferAmount.eq(balance)) transferAmount = new BN(0);
             payload = createWithdrawStakeCell(transferAmount);
             transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+        }
+
+        if (params.action === 'deposit' || params.action === 'top_up') {
+            payload = createAddStakeCommand();
         }
 
         // Check amount

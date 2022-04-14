@@ -35,7 +35,6 @@ export const PendingTransactionAvatar = React.memo(({
     const [progressParams, setProgressParams] = useState({
         tintColor: darker,
         backgroundColor: lighter,
-        progress: 0,
     });
 
     useEffect(() => {
@@ -44,13 +43,11 @@ export const PendingTransactionAvatar = React.memo(({
                 setProgressParams({
                     tintColor: lighter,
                     backgroundColor: darker,
-                    progress: 100
                 });
             } else {
                 setProgressParams({
                     tintColor: darker,
                     backgroundColor: lighter,
-                    progress: 0
                 });
             }
             ref.current?.animateTo(100, defaultDuration, easeOutQuart);
@@ -60,11 +57,6 @@ export const PendingTransactionAvatar = React.memo(({
             clearInterval(timerId);
         }
     }, [progressParams]);
-
-    useEffect(() => {
-        ref.current?.animateTo(100, defaultDuration, easeOutQuart);
-    }, []);
-
 
     return (
         <View style={{ flex: 1, height: 42, width: 42, justifyContent: 'center', alignItems: 'center' }}>
@@ -91,7 +83,7 @@ export const PendingTransactionAvatar = React.memo(({
                     right: 0, bottom: 0,
                     transform: [{ rotate: '-90deg' }]
                 }}
-                progress={progressParams.progress}
+                progress={100}
                 animateFromValue={0}
                 duration={defaultDuration}
                 size={42}
@@ -99,7 +91,7 @@ export const PendingTransactionAvatar = React.memo(({
                 color={progressParams.tintColor}
                 backgroundColor={progressParams.backgroundColor}
                 fullColor={null}
-                onAnimationComplete={() => { }}
+                loop={true}
                 containerColor={'transparent'}
             />
         </View>

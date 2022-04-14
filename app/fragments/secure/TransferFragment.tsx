@@ -668,7 +668,7 @@ export const TransferFragment = fragment(() => {
                                     }}>
                                         {payload ? t('transfer.purpose') : t('transfer.commentLabel')}
                                     </Text>
-                                    {isKnown && (
+                                    {isKnown && !payload && (
                                         <Animated.View
                                             style={{
                                                 flexDirection: 'row',

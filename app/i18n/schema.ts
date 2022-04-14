@@ -24,7 +24,7 @@ export type LocalizationSchema = {
         amount: string,
         today: string,
         yesterday: string,
-        comment: string, 
+        comment: string,
         products: string,
         confirm: string,
         soon: string,
@@ -291,6 +291,12 @@ export type LocalizationSchema = {
             title: string,
             message: string
         }
+    },
+    known: {
+        deposit: string,
+        withdraw: string,
+        withdrawAll: string,
+        upgrade: string
     }
 };
 

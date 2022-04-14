@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, parseSupportedMessage, resolveKnownInterface, SendMode, SupportedMessage, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -28,6 +28,7 @@ import { LocalizedResources } from '../../i18n/schema';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
+import { getSupportedInterfaces } from './known/getSupportedInterfaces';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -373,6 +374,58 @@ export const TransferFragment = fragment(() => {
 
     const isKnown: boolean = !!KnownWallets[target];
 
+    // Fetch suported interfaces
+    const supportedInterfaces = React.useMemo<string[]>(() => {
+        let address: Address;
+        try {
+            address = Address.parseFriendly(target).address;
+        } catch (e) {
+            return [];
+        }
+        return getSupportedInterfaces(address);
+    }, [target]);
+
+    // Resolve payload
+    const supportedMessage = React.useMemo(() => {
+        let res: SupportedMessage | null = null;
+        if (payload) {
+            for (let s of supportedInterfaces) {
+                let known = resolveKnownInterface(s);
+                if (known) {
+                    let r = parseSupportedMessage(known, payload);
+                    if (r) {
+                        res = r;
+                        break;
+                    }
+                }
+            }
+        }
+        return res;
+    }, [supportedInterfaces, payload]);
+
+    // Resolve message
+    const message = React.useMemo(() => {
+        if (supportedMessage) {
+            if (supportedMessage.type === 'deposit') {
+                return t('known.deposit');
+            }
+            if (supportedMessage.type === 'withdraw') {
+                let coins = supportedMessage.data['coins'] as BN;
+                if (coins.eq(toNano(0))) {
+                    return t('known.withdrawAll');
+                } else {
+                    return t('known.withdraw', { coins: fromNano(coins) });
+                }
+            }
+            if (supportedMessage.type === 'upgrade') {
+                let code = supportedMessage.data['code'] as Cell;
+                return t('known.upgrade', { hash: code.hash().toString('base64') });
+            }
+        }
+        return null;
+    }, [comment, supportedMessage]);
+    // console.warn(message);
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
@@ -585,7 +638,7 @@ export const TransferFragment = fragment(() => {
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
                         <ATextInput
-                            value={comment}
+                            value={payload && message ? message : comment}
                             index={2}
                             ref={refs[2]}
                             onFocus={onFocus}
@@ -658,7 +711,6 @@ export const TransferFragment = fragment(() => {
                                     {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
                                 </Text>
                             </>
-
                         )}
                     </View>
                     {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>)}

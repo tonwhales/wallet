@@ -289,6 +289,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure want to log out?',
             message: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.'
         }
+    },
+    known: {
+        deposit: 'Deposit',
+        withdraw: 'Request withdraw of {{coins}} 💎',
+        withdrawAll: 'Request withdraw of all coins',
+        upgrade: 'Upgrade code to {{hash}}'
     }
 };
 

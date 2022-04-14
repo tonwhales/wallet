@@ -15,7 +15,7 @@ export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const [account, engine] = useAccount();
     const oldWalletsBalance = engine.products.oldWallets.useState();
-    const pool = engine.products.stakingPool.useState();
+    const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
 
     if (!oldWalletsBalance.gt(new BN(0)) && !pool && !currentJob) {

@@ -318,12 +318,12 @@ export function createCache(store: MMKV) {
                 return null;
             }
         },
-        storeStakingPool: (stakingPool: StakingPoolState) => {
+        storeStakingPool: (stakingPool: StakingPoolState, address: Address) => {
             const serialized = JSON.stringify(serializeStakingPool(stakingPool));
-            store.set('staking_pool_', serialized);
+            store.set('staking_pool_' + address.toFriendly({ testOnly: AppConfig.isTestnet }), serialized);
         },
-        loadStakingPool: () => {
-            let stakingPool = store.getString('staking_pool_');
+        loadStakingPool: (address: Address) => {
+            let stakingPool = store.getString('staking_pool_' + address.toFriendly({ testOnly: AppConfig.isTestnet }));
             if (stakingPool) {
                 return parseStakingPoolState(JSON.parse(stakingPool));
             } else {

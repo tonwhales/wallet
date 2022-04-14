@@ -18,14 +18,6 @@ export interface StakingPoolData {
     member: { balance: BN, pendingDeposit: BN, pendingWithdraw: BN, withdraw: BN } | null
 }
 
-const endpoints = AppConfig.isTestnet ? [{
-    name: '[TESTNET] Whales Nominator Pool #2',
-    pool: Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs')
-}] : [{
-    name: 'Whales Nominators #1',
-    pool: Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales')
-}];
-
 export function bnToAddress(bn: BN) {
     let r = bn.toString("hex");
     while (r.length < 64) {
@@ -105,77 +97,75 @@ export async function getPoolParams(pool: Address) {
     return tonClient.callGetMethod(pool, 'get_params', []);
 }
 
-export async function fetchStakingPool(): Promise<StakingPoolData[]> {
-    return Promise.all(endpoints.map(async (v) => {
-        let address = getCurrentAddress().address;
+export async function fetchStakingPool(pool: Address, name: string): Promise<StakingPoolData> {
+    let address = getCurrentAddress().address;
 
-        let [statusRaw, paramsRaw, memberRaw] = await Promise.all([
-            backoff(() => tonClient.callGetMethod(v.pool, 'get_staking_status', [])),
-            backoff(() => getPoolParams(v.pool)),
-            backoff(() => getMember(v.pool, address))
-        ]);
+    let [statusRaw, paramsRaw, memberRaw] = await Promise.all([
+        backoff(() => tonClient.callGetMethod(pool, 'get_staking_status', [])),
+        backoff(() => getPoolParams(pool)),
+        backoff(() => getMember(pool, address))
+    ]);
 
-        let paramsRes = new TupleSlice(paramsRaw.stack);
-        let memberRes = new TupleSlice(memberRaw.stack);
-        let statusRes = new TupleSlice(statusRaw.stack);
+    let paramsRes = new TupleSlice(paramsRaw.stack);
+    let memberRes = new TupleSlice(memberRaw.stack);
+    let statusRes = new TupleSlice(statusRaw.stack);
 
-        let member: {
-            balance: BN;
-            pendingWithdraw: BN;
-            pendingDeposit: BN;
-            withdraw: BN;
-        } = {
-            balance: memberRes.readBigNumber(),
-            pendingDeposit: memberRes.readBigNumber(),
-            pendingWithdraw: memberRes.readBigNumber(),
-            withdraw: memberRes.readBigNumber()
+    let member: {
+        balance: BN;
+        pendingWithdraw: BN;
+        pendingDeposit: BN;
+        withdraw: BN;
+    } = {
+        balance: memberRes.readBigNumber(),
+        pendingDeposit: memberRes.readBigNumber(),
+        pendingWithdraw: memberRes.readBigNumber(),
+        withdraw: memberRes.readBigNumber()
+    }
+
+    let poolParams: {
+        enabled: boolean,
+        udpatesEnabled: boolean,
+        minStake: BN,
+        depositFee: BN,
+        withdrawFee: BN,
+        poolFee: BN,
+        receiptPrice: BN
+    } = {
+        enabled: paramsRes.readBoolean(),
+        udpatesEnabled: paramsRes.readBoolean(),
+        minStake: paramsRes.readBigNumber(),
+        depositFee: paramsRes.readBigNumber(),
+        withdrawFee: paramsRes.readBigNumber(),
+        poolFee: paramsRes.readBigNumber(),
+        receiptPrice: paramsRes.readBigNumber()
+    }
+
+    let status: {
+        proxyStakeAt: number,
+        proxyStakeUntil: number,
+        proxyStakeSent: number,
+        querySent: number,
+        unlocked: number,
+        ctxLocked: number
+    } = {
+        proxyStakeAt: statusRes.readNumber(),
+        proxyStakeUntil: statusRes.readNumber(),
+        proxyStakeSent: statusRes.readNumber(),
+        querySent: statusRes.readNumber(),
+        unlocked: statusRes.readNumber(),
+        ctxLocked: statusRes.readNumber()
+    }
+
+    return {
+        name: name,
+        address: pool,
+        member: member ? member : null,
+        params: {
+            minStake: poolParams.minStake,
+            depositFee: poolParams.depositFee,
+            withdrawFee: poolParams.withdrawFee,
+            stakeUntil: status.proxyStakeUntil,
+            receiptPrice: poolParams.receiptPrice
         }
-
-        let poolParams: {
-            enabled: boolean,
-            udpatesEnabled: boolean,
-            minStake: BN,
-            depositFee: BN,
-            withdrawFee: BN,
-            poolFee: BN,
-            receiptPrice: BN
-        } = {
-            enabled: paramsRes.readBoolean(),
-            udpatesEnabled: paramsRes.readBoolean(),
-            minStake: paramsRes.readBigNumber(),
-            depositFee: paramsRes.readBigNumber(),
-            withdrawFee: paramsRes.readBigNumber(),
-            poolFee: paramsRes.readBigNumber(),
-            receiptPrice: paramsRes.readBigNumber()
-        }
-
-        let status: {
-            proxyStakeAt: number,
-            proxyStakeUntil: number,
-            proxyStakeSent: number,
-            querySent: number,
-            unlocked: number,
-            ctxLocked: number
-        } = {
-            proxyStakeAt: statusRes.readNumber(),
-            proxyStakeUntil: statusRes.readNumber(),
-            proxyStakeSent: statusRes.readNumber(),
-            querySent: statusRes.readNumber(),
-            unlocked: statusRes.readNumber(),
-            ctxLocked: statusRes.readNumber()
-        }
-
-        return {
-            name: v.name,
-            address: v.pool,
-            member: member ? member : null,
-            params: {
-                minStake: poolParams.minStake,
-                depositFee: poolParams.depositFee,
-                withdrawFee: poolParams.withdrawFee,
-                stakeUntil: status.proxyStakeUntil,
-                receiptPrice: poolParams.receiptPrice
-            }
-        }
-    }));
+    }
 }

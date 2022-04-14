@@ -8,8 +8,10 @@ import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPoolState | null, fee?: BN | null }) => {
-    if (!pool) { return null; }
+    if (!pool) return null;
+
     const { t } = useTranslation();
+    const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
 
     return (
         <View style={{
@@ -122,10 +124,10 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                         fontSize: 16,
                         color: Theme.textColor,
                     }}>
-                        {fromNano(pool.params.depositFee) + ' ' + 'TON'}
+                        {fromNano(depositFee) + ' ' + 'TON'}
                     </Text>
                     <PriceComponent
-                        amount={toNano(0.2)}
+                        amount={depositFee}
                         style={{
                             backgroundColor: 'transparent',
                             paddingHorizontal: 0,

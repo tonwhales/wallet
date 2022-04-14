@@ -250,6 +250,8 @@ export const StakingTransferFragment = fragment(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
 
+    const withdrawFee = pool? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+
     return (
         <>
             <AndroidToolbar
@@ -402,10 +404,10 @@ export const StakingTransferFragment = fragment(() => {
                                                 fontSize: 16,
                                                 color: Theme.textColor
                                             }}>
-                                                {`${pool?.params.withdrawFee ? fromNano(pool?.params.withdrawFee) : '0.1'} TON`}
+                                                {`${fromNano(withdrawFee)} TON`}
                                             </Text>
                                             <PriceComponent
-                                                amount={pool ? pool.params.withdrawFee : toNano('0.1')}
+                                                amount={withdrawFee}
                                                 style={{
                                                     backgroundColor: 'transparent',
                                                     paddingHorizontal: 0, paddingVertical: 2,

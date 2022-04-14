@@ -217,7 +217,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 minDeposit: 'Минимальный депозит',
                 poolFee: '3.3%',
                 poolFeeTitle: 'Комиссия пула',
-                depositFee: 'Газ за отправку',
+                depositFee: 'Комиссия за отправку',
                 withdrawFee: 'Комиссия за вывод',
                 blockchainFee: 'Комиссия сети',
             },

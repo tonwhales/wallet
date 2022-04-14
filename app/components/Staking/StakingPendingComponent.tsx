@@ -197,7 +197,8 @@ export const StakingPendingComponent = React.memo((
                                         <Text
                                             style={{
                                                 fontSize: 16,
-                                                color: '#7D858A',
+                                                color: Theme.textColor,
+                                                fontWeight: '500',
                                                 textAlignVertical: 'center',
                                                 marginLeft: 10,
                                                 lineHeight: 24,

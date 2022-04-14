@@ -5,12 +5,7 @@ import { StakingPoolState } from "../../storage/cache";
 import { BN } from "bn.js";
 
 export const StakingProductComponent = React.memo(({ pool }: { pool: StakingPoolState | null }) => {
-
-    if (!pool) {
-        return <></>;
-    }
-
-    const member = pool.member;
+    const member = pool?.member;
     const showJoin = member?.balance
         .add(member.pendingDeposit)
         .add(member.pendingWithdraw)

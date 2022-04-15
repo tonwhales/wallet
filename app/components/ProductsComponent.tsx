@@ -18,10 +18,6 @@ export const ProductsComponent = React.memo(() => {
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
 
-    if (!oldWalletsBalance.gt(new BN(0)) && !pool && !currentJob) {
-        return null;
-    }
-
     return (
         <View style={{
             flex: 1

@@ -176,9 +176,6 @@ export const StakingTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
-        // Close Staking Transfer modal
-        navigation.goBack();
-
         // Navigate to TransferFragment
         navigation.navigate('Transfer', {
             target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
@@ -389,11 +386,13 @@ export const StakingTransferFragment = fragment(() => {
                         )}
                         {(params?.action === 'deposit' || params?.action === 'top_up') && (
                             <>
-                                <StakingCalcComponent
-                                    amount={amount}
-                                    topUp={params?.action === 'top_up'}
-                                    member={member}
-                                />
+                                {!AppConfig.isTestnet && (
+                                    < StakingCalcComponent
+                                        amount={amount}
+                                        topUp={params?.action === 'top_up'}
+                                        member={member}
+                                    />
+                                )}
                                 <PoolTransactionInfo pool={pool} />
                             </>
                         )}

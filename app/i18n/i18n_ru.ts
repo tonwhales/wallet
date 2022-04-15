@@ -149,7 +149,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             nextCycle: 'След. цикл',
             cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',
-            cycleNoteWithdraw: 'Транзакции по выводу исполняются только после завершения цикла',
+            cycleNoteWithdraw: 'Ваш запрос выполнится после завершения цикла. Потребуется повторное подтверждение вывода',
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',
             actions: {
@@ -228,6 +228,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             tryAgainLater: 'Пожалуйста, повторите попытку позже',
             banner: {
                 estimatedEarnings: "Ваш предполагаемый годовой доход уменьшится на {{amount}}\u00A0TON\u00A0(${{price}})",
+                estimatedEarningsDev: "Ваш предполагаемый годовой доход уменьшится",
                 message: "Уверены, что хотите вывести?"
             }
         },

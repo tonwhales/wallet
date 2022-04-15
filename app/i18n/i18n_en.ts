@@ -149,7 +149,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
-            cycleNoteWithdraw: 'Withdrawals take effect once the cycle ends',
+            cycleNoteWithdraw: 'Your request will be executed after the cycle ends. The withdrawal will need to be confirmed again.',
             buttonTitle: 'stake',
             balanceTitle: 'Staking Balance',
             actions: {
@@ -228,6 +228,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             tryAgainLater: 'Please, try again later',
             banner: {
                 estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0(${{price}})',
+                estimatedEarningsDev: 'Your estimated yearly earnings will decrease',
                 message: 'Are you sure about the unstaking?'
             }
         },

@@ -27,7 +27,6 @@ export const StakingProductMember = React.memo((
     const navigation = useTypedNavigation();
     const { t } = useTranslation();
 
-
     return (
         <TouchableHighlight
             onPress={() => navigation.navigate('Staking')}
@@ -63,10 +62,12 @@ export const StakingProductMember = React.memo((
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: Theme.textColor
+                                color: member.balance && member.balance.gt(new BN(0))
+                                    ? '#4FAE42'
+                                    : Theme.textColor
                             }}>
                                 <ValueComponent
-                                    value={member?.balance}
+                                    value={member.balance}
                                     precision={3}
                                 />
                                 {' TON'}

@@ -3,6 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next";
 import { View, Text } from "react-native"
 import { fromNano, toNano } from "ton";
+import { AppConfig } from "../../AppConfig";
 import { StakingPoolState } from "../../storage/cache";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
@@ -22,27 +23,31 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
             paddingLeft: 16,
             marginTop: 20
         }}>
-            <View style={{
-                flexDirection: 'row', width: '100%',
-                justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
-                height: 50
-            }}>
-                <Text style={{
-                    fontSize: 16,
-                    color: '#7D858A'
-                }}>
-                    {t('products.staking.info.rateTitle')}
-                </Text>
-                <Text style={{
-                    fontWeight: '400',
-                    fontSize: 16,
-                    color: Theme.textColor
-                }}>
-                    {t('products.staking.info.rate')}
-                </Text>
-            </View>
-            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            {!AppConfig.isTestnet && (
+                <>
+                    <View style={{
+                        flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingRight: 16,
+                        height: 50
+                    }}>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#7D858A'
+                        }}>
+                            {t('products.staking.info.rateTitle')}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            color: Theme.textColor
+                        }}>
+                            {t('products.staking.info.rate')}
+                        </Text>
+                    </View>
+                    <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                </>
+            )}
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
@@ -88,27 +93,31 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPo
                     ) + ' TON'}
                 </Text>
             </View>
-            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
-            <View style={{
-                flexDirection: 'row', width: '100%',
-                justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
-                height: 50
-            }}>
-                <Text style={{
-                    fontSize: 16,
-                    color: '#7D858A'
-                }}>
-                    {t('products.staking.info.poolFeeTitle')}
-                </Text>
-                <Text style={{
-                    fontWeight: '400',
-                    fontSize: 16,
-                    color: Theme.textColor
-                }}>
-                    {t('products.staking.info.poolFee')}
-                </Text>
-            </View>
+            {!AppConfig.isTestnet && (
+                <>
+                    <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                    <View style={{
+                        flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingRight: 16,
+                        height: 50
+                    }}>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#7D858A'
+                        }}>
+                            {t('products.staking.info.poolFeeTitle')}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            color: Theme.textColor
+                        }}>
+                            {t('products.staking.info.poolFee')}
+                        </Text>
+                    </View>
+                </>
+            )}
             <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
             <View style={{
                 flexDirection: 'row', width: '100%',

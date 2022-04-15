@@ -7,6 +7,7 @@ import { Theme } from "../../Theme";
 import { useTranslation } from "react-i18next";
 import { useAccount } from "../../sync/Engine";
 import { AppConfig } from "../../AppConfig";
+import { formatNum } from "../../utils/numbers";
 
 export const UnstakeBanner = React.memo((
     {
@@ -41,6 +42,8 @@ export const UnstakeBanner = React.memo((
     const value = toNano(validAmount);
     const estInc = parseFloat(fromNano(value)) * 0.1;
     const estIncPrice = estInc * price.price.usd;
+    const formattedInc = formatNum(estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2));
+    const formattedPrice = formatNum(estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2))
 
     return (
         <View style={{
@@ -69,8 +72,8 @@ export const UnstakeBanner = React.memo((
                     ? t('products.staking.banner.estimatedEarningsDev')
                     : t('products.staking.banner.estimatedEarnings',
                         {
-                            amount: estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2),
-                            price: estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2),
+                            amount: formattedInc,
+                            price: formattedPrice,
                         }
                     )}
             </Text>

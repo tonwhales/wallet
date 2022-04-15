@@ -5,18 +5,20 @@ import { backoff } from "../../utils/time";
 import React from "react";
 import { fetchStakingPool } from "../fetchStakingPool";
 import { watchStakingPool } from "../watchStakingPool";
-import { fromNano } from "ton";
+import { StakingPool } from "../../utils/KnownPools";
 
 export class StakingPoolProduct {
     readonly engine: Engine;
     private _state: StakingPoolState | null = null;
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _destroyed: boolean;
+    private _pool: StakingPool;
     private _watched: (() => void) | null = null;
 
-    constructor(engine: Engine) {
+    constructor(engine: Engine, pool: StakingPool) {
         this.engine = engine;
-        this._state = engine.cache.loadStakingPool();
+        this._pool = pool;
+        this._state = engine.cache.loadStakingPool(pool.address);
         this._destroyed = false;
         this._start();
     }
@@ -85,7 +87,7 @@ export class StakingPoolProduct {
                     if (this._destroyed) {
                         return null;
                     }
-                    return await fetchStakingPool();
+                    return await fetchStakingPool(this._pool.address, this._pool.name);
                 });
                 if (!initialState) {
                     return;
@@ -95,8 +97,8 @@ export class StakingPoolProduct {
                 }
 
                 // Apply state
-                this._state = initialState[0];
-                this.engine.cache.storeStakingPool(this._state);
+                this._state = initialState;
+                this.engine.cache.storeStakingPool(this._state, this._pool.address);
                 this._eventEmitter.emit('ready');
 
                 // Start sync
@@ -114,9 +116,9 @@ export class StakingPoolProduct {
         }
 
         // Start sync
-        this._watched = watchStakingPool(async (newState) => {
-            this._state = newState[0];
-            this.engine.cache.storeStakingPool(this._state!);
+        this._watched = watchStakingPool(this._pool, async (newState) => {
+            this._state = newState;
+            this.engine.cache.storeStakingPool(this._state!, this._pool.address);
             this._eventEmitter.emit('updated');
         });
     }

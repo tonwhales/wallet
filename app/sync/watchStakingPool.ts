@@ -1,10 +1,11 @@
 import { InvalidateSync } from "teslabot";
+import { StakingPool } from "../utils/KnownPools";
 import { fetchStakingPool, StakingPoolData } from "./fetchStakingPool";
 
-export function watchStakingPool(handler: (state: StakingPoolData[]) => Promise<void> | void) {
+export function watchStakingPool(pool: StakingPool, handler: (state: StakingPoolData) => Promise<void> | void) {
     let ended = false;
     const invalidateSync = new InvalidateSync(async () => {
-        const state = await fetchStakingPool();
+        const state = await fetchStakingPool(pool.address, pool.name);
         if (ended) {
             return;
         }

@@ -35,7 +35,7 @@ export const StakingFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const [account, engine] = useAccount();
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const pool = engine.products.stakingPool.useState();
+    const pool = engine.products.whalesStakingPool.useState();
     const poolParams = pool?.params;
     const member = pool?.member;
     const window = useWindowDimensions();

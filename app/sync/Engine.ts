@@ -14,6 +14,7 @@ import { AppConfig } from '../AppConfig';
 import { PriceProduct } from './products/PriceProduct';
 import { JobsProduct } from './products/JobsProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
+import { KnownPools, StakingPool } from '../utils/KnownPools';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -87,7 +88,7 @@ export class Engine {
             oldWallets: new OldWalletsProduct(this),
             price: this.createPriceProduct(),
             apps: new JobsProduct(this),
-            stakingPool: this.createStakingPoolProduct(),
+            whalesStakingPool: this.createStakingPoolProduct(KnownPools[0]),
         };
         this._products.set('apps', this.products.apps);
     }
@@ -133,11 +134,11 @@ export class Engine {
         return n;
     }
 
-    createStakingPoolProduct(): StakingPoolProduct {
+    createStakingPoolProduct(pool: StakingPool): StakingPoolProduct {
         const key = 'staking_pool_product';
         let ex = this._products.get(key);
         if (ex) return ex as StakingPoolProduct;
-        let n = new StakingPoolProduct(this);
+        let n = new StakingPoolProduct(this, pool);
         this._products.set(key, n);
         return n;
     }

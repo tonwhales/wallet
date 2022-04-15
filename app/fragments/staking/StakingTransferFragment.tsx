@@ -70,7 +70,7 @@ export const StakingTransferFragment = fragment(() => {
     const params: StakingTransferParams | undefined = useRoute().params;
     const [account, engine] = useAccount();
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.stakingPool.useState();
+    const pool = engine.products.whalesStakingPool.useState();
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');

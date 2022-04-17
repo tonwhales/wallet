@@ -20,6 +20,8 @@ import { useAccount } from "../../sync/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
+import { parseMessageBody } from "../../secure/parseMessageBody";
+import { formatSupportedBody } from "../../secure/formatSupportedBody";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -44,6 +46,18 @@ export const TransactionPreviewFragment = fragment(() => {
         transactionType = t('tx.sent', { id: transaction.seqno! });
     } else {
         transactionType = t('tx.received');
+    }
+
+    // Payload ovewrite
+    if (transaction.body && transaction.body.type === 'payload') {
+        let interfaces = engine.introspection.getSupportedInterfaces(address);
+        let parsedBody = parseMessageBody(transaction.body.cell, interfaces);
+        if (parsedBody) {
+            let f = formatSupportedBody(parsedBody);
+            if (f) {
+                transactionType = f.text;
+            }
+        }
     }
 
     return (

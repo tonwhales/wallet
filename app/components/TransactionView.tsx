@@ -99,7 +99,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                                         : 'no address'
                             }
                         </Text>
-                        {parsed.body ? <Image source={require('../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
+                        {parsed.body && parsed.body.type === 'comment' ? <Image source={require('../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                         <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
                     </View>
                     <View style={{ flexGrow: 1 }} />

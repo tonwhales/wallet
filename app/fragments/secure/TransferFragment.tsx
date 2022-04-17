@@ -208,9 +208,10 @@ export const TransferFragment = fragment(() => {
             address,
             seqno: account.seqno,
             kind: 'out',
-            body: null,
+            body: payload ? { type: 'payload', cell: payload } : (comment.length > 0 ? { type: 'comment', comment } : null),
             status: 'pending',
-            time: Math.floor(Date.now() / 1000)
+            time: Math.floor(Date.now() / 1000),
+            bounced: false
         });
 
         // Dismiss keyboard for iOS

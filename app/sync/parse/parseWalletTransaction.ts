@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Address, Cell, parseMessage, RawTransaction, Slice } from "ton";
+import { Address, Cell, parseMessage, RawTransaction } from "ton";
 import { Body, Transaction } from "../Transaction";
 
 function parseBody(cell: Cell): Body | null {
@@ -119,8 +119,6 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         }
     }
     if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        console.warn(tx.inMessage);
-        console.warn(tx.inMessage.body);
         body = parseBody(tx.inMessage.body);
     }
 

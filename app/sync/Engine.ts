@@ -15,6 +15,7 @@ import { PriceProduct } from './products/PriceProduct';
 import { JobsProduct } from './products/JobsProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools, StakingPool } from '../utils/KnownPools';
+import { IntrospectionEngine } from './introspection/IntrospectionEngine';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -60,6 +61,7 @@ export class Engine {
     readonly cache;
     readonly connector: Connector;
     readonly products;
+    readonly introspection: IntrospectionEngine;
     private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
@@ -82,6 +84,7 @@ export class Engine {
         this._account = this.cache.loadState(address);
         this._state = this._account ? { ...this._account, pending: [] } : null;
         this._destroyed = false;
+        this.introspection = new IntrospectionEngine(this);
         this.start();
 
         this.products = {

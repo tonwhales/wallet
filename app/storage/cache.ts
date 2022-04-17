@@ -330,5 +330,16 @@ export function createCache(store: MMKV) {
                 return null;
             }
         },
+        loadSupportedInterfaces: (address: Address) => {
+            let supportedInterfaces = store.getString('supported_interfaces_' + address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            if (supportedInterfaces) {
+                return JSON.parse(supportedInterfaces) as string[];
+            } else {
+                return null;
+            }
+        },
+        storeSupportedInterfaces: (address: Address, supportedInterfaces: string[]) => {
+            store.set('supported_interfaces_' + address.toFriendly({ testOnly: AppConfig.isTestnet }), JSON.stringify(supportedInterfaces));
+        }
     };
 }

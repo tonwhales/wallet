@@ -28,7 +28,6 @@ import { LocalizedResources } from '../../i18n/schema';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
-import { getSupportedInterfaces } from './known/getSupportedInterfaces';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -382,7 +381,7 @@ export const TransferFragment = fragment(() => {
         } catch (e) {
             return [];
         }
-        return getSupportedInterfaces(address);
+        return engine.introspection.getSupportedInterfaces(address);
     }, [target]);
 
     // Resolve payload

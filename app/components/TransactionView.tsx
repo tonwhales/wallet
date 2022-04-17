@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Text, View } from 'react-native';
-import { Address } from 'ton';
+import { Address, resolveKnownInterface } from 'ton';
 import { Theme } from '../Theme';
 import { ValueComponent } from './ValueComponent';
 import { formatTime } from '../utils/dates';
@@ -13,10 +13,12 @@ import { Avatar } from './Avatar';
 import { t } from '../i18n/t';
 import { PendingTransactionAvatar } from './PendingTransactionAvatar';
 import { KnownWallets } from '../secure/KnownWallets';
-import { shortAddress } from '../utils/shortAddress';
 import { knownAddressLabel } from '../secure/knownAddressLabel';
+import { Engine } from '../sync/Engine';
+import { parseMessageBody } from '../secure/parseMessageBody';
+import { formatSupportedBody } from '../secure/formatSupportedBody';
 
-export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, onPress: (src: Transaction) => void }) {
+export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, engine: Engine, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
 
     // Avatar
@@ -29,13 +31,29 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     let transactionType = 'Transfer';
     if (parsed.kind === 'out') {
         if (parsed.status === 'pending') {
-            transactionType = t('tx.sending', { id: parsed.seqno! });
+            transactionType = t('tx.sending');
         } else {
-            transactionType = t('tx.sent', { id: parsed.seqno! });
+            transactionType = t('tx.sent');
         }
     }
     if (parsed.kind === 'in') {
-        transactionType = t('tx.received');
+        if (parsed.bounced) {
+            transactionType = '⚠️ ' + t('tx.bounced');
+        } else {
+            transactionType = t('tx.received');
+        }
+    }
+
+    // Payload ovewrite
+    if (parsed.body && parsed.body.type === 'payload' && parsed.address) {
+        let interfaces = props.engine.introspection.getSupportedInterfaces(parsed.address);
+        let parsedBody = parseMessageBody(parsed.body.cell, interfaces);
+        if (parsedBody) {
+            let f = formatSupportedBody(parsedBody);
+            if (f) {
+                transactionType = f.text;
+            }
+        }
     }
 
     let friendlyAddress = parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -52,7 +70,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="middle" numberOfLines={1}>{transactionType}</Text>
+                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{transactionType}</Text>
                         {parsed.status === 'failed' ? (
                             <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                         ) : (

@@ -107,9 +107,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         check: 'Проверяем адрес {{address}}'
     },
     tx: {
-        sending: 'Отправка #{{id}}',
-        sent: 'Отправлено #{{id}}',
-        received: 'Получено'
+        sending: 'Отправка',
+        sent: 'Отправлено',
+        received: 'Получено',
+        bounced: 'Возвращено'
     },
     txPreview: {
         sendAgain: 'повторить',

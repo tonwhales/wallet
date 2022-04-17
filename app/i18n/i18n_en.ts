@@ -54,9 +54,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     tx: {
-        sending: 'Sending #{{id}}',
-        sent: 'Sent #{{id}}',
-        received: 'Received'
+        sending: 'Sending',
+        sent: 'Sent',
+        received: 'Received',
+        bounced: 'Bounced'
     },
     txPreview: {
         sendAgain: 'send again',

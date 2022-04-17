@@ -14,21 +14,17 @@ import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { useAccount } from '../../sync/Engine';
+import { Engine, useAccount } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
 import { Address, fromNano } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
-import { BN } from 'bn.js';
 import { WalletAddress } from '../../components/WalletAddress';
-import { ProductButton } from './products/ProductButton';
-import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
-import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
 import { ProductsComponent } from '../../components/ProductsComponent';
 
-const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
+const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: Transaction[] }[] = [];
         if (props.txs.length > 0) {
@@ -60,7 +56,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
         components.push(
             < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
             } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
+                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
             </View >
         );
     }
@@ -319,6 +315,7 @@ export const WalletFragment = fragment(() => {
                         <WalletTransactions
                             txs={transactions}
                             address={address}
+                            engine={engine}
                             onPress={openTransactionFragment}
                         />
                     )

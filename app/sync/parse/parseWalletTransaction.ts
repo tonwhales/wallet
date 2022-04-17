@@ -1,8 +1,9 @@
 import { BN } from "bn.js";
-import { Address, parseMessage, RawTransaction, Slice } from "ton";
+import { Address, Cell, parseMessage, RawTransaction, Slice } from "ton";
 import { Body, Transaction } from "../Transaction";
 
-function parseBody(slice: Slice): Body | null {
+function parseBody(cell: Cell): Body | null {
+    let slice = cell.beginParse();
     if (slice.remaining < 32) {
         return null;
     }
@@ -23,7 +24,7 @@ function parseBody(slice: Slice): Body | null {
     }
 
     // Binary payload
-    return { type: 'payload' };
+    return { type: 'payload', cell };
 }
 
 export function parseWalletTransaction(tx: RawTransaction): Transaction {
@@ -88,8 +89,12 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
     //
 
     let kind: 'out' | 'in' = 'out';
+    let bounced = false;
     if (tx.inMessage && tx.inMessage.info.type === 'internal') {
         kind = 'in';
+        if (tx.inMessage.info.bounced) {
+            bounced = true;
+        }
     }
 
     //
@@ -107,14 +112,16 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
             if (message.info.dest) {
                 address = message.info.dest;
             }
-            body = parseBody(message.body.beginParse());
+            body = parseBody(message.body);
         }
         if (tx.outMessagesCount === 0) {
             status = 'failed';
         }
     }
     if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        body = parseBody(tx.inMessage.body.beginParse());
+        console.warn(tx.inMessage);
+        console.warn(tx.inMessage.body);
+        body = parseBody(tx.inMessage.body);
     }
 
     return {
@@ -127,6 +134,7 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         kind,
         body,
         status,
-        time: tx.time
+        time: tx.time,
+        bounced
     }
 }

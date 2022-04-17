@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, parseSupportedMessage, resolveKnownInterface, SendMode, SupportedMessage, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, SupportedMessage, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -28,6 +28,8 @@ import { LocalizedResources } from '../../i18n/schema';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
+import { parseMessageBody } from '../../secure/parseMessageBody';
+import { formatSupportedBody } from '../../secure/formatSupportedBody';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -388,16 +390,7 @@ export const TransferFragment = fragment(() => {
     const supportedMessage = React.useMemo(() => {
         let res: SupportedMessage | null = null;
         if (payload) {
-            for (let s of supportedInterfaces) {
-                let known = resolveKnownInterface(s);
-                if (known) {
-                    let r = parseSupportedMessage(known, payload);
-                    if (r) {
-                        res = r;
-                        break;
-                    }
-                }
-            }
+            res = parseMessageBody(payload, supportedInterfaces);
         }
         return res;
     }, [supportedInterfaces, payload]);
@@ -405,25 +398,13 @@ export const TransferFragment = fragment(() => {
     // Resolve message
     const message = React.useMemo(() => {
         if (supportedMessage) {
-            if (supportedMessage.type === 'deposit') {
-                return t('known.deposit');
-            }
-            if (supportedMessage.type === 'withdraw') {
-                let coins = supportedMessage.data['stake'] as BN;
-                if (coins.eq(toNano(0))) {
-                    return t('known.withdrawAll');
-                } else {
-                    return t('known.withdraw', { coins: fromNano(coins) });
-                }
-            }
-            if (supportedMessage.type === 'upgrade') {
-                let code = supportedMessage.data['code'] as Cell;
-                return t('known.upgrade', { hash: code.hash().toString('base64') });
+            let formatted = formatSupportedBody(supportedMessage);
+            if (formatted) {
+                return formatted.text;
             }
         }
         return null;
     }, [comment, supportedMessage]);
-    // console.warn(message);
 
     return (
         <>

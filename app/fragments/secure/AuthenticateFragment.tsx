@@ -92,7 +92,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         toSign.bits.writeAddress(contract.address);
         toSign.bits.writeBit(1);
         let ref = new Cell();
-        ref.bits.writeString(endpoint);
+        ref.bits.writeBuffer(Buffer.from(endpoint));
         toSign.refs.push(ref);
         let ref2 = new Cell();
         ref2.bits.writeBuffer(appInstanceKeyPair.publicKey);

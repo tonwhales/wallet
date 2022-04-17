@@ -2,21 +2,21 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Text, View } from 'react-native';
 import { Address, resolveKnownInterface } from 'ton';
-import { Theme } from '../Theme';
-import { ValueComponent } from './ValueComponent';
-import { formatTime } from '../utils/dates';
-import { AddressComponent } from './AddressComponent';
-import { Transaction } from '../sync/Transaction';
+import { Theme } from '../../../Theme';
+import { ValueComponent } from '../../../components/ValueComponent';
+import { formatTime } from '../../../utils/dates';
+import { AddressComponent } from '../../../components/AddressComponent';
+import { Transaction } from '../../../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { AppConfig } from '../AppConfig';
-import { Avatar } from './Avatar';
-import { t } from '../i18n/t';
-import { PendingTransactionAvatar } from './PendingTransactionAvatar';
-import { KnownWallets } from '../secure/KnownWallets';
-import { knownAddressLabel } from '../secure/knownAddressLabel';
-import { Engine } from '../sync/Engine';
-import { parseMessageBody } from '../secure/parseMessageBody';
-import { formatSupportedBody } from '../secure/formatSupportedBody';
+import { AppConfig } from '../../../AppConfig';
+import { Avatar } from '../../../components/Avatar';
+import { t } from '../../../i18n/t';
+import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
+import { KnownWallets } from '../../../secure/KnownWallets';
+import { knownAddressLabel } from '../../../secure/knownAddressLabel';
+import { Engine } from '../../../sync/Engine';
+import { parseMessageBody } from '../../../secure/parseMessageBody';
+import { formatSupportedBody } from '../../../secure/formatSupportedBody';
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, engine: Engine, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
@@ -99,7 +99,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                                         : 'no address'
                             }
                         </Text>
-                        {parsed.body && parsed.body.type === 'comment' ? <Image source={require('../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
+                        {parsed.body && parsed.body.type === 'comment' ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                         <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
                     </View>
                     <View style={{ flexGrow: 1 }} />

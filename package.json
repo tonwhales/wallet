@@ -86,7 +86,7 @@
     "react-navigation": "^4.4.4",
     "recoil": "^0.5.2",
     "teslabot": "^1.4.1",
-    "ton": "9.6.0",
+    "ton": "9.6.3",
     "ton-contracts": "2.3.2",
     "ton-crypto": "2.1.0",
     "url-parse": "^1.5.4",

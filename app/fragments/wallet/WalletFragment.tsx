@@ -4,7 +4,7 @@ import { fragment } from "../../fragment";
 import { getCurrentAddress } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { TransactionView } from '../../components/TransactionView';
+import { TransactionView } from './views/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
@@ -23,6 +23,7 @@ import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { ProductsComponent } from '../../components/ProductsComponent';
+import { parseMessageBody } from '../../secure/parseMessageBody';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -70,25 +71,20 @@ export const WalletFragment = fragment(() => {
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
-    const oldWalletsBalance = engine.products.oldWallets.useState();
-    const currentJob = engine.products.apps.useState();
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.getTransaction(v));
         return [...account.pending, ...txs];
     }, [account.transactions, account.pending]);
 
-    const openTransactionFragment = React.useCallback(
-        (transaction: Transaction | null) => {
-            if (transaction) {
-                navigation.navigate('Transaction', {
-                    transaction: {
-                        ...transaction
-                    }
-                });
-            }
-        },
-        [navigation],
-    );
+    const openTransactionFragment = React.useCallback((transaction: Transaction | null) => {
+        if (transaction) {
+            navigation.navigate('Transaction', {
+                transaction: {
+                    ...transaction
+                }
+            });
+        }
+    }, [navigation]);
 
     const window = useWindowDimensions();
 

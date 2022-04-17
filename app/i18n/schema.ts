@@ -298,9 +298,13 @@ export type LocalizationSchema = {
     },
     known: {
         deposit: string,
+        depositOk: string,
         withdraw: string,
         withdrawAll: string,
-        upgrade: string
+        withdrawCompleted: string,
+        withdrawRequested: string,
+        upgrade: string,
+        upgradeOk: string
     }
 };
 

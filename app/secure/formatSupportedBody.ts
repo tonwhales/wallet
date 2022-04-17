@@ -7,7 +7,7 @@ export function formatSupportedBody(supportedMessage: SupportedMessage): { text:
         return { text: t('known.deposit') };
     }
     if (supportedMessage.type === 'deposit::ok') {
-        return { text: 'ok' };
+        return { text: t('known.depositOk') };
     }
     if (supportedMessage.type === 'withdraw') {
         let coins = supportedMessage.data['stake'] as BN;
@@ -17,12 +17,15 @@ export function formatSupportedBody(supportedMessage: SupportedMessage): { text:
             return { text: t('known.withdraw', { coins: fromNano(coins) }) };
         }
     }
+    if (supportedMessage.type === 'withdraw::ok') {
+        return { text: t('known.withdrawAll') };
+    }
     if (supportedMessage.type === 'upgrade') {
         let code = supportedMessage.data['code'] as Cell;
         return { text: t('known.upgrade', { hash: code.hash().toString('base64') }) };
     }
     if (supportedMessage.type === 'upgrade::ok') {
-        return { text: 'ok' };
+        return { text: t('known.upgradeOk') };
     }
     return null;
 }

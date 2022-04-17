@@ -296,9 +296,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     known: {
         deposit: 'Deposit',
+        depositOk: 'Deposit accepted',
         withdraw: 'Request withdraw of {{coins}} 💎',
         withdrawAll: 'Request withdraw of all coins',
-        upgrade: 'Upgrade code to {{hash}}'
+        withdrawCompleted: 'Withdraw completed',
+        withdrawRequested: 'Withdraw requested',
+        upgrade: 'Upgrade code to {{hash}}',
+        upgradeOk: 'Upgrade completed'
     }
 };
 

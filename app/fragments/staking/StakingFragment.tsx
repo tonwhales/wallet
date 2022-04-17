@@ -266,10 +266,12 @@ export const StakingFragment = fragment(() => {
                                     }}
                                     tintColor={Theme.accent}
                                 />
-                                <Animated.Text style={[
-                                    { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                                    { position: 'relative', ...titleOpacityStyle },
-                                ]}>
+                                <Animated.Text
+                                    style={[
+                                        { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                        { position: 'relative', ...titleOpacityStyle },
+                                    ]}
+                                >
                                     {t('products.staking.title')}
                                 </Animated.Text>
                                 <Animated.View
@@ -283,6 +285,7 @@ export const StakingFragment = fragment(() => {
                                         },
                                         { ...smallCardStyle },
                                     ]}
+                                    pointerEvents="none"
                                     collapsable={false}
                                 >
                                     <View style={{

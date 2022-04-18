@@ -12,15 +12,23 @@ function getDuration(seconds: number) {
     const hours = Math.floor(left / (60 * 60));
     left = left - hours * 60 * 60
     const minutes = Math.floor(left / 60);
+    left = left - minutes * 60;
+    let secs;
+
+    if (days === 0 && hours === 0) {
+        secs = left
+    }
 
     return {
         days,
         hours,
-        minutes
+        minutes,
+        seconds: secs
     }
 }
 
 function format(duration: number) {
+    if (duration <= 0) return t('common.soon');
     return t('common.in')
         + ' '
         + formatDuration(getDuration(duration), { locale: t('lang') === 'ru' ? ru : undefined });

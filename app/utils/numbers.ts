@@ -8,5 +8,5 @@ if (t('lang') === 'ru') {
 }
 
 export function formatNum(num: string) {
-    return num.replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, '$1,');
+    return num.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }

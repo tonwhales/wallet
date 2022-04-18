@@ -120,19 +120,24 @@ export const NeocryptoFragment = fragment(() => {
                 fontSize: 24,
                 textAlign: 'center',
                 color: Theme.textColor,
-                marginTop: 16
+                marginTop: 16,
+                marginHorizontal: 24
             }}>
                 {t('neocrypto.title')}
             </Text>
             <Text style={{
                 fontWeight: '400',
                 fontSize: 16,
-                marginTop: 24
+                marginTop: 24,
             }}>
                 {t('neocrypto.description')}
             </Text>
             <View style={{ flexGrow: 1 }} />
-            <View>
+            <View style={{
+                paddingRight: 62,
+                marginBottom: 24,
+                width: '100%'
+            }}>
                 <CheckBox
                     checked={accepted}
                     onToggle={(newVal) => setAccepted(newVal)}
@@ -155,9 +160,6 @@ export const NeocryptoFragment = fragment(() => {
                             </Text>
                         </Text>
                     }
-                    style={{
-                        marginTop: 16
-                    }}
                 />
                 <CheckBox
                     checked={doNotShow}
@@ -168,7 +170,6 @@ export const NeocryptoFragment = fragment(() => {
                     }}
                 />
             </View>
-            <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                 <RoundButton
                     disabled={!accepted}

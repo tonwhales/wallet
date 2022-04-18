@@ -113,9 +113,9 @@ export class JobsProduct {
         backoff(async () => {
             while (!this._destroyed) {
                 let keypair = await getAppInstanceKeyPair();
-                let key = keypair.publicKey.toString('base64').replaceAll('/', '_')
-                    .replaceAll('+', '-')
-                    .replaceAll('=', '');
+                let key = keypair.publicKey.toString('base64').replace(/\//g, '_')
+                    .replace(/\+/g, '-')
+                    .replace(/\=/g, '');
                 let res = await axios.get('https://connect.tonhubapi.com/connect/command/' + key);
 
                 // Empty state

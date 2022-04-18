@@ -26,6 +26,7 @@ import { storage } from '../../storage/storage';
 import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 import { ProductsComponent } from '../../components/ProductsComponent';
 import { parseMessageBody } from '../../secure/parseMessageBody';
+import { openWithInApp } from '../../utils/openWithInApp';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -191,7 +192,19 @@ export const WalletFragment = fragment(() => {
     const onOpenBuy = React.useCallback(
         () => {
             if (storage.getBoolean(skipLegalNeocrypto)) {
+                // storage.set(skipLegalNeocrypto, false);
+                const queryParams = new URLSearchParams({
+                    partner: 'tonhub',
+                    address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    cur_from: 'USD',
+                    cur_to: 'TON',
+                    fix_cur_to: 'true',
+                    fix_address: 'true',
+                });
 
+                const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
+
+                openWithInApp(main);
             } else {
                 navigation.navigate('Buy')
             }
@@ -268,6 +281,20 @@ export const WalletFragment = fragment(() => {
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
+                    {
+                        !AppConfig.isTestnet && (
+                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                        <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                            <Image source={require('../../../assets/ic_buy.png')} />
+                                        </View>
+                                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{'Buy'}</Text>
+                                    </View>
+                                </TouchableHighlight>
+                            </View>
+                        )
+                    }
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
@@ -288,25 +315,6 @@ export const WalletFragment = fragment(() => {
                             </View>
                         </TouchableHighlight>
                     </View>
-                    {
-                        !AppConfig.isTestnet && (
-                            <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                        <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                            <Text style={{
-                                                fontWeight: '700',
-                                                color: 'white'
-                                            }}>
-                                                {'$'}
-                                            </Text>
-                                        </View>
-                                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{'Buy'}</Text>
-                                    </View>
-                                </TouchableHighlight>
-                            </View>
-                        )
-                    }
                 </View>
 
                 <ProductsComponent />

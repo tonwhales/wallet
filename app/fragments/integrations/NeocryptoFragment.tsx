@@ -13,6 +13,7 @@ import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { storage } from "../../storage/storage";
 import { Theme } from "../../Theme";
+import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
@@ -70,13 +71,13 @@ export const NeocryptoFragment = fragment(() => {
 
     const openTerms = useCallback(
         () => {
-
+            openWithInApp(terms);
         },
         [],
     );
     const openPrivacy = useCallback(
         () => {
-
+            openWithInApp(privacy)
         },
         [],
     );
@@ -84,7 +85,8 @@ export const NeocryptoFragment = fragment(() => {
     const onOpenBuy = useCallback(() => {
         if (accepted) {
             storage.set(skipLegalNeocrypto, doNotShow);
-            // Close this modl & open in app
+            navigation.goBack();
+            openWithInApp(main);
         }
     }, [accepted, doNotShow]);
 

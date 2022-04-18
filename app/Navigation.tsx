@@ -39,6 +39,7 @@ import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { PriceLoader } from './sync/PriceContext';
+import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 
@@ -133,6 +134,7 @@ const navigation = [
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment),
+    modalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
 ];

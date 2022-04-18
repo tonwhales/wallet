@@ -22,6 +22,8 @@ import { AppConfig } from '../../AppConfig';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
+import { storage } from '../../storage/storage';
+import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 import { ProductsComponent } from '../../components/ProductsComponent';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 

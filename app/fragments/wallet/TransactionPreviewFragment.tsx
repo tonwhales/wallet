@@ -20,6 +20,8 @@ import { useAccount } from "../../sync/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
+import { parseMessageBody } from "../../secure/parseMessageBody";
+import { formatSupportedBody } from "../../secure/formatSupportedBody";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -41,9 +43,25 @@ export const TransactionPreviewFragment = fragment(() => {
     // Transaction type
     let transactionType: string;
     if (transaction.kind === 'out') {
-        transactionType = t('tx.sent', { id: transaction.seqno! });
+        if (transaction.status === 'pending') {
+            transactionType = t('tx.sending');
+        } else {
+            transactionType = t('tx.sent');
+        }
     } else {
         transactionType = t('tx.received');
+    }
+
+    // Payload ovewrite
+    if (transaction.body && transaction.body.type === 'payload' && transaction.address) {
+        let interfaces = engine.introspection.getSupportedInterfaces(transaction.address);
+        let parsedBody = parseMessageBody(transaction.body.cell, interfaces);
+        if (parsedBody) {
+            let f = formatSupportedBody(parsedBody);
+            if (f) {
+                transactionType = f.text;
+            }
+        }
     }
 
     return (
@@ -58,7 +76,7 @@ export const TransactionPreviewFragment = fragment(() => {
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={transactionType} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
+                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
                         {transactionType}
                     </Text>
                 )}

@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, SupportedMessage, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -28,6 +28,8 @@ import { LocalizedResources } from '../../i18n/schema';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
+import { parseMessageBody } from '../../secure/parseMessageBody';
+import { formatSupportedBody } from '../../secure/formatSupportedBody';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -206,9 +208,10 @@ export const TransferFragment = fragment(() => {
             address,
             seqno: account.seqno,
             kind: 'out',
-            body: null,
+            body: payload ? { type: 'payload', cell: payload } : (comment.length > 0 ? { type: 'comment', comment } : null),
             status: 'pending',
-            time: Math.floor(Date.now() / 1000)
+            time: Math.floor(Date.now() / 1000),
+            bounced: false
         });
 
         // Dismiss keyboard for iOS
@@ -373,6 +376,37 @@ export const TransferFragment = fragment(() => {
 
     const isKnown: boolean = !!KnownWallets[target];
 
+    // Fetch suported interfaces
+    const supportedInterfaces = React.useMemo<string[]>(() => {
+        let address: Address;
+        try {
+            address = Address.parseFriendly(target).address;
+        } catch (e) {
+            return [];
+        }
+        return engine.introspection.getSupportedInterfaces(address);
+    }, [target]);
+
+    // Resolve payload
+    const supportedMessage = React.useMemo(() => {
+        let res: SupportedMessage | null = null;
+        if (payload) {
+            res = parseMessageBody(payload, supportedInterfaces);
+        }
+        return res;
+    }, [supportedInterfaces, payload]);
+
+    // Resolve message
+    const message = React.useMemo(() => {
+        if (supportedMessage) {
+            let formatted = formatSupportedBody(supportedMessage);
+            if (formatted) {
+                return formatted.text;
+            }
+        }
+        return null;
+    }, [comment, supportedMessage]);
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t(payload ? 'transfer.titleAction' : 'transfer.title')} />
@@ -513,18 +547,6 @@ export const TransferFragment = fragment(() => {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        {payload && (
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
-                            }}>
-                                {t('common.walletAddress')}
-                            </Text>
-                        )}
                         <ATextInput
                             value={target}
                             index={1}
@@ -548,7 +570,7 @@ export const TransferFragment = fragment(() => {
                                         color: '#7D858A',
                                         alignSelf: 'flex-start',
                                     }}>
-                                        {t('transfer.sendTo')}
+                                        {payload ? t('common.walletAddress') : t('transfer.sendTo')}
                                     </Text>
                                     {isKnown && (
                                         <Animated.View
@@ -596,20 +618,8 @@ export const TransferFragment = fragment(() => {
                             blurOnSubmit={false}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
-                        {payload && (
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: '#8E979D',
-                                alignSelf: 'flex-start',
-                                marginTop: 10,
-                                marginLeft: 16
-                            }}>
-                                {t('transfer.purpose')}
-                            </Text>
-                        )}
                         <ATextInput
-                            value={comment}
+                            value={payload && message ? message : comment}
                             index={2}
                             ref={refs[2]}
                             onFocus={onFocus}
@@ -637,9 +647,9 @@ export const TransferFragment = fragment(() => {
                                         color: '#7D858A',
                                         alignSelf: 'flex-start',
                                     }}>
-                                        {t('transfer.commentLabel')}
+                                        {payload ? t('transfer.purpose') : t('transfer.commentLabel')}
                                     </Text>
-                                    {isKnown && (
+                                    {isKnown && !payload && (
                                         <Animated.View
                                             style={{
                                                 flexDirection: 'row',
@@ -682,7 +692,6 @@ export const TransferFragment = fragment(() => {
                                     {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
                                 </Text>
                             </>
-
                         )}
                     </View>
                     {!payload && (<Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>)}

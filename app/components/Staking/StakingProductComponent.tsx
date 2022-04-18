@@ -14,5 +14,5 @@ export const StakingProductComponent = React.memo(({ pool }: { pool: StakingPool
 
     if (!showJoin && member) return <StakingProductMember pool={pool} member={member} />;
 
-    return <StakingProductJoin />;
+    return <StakingProductJoin loading={!pool} />;
 })

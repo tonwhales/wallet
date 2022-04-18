@@ -4,7 +4,7 @@ import { fragment } from "../../fragment";
 import { getCurrentAddress } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { TransactionView } from '../../components/TransactionView';
+import { TransactionView } from './views/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
@@ -14,22 +14,20 @@ import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { useAccount } from '../../sync/Engine';
+import { Engine, useAccount } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
 import { Address, fromNano } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
-import { BN } from 'bn.js';
 import { WalletAddress } from '../../components/WalletAddress';
-import { ProductButton } from './products/ProductButton';
-import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { t } from '../../i18n/t';
-import { config } from 'process';
 import { PriceComponent } from '../../components/PriceComponent';
 import { storage } from '../../storage/storage';
 import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
+import { ProductsComponent } from '../../components/ProductsComponent';
+import { parseMessageBody } from '../../secure/parseMessageBody';
 
-const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, onPress: (tx: Transaction) => void }) => {
+const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: Transaction[] }[] = [];
         if (props.txs.length > 0) {
@@ -55,13 +53,13 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
     for (let s of transactionsSectioned) {
         components.push(
             <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 22, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
             </View>
         );
         components.push(
             < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
             } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
+                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
             </View >
         );
     }
@@ -75,25 +73,20 @@ export const WalletFragment = fragment(() => {
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const [account, engine] = useAccount();
-    const oldWalletsBalance = engine.products.oldWallets.useState();
-    const currentJob = engine.products.apps.useState();
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.getTransaction(v));
         return [...account.pending, ...txs];
     }, [account.transactions, account.pending]);
 
-    const openTransactionFragment = React.useCallback(
-        (transaction: Transaction | null) => {
-            if (transaction) {
-                navigation.navigate('Transaction', {
-                    transaction: {
-                        ...transaction
-                    }
-                });
-            }
-        },
-        [navigation],
-    );
+    const openTransactionFragment = React.useCallback((transaction: Transaction | null) => {
+        if (transaction) {
+            navigation.navigate('Transaction', {
+                transaction: {
+                    ...transaction
+                }
+            });
+        }
+    }, [navigation]);
 
     const window = useWindowDimensions();
 
@@ -278,20 +271,20 @@ export const WalletFragment = fragment(() => {
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_receive.png')} />
                                 </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('wallet.actions.receive')}</Text>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Transfer')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_send.png')} />
                                 </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('wallet.actions.send')}</Text>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
@@ -316,35 +309,7 @@ export const WalletFragment = fragment(() => {
                     }
                 </View>
 
-                {oldWalletsBalance.gt(new BN(0)) && (
-                    <ProductButton
-                        name={t('products.oldWallets.title')}
-                        subtitle={t("products.oldWallets.subtitle")}
-                        icon={OldWalletIcon}
-                        value={oldWalletsBalance}
-                        onPress={() => navigation.navigate('Migration')}
-                    />
-                )}
-
-                {currentJob && currentJob.job.type === 'transaction' && (
-                    <ProductButton
-                        name={t('products.transactionRequest')}
-                        subtitle={currentJob.job.text}
-                        icon={OldWalletIcon}
-                        value={null}
-                        onPress={() => {
-                            if (currentJob.job.type === 'transaction') {
-                                navigation.navigate('Transfer', {
-                                    target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    comment: currentJob.job.text,
-                                    amount: currentJob.job.amount.toString(10),
-                                    payload: currentJob.job.payload,
-                                    job: currentJob.jobRaw
-                                });
-                            }
-                        }}
-                    />
-                )}
+                <ProductsComponent />
 
                 {
                     transactions.length === 0 && (
@@ -379,6 +344,7 @@ export const WalletFragment = fragment(() => {
                         <WalletTransactions
                             txs={transactions}
                             address={address}
+                            engine={engine}
                             onPress={openTransactionFragment}
                         />
                     )

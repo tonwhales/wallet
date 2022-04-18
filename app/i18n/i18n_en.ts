@@ -22,7 +22,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         amount: 'Amount',
         today: 'Today',
         yesterday: 'Yesterday',
-        comment: 'Comment'
+        comment: 'Comment',
+        products: 'Products',
+        confirm: 'Confirm',
+        soon: 'soon',
+        in: 'in',
+        max: 'Max'
     },
     home: {
         wallet: 'Wallet',
@@ -40,8 +45,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         sync: 'Downloading wallet data',
         balanceTitle: 'Ton balance',
         actions: {
-            receive: 'receive',
-            send: 'send'
+            receive: 'Receive',
+            send: 'Send'
         },
         empty: {
             message: 'You have no transactions',
@@ -49,9 +54,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     tx: {
-        sending: 'Sending #{{id}}',
-        sent: 'Sent #{{id}}',
-        received: 'Received'
+        sending: 'Sending',
+        sent: 'Sent',
+        received: 'Received',
+        bounced: 'Bounced'
     },
     txPreview: {
         sendAgain: 'send again',
@@ -120,7 +126,113 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
         },
-        transactionRequest: 'Request transaction'
+        transactionRequest: 'Request transaction',
+        staking: {
+            title: 'Staking',
+            balance: 'Staking balance',
+            subtitle: {
+                join: 'Earn up to 13.3% on your TONs',
+                joined: 'Earn up to 13.3%',
+                rewards: 'Estimated Interest',
+                apy: '~13.3 APY of the contribution'
+            },
+            transfer: {
+                stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
+                depositStakeTitle: 'Staking',
+                depositStakeConfirmTitle: 'Confirm Staking',
+                withdrawStakeTitle: 'Withdrawal Request',
+                withdrawStakeConfirmTitle: 'Confirm Withdrawal',
+                topUpTitle: 'Top Up',
+                topUpConfirmTitle: 'Confirm Top Up',
+                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked',
+                confirmWithdraw: 'Request Withdrawal',
+                confirmWithdrawReady: 'Withdraw now'
+            },
+            nextCycle: 'Next cycle',
+            cycleNote: 'All transactions take effect once the cycle ends',
+            cycleNoteWithdraw: 'Your request will be executed after the cycle ends. The withdrawal will need to be confirmed again.',
+            buttonTitle: 'stake',
+            balanceTitle: 'Staking Balance',
+            actions: {
+                deposit: 'Deposit',
+                top_up: 'Top Up',
+                withdraw: 'Unstake'
+            },
+            join: {
+                title: 'Become a TON validator',
+                message: 'Staking is a public good for the TON ecosystem. You can help secure the network and earn rewards in the process',
+                buttonTitle: 'Start Earning',
+                moreAbout: 'More about Tonwhales Staking Pool',
+                earn: 'Earn up to',
+                onYourTons: 'on your TONs',
+                apy: '13.3%',
+                yearly: 'APY',
+                cycle: 'Get rewards for staking every 36h',
+                ownership: 'Staked TONs remain yours',
+                withdraw: 'Withdraw and Top Up at any time',
+                successTitle: '{{amount}} TON staked',
+                successEtimation: 'Your estimated yearly earnings are {{amount}}\u00A0TON\u00A0(${{price}}).',
+                successNote: 'Your staked TON will be activated once the next cycle starts.'
+            },
+            pool: {
+                balance: 'Total Stake',
+                members: 'Nominators',
+                profitability: 'Profitability'
+            },
+            empty: {
+                message: 'You have no transactions'
+            },
+            pending: {
+                deposit: 'Pending Deposit',
+                withdraw: 'Pending Withdraw'
+            },
+            withdrawStatus: {
+                pending: 'Withdraw pending',
+                ready: 'Withdraw ready',
+                withdrawNow: 'Withdraw now'
+            },
+            depositStatus: {
+                pending: 'Deposit pending'
+            },
+            withdraw: 'Withdraw',
+            sync: 'Downloading staking data',
+            unstake: {
+                title: 'Are you sure want to request withdrawal?',
+                message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
+            },
+            learnMore: 'Info',
+            moreInfo: 'More info',
+            calc: {
+                yearly: 'Yearly rewards',
+                monthly: 'Monthly rewards',
+                daily: 'Daily rewards',
+                note: 'Calculated including all fees',
+                text: 'Earnings calculator',
+                yearlyTopUp: 'After Top Up',
+                yearlyTotal: 'Total rewards in a year',
+                yearlyCurrent: 'Current',
+                topUpTitle: 'Your yearly rewards'
+            },
+            info: {
+                rate: 'up to 13.3%',
+                rateTitle: 'Est. APY rate',
+                frequency: 'Every 36 hours',
+                frequencyTitle: 'Reward Frequency',
+                minDeposit: 'Minimal deposit',
+                poolFee: '3.3%',
+                poolFeeTitle: 'Pool Fee',
+                depositFee: 'Deposit Fee',
+                withdrawFee: 'Withdraw Fee',
+                blockchainFee: 'Blockhain fee',
+            },
+            minAmountWarning: 'Minimum amount is {{minAmount}} TON',
+            tryAgainLater: 'Please, try again later',
+            banner: {
+                estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0(${{price}})',
+                estimatedEarningsDev: 'Your estimated yearly earnings will decrease',
+                message: 'Are you sure about the unstaking?'
+            }
+        },
     },
     welcome: {
         title: 'Tonhub',
@@ -191,7 +303,17 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         title: 'Buy TON with credit card for USD, EUR and RUB',
         description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service. ',
         doNotShow: 'Do not show it again for Neocrypto',
-        termsAndPrivacy: 'I have read and agree to the '
+        termsAndPrivacy: 'I have read and agree to the ',
+    },
+    known: {
+        deposit: 'Deposit',
+        depositOk: 'Deposit accepted',
+        withdraw: 'Request withdraw of {{coins}} 💎',
+        withdrawAll: 'Request withdraw of all coins',
+        withdrawCompleted: 'Withdraw completed',
+        withdrawRequested: 'Withdraw requested',
+        upgrade: 'Upgrade code to {{hash}}',
+        upgradeOk: 'Upgrade completed'
     }
 };
 

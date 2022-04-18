@@ -18,46 +18,42 @@ export const StakingCycle = React.memo((
     const { t } = useTranslation();
 
     return (
-        <View style={[
-            {
-                backgroundColor: 'white',
-                minHeight: 70,
-                borderRadius: 14,
-                paddingHorizontal: 16,
-                paddingTop: 15,
-                paddingBottom: 12,
-                overflow: 'hidden'
-            },
-            style
-        ]}>
-            <StakingCycleProgress style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0, bottom: 0
-            }}
+        <View style={{
+            backgroundColor: 'white',
+            minHeight: 70,
+            borderRadius: 14,
+            paddingTop: 15,
+            paddingBottom: 12,
+            marginHorizontal: 16,
+            overflow: 'hidden',
+        }}>
+            <StakingCycleProgress
                 stakeUntil={stakeUntil}
             />
-            <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+            <View style={{ flex: 1, paddingHorizontal: 16 }}>
+                <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+                    <Text style={{
+                        color: Theme.textColor,
+                        fontWeight: '600',
+                        fontSize: 16
+                    }}>
+                        {t('products.staking.nextCycle')}
+                    </Text>
+                    <Countdown until={stakeUntil} textStyle={{
+                        fontWeight: '400',
+                        color: Theme.textColor,
+                        fontSize: 16
+                    }} />
+                </View>
                 <Text style={{
-                    color: Theme.textColor,
-                    fontWeight: '600',
-                    fontSize: 16
-                }}>
-                    {t('products.staking.nextCycle')}
-                </Text>
-                <Countdown until={stakeUntil} textStyle={{
+                    color: Theme.textSecondary,
                     fontWeight: '400',
-                    color: Theme.textColor,
-                    fontSize: 16
-                }} />
+                    fontSize: 13,
+                    marginTop: 8
+                }}>
+                    {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
+                </Text>
             </View>
-            <Text style={{
-                color: Theme.textSecondary,
-                fontWeight: '400',
-                fontSize: 13,
-                marginTop: 8
-            }}>
-                {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
-            </Text>
         </View>
     )
 })

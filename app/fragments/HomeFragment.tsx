@@ -13,8 +13,9 @@ import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
 import * as SplashScreen from 'expo-splash-screen';
+import { systemFragment } from '../systemFragment';
 
-export const HomeFragment = fragment(() => {
+export const HomeFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();

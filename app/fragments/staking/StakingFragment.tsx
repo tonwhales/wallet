@@ -24,9 +24,9 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { PoolAddress } from "../../utils/PoolAddress";
 import { TransferAction } from "./StakingTransferFragment";
-import { systemFragment } from "../../systemFragment";
+import { fragment } from "../../fragment";
 
-export const StakingFragment = systemFragment(() => {
+export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean }>();

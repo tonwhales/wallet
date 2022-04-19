@@ -14,8 +14,9 @@ import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
+import { systemFragment } from "../../systemFragment";
 
-export const ReceiveFragment = fragment(() => {
+export const ReceiveFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);

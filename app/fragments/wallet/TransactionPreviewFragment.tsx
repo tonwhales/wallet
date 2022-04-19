@@ -22,8 +22,9 @@ import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { parseMessageBody } from "../../secure/parseMessageBody";
 import { formatSupportedBody } from "../../secure/formatSupportedBody";
+import { systemFragment } from "../../systemFragment";
 
-export const TransactionPreviewFragment = fragment(() => {
+export const TransactionPreviewFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { transaction } = useParams<{ transaction?: Transaction | null }>();

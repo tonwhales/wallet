@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SendMode, WalletContractType } from 'ton';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { fragment } from "../../fragment";
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -22,6 +21,7 @@ import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
 import { StatusBar } from 'expo-status-bar';
+import { systemFragment } from '../../systemFragment';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -29,7 +29,7 @@ function ellipsiseAddress(src: string) {
         + src.slice(src.length - 6)
 }
 
-const MigrationProcessFragment = fragment(() => {
+const MigrationProcessFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
@@ -117,7 +117,7 @@ const MigrationProcessFragment = fragment(() => {
     );
 });
 
-export const MigrationFragment = fragment(() => {
+export const MigrationFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
     const navigation = useTypedNavigation();

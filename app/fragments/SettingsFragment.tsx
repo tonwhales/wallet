@@ -11,8 +11,9 @@ import { BlurView } from 'expo-blur';
 import { useReboot } from '../utils/RebootContext';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
+import { systemFragment } from '../systemFragment';
 
-export const SettingsFragment = fragment(() => {
+export const SettingsFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();

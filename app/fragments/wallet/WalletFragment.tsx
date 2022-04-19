@@ -22,7 +22,7 @@ import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { ProductsComponent } from '../../components/ProductsComponent';
-import { systemFragment } from '../../systemFragment';
+import { fragment } from '../../fragment';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -64,7 +64,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
     return <>{components}</>;
 })
 
-export const WalletFragment = systemFragment(() => {
+export const WalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);

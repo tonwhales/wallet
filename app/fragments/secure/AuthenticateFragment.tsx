@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useRoute } from "@react-navigation/native";
 import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
-import { fragment } from "../../fragment";
 import { t, tStyled } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StatusBar } from 'expo-status-bar';
@@ -18,6 +17,7 @@ import { Cell } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
+import { systemFragment } from '../../systemFragment';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -175,7 +175,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     );
 });
 
-export const AuthenticateFragment = fragment(() => {
+export const AuthenticateFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const params: {
         session: string,

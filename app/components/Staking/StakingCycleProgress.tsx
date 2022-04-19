@@ -17,12 +17,10 @@ export const StakingCycleProgress = React.memo(({ stakeUntil, style }: { stakeUn
 
     useEffect(() => {
         scale.value = withTiming(progress, {
-            duration: 1000,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+            duration: 900,
+            easing: Easing.bezier(1, 0.29, 0.53, 0.6),
         });
     }, [progress]);
-
-    console.log({ width: `${progress}%` })
 
     return (
         <Animated.View

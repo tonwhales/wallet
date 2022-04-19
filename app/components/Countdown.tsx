@@ -1,5 +1,4 @@
 import { formatDuration } from "date-fns";
-import { ru } from 'date-fns/locale';
 import React, { useEffect, useState } from "react"
 import { StyleProp, Text, TextStyle } from "react-native"
 import { useTranslation } from "react-i18next";
@@ -21,30 +20,26 @@ function getDuration(seconds: number) {
 
 type DurationKey = 'xSeconds' | 'xMinutes' | 'xHours' | 'xDays';
 
-const formatDurationRuLocale: { [key in DurationKey]: string } = {
-    xSeconds: '{{count}}',
-    xMinutes: '{{count}}',
-    xHours: '{{count}}',
-    xDays: '{{count}}'
-}
-
-const formatDurationEnLocale: { [key in DurationKey]: string } = {
-    xSeconds: '{{count}}',
-    xMinutes: '{{count}}',
-    xHours: '{{count}}',
-    xDays: '{{count}}'
-}
-
-const shortRuLocale = {
-    formatDistance: (key: DurationKey, count: any) => {
-        return formatDurationRuLocale[key].replace('{{count}}', String(count || '').padStart(2, '0'));
+const formatDurationLocales = {
+    ru: {
+        xSeconds: '{{count}}',
+        xMinutes: '{{count}}',
+        xHours: '{{count}}',
+        xDays: '{{count}}'
+    },
+    en: {
+        xSeconds: '{{count}}',
+        xMinutes: '{{count}}',
+        xHours: '{{count}}',
+        xDays: '{{count}}'
     }
 }
 
-const shortEnLocale = {
-    formatDistance: (key: DurationKey, count: number) => {
-        return formatDurationEnLocale[key].replace('{{count}}', String(count || '').padStart(2, '0'))
+function shortLocale(code: 'ru' | 'en') {
+    const formatDistance = (key: DurationKey, count: number) => {
+        return formatDurationLocales[code][key].replace('{{count}}', String(count || '').padStart(2, '0'))
     }
+    return { formatDistance };
 }
 
 function format(duration: number) {
@@ -53,7 +48,7 @@ function format(duration: number) {
         + ' '
         + formatDuration(
             getDuration(duration),
-            { locale: t('lang') === 'ru' ? shortRuLocale : shortEnLocale, delimiter: ':', zero: true }
+            { locale: shortLocale(t('lang') as 'ru' | 'en'), delimiter: ':', zero: true }
         );
 }
 

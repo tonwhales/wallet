@@ -6,6 +6,7 @@ import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
 import { SvgProps } from 'react-native-svg';
 import { t } from '../../../i18n/t';
+import { PriceComponent } from '../../../components/PriceComponent';
 
 export function ProductButton(props: {
     name: string,
@@ -46,6 +47,20 @@ export function ProductButton(props: {
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
+                        {!!props.value &&
+                            (
+                                <PriceComponent
+                                    amount={props.value}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0, paddingVertical: 0,
+                                        alignSelf: 'flex-end',
+                                        marginTop: 2, height: 14
+                                    }}
+                                    textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
+                                />
+                            )
+                        }
                     </View>
                     <View style={{ flexGrow: 1 }} />
                 </View>

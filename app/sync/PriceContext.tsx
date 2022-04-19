@@ -1,14 +1,15 @@
 import React from "react";
 import { View } from "react-native";
 import { PriceState } from "../storage/cache";
-import { Engine } from "./Engine";
+import { Engine, EngineContext } from "./Engine";
 
 // Price context
 export const PriceContext = React.createContext<PriceState | null | undefined>(null);
 
 // Price loader
-export const PriceLoader = React.memo((props: { children?: any, engine: Engine | null }) => {
-    const price = props.engine?.products.price.useState();
+export const PriceLoader = React.memo((props: { children?: any }) => {
+    const engine = React.useContext(EngineContext)!
+    const price = engine.products.price.useState();
 
     return (
         <PriceContext.Provider value={price}>

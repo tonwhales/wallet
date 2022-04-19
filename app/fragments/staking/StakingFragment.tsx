@@ -27,6 +27,7 @@ import { useParams } from "../../utils/useParams";
 import BN from "bn.js";
 import { PoolAddress } from "../../utils/PoolAddress";
 import { TransferAction } from "./StakingTransferFragment";
+import { PriceLoader } from "../../sync/PriceContext";
 
 export const StakingFragment = fragment(() => {
     const { t } = useTranslation();
@@ -146,132 +147,260 @@ export const StakingFragment = fragment(() => {
     );
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-            <Animated.ScrollView
-                contentContainerStyle={{
-                    flexGrow: 1,
-                    paddingTop: Platform.OS === 'android'
-                        ? safeArea.top + 44
-                        : undefined,
-                }}
-                contentInset={{ top: 44, bottom: 52 }}
-                contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
-                onScroll={onScroll}
-                scrollEventThrottle={16}
-            >
-                {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-                <Animated.View
-                    style={[
-                        { ...cardOpacityStyle },
-                        {
-                            marginHorizontal: 16, marginVertical: 16,
-                            height: cardHeight,
-                        }
-                    ]}
-                    collapsable={false}
+        <PriceLoader>
+            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+                <Animated.ScrollView
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        paddingTop: Platform.OS === 'android'
+                            ? safeArea.top + 44
+                            : undefined,
+                    }}
+                    contentInset={{ top: 44, bottom: 52 }}
+                    contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
+                    onScroll={onScroll}
+                    scrollEventThrottle={16}
                 >
-                    <Image
-                        source={require('../../../assets/staking_card.png')}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: cardHeight,
-                            width: window.width - 32
-                        }}
-                        resizeMode="stretch"
-                        resizeMethod="resize"
-                    />
-
-                    <Text
-                        style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
+                    {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
+                    <Animated.View
+                        style={[
+                            { ...cardOpacityStyle },
+                            {
+                                marginHorizontal: 16, marginVertical: 16,
+                                height: cardHeight,
+                            }
+                        ]}
+                        collapsable={false}
                     >
-                        {t('products.staking.balance')}
-                    </Text>
-                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
-                        <ValueComponent
-                            value={member?.balance || toNano('0')}
-                            centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                        <Image
+                            source={require('../../../assets/staking_card.png')}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                height: cardHeight,
+                                width: window.width - 32
+                            }}
+                            resizeMode="stretch"
+                            resizeMethod="resize"
                         />
-                    </Text>
-                    <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
-                    <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={
-                            address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 10)
-                            + '...'
-                            + address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
-                        }
-                        style={{
-                            marginLeft: 22,
-                            marginBottom: 16,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: 'white',
-                            fontWeight: '500',
-                            fontFamily: undefined
-                        }}
-                    />
-                </Animated.View>
-                <StakingPendingComponent style={{ marginHorizontal: 16 }} params={poolParams} member={member} />
-                {pool && (
-                    <StakingCycle
-                        stakeUntil={pool.params.stakeUntil}
-                        style={{
-                            marginHorizontal: 16,
-                            marginBottom: 15
-                        }}
-                    />
-                )}
-            </Animated.ScrollView >
-            {/* iOS Toolbar */}
-            {
-                Platform.OS === 'ios' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
-                    }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
+
+                        <Text
+                            style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
+                        >
+                            {t('products.staking.balance')}
+                        </Text>
+                        <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
+                            <ValueComponent
+                                value={member?.balance || toNano('0')}
+                                centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                            />
+                        </Text>
+                        <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
+                        <View style={{ flexGrow: 1 }} />
+                        <WalletAddress
+                            value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            address={
+                                address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 10)
+                                + '...'
+                                + address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
+                            }
+                            style={{
+                                marginLeft: 22,
+                                marginBottom: 16,
+                                alignSelf: 'flex-start',
+                            }}
+                            textStyle={{
+                                textAlign: 'left',
+                                color: 'white',
+                                fontWeight: '500',
+                                fontFamily: undefined
+                            }}
+                        />
+                    </Animated.View>
+                    <StakingPendingComponent style={{ marginHorizontal: 16 }} params={poolParams} member={member} />
+                    {pool && (
+                        <StakingCycle
+                            stakeUntil={pool.params.stakeUntil}
+                            style={{
+                                marginHorizontal: 16,
+                                marginBottom: 15
+                            }}
+                        />
+                    )}
+                </Animated.ScrollView >
+                {/* iOS Toolbar */}
+                {
+                    Platform.OS === 'ios' && (
+                        <View style={{
                             position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
+                            top: 0, left: 0, right: 0,
+                            height: safeArea.top + 44,
+                        }}>
+                            <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                            <BlurView style={{
+                                position: 'absolute',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                paddingTop: safeArea.top,
+                                flexDirection: 'row',
+                                overflow: 'hidden'
+                            }}>
+                                <View style={{
+                                    width: '100%', height: 44,
+                                    alignItems: 'center', justifyContent: 'center',
+                                    flexDirection: 'row'
+                                }}>
+                                    <HeaderBackButton
+                                        style={{
+                                            position: 'absolute',
+                                            left: 0, bottom: 0
+                                        }}
+                                        label={t('common.back')}
+                                        labelVisible
+                                        onPress={() => {
+                                            if (params.backToHome) {
+                                                navigation.popToTop();
+                                                return;
+                                            }
+                                            navigation.goBack();
+                                        }}
+                                        tintColor={Theme.accent}
+                                    />
+                                    <Animated.Text
+                                        style={[
+                                            { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                            { position: 'relative', ...titleOpacityStyle },
+                                        ]}
+                                    >
+                                        {t('products.staking.title')}
+                                    </Animated.Text>
+                                    <Animated.View
+                                        style={[
+                                            {
+                                                flex: 1,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                position: 'absolute',
+                                                top: 0, bottom: 0
+                                            },
+                                            { ...smallCardStyle },
+                                        ]}
+                                        pointerEvents="none"
+                                        collapsable={false}
+                                    >
+                                        <View style={{
+                                            height: cardHeight,
+                                            width: window.width - 32,
+                                            flex: 1,
+                                            transform: [{ scale: 0.15 }],
+                                        }}>
+                                            <Image
+                                                source={require('../../../assets/staking_card.png')}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    bottom: 0,
+                                                    height: cardHeight,
+                                                    width: window.width - 32
+                                                }}
+                                                resizeMode="stretch"
+                                                resizeMethod="resize"
+                                            />
+
+                                            <Text
+                                                style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
+                                            >
+                                                {t('products.staking.balance')}
+                                            </Text>
+                                            <Text
+                                                style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
+                                            >
+                                                <ValueComponent value={member?.balance || toNano('0')} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
+                                            </Text>
+                                            <View style={{ flexGrow: 1 }}>
+
+                                            </View>
+                                            <Text style={{ color: 'white', marginLeft: 22, marginBottom: 16, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
+                                                <AddressComponent address={address} />
+                                            </Text>
+                                        </View>
+                                    </Animated.View>
+                                    <Pressable
+                                        onPress={openMoreInfo}
+                                        style={({ pressed }) => {
+                                            return {
+                                                opacity: pressed ? 0.3 : 1,
+                                                position: 'absolute',
+                                                bottom: 12, right: 16
+                                            }
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                color: Theme.accent,
+                                                fontSize: 17, fontWeight: '600'
+                                            }}
+                                        >
+                                            {t('products.staking.learnMore')}
+                                        </Text>
+                                    </Pressable>
+                                    {/* TODO */}
+                                </View>
+                            </BlurView>
+                            <View style={{
+                                position: 'absolute',
+                                bottom: 0.5, left: 0, right: 0,
+                                height: 0.5,
+                                width: '100%',
+                                backgroundColor: '#000',
+                                opacity: 0.08
+                            }} />
+                        </View >
+                    )
+                }
+                {/* Android Toolbar */}
+                {
+                    Platform.OS === 'android' && (
+                        <View style={{
+                            position: 'absolute',
+                            top: 0, left: 0, right: 0,
+                            height: safeArea.top + 44,
+                            backgroundColor: Theme.background,
                             paddingTop: safeArea.top,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
+                            justifyContent: 'center',
+                            alignItems: 'center',
                         }}>
                             <View style={{
-                                width: '100%', height: 44,
-                                alignItems: 'center', justifyContent: 'center',
+                                width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
                                 flexDirection: 'row'
                             }}>
-                                <HeaderBackButton
-                                    style={{
-                                        position: 'absolute',
-                                        left: 0, bottom: 0
-                                    }}
-                                    label={t('common.back')}
-                                    labelVisible
-                                    onPress={() => {
-                                        if (params.backToHome) {
-                                            navigation.popToTop();
-                                            return;
-                                        }
-                                        navigation.goBack();
-                                    }}
-                                    tintColor={Theme.accent}
-                                />
-                                <Animated.Text
-                                    style={[
-                                        { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                                        { position: 'relative', ...titleOpacityStyle },
-                                    ]}
-                                >
+                                <View style={{
+                                    position: 'absolute',
+                                    left: 16, bottom: 8
+                                }}>
+                                    <TouchableNativeFeedback
+                                        onPress={() => {
+                                            if (params.backToHome) {
+                                                navigation.popToTop();
+                                                return;
+                                            }
+                                            navigation.goBack();
+                                        }}
+                                        background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
+                                    >
+                                        <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
+                                            <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
+                                        </View>
+                                    </TouchableNativeFeedback>
+                                </View>
+                                <Animated.Text style={[
+                                    { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                    { position: 'relative', ...titleOpacityStyle },
+                                ]}>
                                     {t('products.staking.title')}
                                 </Animated.Text>
                                 <Animated.View
@@ -285,7 +414,6 @@ export const StakingFragment = fragment(() => {
                                         },
                                         { ...smallCardStyle },
                                     ]}
-                                    pointerEvents="none"
                                     collapsable={false}
                                 >
                                     <View style={{
@@ -317,26 +445,28 @@ export const StakingFragment = fragment(() => {
                                         <Text
                                             style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
                                         >
-                                            <ValueComponent value={member?.balance || toNano('0')} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
+                                            <ValueComponent
+                                                value={member?.balance || toNano('0')}
+                                                centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                            />
                                         </Text>
                                         <View style={{ flexGrow: 1 }}>
 
                                         </View>
-                                        <Text style={{ color: 'white', marginLeft: 22, marginBottom: 16, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
+                                        <Text
+                                            style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }}
+                                            numberOfLines={1}
+                                        >
                                             <AddressComponent address={address} />
                                         </Text>
                                     </View>
                                 </Animated.View>
-                                <Pressable
-                                    onPress={openMoreInfo}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.3 : 1,
-                                            position: 'absolute',
-                                            bottom: 12, right: 16
-                                        }
-                                    }}
-                                >
+                                <Pressable onPress={openMoreInfo} style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.3 : 1,
+                                        position: 'absolute', right: 16, bottom: 10,
+                                    }
+                                }}>
                                     <Text
                                         style={{
                                             color: Theme.accent,
@@ -346,177 +476,50 @@ export const StakingFragment = fragment(() => {
                                         {t('products.staking.learnMore')}
                                     </Text>
                                 </Pressable>
-                                {/* TODO */}
                             </View>
-                        </BlurView>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: '#000',
-                            opacity: 0.08
-                        }} />
-                    </View >
-                )
-            }
-            {/* Android Toolbar */}
-            {
-                Platform.OS === 'android' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
-                        backgroundColor: Theme.background,
-                        paddingTop: safeArea.top,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{
-                            width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                            flexDirection: 'row'
-                        }}>
                             <View style={{
                                 position: 'absolute',
-                                left: 16, bottom: 8
-                            }}>
-                                <TouchableNativeFeedback
-                                    onPress={() => {
-                                        if (params.backToHome) {
-                                            navigation.popToTop();
-                                            return;
-                                        }
-                                        navigation.goBack();
-                                    }}
-                                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
-                                >
-                                    <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
-                            <Animated.Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                                { position: 'relative', ...titleOpacityStyle },
-                            ]}>
-                                {t('products.staking.title')}
-                            </Animated.Text>
-                            <Animated.View
-                                style={[
-                                    {
-                                        flex: 1,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'absolute',
-                                        top: 0, bottom: 0
-                                    },
-                                    { ...smallCardStyle },
-                                ]}
-                                collapsable={false}
-                            >
-                                <View style={{
-                                    height: cardHeight,
-                                    width: window.width - 32,
-                                    flex: 1,
-                                    transform: [{ scale: 0.15 }],
-                                }}>
-                                    <Image
-                                        source={require('../../../assets/staking_card.png')}
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            height: cardHeight,
-                                            width: window.width - 32
-                                        }}
-                                        resizeMode="stretch"
-                                        resizeMethod="resize"
-                                    />
-
-                                    <Text
-                                        style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
-                                    >
-                                        {t('products.staking.balance')}
-                                    </Text>
-                                    <Text
-                                        style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
-                                    >
-                                        <ValueComponent
-                                            value={member?.balance || toNano('0')}
-                                            centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                                        />
-                                    </Text>
-                                    <View style={{ flexGrow: 1 }}>
-
-                                    </View>
-                                    <Text
-                                        style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }}
-                                        numberOfLines={1}
-                                    >
-                                        <AddressComponent address={address} />
-                                    </Text>
-                                </View>
-                            </Animated.View>
-                            <Pressable onPress={openMoreInfo} style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.3 : 1,
-                                    position: 'absolute', right: 16, bottom: 10,
-                                }
-                            }}>
-                                <Text
-                                    style={{
-                                        color: Theme.accent,
-                                        fontSize: 17, fontWeight: '600'
-                                    }}
-                                >
-                                    {t('products.staking.learnMore')}
-                                </Text>
-                            </Pressable>
+                                bottom: 0.5, left: 0, right: 0,
+                                height: 0.5,
+                                width: '100%',
+                                backgroundColor: '#000',
+                                opacity: 0.08
+                            }} />
                         </View>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: '#000',
-                            opacity: 0.08
-                        }} />
-                    </View>
-                )
-            }
-            <View style={{
-                height: 64,
-                position: 'absolute',
-                bottom: safeArea.bottom + 16,
-                left: 16, right: 16,
-                flexDirection: 'row',
-                justifyContent: 'space-evenly'
-            }}>
-                <RoundButton
-                    display={'secondary'}
-                    title={t('products.staking.actions.withdraw')}
-                    onPress={onUnstake}
-                    style={{
-                        flexGrow: 1,
-                        marginRight: 7,
-                        height: 56
-                    }}
-                />
-                <RoundButton
-                    title={t('products.staking.actions.top_up')}
-                    onPress={onTopUp}
-                    style={{
-                        marginLeft: 7,
-                        height: 56,
-                        flexGrow: 1,
-                        maxWidth: (window.width - 32 - 14) / 2
-                    }}
-                    icon={<TopUpIcon />}
-                />
+                    )
+                }
+                <View style={{
+                    height: 64,
+                    position: 'absolute',
+                    bottom: safeArea.bottom + 16,
+                    left: 16, right: 16,
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly'
+                }}>
+                    <RoundButton
+                        display={'secondary'}
+                        title={t('products.staking.actions.withdraw')}
+                        onPress={onUnstake}
+                        style={{
+                            flexGrow: 1,
+                            marginRight: 7,
+                            height: 56
+                        }}
+                    />
+                    <RoundButton
+                        title={t('products.staking.actions.top_up')}
+                        onPress={onTopUp}
+                        style={{
+                            marginLeft: 7,
+                            height: 56,
+                            flexGrow: 1,
+                            maxWidth: (window.width - 32 - 14) / 2
+                        }}
+                        icon={<TopUpIcon />}
+                    />
+                </View>
             </View>
-        </View>
+        </PriceLoader>
     );
 });
 

@@ -18,7 +18,7 @@ export const StakingCycle = React.memo((
     const { t } = useTranslation();
 
     return (
-        <View style={{
+        <View style={[{
             backgroundColor: 'white',
             minHeight: 70,
             borderRadius: 14,
@@ -26,7 +26,7 @@ export const StakingCycle = React.memo((
             paddingBottom: 12,
             marginHorizontal: 16,
             overflow: 'hidden',
-        }}>
+        }, style]}>
             <StakingCycleProgress
                 stakeUntil={stakeUntil}
             />

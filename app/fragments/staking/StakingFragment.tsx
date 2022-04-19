@@ -13,10 +13,8 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
-import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { useAccount } from "../../sync/Engine";
-import { Transaction } from "../../sync/Transaction";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
@@ -24,11 +22,11 @@ import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
-import BN from "bn.js";
 import { PoolAddress } from "../../utils/PoolAddress";
 import { TransferAction } from "./StakingTransferFragment";
+import { systemFragment } from "../../systemFragment";
 
-export const StakingFragment = fragment(() => {
+export const StakingFragment = systemFragment(() => {
     const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean }>();

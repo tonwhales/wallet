@@ -38,6 +38,7 @@ import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
+import { PriceLoader } from './sync/PriceContext';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 
@@ -291,20 +292,22 @@ export const Navigation = React.memo(() => {
 
     return (
         <EngineContext.Provider value={engine}>
-            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-                <NavigationContainer
-                    theme={NavigationTheme}
-                    onReady={onMounted}
-                >
-                    <Stack.Navigator
-                        initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+            <PriceLoader engine={engine}>
+                <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+                    <NavigationContainer
+                        theme={NavigationTheme}
+                        onReady={onMounted}
                     >
-                        {navigation}
-                    </Stack.Navigator>
-                </NavigationContainer>
-                {splash}
-            </View>
+                        <Stack.Navigator
+                            initialRouteName={initial}
+                            screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+                        >
+                            {navigation}
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                    {splash}
+                </View>
+            </PriceLoader>
         </EngineContext.Provider>
     );
 });

@@ -27,7 +27,6 @@ import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
 import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
-import { PriceLoader } from '../../sync/PriceContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -258,235 +257,233 @@ export const StakingTransferFragment = fragment(() => {
     const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
 
     return (
-        <PriceLoader>
-            <>
-                <AndroidToolbar
-                    style={{ marginTop: safeArea.top }}
-                    pageTitle={title}
-                />
-                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                {Platform.OS === 'ios' && (
-                    <View style={{
-                        paddingTop: 12,
-                        paddingBottom: 17,
-                    }}>
-                        <Text style={[labelStyle, { textAlign: 'center', lineHeight: 32 }]}>
-                            {title}
-                        </Text>
-                    </View>
-                )}
-                <Animated.ScrollView
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
-                    contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                    contentInsetAdjustmentBehavior="never"
-                    keyboardShouldPersistTaps="always"
-                    automaticallyAdjustContentInsets={false}
-                    ref={scrollRef}
-                    scrollEventThrottle={16}
+        <>
+            <AndroidToolbar
+                style={{ marginTop: safeArea.top }}
+                pageTitle={title}
+            />
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            {Platform.OS === 'ios' && (
+                <View style={{
+                    paddingTop: 12,
+                    paddingBottom: 17,
+                }}>
+                    <Text style={[labelStyle, { textAlign: 'center', lineHeight: 32 }]}>
+                        {title}
+                    </Text>
+                </View>
+            )}
+            <Animated.ScrollView
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                contentInsetAdjustmentBehavior="never"
+                keyboardShouldPersistTaps="always"
+                automaticallyAdjustContentInsets={false}
+                ref={scrollRef}
+                scrollEventThrottle={16}
+            >
+                <View
+                    ref={containerRef}
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-                    <View
-                        ref={containerRef}
-                        style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
-                    >
-                        <>
+                    <>
+                        <View style={{
+                            marginBottom: 0,
+                            backgroundColor: "white",
+                            borderRadius: 14,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            padding: 15,
+                        }}>
                             <View style={{
-                                marginBottom: 0,
-                                backgroundColor: "white",
-                                borderRadius: 14,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                padding: 15,
+                                flexDirection: 'row',
+                                width: '100%',
+                                justifyContent: 'space-between'
                             }}>
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    color: '#8E979D',
+                                }}>
+                                    {t('common.amount')}
+                                </Text>
+                                <Text style={{
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    color: '#6D6D71',
+                                }}>
+                                    <ValueComponent value={balance} precision={3} />
+                                    {' TON'}
+                                </Text>
+                            </View>
+                            <View style={{ width: '100%' }}>
                                 <View style={{
                                     flexDirection: 'row',
-                                    width: '100%',
-                                    justifyContent: 'space-between'
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
                                 }}>
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 16,
-                                        color: '#8E979D',
-                                    }}>
-                                        {t('common.amount')}
-                                    </Text>
-                                    <Text style={{
-                                        fontWeight: '600',
-                                        fontSize: 16,
-                                        color: '#6D6D71',
-                                    }}>
-                                        <ValueComponent value={balance} precision={3} />
-                                        {' TON'}
-                                    </Text>
-                                </View>
-                                <View style={{ width: '100%' }}>
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                    }}>
-                                        <ATextInput
-                                            index={0}
-                                            ref={refs[0]}
-                                            onFocus={onFocus}
-                                            value={amount}
-                                            onValueChange={onSetAmount}
-                                            placeholder={'0'}
-                                            keyboardType={'numeric'}
-                                            textAlign={'left'}
-                                            style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4, flexShrink: 1 }}
-                                            inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
-                                            fontWeight={'800'}
-                                            fontSize={30}
-                                            editable={!params?.lockAmount}
-                                            enabled={!params?.lockAmount}
-                                            preventDefaultHeight
-                                            preventDefaultLineHeight
-                                            preventDefaultValuePadding
-                                            blurOnSubmit={false}
-                                        />
-                                        {!params?.lockAmount && <Pressable
-                                            style={({ pressed }) => {
-                                                return [
-                                                    {
-                                                        backgroundColor: Theme.accent,
-                                                        height: 24,
-                                                        borderRadius: 40,
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        paddingHorizontal: 10,
-                                                        paddingVertical: 3,
-                                                    },
-                                                    { opacity: pressed ? 0.3 : 1 }
-                                                ]
-                                            }}
-                                            onPress={onAddAll}
-                                        >
-                                            <Text style={{
-                                                fontWeight: '600',
-                                                fontSize: 16,
-                                                color: '#fff'
-                                            }}>
-                                                {t('common.max')}
-                                            </Text>
-                                        </Pressable>}
-                                    </View>
-                                    <PriceComponent
-                                        amount={parseAmountToValidBN(amount)}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0
-                                        }}
-                                        textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                    <ATextInput
+                                        index={0}
+                                        ref={refs[0]}
+                                        onFocus={onFocus}
+                                        value={amount}
+                                        onValueChange={onSetAmount}
+                                        placeholder={'0'}
+                                        keyboardType={'numeric'}
+                                        textAlign={'left'}
+                                        style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4, flexShrink: 1 }}
+                                        inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
+                                        fontWeight={'800'}
+                                        fontSize={30}
+                                        editable={!params?.lockAmount}
+                                        enabled={!params?.lockAmount}
+                                        preventDefaultHeight
+                                        preventDefaultLineHeight
+                                        preventDefaultValuePadding
+                                        blurOnSubmit={false}
                                     />
-                                </View>
-                            </View>
-                            {!!minAmountWarn && (
-                                <Text style={{
-                                    color: '#FF0000',
-                                    fontWeight: '400',
-                                    fontSize: 14,
-                                    marginTop: 10
-                                }}>
-                                    {minAmountWarn}
-                                </Text>
-                            )}
-                            {(params?.action === 'deposit' || params?.action === 'top_up') && (
-                                <>
-                                    {!AppConfig.isTestnet && (
-                                        < StakingCalcComponent
-                                            amount={amount}
-                                            topUp={params?.action === 'top_up'}
-                                            member={member}
-                                        />
-                                    )}
-                                    <PoolTransactionInfo pool={pool} />
-                                </>
-                            )}
-                            {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
-                                <>
-                                    <View style={{
-                                        backgroundColor: 'white',
-                                        borderRadius: 14,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        paddingLeft: 16,
-                                        marginTop: 14,
-                                        marginBottom: 15
-                                    }}>
-                                        <View style={{
-                                            flexDirection: 'row', width: '100%',
-                                            justifyContent: 'space-between', alignItems: 'center',
-                                            paddingRight: 16,
-                                            height: 55
+                                    {!params?.lockAmount && <Pressable
+                                        style={({ pressed }) => {
+                                            return [
+                                                {
+                                                    backgroundColor: Theme.accent,
+                                                    height: 24,
+                                                    borderRadius: 40,
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    paddingHorizontal: 10,
+                                                    paddingVertical: 3,
+                                                },
+                                                { opacity: pressed ? 0.3 : 1 }
+                                            ]
+                                        }}
+                                        onPress={onAddAll}
+                                    >
+                                        <Text style={{
+                                            fontWeight: '600',
+                                            fontSize: 16,
+                                            color: '#fff'
                                         }}>
+                                            {t('common.max')}
+                                        </Text>
+                                    </Pressable>}
+                                </View>
+                                <PriceComponent
+                                    amount={parseAmountToValidBN(amount)}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0
+                                    }}
+                                    textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                />
+                            </View>
+                        </View>
+                        {!!minAmountWarn && (
+                            <Text style={{
+                                color: '#FF0000',
+                                fontWeight: '400',
+                                fontSize: 14,
+                                marginTop: 10
+                            }}>
+                                {minAmountWarn}
+                            </Text>
+                        )}
+                        {(params?.action === 'deposit' || params?.action === 'top_up') && (
+                            <>
+                                {!AppConfig.isTestnet && (
+                                    < StakingCalcComponent
+                                        amount={amount}
+                                        topUp={params?.action === 'top_up'}
+                                        member={member}
+                                    />
+                                )}
+                                <PoolTransactionInfo pool={pool} />
+                            </>
+                        )}
+                        {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
+                            <>
+                                <View style={{
+                                    backgroundColor: 'white',
+                                    borderRadius: 14,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    paddingLeft: 16,
+                                    marginTop: 14,
+                                    marginBottom: 15
+                                }}>
+                                    <View style={{
+                                        flexDirection: 'row', width: '100%',
+                                        justifyContent: 'space-between', alignItems: 'center',
+                                        paddingRight: 16,
+                                        height: 55
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 16,
+                                            color: '#7D858A'
+                                        }}>
+                                            {t('products.staking.info.withdrawFee')}
+                                        </Text>
+                                        <View style={{ justifyContent: 'center' }}>
                                             <Text style={{
+                                                fontWeight: '400',
                                                 fontSize: 16,
-                                                color: '#7D858A'
+                                                color: Theme.textColor
                                             }}>
-                                                {t('products.staking.info.withdrawFee')}
+                                                {`${fromNano(withdrawFee)} TON`}
                                             </Text>
-                                            <View style={{ justifyContent: 'center' }}>
-                                                <Text style={{
-                                                    fontWeight: '400',
-                                                    fontSize: 16,
-                                                    color: Theme.textColor
-                                                }}>
-                                                    {`${fromNano(withdrawFee)} TON`}
-                                                </Text>
-                                                <PriceComponent
-                                                    amount={withdrawFee}
-                                                    style={{
-                                                        backgroundColor: 'transparent',
-                                                        paddingHorizontal: 0, paddingVertical: 2,
-                                                        alignSelf: 'flex-end'
-                                                    }}
-                                                    textStyle={{ color: '#6D6D71', fontWeight: '400' }}
-                                                />
-                                            </View>
+                                            <PriceComponent
+                                                amount={withdrawFee}
+                                                style={{
+                                                    backgroundColor: 'transparent',
+                                                    paddingHorizontal: 0, paddingVertical: 2,
+                                                    alignSelf: 'flex-end'
+                                                }}
+                                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                            />
                                         </View>
                                     </View>
-                                    {!!pool && params.action !== 'withdraw_ready' && (
-                                        <StakingCycle
-                                            stakeUntil={pool.params.stakeUntil}
-                                            style={{
-                                                marginBottom: 15
-                                            }}
-                                            withdraw={true}
-                                        />
-                                    )}
-                                    {!!member && params.action !== 'withdraw_ready' && parseAmountToNumber(amount) > 0 && (
-                                        <UnstakeBanner amount={amount} member={member} />
-                                    )}
-                                </>
-                            )}
-                        </>
-                    </View>
-                </Animated.ScrollView>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                    style={{
-                        marginHorizontal: 16, marginTop: 16,
-                        marginBottom: safeArea.bottom + 16,
-                    }}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
-                >
-                    <RoundButton
-                        title={t('common.continue')}
-                        action={doContinue}
+                                </View>
+                                {!!pool && params.action !== 'withdraw_ready' && (
+                                    <StakingCycle
+                                        stakeUntil={pool.params.stakeUntil}
+                                        style={{
+                                            marginBottom: 15
+                                        }}
+                                        withdraw={true}
+                                    />
+                                )}
+                                {!!member && params.action !== 'withdraw_ready' && parseAmountToNumber(amount) > 0 && (
+                                    <UnstakeBanner amount={amount} member={member} />
+                                )}
+                            </>
+                        )}
+                    </>
+                </View>
+            </Animated.ScrollView>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{
+                    marginHorizontal: 16, marginTop: 16,
+                    marginBottom: safeArea.bottom + 16,
+                }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+            >
+                <RoundButton
+                    title={t('common.continue')}
+                    action={doContinue}
+                />
+            </KeyboardAvoidingView>
+            {
+                Platform.OS === 'ios' && (
+                    <CloseButton
+                        style={{ position: 'absolute', top: 12, right: 10 }}
+                        onPress={() => {
+                            navigation.goBack();
+                        }}
                     />
-                </KeyboardAvoidingView>
-                {
-                    Platform.OS === 'ios' && (
-                        <CloseButton
-                            style={{ position: 'absolute', top: 12, right: 10 }}
-                            onPress={() => {
-                                navigation.goBack();
-                            }}
-                        />
-                    )
-                }
-            </>
-        </PriceLoader>
+                )
+            }
+        </>
     );
 });

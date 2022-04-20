@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { fragment } from "../../fragment";
 import { getCurrentAddress } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -16,14 +15,14 @@ import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useShared
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Engine, useAccount } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
-import { Address, fromNano } from 'ton';
+import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { ProductsComponent } from '../../components/ProductsComponent';
-import { parseMessageBody } from '../../secure/parseMessageBody';
+import { fragment } from '../../fragment';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {

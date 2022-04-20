@@ -15,7 +15,6 @@ import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
 import { useAccount } from '../../sync/Engine';
-import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';

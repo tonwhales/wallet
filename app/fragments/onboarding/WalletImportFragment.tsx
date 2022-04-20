@@ -3,7 +3,6 @@ import { Alert, InputAccessoryView, Platform, Text, View } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fragment } from "../../fragment";
 import { useKeyboard } from '@react-native-community/hooks';
 import { RoundButton } from '../../components/RoundButton';
 import { mnemonicValidate } from 'ton-crypto';
@@ -17,6 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
+import { systemFragment } from '../../systemFragment';
 
 const wordsTrie = WordsListTrie();
 
@@ -394,7 +394,7 @@ function WalletWordsComponent(props: {
     );
 }
 
-export const WalletImportFragment = fragment(() => {
+export const WalletImportFragment = systemFragment(() => {
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { GlobalLoaderProvider } from './components/useGlobalLoader';
 import { Host } from 'react-native-portalize';
 import { Context } from 'react-native-portalize/lib/Host';
+import { PriceLoader } from './sync/PriceContext';
 
 export function fragment<T = {}>(Component: React.ComponentType<T>): React.ComponentType<T> {
     return React.memo((props) => {
@@ -11,15 +12,19 @@ export function fragment<T = {}>(Component: React.ComponentType<T>): React.Compo
         if (ctx) {
             return (
                 <GlobalLoaderProvider>
-                    <Component {...props} />
+                    <PriceLoader>
+                        <Component {...props} />
+                    </PriceLoader>
                 </GlobalLoaderProvider>
             );
         }
         return (
             <GlobalLoaderProvider>
-                <Host>
-                    <Component {...props} />
-                </Host>
+                <PriceLoader>
+                    <Host>
+                        <Component {...props} />
+                    </Host>
+                </PriceLoader>
             </GlobalLoaderProvider>
         );
     });

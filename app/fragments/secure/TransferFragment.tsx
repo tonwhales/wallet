@@ -10,7 +10,6 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
-import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
@@ -30,6 +29,7 @@ import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../secure/formatSupportedBody';
+import { fragment } from '../../fragment';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

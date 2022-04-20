@@ -292,22 +292,20 @@ export const Navigation = React.memo(() => {
 
     return (
         <EngineContext.Provider value={engine}>
-            <PriceLoader engine={engine}>
-                <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-                    <NavigationContainer
-                        theme={NavigationTheme}
-                        onReady={onMounted}
+            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+                <NavigationContainer
+                    theme={NavigationTheme}
+                    onReady={onMounted}
+                >
+                    <Stack.Navigator
+                        initialRouteName={initial}
+                        screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
                     >
-                        <Stack.Navigator
-                            initialRouteName={initial}
-                            screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
-                        >
-                            {navigation}
-                        </Stack.Navigator>
-                    </NavigationContainer>
-                    {splash}
-                </View>
-            </PriceLoader>
+                        {navigation}
+                    </Stack.Navigator>
+                </NavigationContainer>
+                {splash}
+            </View>
         </EngineContext.Provider>
     );
 });

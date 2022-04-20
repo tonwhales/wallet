@@ -2,13 +2,13 @@ import * as React from 'react';
 import { Pressable, Text, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { Theme } from '../../Theme';
 import { AppConfig } from '../../AppConfig';
 import { isTermsAccepted } from '../../storage/appState';
 import { t } from '../../i18n/t';
+import { fragment } from '../../fragment';
 
 export const WelcomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

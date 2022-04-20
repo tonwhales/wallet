@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Alert, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemButton } from '../../components/ItemButton';
-import { fragment } from "../../fragment";
+import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
 import { Theme } from '../../Theme';

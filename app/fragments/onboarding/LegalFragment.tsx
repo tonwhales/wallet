@@ -10,8 +10,9 @@ import { Theme } from "../../Theme";
 import { markAsTermsAccepted } from "../../storage/appState";
 import { t } from "../../i18n/t";
 import { fragment } from "../../fragment";
+import { systemFragment } from "../../systemFragment";
 
-export const LegalFragment = fragment(() => {
+export const LegalFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();

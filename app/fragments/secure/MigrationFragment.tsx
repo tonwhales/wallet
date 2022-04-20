@@ -22,6 +22,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
 import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
+import { fragment } from '../../fragment';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -29,7 +30,7 @@ function ellipsiseAddress(src: string) {
         + src.slice(src.length - 6)
 }
 
-const MigrationProcessFragment = systemFragment(() => {
+const MigrationProcessFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));

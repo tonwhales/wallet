@@ -29,7 +29,7 @@ import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../secure/formatSupportedBody';
-import { systemFragment } from '../../systemFragment';
+import { fragment } from '../../fragment';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -41,7 +41,7 @@ export type ATextInputRef = {
     focus: () => void;
 }
 
-export const TransferFragment = systemFragment(() => {
+export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: {
         target?: string,

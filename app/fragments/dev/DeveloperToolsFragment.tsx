@@ -5,9 +5,9 @@ import { Theme } from "../../Theme";
 import { Item } from '../../components/Item';
 import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
-import { systemFragment } from '../../systemFragment';
+import { fragment } from '../../fragment';
 
-export const DeveloperToolsFragment = systemFragment(() => {
+export const DeveloperToolsFragment = fragment(() => {
     const reboot = useReboot();
     // const isTestNet = useTestnet();
     // const switchNetwork = React.useCallback(() => {

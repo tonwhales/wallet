@@ -9,9 +9,9 @@ import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { Theme } from "../../Theme";
 import { markAsTermsAccepted } from "../../storage/appState";
 import { t } from "../../i18n/t";
-import { systemFragment } from "../../systemFragment";
+import { fragment } from "../../fragment";
 
-export const LegalFragment = systemFragment(() => {
+export const LegalFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();

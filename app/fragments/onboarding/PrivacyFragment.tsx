@@ -3,9 +3,9 @@ import { Platform, View } from "react-native";
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
-import { systemFragment } from "../../systemFragment";
+import { fragment } from "../../fragment";
 
-export const PrivacyFragment = systemFragment(() => {
+export const PrivacyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
 
     return (

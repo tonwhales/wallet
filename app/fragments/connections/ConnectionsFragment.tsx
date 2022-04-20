@@ -3,14 +3,14 @@ import * as React from 'react';
 import { Alert, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemButton } from '../../components/ItemButton';
+import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
-import { systemFragment } from '../../systemFragment';
 import { Theme } from '../../Theme';
 import { formatDate } from '../../utils/dates';
 import { backoff } from '../../utils/time';
 
-export const ConnectionsFragment = systemFragment(() => {
+export const ConnectionsFragment = fragment(() => {
     let [apps, setApps] = React.useState(getConnectionReferences());
     let disconnectApp = React.useCallback((src: string) => {
 

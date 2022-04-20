@@ -8,9 +8,9 @@ import { Theme } from '../../Theme';
 import { AppConfig } from '../../AppConfig';
 import { isTermsAccepted } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { fragment } from '../../fragment';
+import { systemFragment } from '../../systemFragment';
 
-export const WelcomeFragment = fragment(() => {
+export const WelcomeFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const onImportPressed = React.useCallback(() => {

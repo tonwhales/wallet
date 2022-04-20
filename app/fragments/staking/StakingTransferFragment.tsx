@@ -447,7 +447,8 @@ export const StakingTransferFragment = fragment(() => {
                                     <StakingCycle
                                         stakeUntil={pool.params.stakeUntil}
                                         style={{
-                                            marginBottom: 15
+                                            marginBottom: 15,
+                                            marginHorizontal: 0
                                         }}
                                         withdraw={true}
                                     />

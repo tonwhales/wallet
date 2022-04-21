@@ -296,6 +296,17 @@ export type LocalizationSchema = {
             message: string
         }
     },
+    neocrypto: {
+        buttonTitle: string,
+        alert: {
+            title: string,
+            message: string
+        },
+        title: string,
+        description: string,
+        doNotShow: string,
+        termsAndPrivacy: string,
+    },
     known: {
         deposit: string,
         depositOk: string,

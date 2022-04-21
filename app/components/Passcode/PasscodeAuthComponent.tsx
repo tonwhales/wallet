@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Image, Text } from "react-native";
 import { Theme } from "../../Theme";
-import { PasscodeComponent } from "../Passcode/PasscodeComponent";
+import { PasscodeAuthType, PasscodeComponent } from "../Passcode/PasscodeComponent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppConfig } from "../../AppConfig";
 
@@ -10,10 +10,12 @@ export const PasscodeAuthComponent = React.memo((
         onSuccess,
         onError,
         onCancel,
+        type
     }: {
-        onSuccess?: (passcode: string) => void,
+        onSuccess: (passcode: string) => void,
         onError?: () => void,
         onCancel?: () => void,
+        type: PasscodeAuthType
     }
 ) => {
     const safeArea = useSafeAreaInsets();
@@ -55,7 +57,7 @@ export const PasscodeAuthComponent = React.memo((
                 )}
             </View>
             <PasscodeComponent
-                type={'confirm'}
+                type={type}
                 onSuccess={onSuccess}
                 onCancel={onCancel}
             />

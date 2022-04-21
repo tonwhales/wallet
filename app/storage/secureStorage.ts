@@ -4,46 +4,64 @@ import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { passcodeStorage, storage } from "./storage";
 import * as Keychain from 'react-native-keychain';
 import { getDeviceEncryption } from '../utils/getDeviceEncryption';
+import { usePasscodeAuth } from '../utils/PasscodeContext';
 
 export const TOKEN_KEY = 'ton-application-key-v5';
+
+const androidKeichainOptions = {
+    accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+    authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+    storage: Keychain.STORAGE_TYPE.RSA
+}
 
 async function getAndroidAppKey() {
     const encyption = await getDeviceEncryption();
     if (encyption === 'fingerprint') {
-        let ex = await Keychain.getGenericPassword({
-            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-            storage: Keychain.STORAGE_TYPE.RSA
-        });
+        let ex = await Keychain.getGenericPassword(androidKeichainOptions);
         console.log('[getAndroidAppKey] fingerprint', { ex });
         if (ex === false || !ex.password) {
             let privateKey = await getSecureRandomBytes(32);
-            try {
-                const res = await Keychain.setGenericPassword(
-                    TOKEN_KEY,
-                    privateKey.toString('base64'),
-                    {
-                        authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-                        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-                        storage: Keychain.STORAGE_TYPE.RSA
-                    }
-                );
-                if (res) return Buffer.from(privateKey.toString('base64'), 'base64');
-            } catch (error) {
-                console.log('[getAndroidAppKey] fingerprint', { error })
-            }
+            await Keychain.setGenericPassword(
+                TOKEN_KEY,
+                privateKey.toString('base64'),
+                androidKeichainOptions
+            );
         } else {
             return Buffer.from(ex.password, 'base64');
         }
     } else if (encyption === 'passcode') {
-        const storage = passcodeStorage('0000');
-        let ex = storage.getString(TOKEN_KEY);
-        console.log('[getAndroidAppKey] passcode', { ex });
-        if (!ex) {
-            let privateKey = await getSecureRandomBytes(32);
-            storage.set(TOKEN_KEY, privateKey.toString('base64'));;
+        const passcodeAuth = usePasscodeAuth();
+        if (storage.getBoolean('passcode_set')) {
+            const authRes = await passcodeAuth?.authenticateAsync('confirm');
+
+            if (authRes?.type === 'success') {
+                const storage = passcodeStorage(authRes.passcode);
+                let ex = storage.getString(TOKEN_KEY);
+                if (!ex) {
+                    let privateKey = await getSecureRandomBytes(32);
+                    storage.set(TOKEN_KEY, privateKey.toString('base64'));;
+                } else {
+                    return Buffer.from(ex, 'base64');
+                }
+            } else {
+                throw Error('Storage Error');
+            }
         } else {
-            return Buffer.from(ex, 'base64');
+            const authRes = await passcodeAuth?.authenticateAsync('new');
+
+            if (authRes?.type === 'success') {
+                const storage = passcodeStorage(authRes.passcode);
+                let privateKey = await getSecureRandomBytes(32);
+                storage.set(TOKEN_KEY, privateKey.toString('base64'));
+                let ex = storage.getString(TOKEN_KEY);
+                if (ex) {
+                    return Buffer.from(ex, 'base64')
+                } else {
+                    throw Error('Storage Error');
+                }
+            } else {
+                throw Error('Storage Error');
+            }
         }
     }
 }

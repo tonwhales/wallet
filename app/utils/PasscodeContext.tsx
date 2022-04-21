@@ -1,18 +1,24 @@
 import React, { useState } from "react";
 import { PasscodeAuthComponent } from "../components/Passcode/PasscodeAuthComponent";
+import { PasscodeAuthType } from "../components/Passcode/PasscodeComponent";
+
+export type PasscodeAuthResult =
+    { type: 'success', passcode: string }
+    | { type: 'error' }
+    | { type: 'canceled' };
 
 export type PasscodeContextType = {
-    authenticateAsync: (cancelable?: boolean) => Promise<{ type: 'success', passcode: string } | 'error' | 'canceled'>
+    authenticateAsync: (type: PasscodeAuthType, cancelable?: boolean) => Promise<PasscodeAuthResult>
 } | undefined
 
 const PasscodeContext = React.createContext<PasscodeContextType>(undefined);
 
 export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) => {
     const [authState, setAuthState] = useState<{
-        onSuccess?: (passcode: string) => void,
+        onSuccess: (passcode: string) => void,
         onError?: () => void,
         onCancel?: () => void,
-        fallbackToPasscode?: boolean
+        type: PasscodeAuthType
     }>();
 
     function finishAuth(call?: () => void) {
@@ -25,12 +31,13 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
         return undefined;
     }
 
-    const authenticateAsync = async (cancelable?: boolean) => {
-        return await new Promise<{ type: 'success', passcode: string } | 'error' | 'canceled'>((res, reg) => {
+    const authenticateAsync = async (type: PasscodeAuthType, cancelable?: boolean) => {
+        return await new Promise<PasscodeAuthResult>((res, reg) => {
             setAuthState({
                 onSuccess: (passcode: string) => finishAuth(() => res({ type: 'success', passcode })),
-                onError: finishAuth(() => res('error')),
-                onCancel: cancelable ? finishAuth(() => res('canceled')) : undefined
+                onError: finishAuth(() => res({ type: 'error' })),
+                onCancel: cancelable ? finishAuth(() => res({ type: 'canceled' })) : undefined,
+                type: type
             });
         });
     };

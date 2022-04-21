@@ -2,8 +2,10 @@ import React, { } from "react"
 import { PasscodeChange } from "./PasscodeChange";
 import { PasscodeConfirm } from "./PasscodeConfirm";
 
+export type PasscodeAuthType = 'confirm' | 'new' | 'change';
+
 export const PasscodeComponent = React.memo((props: {
-    type?: 'confirm' | 'new' | 'change',
+    type?: PasscodeAuthType,
     onSuccess?: (passcode: string) => void,
     onCancel?: () => void,
     backgroundColor?: string

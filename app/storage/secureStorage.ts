@@ -3,8 +3,6 @@ import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { passcodeStorage, storage } from "./storage";
 import * as Keychain from 'react-native-keychain';
-import { getDeviceEncryption } from '../utils/getDeviceEncryption';
-import { usePasscodeAuth } from '../utils/PasscodeContext';
 
 export const TOKEN_KEY = 'ton-application-key-v5';
 
@@ -14,9 +12,8 @@ const androidKeichainOptions = {
     storage: Keychain.STORAGE_TYPE.RSA
 }
 
-async function getAndroidAppKey() {
-    const encyption = await getDeviceEncryption();
-    if (encyption === 'fingerprint') {
+async function getAndroidAppKey(passcode?: string) {
+    if (!passcode) {
         let ex = await Keychain.getGenericPassword(androidKeichainOptions);
         console.log('[getAndroidAppKey] fingerprint', { ex });
         if (ex === false || !ex.password) {
@@ -29,44 +26,22 @@ async function getAndroidAppKey() {
         } else {
             return Buffer.from(ex.password, 'base64');
         }
-    } else if (encyption === 'passcode') {
-        const passcodeAuth = usePasscodeAuth();
-        if (storage.getBoolean('passcode_set')) {
-            const authRes = await passcodeAuth?.authenticateAsync('confirm');
-
-            if (authRes?.type === 'success') {
-                const storage = passcodeStorage(authRes.passcode);
-                let ex = storage.getString(TOKEN_KEY);
-                if (!ex) {
-                    let privateKey = await getSecureRandomBytes(32);
-                    storage.set(TOKEN_KEY, privateKey.toString('base64'));;
-                } else {
-                    return Buffer.from(ex, 'base64');
-                }
-            } else {
-                throw Error('Storage Error');
-            }
+    } else {
+        console.log('[getAndroidAppKey]', { passcode });
+        const storage = passcodeStorage(passcode);
+        let ex = storage.getString(TOKEN_KEY);
+        console.log('[getAndroidAppKey] passcode', { ex });
+        if (!ex) {
+            let privateKey = await getSecureRandomBytes(32);
+            storage.set(TOKEN_KEY, privateKey.toString('base64'));;
         } else {
-            const authRes = await passcodeAuth?.authenticateAsync('new');
-
-            if (authRes?.type === 'success') {
-                const storage = passcodeStorage(authRes.passcode);
-                let privateKey = await getSecureRandomBytes(32);
-                storage.set(TOKEN_KEY, privateKey.toString('base64'));
-                let ex = storage.getString(TOKEN_KEY);
-                if (ex) {
-                    return Buffer.from(ex, 'base64')
-                } else {
-                    throw Error('Storage Error');
-                }
-            } else {
-                throw Error('Storage Error');
-            }
+            return Buffer.from(ex, 'base64');
         }
     }
 }
 
-async function getApplicationKey() {
+async function getApplicationKey(passcode?: string) {
+    console.log('[getApplicationKey]', { passcode });
     while (true) {
         if (storage.getBoolean('ton-bypass-encryption')) {
             const ex = storage.getString(TOKEN_KEY);
@@ -78,7 +53,9 @@ async function getApplicationKey() {
             }
         } else {
             if (Platform.OS === 'android') {
-                return await getAndroidAppKey();
+                let androidKey = await getAndroidAppKey(passcode);
+                if (androidKey) return androidKey;
+                continue;
             }
             let ex = await SecureStore.getItemAsync(TOKEN_KEY);
             if (!ex) {
@@ -105,15 +82,15 @@ export async function ensureKeystoreReady() {
     }
 }
 
-export async function encryptData(data: Buffer) {
-    const key = await getApplicationKey();
+export async function encryptData(data: Buffer, passcode?: string) {
+    const key = await getApplicationKey(passcode);
     const nonce = await getSecureRandomBytes(24);
     const sealed = sealBox(data, nonce, key);
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function decryptData(data: Buffer) {
-    const key = await getApplicationKey();
+export async function decryptData(data: Buffer, passcode?: string) {
+    const key = await getApplicationKey(passcode);
     let nonce = data.slice(0, 24);
     let cypherData = data.slice(24);
     let res = openBox(cypherData, nonce, key);

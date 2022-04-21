@@ -39,9 +39,15 @@ export const PasscodeChange = React.memo((props: {
                         type: 'new'
                     });
                 } else { // Reenter
+                    setScreenState((prevState) => {
+                        return {
+                            ...prevState,
+                            reenterValue: pass
+                        }
+                    });
                     if (pass.length === 4) {
-                        // Set new if reentered correctly
                         if (screenState.value === pass) {
+                            console.log({pass})
                             if (props.onSuccess) props.onSuccess(pass);
                         } else {
                             setError(t('security.error'));
@@ -54,12 +60,6 @@ export const PasscodeChange = React.memo((props: {
                         }
                         return;
                     }
-                    setScreenState((prevState) => {
-                        return {
-                            ...prevState,
-                            reenterValue: pass
-                        }
-                    });
                 }
             }
         },

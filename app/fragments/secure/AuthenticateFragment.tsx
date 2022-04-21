@@ -18,6 +18,8 @@ import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
 import { systemFragment } from '../../systemFragment';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
+import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -28,6 +30,7 @@ const labelStyle: StyleProp<TextStyle> = {
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const navigation = useTypedNavigation();
     const [state, setState] = React.useState<{ type: 'loading' } | { type: 'expired' } | { type: 'initing', name: string, url: string } | { type: 'completed' }>({ type: 'loading' });
+    const passcodeAuth = usePasscodeAuth();
     React.useEffect(() => {
         let ended = false;
         backoff(async () => {
@@ -82,7 +85,19 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         // Sign
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            if (Platform.OS === 'android') {
+                const encryption = await getDeviceEncryption();
+                if (encryption === 'passcode') {
+                    const authRes = await passcodeAuth?.authenticateAsync('confirm');
+                    if (authRes?.type === 'success') {
+                        walletKeys = await loadWalletKeys(acc.secretKeyEnc, authRes.passcode);            
+                    } else {
+                        throw Error(authRes?.type || 'Passcode Auth error');
+                    }
+                }
+            } else {
+                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            }
         } catch (e) {
             console.warn(e);
             return;
@@ -98,7 +113,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         ref2.bits.writeBuffer(appInstanceKeyPair.publicKey);
         toSign.refs.push(ref2);
         let hashSign = toSign.hash();
-        let signature = sign(hashSign, walletKeys.keyPair.secretKey);
+        let signature = sign(hashSign, walletKeys!.keyPair.secretKey);
 
         // Notify
         await backoff(async () => {

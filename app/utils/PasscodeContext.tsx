@@ -32,11 +32,15 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
     }
 
     const authenticateAsync = async (type: PasscodeAuthType, cancelable?: boolean) => {
-        return await new Promise<PasscodeAuthResult>((res, reg) => {
+        return await new Promise<PasscodeAuthResult>((resolve, reg) => {
             setAuthState({
-                onSuccess: (passcode: string) => finishAuth(() => res({ type: 'success', passcode })),
-                onError: finishAuth(() => res({ type: 'error' })),
-                onCancel: cancelable ? finishAuth(() => res({ type: 'canceled' })) : undefined,
+                onSuccess: (passcode: string) => {
+                    console.log('[authenticateAsync]', { passcode });
+                    setAuthState(undefined);
+                    resolve({ type: 'success', passcode });
+                },
+                onError: finishAuth(() => resolve({ type: 'error' })),
+                onCancel: cancelable ? finishAuth(() => resolve({ type: 'canceled' })) : undefined,
                 type: type
             });
         });

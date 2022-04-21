@@ -23,6 +23,8 @@ import { t } from '../../i18n/t';
 import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
+import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -33,6 +35,7 @@ function ellipsiseAddress(src: string) {
 const MigrationProcessFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const passcodeAuth = usePasscodeAuth();
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
     const [account, engine] = useAccount();
     const acc = React.useMemo(() => getCurrentAddress(), []);
@@ -45,12 +48,24 @@ const MigrationProcessFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                key = await loadWalletKeys(acc.secretKeyEnc);
+                if (Platform.OS === 'android') {
+                    const encryption = await getDeviceEncryption();
+                    if (encryption === 'passcode') {
+                        const authRes = await passcodeAuth?.authenticateAsync('confirm');
+                        if (authRes?.type === 'success') {
+                            key = await loadWalletKeys(acc.secretKeyEnc, authRes.passcode);
+                        } else {
+                            throw Error(authRes?.type || 'Passcode Auth error');
+                        }
+                    }
+                } else {
+                    key = await loadWalletKeys(acc.secretKeyEnc);
+                }
             } catch (e) {
                 navigation.goBack();
                 return;
             }
-            let targetContract = await contractFromPublicKey(key.keyPair.publicKey);
+            let targetContract = await contractFromPublicKey(key!.keyPair.publicKey);
 
             // Check possible addresses
             const legacyTypes: WalletContractType[] = [
@@ -65,7 +80,7 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                let wallet = engine.connector.client.openWalletFromSecretKey({ workchain: 0, secretKey: key.keyPair.secretKey, type });
+                let wallet = engine.connector.client.openWalletFromSecretKey({ workchain: 0, secretKey: key!.keyPair.secretKey, type });
                 if (ended) {
                     return;
                 }
@@ -74,7 +89,7 @@ const MigrationProcessFragment = fragment(() => {
                 const state = await backoff(() => engine.connector.client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
                     setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
-                    wallet.prepare(0, key.keyPair.publicKey, type);
+                    wallet.prepare(0, key!.keyPair.publicKey, type);
 
                     // Seqno
                     const seqno = await backoff(() => wallet.getSeqNo());

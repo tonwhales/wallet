@@ -12,6 +12,8 @@ import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import { EngineContext } from '../../sync/Engine';
 import { systemFragment } from '../../systemFragment';
+import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -20,6 +22,7 @@ export const WalletBackupFragment = systemFragment(() => {
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getCurrentAddress(), []);
     const engine = React.useContext(EngineContext)!
+    const passcodeAuth = usePasscodeAuth();
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
@@ -35,7 +38,21 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await loadWalletKeys(address.secretKeyEnc);
+                let keys;
+                if (Platform.OS === 'android') {
+                    const encryption = await getDeviceEncryption();
+                    if (encryption === 'passcode') {
+                        const authRes = await passcodeAuth?.authenticateAsync('confirm');
+                        if (authRes?.type === 'success') {
+                            keys = await loadWalletKeys(address.secretKeyEnc, authRes.passcode);
+                            setMnemonics(keys.mnemonics);
+                            return;
+                        } else {
+                            throw Error(authRes?.type || 'Passcode Auth error');
+                        }
+                    }
+                }
+                keys = await loadWalletKeys(address.secretKeyEnc);
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 navigation.goBack();

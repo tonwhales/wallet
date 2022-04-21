@@ -14,10 +14,12 @@ import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
 import { Theme } from '../../Theme';
 import { systemFragment } from '../../systemFragment';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
 
 export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
+    const passcodeAuth = usePasscodeAuth();
 
     // Action
     const [loading, setLoading] = React.useState(false);
@@ -35,7 +37,17 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 } else {
                     storage.set('ton-bypass-encryption', false);
                 }
-                const token = await encryptData(Buffer.from(props.mnemonics));
+
+                let passcode;
+                if (Platform.OS === 'android') {
+                    const authRes = await passcodeAuth?.authenticateAsync('new');
+                    console.log({ authRes });
+                    if (authRes?.type === 'success') {
+                        passcode = authRes.passcode;
+                    }
+                }
+
+                const token = await encryptData(Buffer.from(props.mnemonics), passcode);
 
                 // Resolve key
                 const key = await mnemonicToWalletKey(props.mnemonics.split(' '));

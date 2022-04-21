@@ -30,6 +30,8 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../secure/formatSupportedBody';
 import { fragment } from '../../fragment';
+import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -43,6 +45,7 @@ export type ATextInputRef = {
 
 export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const passcodeAuth = usePasscodeAuth();
     const params: {
         target?: string,
         comment?: string | null,
@@ -163,7 +166,19 @@ export const TransferFragment = fragment(() => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            if (Platform.OS === 'android') {
+                const encryption = await getDeviceEncryption();
+                if (encryption === 'passcode') {
+                    const authRes = await passcodeAuth?.authenticateAsync('confirm');
+                    if (authRes?.type === 'success') {
+                        walletKeys = await loadWalletKeys(acc.secretKeyEnc, authRes.passcode);
+                    } else {
+                        throw Error(authRes?.type || 'Passcode Auth error');
+                    }
+                }
+            } else {
+                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            }
         } catch (e) {
             navigation.goBack();
             return;
@@ -173,7 +188,7 @@ export const TransferFragment = fragment(() => {
         let transfer = await contract.createTransfer({
             seqno: account.seqno,
             walletId: contract.source.walletId,
-            secretKey: walletKeys.keyPair.secretKey,
+            secretKey: walletKeys!.keyPair.secretKey,
             sendMode: value.eq(account.balance)
                 ? SendMode.CARRRY_ALL_REMAINING_BALANCE
                 : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,

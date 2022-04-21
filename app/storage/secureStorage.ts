@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
-import { passcodeStorage, storage } from "./storage";
+import { storage } from "./storage";
 import * as Keychain from 'react-native-keychain';
 
 export const TOKEN_KEY = 'ton-application-key-v5';
@@ -14,6 +14,7 @@ const androidKeichainOptions = {
 
 async function getAndroidAppKey(passcode?: string) {
     if (!passcode) {
+        // Working with fingerprint
         let ex = await Keychain.getGenericPassword(androidKeichainOptions);
         console.log('[getAndroidAppKey] fingerprint', { ex });
         if (ex === false || !ex.password) {
@@ -27,15 +28,19 @@ async function getAndroidAppKey(passcode?: string) {
             return Buffer.from(ex.password, 'base64');
         }
     } else {
+        // Encrypting / Decrypting with provided passcode
         console.log('[getAndroidAppKey]', { passcode });
-        const storage = passcodeStorage(passcode);
         let ex = storage.getString(TOKEN_KEY);
         console.log('[getAndroidAppKey] passcode', { ex });
         if (!ex) {
             let privateKey = await getSecureRandomBytes(32);
-            storage.set(TOKEN_KEY, privateKey.toString('base64'));;
+            let encryptedKey = await encryptKeyWithPasscode(privateKey, passcode);
+            storage.set(TOKEN_KEY, encryptedKey.toString('base64'));;
         } else {
-            return Buffer.from(ex, 'base64');
+            let decrypted = await decryptKeyWithPasscode(Buffer.from(ex, 'base64'), passcode);
+            if (decrypted) {
+                return decrypted;
+            }
         }
     }
 }
@@ -99,3 +104,25 @@ export async function decryptData(data: Buffer, passcode?: string) {
     }
     return res;
 }
+
+export async function encryptKeyWithPasscode(data: Buffer, passcode: string) {
+    const nonce = await getSecureRandomBytes(24);
+    let passcodeBuff = Buffer.alloc(32);
+    passcodeBuff.write(passcode, 'base64');
+    const sealed = sealBox(data, nonce, passcodeBuff);
+    return Buffer.concat([nonce, sealed]);
+}
+
+export async function decryptKeyWithPasscode(data: Buffer, passcode: string) {
+    let nonce = data.slice(0, 24);
+    let cypherData = data.slice(24);
+    let passcodeBuff = Buffer.alloc(32);
+    passcodeBuff.write(passcode, 'base64');
+    let res = openBox(cypherData, nonce, passcodeBuff);
+    if (!res) {
+        throw Error('Unable to decrypt data');;
+    }
+    return res;
+}
+
+export const PasscodeLength = 6;

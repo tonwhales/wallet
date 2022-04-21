@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native"
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PasscodeLength } from "../../storage/secureStorage";
 import { PasscodeConfirm } from "./PasscodeConfirm";
 import { PasscodeInput } from "./PasscodeInput";
 
@@ -25,9 +26,9 @@ export const PasscodeChange = React.memo((props: {
     const onChange = useCallback(
         (pass: string) => {
             setError(undefined);
-            if (pass.length <= 4) {
+            if (pass.length <= PasscodeLength) {
                 if (screenState.type === 'new') {
-                    if (pass.length === 4) {
+                    if (pass.length === PasscodeLength) {
                         setScreenState({
                             value: pass,
                             type: 'reenter'
@@ -45,7 +46,7 @@ export const PasscodeChange = React.memo((props: {
                             reenterValue: pass
                         }
                     });
-                    if (pass.length === 4) {
+                    if (pass.length === PasscodeLength) {
                         if (screenState.value === pass) {
                             console.log({pass})
                             if (props.onSuccess) props.onSuccess(pass);

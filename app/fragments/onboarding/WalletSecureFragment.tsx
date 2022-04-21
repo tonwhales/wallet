@@ -39,7 +39,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 }
 
                 let passcode;
-                if (Platform.OS === 'android') {
+                if (Platform.OS === 'android' && props.deviceEncryption === 'passcode') {
                     const authRes = await passcodeAuth?.authenticateAsync('new');
                     console.log({ authRes });
                     if (authRes?.type === 'success') {

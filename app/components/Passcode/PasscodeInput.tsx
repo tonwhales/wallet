@@ -4,6 +4,7 @@ import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, Vi
 import { Theme } from "../../Theme";
 import { AnimatedCircle } from "./AnimatedCircle";
 import Backspace from '../../../assets/ic_backspace.svg';
+import { PasscodeLength } from "../../storage/secureStorage";
 
 function inputButtonStyle(state: PressableStateCallbackType, style?: ViewStyle): StyleProp<ViewStyle> {
     return ({
@@ -48,6 +49,15 @@ export const PasscodeInput = React.memo((
         },
         [value, onChange],
     );
+    let emptyDots: any[] = [];
+    for (let index = 0; index < PasscodeLength; index++) {
+        emptyDots.push(<View style={{
+            height: 12, width: 12,
+            backgroundColor: Theme.divider,
+            borderRadius: 12,
+            margin: 4
+        }} />);
+    }
 
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -73,36 +83,13 @@ export const PasscodeInput = React.memo((
                 flexDirection: 'row', marginTop: 16,
                 justifyContent: 'center', alignItems: 'center',
             }}>
-                <View style={{
-                    height: 12, width: 12,
-                    backgroundColor: Theme.divider,
-                    borderRadius: 12,
-                    margin: 4
-                }} />
-                <View style={{
-                    height: 12, width: 12,
-                    backgroundColor: Theme.divider,
-                    borderRadius: 12,
-                    margin: 4
-                }} />
-                <View style={{
-                    height: 12, width: 12,
-                    backgroundColor: Theme.divider,
-                    borderRadius: 12,
-                    margin: 4
-                }} />
-                <View style={{
-                    height: 12, width: 12,
-                    backgroundColor: Theme.divider,
-                    borderRadius: 12,
-                    margin: 4
-                }} />
+                {emptyDots}
                 {!!value && (
                     <View style={{
                         flexDirection: 'row', position: 'absolute',
                         top: 0, bottom: 0,
                         alignItems: 'center',
-                        width: 80,
+                        width: 20 * PasscodeLength,
                     }}>
                         {[...value].map((v, index) => {
                             return (<AnimatedCircle key={`a-c-${index}`} error={!!error} />);

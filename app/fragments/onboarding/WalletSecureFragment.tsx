@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { fragment } from '../../fragment';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,8 +13,9 @@ import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
 import { Theme } from '../../Theme';
+import { systemFragment } from '../../systemFragment';
 
-export const WalletSecureFragment = fragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
+export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 

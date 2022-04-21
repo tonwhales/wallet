@@ -15,7 +15,6 @@ import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
 import { useAccount } from '../../sync/Engine';
-import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -97,6 +96,11 @@ export const StakingTransferFragment = fragment(() => {
     const doContinue = React.useCallback(async () => {
         let address: Address;
         let value: BN;
+        let minAmount = pool?.params.minStake
+            ? pool.params.minStake
+                .add(pool.params.receiptPrice)
+                .add(pool.params.depositFee)
+            : toNano(AppConfig.isTestnet ? '10.2' : '50');
 
         if (!params?.target) {
             Alert.alert(t('transfer.error.invalidAddress'));
@@ -121,11 +125,11 @@ export const StakingTransferFragment = fragment(() => {
         // Check min stake amount
         if (
             (params?.action === 'deposit' || params?.action === 'top_up')
-            && value.lt(pool!.params.minStake)
+            && value.lt(minAmount)
         ) {
             setMinAmountWarn(
                 t('products.staking.minAmountWarning',
-                    { minAmount: fromNano(pool!.params.minStake) })
+                    { minAmount: fromNano(minAmount) })
             );
             return;
         }
@@ -443,7 +447,8 @@ export const StakingTransferFragment = fragment(() => {
                                     <StakingCycle
                                         stakeUntil={pool.params.stakeUntil}
                                         style={{
-                                            marginBottom: 15
+                                            marginBottom: 15,
+                                            marginHorizontal: 0
                                         }}
                                         withdraw={true}
                                     />

@@ -4,14 +4,15 @@ import { Platform, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
-import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { Theme } from "../../Theme";
 import { markAsTermsAccepted } from "../../storage/appState";
 import { t } from "../../i18n/t";
+import { fragment } from "../../fragment";
+import { systemFragment } from "../../systemFragment";
 
-export const LegalFragment = fragment(() => {
+export const LegalFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();

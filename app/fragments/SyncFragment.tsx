@@ -4,9 +4,10 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 import { fragment } from '../fragment';
 import { t } from '../i18n/t';
 import { EngineContext } from '../sync/Engine';
+import { systemFragment } from '../systemFragment';
 import { useReboot } from '../utils/RebootContext';
 
-export const SyncFragment = fragment(() => {
+export const SyncFragment = systemFragment(() => {
     const reboot = useReboot();
     const engine = React.useContext(EngineContext)!
     React.useEffect(() => {

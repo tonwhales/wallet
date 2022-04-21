@@ -24,9 +24,9 @@ import { PriceComponent } from '../../components/PriceComponent';
 import { storage } from '../../storage/storage';
 import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 import { ProductsComponent } from '../../components/ProductsComponent';
+import { fragment } from '../../fragment';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 import { openWithInApp } from '../../utils/openWithInApp';
-import { fragment } from '../../fragment';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {

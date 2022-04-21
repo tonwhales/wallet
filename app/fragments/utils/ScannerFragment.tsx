@@ -9,8 +9,9 @@ import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-
 import { useCameraDevices } from 'react-native-vision-camera';
 import { CloseButton } from '../../components/CloseButton';
 import { t } from '../../i18n/t';
+import { systemFragment } from '../../systemFragment';
 
-export const ScannerFragment = fragment(() => {
+export const ScannerFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
     const navigation = useNavigation();

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { fragment } from '../../fragment';
 import { Platform, View } from 'react-native';
 import { mnemonicNew } from 'ton-crypto';
 import { minimumDelay } from 'teslabot';
@@ -10,8 +9,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
+import { systemFragment } from '../../systemFragment';
 
-export const WalletCreateFragment = fragment(() => {
+export const WalletCreateFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<{
         mnemonics: string,

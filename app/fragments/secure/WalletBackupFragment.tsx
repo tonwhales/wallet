@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { ActivityIndicator, Platform, Text, View, useWindowDimensions, ScrollView } from 'react-native';
-import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -12,8 +11,9 @@ import { getAppState, getCurrentAddress, markAddressSecured } from '../../storag
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import { EngineContext } from '../../sync/Engine';
+import { systemFragment } from '../../systemFragment';
 
-export const WalletBackupFragment = fragment(() => {
+export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();

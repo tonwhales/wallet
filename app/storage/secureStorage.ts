@@ -5,7 +5,7 @@ import { passcodeStorage, storage } from "./storage";
 import * as Keychain from 'react-native-keychain';
 import { getDeviceEncryption } from '../utils/getDeviceEncryption';
 
-const TOKEN_KEY = 'ton-application-key-v5';
+export const TOKEN_KEY = 'ton-application-key-v5';
 
 async function getAndroidAppKey() {
     const encyption = await getDeviceEncryption();

@@ -119,10 +119,11 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             break;
     }
 
-    const disabled = Platform.OS === 'android' && (
-        props.deviceEncryption === 'passcode'
-        || props.deviceEncryption === 'face'
-    );
+    // const disabled = Platform.OS === 'android' && (
+    //     props.deviceEncryption === 'passcode'
+    //     || props.deviceEncryption === 'face'
+    // );
+    const disabled = false;
 
     if (disabled) {
         text = t('secure.subtitleNoBiometrics');

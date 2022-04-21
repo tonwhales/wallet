@@ -1,9 +1,53 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
-import { storage } from "./storage";
+import { passcodeStorage, storage } from "./storage";
+import * as Keychain from 'react-native-keychain';
+import { getDeviceEncryption } from '../utils/getDeviceEncryption';
 
 const TOKEN_KEY = 'ton-application-key-v5';
+
+async function getAndroidAppKey() {
+    const encyption = await getDeviceEncryption();
+    if (encyption === 'fingerprint') {
+        let ex = await Keychain.getGenericPassword({
+            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+            storage: Keychain.STORAGE_TYPE.RSA
+        });
+        console.log('[getAndroidAppKey] fingerprint', { ex });
+        if (ex === false || !ex.password) {
+            let privateKey = await getSecureRandomBytes(32);
+            try {
+                const res = await Keychain.setGenericPassword(
+                    TOKEN_KEY,
+                    privateKey.toString('base64'),
+                    {
+                        authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+                        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+                        storage: Keychain.STORAGE_TYPE.RSA
+                    }
+                );
+                if (res) return Buffer.from(privateKey.toString('base64'), 'base64');
+            } catch (error) {
+                console.log('[getAndroidAppKey] fingerprint', { error })
+            }
+        } else {
+            return Buffer.from(ex.password, 'base64');
+        }
+    } else if (encyption === 'passcode') {
+        const storage = passcodeStorage('0000');
+        let ex = storage.getString(TOKEN_KEY);
+        console.log('[getAndroidAppKey] passcode', { ex });
+        if (!ex) {
+            let privateKey = await getSecureRandomBytes(32);
+            storage.set(TOKEN_KEY, privateKey.toString('base64'));;
+        } else {
+            return Buffer.from(ex, 'base64');
+        }
+    }
+}
+
 async function getApplicationKey() {
     while (true) {
         if (storage.getBoolean('ton-bypass-encryption')) {
@@ -15,6 +59,9 @@ async function getApplicationKey() {
                 return Buffer.from(ex, 'base64');
             }
         } else {
+            if (Platform.OS === 'android') {
+                return await getAndroidAppKey();
+            }
             let ex = await SecureStore.getItemAsync(TOKEN_KEY);
             if (!ex) {
                 let privateKey = await getSecureRandomBytes(32);

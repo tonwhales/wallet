@@ -281,7 +281,7 @@ export const WalletFragment = fragment(() => {
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
-                    {
+                    {/* {
                         !AppConfig.isTestnet && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                                 <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
@@ -294,7 +294,7 @@ export const WalletFragment = fragment(() => {
                                 </TouchableHighlight>
                             </View>
                         )
-                    }
+                    } */}
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>

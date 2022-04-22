@@ -88,6 +88,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             return;
         }
         let toSign = new Cell();
+        toSign.bits.writeCoins(0);
         toSign.bits.writeBuffer(Buffer.from(props.session, 'base64'));
         toSign.bits.writeAddress(contract.address);
         toSign.bits.writeBit(1);

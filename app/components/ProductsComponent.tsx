@@ -61,6 +61,7 @@ export const ProductsComponent = React.memo(() => {
                                 comment: currentJob.job.text,
                                 amount: currentJob.job.amount.toString(10),
                                 payload: currentJob.job.payload,
+                                stateInit: currentJob.job.stateInit,
                                 job: currentJob.jobRaw
                             });
                         }

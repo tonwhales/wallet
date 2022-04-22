@@ -18,7 +18,7 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
 
     return (
-        <View style={{ paddingTop: 8, paddingBottom: 8 }}>
+        <View style={{ paddingTop: 8 }}>
             {/* <View
                 style={{ marginTop: 8, backgroundColor: Theme.background }}
                 collapsable={false}

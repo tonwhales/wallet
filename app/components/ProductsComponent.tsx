@@ -50,8 +50,8 @@ export const ProductsComponent = React.memo(() => {
             )}
             {currentJob && currentJob.job.type === 'transaction' && (
                 <ProductButton
-                    name={t('products.transactionRequest')}
-                    subtitle={currentJob.job.text}
+                    name={t('products.transactionRequest.title')}
+                    subtitle={t('products.transactionRequest.subtitle')}
                     icon={OldWalletIcon}
                     value={null}
                     onPress={() => {

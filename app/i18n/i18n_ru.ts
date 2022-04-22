@@ -126,7 +126,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'
         },
-        transactionRequest: 'Запрос транзакции',
+        transactionRequest: {
+            title: 'Запрос транзакции',
+            subtitle: 'Нажмите что бы посмотреть запрос'
+        },
         staking: {
             title: 'Стейкинг',
             balance: 'Баланс стейкинга',

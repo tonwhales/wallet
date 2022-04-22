@@ -128,7 +128,10 @@ export type LocalizationSchema = {
             title: string,
             subtitle: string
         },
-        transactionRequest: string,
+        transactionRequest: {
+            title: string,
+            subtitle: string
+        },
         staking: {
             title: string,
             balance: string,

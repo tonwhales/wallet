@@ -109,6 +109,30 @@ export class JobsProduct {
         });
     }
 
+    async fetchJob() {
+
+        let keypair = await getAppInstanceKeyPair();
+        let key = keypair.publicKey.toString('base64').replace(/\//g, '_')
+            .replace(/\+/g, '-')
+            .replace(/\=/g, '');
+        let res = await axios.get('https://connect.tonhubapi.com/connect/command/' + key);
+
+        if (res.data.state === 'submitted') {
+            let jobCell = Cell.fromBoc(Buffer.from(res.data.job, 'base64'))[0];
+            if (this._state && this._state.jobCell.equals(jobCell) || this._completed.has(res.data.job)) {
+                return null;
+            }
+            let parsed = parseJob(jobCell.beginParse());
+            if (!parsed) {
+                return null;
+            }
+            if (parsed) {
+                return { job: parsed, raw: res.data.job as string };
+            }
+        }
+        return null;
+    }
+
     private _startSync() {
         backoff(async () => {
             while (!this._destroyed) {

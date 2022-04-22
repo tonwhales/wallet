@@ -139,7 +139,8 @@ export type LocalizationSchema = {
                 join: string,
                 rewards: string,
                 apy: string,
-                joined: string
+                joined: string,
+                devPromo: string
             },
             nextCycle: string,
             cycleNote: string,

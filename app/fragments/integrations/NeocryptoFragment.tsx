@@ -1,6 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
@@ -10,6 +8,7 @@ import { CheckBox } from "../../components/CheckBox";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
+import { t } from "../../i18n/t";
 import { getCurrentAddress } from "../../storage/appState";
 import { storage } from "../../storage/storage";
 import { Theme } from "../../Theme";
@@ -48,7 +47,6 @@ export const NeocryptoFragment = fragment(() => {
     const [accepted, setAccepted] = useState(false);
     const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
 
-    const { t } = useTranslation();
     const wref = React.useRef<WebView>(null);
 
     const queryParams = useMemo(() => new URLSearchParams({

@@ -1,17 +1,16 @@
 import BN from "bn.js"
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { View, Text } from "react-native"
-import { ProductButton } from "../fragments/wallet/products/ProductButton"
-import { useAccount } from "../sync/Engine"
-import { Theme } from "../Theme"
-import OldWalletIcon from '../../assets/ic_old_wallet.svg';
-import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { AppConfig } from "../AppConfig"
-import { StakingProductComponent } from "./Staking/StakingProductComponent"
+import { ProductButton } from "./ProductButton"
+import { useAccount } from "../../../sync/Engine"
+import { Theme } from "../../../Theme"
+import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
+import { useTypedNavigation } from "../../../utils/useTypedNavigation"
+import { AppConfig } from "../../../AppConfig"
+import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
+import { t } from "../../../i18n/t"
 
 export const ProductsComponent = React.memo(() => {
-    const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const [account, engine] = useAccount();
     const oldWalletsBalance = engine.products.oldWallets.useState();
@@ -19,10 +18,8 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
 
     return (
-        <View style={{
-            flex: 1
-        }}>
-            <View
+        <View style={{ paddingTop: 8, paddingBottom: 8 }}>
+            {/* <View
                 style={{ marginTop: 8, backgroundColor: Theme.background }}
                 collapsable={false}
             >
@@ -36,18 +33,7 @@ export const ProductsComponent = React.memo(() => {
                 >
                     {t('common.products')}
                 </Text>
-            </View>
-            <StakingProductComponent pool={pool} />
-            {oldWalletsBalance.gt(new BN(0)) && (
-                <ProductButton
-                    name={t('products.oldWallets.title')}
-                    subtitle={t("products.oldWallets.subtitle")}
-                    icon={OldWalletIcon}
-                    value={oldWalletsBalance}
-                    onPress={() => navigation.navigate('Migration')}
-                    style={{ marginVertical: 4 }}
-                />
-            )}
+            </View> */}
             {currentJob && currentJob.job.type === 'transaction' && (
                 <ProductButton
                     name={t('products.transactionRequest.title')}
@@ -66,6 +52,17 @@ export const ProductsComponent = React.memo(() => {
                             });
                         }
                     }}
+                />
+            )}
+            <StakingProductComponent pool={pool} />
+            {oldWalletsBalance.gt(new BN(0)) && (
+                <ProductButton
+                    name={t('products.oldWallets.title')}
+                    subtitle={t("products.oldWallets.subtitle")}
+                    icon={OldWalletIcon}
+                    value={oldWalletsBalance}
+                    onPress={() => navigation.navigate('Migration')}
+                    style={{ marginVertical: 4 }}
                 />
             )}
         </View>

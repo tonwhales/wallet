@@ -23,9 +23,8 @@ import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { storage } from '../../storage/storage';
 import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
-import { ProductsComponent } from '../../components/ProductsComponent';
+import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
-import { parseMessageBody } from '../../secure/parseMessageBody';
 import { openWithInApp } from '../../utils/openWithInApp';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
@@ -321,7 +320,7 @@ export const WalletFragment = fragment(() => {
 
                 {
                     transactions.length === 0 && (
-                        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: window.height * 0.095 }}>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                             <Pressable
                                 onPress={() => {
                                     animRef.current?.play();
@@ -332,10 +331,10 @@ export const WalletFragment = fragment(() => {
                                     autoPlay={true}
                                     loop={false}
                                     progress={0.2}
-                                    style={{ width: window.height * 0.15, height: window.height * 0.15, marginBottom: window.height * 0.1 * 0.3 }}
+                                    style={{ width: 192, height: 192 }}
                                 />
                             </Pressable>
-                            <Text style={{ fontSize: 16, marginBottom: window.height * 0.1 * 0.3, color: '#7D858A' }}>
+                            <Text style={{ fontSize: 16, color: '#7D858A' }}>
                                 {t('wallet.empty.message')}
                             </Text>
                             <RoundButton
@@ -357,7 +356,7 @@ export const WalletFragment = fragment(() => {
                         />
                     )
                 }
-                {transactions.length > 0 && <View style={{ height: 56 }} />}
+                <View style={{ height: 56 + safeArea.bottom }} />
             </Animated.ScrollView>
             {/* iOS Toolbar */}
             {

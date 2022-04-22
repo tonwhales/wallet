@@ -1,8 +1,7 @@
 import BN from "bn.js";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
-import { Address, fromNano, toNano } from "ton";
+import { fromNano } from "ton";
 import { Theme } from "../../Theme";
 import { PoolAddress } from "../../utils/PoolAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -11,6 +10,7 @@ import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstak
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { createWithdrawStakeCell } from "../../utils/createWithdrawStakeCommand";
 import { TransferAction } from "../../fragments/staking/StakingTransferFragment";
+import { t } from "../../i18n/t";
 
 export const StakingPendingComponent = React.memo((
     {
@@ -35,7 +35,6 @@ export const StakingPendingComponent = React.memo((
     }
 ) => {
     const navigation = useTypedNavigation();
-    const { t } = useTranslation();
 
     if (!member) return null;
     if (

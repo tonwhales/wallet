@@ -2,12 +2,12 @@ import React, { useLayoutEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
 import BN from "bn.js";
-import { Address, fromNano, toNano } from "ton";
+import { fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
-import { useTranslation } from "react-i18next";
 import { useAccount } from "../../sync/Engine";
 import { AppConfig } from "../../AppConfig";
 import { formatNum } from "../../utils/numbers";
+import { t } from "../../i18n/t";
 
 export const UnstakeBanner = React.memo((
     {
@@ -27,7 +27,6 @@ export const UnstakeBanner = React.memo((
 ) => {
     const [account, engine] = useAccount();
     const price = engine.products.price.useState();
-    const { t } = useTranslation();
     const anim = useRef<LottieView>(null);
 
     useLayoutEffect(() => {

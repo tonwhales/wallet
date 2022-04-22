@@ -13,32 +13,65 @@ import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
 import * as SplashScreen from 'expo-splash-screen';
+import { useGlobalLoader } from '../components/useGlobalLoader';
+import { backoff } from '../utils/time';
+import { useAccount } from '../sync/Engine';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
+    const loader = useGlobalLoader()
+    const [account, engine] = useAccount();
 
     // Subscribe for links
     React.useEffect(() => {
         return CachedLinking.setListener((link: string) => {
-            let resolved = resolveUrl(link);
-            if (resolved && resolved.type === 'transaction') {
-                SplashScreen.hideAsync();
-                navigation.navigate('Transfer', {
-                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    comment: resolved.comment,
-                    amount: resolved.amount,
-                    payload: resolved.payload,
-                    stateInit: resolved.stateInit
-                });
-            }
-            if (resolved && resolved.type === 'sign') {
-                SplashScreen.hideAsync();
-                navigation.navigate('Authenticate', {
-                    session: resolved.session,
-                    endpoint: resolved.endpoint
-                });
+            if (link === '/job') {
+                let canceller = loader.show();
+                (async () => {
+                    try {
+                        await backoff(async () => {
+                            let existing = await engine.products.apps.fetchJob();
+                            if (!existing) {
+                                return;
+                            }
+
+                            if (existing.job.job.type === 'transaction') {
+                                SplashScreen.hideAsync();
+                                navigation.navigate('Transfer', {
+                                    target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                    comment: existing.job.job.text,
+                                    amount: existing.job.job.amount.toString(10),
+                                    payload: existing.job.job.payload,
+                                    stateInit: existing.job.job.stateInit,
+                                    job: existing.raw
+                                });
+                            }
+                        });
+                    } finally {
+                        canceller();
+                    }
+                })()
+            } else {
+                let resolved = resolveUrl(link);
+                if (resolved && resolved.type === 'transaction') {
+                    SplashScreen.hideAsync();
+                    navigation.navigate('Transfer', {
+                        target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        comment: resolved.comment,
+                        amount: resolved.amount,
+                        payload: resolved.payload,
+                        stateInit: resolved.stateInit
+                    });
+                }
+                if (resolved && resolved.type === 'sign') {
+                    SplashScreen.hideAsync();
+                    navigation.navigate('Authenticate', {
+                        session: resolved.session,
+                        endpoint: resolved.endpoint
+                    });
+                }
             }
         });
     }, []);

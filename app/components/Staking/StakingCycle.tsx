@@ -1,6 +1,6 @@
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { View, Text, StyleProp, ViewStyle } from "react-native"
+import { t } from "../../i18n/t"
 import { Theme } from "../../Theme"
 import { Countdown } from "../Countdown"
 import { StakingCycleProgress } from "./StakingCycleProgress"
@@ -15,8 +15,6 @@ export const StakingCycle = React.memo((
         style?: StyleProp<ViewStyle>,
         withdraw?: boolean
     }) => {
-    const { t } = useTranslation();
-
     return (
         <View style={[{
             backgroundColor: 'white',

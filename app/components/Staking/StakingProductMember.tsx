@@ -4,11 +4,11 @@ import { TouchableHighlight } from "react-native-gesture-handler"
 import { Theme } from "../../Theme"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import StakingIcon from '../../../assets/ic_staking.svg';
-import { useTranslation } from "react-i18next"
 import BN from "bn.js"
 import { StakingPoolState } from "../../storage/cache"
 import { PriceComponent } from "../PriceComponent"
 import { ValueComponent } from "../ValueComponent"
+import { t } from "../../i18n/t"
 
 export const StakingProductMember = React.memo((
     {
@@ -25,7 +25,6 @@ export const StakingProductMember = React.memo((
     }
 ) => {
     const navigation = useTypedNavigation();
-    const { t } = useTranslation();
 
     return (
         <TouchableHighlight

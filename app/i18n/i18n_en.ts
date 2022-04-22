@@ -137,7 +137,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 join: 'Earn up to 13.3% on your TONs',
                 joined: 'Earn up to 13.3%',
                 rewards: 'Estimated Interest',
-                apy: '~13.3 APY of the contribution'
+                apy: '~13.3 APY of the contribution',
+                devPromo: 'Multiply your test coins'
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, Image, Text } from "react-native";
 import { Theme } from "../../Theme";
-import { PasscodeAuthType, PasscodeComponent } from "../Passcode/PasscodeComponent";
+import { PasscodeAuthType, PasscodeComponent } from "./PasscodeComponent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppConfig } from "../../AppConfig";
 
-export const PasscodeAuthComponent = React.memo((
+export const PasscodeAuth = React.memo((
     {
         onSuccess,
         onError,
@@ -24,9 +24,7 @@ export const PasscodeAuthComponent = React.memo((
 
     return (
         <View style={{
-            flex: 1,
-            position: 'absolute',
-            top: 0, bottom: 0, left: 0, right: 0,
+            flexGrow: 1,
             backgroundColor: Theme.background,
             justifyContent: 'center',
             alignItems: 'center'

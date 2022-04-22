@@ -27,7 +27,6 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
         (async () => {
             setLoading(true);
             try {
-
                 // Ensure keystore is ok
                 ensureKeystoreReady();
 

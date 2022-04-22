@@ -16,7 +16,7 @@ export const PasscodeConfirm = React.memo((props: {
     const [value, setValue] = useState<string>();
 
     const onChange = useCallback(
-        (pass: string) => {
+        async (pass: string) => {
             setError(undefined);
             if (pass.length <= PasscodeLength) {
                 setValue(pass);
@@ -25,8 +25,13 @@ export const PasscodeConfirm = React.memo((props: {
                     const res = storage.getString(TOKEN_KEY);
                     if (res) {
                         try {
-                            decryptKeyWithPasscode(Buffer.from(res, 'base64'), pass);
-                            if (props.onSuccess) props.onSuccess(pass);
+                            let decrypted = await decryptKeyWithPasscode(res, pass);
+                            if (props.onSuccess && decrypted.length > 0)
+                                props.onSuccess(pass);
+                            else {
+                                setError(t('security.error'));
+                                setValue(undefined);
+                            }
                         } catch (error) {
                             setError(t('security.error'));
                             setValue(undefined);

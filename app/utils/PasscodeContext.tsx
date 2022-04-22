@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { PasscodeAuthComponent } from "../components/Passcode/PasscodeAuthComponent";
+import React, { useCallback, useState } from "react";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { PasscodeAuth } from "../components/Passcode/PasscodeAuth";
 import { PasscodeAuthType } from "../components/Passcode/PasscodeComponent";
 
 export type PasscodeAuthResult =
@@ -14,6 +15,7 @@ export type PasscodeContextType = {
 const PasscodeContext = React.createContext<PasscodeContextType>(undefined);
 
 export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) => {
+    console.log('[PasscodeAuthLoader]');
     const [authState, setAuthState] = useState<{
         onSuccess: (passcode: string) => void,
         onError?: () => void,
@@ -21,35 +23,52 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
         type: PasscodeAuthType
     }>();
 
-    function finishAuth(call?: () => void) {
-        if (call) {
-            return () => {
-                setAuthState(undefined);
-                call();
-            }
-        }
-        return undefined;
-    }
-
-    const authenticateAsync = async (type: PasscodeAuthType) => {
-        return await new Promise<PasscodeAuthResult>((resolve, reg) => {
-            setAuthState({
-                onSuccess: (passcode: string) => {
-                    console.log('[authenticateAsync]', { passcode });
+    const dismiss = useCallback(
+        (call?: () => void) => {
+            if (call) {
+                return () => {
                     setAuthState(undefined);
-                    resolve({ type: 'success', passcode });
-                },
-                onError: finishAuth(() => resolve({ type: 'error' })),
-                onCancel: finishAuth(() => resolve({ type: 'canceled' })),
-                type: type
+                    call();
+                }
+            }
+            return undefined;
+        },
+        [],
+    );
+
+    const authenticateAsync = useCallback(
+        async (type: PasscodeAuthType) => {
+            return await new Promise<PasscodeAuthResult>((resolve, reg) => {
+                setAuthState({
+                    onSuccess: (passcode: string) => {
+                        console.log('[authenticateAsync]', { passcode });
+                        setAuthState(undefined);
+                        resolve({ type: 'success', passcode });
+                    },
+                    onError: dismiss(() => resolve({ type: 'error' })),
+                    onCancel: dismiss(() => resolve({ type: 'canceled' })),
+                    type: type
+                });
             });
-        });
-    };
+        },
+        [],
+    );
 
     return (
         <PasscodeContext.Provider value={{ authenticateAsync }}>
             {children}
-            {authState && <PasscodeAuthComponent {...authState} />}
+            {authState && (
+                <Animated.View
+                    style={{
+                        position: 'absolute',
+                        top: 0, bottom: 0, left: 0, right: 0,
+                    }}
+                    exiting={FadeOut}
+                    entering={FadeIn}
+                >
+                    <PasscodeAuth {...authState} />
+                </Animated.View>
+            )}
         </PasscodeContext.Provider>
     );
 });

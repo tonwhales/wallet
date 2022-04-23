@@ -5,6 +5,7 @@ import { ProductButton } from "./ProductButton"
 import { useAccount } from "../../../sync/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
+import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
@@ -23,7 +24,7 @@ export const ProductsComponent = React.memo(() => {
                 <ProductButton
                     name={t('products.transactionRequest.title')}
                     subtitle={t('products.transactionRequest.subtitle')}
-                    icon={OldWalletIcon}
+                    icon={TransactionIcon}
                     value={null}
                     onPress={() => {
                         if (currentJob.job.type === 'transaction') {

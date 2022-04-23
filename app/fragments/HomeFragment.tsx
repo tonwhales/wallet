@@ -50,8 +50,6 @@ export const HomeFragment = fragment(() => {
                             }
                             if (existing.job.job.type === 'sign') {
                                 navigation.navigate('Sign', {
-                                    text: existing.job.job.text,
-                                    payload: existing.job.job.payload,
                                     job: existing.raw
                                 });
                             }

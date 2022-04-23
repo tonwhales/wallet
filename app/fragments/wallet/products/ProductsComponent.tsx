@@ -4,6 +4,7 @@ import { View } from "react-native"
 import { ProductButton } from "./ProductButton"
 import { useAccount } from "../../../sync/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
+import SignIcon from '../../../../assets/ic_sign.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
@@ -42,13 +43,11 @@ export const ProductsComponent = React.memo(() => {
                 <ProductButton
                     name={t('products.signatureRequest.title')}
                     subtitle={t('products.signatureRequest.subtitle')}
-                    icon={OldWalletIcon}
+                    icon={SignIcon}
                     value={null}
                     onPress={() => {
                         if (currentJob.job.type === 'sign') {
                             navigation.navigate('Sign', {
-                                text: currentJob.job.text,
-                                payload: currentJob.job.payload,
                                 job: currentJob.jobRaw
                             });
                         }

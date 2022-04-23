@@ -13,7 +13,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
-import { Cell } from 'ton';
+import { Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
@@ -98,8 +98,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let ref2 = new Cell();
         ref2.bits.writeBuffer(appInstanceKeyPair.publicKey);
         toSign.refs.push(ref2);
-        let hashSign = toSign.hash();
-        let signature = sign(hashSign, walletKeys.keyPair.secretKey);
+        let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
 
         // Notify
         await backoff(async () => {

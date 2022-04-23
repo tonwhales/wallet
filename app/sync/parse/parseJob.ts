@@ -1,4 +1,4 @@
-import { Cell, Slice } from "ton";
+import { Cell, safeSignVerify, Slice } from "ton";
 import { signVerify } from "ton-crypto";
 import { Job } from "./Job";
 
@@ -18,8 +18,7 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
     let signature = src.readBuffer(64);
     let key = src.readBuffer(32);
     let data = src.readCell();
-    let hash = data.hash();
-    if (!signVerify(hash, signature, key)) {
+    if (!safeSignVerify(data, signature, key)) {
         return null;
     }
 
@@ -78,10 +77,11 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
         let ds = sc.readRef();
 
         // Text
-        let text: string = parseString(ds.readRef());
+        let textCell = ds.readCell();
+        let text: string = parseString(textCell.beginParse());
 
         // Payload
-        let payload: Cell = ds.readCell();
+        let payloadCell: Cell = ds.readCell();
 
         // Loaded result
         return {
@@ -91,7 +91,8 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
             job: {
                 type: 'sign',
                 text,
-                payload
+                textCell,
+                payloadCell
             }
         };
     }

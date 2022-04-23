@@ -3,12 +3,11 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { beginCell, Cell, CommentMessage } from 'ton';
-import { sha256_sync, sign } from 'ton-crypto';
+import { beginCell, Cell, safeSign } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from '../../fragment';
-import { t, tStyled } from '../../i18n/t';
+import { t } from '../../i18n/t';
 import { getConnectionReferences, getCurrentAddress } from '../../storage/appState';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useAccount } from '../../sync/Engine';
@@ -54,15 +53,11 @@ export const SignFragment = fragment(() => {
         }
 
         // Signing
-        let textCell = new Cell();
-        new CommentMessage(jobBody.text).writeTo(textCell);
-        const hash = beginCell()
-            .storeRef(textCell)
-            .storeRef(jobBody.payload)
-            .endCell()
-            .hash();
-        let toSign = sha256_sync(Buffer.concat([Buffer.from([0xff, 0xff]), Buffer.from('ton-safe-sign-magic'), hash]));
-        const signed = sign(toSign, walletKeys.keyPair.secretKey);
+        const data = beginCell()
+            .storeRef(jobBody.textCell)
+            .storeRef(jobBody.payloadCell)
+            .endCell();
+        const signed = safeSign(data, walletKeys.keyPair.secretKey);
 
         // Commit
         await engine.products.apps.commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());

@@ -1,9 +1,8 @@
 import BN from "bn.js"
 import React from "react"
-import { View, Text } from "react-native"
+import { View } from "react-native"
 import { ProductButton } from "./ProductButton"
 import { useAccount } from "../../../sync/Engine"
-import { Theme } from "../../../Theme"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
@@ -19,21 +18,6 @@ export const ProductsComponent = React.memo(() => {
 
     return (
         <View style={{ paddingTop: 8 }}>
-            {/* <View
-                style={{ marginTop: 8, backgroundColor: Theme.background }}
-                collapsable={false}
-            >
-                <Text
-                    style={{
-                        fontSize: 18,
-                        fontWeight: '700',
-                        marginHorizontal: 16,
-                        marginVertical: 8
-                    }}
-                >
-                    {t('common.products')}
-                </Text>
-            </View> */}
             {currentJob && currentJob.job.type === 'transaction' && (
                 <ProductButton
                     name={t('products.transactionRequest.title')}
@@ -48,6 +32,23 @@ export const ProductsComponent = React.memo(() => {
                                 amount: currentJob.job.amount.toString(10),
                                 payload: currentJob.job.payload,
                                 stateInit: currentJob.job.stateInit,
+                                job: currentJob.jobRaw
+                            });
+                        }
+                    }}
+                />
+            )}
+            {currentJob && currentJob.job.type === 'sign' && (
+                <ProductButton
+                    name={t('products.signatureRequest.title')}
+                    subtitle={t('products.signatureRequest.subtitle')}
+                    icon={OldWalletIcon}
+                    value={null}
+                    onPress={() => {
+                        if (currentJob.job.type === 'sign') {
+                            navigation.navigate('Sign', {
+                                text: currentJob.job.text,
+                                payload: currentJob.job.payload,
                                 job: currentJob.jobRaw
                             });
                         }

@@ -48,6 +48,13 @@ export const HomeFragment = fragment(() => {
                                     job: existing.raw
                                 });
                             }
+                            if (existing.job.job.type === 'sign') {
+                                navigation.navigate('Sign', {
+                                    text: existing.job.job.text,
+                                    payload: existing.job.job.payload,
+                                    job: existing.raw
+                                });
+                            }
                         });
                     } finally {
                         canceller();
@@ -65,7 +72,7 @@ export const HomeFragment = fragment(() => {
                         stateInit: resolved.stateInit
                     });
                 }
-                if (resolved && resolved.type === 'sign') {
+                if (resolved && resolved.type === 'connect') {
                     SplashScreen.hideAsync();
                     navigation.navigate('Authenticate', {
                         session: resolved.session,

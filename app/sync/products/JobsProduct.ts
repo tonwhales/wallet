@@ -88,7 +88,7 @@ export class JobsProduct {
         }
     }
 
-    commitCommand(success: boolean, job: string, result: Cell) {
+    async commitCommand(success: boolean, job: string, result: Cell) {
         if (this._completed.has(job)) {
             return;
         }
@@ -100,7 +100,7 @@ export class JobsProduct {
         }
 
         // Notify
-        backoff(async () => {
+        await backoff(async () => {
             await axios.post('https://connect.tonhubapi.com/connect/command/commit', {
                 successful: success,
                 job,

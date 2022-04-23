@@ -83,12 +83,6 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
         // Payload
         let payload: Cell = ds.readCell();
 
-        // Payload hint
-        let payloadHint: string | null = null;
-        if (ds.readBit()) {
-            payloadHint = parseString(ds.readRef());
-        }
-
         // Loaded result
         return {
             expires,
@@ -97,8 +91,7 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
             job: {
                 type: 'sign',
                 text,
-                payload,
-                payloadHint
+                payload
             }
         };
     }

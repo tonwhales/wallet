@@ -11,6 +11,5 @@ export type Job = {
 } | {
     type: 'sign',
     text: string,
-    payload: Cell,
-    payloadHint: string | null
+    payload: Cell
 }

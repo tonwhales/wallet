@@ -111,6 +111,12 @@ export type LocalizationSchema = {
             action: string
         }
     },
+    sign: {
+        title: string,
+        message: string,
+        hint: string,
+        action: string
+    },
     migrate: {
         title: string,
         subtitle: string,
@@ -129,6 +135,10 @@ export type LocalizationSchema = {
             subtitle: string
         },
         transactionRequest: {
+            title: string,
+            subtitle: string
+        },
+        signatureRequest: {
             title: string,
             subtitle: string
         },

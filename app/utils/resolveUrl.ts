@@ -10,7 +10,7 @@ type ResolvedUrl = {
     payload: Cell | null,
     stateInit: Cell | null,
 } | {
-    type: 'sign',
+    type: 'connect',
     session: string,
     endpoint: string | null
 } | null;
@@ -82,7 +82,7 @@ export function resolveUrl(src: string): ResolvedUrl {
                 }
             }
             return {
-                type: 'sign',
+                type: 'connect',
                 session,
                 endpoint
             }
@@ -137,7 +137,7 @@ export function resolveUrl(src: string): ResolvedUrl {
                 }
             }
             return {
-                type: 'sign',
+                type: 'connect',
                 session,
                 endpoint
             }

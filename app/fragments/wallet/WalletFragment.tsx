@@ -175,7 +175,7 @@ export const WalletFragment = fragment(() => {
                     stateInit: res.stateInit
                 });
             }
-            if (res && res.type === 'sign') {
+            if (res && res.type === 'connect') {
                 // if QR is valid navigate to sign fragment
                 navigation.navigate('Authenticate', {
                     session: res.session,

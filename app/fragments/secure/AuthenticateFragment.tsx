@@ -10,14 +10,14 @@ import { backoff } from '../../utils/time';
 import axios from 'axios';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getAppKey, getCurrentAddress, getPendingGrant, removePendingGrant } from '../../storage/appState';
+import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
 import { Cell } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
-import { systemFragment } from '../../systemFragment';
+import { fragment } from '../../fragment';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -176,7 +176,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     );
 });
 
-export const AuthenticateFragment = systemFragment(() => {
+export const AuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params: {
         session: string,

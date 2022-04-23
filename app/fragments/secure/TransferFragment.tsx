@@ -30,6 +30,7 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../secure/formatSupportedBody';
 import { fragment } from '../../fragment';
+import { erase } from './utils/erase';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -196,7 +197,7 @@ export const TransferFragment = fragment(() => {
 
         // Notify job
         if (params && params.job) {
-            engine.products.apps.commitCommand(true, params.job, new Cell());
+            await engine.products.apps.commitCommand(true, params.job, transfer);
         }
 
         // Notify

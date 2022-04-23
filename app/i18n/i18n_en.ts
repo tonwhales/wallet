@@ -97,7 +97,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     auth: {
         title: 'Authentication',
         message: 'Allow <strong>{{name}}</strong> to know your wallet addres',
-        hint: 'No funds would be transfered to the site and no access to your coins would be granted',
+        hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
         action: 'Allow',
         expired: 'This authentication request already expired',
         completed: 'This authentication request already completed',
@@ -108,6 +108,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             message: 'This will destroy link between your wallet and app, but you can always try to connect again.',
             action: 'Revoke'
         }
+    },
+    sign: {
+        title: 'Signature request',
+        message: 'Requested to sign a message',
+        hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
+        action: 'Sign',
     },
     migrate: {
         title: 'Migrate old wallets',
@@ -128,6 +134,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         transactionRequest: {
             title: 'Transaction requested',
+            subtitle: 'Press to view request'
+        },
+        signatureRequest: {
+            title: 'Signature requested',
             subtitle: 'Press to view request'
         },
         staking: {

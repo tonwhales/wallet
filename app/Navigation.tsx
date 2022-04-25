@@ -21,7 +21,7 @@ import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
-import { NavigationTheme } from './Theme';
+import { NavigationTheme, Theme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { Engine, EngineContext } from './sync/Engine';
 import { storageCache } from './storage/storage';
@@ -186,26 +186,21 @@ export const Navigation = React.memo(() => {
     const [splashVisible, setSplashVisible] = React.useState(true);
 
     const splashOpacity = React.useMemo(() => {
-        return new Animated.Value(1);
+        return new Animated.Value<number>(1);
     }, [splashVisible]);
 
     const onMounted = React.useMemo(() => {
         return () => {
             if (!splashVisible) {
-                SplashScreen.hideAsync();
                 return;
             }
-            Animated.timing(splashOpacity,
-                {
-                    toValue: 0,
-                    duration: 200,
-                    easing: EasingNode.ease
-                }).start(() => {
-                    setSplashVisible(false);
-                });
-            setTimeout(() => {
-                SplashScreen.hideAsync();
-            }, 30);
+            Animated.timing(splashOpacity, {
+                toValue: 0,
+                duration: 350,
+                easing: EasingNode.linear
+            }).start((e) => {
+                setSplashVisible(false);
+            });
         }
     }, [splashVisible]);
 
@@ -217,7 +212,7 @@ export const Navigation = React.memo(() => {
                 opacity: splashOpacity,
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: 'white',
+                backgroundColor: Theme.background,
             }}
             pointerEvents={'none'}
         >

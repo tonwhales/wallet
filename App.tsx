@@ -18,24 +18,19 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
 import { Theme } from './app/Theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
 import { Root } from './app/Root';
-import * as SplashScreen from 'expo-splash-screen';
-
-SplashScreen.preventAutoHideAsync()
-  .then(result => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
-  .catch(console.warn);
 
 function Boot() {
   return (
     <>
       <StatusBar style="auto" />
-      <SafeAreaProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <GestureHandlerRootView style={styles.container}>
           <Root />
+          <ModalProvider />
         </GestureHandlerRootView>
-        <ModalProvider />
       </SafeAreaProvider>
     </>
   )
@@ -52,7 +47,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     flexDirection: 'column',
-    backgroundColor: 'white',
+    backgroundColor: Theme.background,
     alignItems: 'stretch',
     justifyContent: 'center',
   },

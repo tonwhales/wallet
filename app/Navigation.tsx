@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createStackNavigator } from '@react-navigation/stack';
 import { Platform, View, Image } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -27,7 +26,6 @@ import { Engine, EngineContext } from './sync/Engine';
 import { storageCache } from './storage/storage';
 import { createSimpleConnector } from './sync/Connector';
 import { AppConfig } from './AppConfig';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import * as SplashScreen from 'expo-splash-screen';
 import { backoff } from './utils/time';
@@ -38,7 +36,6 @@ import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
-import { PriceLoader } from './sync/PriceContext';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
@@ -142,8 +139,6 @@ const navigation = [
 ];
 
 export const Navigation = React.memo(() => {
-    const safeArea = useSafeAreaInsets();
-
     const engine = React.useMemo(() => {
         let state = getAppState();
         if (0 <= state.selected && state.selected < state.addresses.length) {
@@ -184,10 +179,12 @@ export const Navigation = React.memo(() => {
 
     // Splash
     const [splashVisible, setSplashVisible] = React.useState(true);
+    const [navReady, setNavReady] = React.useState(false);
+    const [splashReady, setSplashReady] = React.useState(false);
 
     const splashOpacity = React.useMemo(() => {
         return new Animated.Value(1);
-    }, [splashVisible]);
+    }, []);
 
     const onMounted = React.useMemo(() => {
         return () => {
@@ -225,12 +222,12 @@ export const Navigation = React.memo(() => {
                 width: 256, height: 416,
                 alignItems: 'center',
             }}>
-                <Image style={{
+                <Image onLoad={() => { setSplashReady(true) }} style={{
                     width: 256, height: 256,
                 }} source={require('../assets/splash_icon.png')} />
             </View>
         </Animated.View>
-    )), [splashVisible, safeArea]);
+    )), [splashVisible]);
 
     // Register token
     React.useEffect(() => {
@@ -294,12 +291,20 @@ export const Navigation = React.memo(() => {
         };
     }, []);
 
+    // Hide Splash only when navigation is ready and
+    // splash image has loaded to avoid blinking
+    React.useEffect(() => {
+        if (navReady && splashReady) {
+            onMounted();
+        }
+    }, [navReady, splashReady]);
+
     return (
         <EngineContext.Provider value={engine}>
             <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
                 <NavigationContainer
                     theme={NavigationTheme}
-                    onReady={onMounted}
+                    onReady={() => setNavReady(true)}
                 >
                     <Stack.Navigator
                         initialRouteName={initial}

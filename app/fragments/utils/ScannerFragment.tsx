@@ -21,7 +21,7 @@ export const ScannerFragment = systemFragment(() => {
     const [flashOn, setFlashOn] = useState(false);
 
     const isFocused = useIsFocused();
-    const devices = useCameraDevices();
+    const devices = useCameraDevices('wide-angle-camera');
     const device = devices.back;
 
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);

@@ -30,6 +30,8 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../secure/formatSupportedBody';
 import { fragment } from '../../fragment';
+import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
 import { erase } from './utils/erase';
 
 const labelStyle: StyleProp<TextStyle> = {

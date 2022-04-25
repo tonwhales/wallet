@@ -42,6 +42,7 @@ import { PriceLoader } from './sync/PriceContext';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
+import { PasscodeAuthLoader } from './utils/PasscodeContext';
 import { SignFragment } from './fragments/secure/SignFragment';
 
 const Stack = createNativeStackNavigator();

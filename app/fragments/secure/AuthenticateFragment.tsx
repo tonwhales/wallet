@@ -17,6 +17,9 @@ import { Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
+import { systemFragment } from '../../systemFragment';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
+import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import { fragment } from '../../fragment';
 
 const labelStyle: StyleProp<TextStyle> = {

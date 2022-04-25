@@ -6,11 +6,11 @@ export type Job = {
     target: Address,
     amount: BN,
     text: string,
-    payload: Cell,
-    payloadHint: string | null
+    payload: Cell | null,
+    stateInit: Cell | null,
 } | {
     type: 'sign',
     text: string,
-    payload: Cell,
-    payloadHint: string | null
+    textCell: Cell
+    payloadCell: Cell
 }

@@ -21,8 +21,11 @@ import { AppConfig } from '../../AppConfig';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
-import { ProductsComponent } from '../../components/ProductsComponent';
+import { storage } from '../../storage/storage';
+import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
+import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
+import { openWithInApp } from '../../utils/openWithInApp';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -172,7 +175,7 @@ export const WalletFragment = fragment(() => {
                     stateInit: res.stateInit
                 });
             }
-            if (res && res.type === 'sign') {
+            if (res && res.type === 'connect') {
                 // if QR is valid navigate to sign fragment
                 navigation.navigate('Authenticate', {
                     session: res.session,
@@ -184,6 +187,30 @@ export const WalletFragment = fragment(() => {
             // Ignore
         }
     };
+
+    const onOpenBuy = React.useCallback(
+        () => {
+            if (storage.getBoolean(skipLegalNeocrypto)) {
+                // storage.set(skipLegalNeocrypto, false);
+                const queryParams = new URLSearchParams({
+                    partner: 'tonhub',
+                    address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    cur_from: 'USD',
+                    cur_to: 'TON',
+                    fix_cur_to: 'true',
+                    fix_address: 'true',
+                });
+
+                const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
+
+                openWithInApp(main);
+            } else {
+                navigation.navigate('Buy')
+            }
+        },
+        [],
+    );
+
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -253,6 +280,20 @@ export const WalletFragment = fragment(() => {
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
+                    {/* {
+                        !AppConfig.isTestnet && (
+                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                                <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                        <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                            <Image source={require('../../../assets/ic_buy.png')} />
+                                        </View>
+                                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{'Buy'}</Text>
+                                    </View>
+                                </TouchableHighlight>
+                            </View>
+                        )
+                    } */}
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
@@ -279,7 +320,7 @@ export const WalletFragment = fragment(() => {
 
                 {
                     transactions.length === 0 && (
-                        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: window.height * 0.095 }}>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                             <Pressable
                                 onPress={() => {
                                     animRef.current?.play();
@@ -290,10 +331,10 @@ export const WalletFragment = fragment(() => {
                                     autoPlay={true}
                                     loop={false}
                                     progress={0.2}
-                                    style={{ width: window.height * 0.15, height: window.height * 0.15, marginBottom: window.height * 0.1 * 0.3 }}
+                                    style={{ width: 192, height: 192 }}
                                 />
                             </Pressable>
-                            <Text style={{ fontSize: 16, marginBottom: window.height * 0.1 * 0.3, color: '#7D858A' }}>
+                            <Text style={{ fontSize: 16, color: '#7D858A' }}>
                                 {t('wallet.empty.message')}
                             </Text>
                             <RoundButton
@@ -315,7 +356,7 @@ export const WalletFragment = fragment(() => {
                         />
                     )
                 }
-                {transactions.length > 0 && <View style={{ height: 56 }} />}
+                <View style={{ height: 56 + safeArea.bottom }} />
             </Animated.ScrollView>
             {/* iOS Toolbar */}
             {

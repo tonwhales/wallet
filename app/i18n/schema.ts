@@ -111,6 +111,12 @@ export type LocalizationSchema = {
             action: string
         }
     },
+    sign: {
+        title: string,
+        message: string,
+        hint: string,
+        action: string
+    },
     migrate: {
         title: string,
         subtitle: string,
@@ -128,7 +134,14 @@ export type LocalizationSchema = {
             title: string,
             subtitle: string
         },
-        transactionRequest: string,
+        transactionRequest: {
+            title: string,
+            subtitle: string
+        },
+        signatureRequest: {
+            title: string,
+            subtitle: string
+        },
         staking: {
             title: string,
             balance: string,
@@ -136,7 +149,8 @@ export type LocalizationSchema = {
                 join: string,
                 rewards: string,
                 apy: string,
-                joined: string
+                joined: string,
+                devPromo: string
             },
             nextCycle: string,
             cycleNote: string,
@@ -295,6 +309,17 @@ export type LocalizationSchema = {
             title: string,
             message: string
         }
+    },
+    neocrypto: {
+        buttonTitle: string,
+        alert: {
+            title: string,
+            message: string
+        },
+        title: string,
+        description: string,
+        doNotShow: string,
+        termsAndPrivacy: string,
     },
     known: {
         deposit: string,

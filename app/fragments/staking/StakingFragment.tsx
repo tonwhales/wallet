@@ -2,7 +2,6 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
 import React, { useCallback } from "react";
 import { Ionicons } from '@expo/vector-icons';
-import { useTranslation } from "react-i18next";
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,9 +24,9 @@ import { useParams } from "../../utils/useParams";
 import { PoolAddress } from "../../utils/PoolAddress";
 import { TransferAction } from "./StakingTransferFragment";
 import { fragment } from "../../fragment";
+import { t } from "../../i18n/t";
 
 export const StakingFragment = fragment(() => {
-    const { t } = useTranslation();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean }>();
     const navigation = useTypedNavigation();

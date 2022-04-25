@@ -1,17 +1,15 @@
 import BN from "bn.js";
 import React from "react"
-import { useTranslation } from "react-i18next";
 import { View, Text } from "react-native"
-import { fromNano, toNano } from "ton";
+import { fromNano } from "ton";
 import { AppConfig } from "../../AppConfig";
+import { t } from "../../i18n/t";
 import { StakingPoolState } from "../../storage/cache";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPoolState | null, fee?: BN | null }) => {
     if (!pool) return null;
-
-    const { t } = useTranslation();
     const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
 
     return (

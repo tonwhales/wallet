@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { Address, Cell } from "ton";
 import Url from 'url-parse';
 
-export function resolveUrl(src: string): {
+type ResolvedUrl = {
     type: 'transaction',
     address: Address,
     comment: string | null,
@@ -10,11 +10,12 @@ export function resolveUrl(src: string): {
     payload: Cell | null,
     stateInit: Cell | null,
 } | {
-    type: 'sign',
+    type: 'connect',
     session: string,
     endpoint: string | null
-} | null {
+} | null;
 
+export function resolveUrl(src: string): ResolvedUrl {
 
 
     // Try address parsing
@@ -81,7 +82,7 @@ export function resolveUrl(src: string): {
                 }
             }
             return {
-                type: 'sign',
+                type: 'connect',
                 session,
                 endpoint
             }
@@ -136,7 +137,7 @@ export function resolveUrl(src: string): {
                 }
             }
             return {
-                type: 'sign',
+                type: 'connect',
                 session,
                 endpoint
             }

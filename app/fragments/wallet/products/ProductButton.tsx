@@ -25,7 +25,7 @@ export function ProductButton(props: {
                 {
                     alignSelf: 'stretch', borderRadius: 14,
                     backgroundColor: 'white',
-                    marginHorizontal: 16, marginVertical: 16
+                    marginHorizontal: 16, marginVertical: 8
                 },
                 props.style
             ]}
@@ -33,7 +33,7 @@ export function ProductButton(props: {
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon width={29} height={29} color={'white'} />
+                        <Icon width={42} height={42} color={'white'} />
                     </View>
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>

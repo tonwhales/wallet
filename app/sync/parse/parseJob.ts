@@ -1,4 +1,4 @@
-import { Cell, Slice } from "ton";
+import { Cell, safeSignVerify, Slice } from "ton";
 import { signVerify } from "ton-crypto";
 import { Job } from "./Job";
 
@@ -18,8 +18,7 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
     let signature = src.readBuffer(64);
     let key = src.readBuffer(32);
     let data = src.readCell();
-    let hash = data.hash();
-    if (!signVerify(hash, signature, key)) {
+    if (!safeSignVerify(data, signature, key)) {
         return null;
     }
 
@@ -46,12 +45,15 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
         let text: string = parseString(ds.readRef());
 
         // Payload
-        let payload: Cell = ds.readCell();
-
-        // Payload hint
-        let payloadHint: string | null = null;
+        let payload: Cell | null = null;
         if (ds.readBit()) {
-            payloadHint = parseString(ds.readRef());
+            payload = ds.readCell();
+        }
+
+        // StateInit
+        let stateInit: Cell | null = null;
+        if (ds.readBit()) {
+            stateInit = ds.readCell();
         }
 
         // Loaded result
@@ -65,7 +67,7 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
                 amount,
                 text,
                 payload,
-                payloadHint
+                stateInit
             }
         };
     }
@@ -75,16 +77,11 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
         let ds = sc.readRef();
 
         // Text
-        let text: string = parseString(ds.readRef());
+        let textCell = ds.readCell();
+        let text: string = parseString(textCell.beginParse());
 
         // Payload
-        let payload: Cell = ds.readCell();
-
-        // Payload hint
-        let payloadHint: string | null = null;
-        if (ds.readBit()) {
-            payloadHint = parseString(ds.readRef());
-        }
+        let payloadCell: Cell = ds.readCell();
 
         // Loaded result
         return {
@@ -94,8 +91,8 @@ export function parseJob(src: Slice): { expires: number, key: Buffer, appPublicK
             job: {
                 type: 'sign',
                 text,
-                payload,
-                payloadHint
+                textCell,
+                payloadCell
             }
         };
     }

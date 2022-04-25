@@ -1,7 +1,6 @@
 import { formatDuration } from "date-fns";
 import React, { useEffect, useState } from "react"
 import { StyleProp, Text, TextStyle } from "react-native"
-import { useTranslation } from "react-i18next";
 import { t } from "../i18n/t";
 
 function getDuration(seconds: number) {
@@ -53,7 +52,6 @@ function format(duration: number) {
 }
 
 export const Countdown = React.memo(({ until, textStyle }: { until: number, textStyle?: StyleProp<TextStyle> }) => {
-    const { t } = useTranslation()
     const [text, setText] = useState(format(Math.floor((until || 0) - (Date.now() / 1000))));
 
     useEffect(() => {

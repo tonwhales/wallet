@@ -97,7 +97,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     auth: {
         title: 'Authentication',
         message: 'Allow <strong>{{name}}</strong> to know your wallet addres',
-        hint: 'No funds would be transfered to the site and no access to your coins would be granted',
+        hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
         action: 'Allow',
         expired: 'This authentication request already expired',
         completed: 'This authentication request already completed',
@@ -108,6 +108,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             message: 'This will destroy link between your wallet and app, but you can always try to connect again.',
             action: 'Revoke'
         }
+    },
+    sign: {
+        title: 'Signature request',
+        message: 'Requested to sign a message',
+        hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
+        action: 'Sign',
     },
     migrate: {
         title: 'Migrate old wallets',
@@ -126,7 +132,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
         },
-        transactionRequest: 'Request transaction',
+        transactionRequest: {
+            title: 'Transaction requested',
+            subtitle: 'Press to view request'
+        },
+        signatureRequest: {
+            title: 'Signature requested',
+            subtitle: 'Press to view request'
+        },
         staking: {
             title: 'Staking',
             balance: 'Staking balance',
@@ -134,7 +147,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 join: 'Earn up to 13.3% on your TONs',
                 joined: 'Earn up to 13.3%',
                 rewards: 'Estimated Interest',
-                apy: '~13.3 APY of the contribution'
+                apy: '~13.3 APY of the contribution',
+                devPromo: 'Multiply your test coins'
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
@@ -293,6 +307,17 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure want to log out?',
             message: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.'
         }
+    },
+    neocrypto: {
+        buttonTitle: 'buy',
+        alert: {
+            title: 'How the checkout works',
+            message: 'Fill in the required fields -> Select cryptocurrency and specify wallet address and the amount to buy -> Proceed to checkout -> Enter your billing details correctly. Your credit card payment is securely processed by our Partners -> Complete purchase. No account needed!'
+        },
+        title: 'Buy TON with credit card for USD, EUR and RUB',
+        description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service. ',
+        doNotShow: 'Do not show it again for Neocrypto',
+        termsAndPrivacy: 'I have read and agree to the ',
     },
     known: {
         deposit: 'Deposit',

@@ -111,12 +111,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let ref2 = new Cell();
         ref2.bits.writeBuffer(appInstanceKeyPair.publicKey);
         toSign.refs.push(ref2);
-<<<<<<< HEAD
-        let hashSign = toSign.hash();
-        let signature = sign(hashSign, walletKeys!.keyPair.secretKey);
-=======
         let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
->>>>>>> master
 
         // Notify
         await backoff(async () => {

@@ -10,16 +10,14 @@ import { backoff } from '../../utils/time';
 import axios from 'axios';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getAppKey, getCurrentAddress, getPendingGrant, removePendingGrant } from '../../storage/appState';
+import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
-import { Cell } from 'ton';
+import { Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
-import { systemFragment } from '../../systemFragment';
-import { usePasscodeAuth } from '../../utils/PasscodeContext';
-import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { fragment } from '../../fragment';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -103,6 +101,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             return;
         }
         let toSign = new Cell();
+        toSign.bits.writeCoins(0);
         toSign.bits.writeBuffer(Buffer.from(props.session, 'base64'));
         toSign.bits.writeAddress(contract.address);
         toSign.bits.writeBit(1);
@@ -112,8 +111,12 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let ref2 = new Cell();
         ref2.bits.writeBuffer(appInstanceKeyPair.publicKey);
         toSign.refs.push(ref2);
+<<<<<<< HEAD
         let hashSign = toSign.hash();
         let signature = sign(hashSign, walletKeys!.keyPair.secretKey);
+=======
+        let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
+>>>>>>> master
 
         // Notify
         await backoff(async () => {
@@ -190,7 +193,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     );
 });
 
-export const AuthenticateFragment = systemFragment(() => {
+export const AuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params: {
         session: string,

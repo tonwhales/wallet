@@ -4,19 +4,26 @@ import { PasscodeConfirm } from "./PasscodeConfirm";
 
 export type PasscodeAuthType = 'confirm' | 'new' | 'change';
 
-export const PasscodeComponent = React.memo((props: {
-    type?: PasscodeAuthType,
-    onSuccess?: (passcode: string) => void,
-    onCancel?: () => void,
-    backgroundColor?: string
-}) => {
-    switch (props.type) {
+export const PasscodeComponent = React.memo((
+    {
+        type,
+        onSuccess,
+        onCancel,
+        backgroundColor,
+    }: {
+        type?: PasscodeAuthType,
+        onSuccess?: (passcode: string) => void,
+        onCancel?: () => void,
+        backgroundColor?: string,
+    }
+) => {
+    switch (type) {
         case 'change': {
             return (
                 <PasscodeChange
-                    backgroundColor={props.backgroundColor}
-                    onSuccess={props.onSuccess}
-                    onCancel={props.onCancel}
+                    backgroundColor={backgroundColor}
+                    onSuccess={onSuccess}
+                    onCancel={onCancel}
                 />
             );
         }
@@ -24,18 +31,18 @@ export const PasscodeComponent = React.memo((props: {
             return (
                 <PasscodeChange
                     new
-                    onSuccess={props.onSuccess}
-                    onCancel={props.onCancel}
-                    backgroundColor={props.backgroundColor}
+                    onSuccess={onSuccess}
+                    onCancel={onCancel}
+                    backgroundColor={backgroundColor}
                 />
             );
         }
         case 'confirm': {
             return (
                 <PasscodeConfirm
-                    onSuccess={props.onSuccess}
-                    onCancel={props.onCancel}
-                    backgroundColor={props.backgroundColor}
+                    onSuccess={onSuccess}
+                    onCancel={onCancel}
+                    backgroundColor={backgroundColor}
                 />
             );
         }

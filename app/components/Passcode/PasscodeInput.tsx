@@ -1,6 +1,6 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next";
-import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle } from "react-native"
+import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle, ActivityIndicator } from "react-native"
 import { Theme } from "../../Theme";
 import { AnimatedCircle } from "./AnimatedCircle";
 import Backspace from '../../../assets/ic_backspace.svg';
@@ -31,13 +31,15 @@ export const PasscodeInput = React.memo((
         onChange,
         onCancel,
         error,
-        title
+        title,
+        loading
     }: {
         value?: string,
         onChange?: (newVal: string) => void,
         onCancel?: () => void,
         error?: string,
-        title?: string
+        title?: string,
+        loading?: boolean
     }
 ) => {
     const { t } = useTranslation();
@@ -49,18 +51,22 @@ export const PasscodeInput = React.memo((
         },
         [value, onChange],
     );
-    let emptyDots: any[] = [];
-    for (let index = 0; index < PasscodeLength; index++) {
-        emptyDots.push(<View
-            key={`dot-${index}`}
-            style={{
-                height: 12, width: 12,
-                backgroundColor: Theme.divider,
-                borderRadius: 12,
-                margin: 4
-            }}
-        />);
-    }
+    
+    let emptyDots: any[] = useMemo(() => {
+        const arr = [];
+        for (let index = 0; index < PasscodeLength; index++) {
+            arr.push(<View
+                key={`dot-${index}`}
+                style={{
+                    height: 12, width: 12,
+                    backgroundColor: Theme.divider,
+                    borderRadius: 12,
+                    margin: 4
+                }}
+            />);
+        }
+        return arr;
+    }, []);
 
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -86,18 +92,30 @@ export const PasscodeInput = React.memo((
                 flexDirection: 'row', marginTop: 16,
                 justifyContent: 'center', alignItems: 'center',
             }}>
-                {emptyDots}
-                {!!value && (
-                    <View style={{
-                        flexDirection: 'row', position: 'absolute',
-                        top: 0, bottom: 0,
-                        alignItems: 'center',
-                        width: 20 * PasscodeLength,
-                    }}>
-                        {[...value].map((v, index) => {
-                            return (<AnimatedCircle key={`a-c-${index}`} error={!!error} />);
-                        })}
-                    </View>
+                {loading && (<ActivityIndicator size={'small'} />)}
+                {!loading && (
+                    <>
+                        <View style={{
+                            flexDirection: 'row', position: 'absolute',
+                            top: 0, bottom: 0,
+                            alignItems: 'center',
+                            width: 20 * PasscodeLength,
+                        }}>
+                            {emptyDots}
+                        </View>
+                        {!!value && (
+                            <View style={{
+                                flexDirection: 'row', position: 'absolute',
+                                top: 0, bottom: 0,
+                                alignItems: 'center',
+                                width: 20 * PasscodeLength,
+                            }}>
+                                {[...value].map((v, index) => {
+                                    return (<AnimatedCircle key={`a-c-${index}`} error={!!error} />);
+                                })}
+                            </View>
+                        )}
+                    </>
                 )}
             </View>
             <View style={{ flexDirection: 'row', width: '100%', marginTop: 16 }}>

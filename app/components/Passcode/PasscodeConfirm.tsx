@@ -8,43 +8,51 @@ import { PasscodeInput } from "./PasscodeInput";
 export const PasscodeConfirm = React.memo((props: {
     onSuccess?: (passcode: string) => void,
     onCancel?: () => void,
-    backgroundColor?: string
+    backgroundColor?: string,
 }) => {
     const { t } = useTranslation();
     const [error, setError] = useState<string>();
     const [value, setValue] = useState<string>();
+    const [loading, setLoading] = useState(false);
 
     const onChange = useCallback(
         async (pass: string) => {
             setError(undefined);
             if (pass.length <= PasscodeLength) {
                 setValue(pass);
-                if (pass.length === PasscodeLength) {
-                    console.log('[PasscodeConfirm] onchange');
-                    const res = storage.getString(TOKEN_KEY);
-                    if (res) {
-                        try {
-                            let decrypted = await decryptKeyWithPasscode(res, pass);
-                            if (props.onSuccess && decrypted.length > 0)
-                                props.onSuccess(pass);
-                            else {
-                                setError(t('security.error'));
-                                setValue(undefined);
-                            }
-                        } catch (error) {
-                            setError(t('security.error'));
-                            setValue(undefined);
-                        }
-                    } else {
-                        console.log('[PasscodeConfirm] error');
-                        setError(t('security.error'));
-                        setValue(undefined);
-                    }
-                }
             }
         },
         [props, value],
     );
+
+    useEffect(() => {
+        if (value?.length === PasscodeLength) {
+            setLoading(true);
+            (async () => {
+                const res = storage.getString(TOKEN_KEY);
+                if (res) {
+                    try {
+                        let decrypted = await decryptKeyWithPasscode(res, value);
+                        if (props.onSuccess && decrypted.length > 0)
+                            props.onSuccess(value);
+                        else {
+                            setError(t('security.error'));
+                            setValue(undefined);
+                        }
+                    } catch (error) {
+                        setError(t('security.error'));
+                        setValue(undefined);
+                    }
+                } else {
+                    console.log('[PasscodeConfirm] error');
+                    setError(t('security.error'));
+                    setValue(undefined);
+                }
+                setLoading(false);
+            })();
+        }
+    }, [value]);
+
 
     useEffect(() => {
         const lockHardwareBack = () => {
@@ -79,6 +87,7 @@ export const PasscodeConfirm = React.memo((props: {
                     value={value}
                     onChange={onChange}
                     onCancel={props.onCancel}
+                    loading={loading}
                 />
                 <View style={{ flexGrow: 1 }} />
             </View>

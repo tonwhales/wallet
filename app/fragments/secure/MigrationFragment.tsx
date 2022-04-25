@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SendMode, WalletContractType } from 'ton';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { loadWalletKeys, loadWalletKeysWithPasscode, WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
@@ -48,16 +48,9 @@ const MigrationProcessFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                if (Platform.OS === 'android') {
-                    const encryption = await getDeviceEncryption();
-                    if (encryption === 'passcode') {
-                        const authRes = await passcodeAuth?.authenticateAsync('confirm');
-                        if (authRes?.type === 'success') {
-                            key = await loadWalletKeys(acc.secretKeyEnc, authRes.passcode);
-                        } else {
-                            throw Error(authRes?.type || 'Passcode Auth error');
-                        }
-                    }
+                const encryption = await getDeviceEncryption();
+                if (Platform.OS === 'android' && encryption === 'passcode') {
+                    key = await passcodeAuth!.authenticateAsync();
                 } else {
                     key = await loadWalletKeys(acc.secretKeyEnc);
                 }

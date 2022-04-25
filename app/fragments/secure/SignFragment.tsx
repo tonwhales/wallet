@@ -13,6 +13,8 @@ import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useAccount } from '../../sync/Engine';
 import { parseJob } from '../../sync/parse/parseJob';
 import { Theme } from '../../Theme';
+import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { usePasscodeAuth } from '../../utils/PasscodeContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 const labelStyle: StyleProp<TextStyle> = {
@@ -23,6 +25,7 @@ const labelStyle: StyleProp<TextStyle> = {
 
 export const SignFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const passcodeAuth = usePasscodeAuth();
     const params: {
         job: string
     } = useRoute().params as any;
@@ -46,7 +49,12 @@ export const SignFragment = fragment(() => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            const encryption = await getDeviceEncryption();
+            if (Platform.OS === 'android' && encryption === 'passcode') {
+                walletKeys = await passcodeAuth!.authenticateAsync();
+            } else {
+                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            }
         } catch (e) {
             navigation.goBack();
             return;

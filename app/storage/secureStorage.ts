@@ -15,38 +15,35 @@ const androidKeichainOptions = {
 
 
 export async function getPasscodeKey(passcode: string) {
-    let ex = storage.getString(TOKEN_KEY);
-    if (!ex) {
-        let privateKey = await getSecureRandomBytes(32);
-        let encryptedKey = await encryptKeyWithPasscode(privateKey.toString('base64'), passcode);
-        storage.set(TOKEN_KEY, encryptedKey);
-    } else {
-        let decrypted = await decryptKeyWithPasscode(ex, passcode);
-        return Buffer.from(decrypted, 'base64');
-    }
-}
-
-async function getAndroidAppKey(passcode?: string) {
-    if (!passcode) {
-        // Working with fingerprint
-        let ex = await Keychain.getGenericPassword(androidKeichainOptions);
-        if (ex === false || !ex.password) {
+    while (true) {
+        let ex = storage.getString(TOKEN_KEY);
+        if (!ex) {
             let privateKey = await getSecureRandomBytes(32);
-            await Keychain.setGenericPassword(
-                TOKEN_KEY,
-                privateKey.toString('base64'),
-                androidKeichainOptions
-            );
+            let encryptedKey = await encryptKeyWithPasscode(privateKey.toString('base64'), passcode);
+            storage.set(TOKEN_KEY, encryptedKey);
         } else {
-            return Buffer.from(ex.password, 'base64');
+            let decrypted = await decryptKeyWithPasscode(ex, passcode);
+            return Buffer.from(decrypted, 'base64');
         }
-    } else {
-        getPasscodeKey(passcode);
     }
 }
 
-async function getApplicationKey(passcode?: string) {
-    console.log('[getApplicationKey]', { passcode });
+async function getAndroidAppKey() {
+    // Working with fingerprint
+    let ex = await Keychain.getGenericPassword(androidKeichainOptions);
+    if (ex === false || !ex.password) {
+        let privateKey = await getSecureRandomBytes(32);
+        await Keychain.setGenericPassword(
+            TOKEN_KEY,
+            privateKey.toString('base64'),
+            androidKeichainOptions
+        );
+    } else {
+        return Buffer.from(ex.password, 'base64');
+    }
+}
+
+async function getApplicationKey() {
     while (true) {
         if (storage.getBoolean('ton-bypass-encryption')) {
             const ex = storage.getString(TOKEN_KEY);
@@ -58,7 +55,7 @@ async function getApplicationKey(passcode?: string) {
             }
         } else {
             if (Platform.OS === 'android') {
-                let androidKey = await getAndroidAppKey(passcode);
+                let androidKey = await getAndroidAppKey();
                 if (androidKey) return androidKey;
                 continue;
             }
@@ -87,15 +84,15 @@ export async function ensureKeystoreReady() {
     }
 }
 
-export async function encryptData(data: Buffer, passcode?: string) {
-    const key = await getApplicationKey(passcode);
+export async function encryptData(data: Buffer) {
+    const key = await getApplicationKey();
     const nonce = await getSecureRandomBytes(24);
     const sealed = sealBox(data, nonce, key);
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function decryptData(data: Buffer, passcode?: string) {
-    const key = await getApplicationKey(passcode);
+export async function decryptData(data: Buffer) {
+    const key = await getApplicationKey();
     let nonce = data.slice(0, 24);
     let cypherData = data.slice(24);
     let res = openBox(cypherData, nonce, key);
@@ -105,15 +102,36 @@ export async function decryptData(data: Buffer, passcode?: string) {
     return res;
 }
 
+export async function encryptDataWithPasscode(data: Buffer, passcode: string) {
+    const key = await getPasscodeKey(passcode);
+    const nonce = await getSecureRandomBytes(24);
+    const sealed = sealBox(data, nonce, key);
+    return Buffer.concat([nonce, sealed]);
+}
+
+export async function decryptDataWithPasscode(data: Buffer, passcode: string) {
+    const key = await getPasscodeKey(passcode);
+    let nonce = data.slice(0, 24);
+    let cypherData = data.slice(24);
+    let res = openBox(cypherData, nonce, key);
+    if (!res) {
+        throw Error('Unable to decrypt data');
+    }
+    return res;
+}
+
+
+const passcodeEncryptionConfig = {
+    keySize: 4,
+    iterations: 10000
+}
+
 export async function encryptKeyWithPasscode(data: string, passcode: string) {
     return await new Promise<string>((res, reg) => {
         try {
             const salt = CryptoJS.lib.WordArray.random(32);
 
-            const key = CryptoJS.PBKDF2(passcode, salt, {
-                keySize: 4,
-                iterations: 100
-            });
+            const key = CryptoJS.PBKDF2(passcode, salt, passcodeEncryptionConfig);
 
             const iv = CryptoJS.lib.WordArray.random(32);
 
@@ -126,6 +144,8 @@ export async function encryptKeyWithPasscode(data: string, passcode: string) {
             const encryptedKey = salt.toString() + iv.toString() + encrypted.toString();
             if (encryptedKey.length > 0) {
                 res(encryptedKey);
+            } else {
+                throw Error('Failed to encrypt key');
             }
         } catch (error) {
             reg(error);
@@ -142,10 +162,7 @@ export async function decryptKeyWithPasscode(data: string, passcode: string) {
 
             console.log('decrypt', { encrypted });
 
-            const key = CryptoJS.PBKDF2(passcode, salt, {
-                keySize: 4,
-                iterations: 100
-            });
+            const key = CryptoJS.PBKDF2(passcode, salt, passcodeEncryptionConfig);
 
             const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
                 iv: iv,
@@ -156,6 +173,8 @@ export async function decryptKeyWithPasscode(data: string, passcode: string) {
             const decryptedKey = decrypted.toString(CryptoJS.enc.Utf8).replace(/\"/g, '')
             if (decryptedKey.length > 0) {
                 res(decryptedKey);
+            } else {
+                throw Error('Failed to decrypt key');
             }
         } catch (error) {
             reg(error);

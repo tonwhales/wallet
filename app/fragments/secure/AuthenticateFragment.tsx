@@ -15,9 +15,7 @@ import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
 import { Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
-import { systemFragment } from '../../systemFragment';
 import { usePasscodeAuth } from '../../utils/PasscodeContext';
 import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import { fragment } from '../../fragment';
@@ -86,16 +84,9 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         // Sign
         let walletKeys: WalletKeys;
         try {
-            if (Platform.OS === 'android') {
-                const encryption = await getDeviceEncryption();
-                if (encryption === 'passcode') {
-                    const authRes = await passcodeAuth?.authenticateAsync('confirm');
-                    if (authRes?.type === 'success') {
-                        walletKeys = await loadWalletKeys(acc.secretKeyEnc, authRes.passcode);            
-                    } else {
-                        throw Error(authRes?.type || 'Passcode Auth error');
-                    }
-                }
+            const encryption = await getDeviceEncryption();
+            if (Platform.OS === 'android' && encryption === 'passcode') {
+                walletKeys = await passcodeAuth!.authenticateAsync();
             } else {
                 walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             }

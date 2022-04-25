@@ -167,16 +167,9 @@ export const TransferFragment = fragment(() => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            if (Platform.OS === 'android') {
-                const encryption = await getDeviceEncryption();
-                if (encryption === 'passcode') {
-                    const authRes = await passcodeAuth?.authenticateAsync('confirm');
-                    if (authRes?.type === 'success') {
-                        walletKeys = await loadWalletKeys(acc.secretKeyEnc, authRes.passcode);
-                    } else {
-                        throw Error(authRes?.type || 'Passcode Auth error');
-                    }
-                }
+            const encryption = await getDeviceEncryption();
+            if (Platform.OS === 'android' && encryption === 'passcode') {
+                walletKeys = await passcodeAuth!.authenticateAsync();
             } else {
                 walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             }

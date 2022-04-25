@@ -37,16 +37,12 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                     storage.set('ton-bypass-encryption', false);
                 }
 
-                let passcode;
+                let token;
                 if (Platform.OS === 'android' && props.deviceEncryption === 'passcode') {
-                    const authRes = await passcodeAuth?.authenticateAsync('new');
-                    console.log({ authRes });
-                    if (authRes?.type === 'success') {
-                        passcode = authRes.passcode;
-                    }
+                    token = await passcodeAuth!.encrypthWithPasscodeAsync(props.mnemonics);
+                } else {
+                    token = await encryptData(Buffer.from(props.mnemonics));
                 }
-
-                const token = await encryptData(Buffer.from(props.mnemonics), passcode);
 
                 // Resolve key
                 const key = await mnemonicToWalletKey(props.mnemonics.split(' '));

@@ -39,20 +39,12 @@ export const WalletBackupFragment = systemFragment(() => {
         (async () => {
             try {
                 let keys;
-                if (Platform.OS === 'android') {
-                    const encryption = await getDeviceEncryption();
-                    if (encryption === 'passcode') {
-                        const authRes = await passcodeAuth?.authenticateAsync('confirm');
-                        if (authRes?.type === 'success') {
-                            keys = await loadWalletKeys(address.secretKeyEnc, authRes.passcode);
-                            setMnemonics(keys.mnemonics);
-                            return;
-                        } else {
-                            throw Error(authRes?.type || 'Passcode Auth error');
-                        }
-                    }
+                const encryption = await getDeviceEncryption();
+                if (Platform.OS === 'android' && encryption === 'passcode') {
+                    keys = await passcodeAuth!.authenticateAsync();
+                } else {
+                    keys = await loadWalletKeys(address.secretKeyEnc);
                 }
-                keys = await loadWalletKeys(address.secretKeyEnc);
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 navigation.goBack();

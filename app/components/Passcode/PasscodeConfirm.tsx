@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { BackHandler, View } from "react-native"
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { decryptKeyWithPasscode, PasscodeLength, TOKEN_KEY } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { PasscodeInput } from "./PasscodeInput";
@@ -47,18 +46,7 @@ export const PasscodeConfirm = React.memo((props: {
         [props, value],
     );
 
-    const opacity = useSharedValue(0);
-    const opacityStyle = useAnimatedStyle(() => {
-        return {
-            opacity: withTiming(opacity.value, {
-                duration: 200,
-                easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-            }),
-        };
-    }, []);
-
     useEffect(() => {
-        opacity.value = 1;
         const lockHardwareBack = () => {
             console.log('lockHardwareBack');
             if (props.onCancel) {
@@ -80,9 +68,7 @@ export const PasscodeConfirm = React.memo((props: {
             backgroundColor: props.backgroundColor ? props.backgroundColor : 'white',
             alignItems: 'center'
         }}>
-            {/* TODO move do enter animations */}
-            <Animated.View style={{
-                ...opacityStyle,
+            <View style={{
                 alignItems: 'center',
                 flex: 1, flexGrow: 1
             }}>
@@ -95,7 +81,7 @@ export const PasscodeConfirm = React.memo((props: {
                     onCancel={props.onCancel}
                 />
                 <View style={{ flexGrow: 1 }} />
-            </Animated.View>
+            </View>
         </View>
     );
 });

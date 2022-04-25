@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { PasscodeAuth } from "../components/Passcode/PasscodeAuth";
-import { PasscodeAuthType } from "../components/Passcode/PasscodeComponent";
+import { PasscodeAuthType, PasscodeComponent } from "../components/Passcode/PasscodeComponent";
 
 export type PasscodeAuthResult =
     { type: 'success', passcode: string }
@@ -17,17 +16,17 @@ const PasscodeContext = React.createContext<PasscodeContextType>(undefined);
 export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) => {
     console.log('[PasscodeAuthLoader]');
     const [authState, setAuthState] = useState<{
-        onSuccess: (passcode: string) => void,
+        onSuccess?: (passcode: string) => void,
         onError?: () => void,
         onCancel?: () => void,
-        type: PasscodeAuthType
+        type?: PasscodeAuthType
     }>();
 
     const dismiss = useCallback(
         (call?: () => void) => {
             if (call) {
                 return () => {
-                    setAuthState(undefined);
+                    setAuthState({ type: undefined });
                     call();
                 }
             }
@@ -42,7 +41,7 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
                 setAuthState({
                     onSuccess: (passcode: string) => {
                         console.log('[authenticateAsync]', { passcode });
-                        setAuthState(undefined);
+                        setAuthState({ type: undefined });
                         resolve({ type: 'success', passcode });
                     },
                     onError: dismiss(() => resolve({ type: 'error' })),
@@ -66,7 +65,7 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
                     exiting={FadeOut}
                     entering={FadeIn}
                 >
-                    <PasscodeAuth {...authState} />
+                    <PasscodeComponent {...authState} />
                 </Animated.View>
             )}
         </PasscodeContext.Provider>

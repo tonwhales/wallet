@@ -51,12 +51,15 @@ export const PasscodeInput = React.memo((
     );
     let emptyDots: any[] = [];
     for (let index = 0; index < PasscodeLength; index++) {
-        emptyDots.push(<View style={{
-            height: 12, width: 12,
-            backgroundColor: Theme.divider,
-            borderRadius: 12,
-            margin: 4
-        }} />);
+        emptyDots.push(<View
+            key={`dot-${index}`}
+            style={{
+                height: 12, width: 12,
+                backgroundColor: Theme.divider,
+                borderRadius: 12,
+                margin: 4
+            }}
+        />);
     }
 
     return (

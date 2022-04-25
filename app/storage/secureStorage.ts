@@ -13,6 +13,19 @@ const androidKeichainOptions = {
     storage: Keychain.STORAGE_TYPE.RSA
 }
 
+
+export async function getPasscodeKey(passcode: string) {
+    let ex = storage.getString(TOKEN_KEY);
+    if (!ex) {
+        let privateKey = await getSecureRandomBytes(32);
+        let encryptedKey = await encryptKeyWithPasscode(privateKey.toString('base64'), passcode);
+        storage.set(TOKEN_KEY, encryptedKey);
+    } else {
+        let decrypted = await decryptKeyWithPasscode(ex, passcode);
+        return Buffer.from(decrypted, 'base64');
+    }
+}
+
 async function getAndroidAppKey(passcode?: string) {
     if (!passcode) {
         // Working with fingerprint
@@ -28,16 +41,7 @@ async function getAndroidAppKey(passcode?: string) {
             return Buffer.from(ex.password, 'base64');
         }
     } else {
-        // Switch to passcode encryption
-        let ex = storage.getString(TOKEN_KEY);
-        if (!ex) {
-            let privateKey = await getSecureRandomBytes(32);
-            let encryptedKey = await encryptKeyWithPasscode(privateKey.toString('base64'), passcode);
-            storage.set(TOKEN_KEY, encryptedKey);
-        } else {
-            let decrypted = await decryptKeyWithPasscode(ex, passcode);
-            return Buffer.from(decrypted, 'base64');
-        }
+        getPasscodeKey(passcode);
     }
 }
 

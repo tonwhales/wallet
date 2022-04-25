@@ -15,47 +15,41 @@ export const PasscodeConfirm = React.memo((props: {
     const [loading, setLoading] = useState(false);
 
     const onChange = useCallback(
-        async (pass: string) => {
+        (pass: string) => {
             setError(undefined);
             if (pass.length <= PasscodeLength) {
                 setValue(pass);
             }
         },
-        [props, value],
+        [],
     );
 
     useEffect(() => {
-        if (value?.length === PasscodeLength) {
+        if (value && value.length === PasscodeLength) {
             setLoading(true);
-            (async () => {
-                const res = storage.getString(TOKEN_KEY);
-                if (res) {
-                    try {
-                        let decrypted = await decryptKeyWithPasscode(res, value);
-                        if (props.onSuccess && decrypted.length > 0)
-                            props.onSuccess(value);
-                        else {
-                            setError(t('security.error'));
-                            setValue(undefined);
-                        }
-                    } catch (error) {
+            const res = storage.getString(TOKEN_KEY);
+            if (res) {
+                decryptKeyWithPasscode(res, value).then((decrypted) => {
+                    if (props.onSuccess && decrypted.length > 0)
+                        props.onSuccess(value);
+                    else {
                         setError(t('security.error'));
                         setValue(undefined);
                     }
-                } else {
-                    console.log('[PasscodeConfirm] error');
+                }).catch(() => {
                     setError(t('security.error'));
                     setValue(undefined);
-                }
-                setLoading(false);
-            })();
+                }).finally(() => setLoading(false));
+            } else {
+                setError(t('security.error'));
+                setValue(undefined);
+            }
         }
-    }, [value]);
+    }, [value, props]);
 
 
     useEffect(() => {
         const lockHardwareBack = () => {
-            console.log('lockHardwareBack');
             if (props.onCancel) {
                 props.onCancel();
                 return true;

@@ -38,12 +38,12 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
             return await new Promise<WalletKeys>((resolve, reg) => {
                 setAuthState({
                     onSuccess: (passcode: string) => {
-                        (async () => {
-                            const acc = getCurrentAddress();
-                            const res = await loadWalletKeysWithPasscode(acc.secretKeyEnc, passcode);
-                            setAuthState(undefined);
+                        const acc = getCurrentAddress();
+                        loadWalletKeysWithPasscode(acc.secretKeyEnc, passcode).then((res) => {
                             resolve(res);
-                        })();
+                        }).finally(() => {
+                            setAuthState(undefined);
+                        });
                     },
                     onError: dismiss(() => {
                         reg('Passcode Auth error');
@@ -63,11 +63,11 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
             return await new Promise<Buffer>((resolve, reg) => {
                 setAuthState({
                     onSuccess: (passcode: string) => {
-                        (async () => {
-                            const res = await encryptDataWithPasscode(Buffer.from(mnemonics), passcode);
-                            setAuthState(undefined);
+                        encryptDataWithPasscode(Buffer.from(mnemonics), passcode).then((res) => {
                             resolve(res);
-                        })();
+                        }).finally(() => {
+                            setAuthState(undefined);
+                        })
                     },
                     onError: dismiss(() => {
                         reg('Passcode Auth error');

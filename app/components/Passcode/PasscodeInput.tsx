@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo } from "react"
-import { useTranslation } from "react-i18next";
-import { Pressable, View, Image, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle, ActivityIndicator } from "react-native"
+import { Pressable, View, Text, PressableStateCallbackType, StyleProp, ViewStyle, TextStyle, ActivityIndicator } from "react-native"
 import { Theme } from "../../Theme";
 import { AnimatedCircle } from "./AnimatedCircle";
 import Backspace from '../../../assets/ic_backspace.svg';
 import { PasscodeLength } from "../../storage/secureStorage";
+import { t } from "../../i18n/t";
 
 function inputButtonStyle(state: PressableStateCallbackType, style?: ViewStyle): StyleProp<ViewStyle> {
     return ({
@@ -42,7 +42,6 @@ export const PasscodeInput = React.memo((
         loading?: boolean
     }
 ) => {
-    const { t } = useTranslation();
     const onKeyPressed = useCallback(
         (key: string) => {
             if (onChange) {

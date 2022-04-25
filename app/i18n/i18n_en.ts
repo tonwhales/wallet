@@ -328,7 +328,19 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         withdrawRequested: 'Withdraw requested',
         upgrade: 'Upgrade code to {{hash}}',
         upgradeOk: 'Upgrade completed'
-    }
+    },
+    security: {
+        title: 'Security',
+        error: 'Wrong passcode',
+        passcode: {
+            use: 'Use passcode',
+            change: 'Change passcode',
+        },
+        biometry: 'Use biometry',
+        reenter: 'Re-enter passcode',
+        new: 'Create new passcode',
+        confirm: 'Enter current passcode'
+    },
 };
 
 export default schema;

@@ -330,7 +330,19 @@ export type LocalizationSchema = {
         withdrawRequested: string,
         upgrade: string,
         upgradeOk: string
-    }
+    },
+    security: {
+        title: string,
+        passcode: {
+            use: string
+            change: string,
+        },
+        biometry: string,
+        error: string,
+        reenter: string,
+        new: string,
+        confirm: string,
+    },
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

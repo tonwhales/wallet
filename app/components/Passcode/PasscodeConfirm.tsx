@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { useTranslation } from "react-i18next";
 import { BackHandler, View } from "react-native"
+import { t } from "../../i18n/t";
 import { decryptKeyWithPasscode, PasscodeLength, TOKEN_KEY } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { PasscodeInput } from "./PasscodeInput";
@@ -10,7 +10,6 @@ export const PasscodeConfirm = React.memo((props: {
     onCancel?: () => void,
     backgroundColor?: string,
 }) => {
-    const { t } = useTranslation();
     const [error, setError] = useState<string>();
     const [value, setValue] = useState<string>();
     const [loading, setLoading] = useState(false);

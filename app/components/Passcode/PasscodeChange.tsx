@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { useTranslation } from "react-i18next";
 import { View } from "react-native"
+import { t } from "../../i18n/t";
 import { PasscodeLength } from "../../storage/secureStorage";
 import { PasscodeConfirm } from "./PasscodeConfirm";
 import { PasscodeInput } from "./PasscodeInput";
@@ -11,7 +11,6 @@ export const PasscodeChange = React.memo((props: {
     new?: boolean,
     backgroundColor?: string
 }) => {
-    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [confirmed, setConfirmed] = useState(props.new);
     const [error, setError] = useState<string>();

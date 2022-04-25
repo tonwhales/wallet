@@ -328,7 +328,19 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         withdrawRequested: 'Запрос на вывод принят',
         upgrade: 'Обновление кода до {{hash}}',
         upgradeOk: 'Обновление завершено'
-    }
+    },
+    security: {
+        title: 'Безопасность',
+        error: 'Неправильный пароль',
+        passcode: {
+            use: 'Использовать пароль',
+            change: 'Изменить пароль',
+        },
+        biometry: 'Использовать биометрию',
+        reenter: 'Повторно введите пароль',
+        new: 'Создать новый пароль',
+        confirm: 'Введите текущий пароль'
+    },
 };
 
 export default schema;

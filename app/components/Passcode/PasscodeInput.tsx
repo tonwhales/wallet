@@ -50,7 +50,7 @@ export const PasscodeInput = React.memo((
         },
         [value, onChange],
     );
-    
+
     let emptyDots: any[] = useMemo(() => {
         const arr = [];
         for (let index = 0; index < PasscodeLength; index++) {
@@ -91,12 +91,21 @@ export const PasscodeInput = React.memo((
                 flexDirection: 'row', marginTop: 16,
                 justifyContent: 'center', alignItems: 'center',
             }}>
-                {loading && (<ActivityIndicator size={'small'} />)}
+                {loading && (
+                    <ActivityIndicator
+                        style={{
+                            position: 'absolute',
+                            top: 0, bottom: 0, left: 0, right: 0
+                        }}
+                        size={'small'}
+                        color={Theme.accent} />
+                )}
                 {!loading && (
                     <>
                         <View style={{
-                            flexDirection: 'row', position: 'absolute',
+                            position: 'absolute',
                             top: 0, bottom: 0,
+                            flexDirection: 'row',
                             alignItems: 'center',
                             width: 20 * PasscodeLength,
                         }}>

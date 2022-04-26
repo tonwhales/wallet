@@ -19,6 +19,7 @@ import { Theme } from '../../Theme';
 import { usePasscodeAuth } from '../../utils/PasscodeContext';
 import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import { fragment } from '../../fragment';
+import { usePasscode } from '../../storage/secureStorage';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -85,8 +86,9 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let walletKeys: WalletKeys;
         try {
             const encryption = await getDeviceEncryption();
-            if (Platform.OS === 'android' && encryption === 'passcode') {
-                walletKeys = await passcodeAuth!.authenticateAsync();
+            const hasPasscode = usePasscode();
+            if (Platform.OS === 'android' && encryption === 'passcode' && hasPasscode) {
+                walletKeys = await passcodeAuth!.authenticateWithPasscodeAsync();
             } else {
                 walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             }

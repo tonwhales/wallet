@@ -6,7 +6,7 @@ import { encryptDataWithPasscode } from "../storage/secureStorage";
 import { loadWalletKeysWithPasscode, WalletKeys } from "../storage/walletKeys";
 
 export type PasscodeContextType = {
-    authenticateAsync: (cancelable?: boolean) => Promise<WalletKeys>,
+    authenticateWithPasscodeAsync: (cancelable?: boolean) => Promise<WalletKeys>,
     encrypthWithPasscodeAsync: (mnemonics: string, cancelable?: boolean) => Promise<Buffer>
 } | undefined
 
@@ -33,9 +33,9 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
         [],
     );
 
-    const authenticateAsync = useCallback(
-        async () => {
-            return await new Promise<WalletKeys>((resolve, reg) => {
+    const authenticateWithPasscodeAsync = useCallback(
+        () => {
+            return new Promise<WalletKeys>((resolve, reg) => {
                 setAuthState({
                     onSuccess: (passcode: string) => {
                         const acc = getCurrentAddress();
@@ -59,8 +59,8 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
     );
 
     const encrypthWithPasscodeAsync = useCallback(
-        async (mnemonics: string) => {
-            return await new Promise<Buffer>((resolve, reg) => {
+        (mnemonics: string) => {
+            return new Promise<Buffer>((resolve, reg) => {
                 setAuthState({
                     onSuccess: (passcode: string) => {
                         encryptDataWithPasscode(Buffer.from(mnemonics), passcode).then((res) => {
@@ -83,7 +83,7 @@ export const PasscodeAuthLoader = React.memo(({ children }: { children: any }) =
     );
 
     return (
-        <PasscodeContext.Provider value={{ authenticateAsync, encrypthWithPasscodeAsync }}>
+        <PasscodeContext.Provider value={{ authenticateWithPasscodeAsync, encrypthWithPasscodeAsync }}>
             {children}
             {authState && (
                 <Animated.View

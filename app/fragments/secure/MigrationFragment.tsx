@@ -25,6 +25,7 @@ import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
 import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import { usePasscodeAuth } from '../../utils/PasscodeContext';
+import { usePasscode } from '../../storage/secureStorage';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -49,8 +50,9 @@ const MigrationProcessFragment = fragment(() => {
             let key: WalletKeys
             try {
                 const encryption = await getDeviceEncryption();
-                if (Platform.OS === 'android' && encryption === 'passcode') {
-                    key = await passcodeAuth!.authenticateAsync();
+                const hasPasscode = usePasscode();
+                if (Platform.OS === 'android' && encryption === 'passcode' && hasPasscode) {
+                    key = await passcodeAuth!.authenticateWithPasscodeAsync();
                 } else {
                     key = await loadWalletKeys(acc.secretKeyEnc);
                 }

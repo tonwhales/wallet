@@ -33,6 +33,7 @@ import { fragment } from '../../fragment';
 import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import { usePasscodeAuth } from '../../utils/PasscodeContext';
 import { erase } from './utils/erase';
+import { usePasscode } from '../../storage/secureStorage';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -168,8 +169,9 @@ export const TransferFragment = fragment(() => {
         let walletKeys: WalletKeys;
         try {
             const encryption = await getDeviceEncryption();
-            if (Platform.OS === 'android' && encryption === 'passcode') {
-                walletKeys = await passcodeAuth!.authenticateAsync();
+            const hasPasscode = usePasscode();
+            if (Platform.OS === 'android' && encryption === 'passcode' && hasPasscode) {
+                walletKeys = await passcodeAuth!.authenticateWithPasscodeAsync();
             } else {
                 walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             }

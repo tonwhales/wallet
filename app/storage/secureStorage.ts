@@ -7,6 +7,24 @@ import * as CryptoJS from 'crypto-js';
 import Pbkdf2 from "react-native-fast-pbkdf2";
 
 export const TOKEN_KEY = 'ton-application-key-v5';
+const USE_PASSCODE = 'ton-passcode-necryption';
+const USE_KEYCHAIN = 'ton-use-keychain';
+
+export function usePasscode() {
+    return storage.getBoolean(USE_PASSCODE);
+}
+
+export function useKeychain() {
+    return storage.getBoolean(USE_KEYCHAIN);
+}
+
+export function clearStorage() {
+    storage.clearAll();
+    const hasKeychain = useKeychain();
+    if (hasKeychain) {
+        Keychain.resetGenericPassword(androidKeichainOptions);
+    }
+}
 
 const androidKeichainOptions = {
     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
@@ -14,14 +32,15 @@ const androidKeichainOptions = {
     storage: Keychain.STORAGE_TYPE.RSA
 }
 
-
-export async function getPasscodeKey(passcode: string) {
+// Passcode storage
+async function getPasscodeKey(passcode: string) {
     while (true) {
         let ex = storage.getString(TOKEN_KEY);
         if (!ex) {
             let privateKey = await getSecureRandomBytes(32);
             let encryptedKey = await encryptKeyWithPasscode(privateKey.toString('base64'), passcode);
             storage.set(TOKEN_KEY, encryptedKey);
+            storage.set(USE_PASSCODE, true);
         } else {
             let decrypted = await decryptKeyWithPasscode(ex, passcode);
             return Buffer.from(decrypted, 'base64');
@@ -29,8 +48,8 @@ export async function getPasscodeKey(passcode: string) {
     }
 }
 
-async function getAndroidAppKey() {
-    // Working with fingerprint
+// Keychain storage
+async function getKeychainKey() {
     let ex = await Keychain.getGenericPassword(androidKeichainOptions);
     if (ex === false || !ex.password) {
         let privateKey = await getSecureRandomBytes(32);
@@ -39,6 +58,7 @@ async function getAndroidAppKey() {
             privateKey.toString('base64'),
             androidKeichainOptions
         );
+        storage.set(USE_KEYCHAIN, true);
     } else {
         return Buffer.from(ex.password, 'base64');
     }
@@ -55,8 +75,9 @@ async function getApplicationKey() {
                 return Buffer.from(ex, 'base64');
             }
         } else {
-            if (Platform.OS === 'android') {
-                let androidKey = await getAndroidAppKey();
+            const hasKeychain = useKeychain();
+            if (Platform.OS === 'android' && hasKeychain) {
+                let androidKey = await getKeychainKey();
                 if (androidKey) return androidKey;
                 continue;
             }

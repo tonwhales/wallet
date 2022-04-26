@@ -9,6 +9,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { getConnectionReferences, getCurrentAddress } from '../../storage/appState';
+import { usePasscode } from '../../storage/secureStorage';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useAccount } from '../../sync/Engine';
 import { parseJob } from '../../sync/parse/parseJob';
@@ -50,8 +51,9 @@ export const SignFragment = fragment(() => {
         let walletKeys: WalletKeys;
         try {
             const encryption = await getDeviceEncryption();
-            if (Platform.OS === 'android' && encryption === 'passcode') {
-                walletKeys = await passcodeAuth!.authenticateAsync();
+            const hasPasscode = usePasscode();
+            if (Platform.OS === 'android' && encryption === 'passcode' && hasPasscode) {
+                walletKeys = await passcodeAuth!.authenticateWithPasscodeAsync();
             } else {
                 walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             }

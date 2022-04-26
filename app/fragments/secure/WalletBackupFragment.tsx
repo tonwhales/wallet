@@ -14,6 +14,7 @@ import { EngineContext } from '../../sync/Engine';
 import { systemFragment } from '../../systemFragment';
 import { getDeviceEncryption } from '../../utils/getDeviceEncryption';
 import { usePasscodeAuth } from '../../utils/PasscodeContext';
+import { usePasscode } from '../../storage/secureStorage';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -40,8 +41,9 @@ export const WalletBackupFragment = systemFragment(() => {
             try {
                 let keys;
                 const encryption = await getDeviceEncryption();
-                if (Platform.OS === 'android' && encryption === 'passcode') {
-                    keys = await passcodeAuth!.authenticateAsync();
+                const hasPasscode = usePasscode();
+                if (Platform.OS === 'android' && encryption === 'passcode' && hasPasscode) {
+                    keys = await passcodeAuth!.authenticateWithPasscodeAsync();
                 } else {
                     keys = await loadWalletKeys(address.secretKeyEnc);
                 }

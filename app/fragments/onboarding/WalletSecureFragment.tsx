@@ -119,14 +119,6 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             break;
     }
 
-    const disabled = Platform.OS === 'android' && props.deviceEncryption === 'passcode';
-
-    if (disabled) {
-        text = t('secure.subtitleNoBiometrics');
-        buttonText = t('secure.titleUnprotected');
-        icon = undefined;
-    }
-
     const continueAnywayAlert = React.useCallback(() => {
         Alert.alert(
             t('secure.titleUnprotected'),
@@ -156,37 +148,14 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                     text={text}
                 />
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ height: disabled ? 128 : 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                     <RoundButton
-                        disabled={disabled}
                         onPress={onClick}
                         title={buttonText}
                         loading={loading}
                         iconImage={iconImage}
                         icon={icon}
                     />
-                    {disabled && (
-                        <Pressable
-                            onPress={continueAnywayAlert}
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    alignSelf: 'center',
-                                    marginTop: 26,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }
-                            }}
-                        >
-                            <Text style={{
-                                fontSize: 17,
-                                fontWeight: '600',
-                                color: Theme.accentText
-                            }}>
-                                {t('common.continueAnyway')}
-                            </Text>
-                        </Pressable>
-                    )}
                 </View>
             </View>
         </View>

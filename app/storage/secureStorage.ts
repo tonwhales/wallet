@@ -2,8 +2,36 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
+import * as Keychain from 'react-native-keychain';
 
 const TOKEN_KEY = 'ton-application-key-v5';
+const USE_KEYCHAIN = 'ton-use-keychain';
+
+export function useKeychain() {
+    return storage.getBoolean(USE_KEYCHAIN);
+}
+
+export function clearStorage() {
+    const hasKeychain = useKeychain();
+    if (hasKeychain) {
+        Keychain.resetGenericPassword(androidKeichainOptions);
+    }
+    storage.clearAll();
+}
+
+const androidKeichainOptions = {
+    accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+    authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+    storage: Keychain.STORAGE_TYPE.RSA
+}
+
+async function getKeychainKey() {
+    const res = await Keychain.getGenericPassword(androidKeichainOptions);
+    if (res) {
+        return res.password;
+    }
+}
+
 async function getApplicationKey() {
     while (true) {
         if (storage.getBoolean('ton-bypass-encryption')) {
@@ -15,9 +43,18 @@ async function getApplicationKey() {
                 return Buffer.from(ex, 'base64');
             }
         } else {
-            let ex = await SecureStore.getItemAsync(TOKEN_KEY);
+            let ex = useKeychain() ? await getKeychainKey() : await SecureStore.getItemAsync(TOKEN_KEY);
             if (!ex) {
                 let privateKey = await getSecureRandomBytes(32);
+                if (Platform.OS === 'android') {
+                    await Keychain.setGenericPassword(
+                        TOKEN_KEY,
+                        privateKey.toString('base64'),
+                        androidKeichainOptions
+                    );
+                    storage.set(USE_KEYCHAIN, true);
+                    continue;
+                }
                 await SecureStore.setItemAsync(TOKEN_KEY, privateKey.toString('base64'), {
                     requireAuthentication: true,
                     keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY

@@ -7366,6 +7366,11 @@ react-native-inappbrowser-reborn@^3.6.3:
     invariant "^2.2.4"
     opencollective-postinstall "^2.0.2"
 
+react-native-keychain@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-8.0.0.tgz#ff708e4dc2a5440df717179bf9b7cd50f78b61d7"
+  integrity sha512-c7Cs+YQN26UaQsRG1dmlXL7VL2ctnXwH/dl0IOMEQ7ZaL2NdN313YSAI8ZEZZjrVhNmPsyWEuvTFqWrdpItqQg==
+
 react-native-localize@^2.1.7:
   version "2.1.7"
   resolved "https://registry.yarnpkg.com/react-native-localize/-/react-native-localize-2.1.7.tgz#f1dda0c6fd58ab06b5b119cb4a507ab8800b9823"

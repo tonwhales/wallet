@@ -1,9 +1,20 @@
 import * as Device from 'expo-device';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Platform } from 'react-native';
+import * as Keychain from 'react-native-keychain';
 
 export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face';
 
 export async function getDeviceEncryption(): Promise<DeviceEncryption> {
+
+    if (Platform.OS === 'android') {
+        const supported = await Keychain.getSupportedBiometryType();
+        if (supported === Keychain.BIOMETRY_TYPE.FINGERPRINT) {
+            return 'fingerprint';
+        } else {
+            return 'passcode';
+        }
+    }
 
     // Fetch enrolled security
     const level = await LocalAuthentication.getEnrolledLevelAsync();

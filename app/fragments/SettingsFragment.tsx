@@ -23,8 +23,8 @@ export const SettingsFragment = fragment(() => {
             t('confirm.logout.title'),
             t('confirm.logout.message'),
             [{
-                text: t('common.logout'), style: 'destructive', onPress: () => {
-                    clearStorage();
+                text: t('common.logout'), style: 'destructive', onPress: async () => {
+                    await clearStorage();
                     reboot();
                 }
             }, { text: t('common.cancel') }])

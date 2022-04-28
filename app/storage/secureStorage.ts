@@ -11,10 +11,10 @@ export function useKeychain() {
     return storage.getBoolean(USE_KEYCHAIN);
 }
 
-export function clearStorage() {
+export async function clearStorage() {
     const hasKeychain = useKeychain();
     if (hasKeychain) {
-        Keychain.resetGenericPassword(androidKeichainOptions);
+        await Keychain.resetGenericPassword(androidKeichainOptions);
     }
     storage.clearAll();
 }

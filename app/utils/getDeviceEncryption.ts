@@ -1,5 +1,6 @@
 import * as Device from 'expo-device';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Platform } from 'react-native';
 
 export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face';
 
@@ -22,7 +23,7 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
     } else if (level === LocalAuthentication.SecurityLevel.SECRET) {
         return 'passcode';
     } else {
-        if (types.find((v) => v === LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
+        if (types.find((v) => v === LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION) && Platform.OS !== 'android') {
             return 'face';
         }
         if (types.find((v) => v === LocalAuthentication.AuthenticationType.FINGERPRINT)) {

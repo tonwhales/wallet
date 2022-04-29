@@ -104,8 +104,14 @@ export const ConnectedAppButton = React.memo((
                 )}
             </View>
             <Pressable
-                style={{
-                    marginLeft: 10
+                style={({ pressed }) => {
+                    return {
+                        marginLeft: 10,
+                        opacity: pressed ? 0.3 : 1,
+                        height: 42,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }
                 }}
                 onPress={onPress}
             >

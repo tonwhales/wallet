@@ -127,7 +127,7 @@ const navigation = [
     genericScreen('Settings', SettingsFragment),
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
-    genericScreen('Connections', ConnectionsFragment),
+    modalScreen('Connections', ConnectionsFragment),
     modalScreen('Transfer', TransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),

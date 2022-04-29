@@ -107,6 +107,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure want to revoke this app?',
             message: 'This will destroy link between your wallet and app, but you can always try to connect again.',
             action: 'Revoke'
+        },
+        apps: {
+            title: 'Trusted Apps'
         }
     },
     sign: {

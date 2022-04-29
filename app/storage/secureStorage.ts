@@ -4,12 +4,6 @@ import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
 
 const TOKEN_KEY = 'ton-application-key-v5';
-
-export async function clearStorage() {
-    storage.clearAll();
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
-}
-
 async function getApplicationKey() {
     while (true) {
         if (storage.getBoolean('ton-bypass-encryption')) {

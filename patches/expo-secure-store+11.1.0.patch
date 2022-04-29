@@ -97,7 +97,7 @@ index 3453800..d45f9e1 100644
  
              override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
 diff --git a/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java b/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java
-index 91e9b85..0a598a9 100644
+index 91e9b85..8159332 100644
 --- a/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java
 +++ b/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java
 @@ -13,6 +13,8 @@ import android.text.TextUtils;
@@ -156,7 +156,7 @@ index 91e9b85..0a598a9 100644
    // NOTE: This currently doesn't remove the entry (if any) in the legacy shared preferences
    @ExpoMethod
    @SuppressWarnings("unused")
-@@ -389,12 +415,23 @@ public class SecureStoreModule extends ExportedModule {
+@@ -389,12 +415,24 @@ public class SecureStoreModule extends ExportedModule {
      public KeyStore.SecretKeyEntry initializeKeyStoreEntry(KeyStore keyStore, ReadableArguments options) throws GeneralSecurityException {
        String keystoreAlias = getKeyStoreAlias(options);
        int keyPurposes = KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT;
@@ -179,6 +179,7 @@ index 91e9b85..0a598a9 100644
 +        algorithmSpec = new KeyGenParameterSpec.Builder(keystoreAlias, keyPurposes)
 +            .setKeySize(AES_KEY_SIZE_BITS)
 +            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
++            .setUserAuthenticationValidityDurationSeconds(5)
 +            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
 +            .setUserAuthenticationRequired(options.getBoolean(AuthenticationHelper.REQUIRE_AUTHENTICATION_PROPERTY, false))
 +            .build();

@@ -1,6 +1,7 @@
 import * as Device from 'expo-device';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face';
 
@@ -12,7 +13,8 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
     // Fetch authentication types
     const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
 
-    const androidLevel = await LocalAuthentication.getEnrolledSecureStoreLevelAsync();
+    const androidLevel = await SecureStore.getEnrolledLevelAsync();
+    console.log({ androidLevel });
 
     // No encryption on device and simulator
     if (!Device.isDevice) {

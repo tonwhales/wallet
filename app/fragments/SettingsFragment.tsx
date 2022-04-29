@@ -11,6 +11,7 @@ import { BlurView } from 'expo-blur';
 import { useReboot } from '../utils/RebootContext';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
+import { clearStorage } from '../storage/secureStorage';
 
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -22,8 +23,8 @@ export const SettingsFragment = fragment(() => {
             t('confirm.logout.title'),
             t('confirm.logout.message'),
             [{
-                text: t('common.logout'), style: 'destructive', onPress: () => {
-                    storage.clearAll();
+                text: t('common.logout'), style: 'destructive', onPress: async () => {
+                    await clearStorage();
                     reboot();
                 }
             }, { text: t('common.cancel') }])

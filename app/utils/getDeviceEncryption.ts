@@ -13,8 +13,7 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
     // Fetch authentication types
     const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
 
-    const androidLevel = await SecureStore.getEnrolledLevelAsync();
-    console.log({ androidLevel });
+    const androidLevel = Platform.OS === 'android' ? await SecureStore.getEnrolledLevelAsync() : 0;
 
     // No encryption on device and simulator
     if (!Device.isDevice) {

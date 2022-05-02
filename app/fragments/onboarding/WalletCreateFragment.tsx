@@ -4,7 +4,7 @@ import { mnemonicNew } from 'ton-crypto';
 import { minimumDelay } from 'teslabot';
 import { WalletSecureFragment } from './WalletSecureFragment';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
-import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';

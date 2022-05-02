@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import { RoundButton } from '../../components/RoundButton';
 import { mnemonicValidate } from 'ton-crypto';
-import { DeviceEncryption, getDeviceEncryption } from '../../utils/getDeviceEncryption';
+import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
 import { AndroidToolbar } from '../../components/AndroidToolbar';

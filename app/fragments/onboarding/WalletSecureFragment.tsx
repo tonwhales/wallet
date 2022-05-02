@@ -2,10 +2,9 @@ import * as React from 'react';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { encryptData, ensureKeystoreReady } from '../../storage/secureStorage';
-import { DeviceEncryption } from '../../utils/getDeviceEncryption';
+import { encryptData, generateNewKey } from '../../storage/secureStorage';
+import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
-import { storage } from '../../storage/storage';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { RoundButton } from '../../components/RoundButton';
@@ -26,16 +25,17 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             setLoading(true);
             try {
 
-                // Ensure keystore is ok
-                ensureKeystoreReady();
+                // Generate New Key
+                await generateNewKey(!!(props.deviceEncryption === 'none' || bypassEncryption));
 
-                // Persist key
-                if (props.deviceEncryption === 'none' || bypassEncryption) {
-                    storage.set('ton-bypass-encryption', true);
-                } else {
-                    storage.set('ton-bypass-encryption', false);
+                // Enrtypt key
+                let token: Buffer;
+                try {
+                    token = await encryptData(Buffer.from(props.mnemonics));
+                } catch (e) {
+                    // Ignore
+                    return;
                 }
-                const token = await encryptData(Buffer.from(props.mnemonics));
 
                 // Resolve key
                 const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
@@ -119,10 +119,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             break;
     }
 
-    const disabled = Platform.OS === 'android' && (
-        props.deviceEncryption === 'passcode'
-        || props.deviceEncryption === 'face'
-    );
+    const disabled = props.deviceEncryption === 'none' || props.deviceEncryption === 'device';
 
     if (disabled) {
         text = t('secure.subtitleNoBiometrics');

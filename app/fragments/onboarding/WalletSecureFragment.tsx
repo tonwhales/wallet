@@ -26,7 +26,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             try {
 
                 // Generate New Key
-                await generateNewKey(!!(props.deviceEncryption === 'none' || bypassEncryption));
+                await generateNewKey(!!(props.deviceEncryption === 'none' || props.deviceEncryption === 'device-biometrics' || props.deviceEncryption === 'device-passcode' || bypassEncryption));
 
                 // Enrtypt key
                 let token: Buffer;
@@ -104,6 +104,17 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             />;
             buttonText = t('secure.protectPasscode');
             break;
+        case 'device-biometrics':
+            buttonText = t('secure.protectBiometrics');
+            break;
+        case 'device-passcode':
+            icon = <Ionicons
+                name="keypad"
+                size={20}
+                color="white"
+            />;
+            buttonText = t('secure.protectPasscode');
+            break;
         case 'none':
             icon = <Ionicons
                 name="lock-open-outline"
@@ -119,8 +130,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             break;
     }
 
-    const disabled = props.deviceEncryption === 'none' || props.deviceEncryption === 'device';
-
+    const disabled = props.deviceEncryption === 'none';
     if (disabled) {
         text = t('secure.subtitleNoBiometrics');
         buttonText = t('secure.titleUnprotected');

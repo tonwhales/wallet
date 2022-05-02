@@ -3,7 +3,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { Platform } from 'react-native';
 import * as Keychain from 'react-native-keychain';
 
-export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face' | 'device';
+export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face' | 'device-biometrics' | 'device-passcode';
 
 export async function getDeviceEncryption(): Promise<DeviceEncryption> {
 
@@ -21,7 +21,13 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
 
         // Fallback to lockal authentication
         const level = await LocalAuthentication.getEnrolledLevelAsync();
-        return level !== LocalAuthentication.SecurityLevel.NONE ? 'device' : 'none';
+        if (level === LocalAuthentication.SecurityLevel.BIOMETRIC) {
+            return 'device-biometrics';
+        }
+        if (level === LocalAuthentication.SecurityLevel.SECRET) {
+            return 'device-passcode';
+        }
+        return 'none';
     }
 
     // Fetch enrolled security

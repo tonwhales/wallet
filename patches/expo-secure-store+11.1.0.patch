@@ -97,7 +97,7 @@ index 3453800..d45f9e1 100644
  
              override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
 diff --git a/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java b/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java
-index 91e9b85..f39d98d 100644
+index 91e9b85..6dbca82 100644
 --- a/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java
 +++ b/node_modules/expo-secure-store/android/src/main/java/expo/modules/securestore/SecureStoreModule.java
 @@ -13,6 +13,8 @@ import android.text.TextUtils;
@@ -131,7 +131,7 @@ index 91e9b85..f39d98d 100644
    }
  
    @Override
-@@ -76,6 +84,29 @@ public class SecureStoreModule extends ExportedModule {
+@@ -76,6 +84,28 @@ public class SecureStoreModule extends ExportedModule {
      return TAG;
    }
  
@@ -141,18 +141,17 @@ index 91e9b85..f39d98d 100644
 +    int level = SECURITY_LEVEL_NONE;
 +    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 +      int result = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
-+      Log.d(TAG, "BIOMETRIC_STRONG " + Integer.toString(result));
 +      if (result == BiometricManager.BIOMETRIC_SUCCESS) {
 +        level = SECURITY_LEVEL_BIOMETRIC;
 +      }
 +    } else {
-+      int biometricResult = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
-+      if (biometricResult == BiometricManager.BIOMETRIC_SUCCESS) {
-+        level = SECURITY_LEVEL_BIOMETRIC;
-+      }
 +      int deviceCredentialResult = biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL);
 +      if (deviceCredentialResult == BiometricManager.BIOMETRIC_SUCCESS) {
 +        level = SECURITY_LEVEL_SECRET;
++      }
++      int biometricResult = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
++      if (biometricResult == BiometricManager.BIOMETRIC_SUCCESS) {
++        level = SECURITY_LEVEL_BIOMETRIC;
 +      }
 +    }
 +    promise.resolve(level);
@@ -161,7 +160,7 @@ index 91e9b85..f39d98d 100644
    // NOTE: This currently doesn't remove the entry (if any) in the legacy shared preferences
    @ExpoMethod
    @SuppressWarnings("unused")
-@@ -389,12 +420,24 @@ public class SecureStoreModule extends ExportedModule {
+@@ -389,12 +419,24 @@ public class SecureStoreModule extends ExportedModule {
      public KeyStore.SecretKeyEntry initializeKeyStoreEntry(KeyStore keyStore, ReadableArguments options) throws GeneralSecurityException {
        String keystoreAlias = getKeyStoreAlias(options);
        int keyPurposes = KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT;

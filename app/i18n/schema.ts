@@ -109,6 +109,9 @@ export type LocalizationSchema = {
             title: string,
             message: string,
             action: string
+        }, 
+        apps: {
+            title: string
         }
     },
     sign: {

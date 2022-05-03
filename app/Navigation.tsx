@@ -44,6 +44,7 @@ import { StakingTransferFragment } from './fragments/staking/StakingTransferFrag
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TonClient4 } from 'ton';
+import { createEngine } from './sync/createEngine';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -149,21 +150,7 @@ export const Navigation = React.memo(() => {
         let state = getAppState();
         if (0 <= state.selected && state.selected < state.addresses.length) {
             const ex = state.addresses[state.selected];
-            return new Engine(
-                ex.address,
-                ex.publicKey,
-                storageCache,
-                AppConfig.isTestnet ? 'testnet-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com',
-                createSimpleConnector(!AppConfig.isTestnet ? {
-                    main: 'https://mainnet.tonhubapi.com',
-                    estimate: 'https://connect.tonhubapi.com/estimate',
-                    sender: 'https://connect.tonhubapi.com/send',
-                } : {
-                    main: 'https://testnet.tonhubapi.com',
-                    estimate: 'https://connect.tonhubapi.com/estimate',
-                    sender: 'https://connect.tonhubapi.com/send',
-                })
-            );
+            return createEngine({ address: ex.address, publicKey: ex.publicKey });
         } else {
             return null;
         }

@@ -4,7 +4,6 @@ import BN from "bn.js";
 import { isLeft } from "fp-ts/lib/Either";
 import { MMKV } from "react-native-mmkv";
 import { AppConfig } from "../AppConfig";
-import { AccountState } from "../sync/Engine";
 
 function padLt(src: string) {
     let res = src;

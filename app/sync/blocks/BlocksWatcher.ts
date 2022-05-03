@@ -2,7 +2,7 @@ import EventEmitter from "events";
 import * as t from 'io-ts';
 import { exponentialBackoffDelay } from "teslabot";
 
-const MESSAGE_TIMEOUT = 10000;
+const MESSAGE_TIMEOUT = 15000;
 const CONNECTION_TIMEOUT = 5000;
 
 type BlockRef = { seqno: number };

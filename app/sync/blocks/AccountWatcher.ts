@@ -49,18 +49,18 @@ export class AccountWatcher extends EventEmitter {
             console.log(`[${key}]: State downloaded`);
             this.emit('account_changed', { address, state: this.#state });
         });
-        if (this.engine.blocks.cursor) {
-            this.#sync.value = this.engine.blocks.cursor.current.seqno;
+        if (this.engine.blocksWatcher.cursor) {
+            this.#sync.value = this.engine.blocksWatcher.cursor.current.seqno;
         } else {
             this.#sync.value = -1;
         }
 
         // Handle block updates
-        this.engine.blocks.on('new_session', (ref) => {
+        this.engine.blocksWatcher.on('new_session', (ref) => {
             this.#maxKnownSeqno = Math.max(this.#maxKnownSeqno || ref.seqno, ref.seqno);
             this.#sync.value = this.#maxKnownSeqno;
         });
-        this.engine.blocks.on('block', (block) => {
+        this.engine.blocksWatcher.on('block', (block) => {
             if (block.changed[key]) {
                 this.#maxKnownSeqno = Math.max(this.#maxKnownSeqno || block.seqno, block.seqno);
                 this.#sync.value = this.#maxKnownSeqno;

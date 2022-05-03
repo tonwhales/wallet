@@ -5,10 +5,10 @@ import { Theme } from "../../Theme"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import StakingIcon from '../../../assets/ic_staking.svg';
 import BN from "bn.js"
-import { StakingPoolState } from "../../storage/cache"
 import { PriceComponent } from "../PriceComponent"
 import { ValueComponent } from "../ValueComponent"
 import { t } from "../../i18n/t"
+import { StakingPoolState } from "../../sync/products/StakingPoolProduct"
 
 export const StakingProductMember = React.memo((
     {

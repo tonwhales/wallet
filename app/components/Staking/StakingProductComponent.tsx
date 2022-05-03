@@ -1,12 +1,12 @@
 import React from "react";
 import { StakingProductMember } from "./StakingProductMember";
 import { StakingProductJoin } from "./StakingProductJoin";
-import { StakingPoolState } from "../../storage/cache";
 import { BN } from "bn.js";
+import { StakingPoolState } from "../../sync/products/StakingPoolProduct";
 
-export const StakingProductComponent = React.memo(({ pool }: { pool: StakingPoolState | null }) => {
-    const member = pool?.member;
-    const showJoin = member?.balance
+export const StakingProductComponent = React.memo(({ pool }: { pool: StakingPoolState }) => {
+    const member = pool.member;
+    const showJoin = member.balance
         .add(member.pendingDeposit)
         .add(member.pendingWithdraw)
         .add(member.withdraw)

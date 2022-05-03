@@ -149,6 +149,13 @@ export const Navigation = React.memo(() => {
             return null;
         }
     }, []);
+    React.useEffect(() => {
+        return () => {
+            if (engine) {
+                engine.destroy();
+            }
+        }
+    }, []);
 
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine);

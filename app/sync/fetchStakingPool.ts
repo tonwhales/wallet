@@ -1,22 +1,8 @@
 import BN from 'bn.js';
 import { Address, Cell } from "ton";
-import { AppConfig } from '../AppConfig';
 import { backoff } from '../utils/time';
-import { getCurrentAddress } from '../storage/appState';
 import { tonClient } from '../utils/client';
-
-export interface StakingPoolData {
-    name: string,
-    address: Address,
-    params: {
-        minStake: BN,
-        depositFee: BN,
-        withdrawFee: BN,
-        stakeUntil: number,
-        receiptPrice: BN
-    },
-    member: { balance: BN, pendingDeposit: BN, pendingWithdraw: BN, withdraw: BN } | null
-}
+import { StakingPoolState } from './products/StakingPoolProduct';
 
 export function bnToAddress(bn: BN) {
     let r = bn.toString("hex");
@@ -79,7 +65,7 @@ export class TupleSlice {
 export async function getMember(pool: Address, address: Address) {
     const cell = new Cell();
     cell.bits.writeAddress(address);
-    return tonClient.callGetMethod(pool, 'get_member', [[
+    return await tonClient.callGetMethod(pool, 'get_member', [[
         'slice',
         JSON.stringify(
             {
@@ -97,13 +83,11 @@ export async function getPoolParams(pool: Address) {
     return tonClient.callGetMethod(pool, 'get_params', []);
 }
 
-export async function fetchStakingPool(pool: Address, name: string): Promise<StakingPoolData> {
-    let address = getCurrentAddress().address;
-
+export async function fetchStakingPool(pool: Address, target: Address): Promise<StakingPoolState> {
     let [statusRaw, paramsRaw, memberRaw] = await Promise.all([
         backoff(() => tonClient.callGetMethod(pool, 'get_staking_status', [])),
         backoff(() => getPoolParams(pool)),
-        backoff(() => getMember(pool, address))
+        backoff(() => getMember(pool, target))
     ]);
 
     let paramsRes = new TupleSlice(paramsRaw.stack);
@@ -157,9 +141,7 @@ export async function fetchStakingPool(pool: Address, name: string): Promise<Sta
     }
 
     return {
-        name: name,
-        address: pool,
-        member: member ? member : null,
+        member: member,
         params: {
             minStake: poolParams.minStake,
             depositFee: poolParams.depositFee,

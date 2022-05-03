@@ -1,4 +1,3 @@
-import { StakingPoolState } from "../../storage/cache";
 import { Engine } from "../Engine";
 import EventEmitter from "events";
 import { backoff } from "../../utils/time";
@@ -6,6 +5,42 @@ import React from "react";
 import { fetchStakingPool } from "../fetchStakingPool";
 import { watchStakingPool } from "../watchStakingPool";
 import { StakingPool } from "../../utils/KnownPools";
+import BN from "bn.js";
+import { StakingPersisted } from "../Persistence";
+
+export type StakingPoolState = {
+    params: {
+        minStake: BN,
+        depositFee: BN,
+        withdrawFee: BN,
+        stakeUntil: number,
+        receiptPrice: BN
+    },
+    member: {
+        balance: BN,
+        pendingDeposit: BN,
+        pendingWithdraw: BN,
+        withdraw: BN
+    }
+}
+
+function stateToPersistence(src: StakingPoolState): StakingPersisted {
+    return {
+        params: {
+            minStake: src.params.minStake.toString(10),
+            depositFee: src.params.depositFee.toString(10),
+            withdrawFee: src.params.withdrawFee.toString(10),
+            stakeUntil: src.params.stakeUntil,
+            receiptPrice: src.params.receiptPrice.toString(10)
+        },
+        member: {
+            balance: src.member.balance.toString(10),
+            pendingDeposit: src.member.pendingDeposit.toString(10),
+            pendingWithdraw: src.member.pendingWithdraw.toString(10),
+            withdraw: src.member.withdraw.toString(10)
+        }
+    }
+}
 
 export class StakingPoolProduct {
     readonly engine: Engine;
@@ -18,7 +53,24 @@ export class StakingPoolProduct {
     constructor(engine: Engine, pool: StakingPool) {
         this.engine = engine;
         this._pool = pool;
-        this._state = engine.cache.loadStakingPool(pool.address);
+        let ex = engine.persistence.staking.getValue({ address: pool.address, target: engine.address });
+        if (ex) {
+            this._state = {
+                params: {
+                    minStake: new BN(ex.params.minStake, 10),
+                    depositFee: new BN(ex.params.depositFee, 10),
+                    withdrawFee: new BN(ex.params.withdrawFee, 10),
+                    stakeUntil: ex.params.stakeUntil,
+                    receiptPrice: new BN(ex.params.receiptPrice, 10)
+                },
+                member: {
+                    balance: new BN(ex.member.balance, 10),
+                    pendingDeposit: new BN(ex.member.pendingDeposit, 10),
+                    pendingWithdraw: new BN(ex.member.pendingWithdraw, 10),
+                    withdraw: new BN(ex.member.withdraw, 10)
+                }
+            };
+        }
         this._destroyed = false;
         this._start();
     }
@@ -28,6 +80,9 @@ export class StakingPoolProduct {
     }
 
     get state() {
+        if (!this._state) {
+            throw Error('Not ready');
+        }
         return this._state;
     }
 
@@ -87,7 +142,7 @@ export class StakingPoolProduct {
                     if (this._destroyed) {
                         return null;
                     }
-                    return await fetchStakingPool(this._pool.address, this._pool.name);
+                    return await fetchStakingPool(this._pool.address, this.engine.address);
                 });
                 if (!initialState) {
                     return;
@@ -98,7 +153,7 @@ export class StakingPoolProduct {
 
                 // Apply state
                 this._state = initialState;
-                this.engine.cache.storeStakingPool(this._state, this._pool.address);
+                this.engine.persistence.staking.setValue({ address: this._pool.address, target: this.engine.address }, stateToPersistence(this._state));
                 this._eventEmitter.emit('ready');
 
                 // Start sync
@@ -116,9 +171,9 @@ export class StakingPoolProduct {
         }
 
         // Start sync
-        this._watched = watchStakingPool(this._pool, async (newState) => {
+        this._watched = watchStakingPool(this._pool, this.engine.address, async (newState) => {
             this._state = newState;
-            this.engine.cache.storeStakingPool(this._state!, this._pool.address);
+            this.engine.persistence.staking.setValue({ address: this._pool.address, target: this.engine.address }, stateToPersistence(newState));
             this._eventEmitter.emit('updated');
         });
     }

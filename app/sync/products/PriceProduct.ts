@@ -15,7 +15,7 @@ export class PriceProduct {
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this._state = engine.cache.loadPrice();
+        this._state = engine.persistence.prices.getValue();
         this._destroyed = false;
         this._start();
     }
@@ -98,7 +98,7 @@ export class PriceProduct {
 
                 // Apply state
                 this._state = initialState;
-                this.engine.cache.storePrice(this._state);
+                this.engine.persistence.prices.setValue(undefined, this._state);
                 this._eventEmitter.emit('ready');
 
                 // Start sync
@@ -118,7 +118,7 @@ export class PriceProduct {
         // Start sync
         this._watched = watchPrice(async (newState) => {
             this._state = newState;
-            this.engine.cache.storePrice(this._state!);
+            this.engine.persistence.prices.setValue(undefined, this._state!);
             this._eventEmitter.emit('updated');
         });
     }

@@ -6,6 +6,7 @@ import { Engine } from "../Engine";
 import EventEmitter from 'events';
 import { SyncValue } from 'teslabot';
 import { backoff } from '../../utils/time';
+import { AppConfig } from '../../AppConfig';
 
 export type FullAccount = {
     balance: BN;
@@ -79,11 +80,20 @@ export class AccountFullSync extends EventEmitter {
                 });
 
                 // Download introspection
-                // let mentioned = new Set<string>();
-                // for (let t of loadedTransactions) {
-                //     let txData = Buffer.from(t.data, 'base64');
-                //     let tx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
-                // }
+                let mentioned = new Set<string>();
+                for (let t of loadedTransactions) {
+                    let txData = Buffer.from(t.data, 'base64');
+                    let tx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
+                    if (tx.inMessage && tx.inMessage.info.src) {
+                        mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
+                    }
+                    for (let out of tx.outMessages) {
+                        if (out.info.dest) {
+                            mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
+                        }
+                    }
+                }
+                await Promise.all(Array.from(mentioned).map((src) => engine.introspection.introspect(v.seqno, Address.parse(src))));
 
                 // Persist transactions
                 for (let l of loadedTransactions) {

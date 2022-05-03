@@ -4,11 +4,11 @@ import { View, Text } from "react-native"
 import { fromNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
-import { StakingPoolState } from "../../storage/cache";
+import { StakingPoolState } from "../../sync/products/StakingPoolProduct";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 
-export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool?: StakingPoolState | null, fee?: BN | null }) => {
+export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: BN | null }) => {
     if (!pool) return null;
     const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
 

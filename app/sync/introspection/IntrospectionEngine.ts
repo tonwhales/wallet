@@ -9,6 +9,11 @@ export class IntrospectionEngine {
         this.engine = engine;
     }
 
+    // async prepareIntrospection(seqno: number, address: Address) {
+    //     let interfaces = await this.engine.client4.runMethod(seqno, address, 'supported_interfaces');
+    //     if (interfaces.
+    // }
+
     getSupportedInterfaces = (address: Address) => {
         if (address.equals(Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales'))) {
             return ['256184278959413194623484780286929323492'];

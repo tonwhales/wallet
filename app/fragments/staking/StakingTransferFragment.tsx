@@ -14,7 +14,7 @@ import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
-import { useAccount } from '../../sync/Engine';
+import { useEngine } from '../../sync/Engine';
 import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -67,7 +67,8 @@ export function actionTitle(action?: TransferAction) {
 export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: StakingTransferParams | undefined = useRoute().params;
-    const [account, engine] = useAccount();
+    const engine = useEngine();
+    const account = engine.products.main.useState();
     const safeArea = useSafeAreaInsets();
     const pool = engine.products.whalesStakingPool.useState();
     const member = pool?.member
@@ -76,7 +77,7 @@ export const StakingTransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
 
-    let balance = account?.balance || new BN(0);
+    let balance = account.balance || new BN(0);
     if (params?.action === 'withdraw') {
         balance = member
             ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)

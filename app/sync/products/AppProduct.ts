@@ -9,7 +9,7 @@ import { getAppInstanceKeyPair } from '../../storage/appState';
 import { delay } from 'teslabot';
 import axios from 'axios';
 
-export class JobsProduct {
+export class AppProduct {
 
     readonly engine: Engine;
     private _destroyed: boolean;

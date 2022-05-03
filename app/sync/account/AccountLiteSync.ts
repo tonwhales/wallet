@@ -8,6 +8,7 @@ import EventEmitter from 'events';
 export type LiteAccount = {
     balance: BN;
     last: { lt: BN, hash: string } | null;
+    block: number;
 }
 
 export interface AccountLiteSync {
@@ -40,14 +41,15 @@ export class AccountLiteSync extends EventEmitter {
             engine.persistence.liteAccounts.setValue(this.address, {
                 balance: account.state.balance.toString(10),
                 last: account.state.last ? { lt: account.state.last.lt, hash: account.state.last.hash } : null,
-                seqno: account.state.seqno
+                block: account.state.seqno
             });
 
             // Update local
             let first = !this.#state;
             this.#state = {
                 balance: account.state.balance,
-                last: account.state.last ? { lt: new BN(account.state.last.lt, 10), hash: account.state.last.hash } : null
+                last: account.state.last ? { lt: new BN(account.state.last.lt, 10), hash: account.state.last.hash } : null,
+                block: account.state.seqno
             };
 
             // Notify
@@ -63,7 +65,8 @@ export class AccountLiteSync extends EventEmitter {
         if (cached) {
             this.#state = {
                 balance: new BN(cached.balance, 10),
-                last: cached.last ? { lt: new BN(cached.last.lt, 10), hash: cached.last.hash } : null
+                last: cached.last ? { lt: new BN(cached.last.lt, 10), hash: cached.last.hash } : null,
+                block: cached.block
             };
         }
     }

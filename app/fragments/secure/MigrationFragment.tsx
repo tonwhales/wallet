@@ -10,7 +10,7 @@ import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { useAccount } from '../../sync/Engine';
+import { useEngine } from '../../sync/Engine';
 import { AppConfig } from '../../AppConfig';
 import { getCurrentAddress } from '../../storage/appState';
 import { ValueComponent } from '../../components/ValueComponent';
@@ -34,7 +34,7 @@ const MigrationProcessFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
-    const [account, engine] = useAccount();
+    const engine = useEngine();
     const acc = React.useMemo(() => getCurrentAddress(), []);
 
     React.useEffect(() => {
@@ -122,7 +122,7 @@ export const MigrationFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
     const navigation = useTypedNavigation();
-    const [account, engine] = useAccount();
+    const engine = useEngine();
     const animRef = React.useRef<LottieView>(null);
 
     React.useEffect(() => {
@@ -131,7 +131,7 @@ export const MigrationFragment = systemFragment(() => {
         }
     }, []);
 
-    const state = engine.products.oldWallets.useStateFull();
+    const state = engine.products.legacy.useStateFull();
     let s = new BN(0);
     for (let w of state) {
         s = s.add(w.balance);

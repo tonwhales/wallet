@@ -2,7 +2,7 @@ import BN from "bn.js"
 import React from "react"
 import { View } from "react-native"
 import { ProductButton } from "./ProductButton"
-import { useAccount } from "../../../sync/Engine"
+import { useEngine } from "../../../sync/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';
@@ -13,8 +13,8 @@ import { t } from "../../../i18n/t"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
-    const [account, engine] = useAccount();
-    const oldWalletsBalance = engine.products.oldWallets.useState();
+    const engine = useEngine();
+    const oldWalletsBalance = engine.products.legacy.useState();
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
 

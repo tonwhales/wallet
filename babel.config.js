@@ -9,6 +9,9 @@ module.exports = function (api) {
           globals: ['__scanCodes'],
         },
       ],
+      ["@babel/plugin-proposal-private-methods", {
+        "loose": true
+      }]
     ]
   };
 };

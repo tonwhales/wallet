@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
-import { Address, Cell, parseTransaction } from "ton";
+import { Address, Cell, parseTransaction, TonClient4 } from "ton";
 import { AccountStatus, createCache } from "../storage/cache";
 import { backoff } from "../utils/time";
 import { Connector } from "./Connector";
@@ -16,6 +16,7 @@ import { JobsProduct } from './products/JobsProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools, StakingPool } from '../utils/KnownPools';
 import { IntrospectionEngine } from './introspection/IntrospectionEngine';
+import { DirectBlocksWatcher } from './blocks/DirectBlocksWatcher';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -62,6 +63,8 @@ export class Engine {
     readonly connector: Connector;
     readonly products;
     readonly introspection: IntrospectionEngine;
+    readonly client4: TonClient4;
+    readonly directBlocks: DirectBlocksWatcher;
     private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
@@ -75,8 +78,10 @@ export class Engine {
         address: Address,
         publicKey: Buffer,
         cache: MMKV,
+        client4Endpoint: string,
         connector: Connector
     ) {
+        this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
         this.cache = createCache(cache);
         this.address = address;
         this.publicKey = publicKey;
@@ -85,6 +90,7 @@ export class Engine {
         this._state = this._account ? { ...this._account, pending: [] } : null;
         this._destroyed = false;
         this.introspection = new IntrospectionEngine(this);
+        this.directBlocks = new DirectBlocksWatcher(client4Endpoint);
         this.start();
 
         this.products = {
@@ -220,6 +226,7 @@ export class Engine {
             if (this._watched) {
                 this._watched();
             }
+            this.directBlocks.stop();
         }
     }
 

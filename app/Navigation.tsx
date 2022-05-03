@@ -43,6 +43,7 @@ import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
+import { TonClient4 } from 'ton';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -152,6 +153,7 @@ export const Navigation = React.memo(() => {
                 ex.address,
                 ex.publicKey,
                 storageCache,
+                AppConfig.isTestnet ? 'testnet-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com',
                 createSimpleConnector(!AppConfig.isTestnet ? {
                     main: 'https://mainnet.tonhubapi.com',
                     estimate: 'https://connect.tonhubapi.com/estimate',

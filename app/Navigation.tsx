@@ -43,6 +43,7 @@ import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
+import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -139,6 +140,7 @@ const navigation = [
     modalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
+    modalScreen('Subscriptions', SubscriptionsFragment),
 ];
 
 export const Navigation = React.memo(() => {

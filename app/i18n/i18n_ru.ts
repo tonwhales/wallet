@@ -250,6 +250,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: "Уверены, что хотите вывести?"
             }
         },
+        subscriptions: {
+            title: 'Мои подписки',
+            productTitle: 'Подписки',
+            noActive: 'У вас нет активных подписок',
+            cancel: 'Отменить подписку',
+            cancelAll: 'Отменить все',
+            description: 'Здесь вы можете управлять своими подписками. Вы можете просмотреть и отменить их',
+            productDescription: '{{count}} активных'
+        }
     },
     welcome: {
         title: 'Tonhub',

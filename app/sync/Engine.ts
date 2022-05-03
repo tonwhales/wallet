@@ -16,6 +16,7 @@ import { JobsProduct } from './products/JobsProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools, StakingPool } from '../utils/KnownPools';
 import { IntrospectionEngine } from './introspection/IntrospectionEngine';
+import { SubscriptionsProduct } from './products/SubscriptionsProduct';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -92,6 +93,7 @@ export class Engine {
             price: this.createPriceProduct(),
             apps: new JobsProduct(this),
             whalesStakingPool: this.createStakingPoolProduct(KnownPools[0]),
+            subscriptions: new SubscriptionsProduct(this)
         };
         this._products.set('apps', this.products.apps);
     }

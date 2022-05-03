@@ -109,7 +109,7 @@ export type LocalizationSchema = {
             title: string,
             message: string,
             action: string
-        }, 
+        },
         apps: {
             title: string
         }
@@ -252,6 +252,15 @@ export type LocalizationSchema = {
                 message: string
             }
         },
+        subscriptions: {
+            title: string,
+            productTitle: string,
+            noActive: string,
+            cancel: string,
+            cancelAll: string,
+            description: string,
+            productDescription: string
+        }
     }
     welcome: {
         title: string,

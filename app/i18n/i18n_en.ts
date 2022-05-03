@@ -250,6 +250,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Are you sure about the unstaking?'
             }
         },
+        subscriptions: {
+            title: 'My subscriptions',
+            productTitle: 'Subscriptions',
+            noActive: 'You have no active subscriptions',
+            cancel: 'Cancel subscription',
+            cancelAll: 'Cancel all',
+            description: 'Here you can manage your subscriptions. You can view and cancel them',
+            productDescription: '{{count}} active'
+        }
     },
     welcome: {
         title: 'Tonhub',

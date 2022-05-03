@@ -4,6 +4,7 @@ import { AppConfig } from '../AppConfig';
 import { backoff } from '../utils/time';
 import { getCurrentAddress } from '../storage/appState';
 import { tonClient } from '../utils/client';
+import { TupleSlice } from '../utils/TupleSlice';
 
 export interface StakingPoolData {
     name: string,
@@ -16,64 +17,6 @@ export interface StakingPoolData {
         receiptPrice: BN
     },
     member: { balance: BN, pendingDeposit: BN, pendingWithdraw: BN, withdraw: BN } | null
-}
-
-export function bnToAddress(bn: BN) {
-    let r = bn.toString("hex");
-    while (r.length < 64) {
-        r = "0" + r;
-    }
-    return new Address(0, Buffer.from(r, "hex"));
-}
-export class TupleSlice {
-    private readonly items: any[];
-    constructor(items: any[]) {
-        this.items = [...items];
-    }
-
-    readNumber() {
-        if (this.items[0][0] !== 'num') {
-            throw Error('Not a number');
-        }
-        let res = parseInt(this.items[0][1]);
-        this.items.splice(0, 1);
-        return res;
-    }
-
-    readBoolean() {
-        if (this.items[0][0] !== 'num') {
-            throw Error('Not a number');
-        }
-        let res = parseInt(this.items[0][1]);
-        this.items.splice(0, 1);
-        return res === 0 ? false : true;
-    }
-
-    readBigNumber() {
-        if (this.items[0][0] !== 'num') {
-            throw Error('Not a number');
-        }
-        let res = new BN((this.items[0][1] as string).slice(2), 'hex');
-        this.items.splice(0, 1);
-        return res;
-    }
-
-    readCell() {
-        if (this.items[0][0] !== 'cell') {
-            throw Error('Not a cell');
-        }
-        let res = Cell.fromBoc(Buffer.from(this.items[0][1].bytes as string, 'base64'))[0];
-        this.items.splice(0, 1);
-        return res;
-    }
-
-    readWorkchainAddress() {
-        if (this.items[0][0] !== 'num') {
-            throw Error('Not a number');
-        }
-        let bn = this.readBigNumber();
-        return bnToAddress(bn);
-    }
 }
 
 export async function getMember(pool: Address, address: Address) {

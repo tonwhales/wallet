@@ -4,7 +4,7 @@ import BN from "bn.js";
 import { isLeft } from "fp-ts/lib/Either";
 import { MMKV } from "react-native-mmkv";
 import { AppConfig } from "../AppConfig";
-import { AccountState } from "../sync/Engine";
+import { SubscriptionsStateData } from "../sync/fetchSubscriptions";
 
 function padLt(src: string) {
     let res = src;
@@ -192,6 +192,42 @@ function parseStakingPoolState(src: any): StakingPoolState | null {
     };
 }
 
+// 
+// Subscriptions
+// 
+
+const subscribtionsStateStorage = t.type({
+    updatedAt: t.number,
+    subscriptions: t.array(t.type({ address: t.string }))
+});
+
+function serializeSubscribtions(data: SubscriptionsStateData): t.TypeOf<typeof subscribtionsStateStorage> {
+    return {
+        updatedAt: data.updatedAt,
+        subscriptions: data.subscriptions.map((s) => {
+            return {
+                address: s.address.toFriendly({ testOnly: AppConfig.isTestnet })
+            }
+        })
+    }
+}
+
+function parseSubscribtions(src: any): SubscriptionsStateData | null {
+    const parsed = subscribtionsStateStorage.decode(src);
+    if (isLeft(parsed)) {
+        return null;
+    }
+    const stored = parsed.right;
+    return {
+        updatedAt: stored.updatedAt,
+        subscriptions: stored.subscriptions.map((s) => {
+            return {
+                address: Address.parseFriendly(s.address).address,
+            }
+        })
+    }
+}
+
 //
 // Public
 //
@@ -340,6 +376,19 @@ export function createCache(store: MMKV) {
         },
         storeSupportedInterfaces: (address: Address, supportedInterfaces: string[]) => {
             store.set('supported_interfaces_' + address.toFriendly({ testOnly: AppConfig.isTestnet }), JSON.stringify(supportedInterfaces));
+        },
+        storeSubscriptions: (data: SubscriptionsStateData) => {
+            console.log('storeSubscriptions', { data })
+            const serialized = JSON.stringify(serializeSubscribtions(data));
+            store.set('subscriptions_state', serialized);
+        },
+        loadSubscriptions: () => {
+            let res = store.getString('subscriptions_state');
+            if (res) {
+                return parseSubscribtions(JSON.parse(res));
+            } else {
+                return null
+            }
         }
     };
 }

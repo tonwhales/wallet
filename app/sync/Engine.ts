@@ -43,7 +43,6 @@ export class Engine {
     constructor(
         address: Address,
         publicKey: Buffer,
-        cache: MMKV,
         persistence: MMKV,
         client4Endpoint: string,
         connector: Connector

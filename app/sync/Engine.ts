@@ -16,7 +16,8 @@ import { JobsProduct } from './products/JobsProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools, StakingPool } from '../utils/KnownPools';
 import { IntrospectionEngine } from './introspection/IntrospectionEngine';
-import { DirectBlocksWatcher } from './blocks/DirectBlocksWatcher';
+import { BlocksWatcher } from './blocks/BlocksWatcher';
+import { AccountsWatcher } from './blocks/AccountsWatcher';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -64,7 +65,8 @@ export class Engine {
     readonly products;
     readonly introspection: IntrospectionEngine;
     readonly client4: TonClient4;
-    readonly directBlocks: DirectBlocksWatcher;
+    readonly blocks: BlocksWatcher;
+    readonly accounts: AccountsWatcher;
     private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
@@ -90,7 +92,8 @@ export class Engine {
         this._state = this._account ? { ...this._account, pending: [] } : null;
         this._destroyed = false;
         this.introspection = new IntrospectionEngine(this);
-        this.directBlocks = new DirectBlocksWatcher(client4Endpoint);
+        this.blocks = new BlocksWatcher(client4Endpoint);
+        this.accounts = new AccountsWatcher(this);
         this.start();
 
         this.products = {
@@ -226,7 +229,7 @@ export class Engine {
             if (this._watched) {
                 this._watched();
             }
-            this.directBlocks.stop();
+            this.blocks.stop();
         }
     }
 

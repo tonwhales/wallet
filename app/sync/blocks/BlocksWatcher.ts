@@ -13,7 +13,7 @@ const changeCodec = t.type({
     seqno: t.number
 });
 
-export interface DirectBlocksWatcher {
+export interface BlocksWatcher {
     emit(event: 'new_session', data: BlockRef): boolean
     on(event: 'new_session', listener: (data: BlockRef) => void): this
     once(event: 'new_session', listener: (data: BlockRef) => void): this
@@ -23,7 +23,7 @@ export interface DirectBlocksWatcher {
     once(event: 'block', listener: (data: BlockChanged) => void): this
 }
 
-export class DirectBlocksWatcher extends EventEmitter {
+export class BlocksWatcher extends EventEmitter {
 
     readonly endpoint: string;
     #cursor: { first: BlockRef, current: BlockRef } | null = null;

@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { Address, Cell } from "ton";
 import { backoff } from '../utils/time';
-import { tonClient } from '../utils/client';
+import { Engine } from './Engine';
 import { StakingPoolState } from './products/StakingPoolProduct';
 
 export function bnToAddress(bn: BN) {
@@ -62,10 +62,10 @@ export class TupleSlice {
     }
 }
 
-export async function getMember(pool: Address, address: Address) {
+export async function getMember(engine: Engine, pool: Address, address: Address) {
     const cell = new Cell();
     cell.bits.writeAddress(address);
-    return await tonClient.callGetMethod(pool, 'get_member', [[
+    return await engine.connector.client.callGetMethod(pool, 'get_member', [[
         'slice',
         JSON.stringify(
             {
@@ -79,15 +79,15 @@ export async function getMember(pool: Address, address: Address) {
     ]]);
 }
 
-export async function getPoolParams(pool: Address) {
-    return tonClient.callGetMethod(pool, 'get_params', []);
+export async function getPoolParams(engine: Engine, pool: Address) {
+    return engine.connector.client.callGetMethod(pool, 'get_params', []);
 }
 
-export async function fetchStakingPool(pool: Address, target: Address): Promise<StakingPoolState> {
+export async function fetchStakingPool(engine: Engine, pool: Address, target: Address): Promise<StakingPoolState> {
     let [statusRaw, paramsRaw, memberRaw] = await Promise.all([
-        backoff(() => tonClient.callGetMethod(pool, 'get_staking_status', [])),
-        backoff(() => getPoolParams(pool)),
-        backoff(() => getMember(pool, target))
+        backoff(() => engine.connector.client.callGetMethod(pool, 'get_staking_status', [])),
+        backoff(() => getPoolParams(engine, pool)),
+        backoff(() => getMember(engine, pool, target))
     ]);
 
     let paramsRes = new TupleSlice(paramsRaw.stack);

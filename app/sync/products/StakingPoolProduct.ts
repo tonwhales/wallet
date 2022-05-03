@@ -142,7 +142,7 @@ export class StakingPoolProduct {
                     if (this._destroyed) {
                         return null;
                     }
-                    return await fetchStakingPool(this._pool.address, this.engine.address);
+                    return await fetchStakingPool(this.engine, this._pool.address, this.engine.address);
                 });
                 if (!initialState) {
                     return;
@@ -171,7 +171,7 @@ export class StakingPoolProduct {
         }
 
         // Start sync
-        this._watched = watchStakingPool(this._pool, this.engine.address, async (newState) => {
+        this._watched = watchStakingPool(this.engine, this._pool, this.engine.address, async (newState) => {
             this._state = newState;
             this.engine.persistence.staking.setValue({ address: this._pool.address, target: this.engine.address }, stateToPersistence(newState));
             this._eventEmitter.emit('updated');

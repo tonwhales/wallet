@@ -14,6 +14,7 @@ import { JobsProduct } from './products/JobsProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools, StakingPool } from '../utils/KnownPools';
 import { IntrospectionEngine } from './introspection/IntrospectionEngine';
+import { SubscriptionsProduct } from './products/SubscriptionsProduct';
 import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { Accounts } from './account/Accounts';
 import { Persistence } from './Persistence';

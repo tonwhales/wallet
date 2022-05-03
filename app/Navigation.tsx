@@ -43,6 +43,7 @@ import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
+import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
 import { TonClient4 } from 'ton';
 import { createEngine } from './sync/createEngine';
 

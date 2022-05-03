@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
-import { Address, Cell, parseTransaction } from "ton";
+import { Address, Cell, parseTransaction, TonClient4 } from "ton";
 import { AccountStatus, createCache } from "../storage/cache";
 import { backoff } from "../utils/time";
 import { Connector } from "./Connector";
@@ -9,14 +9,14 @@ import BN from 'bn.js';
 import { Transaction } from './Transaction';
 import { parseWalletTransaction } from './parse/parseWalletTransaction';
 import { OldWalletsProduct } from './products/OldWalletsProduct';
-import { AddressProduct } from './products/AddressProduct';
-import { AppConfig } from '../AppConfig';
 import { PriceProduct } from './products/PriceProduct';
 import { JobsProduct } from './products/JobsProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools, StakingPool } from '../utils/KnownPools';
 import { IntrospectionEngine } from './introspection/IntrospectionEngine';
-import { SubscriptionsProduct } from './products/SubscriptionsProduct';
+import { BlocksWatcher } from './blocks/BlocksWatcher';
+import { Accounts } from './account/Accounts';
+import { Persistence } from './Persistence';
 
 function extractSeqno(data: Cell) {
     const slice = data.beginParse();
@@ -57,12 +57,24 @@ export type EngineProduct = {
 }
 
 export class Engine {
+    // Config
     readonly address: Address;
     readonly publicKey: Buffer;
+
+    // Storage
+    readonly persistence: Persistence;
     readonly cache;
+
+    // Connector
     readonly connector: Connector;
+    readonly client4: TonClient4;
+    readonly blocksWatcher: BlocksWatcher;
+    readonly accounts: Accounts;
+
+    // Products
     readonly products;
     readonly introspection: IntrospectionEngine;
+
     private _state: AccountState | null;
     private _account: AccountStatus | null;
     private _destroyed: boolean;
@@ -76,8 +88,12 @@ export class Engine {
         address: Address,
         publicKey: Buffer,
         cache: MMKV,
+        persistence: MMKV,
+        client4Endpoint: string,
         connector: Connector
     ) {
+        this.persistence = new Persistence(persistence);
+        this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
         this.cache = createCache(cache);
         this.address = address;
         this.publicKey = publicKey;
@@ -86,6 +102,8 @@ export class Engine {
         this._state = this._account ? { ...this._account, pending: [] } : null;
         this._destroyed = false;
         this.introspection = new IntrospectionEngine(this);
+        this.blocksWatcher = new BlocksWatcher(client4Endpoint);
+        this.accounts = new Accounts(this);
         this.start();
 
         this.products = {
@@ -107,6 +125,11 @@ export class Engine {
                 return false;
             }
         }
+        for (let p of this.products.oldWallets.wallets) {
+            if (!p.ready) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -119,6 +142,9 @@ export class Engine {
             }
         });
         for (let p of this._products.values()) {
+            await p.awaitReady();
+        }
+        for (let p of this.products.oldWallets.wallets) {
             await p.awaitReady();
         }
     }
@@ -144,17 +170,6 @@ export class Engine {
         let ex = this._products.get(key);
         if (ex) return ex as StakingPoolProduct;
         let n = new StakingPoolProduct(this, pool);
-        this._products.set(key, n);
-        return n;
-    }
-
-    createAddressProduct(address: Address) {
-        const key = address.toFriendly({ testOnly: AppConfig.isTestnet });
-        let ex = this._products.get(key);
-        if (ex) {
-            return ex as AddressProduct;
-        }
-        let n = new AddressProduct(address, this);
         this._products.set(key, n);
         return n;
     }
@@ -222,6 +237,7 @@ export class Engine {
             if (this._watched) {
                 this._watched();
             }
+            this.blocksWatcher.stop();
         }
     }
 

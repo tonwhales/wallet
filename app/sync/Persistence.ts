@@ -56,6 +56,7 @@ export class Persistence {
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPersisted>;
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
+    readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -70,7 +71,8 @@ export class Persistence {
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec });
-        this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec })
+        this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec });
+        this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata });
     }
 }
 
@@ -140,3 +142,5 @@ const metadataCodec = t.type({
         content: t.union([t.undefined, contentSourceCodec])
     })])
 });
+
+const codecPendingMetadata = t.record(t.string, t.number);

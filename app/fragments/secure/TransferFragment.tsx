@@ -385,7 +385,7 @@ export const TransferFragment = fragment(() => {
         } catch (e) {
             return [];
         }
-        return engine.introspection.getSupportedInterfaces(address);
+        return engine.metadata.getSupportedInterfaces(address);
     }, [target]);
 
     // Resolve payload

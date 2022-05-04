@@ -1,8 +1,8 @@
 import BN from "bn.js";
 import { Address, TonClient4 } from "ton";
-import { IntrospectedJetton } from "../IntrospectedData";
+import { JettonWallet } from "../Metadata";
 
-export async function tryFetchJettonWallet(client: TonClient4, seqno: number, address: Address): Promise<IntrospectedJetton | null> {
+export async function tryFetchJettonWallet(client: TonClient4, seqno: number, address: Address): Promise<JettonWallet | null> {
     let walletData = await client.runMethod(seqno, address, 'get_wallet_data');
     if (walletData.exitCode !== 0 && walletData.exitCode !== 1) {
         return null;

@@ -93,7 +93,9 @@ export class AccountFullSync extends EventEmitter {
                         }
                     }
                 }
-                await Promise.all(Array.from(mentioned).map((src) => engine.introspection.introspect(v.seqno, Address.parse(src))));
+
+                // Prepare metadata
+                await Promise.all(Array.from(mentioned).map((src) => backoff(() => engine.metadata.prepareMetadata(v.seqno, Address.parse(src)))));
 
                 // Persist transactions
                 for (let l of loadedTransactions) {

@@ -3,7 +3,9 @@ import { Address } from "ton";
 import { AppConfig } from "../AppConfig";
 import { PersistedCollection } from "./PersistedCollection";
 import * as t from 'io-ts';
+import * as c from './utils/codecs';
 import BN from "bn.js";
+import { ContractMetadata } from "./metadata/Metadata";
 
 export type LiteAccountPersisted = {
     balance: string;
@@ -53,6 +55,7 @@ export class Persistence {
     readonly prices: PersistedCollection<void, { price: { usd: number } }>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPersisted>;
+    readonly metadata: PersistedCollection<Address, ContractMetadata>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -67,6 +70,7 @@ export class Persistence {
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec });
+        this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec })
     }
 }
 
@@ -115,4 +119,24 @@ const stakingPoolStateCodec = t.type({
         pendingWithdraw: t.string,
         withdraw: t.string
     })
+});
+
+const contentSourceCodec = t.type({
+    type: t.literal('offchain'),
+    link: t.string
+});
+const metadataCodec = t.type({
+    seqno: t.number,
+    interfaces: t.array(t.string),
+    jettonWallet: t.union([t.undefined, t.type({
+        balance: c.bignum,
+        owner: c.address,
+        master: c.address,
+    })]),
+    jettonMaster: t.union([t.undefined, t.type({
+        totalSupply: c.bignum,
+        mintalbe: t.boolean,
+        owner: c.address,
+        content: t.union([t.undefined, contentSourceCodec])
+    })])
 });

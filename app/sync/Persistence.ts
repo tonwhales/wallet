@@ -45,9 +45,20 @@ export type StakingPersisted = {
 
 export type SubscriptionsPersisted = {
     updatedAt: number,
-    subscriptions: {
-        address: string
-    }[]
+    subscriptions: SubscriptionPersisted[]
+}
+
+export type SubscriptionPersisted = {
+    wallet: string,
+    beneficiary: string,
+    amount: string,
+    period: number,
+    startAt: number,
+    timeout: number,
+    lastPayment: number,
+    lastRequest: number,
+    failedAttempts: number,
+    subscriptionId: number
 }
 
 export class Persistence {
@@ -61,7 +72,7 @@ export class Persistence {
     readonly prices: PersistedCollection<void, { price: { usd: number } }>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPersisted>;
-    readonly subscriptions: PersistedCollection<void, SubscriptionsPersisted>;
+    readonly subscriptions: PersistedCollection<Address, SubscriptionsPersisted>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -76,7 +87,7 @@ export class Persistence {
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec });
-        this.subscriptions = new PersistedCollection({ storage, namespace: 'subscriptions', key: voidKey, codec: subscriptionsStateStorage });
+        this.subscriptions = new PersistedCollection({ storage, namespace: 'subscriptions', key: addressKey, codec: subscriptionsStateStorage });
     }
 }
 
@@ -126,7 +137,19 @@ const stakingPoolStateCodec = t.type({
         withdraw: t.string
     })
 });
+const subscriptionStateStorage = t.type({
+    wallet: t.string,
+    beneficiary: t.string,
+    amount: t.string,
+    period: t.number,
+    startAt: t.number,
+    timeout: t.number,
+    lastPayment: t.number,
+    lastRequest: t.number,
+    failedAttempts: t.number,
+    subscriptionId: t.number
+});
 const subscriptionsStateStorage = t.type({
     updatedAt: t.number,
-    subscriptions: t.array(t.type({ address: t.string }))
+    subscriptions: t.array(subscriptionStateStorage)
 });

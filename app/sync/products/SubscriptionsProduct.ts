@@ -6,14 +6,25 @@ import { watchSubscriptions } from "../watchSubscriptions";
 import { fetchSubscriptions, SubscriptionsStateData } from "../fetchSubscriptions";
 import { AppConfig } from "../../AppConfig";
 import { SubscriptionsPersisted } from "../Persistence";
-import { Address } from "ton";
+import { Address, fromNano } from "ton";
+import BN from "bn.js";
+import { notEmpty } from "../../utils/notEmpty";
 
 function stateToPersistence(src: SubscriptionsStateData): SubscriptionsPersisted {
     return {
         updatedAt: src.updatedAt,
         subscriptions: src.subscriptions.map((s) => {
             return {
-                address: s.address.toFriendly({ testOnly: AppConfig.isTestnet })
+                wallet: s.wallet.toFriendly({ testOnly: AppConfig.isTestnet }),
+                beneficiary: s.beneficiary.toFriendly({ testOnly: AppConfig.isTestnet }),
+                amount: s.amount.toString(10),
+                period: s.period,
+                startAt: s.startAt,
+                timeout: s.timeout,
+                lastPayment: s.lastPayment,
+                lastRequest: s.lastRequest,
+                failedAttempts: s.failedAttempts,
+                subscriptionId: s.subscriptionId,
             }
         })
     };
@@ -27,15 +38,25 @@ export class SubscriptionsProduct {
 
     constructor(engine: Engine) {
         this.engine = engine;
-        let ex = engine.persistence.subscriptions.getValue();
+        let ex = engine.persistence.subscriptions.getValue(this.engine.address);
         if (ex) {
+
             this._state = {
                 updatedAt: ex.updatedAt,
                 subscriptions: ex.subscriptions.map((s) => {
                     return {
-                        address: Address.parseFriendly(s.address).address
-                    }
-                })
+                        wallet: Address.parseFriendly(s.wallet).address,
+                        beneficiary: Address.parseFriendly(s.beneficiary).address,
+                        amount: new BN(s.amount, 10),
+                        period: s.period,
+                        startAt: s.startAt,
+                        timeout: s.timeout,
+                        lastPayment: s.lastPayment,
+                        lastRequest: s.lastRequest,
+                        failedAttempts: s.failedAttempts,
+                        subscriptionId: s.subscriptionId,
+                    };
+                }).filter(notEmpty)
             }
         }
         this._destroyed = false;
@@ -117,7 +138,7 @@ export class SubscriptionsProduct {
 
                 // Apply state
                 this._state = initialState;
-                this.engine.persistence.subscriptions.setValue(undefined, stateToPersistence(this._state));
+                this.engine.persistence.subscriptions.setValue(this.engine.address, stateToPersistence(this._state));
                 this._eventEmitter.emit('ready');
 
                 // Start sync
@@ -137,7 +158,7 @@ export class SubscriptionsProduct {
         // Start sync
         this._watched = watchSubscriptions(this.engine, async (newState) => {
             this._state = newState;
-            this.engine.persistence.subscriptions.setValue(undefined, stateToPersistence(this._state));
+            this.engine.persistence.subscriptions.setValue(this.engine.address, stateToPersistence(this._state));
             this._eventEmitter.emit('updated');
         });
     }

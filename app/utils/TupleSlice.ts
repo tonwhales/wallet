@@ -77,4 +77,13 @@ export class TupleSlice {
         this.items.splice(0, 1);
         return res
     }
+
+    readTuple() {
+        if (this.items[0][0] !== 'tuple') {
+            throw Error('Not a tuple');
+        }
+        let res = parseObject(this.items[0][1]);
+        this.items.splice(0, 1);
+        return res
+    }
 }

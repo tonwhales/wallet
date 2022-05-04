@@ -13,7 +13,7 @@ export function watchSubscriptions(engine: Engine, handler: (state: Subscription
     });
     const timer = setInterval(() => {
         invalidateSync.invalidate();
-    }, 10 * 1000);
+    }, 15 * 1000);
     return () => {
         if (!ended) {
             ended = true;

@@ -257,7 +257,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             cancel: 'Отменить подписку',
             cancelAll: 'Отменить все',
             description: 'Здесь вы можете управлять своими подписками. Вы можете просмотреть и отменить их',
-            productDescription: '{{count}} активных'
+            productDescription: '{{count}} активных',
+            nextBilling: 'Дата следующего списания',
+            monthly: 'Ежемесячно',
+            inDays: 'Каждые {{count}}д',
+            inHours: 'Каждые {{count}}ч'
         }
     },
     welcome: {

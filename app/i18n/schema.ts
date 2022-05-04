@@ -259,7 +259,11 @@ export type LocalizationSchema = {
             cancel: string,
             cancelAll: string,
             description: string,
-            productDescription: string
+            productDescription: string,
+            nextBilling: string,
+            monthly: string,
+            inDays: string,
+            inHours: string
         }
     }
     welcome: {

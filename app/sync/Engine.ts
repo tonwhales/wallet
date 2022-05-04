@@ -73,6 +73,7 @@ export class Engine {
         this._dependencies.push(this.products.apps);
         this._dependencies.push(this.products.price);
         this._dependencies.push(this.products.whalesStakingPool);
+        this._dependencies.push(this.products.subscriptions);
     }
 
     get ready() {

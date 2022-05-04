@@ -11,7 +11,9 @@ import { SubsciptionButton } from '../../components/SubsciptionButton';
 export const SubscriptionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = React.useContext(EngineContext)!
-    const subscriptions = engine.products.subscriptions.useState();
+    const subscriptions = engine.products.subscriptions.useState()?.subscriptions;
+
+    console.log('')
 
     return (
         <View style={{
@@ -41,7 +43,7 @@ export const SubscriptionsFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
-                    {subscriptions!! && subscriptions.subscriptions.length > 0 && subscriptions.subscriptions.map((s, i) => {
+                    {subscriptions!! && subscriptions.length > 0 && subscriptions.map((s, i) => {
                         return (
                             <View key={`sub-${i}`} style={{ marginHorizontal: 16, width: '100%' }}>
                                 <SubsciptionButton subscription={s} />

@@ -257,7 +257,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             cancel: 'Cancel subscription',
             cancelAll: 'Cancel all',
             description: 'Here you can manage your subscriptions. You can view and cancel them',
-            productDescription: '{{count}} active'
+            productDescription: '{{count}} active',
+            nextBilling: 'Next billing date',
+            monthly: 'Monthly',
+            inDays: 'Every {{count}}d',
+            inHours: 'Every {{count}}h'
         }
     },
     welcome: {

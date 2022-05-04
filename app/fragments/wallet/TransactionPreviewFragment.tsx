@@ -16,7 +16,7 @@ import { Transaction } from "../../sync/Transaction";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
-import { useAccount } from "../../sync/Engine";
+import { useEngine } from "../../sync/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
@@ -28,7 +28,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { transaction } = useParams<{ transaction?: Transaction | null }>();
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const [account, engine] = useAccount();
+    const engine = useEngine();
 
     if (!transaction) {
         throw Error('Unable to load transaction');

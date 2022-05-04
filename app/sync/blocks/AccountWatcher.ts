@@ -8,6 +8,16 @@ export type AccountState = {
     balance: BN;
     last: { lt: string, hash: string } | null;
     seqno: number;
+    state: {
+        type: 'uninit';
+    } | {
+        type: 'active';
+        code: string;
+        data: string;
+    } | {
+        type: 'frozen';
+        stateHash: string;
+    };
 }
 
 export interface AccountWatcher {
@@ -44,7 +54,8 @@ export class AccountWatcher extends EventEmitter {
             this.#state = {
                 balance: new BN(state.account.balance.coins, 10),
                 last: state.account.last,
-                seqno: v
+                seqno: v,
+                state: state.account.state
             };
             console.log(`[${key}]: State downloaded`);
             this.emit('account_changed', { address, state: this.#state });

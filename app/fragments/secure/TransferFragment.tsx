@@ -17,7 +17,7 @@ import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
-import { useAccount } from '../../sync/Engine';
+import { useEngine } from '../../sync/Engine';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
@@ -30,7 +30,6 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../secure/formatSupportedBody';
 import { fragment } from '../../fragment';
-import { erase } from './utils/erase';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -52,7 +51,8 @@ export const TransferFragment = fragment(() => {
         stateInit?: Cell | null,
         job?: string | null
     } | undefined = useRoute().params;
-    const [account, engine] = useAccount();
+    const engine = useEngine();
+    const account = engine.products.main.useState();
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
@@ -201,7 +201,7 @@ export const TransferFragment = fragment(() => {
         }
 
         // Notify
-        engine.registerPending({
+        engine.products.main.registerPending({
             id: 'pending-' + account.seqno,
             lt: null,
             fees: fee,

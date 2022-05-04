@@ -13,7 +13,7 @@ import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { Engine, useAccount } from '../../sync/Engine';
+import { Engine, useEngine } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -72,9 +72,10 @@ export const WalletFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const [account, engine] = useAccount();
+    const engine = useEngine();
+    const account = engine.products.main.useState();
     const transactions = React.useMemo<Transaction[]>(() => {
-        let txs = account.transactions.map((v) => engine.getTransaction(v));
+        let txs = account.transactions.map((v) => engine.transactions.getWalletTransaction(address, v));
         return [...account.pending, ...txs];
     }, [account.transactions, account.pending]);
 

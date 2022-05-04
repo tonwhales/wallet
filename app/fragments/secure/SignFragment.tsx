@@ -10,7 +10,7 @@ import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { getConnectionReferences, getCurrentAddress } from '../../storage/appState';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { useAccount } from '../../sync/Engine';
+import { useEngine } from '../../sync/Engine';
 import { parseJob } from '../../sync/parse/parseJob';
 import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -26,7 +26,7 @@ export const SignFragment = fragment(() => {
     const params: {
         job: string
     } = useRoute().params as any;
-    const [account, engine] = useAccount();
+    const engine = useEngine();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const safeArea = useSafeAreaInsets();
     const job = parseJob(Cell.fromBoc(Buffer.from(params.job, 'base64'))[0].beginParse());

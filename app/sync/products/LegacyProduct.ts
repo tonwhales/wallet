@@ -4,7 +4,7 @@ import { AppConfig } from "../../AppConfig";
 import { AccountLiteSync } from "../account/AccountLiteSync";
 import { Engine } from "../Engine";
 
-export class OldWalletsProduct {
+export class LegacyProduct {
 
     readonly engine: Engine;
     readonly wallets: AccountLiteSync[] = [];

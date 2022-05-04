@@ -9,7 +9,7 @@ import { getAppInstanceKeyPair } from '../../storage/appState';
 import { delay } from 'teslabot';
 import axios from 'axios';
 
-export class JobsProduct {
+export class AppProduct {
 
     readonly engine: Engine;
     private _destroyed: boolean;
@@ -28,7 +28,7 @@ export class JobsProduct {
         this.engine = engine;
         this._destroyed = false;
         try {
-            let job = engine.cache.loadJob(engine.address);
+            let job = engine.persistence.apps.getValue(engine.address);
             if (job) {
                 let jobCell = Cell.fromBoc(Buffer.from(job, 'base64'))[0];
                 let parsed = parseJob(jobCell.beginParse());
@@ -95,7 +95,7 @@ export class JobsProduct {
         this._completed.add(job);
         if (this._state && this._state.jobRaw === job) {
             this._state = null;
-            this.engine.cache.storeJob(this.engine.address, null);
+            this.engine.persistence.apps.setValue(this.engine.address, null);
             this._eventEmitter.emit('updated');
         }
 
@@ -146,7 +146,7 @@ export class JobsProduct {
                 if (res.data.state === 'empty' || res.data.state === 'expired' || res.data.state === 'completed' || res.data === 'rejected') {
                     if (this._state) {
                         this._state = null;
-                        this.engine.cache.storeJob(this.engine.address, null);
+                        this.engine.persistence.apps.setValue(this.engine.address, null);
                         this._eventEmitter.emit('updated');
                     }
                     continue;
@@ -161,13 +161,13 @@ export class JobsProduct {
                     let parsed = parseJob(jobCell.beginParse());
                     if (!parsed && !!this._state) {
                         this._state = null;
-                        this.engine.cache.storeJob(this.engine.address, null);
+                        this.engine.persistence.apps.setValue(this.engine.address, null);
                         this._eventEmitter.emit('updated');
                         continue;
                     }
                     if (parsed) {
                         this._state = { ...parsed, jobCell, jobRaw: res.data.job };
-                        this.engine.cache.storeJob(this.engine.address, res.data.job);
+                        this.engine.persistence.apps.setValue(this.engine.address, res.data.job);
                         this._eventEmitter.emit('updated');
                         continue;
                     }

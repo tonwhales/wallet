@@ -13,7 +13,7 @@ import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { getCurrentAddress } from "../../storage/appState";
-import { useAccount } from "../../sync/Engine";
+import { useEngine } from "../../sync/Engine";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
@@ -30,7 +30,7 @@ export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean }>();
     const navigation = useTypedNavigation();
-    const [account, engine] = useAccount();
+    const engine = useEngine();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const pool = engine.products.whalesStakingPool.useState();
     const poolParams = pool?.params;

@@ -4,7 +4,7 @@ import LottieView from 'lottie-react-native';
 import BN from "bn.js";
 import { fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
-import { useAccount } from "../../sync/Engine";
+import { useEngine } from "../../sync/Engine";
 import { AppConfig } from "../../AppConfig";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";
@@ -25,7 +25,7 @@ export const UnstakeBanner = React.memo((
         amount?: string
     }
 ) => {
-    const [account, engine] = useAccount();
+    const engine = useEngine();
     const price = engine.products.price.useState();
     const anim = useRef<LottieView>(null);
 

@@ -15,14 +15,14 @@ import { t } from '../i18n/t';
 import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
-import { useAccount } from '../sync/Engine';
+import { useEngine } from '../sync/Engine';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
-    const [account, engine] = useAccount();
+    const engine = useEngine();
 
     // Subscribe for links
     React.useEffect(() => {

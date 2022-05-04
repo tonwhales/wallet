@@ -1,8 +1,8 @@
 import { Address, fromNano } from "ton";
 import { AppConfig } from "../AppConfig";
 import { getCurrentAddress } from "../storage/appState";
-import { tonClient } from "../utils/client";
 import { TupleSlice } from "../utils/TupleSlice";
+import { Engine } from "./Engine";
 
 export interface Subscription {
     address: Address;
@@ -13,7 +13,7 @@ export interface SubscriptionsStateData {
     subscriptions: Subscription[];
 };
 
-function getSubscribtionAddress(src: any) {
+function getsubscriptionAddress(src: any) {
     try {
         let r = src[1].toString('hex');
         while (r.length < 64) {
@@ -27,9 +27,9 @@ function getSubscribtionAddress(src: any) {
     }
 }
 
-export async function fetchSubscriptions(): Promise<SubscriptionsStateData> {
+export async function fetchSubscriptions(engine: Engine): Promise<SubscriptionsStateData> {
     let address = getCurrentAddress().address;
-    const rawRes = await tonClient.callGetMethod(address, 'get_plugin_list', []);
+    const rawRes = await engine.connector.client.callGetMethod(address, 'get_plugin_list', []);
 
     let parsedRes = new TupleSlice(rawRes.stack);
 
@@ -37,8 +37,8 @@ export async function fetchSubscriptions(): Promise<SubscriptionsStateData> {
 
     const res: Subscription[] = [];
 
-    list.forEach((subscribtion: any[]) => {
-        let address = getSubscribtionAddress(subscribtion);
+    list.forEach((subscription: any[]) => {
+        let address = getsubscriptionAddress(subscription);
         if (address) {
             res.push({ address });
         }

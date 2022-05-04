@@ -1,10 +1,11 @@
 import { InvalidateSync } from "teslabot";
+import { Engine } from "./Engine";
 import { fetchSubscriptions, SubscriptionsStateData } from "./fetchSubscriptions";
 
-export function watchSubscriptions(handler: (state: SubscriptionsStateData) => Promise<void> | void) {
+export function watchSubscriptions(engine: Engine, handler: (state: SubscriptionsStateData) => Promise<void> | void) {
     let ended = false;
     const invalidateSync = new InvalidateSync(async () => {
-        const state = await fetchSubscriptions();
+        const state = await fetchSubscriptions(engine);
         if (ended) {
             return;
         }

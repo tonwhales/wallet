@@ -4,7 +4,20 @@ import { backoff } from "../../utils/time";
 import React from "react";
 import { watchSubscriptions } from "../watchSubscriptions";
 import { fetchSubscriptions, SubscriptionsStateData } from "../fetchSubscriptions";
+import { AppConfig } from "../../AppConfig";
+import { SubscriptionsPersisted } from "../Persistence";
+import { Address } from "ton";
 
+function stateToPersistence(src: SubscriptionsStateData): SubscriptionsPersisted {
+    return {
+        updatedAt: src.updatedAt,
+        subscriptions: src.subscriptions.map((s) => {
+            return {
+                address: s.address.toFriendly({ testOnly: AppConfig.isTestnet })
+            }
+        })
+    };
+}
 export class SubscriptionsProduct {
     readonly engine: Engine;
     private _state: SubscriptionsStateData | null = null;
@@ -14,7 +27,17 @@ export class SubscriptionsProduct {
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this._state = engine.cache.loadSubscriptions();
+        let ex = engine.persistence.subscriptions.getValue();
+        if (ex) {
+            this._state = {
+                updatedAt: ex.updatedAt,
+                subscriptions: ex.subscriptions.map((s) => {
+                    return {
+                        address: Address.parseFriendly(s.address).address
+                    }
+                })
+            }
+        }
         this._destroyed = false;
         this._start();
     }
@@ -83,7 +106,7 @@ export class SubscriptionsProduct {
                     if (this._destroyed) {
                         return null;
                     }
-                    return await fetchSubscriptions();
+                    return await fetchSubscriptions(this.engine);
                 });
                 if (!initialState) {
                     return;
@@ -94,7 +117,7 @@ export class SubscriptionsProduct {
 
                 // Apply state
                 this._state = initialState;
-                this.engine.cache.storeSubscriptions(this._state);
+                this.engine.persistence.subscriptions.setValue(undefined, stateToPersistence(this._state));
                 this._eventEmitter.emit('ready');
 
                 // Start sync
@@ -112,9 +135,9 @@ export class SubscriptionsProduct {
         }
 
         // Start sync
-        this._watched = watchSubscriptions(async (newState) => {
+        this._watched = watchSubscriptions(this.engine, async (newState) => {
             this._state = newState;
-            this.engine.cache.storeSubscriptions(this._state);
+            this.engine.persistence.subscriptions.setValue(undefined, stateToPersistence(this._state));
             this._eventEmitter.emit('updated');
         });
     }

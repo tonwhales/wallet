@@ -2,6 +2,7 @@ import { MMKV } from "react-native-mmkv";
 import { Address } from "ton";
 import { AppConfig } from "../AppConfig";
 import { PersistedCollection } from "./PersistedCollection";
+import { SubscriptionsStateData } from '../sync/fetchSubscriptions';
 import * as t from 'io-ts';
 import BN from "bn.js";
 
@@ -42,6 +43,13 @@ export type StakingPersisted = {
     }
 }
 
+export type SubscriptionsPersisted = {
+    updatedAt: number,
+    subscriptions: {
+        address: string
+    }[]
+}
+
 export class Persistence {
 
     readonly version: number = 1;
@@ -53,6 +61,7 @@ export class Persistence {
     readonly prices: PersistedCollection<void, { price: { usd: number } }>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPersisted>;
+    readonly subscriptions: PersistedCollection<void, SubscriptionsPersisted>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -67,6 +76,7 @@ export class Persistence {
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec });
+        this.subscriptions = new PersistedCollection({ storage, namespace: 'subscriptions', key: voidKey, codec: subscriptionsStateStorage });
     }
 }
 
@@ -115,4 +125,8 @@ const stakingPoolStateCodec = t.type({
         pendingWithdraw: t.string,
         withdraw: t.string
     })
+});
+const subscriptionsStateStorage = t.type({
+    updatedAt: t.number,
+    subscriptions: t.array(t.type({ address: t.string }))
 });

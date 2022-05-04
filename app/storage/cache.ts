@@ -196,12 +196,12 @@ function parseStakingPoolState(src: any): StakingPoolState | null {
 // Subscriptions
 // 
 
-const subscribtionsStateStorage = t.type({
+const subscriptionsStateStorage = t.type({
     updatedAt: t.number,
     subscriptions: t.array(t.type({ address: t.string }))
 });
 
-function serializeSubscribtions(data: SubscriptionsStateData): t.TypeOf<typeof subscribtionsStateStorage> {
+function serializesubscriptions(data: SubscriptionsStateData): t.TypeOf<typeof subscriptionsStateStorage> {
     return {
         updatedAt: data.updatedAt,
         subscriptions: data.subscriptions.map((s) => {
@@ -212,8 +212,8 @@ function serializeSubscribtions(data: SubscriptionsStateData): t.TypeOf<typeof s
     }
 }
 
-function parseSubscribtions(src: any): SubscriptionsStateData | null {
-    const parsed = subscribtionsStateStorage.decode(src);
+function parsesubscriptions(src: any): SubscriptionsStateData | null {
+    const parsed = subscriptionsStateStorage.decode(src);
     if (isLeft(parsed)) {
         return null;
     }
@@ -379,13 +379,13 @@ export function createCache(store: MMKV) {
         },
         storeSubscriptions: (data: SubscriptionsStateData) => {
             console.log('storeSubscriptions', { data })
-            const serialized = JSON.stringify(serializeSubscribtions(data));
+            const serialized = JSON.stringify(serializesubscriptions(data));
             store.set('subscriptions_state', serialized);
         },
         loadSubscriptions: () => {
             let res = store.getString('subscriptions_state');
             if (res) {
-                return parseSubscribtions(JSON.parse(res));
+                return parsesubscriptions(JSON.parse(res));
             } else {
                 return null
             }

@@ -23,13 +23,9 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme, Theme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { Engine, EngineContext } from './sync/Engine';
-import { storageCache } from './storage/storage';
-import { createSimpleConnector } from './sync/Connector';
-import { AppConfig } from './AppConfig';
+import { EngineContext } from './sync/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
-import * as SplashScreen from 'expo-splash-screen';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -38,13 +34,10 @@ import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
-import { PriceLoader } from './sync/PriceContext';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
-import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
-import { TonClient4 } from 'ton';
 import { createEngine } from './sync/createEngine';
 
 const Stack = createNativeStackNavigator();
@@ -155,6 +148,13 @@ export const Navigation = React.memo(() => {
             return createEngine({ address: ex.address, publicKey: ex.publicKey });
         } else {
             return null;
+        }
+    }, []);
+    React.useEffect(() => {
+        return () => {
+            if (engine) {
+                engine.destroy();
+            }
         }
     }, []);
 

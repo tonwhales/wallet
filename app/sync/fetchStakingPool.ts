@@ -1,28 +1,71 @@
 import BN from 'bn.js';
 import { Address, Cell } from "ton";
-import { AppConfig } from '../AppConfig';
 import { backoff } from '../utils/time';
-import { getCurrentAddress } from '../storage/appState';
-import { tonClient } from '../utils/client';
-import { TupleSlice } from '../utils/TupleSlice';
+import { Engine } from './Engine';
+import { StakingPoolState } from './products/StakingPoolProduct';
 
-export interface StakingPoolData {
-    name: string,
-    address: Address,
-    params: {
-        minStake: BN,
-        depositFee: BN,
-        withdrawFee: BN,
-        stakeUntil: number,
-        receiptPrice: BN
-    },
-    member: { balance: BN, pendingDeposit: BN, pendingWithdraw: BN, withdraw: BN } | null
+export function bnToAddress(bn: BN) {
+    let r = bn.toString("hex");
+    while (r.length < 64) {
+        r = "0" + r;
+    }
+    return new Address(0, Buffer.from(r, "hex"));
+}
+export class TupleSlice {
+    private readonly items: any[];
+    constructor(items: any[]) {
+        this.items = [...items];
+    }
+
+    readNumber() {
+        if (this.items[0][0] !== 'num') {
+            throw Error('Not a number');
+        }
+        let res = parseInt(this.items[0][1]);
+        this.items.splice(0, 1);
+        return res;
+    }
+
+    readBoolean() {
+        if (this.items[0][0] !== 'num') {
+            throw Error('Not a number');
+        }
+        let res = parseInt(this.items[0][1]);
+        this.items.splice(0, 1);
+        return res === 0 ? false : true;
+    }
+
+    readBigNumber() {
+        if (this.items[0][0] !== 'num') {
+            throw Error('Not a number');
+        }
+        let res = new BN((this.items[0][1] as string).slice(2), 'hex');
+        this.items.splice(0, 1);
+        return res;
+    }
+
+    readCell() {
+        if (this.items[0][0] !== 'cell') {
+            throw Error('Not a cell');
+        }
+        let res = Cell.fromBoc(Buffer.from(this.items[0][1].bytes as string, 'base64'))[0];
+        this.items.splice(0, 1);
+        return res;
+    }
+
+    readWorkchainAddress() {
+        if (this.items[0][0] !== 'num') {
+            throw Error('Not a number');
+        }
+        let bn = this.readBigNumber();
+        return bnToAddress(bn);
+    }
 }
 
-export async function getMember(pool: Address, address: Address) {
+export async function getMember(engine: Engine, pool: Address, address: Address) {
     const cell = new Cell();
     cell.bits.writeAddress(address);
-    return tonClient.callGetMethod(pool, 'get_member', [[
+    return await engine.connector.client.callGetMethod(pool, 'get_member', [[
         'slice',
         JSON.stringify(
             {
@@ -36,17 +79,15 @@ export async function getMember(pool: Address, address: Address) {
     ]]);
 }
 
-export async function getPoolParams(pool: Address) {
-    return tonClient.callGetMethod(pool, 'get_params', []);
+export async function getPoolParams(engine: Engine, pool: Address) {
+    return engine.connector.client.callGetMethod(pool, 'get_params', []);
 }
 
-export async function fetchStakingPool(pool: Address, name: string): Promise<StakingPoolData> {
-    let address = getCurrentAddress().address;
-
+export async function fetchStakingPool(engine: Engine, pool: Address, target: Address): Promise<StakingPoolState> {
     let [statusRaw, paramsRaw, memberRaw] = await Promise.all([
-        backoff(() => tonClient.callGetMethod(pool, 'get_staking_status', [])),
-        backoff(() => getPoolParams(pool)),
-        backoff(() => getMember(pool, address))
+        backoff(() => engine.connector.client.callGetMethod(pool, 'get_staking_status', [])),
+        backoff(() => getPoolParams(engine, pool)),
+        backoff(() => getMember(engine, pool, target))
     ]);
 
     let paramsRes = new TupleSlice(paramsRaw.stack);
@@ -100,9 +141,7 @@ export async function fetchStakingPool(pool: Address, name: string): Promise<Sta
     }
 
     return {
-        name: name,
-        address: pool,
-        member: member ? member : null,
+        member: member,
         params: {
             minStake: poolParams.minStake,
             depositFee: poolParams.depositFee,

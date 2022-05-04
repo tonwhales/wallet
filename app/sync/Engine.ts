@@ -66,6 +66,7 @@ export class Engine {
             price: new PriceProduct(this),
             apps: new AppProduct(this),
             whalesStakingPool: new StakingPoolProduct(this, KnownPools[0]),
+            subscriptions: new SubscriptionsProduct(this)
         };
         this._dependencies.push(this.accounts);
         this._dependencies.push(this.products.main);

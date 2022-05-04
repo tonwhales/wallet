@@ -1,6 +1,9 @@
 import { Address } from "ton";
+import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { WalletPersisted } from "../Persistence";
+import { fetchPlugins } from "./api/fetchPlugins";
+import { fetchSeqno } from "./api/fetchSeqno";
 import { SmartAccountSync } from "./SmartAccountSync";
 
 export type WalletDataSync = SmartAccountSync<WalletPersisted>;
@@ -13,18 +16,19 @@ export function createWalletDataSync(address: Address, engine: Engine): WalletDa
         extractor: async (src) => {
 
             // Fetch seqno
-            let seqnoRes = await engine.client4.runMethod(src.block, address, 'seqno');
-            let seqno = 0;
-            if (seqnoRes.exitCode === 0 || seqnoRes.exitCode === 1) {
-                if (seqnoRes.result[0].type !== 'int') {
-                    throw Error('Invalid response');
-                }
-                seqno = seqnoRes.result[0].value.toNumber();
-            }
+            let seqno = await fetchSeqno(engine.client4, src.block, address);
 
-            return { seqno, balance: src.balance.toString(10), transactions: src.transactions };
+            // Fetch plugins
+            let plugins = (await fetchPlugins(engine.client4, src.block, address)).map((v) => v.toFriendly({ testOnly: AppConfig.isTestnet }));
+
+            return {
+                seqno,
+                balance: src.balance.toString(10),
+                plugins,
+                transactions: src.transactions
+            };
         },
         converter: (src) => src,
         collection: engine.persistence.wallets
-    })
+    });
 }

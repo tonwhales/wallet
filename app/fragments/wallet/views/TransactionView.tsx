@@ -66,8 +66,14 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         }
     }
 
+    // Resolve address
     let friendlyAddress = parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet });
     let known = friendlyAddress ? KnownWallets[friendlyAddress] : undefined;
+
+    // Jetton
+    if (metadata.jettonMaster || metadata.jettonWallet) {
+        known = { name: 'Token Contract' };
+    }
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>

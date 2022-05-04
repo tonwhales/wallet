@@ -25,6 +25,7 @@ export type FullAccountPersisted = {
 export type WalletPersisted = {
     seqno: number;
     balance: string,
+    plugins: string[],
     transactions: string[]
 }
 
@@ -100,6 +101,7 @@ const fullAccountCodec = t.type({
 const walletCodec = t.type({
     seqno: t.number,
     balance: t.string,
+    plugins: t.array(t.string),
     transactions: t.array(t.string)
 });
 const priceCodec = t.type({

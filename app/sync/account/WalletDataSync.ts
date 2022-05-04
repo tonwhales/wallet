@@ -4,7 +4,7 @@ import { Engine } from "../Engine";
 import { WalletPersisted } from "../Persistence";
 import { fetchPlugins } from "./api/fetchPlugins";
 import { fetchSeqno } from "./api/fetchSeqno";
-import { SmartAccountSync } from "./SmartAccountSync";
+import { SmartAccountSync } from "./utils/SmartAccountSync";
 
 export type WalletDataSync = SmartAccountSync<WalletPersisted>;
 
@@ -28,7 +28,6 @@ export function createWalletDataSync(address: Address, engine: Engine): WalletDa
                 transactions: src.transactions
             };
         },
-        converter: (src) => src,
         collection: engine.persistence.wallets
     });
 }

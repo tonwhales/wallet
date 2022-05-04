@@ -2,22 +2,22 @@ import * as React from 'react';
 import EventEmitter from "events";
 import { SyncValue } from "teslabot";
 import { Address } from "ton";
-import { Engine } from "../Engine";
-import { PersistedCollection } from "../PersistedCollection";
-import { AccountFullSync, FullAccount } from "./AccountFullSync";
+import { Engine } from "../../Engine";
+import { PersistedCollection } from "../../PersistedCollection";
+import { AccountFullSync, FullAccount } from "../AccountFullSync";
 
-export interface SmartAccountSync<T, P = T> {
-    emit(event: 'account_ready', data: { address: Address, account: FullAccount, state: P }): boolean;
-    on(event: 'account_ready', listener: (data: { address: Address, account: FullAccount, state: P }) => void): this;
-    off(event: 'account_ready', listener: (data: { address: Address, account: FullAccount, state: P }) => void): this;
-    once(event: 'account_ready', listener: (data: { address: Address, account: FullAccount, state: P }) => void): this;
+export interface SmartAccountSync<T> {
+    emit(event: 'account_ready', data: { address: Address, account: FullAccount, state: T }): boolean;
+    on(event: 'account_ready', listener: (data: { address: Address, account: FullAccount, state: T }) => void): this;
+    off(event: 'account_ready', listener: (data: { address: Address, account: FullAccount, state: T }) => void): this;
+    once(event: 'account_ready', listener: (data: { address: Address, account: FullAccount, state: T }) => void): this;
 
-    emit(event: 'account_updated', data: { address: Address, account: FullAccount, state: P }): boolean;
-    on(event: 'account_updated', listener: (data: { address: Address, account: FullAccount, state: P }) => void): this;
-    off(event: 'account_updated', listener: (data: { address: Address, account: FullAccount, state: P }) => void): this;
-    once(event: 'account_updated', listener: (data: { address: Address, account: FullAccount, state: P }) => void): this;
+    emit(event: 'account_updated', data: { address: Address, account: FullAccount, state: T }): boolean;
+    on(event: 'account_updated', listener: (data: { address: Address, account: FullAccount, state: T }) => void): this;
+    off(event: 'account_updated', listener: (data: { address: Address, account: FullAccount, state: T }) => void): this;
+    once(event: 'account_updated', listener: (data: { address: Address, account: FullAccount, state: T }) => void): this;
 }
-export class SmartAccountSync<T, P = T> extends EventEmitter {
+export class SmartAccountSync<T> extends EventEmitter {
 
     readonly key: string;
     readonly engine: Engine;
@@ -25,16 +25,14 @@ export class SmartAccountSync<T, P = T> extends EventEmitter {
     readonly extractor: (src: FullAccount) => Promise<T>;
     readonly collection: PersistedCollection<Address, T>;
     readonly accountSync: AccountFullSync;
-    readonly converter: (src: T) => P;
     #sync: SyncValue<FullAccount | null>;
-    #state: P | null = null;
+    #state: T | null = null;
     #stateBlock: number | null = null;
 
     constructor(args: {
         key: string,
         address: Address,
         extractor: (src: FullAccount) => Promise<T>,
-        converter: (src: T) => P,
         collection: PersistedCollection<Address, T>,
         engine: Engine
     }) {
@@ -43,7 +41,6 @@ export class SmartAccountSync<T, P = T> extends EventEmitter {
         this.engine = args.engine;
         this.address = args.address;
         this.extractor = args.extractor;
-        this.converter = args.converter;
         this.collection = args.collection;
 
         // Sync logic
@@ -66,8 +63,7 @@ export class SmartAccountSync<T, P = T> extends EventEmitter {
 
             // Update state
             let first = !this.#state;
-            let converted = this.converter(extracted);
-            this.#state = converted;
+            this.#state = extracted;
             this.#stateBlock = value.block;
 
             // Notify
@@ -82,7 +78,7 @@ export class SmartAccountSync<T, P = T> extends EventEmitter {
         let exBlock = this.engine.persistence.smartCursors.getValue({ key: this.key, address: this.address });
         let ex = this.collection.getValue(this.address);
         if (ex && exBlock) {
-            this.#state = this.converter(ex);
+            this.#state = ex;
             this.#stateBlock = exBlock;
         } else {
             this.#state = null;

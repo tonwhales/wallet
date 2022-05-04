@@ -6,6 +6,7 @@ import * as t from 'io-ts';
 import * as c from './utils/codecs';
 import BN from "bn.js";
 import { ContractMetadata } from "./metadata/Metadata";
+import { PluginState } from "./account/PluginSync";
 
 export type LiteAccountPersisted = {
     balance: string;
@@ -58,6 +59,7 @@ export class Persistence {
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPersisted>;
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
+    readonly plugins: PersistedCollection<Address, PluginState>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -74,6 +76,7 @@ export class Persistence {
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec });
         this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata });
+        this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec });
     }
 }
 
@@ -146,3 +149,21 @@ const metadataCodec = t.type({
 });
 
 const codecPendingMetadata = t.record(t.string, t.number);
+
+const pluginStateCodec = t.union([t.type({
+    type: t.literal('unknown'),
+}), t.type({
+    type: t.literal('legacy-subscription'),
+    state: t.type({
+        wallet: c.address,
+        beneficiary: c.address,
+        amount: c.bignum,
+        period: t.number,
+        startAt: t.number,
+        timeout: t.number,
+        lastPayment: t.number,
+        lastRequest: t.number,
+        failedAttempts: t.number,
+        subscriptionId: t.string
+    })
+})])

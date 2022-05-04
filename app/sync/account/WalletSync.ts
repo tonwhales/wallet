@@ -5,6 +5,8 @@ import { WalletPersisted } from "../Persistence";
 import { ReactSync } from "../react/ReactSync";
 import { Transaction } from "../Transaction";
 import { FullAccount } from "./AccountFullSync";
+import { PluginState, PluginSync } from "./PluginSync";
+import { RelatedAccountsSync } from "./RelatedAccountsSync";
 import { createWalletDataSync, WalletDataSync } from "./WalletDataSync";
 
 export type WalletState = {
@@ -18,6 +20,7 @@ export class WalletSync {
 
     #sync: WalletDataSync;
     #state = new ReactSync<WalletState>();
+    #plugins: RelatedAccountsSync<PluginState>;
 
     constructor(address: Address, engine: Engine) {
 
@@ -30,6 +33,9 @@ export class WalletSync {
             this.#handleAccount(src.account, src.state);
         });
 
+        // Plugins sync
+        this.#plugins = new RelatedAccountsSync(engine, (addr) => new PluginSync(engine, addr));
+
         // Handle initial
         if (this.#sync.ready) {
             this.#state.value = {
@@ -38,10 +44,13 @@ export class WalletSync {
                 transactions: this.#sync.state.transactions,
                 pending: []
             };
+            this.#plugins.setAddresses(this.#sync.state.plugins.map((v) => Address.parse(v)));
         }
     }
 
     #handleAccount = (account: FullAccount, persisted: WalletPersisted) => {
+
+        // Account
         if (!this.#state.ready) {
             this.#state.value = {
                 balance: new BN(account.balance, 10),
@@ -57,6 +66,9 @@ export class WalletSync {
                 pending: this.#state.value.pending.filter((t) => t.seqno! > persisted.seqno)
             };
         }
+
+        // Plugins
+        this.#plugins.setAddresses(persisted.plugins.map((v) => Address.parse(v)));
     }
 
     registerPending(src: Transaction) {
@@ -77,6 +89,10 @@ export class WalletSync {
 
     useState() {
         return this.#state.use();
+    }
+
+    usePlugins() {
+        return this.#plugins.useState();
     }
 
     get ready() {

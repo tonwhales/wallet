@@ -7,7 +7,7 @@ import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { fromNano } from "ton";
+import { Address, fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -22,6 +22,9 @@ import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { parseMessageBody } from "../../secure/parseMessageBody";
 import { formatSupportedBody } from "../../secure/formatSupportedBody";
+import { ContractMetadata } from "../../sync/metadata/Metadata";
+
+const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -52,10 +55,18 @@ export const TransactionPreviewFragment = fragment(() => {
         transactionType = t('tx.received');
     }
 
+    // Metadata
+    // Fetch metadata
+    let metadata: ContractMetadata;
+    if (transaction.address) {
+        metadata = engine.metadata.useMetadata(transaction.address);
+    } else {
+        metadata = engine.metadata.useMetadata(ZERO_ADDRESS);
+    }
+
     // Payload ovewrite
     if (transaction.body && transaction.body.type === 'payload' && transaction.address) {
-        let interfaces = engine.metadata.getSupportedInterfaces(transaction.address);
-        let parsedBody = parseMessageBody(transaction.body.cell, interfaces);
+        let parsedBody = parseMessageBody(transaction.body.cell, metadata.interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {

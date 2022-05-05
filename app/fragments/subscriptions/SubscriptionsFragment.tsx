@@ -6,14 +6,12 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { EngineContext } from "../../sync/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { SubsciptionButton } from '../../components/SubsciptionButton';
+import { SubscriptionButton } from '../../components/SubscriptionButton';
 
 export const SubscriptionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = React.useContext(EngineContext)!
-    const subscriptions = engine.products.subscriptions.useState()?.subscriptions;
-
-    console.log('')
+    const plugins = engine.products.main.usePlugins();
 
     return (
         <View style={{
@@ -43,10 +41,10 @@ export const SubscriptionsFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
-                    {subscriptions!! && subscriptions.length > 0 && subscriptions.map((s, i) => {
+                    {plugins!! && Object.keys(plugins).length > 0 && Object.entries(plugins).map((s, i) => {
                         return (
                             <View key={`sub-${i}`} style={{ marginHorizontal: 16, width: '100%' }}>
-                                <SubsciptionButton subscription={s} />
+                                <SubscriptionButton address={s[0]} subscription={s[1]} />
                             </View>
                         )
                     })}

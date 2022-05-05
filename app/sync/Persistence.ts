@@ -2,7 +2,6 @@ import { MMKV } from "react-native-mmkv";
 import { Address } from "ton";
 import { AppConfig } from "../AppConfig";
 import { PersistedCollection } from "./PersistedCollection";
-import { SubscriptionsStateData } from '../sync/fetchSubscriptions';
 import * as t from 'io-ts';
 import * as c from './utils/codecs';
 import BN from "bn.js";

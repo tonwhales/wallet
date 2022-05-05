@@ -11,14 +11,16 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
+import { getCurrentAddress } from "../../../storage/appState"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
+    const address = getCurrentAddress().address;
     const oldWalletsBalance = engine.products.legacy.useState();
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
-    const subscriptions = engine.products.subscriptions.useState();
+    const plugins = engine.products.main.usePlugins();
 
     return (
         <View style={{ paddingTop: 8 }}>
@@ -68,10 +70,10 @@ export const ProductsComponent = React.memo(() => {
                     style={{ marginVertical: 4 }}
                 />
             )}
-            {subscriptions!! && subscriptions.subscriptions.length > 0 && (
+            {plugins!! && Object.keys(plugins).length > 0 && (
                 <ProductButton
                     name={t('products.subscriptions.productTitle')}
-                    subtitle={t('products.subscriptions.productDescription', { count: subscriptions.subscriptions.length })}
+                    subtitle={t('products.subscriptions.productDescription', { count: Object.keys(plugins).length })}
                     icon={SubsriptionsIcon}
                     iconBackgroundTint={'#A67CDC'}
                     value={null}

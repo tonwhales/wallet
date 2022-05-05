@@ -9,9 +9,6 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
-import { ATextInput } from "../../components/ATextInput";
-import { AddressComponent } from "../../components/AddressComponent";
-import { WalletAddress } from "../../components/WalletAddress";
 import { fromNano } from "ton";
 import { PriceComponent } from "../../components/PriceComponent";
 
@@ -19,8 +16,10 @@ export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params = useParams<{ address: string }>();
     const engine = React.useContext(EngineContext)!
-    const subscriptions = engine.products.subscriptions.useState()?.subscriptions;
-    const subscription = subscriptions?.find((s) => s.wallet.toFriendly({ testOnly: AppConfig.isTestnet }) === params.address);
+    const plugins = engine.products.main.usePlugins();
+    const subscription = plugins[params.address];
+
+    console.log('[SubscriptionFragment]', { plugins, subscription });
 
     if (!params.address || !subscription) {
         navigation.goBack();
@@ -49,7 +48,7 @@ export const SubscriptionFragment = fragment(() => {
                     flex: 1,
                     paddingHorizontal: 16
                 }}>
-                    {!!subscription && (
+                    {!!subscription && subscription.type === 'legacy-subscription' && (
                         <View style={{
                             marginBottom: 16, marginTop: 17,
                             backgroundColor: "white",
@@ -77,7 +76,7 @@ export const SubscriptionFragment = fragment(() => {
                                     fontWeight: '400',
                                     maxWidth: 262
                                 }}>
-                                    {subscription.wallet.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                    {subscription.state.wallet.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 </Text>
                             </View>
                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
@@ -104,12 +103,12 @@ export const SubscriptionFragment = fragment(() => {
                                         fontWeight: '400',
                                         maxWidth: 262,
                                     }}>
-                                        {fromNano(subscription.amount) + ' TON '}
+                                        {fromNano(subscription.state.amount) + ' TON '}
                                     </Text>
                                     <Text>
                                         {'('}
                                         <PriceComponent
-                                            amount={subscription.amount}
+                                            amount={subscription.state.amount}
                                             style={{
                                                 backgroundColor: 'transparent',
                                                 padding: 0,

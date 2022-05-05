@@ -263,7 +263,12 @@ export type LocalizationSchema = {
             nextBilling: string,
             monthly: string,
             inDays: string,
-            inHours: string
+            inHours: string,
+            subscription: {
+                title: string,
+                link: string,
+                charge: string
+            }
         }
     }
     welcome: {

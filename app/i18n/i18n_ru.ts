@@ -261,7 +261,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             nextBilling: 'Дата следующего списания',
             monthly: 'Ежемесячно',
             inDays: 'Каждые {{count}}д',
-            inHours: 'Каждые {{count}}ч'
+            inHours: 'Каждые {{count}}ч',
+            subscription: {
+                title: 'Подписка',
+                link: 'Ссылка',
+                charge: 'Стоимость'
+            }
         }
     },
     welcome: {

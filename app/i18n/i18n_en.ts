@@ -261,7 +261,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             nextBilling: 'Next billing date',
             monthly: 'Monthly',
             inDays: 'Every {{count}}d',
-            inHours: 'Every {{count}}h'
+            inHours: 'Every {{count}}h',
+            subscription: {
+                title: 'Subscription',
+                link: 'Link',
+                charge: 'Charge'
+            }
         }
     },
     welcome: {

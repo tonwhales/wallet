@@ -40,6 +40,7 @@ import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { createEngine } from './sync/createEngine';
 import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
+import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -137,6 +138,7 @@ const navigation = [
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Subscriptions', SubscriptionsFragment),
+    modalScreen('Subscription', SubscriptionFragment),
 ];
 
 export const Navigation = React.memo(() => {

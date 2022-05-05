@@ -8,6 +8,8 @@ import { ValueComponent } from "./ValueComponent";
 import { PriceComponent } from "./PriceComponent";
 import { t } from "../i18n/t";
 import { formatDate } from "../utils/dates";
+import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { AppConfig } from "../AppConfig";
 
 export const SubsciptionButton = React.memo((
     {
@@ -16,6 +18,7 @@ export const SubsciptionButton = React.memo((
         subscription: Subscription
     }
 ) => {
+    const navigation = useTypedNavigation();
     const engine = useEngine();
     const periodFullDays = Math.floor(subscription.period / (60 * 60 * 24));
     let period = '';
@@ -33,6 +36,12 @@ export const SubsciptionButton = React.memo((
                 return {
                     opacity: pressed ? 0.3 : 1
                 }
+            }}
+            onPress={() => {
+                navigation.navigate(
+                    'Subscription',
+                    { address: subscription.wallet.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                );
             }}
         >
             <View style={{

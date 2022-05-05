@@ -254,7 +254,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'My subscriptions',
             productTitle: 'Subscriptions',
             noActive: 'You have no active subscriptions',
-            cancel: 'Cancel subscription',
             cancelAll: 'Cancel all',
             description: 'Here you can manage your subscriptions. You can view and cancel them',
             productDescription: '{{count}} active',
@@ -265,7 +264,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subscription: {
                 title: 'Subscription',
                 link: 'Link',
-                charge: 'Charge'
+                charge: 'Charge',
+                startDate: 'Created on',
+                cancel: 'Cancel subscription',
+                cancelConfirm: 'Are you sure you want to cancel this subscription?'
             }
         }
     },

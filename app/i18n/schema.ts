@@ -256,7 +256,6 @@ export type LocalizationSchema = {
             title: string,
             productTitle: string,
             noActive: string,
-            cancel: string,
             cancelAll: string,
             description: string,
             productDescription: string,
@@ -267,7 +266,10 @@ export type LocalizationSchema = {
             subscription: {
                 title: string,
                 link: string,
-                charge: string
+                charge: string,
+                startDate: string,
+                cancel: string,
+                cancelConfirm: string
             }
         }
     }

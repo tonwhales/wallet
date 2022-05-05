@@ -1,5 +1,5 @@
-import React from "react";
-import { Platform, View, Text, ScrollView } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
@@ -10,18 +10,21 @@ import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
 import { fromNano } from "ton";
-import { PriceComponent } from "../../components/PriceComponent";
 import { formatNum } from "../../utils/numbers";
 import { format } from "date-fns";
 import { is24Hour, locale } from "../../utils/dates";
+import { RoundButton } from "../../components/RoundButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
     const params = useParams<{ address: string }>();
     const engine = React.useContext(EngineContext)!
     const plugins = engine.products.main.usePlugins();
     const subscription = plugins[params.address];
     const price = engine.products.price.useState();
+    const [loading, setLoading] = useState(false);
 
     console.log('[SubscriptionFragment]', { plugins, subscription });
 
@@ -38,24 +41,70 @@ export const SubscriptionFragment = fragment(() => {
 
     const nextBilling = subscription.state.lastPayment + subscription.state.period;
 
+    const onCancelSub = useCallback(
+        async () => {
+            setLoading(true);
+            await new Promise<boolean>(resolve => {
+                Alert.alert(
+                    t('products.subscriptions.subscription.cancel'),
+                    t('products.subscriptions.subscription.cancelConfirm'),
+                    [{
+                        text: t('common.yes'),
+                        style: 'destructive',
+                        onPress: () => {
+                            resolve(true)
+                        }
+                    }, {
+                        text: t('common.no'),
+                        onPress: () => {
+                            resolve(false);
+                        }
+                    }])
+            });
+            setLoading(false);
+        },
+        [subscription],
+    );
+
     return (
         <View style={{
             flexGrow: 1
         }}>
             <AndroidToolbar pageTitle={t('products.subscriptions.subscription.title')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 12,
-                    height: 32,
-                    justifyContent: 'center'
+            <View style={{
+                backgroundColor: Theme.background,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                {Platform.OS === 'ios' && (
+                    <View style={{
+                        marginTop: 12,
+                        height: 32,
+                        justifyContent: 'center'
+                    }}>
+                        <Text style={[{
+                            fontWeight: '600',
+                            fontSize: 17
+                        }, { textAlign: 'center' }]}>{t('products.subscriptions.subscription.title')}</Text>
+                    </View>
+                )}
+                <Text style={{
+                    fontWeight: '400',
+                    fontSize: 13,
+                    color: '#7D858A',
+                    marginTop: 6,
                 }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        marginLeft: 17,
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>{t('products.subscriptions.subscription.title')}</Text>
-                </View>
-            )}
+                    {
+                        t('products.subscriptions.subscription.startDate')
+                        + ' '
+                        + format(
+                            subscription.state.startAt * 1000,
+                            is24Hour ? 'y MMM d, HH:mm' : 'y MMM d, hh:mm aa',
+                            { locale: locale() }
+                        )
+                    }
+                </Text>
+            </View>
             <ScrollView>
                 <View style={{
                     flex: 1,
@@ -147,7 +196,7 @@ export const SubscriptionFragment = fragment(() => {
                                         fontWeight: '400',
                                         maxWidth: 262,
                                     }}>
-                                        {format(nextBilling * 1000, is24Hour ? 'LLLL d, HH:mm' : 'LLLL d, hh:mm aa', { locale: locale() })}
+                                        {format(nextBilling * 1000, is24Hour ? 'MMMM d, HH:mm' : 'MMMM d, hh:mm aa', { locale: locale() })}
                                     </Text>
                                 </View>
                             </View>
@@ -155,6 +204,15 @@ export const SubscriptionFragment = fragment(() => {
                     )}
                 </View>
             </ScrollView>
+            <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <RoundButton
+                    // disabled={canceled}
+                    display={'secondary'}
+                    onPress={onCancelSub}
+                    title={t('products.subscriptions.subscription.cancel')}
+                    loading={loading}
+                />
+            </View>
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

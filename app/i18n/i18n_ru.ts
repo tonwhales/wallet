@@ -254,7 +254,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Мои подписки',
             productTitle: 'Подписки',
             noActive: 'У вас нет активных подписок',
-            cancel: 'Отменить подписку',
             cancelAll: 'Отменить все',
             description: 'Здесь вы можете управлять своими подписками. Вы можете просмотреть и отменить их',
             productDescription: '{{count}} активных',
@@ -265,7 +264,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             subscription: {
                 title: 'Подписка',
                 link: 'Ссылка',
-                charge: 'Стоимость'
+                charge: 'Стоимость',
+                startDate: 'Дата создания',
+                cancel: 'Отменить подписку',
+                cancelConfirm: 'Вы уверены, что хотите отменить эту подписку?'
             }
         }
     },

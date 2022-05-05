@@ -7,15 +7,18 @@ import { t } from "../../i18n/t";
 import { EngineContext } from "../../sync/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SubscriptionButton } from '../../components/SubscriptionButton';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const SubscriptionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
     const engine = React.useContext(EngineContext)!
     const plugins = engine.products.main.usePlugins();
 
     return (
         <View style={{
-            flexGrow: 1
+            flexGrow: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : 0
         }}>
             <AndroidToolbar pageTitle={t('products.subscriptions.title')} />
             {Platform.OS === 'ios' && (

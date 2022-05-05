@@ -68,7 +68,8 @@ export const SubscriptionFragment = fragment(() => {
 
     return (
         <View style={{
-            flexGrow: 1
+            flexGrow: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : 0
         }}>
             <AndroidToolbar pageTitle={t('products.subscriptions.subscription.title')} />
             <View style={{

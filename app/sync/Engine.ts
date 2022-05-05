@@ -7,8 +7,7 @@ import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools } from '../utils/KnownPools';
-import { IntrospectionEngine } from './introspection/IntrospectionEngine';
-import { SubscriptionsProduct } from './products/SubscriptionsProduct';
+import { MetadataEngine } from './metadata/MetadataEngine';
 import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { Accounts } from './account/Accounts';
 import { Persistence } from './Persistence';
@@ -36,7 +35,7 @@ export class Engine {
     readonly products;
     readonly transactions: Transactions;
     readonly accounts: Accounts;
-    readonly introspection: IntrospectionEngine;
+    readonly metadata: MetadataEngine;
 
     private _destroyed: boolean;
     private _dependencies: EngineProduct[] = [];
@@ -54,7 +53,7 @@ export class Engine {
         this.publicKey = publicKey;
         this.connector = connector;
         this._destroyed = false;
-        this.introspection = new IntrospectionEngine(this);
+        this.metadata = new MetadataEngine(this);
         this.blocksWatcher = new BlocksWatcher(client4Endpoint);
         this.accounts = new Accounts(this);
         this.transactions = new Transactions(this);

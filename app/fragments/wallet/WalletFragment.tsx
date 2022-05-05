@@ -258,7 +258,7 @@ export const WalletFragment = fragment(() => {
                         <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>📱 Connecting</Text>
                     )}
                     {syncState === 'updating' && (
-                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>🚀 Cpdating</Text>
+                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>🚀 Updating</Text>
                     )}
                     {syncState === 'online' && (
                         <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>✅ Connected</Text>

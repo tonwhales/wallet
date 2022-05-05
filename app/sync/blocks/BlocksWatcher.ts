@@ -71,12 +71,6 @@ export class BlocksWatcher extends EventEmitter {
             if (this.#ws === nws) {
                 log('[blocks]: Connected');
 
-                // Lock release
-                if (this.#connectingLock) {
-                    this.#connectingLock();
-                    this.#connectingLock = null;
-                }
-
                 // Start message watchdog
                 this.#startMessageWatchdog();
             }
@@ -135,12 +129,19 @@ export class BlocksWatcher extends EventEmitter {
                     warn('[blocks]: Session lost. Restarting from #' + parsed.seqno);
                     this.#cursor = { first: { seqno: parsed.seqno }, current: { seqno: parsed.seqno } };
                     this.emit('new_session', { seqno: parsed.seqno });
+
                 } else {
                     // Sequental
                     log('[blocks]: Valid block #' + parsed.seqno);
                     this.#cursor.current = { seqno: parsed.seqno };
                     this.emit('block', parsed);
                 }
+            }
+
+            // Lock release
+            if (this.#connectingLock) {
+                this.#connectingLock();
+                this.#connectingLock = null;
             }
 
             // Restart timer

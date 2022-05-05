@@ -2,6 +2,7 @@ import EventEmitter from "events";
 import * as t from 'io-ts';
 import { exponentialBackoffDelay } from "teslabot";
 import { log, warn } from "../../utils/log";
+import { SyncStateManager } from "../state/SyncStateManager";
 
 const MESSAGE_TIMEOUT = 15000;
 const CONNECTION_TIMEOUT = 5000;
@@ -33,10 +34,13 @@ export class BlocksWatcher extends EventEmitter {
     #wsFailures = 0;
     #wsConnected = false;
     #stopped = false;
+    #syncState: SyncStateManager;
+    #connectingLock: (() => void) | null = null;
 
-    constructor(endpoint: string) {
+    constructor(endpoint: string, syncState: SyncStateManager) {
         super();
         this.endpoint = endpoint;
+        this.#syncState = syncState;
         this.#start();
     }
 
@@ -51,6 +55,13 @@ export class BlocksWatcher extends EventEmitter {
 
         log('[blocks]: Connecting');
 
+        // Get lock
+        let lock = this.#syncState.beginConnecting();
+        if (this.#connectingLock) {
+            this.#connectingLock();
+        }
+        this.#connectingLock = lock;
+
         // Close existing
         this.#close();
 
@@ -59,6 +70,12 @@ export class BlocksWatcher extends EventEmitter {
         nws.onopen = () => {
             if (this.#ws === nws) {
                 log('[blocks]: Connected');
+
+                // Lock release
+                if (this.#connectingLock) {
+                    this.#connectingLock();
+                    this.#connectingLock = null;
+                }
 
                 // Start message watchdog
                 this.#startMessageWatchdog();
@@ -138,6 +155,15 @@ export class BlocksWatcher extends EventEmitter {
     }
 
     #reconnectOnFailure() {
+
+        // New connection lock
+        let lock = this.#syncState.beginConnecting();
+        if (this.#connectingLock) {
+            this.#connectingLock();
+        }
+        this.#connectingLock = lock;
+
+        // Retry delay
         this.#wsFailures = Math.max(this.#wsFailures + 1, 50);
         let delay = exponentialBackoffDelay(this.#wsFailures, 1000, 5000, 50);
         warn('[blocks]: Connection atttempt failed. Reconnecting in ' + delay + ' ms');

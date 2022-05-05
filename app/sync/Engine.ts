@@ -12,6 +12,7 @@ import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { Accounts } from './account/Accounts';
 import { Persistence } from './Persistence';
 import { Transactions } from './transactions/Transactions';
+import { SyncStateManager } from './state/SyncStateManager';
 
 export type EngineProduct = {
     ready: boolean,
@@ -30,6 +31,7 @@ export class Engine {
     readonly connector: Connector;
     readonly client4: TonClient4;
     readonly blocksWatcher: BlocksWatcher;
+    readonly state: SyncStateManager = new SyncStateManager();
 
     // Modules
     readonly products;
@@ -54,7 +56,7 @@ export class Engine {
         this.connector = connector;
         this._destroyed = false;
         this.metadata = new MetadataEngine(this);
-        this.blocksWatcher = new BlocksWatcher(client4Endpoint);
+        this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.accounts = new Accounts(this);
         this.transactions = new Transactions(this);
 

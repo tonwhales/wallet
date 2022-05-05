@@ -73,6 +73,7 @@ export const WalletFragment = fragment(() => {
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
+    const syncState = engine.state.use();
     const account = engine.products.main.useState();
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.transactions.getWalletTransaction(address, v));
@@ -253,7 +254,17 @@ export const WalletFragment = fragment(() => {
                         resizeMethod="resize"
                     />
 
-                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
+                    {syncState === 'connecting' && (
+                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>📱 Connecting</Text>
+                    )}
+                    {syncState === 'updating' && (
+                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>🚀 Cpdating</Text>
+                    )}
+                    {syncState === 'online' && (
+                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>✅ Connected</Text>
+                    )}
+
+                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>

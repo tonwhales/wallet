@@ -369,7 +369,6 @@ export const TransferFragment = fragment(() => {
 
     const onSubmit = React.useCallback((index: number) => {
         let next = refs[index + 1].current;
-        console.log('[onSubmit] next', index, next);
         if (next) {
             next.focus();
         }

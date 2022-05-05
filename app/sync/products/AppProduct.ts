@@ -8,6 +8,7 @@ import { backoff } from '../../utils/time';
 import { getAppInstanceKeyPair } from '../../storage/appState';
 import { delay } from 'teslabot';
 import axios from 'axios';
+import { warn } from '../../utils/log';
 
 export class AppProduct {
 
@@ -37,7 +38,7 @@ export class AppProduct {
                 }
             }
         } catch (e) {
-            console.warn('Stored job error');
+            warn('Stored job error');
         }
         this._startSync();
     }

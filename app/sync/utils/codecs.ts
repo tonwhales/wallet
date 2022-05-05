@@ -11,12 +11,15 @@ export class AddressType extends Type<Address, string, unknown> {
             'Address',
             (u): u is Address => u instanceof Address,
             (u, c) => {
-                if (!t.string.validate(u, c)) {
+                if (typeof u === 'string') {
+                    return Address.isFriendly(u) ? success(Address.parse(u)) : failure(u, c);
+                } else {
                     return failure(u, c);
                 }
-                return Address.isFriendly(u as string) ? success(Address.parse(u as string)) : failure(u, c);
             },
-            (u) => u.toFriendly({ testOnly: AppConfig.isTestnet })
+            (u) => {
+                return u.toFriendly({ testOnly: AppConfig.isTestnet });
+            }
         )
     }
 }

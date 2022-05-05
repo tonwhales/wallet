@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
+import { warn } from '../utils/log';
 
 export class PersistedCollection<K, T> {
     #storage: MMKV;
@@ -37,7 +38,7 @@ export class PersistedCollection<K, T> {
         try {
             json = JSON.parse(st)
         } catch (e) {
-            console.warn(e);
+            warn(e);
             return null;
         }
         let decoded = this.#codec.decode(json);

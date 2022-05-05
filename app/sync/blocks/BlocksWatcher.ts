@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 import * as t from 'io-ts';
 import { exponentialBackoffDelay } from "teslabot";
+import { log, warn } from "../../utils/log";
 
 const MESSAGE_TIMEOUT = 15000;
 const CONNECTION_TIMEOUT = 5000;
@@ -48,7 +49,7 @@ export class BlocksWatcher extends EventEmitter {
             return;
         }
 
-        console.log('[blocks]: Connecting');
+        log('[blocks]: Connecting');
 
         // Close existing
         this.#close();
@@ -57,7 +58,7 @@ export class BlocksWatcher extends EventEmitter {
         let nws = new WebSocket('wss://' + this.endpoint + '/block/watch/changed');
         nws.onopen = () => {
             if (this.#ws === nws) {
-                console.log('[blocks]: Connected');
+                log('[blocks]: Connected');
 
                 // Start message watchdog
                 this.#startMessageWatchdog();
@@ -67,7 +68,7 @@ export class BlocksWatcher extends EventEmitter {
             if (this.#ws === nws) {
                 // What if connection just aborted
                 if (this.#wsConnected) {
-                    console.warn('[blocks]: Connection lost: reconnecting immediatelly');
+                    warn('[blocks]: Connection lost: reconnecting immediatelly');
                     this.#wsConnected = false;
                     this.#wsFailures = 0;
                     this.#start();
@@ -90,11 +91,11 @@ export class BlocksWatcher extends EventEmitter {
             try {
                 parsed = JSON.parse(ev.data);
             } catch (e) {
-                console.warn(e);
+                warn(e);
                 return;
             }
             if (!changeCodec.is(parsed)) {
-                console.warn('[blocks]: Invalid block message');
+                warn('[blocks]: Invalid block message');
                 return;
             }
 
@@ -104,22 +105,22 @@ export class BlocksWatcher extends EventEmitter {
 
             // Process
             if (!this.#cursor) {
-                console.log('[blocks]: Session started from #' + parsed.seqno);
+                log('[blocks]: Session started from #' + parsed.seqno);
                 this.#cursor = { first: { seqno: parsed.seqno }, current: { seqno: parsed.seqno } };
                 this.emit('new_session', { seqno: parsed.seqno });
             } else {
 
                 if (parsed.seqno <= this.#cursor.current.seqno) {
                     // Old block
-                    console.warn('[blocks]: Ignoring block index. Received #' + parsed.seqno + ', current cursor #' + this.#cursor.current.seqno);
+                    warn('[blocks]: Ignoring block index. Received #' + parsed.seqno + ', current cursor #' + this.#cursor.current.seqno);
                 } else if (parsed.seqno > this.#cursor.current.seqno + 1) {
                     // Hole detected
-                    console.warn('[blocks]: Session lost. Restarting from #' + parsed.seqno);
+                    warn('[blocks]: Session lost. Restarting from #' + parsed.seqno);
                     this.#cursor = { first: { seqno: parsed.seqno }, current: { seqno: parsed.seqno } };
                     this.emit('new_session', { seqno: parsed.seqno });
                 } else {
                     // Sequental
-                    console.log('[blocks]: Valid block #' + parsed.seqno);
+                    log('[blocks]: Valid block #' + parsed.seqno);
                     this.#cursor.current = { seqno: parsed.seqno };
                     this.emit('block', parsed);
                 }
@@ -139,7 +140,7 @@ export class BlocksWatcher extends EventEmitter {
     #reconnectOnFailure() {
         this.#wsFailures = Math.max(this.#wsFailures + 1, 50);
         let delay = exponentialBackoffDelay(this.#wsFailures, 1000, 5000, 50);
-        console.warn('[blocks]: Connection atttempt failed. Reconnecting in ' + delay + ' ms');
+        warn('[blocks]: Connection atttempt failed. Reconnecting in ' + delay + ' ms');
         this.#close();
 
         // Reconnect
@@ -158,7 +159,7 @@ export class BlocksWatcher extends EventEmitter {
 
         // Start timeout
         this.#wsTimer = setTimeout(() => {
-            console.warn('[blocks]: Message timeout: restarting');
+            warn('[blocks]: Message timeout: restarting');
             this.#start();
         }, MESSAGE_TIMEOUT);
     }

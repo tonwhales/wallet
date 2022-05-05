@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import { Address, contractAddress, WalletV1R1Source, WalletV1R2Source, WalletV1R3Source, WalletV2R1Source, WalletV2R2Source, WalletV3R1Source, WalletV3R2Source } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { AccountLiteSync } from "../account/AccountLiteSync";
 import { Engine } from "../Engine";
 
@@ -22,8 +21,24 @@ export class LegacyProduct {
         addresses.push(contractAddress(WalletV3R2Source.create({ publicKey: engine.publicKey, workchain: 0 })));
 
         for (let addr of addresses) {
-            console.log('Old address: ' + addr.toFriendly({ testOnly: AppConfig.isTestnet }));
             this.wallets.push(this.engine.accounts.getLiteSyncForAddress(addr));
+        }
+    }
+
+    get ready() {
+        for (let w of this.wallets) {
+            if (!w.ready) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    async awaitReady() {
+        for (let w of this.wallets) {
+            if (!w.ready) {
+                await w.awaitReady();
+            }
         }
     }
 

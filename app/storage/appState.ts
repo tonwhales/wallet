@@ -3,8 +3,8 @@ import { storage } from './storage';
 import * as t from 'io-ts';
 import { isLeft } from 'fp-ts/lib/Either';
 import { AppConfig } from '../AppConfig';
-import { randomKey } from '../utils/randomKey';
 import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
+import { warn } from '../utils/log';
 
 export type AppState = {
     addresses: {
@@ -71,7 +71,7 @@ export function getAppState(): AppState {
     try {
         jstate = JSON.parse(state);
     } catch (e) {
-        console.warn(e);
+        warn(e);
         return { addresses: [], selected: -1 };
     }
     const parsed = parseAppState(jstate);

@@ -18,6 +18,7 @@ import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
+import { warn } from '../../utils/log';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -84,7 +85,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         try {
             walletKeys = await loadWalletKeys(acc.secretKeyEnc);
         } catch (e) {
-            console.warn(e);
+            warn(e);
             return;
         }
         let toSign = new Cell();

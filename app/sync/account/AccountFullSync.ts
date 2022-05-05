@@ -7,6 +7,7 @@ import EventEmitter from 'events';
 import { SyncValue } from 'teslabot';
 import { backoff } from '../../utils/time';
 import { AppConfig } from '../../AppConfig';
+import { log } from '../../utils/log';
 
 export type FullAccount = {
     balance: BN;
@@ -52,14 +53,14 @@ export class AccountFullSync extends EventEmitter {
                 // If both are not null
                 if (this.#state.last && v.last) {
                     if (this.#state.last.lt.eq(new BN(v.last.lt))) {
-                        console.log(`[${this.address.toFriendly()}]: Ignore since last is same`);
+                        log(`[${this.address.toFriendly()}]: Ignore since last is same`);
                         return;
                     }
                 }
 
                 // If both null
                 if ((!this.#state.last) && (!v.last)) {
-                    console.log(`[${this.address.toFriendly()}]: Ignore since last both empty`);
+                    log(`[${this.address.toFriendly()}]: Ignore since last both empty`);
                     return;
                 }
             }

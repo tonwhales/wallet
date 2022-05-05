@@ -20,6 +20,7 @@ export const ProductsComponent = React.memo(() => {
     const oldWalletsBalance = engine.products.legacy.useState();
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
+    const plugins = engine.products.main.usePlugins();
     const jettons = engine.products.main.useJettons();
 
     return (

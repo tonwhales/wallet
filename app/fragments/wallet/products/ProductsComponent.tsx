@@ -64,7 +64,7 @@ export const ProductsComponent = React.memo(() => {
                     subtitle={jt.description}
                     icon={OldWalletIcon}
                     value={jt.balance}
-                    onPress={() => navigation.navigate('Transfer')}
+                    onPress={() => navigation.navigate('SimpleTransfer')}
                     style={{ marginVertical: 4 }}
                 />
             ))}

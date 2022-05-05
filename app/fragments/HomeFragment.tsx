@@ -16,6 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../sync/Engine';
+import BN from 'bn.js';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -39,14 +40,25 @@ export const HomeFragment = fragment(() => {
 
                             if (existing.job.job.type === 'transaction') {
                                 SplashScreen.hideAsync();
-                                navigation.navigate('Transfer', {
-                                    target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    comment: existing.job.job.text,
-                                    amount: existing.job.job.amount.toString(10),
-                                    payload: existing.job.job.payload,
-                                    stateInit: existing.job.job.stateInit,
-                                    job: existing.raw
-                                });
+                                if (existing.job.job.payload) {
+                                    navigation.navigateTransfer({
+                                        target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                        text: existing.job.job.text,
+                                        amount: existing.job.job.amount,
+                                        amountAll: false,
+                                        payload: existing.job.job.payload,
+                                        stateInit: existing.job.job.stateInit,
+                                        job: existing.raw
+                                    });
+                                } else {
+                                    navigation.navigateSimpleTransfer({
+                                        target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                        comment: existing.job.job.text,
+                                        amount: existing.job.job.amount,
+                                        stateInit: existing.job.job.stateInit,
+                                        job: existing.raw
+                                    })
+                                }
                             }
                             if (existing.job.job.type === 'sign') {
                                 navigation.navigate('Sign', {
@@ -62,13 +74,25 @@ export const HomeFragment = fragment(() => {
                 let resolved = resolveUrl(link);
                 if (resolved && resolved.type === 'transaction') {
                     SplashScreen.hideAsync();
-                    navigation.navigate('Transfer', {
-                        target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                        comment: resolved.comment,
-                        amount: resolved.amount,
-                        payload: resolved.payload,
-                        stateInit: resolved.stateInit
-                    });
+                    if (resolved.payload) {
+                        navigation.navigateTransfer({
+                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            text: resolved.comment,
+                            amount: resolved.amount || new BN(0),
+                            amountAll: false,
+                            stateInit: resolved.stateInit,
+                            payload: resolved.payload,
+                            job: null
+                        });
+                    } else {
+                        navigation.navigateSimpleTransfer({
+                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            comment: resolved.comment,
+                            amount: resolved.amount,
+                            stateInit: resolved.stateInit,
+                            job: null
+                        });
+                    }
                 }
                 if (resolved && resolved.type === 'connect') {
                     SplashScreen.hideAsync();

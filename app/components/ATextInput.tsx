@@ -2,7 +2,10 @@ import * as React from 'react';
 import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ATextInputRef } from '../fragments/secure/TransferFragment';
+
+export type ATextInputRef = {
+    focus: () => void;
+}
 
 export interface ATextInputProps {
     style?: StyleProp<ViewStyle>;

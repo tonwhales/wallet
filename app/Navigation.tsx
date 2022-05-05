@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createStackNavigator } from '@react-navigation/stack';
 import { Platform, View, Image } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -9,7 +8,7 @@ import { LegalFragment } from './fragments/onboarding/LegalFragment';
 import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
 import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
-import { TransferFragment } from './fragments/secure/TransferFragment';
+import { SimpleTransferFragment } from './fragments/secure/SimpleTransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/secure/MigrationFragment';
@@ -38,6 +37,7 @@ import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
+import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './sync/createEngine';
 
 const Stack = createNativeStackNavigator();
@@ -125,6 +125,7 @@ const navigation = [
     genericScreen('Terms', TermsFragment),
     modalScreen('Connections', ConnectionsFragment),
     modalScreen('Transfer', TransferFragment),
+    modalScreen('SimpleTransfer', SimpleTransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),

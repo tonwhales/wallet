@@ -54,7 +54,7 @@ export const TransactionPreviewFragment = fragment(() => {
 
     // Payload ovewrite
     if (transaction.body && transaction.body.type === 'payload' && transaction.address) {
-        let interfaces = engine.introspection.getSupportedInterfaces(transaction.address);
+        let interfaces = engine.metadata.getSupportedInterfaces(transaction.address);
         let parsedBody = parseMessageBody(transaction.body.cell, interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
@@ -101,10 +101,12 @@ export const TransactionPreviewFragment = fragment(() => {
                 {transaction.kind === 'out' && (transaction.body === null || transaction.body.type !== 'payload') && (
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={() => navigation.navigate('Transfer', {
-                            target: transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        onPress={() => navigation.navigateSimpleTransfer({
+                            target: transaction.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
                             comment: transaction.body && transaction.body.type === 'comment' ? transaction.body.comment : null,
-                            amount: transaction.amount.neg()
+                            amount: transaction.amount.neg(),
+                            job: null,
+                            stateInit: null
                         })}
                     >
                         <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>

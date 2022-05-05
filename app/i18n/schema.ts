@@ -90,11 +90,13 @@ export type LocalizationSchema = {
         scanQR: string,
         sendTo: string,
         fee: string,
+        feeTitle: string,
         purpose: string,
         comment: string,
-        commentReuiered: string,
+        commentRequired: string,
         commentLabel: string,
-        checkComment: string
+        checkComment: string,
+        confirmTitle: string
     },
     auth: {
         title: string,
@@ -109,7 +111,7 @@ export type LocalizationSchema = {
             title: string,
             message: string,
             action: string
-        }, 
+        },
         apps: {
             title: string
         }

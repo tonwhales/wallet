@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
+import { Address, Cell } from 'ton';
+import BN from 'bn.js';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -49,6 +51,28 @@ export class TypedNavigation {
 
     popToTop = () => {
         this.base.popToTop();
+    }
+
+    navigateTransfer(tx: {
+        target: string,
+        amount: BN,
+        amountAll: boolean,
+        payload: Cell | null,
+        text: string | null,
+        stateInit: Cell | null,
+        job: string | null
+    }) {
+        this.navigate('Transfer', tx);
+    }
+
+    navigateSimpleTransfer(tx: {
+        target: string | null,
+        comment: string | null,
+        amount: BN | null,
+        stateInit: Cell | null,
+        job: string | null
+    }) {
+        this.navigate('SimpleTransfer', tx);
     }
 }
 

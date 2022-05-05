@@ -26,6 +26,7 @@ import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
 import { openWithInApp } from '../../utils/openWithInApp';
+import BN from 'bn.js';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -169,13 +170,26 @@ export const WalletFragment = fragment(() => {
             let res = resolveUrl(src);
             if (res && res.type === 'transaction') {
                 // if QR is valid navigate to transfer fragment
-                navigation.navigate('Transfer', {
-                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    comment: res.comment,
-                    amount: res.amount,
-                    payload: res.payload,
-                    stateInit: res.stateInit
-                });
+
+                if (!res.payload) {
+                    navigation.navigateSimpleTransfer({
+                        target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        comment: res.comment,
+                        amount: res.amount,
+                        stateInit: res.stateInit,
+                        job: null
+                    });
+                } else {
+                    navigation.navigateTransfer({
+                        target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        text: res.comment,
+                        amount: res.amount || new BN(0),
+                        amountAll: false,
+                        stateInit: res.stateInit,
+                        payload: res.payload,
+                        job: null
+                    });
+                }
             }
             if (res && res.type === 'connect') {
                 // if QR is valid navigate to sign fragment
@@ -317,7 +331,7 @@ export const WalletFragment = fragment(() => {
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigate('Transfer')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_send.png')} />

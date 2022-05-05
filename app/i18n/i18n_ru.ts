@@ -78,11 +78,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         scanQR: 'считать QR код',
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
+        feeTitle: 'Комиссия сети',
         purpose: 'Цель транзакции',
         comment: 'Необязательное сообщение',
-        commentReuiered: 'Обязательный комментарий',
+        commentRequired: 'Обязательный комментарий',
         commentLabel: 'Сообщение',
-        checkComment: 'Проверьте перед отправкой'
+        checkComment: 'Проверьте перед отправкой',
+        confirmTitle: 'Подтверждение транзакции'
     },
     auth: {
         title: 'Авторизация',

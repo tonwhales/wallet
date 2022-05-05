@@ -21,7 +21,8 @@ export class PersistedCollection<K, T> {
             this.#storage.delete(k);
         } else {
             if (!this.#codec.is(value)) {
-                throw Error('Invalid value');
+                warn(value);
+                throw Error('Invalid value for ' + this.#namespace);
             }
             let encoded = this.#codec.encode(value);
             this.#storage.set(k, JSON.stringify(encoded));

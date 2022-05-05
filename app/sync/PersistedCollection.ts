@@ -5,9 +5,9 @@ export class PersistedCollection<K, T> {
     #storage: MMKV;
     #namespace: string;
     #key: (src: K) => string;
-    #codec: t.Type<T>;
+    #codec: t.Type<T, any>;
 
-    constructor(args: { storage: MMKV, namespace: string, key: (src: K) => string, codec: t.Type<T> }) {
+    constructor(args: { storage: MMKV, namespace: string, key: (src: K) => string, codec: t.Type<T, any> }) {
         this.#storage = args.storage;
         this.#namespace = args.namespace;
         this.#key = args.key;
@@ -22,7 +22,8 @@ export class PersistedCollection<K, T> {
             if (!this.#codec.is(value)) {
                 throw Error('Invalid value');
             }
-            this.#storage.set(k, JSON.stringify(value));
+            let encoded = this.#codec.encode(value);
+            this.#storage.set(k, JSON.stringify(encoded));
         }
     }
 
@@ -39,8 +40,9 @@ export class PersistedCollection<K, T> {
             console.warn(e);
             return null;
         }
-        if (this.#codec.is(json)) {
-            return json;
+        let decoded = this.#codec.decode(json);
+        if (decoded._tag === 'Right') {
+            return decoded.right;
         } else {
             return null;
         }

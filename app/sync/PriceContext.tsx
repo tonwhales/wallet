@@ -1,6 +1,6 @@
 import React from "react";
-import { PriceState } from "../storage/cache";
 import { EngineContext } from "./Engine";
+import { PriceState } from "./products/PriceProduct";
 
 // Price context
 export const PriceContext = React.createContext<PriceState | null | undefined>(null);

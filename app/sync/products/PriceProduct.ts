@@ -1,10 +1,15 @@
-import { PriceState } from "../../storage/cache";
 import { Engine } from "../Engine";
 import EventEmitter from "events";
 import { backoff } from "../../utils/time";
 import React from "react";
 import { fetchPrice } from "../fetchPrice";
 import { watchPrice } from "../watchPrice";
+
+export type PriceState = {
+    price: {
+        usd: number
+    }
+}
 
 export class PriceProduct {
     readonly engine: Engine;

@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Address, Slice, TonClient4 } from "ton";
-import { IntrospectedContentSource, IntrospectedJettonMaster } from "../IntrospectedData";
+import { ContentSource, JettonMaster } from "../Metadata";
 
 function parseString(slice: Slice) {
     let res = slice.readBuffer(Math.floor(slice.remaining / 8)).toString();
@@ -12,7 +12,7 @@ function parseString(slice: Slice) {
     return res;
 }
 
-export async function tryFetchJettonMaster(client: TonClient4, seqno: number, address: Address): Promise<IntrospectedJettonMaster | null> {
+export async function tryFetchJettonMaster(client: TonClient4, seqno: number, address: Address): Promise<JettonMaster | null> {
     let walletData = await client.runMethod(seqno, address, 'get_jetton_data');
     if (walletData.exitCode !== 0 && walletData.exitCode !== 1) {
         return null;
@@ -40,7 +40,7 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
     let totalSupply: BN;
     let mintalbe: boolean;
     let owner: Address;
-    let content: IntrospectedContentSource | null;
+    let content: ContentSource | null;
     try {
 
         totalSupply = walletData.result[0].value;

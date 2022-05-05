@@ -1,10 +1,5 @@
 import axios from "axios";
-
-export interface PriceState {
-    price: {
-        usd: number
-    }
-}
+import { PriceState } from "./products/PriceProduct";
 
 export async function fetchPrice(): Promise<PriceState> {
     return ((await axios.get('https://connect.tonhubapi.com/price', { method: 'GET' })).data as PriceState);

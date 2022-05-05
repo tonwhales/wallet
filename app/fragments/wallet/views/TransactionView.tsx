@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Text, View } from 'react-native';
-import { Address, resolveKnownInterface } from 'ton';
+import { Address } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
@@ -17,6 +17,9 @@ import { knownAddressLabel } from '../../../secure/knownAddressLabel';
 import { Engine } from '../../../sync/Engine';
 import { parseMessageBody } from '../../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../../secure/formatSupportedBody';
+import { ContractMetadata } from '../../../sync/metadata/Metadata';
+
+const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, engine: Engine, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
@@ -44,10 +47,17 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         }
     }
 
+    // Fetch metadata
+    let metadata: ContractMetadata;
+    if (parsed.address) {
+        metadata = props.engine.metadata.useMetadata(parsed.address);
+    } else {
+        metadata = props.engine.metadata.useMetadata(ZERO_ADDRESS);
+    }
+
     // Payload ovewrite
-    if (parsed.body && parsed.body.type === 'payload' && parsed.address) {
-        let interfaces = props.engine.introspection.getSupportedInterfaces(parsed.address);
-        let parsedBody = parseMessageBody(parsed.body.cell, interfaces);
+    if (parsed.body && parsed.body.type === 'payload') {
+        let parsedBody = parseMessageBody(parsed.body.cell, metadata.interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
@@ -56,8 +66,14 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         }
     }
 
+    // Resolve address
     let friendlyAddress = parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet });
     let known = friendlyAddress ? KnownWallets[friendlyAddress] : undefined;
+
+    // Jetton
+    if (metadata.jettonMaster || metadata.jettonWallet) {
+        known = { name: 'Token Contract' };
+    }
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>

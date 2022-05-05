@@ -11,6 +11,9 @@ import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
 import { fromNano } from "ton";
 import { PriceComponent } from "../../components/PriceComponent";
+import { formatNum } from "../../utils/numbers";
+import { format } from "date-fns";
+import { is24Hour, locale } from "../../utils/dates";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -18,12 +21,22 @@ export const SubscriptionFragment = fragment(() => {
     const engine = React.useContext(EngineContext)!
     const plugins = engine.products.main.usePlugins();
     const subscription = plugins[params.address];
+    const price = engine.products.price.useState();
 
     console.log('[SubscriptionFragment]', { plugins, subscription });
 
-    if (!params.address || !subscription) {
+    if (!params.address || !subscription || subscription.type === 'unknown') {
         navigation.goBack();
+        return null;
     }
+
+    const cost = subscription.state.amount;
+    const costNum = parseFloat(fromNano(cost));
+    const costInUsd = costNum * price.price.usd;
+    const formattedCost = formatNum(costNum < 0.01 ? costNum.toFixed(6) : costNum.toFixed(2));
+    const formattedPrice = formatNum(costNum < 0.01 ? costInUsd.toFixed(6) : costInUsd.toFixed(2));
+
+    const nextBilling = subscription.state.lastPayment + subscription.state.period;
 
     return (
         <View style={{
@@ -61,13 +74,14 @@ export const SubscriptionFragment = fragment(() => {
                                 alignItems: 'flex-start',
                                 width: '100%',
                                 paddingHorizontal: 16,
-                                marginVertical: 13
+                                marginTop: 10,
+                                marginBottom: 12
                             }}>
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
                                     color: '#7D858A',
-                                    marginBottom: 8
+                                    marginBottom: 6
                                 }}>
                                     {t('common.walletAddress')}
                                 </Text>
@@ -84,14 +98,15 @@ export const SubscriptionFragment = fragment(() => {
                                 justifyContent: 'center',
                                 alignItems: 'flex-start',
                                 width: '100%',
-                                paddingHorizontal: 16
+                                paddingHorizontal: 16,
+                                marginTop: 10,
+                                marginBottom: 12
                             }}>
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
                                     color: '#7D858A',
-                                    marginTop: 10,
-                                    marginBottom: 8
+                                    marginBottom: 6
                                 }}>
                                     {t('products.subscriptions.subscription.charge')}
                                 </Text>
@@ -103,23 +118,36 @@ export const SubscriptionFragment = fragment(() => {
                                         fontWeight: '400',
                                         maxWidth: 262,
                                     }}>
-                                        {fromNano(subscription.state.amount) + ' TON '}
+                                        {`${formattedCost} TON ($${formattedPrice})`}
                                     </Text>
-                                    <Text>
-                                        {'('}
-                                        <PriceComponent
-                                            amount={subscription.state.amount}
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                padding: 0,
-                                                paddingBottom: 0,
-                                                paddingTop: 0,
-                                                paddingHorizontal: 0,
-                                                paddingVertical: 0,
-                                            }}
-                                            textStyle={{ color: Theme.textColor, fontWeight: '400', lineHeight: undefined }}
-                                        />
-                                        {')'}
+                                </View>
+                            </View>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                            <View style={{
+                                justifyContent: 'center',
+                                alignItems: 'flex-start',
+                                width: '100%',
+                                paddingHorizontal: 16,
+                                marginTop: 10,
+                                marginBottom: 12
+                            }}>
+                                <Text style={{
+                                    fontWeight: '500',
+                                    fontSize: 12,
+                                    color: '#7D858A',
+                                    marginBottom: 6
+                                }}>
+                                    {t('products.subscriptions.nextBilling')}
+                                </Text>
+                                <View style={{
+                                    flexDirection: 'row'
+                                }}>
+                                    <Text style={{
+                                        color: Theme.textColor,
+                                        fontWeight: '400',
+                                        maxWidth: 262,
+                                    }}>
+                                        {format(nextBilling * 1000, is24Hour ? 'LLLL d, HH:mm' : 'LLLL d, hh:mm aa', { locale: locale() })}
                                     </Text>
                                 </View>
                             </View>

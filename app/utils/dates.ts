@@ -4,10 +4,13 @@ import { ru } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale'
 import * as RNLocalize from 'react-native-localize';
 
-const is24Hour = RNLocalize.uses24HourClock();
-let locale: Locale | undefined = undefined;
-if (t('lang') === 'ru') {
-    locale = ru;
+export const is24Hour = RNLocalize.uses24HourClock();
+export function locale() {
+    let locale: Locale | undefined = undefined;
+    if (t('lang') === 'ru') {
+        locale = ru;
+    }
+    return locale
 }
 
 export function formatDate(src: number, dateFormat?: string) {
@@ -18,14 +21,14 @@ export function formatDate(src: number, dateFormat?: string) {
         return t('common.yesterday');
     }
     if (isThisYear(src * 1000)) {
-        return format(src * 1000, dateFormat || 'd MMMM', { locale })
+        return format(src * 1000, dateFormat || 'd MMMM', { locale: locale() })
     }
-    return format(src * 1000, 'PPP', { locale })
+    return format(src * 1000, 'PPP', { locale: locale() })
 }
 
 export function formatTime(src: number) {
     if (is24Hour) {
-        return format(src * 1000, 'HH:mm', { locale });
+        return format(src * 1000, 'HH:mm', { locale: locale() });
     }
     return format(src * 1000, 'hh:mm aa', { locale: enUS });
 }

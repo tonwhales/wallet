@@ -6,9 +6,6 @@ export const AppConfig = {
         Application.applicationId === 'com.tonhub.app.testnet' ||
         Application.applicationId === 'com.tonhub.app.debug.testnet' ||
         Application.applicationId === 'com.tonhub.wallet.testnet' ||
-        Application.applicationId === 'com.tonhub.wallet.testnet.debug' ||
-        Application.applicationId === 'com.tonhub.app.testnet.vzhovnitsky' ||
-        Application.applicationId === 'com.tonhub.app.debug.testnet.vzhovnitsky' ||
-        Application.applicationId === 'com.tonhub.app.testnet.vzhovnitsky.debug'
+        Application.applicationId === 'com.tonhub.wallet.testnet.debug'
     )
 };

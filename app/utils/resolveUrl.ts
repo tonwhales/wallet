@@ -1,6 +1,7 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
 import Url from 'url-parse';
+import { warn } from "./log";
 
 type ResolvedUrl = {
     type: 'transaction',
@@ -145,7 +146,7 @@ export function resolveUrl(src: string): ResolvedUrl {
 
     } catch (e) {
         // Ignore
-        console.warn(e);
+        warn(e);
     }
 
     return null;

@@ -1,5 +1,6 @@
 import BN from "bn.js";
 import { Address, Slice, TonClient4 } from "ton";
+import { warn } from "../../../utils/log";
 import { ContentSource, JettonMaster } from "../Metadata";
 
 function parseString(slice: Slice) {
@@ -67,7 +68,7 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
         // }
         // master = _master;
     } catch (e) {
-        console.warn(e);
+        warn(e);
         return null;
     }
 

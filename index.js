@@ -1,4 +1,5 @@
 global.Buffer = global.Buffer || require('buffer').Buffer;
+import 'react-native-url-polyfill/auto';
 
 // Disable warnings
 import { LogBox } from 'react-native';

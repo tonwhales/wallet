@@ -2,6 +2,7 @@ import BN from "bn.js";
 import EventEmitter from "events";
 import { SyncValue } from "teslabot";
 import { Address } from "ton";
+import { log } from "../../utils/log";
 import { Engine } from "../Engine";
 
 export type AccountState = {
@@ -42,14 +43,14 @@ export class AccountWatcher extends EventEmitter {
         // Create account sync
         this.#sync = new SyncValue(0, async (v) => {
             if (v <= 0) {
-                console.log(`[${key}]: Awaiting last known block`);
+                log(`[${key}]: Awaiting last known block`);
                 return;
             }
             if (this.#state && this.#state.seqno >= v) {
-                console.log(`[${key}]: Already loaded state for #${v}`);
+                log(`[${key}]: Already loaded state for #${v}`);
                 return;
             }
-            console.log(`[${key}]: Downloading new state at #` + v);
+            log(`[${key}]: Downloading new state at #` + v);
             let state = await engine.client4.getAccount(v, address);
             this.#state = {
                 balance: new BN(state.account.balance.coins, 10),
@@ -57,7 +58,7 @@ export class AccountWatcher extends EventEmitter {
                 seqno: v,
                 state: state.account.state
             };
-            console.log(`[${key}]: State downloaded`);
+            log(`[${key}]: State downloaded`);
             this.emit('account_changed', { address, state: this.#state });
         });
         if (this.engine.blocksWatcher.cursor) {

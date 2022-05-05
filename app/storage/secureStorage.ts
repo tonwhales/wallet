@@ -141,14 +141,10 @@ export async function encryptData(data: Buffer) {
 }
 
 export async function decryptData(data: Buffer) {
-    let start = Date.now();
-    console.log('Loading key...');
     const key = await getApplicationKey();
-    console.log('Key loaded in ' + (Date.now() - start) + ' ms');
     let nonce = data.slice(0, 24);
     let cypherData = data.slice(24);
     let res = openBox(cypherData, nonce, key);
-    console.log('Finished in ' + (Date.now() - start) + ' ms');
     if (!res) {
         throw Error('Unable to decrypt data');
     }

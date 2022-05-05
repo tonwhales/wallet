@@ -1,6 +1,7 @@
 import { InvalidateSync } from "teslabot";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
+import { log } from "../../utils/log";
 import { MapAsyncLock } from "../../utils/MapAsyncLock";
 import { Engine } from "../Engine";
 import { ReactSync } from "../react/ReactSync";
@@ -65,11 +66,11 @@ export class MetadataEngine {
             if (sync.value.seqno < seqno) {
                 this.#invalidateAddress(seqno, address);
             }
-            return;
+            return sync.value;
         }
 
         // Fetch new metadata
-        await this.#updateMetadata(seqno, address);
+        return await this.#updateMetadata(seqno, address);
     }
 
     async #updateMetadata(seqno: number, address: Address) {
@@ -77,7 +78,7 @@ export class MetadataEngine {
 
         // Check existing
         return await this.#lock.inLock(key, async () => {
-            console.log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Downloading metadata`);
+            log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Downloading metadata`);
 
             // Fetch
             let metadata = await fetchMetadata(this.engine.client4, seqno, address);
@@ -85,18 +86,18 @@ export class MetadataEngine {
             // Check if updated
             let sync = this.#getMetadata(address);
             if (sync.value.seqno > seqno) {
-                console.log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Better metadata already exist`);
-                return sync.value.seqno; // Existing seqno
+                log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Better metadata already exist`);
+                return sync.value; // Existing seqno
             }
 
-            console.log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Metadata ready`);
+            log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Metadata ready`);
 
             // Update metadata
             this.engine.persistence.metadata.setValue(address, metadata);
             sync.value = metadata;
 
             // Updated seqno
-            return metadata.seqno;
+            return metadata;
         });
     }
 

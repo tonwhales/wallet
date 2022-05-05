@@ -1,0 +1,1 @@
+export type SyncState = 'connecting' | 'updated' | 'online';

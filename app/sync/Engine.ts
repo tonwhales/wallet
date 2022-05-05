@@ -68,8 +68,8 @@ export class Engine {
         };
         this._dependencies.push(this.accounts);
         this._dependencies.push(this.products.main);
-        this._dependencies.push(this.products.apps);
         this._dependencies.push(this.products.price);
+        this._dependencies.push(this.products.legacy);
         this._dependencies.push(this.products.whalesStakingPool);
     }
 

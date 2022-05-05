@@ -24,8 +24,12 @@ export abstract class Sync<K, T> extends EventEmitter {
     constructor(args: { key: K, collection: PersistedCollection<K, T> }) {
         super();
         this.collection = args.collection;
+        let ex = this.collection.getValue(args.key);
+        if (ex) {
+            this.#state = ex;
+        }
         this.#sync = new InvalidateSync(async () => {
-            let res = await this.doSync(args.key);
+            let res = await this.doSync(args.key, this.#state);
             if (res === null) {
                 return;
             }
@@ -38,10 +42,6 @@ export abstract class Sync<K, T> extends EventEmitter {
                 this.emit('updated', { key: args.key, state: res });
             }
         });
-        let ex = this.collection.getValue(args.key);
-        if (ex) {
-            this.#state = ex;
-        }
         this.#sync.invalidate();
     }
 
@@ -49,7 +49,7 @@ export abstract class Sync<K, T> extends EventEmitter {
         this.#sync.invalidate();
     }
 
-    abstract doSync(key: K): Promise<T | null>;
+    abstract doSync(key: K, state: T | null): Promise<T | null>;
 
     get state() {
         if (!this.#state) {

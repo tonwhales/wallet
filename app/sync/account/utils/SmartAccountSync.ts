@@ -5,6 +5,7 @@ import { Address } from "ton";
 import { Engine } from "../../Engine";
 import { PersistedCollection } from "../../PersistedCollection";
 import { AccountFullSync, FullAccount } from "../AccountFullSync";
+import { log } from '../../../utils/log';
 
 export interface SmartAccountSync<T> {
     emit(event: 'account_ready', data: { address: Address, account: FullAccount, state: T }): boolean;
@@ -54,7 +55,7 @@ export class SmartAccountSync<T> extends EventEmitter {
             }
 
             // Processing
-            console.log(`[${this.key}]: Updating at #` + value.block);
+            log(`[${this.key}]: Updating at #` + value.block);
             let extracted = await this.extractor(value);
 
             // Persist

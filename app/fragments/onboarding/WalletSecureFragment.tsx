@@ -13,6 +13,7 @@ import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
 import { Theme } from '../../Theme';
 import { systemFragment } from '../../systemFragment';
+import { warn } from '../../utils/log';
 
 export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
@@ -65,7 +66,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 // Navigate next
                 reboot();
             } catch (e) {
-                console.warn(e);
+                warn(e);
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
             } finally {
                 setLoading(false);

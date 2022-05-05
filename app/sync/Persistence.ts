@@ -7,6 +7,7 @@ import * as c from './utils/codecs';
 import BN from "bn.js";
 import { ContractMetadata } from "./metadata/Metadata";
 import { PluginState } from "./account/PluginSync";
+import { JettonWalletState } from "./account/JettonWalletSync";
 
 export type LiteAccountPersisted = {
     balance: string;
@@ -46,6 +47,10 @@ export type StakingPersisted = {
     }
 }
 
+export type TokensState = {
+    tokens: { [key: string]: string | string };
+};
+
 export class Persistence {
 
     readonly version: number = 1;
@@ -60,6 +65,8 @@ export class Persistence {
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
     readonly plugins: PersistedCollection<Address, PluginState>;
+    readonly tokens: PersistedCollection<Address, TokensState>;
+    readonly jettonWallets: PersistedCollection<Address, JettonWalletState>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -77,6 +84,8 @@ export class Persistence {
         this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata });
         this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec });
+        this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec });
+        this.tokens = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: tokensCodec });
     }
 }
 
@@ -166,4 +175,22 @@ const pluginStateCodec = t.union([t.type({
         failedAttempts: t.number,
         subscriptionId: t.string
     })
-})])
+})]);
+
+const contractContent = t.type({
+    name: t.union([t.undefined, t.string]),
+    symbol: t.union([t.undefined, t.string]),
+    description: t.union([t.undefined, t.string]),
+    image: t.union([t.undefined, t.string])
+});
+
+const jettonWalletCodec = t.type({
+    version: t.number,
+    master: t.union([t.null, c.address]),
+    content: t.union([t.undefined, t.null, contractContent]),
+    balance: c.bignum
+});
+
+const tokensCodec = t.type({
+    tokens: t.record(t.string, t.union([t.string, t.string]))
+});

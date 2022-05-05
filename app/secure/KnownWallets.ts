@@ -7,6 +7,7 @@ const Img_Foundation = require('../../assets/known/foundation.png');
 const Img_Whales = require('../../assets/known/whales.png');
 const Img_OKX = require('../../assets/known/okx.png');
 const Img_FTX = require('../../assets/known/ftx.png');
+const Img_Disintar = require('../../assets/known/disintar_logo.png');
 
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
@@ -133,5 +134,13 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 secondary: '#DEEFFC'
             },
             ic: Img_Whales
+        },
+        [Address.parse('EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA').toFriendly()]: {
+            name: 'Disintar.io',
+            colors: {
+                primary: '#9579F0',
+                secondary: '#fff3b2'
+            },
+            ic: Img_Disintar
         },
     }

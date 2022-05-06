@@ -275,9 +275,9 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
     let verifiedSize = Math.floor(props.size * 0.35);
 
     return (
-        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: !known ? color : undefined, alignItems: 'center', justifyContent: 'center' }}>
-            {!known && (<Img width={size} height={size} color="white" />)}
-            {known && <KnownAvatar size={props.size} wallet={known} />}
+        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: (!known || !known.ic) ? color : undefined, alignItems: 'center', justifyContent: 'center' }}>
+            {(!known || (!known.ic)) && (<Img width={size} height={size} color="white" />)}
+            {known && known.ic && <KnownAvatar size={props.size} wallet={known} />}
             <View style={{
                 width: props.size, height: props.size,
                 borderRadius: props.size / 2,

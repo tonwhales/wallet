@@ -147,22 +147,19 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Add withdraw payload
-        let payload;
+        let payload: Cell;
         let transferAmount = value;
-
         if (params.action === 'withdraw_ready') {
             payload = createWithdrawStakeCell(transferAmount);
             transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
-        }
-
-        if (params?.action === 'withdraw') {
+        } else if (params?.action === 'withdraw') {
             if (transferAmount.eq(balance)) transferAmount = new BN(0);
             payload = createWithdrawStakeCell(transferAmount);
             transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
-        }
-
-        if (params.action === 'deposit' || params.action === 'top_up') {
+        } else if (params.action === 'deposit' || params.action === 'top_up') {
             payload = createAddStakeCommand();
+        } else {
+            throw Error('Invalid action');
         }
 
         // Check amount
@@ -182,12 +179,15 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Navigate to TransferFragment
-        navigation.navigate('Transfer', {
+        navigation.navigateTransfer({
             target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            payload,
             amount: transferAmount,
-            payload: payload,
+            amountAll: false,
+            text: null,
+            stateInit: null,
+            job: null
         });
-
     }, [amount, params, member, pool, balance]);
 
     //

@@ -1,10 +1,17 @@
 import * as React from 'react';
-import { View } from 'react-native';
-import { Theme } from '../Theme';
+import { StyleProp, View, ViewStyle } from 'react-native';
 
-export const ItemGroup = React.memo((props: { children?: any }) => {
+export const ItemGroup = React.memo((props: { children?: any, style?: StyleProp<ViewStyle> }) => {
     return (
-        <View style={{ borderRadius: 20, borderWidth: 1, borderColor: Theme.divider, marginHorizontal: 16 }}>
+        <View
+            style={[{
+                backgroundColor: "white",
+                overflow: 'hidden',
+                borderRadius: 14,
+                alignItems: 'stretch',
+                flexDirection: 'column',
+            }, props.style]}
+        >
             {props.children}
         </View>
     )

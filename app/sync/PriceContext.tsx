@@ -18,10 +18,6 @@ export const PriceLoader = React.memo((props: { children?: any }) => {
 })
 
 // Price
-export function usePrice(): PriceState | null {
-    const price = React.useContext(PriceContext);
-    if (!price) {
-        return null;
-    }
-    return price;
+export function usePrice(): PriceState {
+    return React.useContext(PriceContext)!;
 }

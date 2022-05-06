@@ -7,29 +7,12 @@ import * as c from './utils/codecs';
 import BN from "bn.js";
 import { ContractMetadata } from "./metadata/Metadata";
 import { PluginState } from "./account/PluginSync";
-import { JettonWalletState } from "./account/JettonWalletSync";
-
-export type LiteAccountPersisted = {
-    balance: string;
-    last: { lt: string, hash: string } | null,
-    block: number;
-}
-
-export type FullAccountPersisted = {
-    balance: string;
-    last: { lt: string, hash: string } | null,
-    block: number;
-
-    transactionCursor: { lt: string, hash: string } | null,
-    transactions: string[]
-}
-
-export type WalletPersisted = {
-    seqno: number;
-    balance: string,
-    plugins: string[],
-    transactions: string[]
-}
+import { LiteAccount } from "./account/AccountLiteSync";
+import { FullAccount } from "./account/AccountFullSync";
+import { WalletV4State } from "./account/WalletV4Sync";
+import { JettonsState } from "./jettons/JettonsSync";
+import { JettonWalletState } from "./jettons/JettonWalletSync";
+import { JettonMasterState } from "./jettons/JettonMasterSync";
 
 export type StakingPersisted = {
     params: {
@@ -47,17 +30,13 @@ export type StakingPersisted = {
     }
 }
 
-export type TokensState = {
-    tokens: { [key: string]: string | string };
-};
-
 export class Persistence {
 
     readonly version: number = 1;
-    readonly liteAccounts: PersistedCollection<Address, LiteAccountPersisted>;
-    readonly fullAccounts: PersistedCollection<Address, FullAccountPersisted>;
+    readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
+    readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
-    readonly wallets: PersistedCollection<Address, WalletPersisted>;
+    readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, { price: { usd: number } }>;
     readonly apps: PersistedCollection<Address, string>;
@@ -65,8 +44,9 @@ export class Persistence {
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
     readonly plugins: PersistedCollection<Address, PluginState>;
-    readonly tokens: PersistedCollection<Address, TokensState>;
+    readonly tokens: PersistedCollection<Address, JettonsState>;
     readonly jettonWallets: PersistedCollection<Address, JettonWalletState>;
+    readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -85,6 +65,7 @@ export class Persistence {
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata });
         this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec });
         this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec });
+        this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec });
         this.tokens = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: tokensCodec });
     }
 }
@@ -98,22 +79,23 @@ const voidKey = (src: void) => 'void';
 
 // Codecs
 const liteAccountCodec = t.type({
-    balance: t.string,
+    balance: c.bignum,
     block: t.number,
-    last: t.union([t.null, t.type({ lt: t.string, hash: t.string })])
+    last: t.union([t.null, t.type({ lt: c.bignum, hash: t.string })])
 });
 const fullAccountCodec = t.type({
-    balance: t.string,
+    balance: c.bignum,
     block: t.number,
-    last: t.union([t.null, t.type({ lt: t.string, hash: t.string })]),
+    last: t.union([t.null, t.type({ lt: c.bignum, hash: t.string })]),
 
-    transactionCursor: t.union([t.null, t.type({ lt: t.string, hash: t.string })]),
+    transactionsCursor: t.union([t.null, t.type({ lt: c.bignum, hash: t.string })]),
     transactions: t.array(t.string)
 });
 const walletCodec = t.type({
     seqno: t.number,
-    balance: t.string,
-    plugins: t.array(t.string),
+    block: t.number,
+    balance: c.bignum,
+    plugins: t.array(c.address),
     transactions: t.array(t.string)
 });
 const priceCodec = t.type({
@@ -177,20 +159,19 @@ const pluginStateCodec = t.union([t.type({
     })
 })]);
 
-const contractContent = t.type({
-    name: t.union([t.undefined, t.string]),
-    symbol: t.union([t.undefined, t.string]),
-    description: t.union([t.undefined, t.string]),
-    image: t.union([t.undefined, t.string])
-});
-
 const jettonWalletCodec = t.type({
-    version: t.number,
+    block: t.number,
     master: t.union([t.null, c.address]),
-    content: t.union([t.undefined, t.null, contractContent]),
     balance: c.bignum
 });
 
+const jettonMasterCodec = t.type({
+    name: t.union([t.null, t.string]),
+    description: t.union([t.null, t.string]),
+    image: t.union([t.null, t.string]),
+    symbol: t.union([t.null, t.string])
+});
+
 const tokensCodec = t.type({
-    tokens: t.record(t.string, t.union([t.string, t.string]))
+    tokens: t.record(t.string, t.union([t.string, t.null]))
 });

@@ -7,7 +7,7 @@ import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { fromNano } from "ton";
+import { Address, fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -22,6 +22,9 @@ import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { parseMessageBody } from "../../secure/parseMessageBody";
 import { formatSupportedBody } from "../../secure/formatSupportedBody";
+import { ContractMetadata } from "../../sync/metadata/Metadata";
+
+const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -54,10 +57,18 @@ export const TransactionPreviewFragment = fragment(() => {
         transactionType = t('tx.received');
     }
 
+    // Metadata
+    // Fetch metadata
+    let metadata: ContractMetadata;
+    if (transaction.address) {
+        metadata = engine.metadata.useMetadata(transaction.address);
+    } else {
+        metadata = engine.metadata.useMetadata(ZERO_ADDRESS);
+    }
+
     // Payload ovewrite
     if (transaction.body && transaction.body.type === 'payload' && transaction.address) {
-        let interfaces = engine.introspection.getSupportedInterfaces(transaction.address);
-        let parsedBody = parseMessageBody(transaction.body.cell, interfaces);
+        let parsedBody = parseMessageBody(transaction.body.cell, metadata.interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
@@ -103,10 +114,12 @@ export const TransactionPreviewFragment = fragment(() => {
                 {transaction.kind === 'out' && (transaction.body === null || transaction.body.type !== 'payload') && (
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                        onPress={() => navigation.navigate('Transfer', {
-                            target: transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        onPress={() => navigation.navigateSimpleTransfer({
+                            target: transaction.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
                             comment: transaction.body && transaction.body.type === 'comment' ? transaction.body.comment : null,
-                            amount: transaction.amount.neg()
+                            amount: transaction.amount.neg(),
+                            job: null,
+                            stateInit: null
                         })}
                     >
                         <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>

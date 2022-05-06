@@ -63,12 +63,12 @@ export const ProductsComponent = React.memo(() => {
 
             {jettons.map((jt) => (
                 <ProductButton
-                    key={jt.address.toFriendly()}
+                    key={jt.master}
                     name={jt.name}
                     subtitle={jt.description}
                     icon={OldWalletIcon}
                     value={jt.balance}
-                    onPress={() => navigation.navigate('Transfer')}
+                    onPress={() => navigation.navigate('SimpleTransfer')}
                     style={{ marginVertical: 4 }}
                 />
             ))}

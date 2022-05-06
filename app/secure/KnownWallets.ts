@@ -1,4 +1,3 @@
-import { ImageSourcePropType } from "react-native";
 import { Address } from "ton";
 import { AppConfig } from "../AppConfig";
 
@@ -20,6 +19,13 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Whales
         },
+        [Address.parse('kQDBKeGhu9nkQ6jDqkBM9PKxBhGPLEK9Zzj-R2eP8jXK-8Pk').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+            name: 'Test KOTE',
+            colors: {
+                primary: '#3595D3',
+                secondary: '#BAD5E7'
+            }
+        }
     } : {
         [Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N').toFriendly()]: {
             name: 'TON Foundation',

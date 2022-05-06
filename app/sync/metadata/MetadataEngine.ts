@@ -42,7 +42,7 @@ export class MetadataEngine {
                 if (!e) {
                     continue;
                 }
-                if (e >= seqno) {
+                if (e > seqno) {
                     continue;
                 }
                 this.#pending.delete(task[0]);
@@ -66,6 +66,18 @@ export class MetadataEngine {
             if (sync.value.seqno < seqno) {
                 this.#invalidateAddress(seqno, address);
             }
+            return sync.value;
+        }
+
+        // Fetch new metadata
+        return await this.#updateMetadata(seqno, address);
+    }
+
+    async fetchFreshMetadata(seqno: number, address: Address) {
+
+        // Check existing
+        let sync = this.#getMetadata(address);
+        if (sync.value.seqno >= seqno) {
             return sync.value;
         }
 
@@ -114,7 +126,7 @@ export class MetadataEngine {
     #persistPending() {
         let p: { [key: string]: number } = {};
         for (let e of this.#pending) {
-            p[e[0]] = p[1];
+            p[e[0]] = e[1];
         }
         this.engine.persistence.metadataPending.setValue(undefined, p);
     }
@@ -148,15 +160,5 @@ export class MetadataEngine {
 
     useMetadata(address: Address) {
         return this.#getMetadata(address).use();
-    }
-
-    getSupportedInterfaces = (address: Address) => {
-        if (address.equals(Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales'))) {
-            return ['256184278959413194623484780286929323492'];
-        }
-        if (address.equals(Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs'))) {
-            return ['256184278959413194623484780286929323492'];
-        }
-        return [];
     }
 }

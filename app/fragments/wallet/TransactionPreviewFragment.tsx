@@ -30,6 +30,8 @@ export const TransactionPreviewFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
 
+    console.log({ transaction });
+
     if (!transaction) {
         throw Error('Unable to load transaction');
     }

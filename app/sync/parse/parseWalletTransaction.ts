@@ -117,6 +117,12 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         if (tx.outMessagesCount === 0) {
             status = 'failed';
         }
+        if (command === 3) {
+            body = {
+                type: 'comment',
+                comment: 'Remove plugin'
+            }
+        }
     }
     if (tx.inMessage && tx.inMessage.info.type === 'internal') {
         body = parseBody(tx.inMessage.body);

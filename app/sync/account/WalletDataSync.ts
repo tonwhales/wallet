@@ -20,6 +20,7 @@ export function createWalletDataSync(address: Address, engine: Engine): WalletDa
 
             // Fetch plugins
             let plugins = (await fetchPlugins(engine.client4, src.block, address)).map((v) => v.toFriendly({ testOnly: AppConfig.isTestnet }));
+            console.log({ plugins });
 
             return {
                 seqno,

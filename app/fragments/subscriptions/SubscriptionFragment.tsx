@@ -9,12 +9,14 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
-import { fromNano } from "ton";
+import { fromNano, toNano } from "ton";
 import { formatNum } from "../../utils/numbers";
 import { format } from "date-fns";
 import { is24Hour, locale } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { createRemovePluginCommand } from "../../utils/createRemovePluginCommand";
+import { storagePersistence } from "../../storage/storage";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -52,14 +54,23 @@ export const SubscriptionFragment = fragment(() => {
                         text: t('common.yes'),
                         style: 'destructive',
                         onPress: () => {
-                            resolve(true)
+                            navigation.navigate(
+                                'Transfer',
+                                {
+                                    target: params.address,
+                                    amount: toNano('0.1'),
+                                    payload: createRemovePluginCommand(),
+                                }
+                            );
+                            resolve(true);
+                            // storagePersistence.clearAll();
                         }
                     }, {
                         text: t('common.no'),
                         onPress: () => {
                             resolve(false);
                         }
-                    }])
+                    }]);
             });
             setLoading(false);
         },

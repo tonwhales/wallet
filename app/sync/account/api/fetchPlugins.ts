@@ -2,6 +2,7 @@ import { Address, TonClient4 } from "ton";
 
 export async function fetchPlugins(client: TonClient4, block: number, address: Address) {
     let seqnoRes = await client.runMethod(block, address, 'get_plugin_list');
+    console.log({ seqnoRes });
     if (seqnoRes.exitCode !== 0 && seqnoRes.exitCode !== 1) {
         return [];
     }

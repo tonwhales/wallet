@@ -4,7 +4,6 @@ import { AccountWatcher } from "../blocks/AccountWatcher";
 import { BlocksWatcher } from "../blocks/BlocksWatcher";
 import { AccountLiteSync } from "./AccountLiteSync";
 import { AccountFullSync } from "./AccountFullSync";
-import { WalletSync } from "./WalletSync";
 
 export class Accounts {
     readonly engine: Engine;
@@ -12,7 +11,6 @@ export class Accounts {
     #watchers: Map<string, AccountWatcher> = new Map();
     #liteSync: Map<string, AccountLiteSync> = new Map();
     #fullSync: Map<string, AccountFullSync> = new Map();
-    #walletSync: Map<string, WalletSync> = new Map();
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -49,27 +47,15 @@ export class Accounts {
         if (ex) {
             return ex;
         } else {
-            let w = new AccountFullSync(address, this.engine);
+            let w = new AccountFullSync(this.getLiteSyncForAddress(address));
             this.#fullSync.set(k, w);
-            return w;
-        }
-    }
-
-    getWalletSync(address: Address) {
-        let k = address.toFriendly();
-        let ex = this.#walletSync.get(k);
-        if (ex) {
-            return ex;
-        } else {
-            let w = new WalletSync(address, this.engine);
-            this.#walletSync.set(k, w);
             return w;
         }
     }
 
     get ready() {
         for (let lt of this.#liteSync) {
-            if (!lt[1].ready) {
+            if (!lt[1].ref.ready) {
                 return false;
             }
         }
@@ -83,13 +69,13 @@ export class Accounts {
 
     async awaitReady() {
         for (let lt of this.#liteSync) {
-            if (!lt[1].ready) {
-                await lt[1].awaitReady();
+            if (!lt[1].ref.ready) {
+                await lt[1].ref.awaitReady();
             }
         }
         for (let lt of this.#fullSync) {
             if (!lt[1].ready) {
-                await lt[1].awaitReady();
+                await lt[1].ref.awaitReady();
             }
         }
     }

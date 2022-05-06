@@ -59,7 +59,7 @@ export const ProductsComponent = React.memo(() => {
 
             {jettons.map((jt) => (
                 <ProductButton
-                    key={jt.address.toFriendly()}
+                    key={jt.master}
                     name={jt.name}
                     subtitle={jt.description}
                     icon={OldWalletIcon}

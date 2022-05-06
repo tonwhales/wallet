@@ -88,15 +88,15 @@ export class SmartAccountSync<T> extends EventEmitter {
 
         // Initial sync state
         if (this.accountSync.ready) {
-            this.#sync.value = this.accountSync.state;
+            this.#sync.value = this.accountSync.current;
         }
 
         // Subscribe
-        this.accountSync.on('account_ready', (data) => {
-            this.#sync.value = data.state;
+        this.accountSync.ref.on('ready', (data) => {
+            this.#sync.value = data;
         });
-        this.accountSync.on('account_updated', (data) => {
-            this.#sync.value = data.state;
+        this.accountSync.ref.on('updated', (data) => {
+            this.#sync.value = data;
         });
     }
 

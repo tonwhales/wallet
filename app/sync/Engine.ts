@@ -13,6 +13,9 @@ import { Accounts } from './account/Accounts';
 import { Persistence } from './Persistence';
 import { Transactions } from './transactions/Transactions';
 import { SyncStateManager } from './state/SyncStateManager';
+import { AppSync } from './AppSync';
+import { WalletV4Sync } from './account/WalletV4Sync';
+import { WalletSync } from './account/WalletSync';
 
 export type EngineProduct = {
     ready: boolean,
@@ -62,7 +65,7 @@ export class Engine {
 
         // Create products
         this.products = {
-            main: this.accounts.getWalletSync(address),
+            main: new WalletSync(new WalletV4Sync(this.accounts.getFullSyncForAddress(this.address))),
             legacy: new LegacyProduct(this),
             price: new PriceProduct(this),
             apps: new AppProduct(this),

@@ -27,7 +27,7 @@ export class LegacyProduct {
 
     get ready() {
         for (let w of this.wallets) {
-            if (!w.ready) {
+            if (!w.ref.ready) {
                 return false;
             }
         }
@@ -36,8 +36,8 @@ export class LegacyProduct {
 
     async awaitReady() {
         for (let w of this.wallets) {
-            if (!w.ready) {
-                await w.awaitReady();
+            if (!w.ref.ready) {
+                await w.ref.awaitReady();
             }
         }
     }
@@ -45,7 +45,7 @@ export class LegacyProduct {
     useState = () => {
         let b = new BN(0);
         for (let w of this.wallets) {
-            b = b.add(w.useState().balance);
+            b = b.add(w.use().balance);
         }
         return b;
     }
@@ -53,7 +53,7 @@ export class LegacyProduct {
     useStateFull() {
         let wallets: { address: Address, balance: BN }[] = [];
         for (let w of this.wallets) {
-            wallets.push({ address: w.address, balance: w.useState().balance });
+            wallets.push({ address: w.address, balance: w.use().balance });
         }
         return wallets;
     }

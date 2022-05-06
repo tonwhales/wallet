@@ -2,6 +2,11 @@ import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
 import { warn } from '../utils/log';
 
+export type PersistedItem<T> = {
+    setValue(value: T | null): void;
+    getValue(): T | null;
+}
+
 export class PersistedCollection<K, T> {
     #storage: MMKV;
     #namespace: string;
@@ -13,6 +18,17 @@ export class PersistedCollection<K, T> {
         this.#namespace = args.namespace;
         this.#key = args.key;
         this.#codec = args.codec;
+    }
+
+    item(key: K): PersistedItem<T> {
+        return {
+            setValue: (value: T | null) => {
+                this.setValue(key, value);
+            },
+            getValue: () => {
+                return this.getValue(key);
+            }
+        }
     }
 
     setValue(key: K, value: T | null) {

@@ -9,7 +9,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
-import { fromNano, toNano } from "ton";
+import { Address, Cell, fromNano, toNano } from "ton";
 import { formatNum } from "../../utils/numbers";
 import { format } from "date-fns";
 import { is24Hour, locale } from "../../utils/dates";
@@ -17,12 +17,19 @@ import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createRemovePluginCommand } from "../../utils/createRemovePluginCommand";
 import { storagePersistence } from "../../storage/storage";
+import { contractFromPublicKey } from "../../sync/contractFromPublicKey";
+import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
+import { getCurrentAddress } from "../../storage/appState";
+import { sign } from "ton-crypto";
+import { backoff } from "../../utils/time";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ address: string }>();
     const engine = React.useContext(EngineContext)!
+    const acc = React.useMemo(() => getCurrentAddress(), []);
+    const account = engine.products.main.useState();
     const plugins = engine.products.main.usePlugins();
     const subscription = plugins[params.address];
     const price = engine.products.price.useState();
@@ -53,17 +60,31 @@ export const SubscriptionFragment = fragment(() => {
                     [{
                         text: t('common.yes'),
                         style: 'destructive',
-                        onPress: () => {
-                            navigation.navigate(
-                                'Transfer',
-                                {
-                                    target: params.address,
-                                    amount: toNano('0.1'),
-                                    payload: createRemovePluginCommand(),
-                                }
+                        onPress: async () => {
+                            const contract = await contractFromPublicKey(acc.publicKey);
+
+                            let walletKeys: WalletKeys;
+                            try {
+                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                            } catch (e) {
+                                resolve(false);
+                                return;
+                            }
+
+                            const transfer = new Cell();
+
+                            const transferCell = createRemovePluginCommand(
+                                account.seqno,
+                                contract.source.walletId,
+                                Math.floor(Date.now() / 1e3) + 60,
+                                Address.parse(params.address)
                             );
+
+                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                            transfer.writeCell(transferCell);
+
+                            await backoff(() => engine.connector.sendExternalMessage(contract, transfer));
                             resolve(true);
-                            // storagePersistence.clearAll();
                         }
                     }, {
                         text: t('common.no'),

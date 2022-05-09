@@ -268,9 +268,10 @@ export const WalletFragment = fragment(() => {
                         resizeMode="stretch"
                         resizeMethod="resize"
                     />
+                    {/* Sync state */}
                     <View style={{
                         flexDirection: 'row',
-                        marginTop: 22, marginLeft: 22,
+                        marginTop: 16, marginLeft: 22,
                         alignItems: 'center'
                     }}>
                         {syncState === 'online' && (
@@ -291,7 +292,7 @@ export const WalletFragment = fragment(() => {
                                 animateFromValue={0}
                                 duration={6000}
                                 size={12}
-                                width={1}
+                                width={2}
                                 color={'#FFFFFF'}
                                 backgroundColor={'#596080'}
                                 fullColor={null}

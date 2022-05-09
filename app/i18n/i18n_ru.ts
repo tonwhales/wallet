@@ -29,6 +29,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         in: 'через',
         max: 'Макс.'
     },
+    syncStatus: {
+        connecting: 'Идет подключение',
+        updating: 'Обновление',
+        online: 'Подключено'
+    },
     home: {
         wallet: 'Кошелек',
         settings: 'Настройки'

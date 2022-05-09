@@ -41,7 +41,7 @@ export const StakingProductMember = React.memo((
             }}>
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginRight: 10 }}>
-                        <View style={{ backgroundColor: '#4DC47D', borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ backgroundColor: Theme.success, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
                             <StakingIcon width={42} height={42} color={'white'} />
                         </View>
                     </View>

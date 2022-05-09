@@ -27,6 +27,7 @@ import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
 import { openWithInApp } from '../../utils/openWithInApp';
 import BN from 'bn.js';
+import CircularProgress from '../../components/CircularProgress/CircularProgress';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -267,16 +268,44 @@ export const WalletFragment = fragment(() => {
                         resizeMode="stretch"
                         resizeMethod="resize"
                     />
-
-                    {syncState === 'connecting' && (
-                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>📱 Connecting</Text>
-                    )}
-                    {syncState === 'updating' && (
-                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>🚀 Updating</Text>
-                    )}
-                    {syncState === 'online' && (
-                        <Text style={{ fontSize: 14, color: 'white', marginTop: 22, marginLeft: 22 }}>✅ Connected</Text>
-                    )}
+                    <View style={{
+                        flexDirection: 'row',
+                        marginTop: 22, marginLeft: 22,
+                        alignItems: 'center'
+                    }}>
+                        {syncState === 'online' && (
+                            <View style={{
+                                marginRight: 4,
+                                height: 8, width: 8,
+                                borderRadius: 4,
+                                backgroundColor: Theme.success
+                            }} />
+                        )}
+                        {syncState !== 'online' && (
+                            <CircularProgress
+                                style={{
+                                    transform: [{ rotate: '-90deg' }],
+                                    marginRight: 4
+                                }}
+                                progress={100}
+                                animateFromValue={0}
+                                duration={6000}
+                                size={12}
+                                width={1}
+                                color={'#FFFFFF'}
+                                backgroundColor={'#596080'}
+                                fullColor={null}
+                                loop={true}
+                                containerColor={'transparent'}
+                            />
+                        )}
+                        <Text style={{
+                            fontSize: 14, fontWeight: '400',
+                            color: syncState === 'online' ? Theme.success : '#A2A5B2'
+                        }}>
+                            {t(`syncStatus.${syncState}`)}
+                        </Text>
+                    </View>
 
                     <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>

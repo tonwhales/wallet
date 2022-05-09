@@ -13,6 +13,7 @@ export function ProductButton(props: {
     subtitle: string,
     icon: React.FC<SvgProps>,
     value: BN | null,
+    symbol?: string,
     onPress: () => void,
     style?: StyleProp<ViewStyle>,
 }) {
@@ -42,12 +43,12 @@ export function ProductButton(props: {
                             {props.name}
                         </Text>
                         {props.value && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} /></Text>
+                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} />{props.symbol ? (' ' + props.symbol) : ''}</Text>
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
-                        {!!props.value &&
+                        {!!props.value && !props.symbol &&
                             (
                                 <PriceComponent
                                     amount={props.value}

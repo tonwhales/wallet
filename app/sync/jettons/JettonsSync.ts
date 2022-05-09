@@ -56,18 +56,18 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
         let wallets = this.wallets.use();
         let masters = this.masters.use();
 
-        let tokens: { master: string, wallet: string, name: string, description: string, balance: BN }[] = [];
+        let tokens: { master: string, wallet: string, name: string, description: string, symbol: string, balance: BN }[] = [];
         for (let ms in map.tokens) {
             let wl = map.tokens[ms];
 
-            if (!masters[ms] || !masters[ms].name || !masters[ms].description) {
+            if (!masters[ms] || !masters[ms].name || !masters[ms].description || !masters[ms].symbol) {
                 continue;
             }
             if (!wl || !wallets[wl]) {
                 continue;
             }
 
-            tokens.push({ master: ms, wallet: wl, name: masters[ms].name!, description: masters[ms].description!, balance: wallets[wl].balance });
+            tokens.push({ master: ms, wallet: wl, name: masters[ms].name!, description: masters[ms].description!, balance: wallets[wl].balance, symbol: masters[ms].symbol! });
         }
         return tokens;
     }

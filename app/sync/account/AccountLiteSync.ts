@@ -22,6 +22,17 @@ export class AccountLiteSync extends PersistedValueSync<LiteAccount> {
         this.address = address;
         this.#watcher = engine.accounts.getWatcherForAddress(address);
         this.#watcher.on('account_changed', (account) => {
+
+            // Check if changed
+            if (this.current && this.current.last && account.state.last) {
+                if (this.current.last.lt.gte(new BN(account.state.last.lt, 10))) {
+                    return;
+                }
+            }
+            if (this.current && !this.current.last && !account.state.last) {
+                return;
+            }
+
             this.updateValue({
                 balance: account.state.balance,
                 last: account.state.last ? { lt: new BN(account.state.last.lt, 10), hash: account.state.last.hash } : null,

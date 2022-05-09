@@ -32,7 +32,7 @@ export type StakingPersisted = {
 
 export class Persistence {
 
-    readonly version: number = 1;
+    readonly version: number = 2;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;

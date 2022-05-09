@@ -76,7 +76,7 @@ export class StakingPoolProduct {
     }
 
     get ready() {
-        return true;
+        return !!this._state;
     }
 
     get state() {

@@ -20,7 +20,7 @@ export async function fetchMetadata(client: TonClient4, seqno: number, address: 
     // Check jetton wallet
     if (jettonWallet) {
         let addr = await tryGetJettonWallet(client, seqno, { master: jettonWallet.master, address: jettonWallet.owner });
-        if (!addr || addr.equals(address)) {
+        if (!addr || !addr.equals(address)) {
             jettonWallet = null;
         }
     }

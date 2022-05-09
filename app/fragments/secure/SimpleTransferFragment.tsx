@@ -124,7 +124,7 @@ export const SimpleTransferFragment = fragment(() => {
     React.useEffect(() => {
         let ended = false;
         lock.inLock(async () => {
-            await backoff(async () => {
+            await backoff('simple-transfer', async () => {
                 if (ended) {
                     return;
                 }

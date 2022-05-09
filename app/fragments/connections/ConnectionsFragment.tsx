@@ -37,7 +37,7 @@ export const ConnectionsFragment = fragment(() => {
                     addPendingRevoke(src);
                     removeConnectionReference(src);
                     setApps((a) => a.filter((v) => v.key !== src));
-                    backoff(async () => {
+                    backoff('revoke', async () => {
                         await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: src }, { timeout: 5000 });
                         removePendingRevoke(src);
                     });

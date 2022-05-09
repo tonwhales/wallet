@@ -1,5 +1,6 @@
 import BN from "bn.js";
 import { Address } from "ton";
+import { AppConfig } from "../../AppConfig";
 import { AccountWatcher } from "../blocks/AccountWatcher";
 import { Engine } from "../Engine";
 import { PersistedValueSync } from "../utils/PersistedValueSync";
@@ -17,7 +18,7 @@ export class AccountLiteSync extends PersistedValueSync<LiteAccount> {
     #watcher: AccountWatcher;
 
     constructor(address: Address, engine: Engine) {
-        super(engine.persistence.liteAccounts.item(address), engine);
+        super(`account-lite(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.persistence.liteAccounts.item(address), engine);
         this.address = address;
         this.#watcher = engine.accounts.getWatcherForAddress(address);
         this.#watcher.on('account_changed', (account) => {

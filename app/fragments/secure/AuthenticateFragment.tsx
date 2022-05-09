@@ -31,7 +31,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     const [state, setState] = React.useState<{ type: 'loading' } | { type: 'expired' } | { type: 'initing', name: string, url: string } | { type: 'completed' }>({ type: 'loading' });
     React.useEffect(() => {
         let ended = false;
-        backoff(async () => {
+        backoff('authenticate', async () => {
             if (ended) {
                 return;
             }
@@ -102,7 +102,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
 
         // Notify
-        await backoff(async () => {
+        await backoff('authenticate', async () => {
             if (!active.current) {
                 return;
             }
@@ -123,7 +123,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             addPendingGrant(props.session);
 
             // Grant access
-            await backoff(async () => {
+            await backoff('authenticate', async () => {
                 await axios.post('https://connect.tonhubapi.com/connect/grant', { key: props.session }, { timeout: 5000 });
                 removePendingGrant(props.session);
             });

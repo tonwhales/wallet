@@ -13,22 +13,7 @@ import { WalletV4State } from "./account/WalletV4Sync";
 import { JettonsState } from "./jettons/JettonsSync";
 import { JettonWalletState } from "./jettons/JettonWalletSync";
 import { JettonMasterState } from "./jettons/JettonMasterSync";
-
-export type StakingPersisted = {
-    params: {
-        minStake: string,
-        depositFee: string,
-        withdrawFee: string,
-        stakeUntil: number,
-        receiptPrice: string
-    },
-    member: {
-        balance: string,
-        pendingDeposit: string,
-        pendingWithdraw: string,
-        withdraw: string
-    }
-}
+import { StakingPoolState } from "./account/StakingPoolSync";
 
 export class Persistence {
 
@@ -40,7 +25,7 @@ export class Persistence {
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, { price: { usd: number } }>;
     readonly apps: PersistedCollection<Address, string>;
-    readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPersisted>;
+    readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
     readonly plugins: PersistedCollection<Address, PluginState>;
@@ -104,18 +89,19 @@ const priceCodec = t.type({
     })
 });
 const stakingPoolStateCodec = t.type({
+    lt: c.bignum,
     params: t.type({
-        minStake: t.string,
-        depositFee: t.string,
-        withdrawFee: t.string,
+        minStake: c.bignum,
+        depositFee: c.bignum,
+        withdrawFee: c.bignum,
         stakeUntil: t.number,
-        receiptPrice: t.string
+        receiptPrice: c.bignum
     }),
     member: t.type({
-        balance: t.string,
-        pendingDeposit: t.string,
-        pendingWithdraw: t.string,
-        withdraw: t.string
+        balance: c.bignum,
+        pendingDeposit: c.bignum,
+        pendingWithdraw: c.bignum,
+        withdraw: c.bignum
     })
 });
 

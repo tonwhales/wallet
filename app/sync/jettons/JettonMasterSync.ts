@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Address } from "ton";
+import { AppConfig } from "../../AppConfig";
 import { warn } from "../../utils/log";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
@@ -18,7 +19,7 @@ export class JettonMasterSync extends PersistedValueSync<JettonMasterState> {
     readonly address: Address;
 
     constructor(address: Address, engine: Engine) {
-        super(engine.persistence.jettonMasters.item(address), engine);
+        super(`jetton-master(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.persistence.jettonMasters.item(address), engine);
         this.address = address;
         this.invalidate();
     }
@@ -42,7 +43,7 @@ export class JettonMasterSync extends PersistedValueSync<JettonMasterState> {
             }
 
             if (link) {
-                let response = await backoff(() => axios.get(link!, { timeout: 5000 }));
+                let response = await backoff('jetton-master', () => axios.get(link!, { timeout: 5000 }));
                 if (typeof response.data.name === 'string') {
                     res.name = response.data.name;
                 }

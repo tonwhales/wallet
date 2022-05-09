@@ -22,7 +22,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
     readonly masters = new SyncCollection<JettonMasterState>();
 
     constructor(parent: AccountFullSync) {
-        super(parent.engine.persistence.tokens.item(parent.address), parent.engine);
+        super('jettons', parent.engine.persistence.tokens.item(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;

@@ -358,36 +358,34 @@ export const TransferFragment = fragment(() => {
                 })
             });
 
+            // Fetch data
+            const [
+                config,
+                fees,
+                [metadata, state]
+            ] = await Promise.all([
+                backoff('transfer', () => fetchConfig()),
+                backoff('transfer', () => engine.connector.estimateExternalMessageFee(contract, transfer)),
+                backoff('transfer', async () => {
+                    let block = await backoff('transfer', () => engine.client4.getLastBlock());
+                    return Promise.all([
+                        backoff('transfer', () => engine.metadata.fetchFreshMetadata(block.last.seqno, target.address)),
+                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
+                    ])
+                }),
+            ])
+            if (exited) {
+                return;
+            }
 
             // Check if wallet is restricted
             let restricted = false;
-            const config = await backoff('transfer', () => fetchConfig());
             for (let r of config.wallets.restrict_send) {
                 if (Address.parse(r).equals(target.address)) {
                     restricted = true;
                     break;
                 }
             }
-
-            // Estimate
-            const fees = await backoff('transfer', () => engine.connector.estimateExternalMessageFee(contract, transfer));
-            if (exited) {
-                return;
-            }
-
-            // Fetch metadata
-            let block = await backoff('transfer', () => engine.client4.getLastBlock());
-            if (exited) {
-                return;
-            }
-
-            let metadata = await backoff('transfer', () => engine.metadata.fetchFreshMetadata(block.last.seqno, target.address));
-            if (exited) {
-                return;
-            }
-
-            // Fetch account
-            let state = await backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address));
 
             // Set state
             setLoadedProps({

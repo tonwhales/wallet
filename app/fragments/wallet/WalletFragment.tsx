@@ -178,16 +178,19 @@ export const WalletFragment = fragment(() => {
                         comment: res.comment,
                         amount: res.amount,
                         stateInit: res.stateInit,
-                        job: null
+                        job: null,
+                        jetton: null
                     });
                 } else {
                     navigation.navigateTransfer({
-                        target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        order: {
+                            target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            amount: res.amount || new BN(0),
+                            amountAll: false,
+                            stateInit: res.stateInit,
+                            payload: res.payload,
+                        },
                         text: res.comment,
-                        amount: res.amount || new BN(0),
-                        amountAll: false,
-                        stateInit: res.stateInit,
-                        payload: res.payload,
                         job: null
                     });
                 }
@@ -361,7 +364,7 @@ export const WalletFragment = fragment(() => {
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_send.png')} />

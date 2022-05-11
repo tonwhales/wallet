@@ -42,12 +42,14 @@ export const HomeFragment = fragment(() => {
                                 SplashScreen.hideAsync();
                                 if (existing.job.job.payload) {
                                     navigation.navigateTransfer({
-                                        target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                        order: {
+                                            target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                            amount: existing.job.job.amount,
+                                            amountAll: false,
+                                            payload: existing.job.job.payload,
+                                            stateInit: existing.job.job.stateInit,
+                                        },
                                         text: existing.job.job.text,
-                                        amount: existing.job.job.amount,
-                                        amountAll: false,
-                                        payload: existing.job.job.payload,
-                                        stateInit: existing.job.job.stateInit,
                                         job: existing.raw
                                     });
                                 } else {
@@ -56,7 +58,8 @@ export const HomeFragment = fragment(() => {
                                         comment: existing.job.job.text,
                                         amount: existing.job.job.amount,
                                         stateInit: existing.job.job.stateInit,
-                                        job: existing.raw
+                                        job: existing.raw,
+                                        jetton: null
                                     })
                                 }
                             }
@@ -76,12 +79,14 @@ export const HomeFragment = fragment(() => {
                     SplashScreen.hideAsync();
                     if (resolved.payload) {
                         navigation.navigateTransfer({
-                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            order: {
+                                target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                amount: resolved.amount || new BN(0),
+                                amountAll: false,
+                                stateInit: resolved.stateInit,
+                                payload: resolved.payload,
+                            },
                             text: resolved.comment,
-                            amount: resolved.amount || new BN(0),
-                            amountAll: false,
-                            stateInit: resolved.stateInit,
-                            payload: resolved.payload,
                             job: null
                         });
                     } else {
@@ -90,7 +95,8 @@ export const HomeFragment = fragment(() => {
                             comment: resolved.comment,
                             amount: resolved.amount,
                             stateInit: resolved.stateInit,
-                            job: null
+                            job: null,
+                            jetton: null
                         });
                     }
                 }

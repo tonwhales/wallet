@@ -17,7 +17,7 @@ import { StakingPoolState } from "./account/StakingPoolSync";
 
 export class Persistence {
 
-    readonly version: number = 2;
+    readonly version: number = 3;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;

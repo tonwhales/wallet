@@ -26,6 +26,10 @@ export class WalletSync {
     #plugins = new SyncCollection<PluginState>();
     #jettons: JettonsSync;
 
+    get jettons() {
+        return this.#jettons;
+    }
+
     constructor(parent: WalletV4Sync) {
         this.engine = parent.engine;
         this.parent = parent;

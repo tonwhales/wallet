@@ -117,7 +117,8 @@ export const TransactionPreviewFragment = fragment(() => {
                             comment: transaction.body && transaction.body.type === 'comment' ? transaction.body.comment : null,
                             amount: transaction.amount.neg(),
                             job: null,
-                            stateInit: null
+                            stateInit: null,
+                            jetton: null
                         })}
                     >
                         <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>

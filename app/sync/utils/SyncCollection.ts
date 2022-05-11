@@ -10,6 +10,10 @@ export class SyncCollection<T> {
         this.#value.value = {};
     }
 
+    get(key: string) {
+        return this.#items.get(key);
+    }
+
     getAll() {
         return Array.from(this.#items.keys());
     }

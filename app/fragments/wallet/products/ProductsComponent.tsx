@@ -10,6 +10,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
+import { Address } from "ton"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -65,7 +66,7 @@ export const ProductsComponent = React.memo(() => {
                     icon={OldWalletIcon}
                     value={jt.balance}
                     symbol={jt.symbol}
-                    onPress={() => navigation.navigate('SimpleTransfer')}
+                    onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: Address.parse(jt.wallet), stateInit: null, job: null })}
                     style={{ marginVertical: 4 }}
                 />
             ))}

@@ -180,12 +180,14 @@ export const StakingTransferFragment = fragment(() => {
 
         // Navigate to TransferFragment
         navigation.navigateTransfer({
-            target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            payload,
-            amount: transferAmount,
-            amountAll: false,
+            order: {
+                target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                payload,
+                amount: transferAmount,
+                amountAll: false,
+                stateInit: null,
+            },
             text: null,
-            stateInit: null,
             job: null
         });
     }, [amount, params, member, pool, balance]);

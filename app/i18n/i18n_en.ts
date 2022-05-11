@@ -76,7 +76,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     transfer: {
-        title: 'Send Ton',
+        title: 'Send {{symbol}}',
         titleAction: 'Action',
         confirm: 'Are you sure want to proceed?',
         error: {

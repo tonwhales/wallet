@@ -29,6 +29,7 @@ import { ItemGroup } from '../../components/ItemGroup';
 import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
+import { Order } from './ops/Order';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -48,10 +49,7 @@ type ConfirmLoadedProps = {
         active: boolean
     },
     text: string | null,
-    amount: BN,
-    amountAll: boolean
-    payload: Cell | null,
-    stateInit: Cell | null,
+    order: Order,
     job: string | null,
     fees: BN,
     metadata: ContractMetadata,
@@ -66,10 +64,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         restricted,
         target,
         text,
-        amount,
-        amountAll,
-        payload,
-        stateInit,
+        order,
         job,
         fees,
         metadata
@@ -81,8 +76,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     // Known Messages
     const supportedMessage = React.useMemo(() => {
         let res: SupportedMessage | null = null;
-        if (payload) {
-            res = parseMessageBody(payload, metadata.interfaces);
+        if (order.payload) {
+            res = parseMessageBody(order.payload, metadata.interfaces);
         }
         return res;
     }, []);
@@ -129,11 +124,11 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
 
         // Check amount
-        if (!amount.eq(account.balance) && account.balance.lt(amount)) {
+        if (!order.amount.eq(account.balance) && account.balance.lt(order.amount)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (amount.eq(new BN(0))) {
+        if (order.amount.eq(new BN(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -179,16 +174,16 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             seqno: account.seqno,
             walletId: contract.source.walletId,
             secretKey: walletKeys.keyPair.secretKey,
-            sendMode: amountAll
+            sendMode: order.amountAll
                 ? SendMode.CARRRY_ALL_REMAINING_BALANCE
                 : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
             order: new InternalMessage({
                 to: target.address,
-                value: amount,
+                value: order.amount,
                 bounce,
                 body: new CommonMessageInfo({
-                    stateInit: stateInit ? new CellMessage(stateInit) : null,
-                    body: payload ? new CellMessage(payload) : new CommentMessage(text || '')
+                    stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
+                    body: order.payload ? new CellMessage(order.payload) : new CommentMessage(text || '')
                 })
             })
         });
@@ -206,11 +201,11 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             id: 'pending-' + account.seqno,
             lt: null,
             fees: fees,
-            amount: amount.mul(new BN(-1)),
+            amount: order.amount.mul(new BN(-1)),
             address: target.address,
             seqno: account.seqno,
             kind: 'out',
-            body: payload ? { type: 'payload', cell: payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
+            body: order.payload ? { type: 'payload', cell: order.payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
             status: 'pending',
             time: Math.floor(Date.now() / 1000),
             bounced: false
@@ -257,7 +252,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             color: Theme.accent,
                             marginTop: 4
                         }}>
-                            {fromNano(amountAll ? account.balance : amount)}
+                            {fromNano(order.amountAll ? account.balance : order.amount)}
                         </Text>
                     </View>
                     <ItemGroup>
@@ -273,7 +268,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <ItemLarge title={t('transfer.purpose')} text={message} />
                             </>
                         )}
-                        {!message && !!text && !payload && (
+                        {!message && !!text && !order.payload && (
                             <>
                                 <ItemDivider />
                                 <ItemLarge title={t('transfer.comment')} text={text} />
@@ -296,12 +291,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
 export const TransferFragment = fragment(() => {
     const params: {
-        target: string,
         text: string | null,
-        amount: BN,
-        amountAll: boolean
-        payload: Cell | null,
-        stateInit: Cell | null,
+        order: Order,
         job: string | null,
     } = useRoute().params! as any;
     const engine = useEngine();
@@ -311,12 +302,9 @@ export const TransferFragment = fragment(() => {
 
     // Memmoize all parameters just in case
     const from = React.useMemo(() => getCurrentAddress(), []);
-    const target = React.useMemo(() => Address.parseFriendly(params.target), []);
+    const target = React.useMemo(() => Address.parseFriendly(params.order.target), []);
     const text = React.useMemo(() => params.text, []);
-    const amount = React.useMemo(() => params.amount, []);
-    const amountAll = React.useMemo(() => params.amountAll, []);
-    const payload = React.useMemo(() => params.payload, []);
-    const stateInit = React.useMemo(() => params.stateInit, []);
+    const order = React.useMemo(() => params.order, []);
     const job = React.useMemo(() => params.job, []);
 
     // Auto-cancel job on unmount
@@ -349,11 +337,11 @@ export const TransferFragment = fragment(() => {
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
                 order: new InternalMessage({
                     to: target.address,
-                    value: amount,
+                    value: order.amount,
                     bounce: false,
                     body: new CommonMessageInfo({
-                        stateInit: stateInit ? new CellMessage(stateInit) : null,
-                        body: payload ? new CellMessage(payload) : new CommentMessage(text || '')
+                        stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
+                        body: order.payload ? new CellMessage(order.payload) : new CommentMessage(text || '')
                     })
                 })
             });
@@ -396,11 +384,8 @@ export const TransferFragment = fragment(() => {
                     balance: new BN(state.account.balance.coins, 10),
                     active: state.account.state.type === 'active'
                 },
-                amount,
-                amountAll,
+                order,
                 text,
-                payload,
-                stateInit,
                 job,
                 fees,
                 metadata

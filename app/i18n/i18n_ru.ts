@@ -66,7 +66,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         }
     },
     transfer: {
-        title: 'Отправить Ton',
+        title: 'Отправить {{symbol}}',
         titleAction: 'Действие',
         confirm: 'Вы уверены что хотите продолжить?',
         error: {

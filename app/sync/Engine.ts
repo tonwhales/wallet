@@ -74,7 +74,7 @@ export class Engine {
         this._dependencies.push(this.products.main);
         this._dependencies.push(this.products.price);
         this._dependencies.push(this.products.legacy);
-        this._dependencies.push(this.products.whalesStakingPool);
+        // this._dependencies.push(this.products.whalesStakingPool);
     }
 
     get ready() {

@@ -260,7 +260,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     welcome: {
         title: 'Tonhub',
-        titleDev: 'Ton Development Wallet',
+        titleDev: 'Ton Sandbox Wallet',
         subtitle: 'Simple and secure TON wallet',
         subtitleDev: 'Wallet for developers',
         createWallet: 'Create wallet',

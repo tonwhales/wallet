@@ -7,7 +7,7 @@ import * as c from './utils/codecs';
 import BN from "bn.js";
 import { ContractMetadata } from "./metadata/Metadata";
 import { PluginState } from "./account/PluginSync";
-import { LiteAccount } from "./account/AccountLiteSync";
+import { LiteAccount } from "./account/AccountLiteAtom";
 import { FullAccount } from "./account/AccountFullSync";
 import { WalletV4State } from "./account/WalletV4Sync";
 import { JettonsState } from "./jettons/JettonsSync";

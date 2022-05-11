@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
-import { AccountLiteSync } from "../account/AccountLiteSync";
+import { AccountLiteAtom } from "../account/AccountLiteAtom";
 import { Engine } from "../Engine";
 import { tryFetchJettonWallet } from "../metadata/introspections/tryFetchJettonWallet";
 import { PersistedValueSync } from "../utils/PersistedValueSync";
@@ -15,10 +15,10 @@ export type JettonWalletState = {
 export class JettonWalletSync extends PersistedValueSync<JettonWalletState> {
 
     readonly address: Address;
-    readonly parent: AccountLiteSync;
+    readonly parent: AccountLiteAtom;
     readonly engine: Engine;
 
-    constructor(parent: AccountLiteSync) {
+    constructor(parent: AccountLiteAtom) {
         super(`jetton-wallet(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.persistence.jettonWallets.item(parent.address), parent.engine);
 
         this.address = parent.address;

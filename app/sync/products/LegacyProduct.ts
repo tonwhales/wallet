@@ -1,12 +1,12 @@
 import BN from "bn.js";
 import { Address, contractAddress, WalletV1R1Source, WalletV1R2Source, WalletV1R3Source, WalletV2R1Source, WalletV2R2Source, WalletV3R1Source, WalletV3R2Source } from "ton";
-import { AccountLiteSync } from "../account/AccountLiteSync";
+import { AccountLiteAtom } from "../account/AccountLiteAtom";
 import { Engine } from "../Engine";
 
 export class LegacyProduct {
 
     readonly engine: Engine;
-    readonly wallets: AccountLiteSync[] = [];
+    readonly wallets: AccountLiteAtom[] = [];
 
     constructor(engine: Engine) {
         this.engine = engine;

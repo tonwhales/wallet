@@ -4,7 +4,7 @@ import { Engine } from "../Engine";
 import { tryFetchLegacyPlugin } from "../metadata/introspections/tryFetchLegacyPlugin";
 import { LegacySubscription } from "../metadata/Metadata";
 import { PersistedValueSync } from "../utils/PersistedValueSync";
-import { AccountLiteSync } from "./AccountLiteSync";
+import { AccountLiteAtom } from "./AccountLiteAtom";
 
 export type PluginState =
     | { type: 'unknown' }
@@ -14,9 +14,9 @@ export class PluginSync extends PersistedValueSync<PluginState> {
 
     readonly address: Address;
     readonly engine: Engine;
-    readonly parent: AccountLiteSync;
+    readonly parent: AccountLiteAtom;
 
-    constructor(parent: AccountLiteSync) {
+    constructor(parent: AccountLiteAtom) {
         super(`wallet-v4-plugin(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.persistence.plugins.item(parent.address), parent.engine);
         this.parent = parent;
         this.engine = parent.engine;

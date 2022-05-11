@@ -11,7 +11,7 @@ export type LiteAccount = {
     block: number;
 }
 
-export class AccountLiteSync extends PersistedValueSync<LiteAccount> {
+export class AccountLiteAtom extends PersistedValueSync<LiteAccount> {
 
     readonly address: Address;
 

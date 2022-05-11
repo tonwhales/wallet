@@ -3,7 +3,7 @@ import { Address, beginCell, TupleSlice4 } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { PersistedValueSync } from "../utils/PersistedValueSync";
-import { AccountLiteSync } from "./AccountLiteSync";
+import { AccountLiteAtom } from "./AccountLiteAtom";
 
 export type StakingPoolState = {
     lt: BN,
@@ -25,9 +25,9 @@ export type StakingPoolState = {
 export class StakingPoolSync extends PersistedValueSync<StakingPoolState> {
     readonly engine: Engine;
     readonly member: Address;
-    readonly pool: AccountLiteSync;
+    readonly pool: AccountLiteAtom;
 
-    constructor(member: Address, pool: AccountLiteSync, engine: Engine) {
+    constructor(member: Address, pool: AccountLiteAtom, engine: Engine) {
         super(`staking(${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}##${member.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.persistence.staking.item({ address: pool.address, target: member }), engine);
         this.engine = engine;
         this.member = member;

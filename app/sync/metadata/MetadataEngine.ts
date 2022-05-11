@@ -4,7 +4,7 @@ import { AppConfig } from "../../AppConfig";
 import { log } from "../../utils/log";
 import { MapAsyncLock } from "../../utils/MapAsyncLock";
 import { Engine } from "../Engine";
-import { ReactSync } from "../react/ReactSync";
+import { ReactSync } from "../utils/ReactSync";
 import { fetchMetadata } from "./fetchMetadata";
 import { ContractMetadata } from "./Metadata";
 

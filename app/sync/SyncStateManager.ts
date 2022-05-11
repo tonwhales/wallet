@@ -1,5 +1,5 @@
-import { log, warn } from "../../utils/log";
-import { ReactSync } from "../react/ReactSync";
+import { log, warn } from "../utils/log";
+import { ReactSync } from "./utils/ReactSync";
 
 export class SyncStateManager {
     #connecting = 0;

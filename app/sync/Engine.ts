@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
 import { Address, TonClient4 } from "ton";
-import { Connector } from "./Connector";
+import { Connector } from "./api/Connector";
 import { LegacyProduct } from './products/LegacyProduct';
 import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
@@ -12,8 +12,7 @@ import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { Accounts } from './account/Accounts';
 import { Persistence } from './Persistence';
 import { Transactions } from './transactions/Transactions';
-import { SyncStateManager } from './state/SyncStateManager';
-import { AppSync } from './AppSync';
+import { SyncStateManager } from './SyncStateManager';
 import { WalletV4Sync } from './account/WalletV4Sync';
 import { WalletSync } from './account/WalletSync';
 

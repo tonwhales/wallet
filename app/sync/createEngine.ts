@@ -1,7 +1,7 @@
 import { Address } from "ton";
 import { AppConfig } from "../AppConfig";
 import { storagePersistence } from "../storage/storage";
-import { createSimpleConnector } from "./Connector";
+import { createSimpleConnector } from "./api/Connector";
 import { Engine } from "./Engine";
 
 export function createEngine(args: { address: Address, publicKey: Buffer }) {

@@ -3,7 +3,7 @@ import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { JettonsSync } from "../jettons/JettonsSync";
-import { ReactSync } from "../react/ReactSync";
+import { ReactSync } from "../utils/ReactSync";
 import { Transaction } from "../Transaction";
 import { SyncCollection } from "../utils/SyncCollection";
 import { PluginState, PluginSync } from "./PluginSync";

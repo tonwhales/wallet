@@ -15,7 +15,7 @@ import { useRoute } from '@react-navigation/native';
 import { useEngine } from '../../sync/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
-import { fetchConfig } from '../../sync/fetchConfig';
+import { fetchConfig } from '../../sync/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
 import { KnownWallets } from '../../secure/KnownWallets';

@@ -1,7 +1,7 @@
 import { log } from "../../utils/log";
 import { Engine } from "../Engine";
 import { PersistedItem } from "../PersistedCollection";
-import { ReactSync } from "../react/ReactSync";
+import { ReactSync } from "./ReactSync";
 import { InvalidateSync } from "./InvalidateSync";
 
 export abstract class PersistedValueSync<T> {

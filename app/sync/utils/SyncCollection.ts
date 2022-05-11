@@ -1,4 +1,4 @@
-import { ReactSync } from "../react/ReactSync";
+import { ReactSync } from "./ReactSync";
 import { PersistedValueSync } from "./PersistedValueSync";
 
 export class SyncCollection<T> {

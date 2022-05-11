@@ -101,7 +101,7 @@ export class AppProduct {
         }
 
         // Notify
-        await backoff(async () => {
+        await backoff('app', async () => {
             await axios.post('https://connect.tonhubapi.com/connect/command/commit', {
                 successful: success,
                 job,
@@ -135,7 +135,7 @@ export class AppProduct {
     }
 
     private _startSync() {
-        backoff(async () => {
+        backoff('app', async () => {
             while (!this._destroyed) {
                 let keypair = await getAppInstanceKeyPair();
                 let key = keypair.publicKey.toString('base64').replace(/\//g, '_')

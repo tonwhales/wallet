@@ -90,15 +90,16 @@ class CircularProgress extends PureComponent<CircularProgressProps> {
                     useNativeDriver: true,
                 })
             ).start();
+        } else {
+            Animated.timing(this.state.animatedVal, {
+                toValue,
+                duration,
+                easing,
+                useNativeDriver: true,
+            }).start((status) => {
+                if (this.props.onAnimationComplete) this.props.onAnimationComplete(status.finished);
+            });
         }
-        Animated.timing(this.state.animatedVal, {
-            toValue,
-            duration,
-            easing,
-            useNativeDriver: true,
-        }).start((status) => {
-            if (this.props.onAnimationComplete) this.props.onAnimationComplete(status.finished);
-        });
     };
 
     resetAnimation = (progress = this.props.progress) => this.state.animatedVal.setValue(progress);

@@ -40,7 +40,7 @@ const MigrationProcessFragment = fragment(() => {
     React.useEffect(() => {
         let ended = false;
 
-        backoff(async () => {
+        backoff('migration', async () => {
 
             // Read key
             let key: WalletKeys
@@ -71,16 +71,16 @@ const MigrationProcessFragment = fragment(() => {
                 }
                 setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
 
-                const state = await backoff(() => engine.connector.client.getContractState(wallet.address));
+                const state = await backoff('migration', () => engine.connector.client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
                     setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
                     wallet.prepare(0, key.keyPair.publicKey, type);
 
                     // Seqno
-                    const seqno = await backoff(() => wallet.getSeqNo());
+                    const seqno = await backoff('migration', () => wallet.getSeqNo());
 
                     // Transfer
-                    await backoff(() => wallet.transfer({
+                    await backoff('migration', () => wallet.transfer({
                         seqno,
                         to: targetContract.address,
                         value: new BN(0),
@@ -90,7 +90,7 @@ const MigrationProcessFragment = fragment(() => {
                     }));
 
                     while (!ended) {
-                        let s = await backoff(() => wallet.getSeqNo());
+                        let s = await backoff('migration', () => wallet.getSeqNo());
                         if (s > seqno) {
                             break;
                         }

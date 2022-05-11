@@ -229,12 +229,12 @@ export const Navigation = React.memo(() => {
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
             if (existingStatus === PermissionStatus.GRANTED || state.addresses.length > 0) {
-                const token = await backoff(() => registerForPushNotificationsAsync());
+                const token = await backoff('navigation', () => registerForPushNotificationsAsync());
                 if (token) {
                     if (ended) {
                         return;
                     }
-                    await backoff(async () => {
+                    await backoff('navigation', async () => {
                         if (ended) {
                             return;
                         }
@@ -251,7 +251,7 @@ export const Navigation = React.memo(() => {
     // Grant accesses
     React.useEffect(() => {
         let ended = false;
-        backoff(async () => {
+        backoff('navigation', async () => {
             if (ended) {
                 return;
             }
@@ -269,7 +269,7 @@ export const Navigation = React.memo(() => {
     // Revoke accesses
     React.useEffect(() => {
         let ended = false;
-        backoff(async () => {
+        backoff('navigation', async () => {
             if (ended) {
                 return;
             }

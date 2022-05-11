@@ -29,6 +29,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         in: 'in',
         max: 'Max'
     },
+    syncStatus: {
+        connecting: 'Connecting',
+        updating: 'Updating',
+        online: 'Connected'
+    },
     home: {
         wallet: 'Wallet',
         settings: 'Settings'

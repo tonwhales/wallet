@@ -23,7 +23,7 @@ export class AccountFullSync extends PersistedValueSync<FullAccount> {
     readonly address: Address;
 
     constructor(parent: AccountLiteSync) {
-        super(parent.engine.persistence.fullAccounts.item(parent.address), parent.engine);
+        super(`account-full(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.persistence.fullAccounts.item(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;
@@ -80,7 +80,7 @@ export class AccountFullSync extends PersistedValueSync<FullAccount> {
         if (!!liteAccount.last) {
 
             // Download transactions
-            let loadedTransactions = await backoff(async () => {
+            let loadedTransactions = await backoff('account-full-sync', async () => {
                 return await this.engine.connector.fetchTransactions(this.address, { lt: liteAccount.last!.lt.toString(10), hash: liteAccount.last!.hash });
             });
 
@@ -100,7 +100,7 @@ export class AccountFullSync extends PersistedValueSync<FullAccount> {
             }
 
             // Prepare metadata
-            await Promise.all(Array.from(mentioned).map((src) => backoff(() => this.engine.metadata.prepareMetadata(liteAccount.block, Address.parse(src)))));
+            await Promise.all(Array.from(mentioned).map((src) => backoff('account-full-sync', () => this.engine.metadata.prepareMetadata(liteAccount.block, Address.parse(src)))));
 
             // Persist transactions
             for (let l of loadedTransactions) {

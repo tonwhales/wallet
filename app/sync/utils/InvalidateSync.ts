@@ -52,7 +52,7 @@ export class InvalidateSync extends EventEmitter {
     }
 
     private _doSync = async () => {
-        await backoff(async () => {
+        await backoff('invalidate-sync', async () => {
             if (this._stopped) {
                 return;
             }

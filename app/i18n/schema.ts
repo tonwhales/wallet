@@ -30,7 +30,12 @@ export type LocalizationSchema = {
         soon: string,
         in: string,
         max: string
-    }
+    },
+    syncStatus: {
+        connecting: string,
+        updating: string,
+        online: string
+    },
     home: {
         wallet: string,
         settings: string

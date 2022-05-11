@@ -85,10 +85,10 @@ export class PriceProduct {
 
     private _start() {
         if (!this._state) {
-            backoff(async () => {
+            backoff('price', async () => {
 
                 // Fetch initial state
-                const initialState = await backoff(async () => {
+                const initialState = await backoff('price', async () => {
                     if (this._destroyed) {
                         return null;
                     }

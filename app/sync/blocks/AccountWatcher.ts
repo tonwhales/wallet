@@ -13,8 +13,8 @@ export type AccountState = {
         type: 'uninit';
     } | {
         type: 'active';
-        code: string;
-        data: string;
+        codeHash: string;
+        dataHash: string;
     } | {
         type: 'frozen';
         stateHash: string;
@@ -53,16 +53,27 @@ export class AccountWatcher extends EventEmitter {
                 return;
             }
 
+            // Check if changed
+            if (this.#state && this.#state.last) {
+                log(`[${key}]: Check if state changed #` + v);
+                let changed = await engine.client4.isAccountChanged(v, address, new BN(this.#state.last.lt, 10));
+                if (!changed.changed) {
+                    log(`[${key}]: State not changed #` + v);
+                    return;
+                }
+            }
+
             // Downloading fresh state
+            let start = Date.now();
             log(`[${key}]: Downloading new state at #` + v);
-            let state = await engine.client4.getAccount(v, address);
+            let state = await engine.client4.getAccountLite(v, address);
             this.#state = {
                 balance: new BN(state.account.balance.coins, 10),
                 last: state.account.last,
                 seqno: v,
                 state: state.account.state
             };
-            log(`[${key}]: State downloaded`);
+            log(`[${key}]: State downloaded in ${Date.now() - start} ms`);
             this.emit('account_changed', { address, state: this.#state });
 
             // Release lock

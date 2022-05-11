@@ -194,7 +194,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         });
 
         // Sending transfer
-        await backoff(() => engine.connector.sendExternalMessage(contract, transfer));
+        await backoff('transfer', () => engine.connector.sendExternalMessage(contract, transfer));
 
         // Notify job
         if (job) {
@@ -333,7 +333,7 @@ export const TransferFragment = fragment(() => {
     React.useEffect(() => {
         let exited = false;
 
-        backoff(async () => {
+        backoff('transfer', async () => {
 
             // Get contract
             const contract = await contractFromPublicKey(from.publicKey);
@@ -358,36 +358,34 @@ export const TransferFragment = fragment(() => {
                 })
             });
 
+            // Fetch data
+            const [
+                config,
+                fees,
+                [metadata, state]
+            ] = await Promise.all([
+                backoff('transfer', () => fetchConfig()),
+                backoff('transfer', () => engine.connector.estimateExternalMessageFee(contract, transfer)),
+                backoff('transfer', async () => {
+                    let block = await backoff('transfer', () => engine.client4.getLastBlock());
+                    return Promise.all([
+                        backoff('transfer', () => engine.metadata.fetchFreshMetadata(block.last.seqno, target.address)),
+                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
+                    ])
+                }),
+            ])
+            if (exited) {
+                return;
+            }
 
             // Check if wallet is restricted
             let restricted = false;
-            const config = await backoff(() => fetchConfig());
             for (let r of config.wallets.restrict_send) {
                 if (Address.parse(r).equals(target.address)) {
                     restricted = true;
                     break;
                 }
             }
-
-            // Estimate
-            const fees = await backoff(() => engine.connector.estimateExternalMessageFee(contract, transfer));
-            if (exited) {
-                return;
-            }
-
-            // Fetch metadata
-            let block = await backoff(() => engine.client4.getLastBlock());
-            if (exited) {
-                return;
-            }
-
-            let metadata = await backoff(() => engine.metadata.fetchFreshMetadata(block.last.seqno, target.address));
-            if (exited) {
-                return;
-            }
-
-            // Fetch account
-            let state = await backoff(() => engine.client4.getAccount(block.last.seqno, target.address));
 
             // Set state
             setLoadedProps({

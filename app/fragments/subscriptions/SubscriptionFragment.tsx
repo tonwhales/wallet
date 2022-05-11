@@ -22,6 +22,7 @@ import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
 import { getCurrentAddress } from "../../storage/appState";
 import { sign } from "ton-crypto";
 import { backoff } from "../../utils/time";
+import BN from "bn.js";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -71,8 +72,6 @@ export const SubscriptionFragment = fragment(() => {
                                 return;
                             }
 
-                            const transfer = new Cell();
-
                             const transferCell = createRemovePluginCommand(
                                 account.seqno,
                                 contract.source.walletId,
@@ -80,10 +79,17 @@ export const SubscriptionFragment = fragment(() => {
                                 Address.parse(params.address)
                             );
 
-                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                            transfer.writeCell(transferCell);
+                            navigation.navigateTransfer({
+                                target: params.address,
+                                text: null,
+                                amount: new BN(0),
+                                amountAll: false,
+                                stateInit: null,
+                                payload: null,
+                                job: null,
+                                transferCell: transferCell
+                            });
 
-                            await backoff(() => engine.connector.sendExternalMessage(contract, transfer));
                             resolve(true);
                         }
                     }, {

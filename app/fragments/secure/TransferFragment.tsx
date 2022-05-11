@@ -29,6 +29,7 @@ import { ItemGroup } from '../../components/ItemGroup';
 import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
+import { sign } from 'ton-crypto';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -55,7 +56,8 @@ type ConfirmLoadedProps = {
     job: string | null,
     fees: BN,
     metadata: ContractMetadata,
-    restricted: boolean
+    restricted: boolean,
+    transferCell?: Cell | null
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -72,7 +74,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         stateInit,
         job,
         fees,
-        metadata
+        metadata,
+        transferCell
     } = props;
 
     // Verified wallets
@@ -83,6 +86,18 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         let res: SupportedMessage | null = null;
         if (payload) {
             res = parseMessageBody(payload, metadata.interfaces);
+        } else if (transferCell) {
+            let tC = transferCell.beginParse();
+            tC.skip(32 + 32);
+            const command = tC.readUintNumber(8);
+            if (command === 3) {
+                res = {
+                    type: 'remove-plugin',
+                    data: {
+                        'text': 'Test'
+                    }
+                };
+            }
         }
         return res;
     }, []);
@@ -192,6 +207,11 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 })
             })
         });
+
+        if (transferCell) {
+            transfer = transferCell;
+            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+        }
 
         // Sending transfer
         await backoff('transfer', () => engine.connector.sendExternalMessage(contract, transfer));
@@ -303,6 +323,7 @@ export const TransferFragment = fragment(() => {
         payload: Cell | null,
         stateInit: Cell | null,
         job: string | null,
+        transfer: Cell | null
     } = useRoute().params! as any;
     const engine = useEngine();
     const account = engine.products.main.useState();
@@ -318,6 +339,7 @@ export const TransferFragment = fragment(() => {
     const payload = React.useMemo(() => params.payload, []);
     const stateInit = React.useMemo(() => params.stateInit, []);
     const job = React.useMemo(() => params.job, []);
+    const transferCell = React.useMemo(() => params.transfer, []);
 
     // Auto-cancel job on unmount
     React.useEffect(() => {
@@ -342,21 +364,26 @@ export const TransferFragment = fragment(() => {
             }
 
             // Create transfer
-            let transfer = await contract.createTransfer({
-                seqno: account.seqno,
-                walletId: contract.source.walletId,
-                secretKey: null,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                order: new InternalMessage({
-                    to: target.address,
-                    value: amount,
-                    bounce: false,
-                    body: new CommonMessageInfo({
-                        stateInit: stateInit ? new CellMessage(stateInit) : null,
-                        body: payload ? new CellMessage(payload) : new CommentMessage(text || '')
+            let transfer: Cell;
+            if (transferCell) {
+                transfer = transferCell;
+            } else {
+                transfer = await contract.createTransfer({
+                    seqno: account.seqno,
+                    walletId: contract.source.walletId,
+                    secretKey: null,
+                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                    order: new InternalMessage({
+                        to: target.address,
+                        value: amount,
+                        bounce: false,
+                        body: new CommonMessageInfo({
+                            stateInit: stateInit ? new CellMessage(stateInit) : null,
+                            body: payload ? new CellMessage(payload) : new CommentMessage(text || '')
+                        })
                     })
-                })
-            });
+                });
+            }
 
             // Fetch data
             const [
@@ -403,7 +430,8 @@ export const TransferFragment = fragment(() => {
                 stateInit,
                 job,
                 fees,
-                metadata
+                metadata,
+                transferCell: transferCell
             });
         });
 

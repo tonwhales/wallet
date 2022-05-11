@@ -43,29 +43,29 @@ export const SubscriptionButton = React.memo((
                         text: t('common.yes'),
                         style: 'destructive',
                         onPress: async () => {
-                            const contract = await contractFromPublicKey(acc.publicKey);
+                            // const contract = await contractFromPublicKey(acc.publicKey);
 
-                            let walletKeys: WalletKeys;
-                            try {
-                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                            } catch (e) {
-                                resolve(false);
-                                return;
-                            }
+                            // let walletKeys: WalletKeys;
+                            // try {
+                            //     walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                            // } catch (e) {
+                            //     resolve(false);
+                            //     return;
+                            // }
 
-                            const transfer = new Cell();
-                            
-                            const transferCell = createRemovePluginCommand(
-                                account.seqno,
-                                contract.source.walletId,
-                                Math.floor(Date.now() / 1e3) + 60,
-                                Address.parse(address)
-                            );
+                            // const transfer = new Cell();
 
-                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                            transfer.writeCell(transferCell);
+                            // const transferCell = createRemovePluginCommand(
+                            //     account.seqno,
+                            //     contract.source.walletId,
+                            //     Math.floor(Date.now() / 1e3) + 60,
+                            //     Address.parse(address)
+                            // );
 
-                            await backoff(() => engine.connector.sendExternalMessage(contract, transfer));
+                            // transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                            // transfer.writeCell(transferCell);
+
+                            // await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
                             resolve(true);
                         }
                     }, {
@@ -81,44 +81,35 @@ export const SubscriptionButton = React.memo((
 
     if (subscription.type === 'unknown') {
         return (
-            <Pressable style={
-                ({ pressed }) => {
-                    return {
-                        opacity: pressed ? 0.3 : 1
-                    }
-                }
-            }
-                onPress={onCancelSub}
-            >
-                <View style={{
-                    minHeight: 62, borderRadius: 14,
-                    backgroundColor: 'white', flexDirection: 'row',
-                    padding: 10, flex: 1
-                }}>
-                    <View
-                        style={{
-                            height: 42, width: 42,
-                            backgroundColor: 'white',
-                            borderRadius: 26,
-                            overflow: 'hidden',
-                            marginRight: 10
-                        }}
-                    >
-                        <View style={{
-                            position: 'absolute',
-                            top: 0, bottom: 0,
-                            left: 0, right: 0,
-                            justifyContent: 'center',
-                            alignItems: 'center'
+            <View style={{
+                minHeight: 62, borderRadius: 14,
+                backgroundColor: 'white', flexDirection: 'row',
+                padding: 10, flex: 1
+            }}>
+                <View
+                    style={{
+                        height: 42, width: 42,
+                        backgroundColor: 'white',
+                        borderRadius: 26,
+                        overflow: 'hidden',
+                        marginRight: 10
+                    }}
+                >
+                    <View style={{
+                        position: 'absolute',
+                        top: 0, bottom: 0,
+                        left: 0, right: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{
+                            fontWeight: '800',
+                            fontSize: 18,
                         }}>
-                            <Text style={{
-                                fontWeight: '800',
-                                fontSize: 18,
-                            }}>
-                                {'U'}
-                            </Text>
-                        </View>
-                        {/* {!!subscription.icon && (
+                            {'U'}
+                        </Text>
+                    </View>
+                    {/* {!!subscription.icon && (
                         <Image
                         source={subscription.icon}
                         style={{
@@ -126,37 +117,49 @@ export const SubscriptionButton = React.memo((
                             overflow: 'hidden'
                         }} />
                     )} */}
-                        <View style={{
-                            borderRadius: 26,
-                            borderWidth: 0.5,
-                            borderColor: 'black',
-                            backgroundColor: 'transparent',
-                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                            opacity: 0.06
-                        }} />
-                    </View>
-                    <View
-                        style={{
-                            flexDirection: 'column',
-                            flex: 1,
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Text style={{
-                            fontSize: 16,
-                            color: Theme.textColor,
-                            fontWeight: '600',
-                            flex: 1,
-                            marginBottom: 3
-                        }}
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                        >
-                            {'Unknown contract'}
-                        </Text>
-                    </View>
+                    <View style={{
+                        borderRadius: 26,
+                        borderWidth: 0.5,
+                        borderColor: 'black',
+                        backgroundColor: 'transparent',
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        opacity: 0.06
+                    }} />
                 </View>
-            </Pressable>
+                <View
+                    style={{
+                        flexDirection: 'column',
+                        flex: 1,
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text style={{
+                        fontSize: 16,
+                        color: Theme.textColor,
+                        fontWeight: '600',
+                        flex: 1,
+                        marginBottom: 3
+                    }}
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                    >
+                        {'Unknown contract'}
+                    </Text>
+                </View>
+                <Pressable style={
+                    ({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.3 : 1
+                        }
+                    }
+                }
+                    onPress={onCancelSub}
+                >
+                    <Text>
+                        {t('common.cancel')}
+                    </Text>
+                </Pressable>
+            </View>
         );
     }
 
@@ -257,7 +260,7 @@ export const SubscriptionButton = React.memo((
                     )}
                     <Text style={{
                         fontSize: 13, fontWeight: '400',
-                        maxWidth: 150, color: '#787F83'
+                        maxWidth: 160, color: '#787F83'
                     }}>
                         {t('products.subscriptions.nextBilling') + ': ' + formatDate(nextBilling)}
                     </Text>

@@ -60,7 +60,8 @@ export class TypedNavigation {
         payload: Cell | null,
         text: string | null,
         stateInit: Cell | null,
-        job: string | null
+        job: string | null,
+        transferCell?: Cell | null
     }) {
         this.navigate('Transfer', tx);
     }

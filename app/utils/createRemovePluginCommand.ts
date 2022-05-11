@@ -25,7 +25,7 @@ export function createRemovePluginCommand(
     // this.order.writeTo(orderCell);
     cell.bits.writeUint8(to.workChain);
     cell.bits.writeBuffer(to.hash);
-    cell.bits.writeCoins(100000); // Gas
+    cell.bits.writeCoins(0); // Gas
     cell.bits.writeUint(getRandomQueryId(), 64); // Query ID
     // cell.refs.push(orderCell);
     return cell;

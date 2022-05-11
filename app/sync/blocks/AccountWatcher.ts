@@ -45,10 +45,18 @@ export class AccountWatcher extends EventEmitter {
         // Create account sync
         this.#sync = new SyncValue(0, async (v) => {
             if (v <= 0) {
+                if (this.#syncLock) {
+                    this.#syncLock();
+                    this.#syncLock = null;
+                }
                 // log(`[${key}]: Awaiting last known block`);
                 return;
             }
             if (this.#state && this.#state.seqno >= v) {
+                if (this.#syncLock) {
+                    this.#syncLock();
+                    this.#syncLock = null;
+                }
                 // log(`[${key}]: Already loaded state for #${v}`);
                 return;
             }

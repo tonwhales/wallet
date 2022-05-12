@@ -5,7 +5,7 @@ import { backoff } from '../../utils/time';
 import { AppConfig } from '../../AppConfig';
 import { log } from '../../utils/log';
 import { PersistedValueSync } from '../utils/PersistedValueSync';
-import { AccountLiteSync } from './AccountLiteSync';
+import { AccountLiteAtom } from './AccountLiteAtom';
 
 export type FullAccount = {
     balance: BN;
@@ -19,11 +19,11 @@ export type FullAccount = {
 export class AccountFullSync extends PersistedValueSync<FullAccount> {
 
     readonly engine: Engine;
-    readonly parent: AccountLiteSync;
+    readonly parent: AccountLiteAtom;
     readonly address: Address;
 
-    constructor(parent: AccountLiteSync) {
-        super(`account-full(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.persistence.fullAccounts.item(parent.address), parent.engine);
+    constructor(parent: AccountLiteAtom) {
+        super(`account-full(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.storage.accountFull(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;

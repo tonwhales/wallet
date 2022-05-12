@@ -68,7 +68,7 @@ export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: StakingTransferParams | undefined = useRoute().params;
     const engine = useEngine();
-    const account = engine.products.main.useState();
+    const account = engine.storage.wallet(engine.address).useRequired();
     const safeArea = useSafeAreaInsets();
     const pool = engine.products.whalesStakingPool.useState();
     const member = pool?.member
@@ -180,12 +180,14 @@ export const StakingTransferFragment = fragment(() => {
 
         // Navigate to TransferFragment
         navigation.navigateTransfer({
-            target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            payload,
-            amount: transferAmount,
-            amountAll: false,
+            order: {
+                target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                payload,
+                amount: transferAmount,
+                amountAll: false,
+                stateInit: null,
+            },
             text: null,
-            stateInit: null,
             job: null
         });
     }, [amount, params, member, pool, balance]);

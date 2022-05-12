@@ -2,7 +2,7 @@ import EventEmitter from "events";
 import * as t from 'io-ts';
 import { exponentialBackoffDelay } from "teslabot";
 import { log, warn } from "../../utils/log";
-import { SyncStateManager } from "../state/SyncStateManager";
+import { SyncStateManager } from "../SyncStateManager";
 
 const MESSAGE_TIMEOUT = 15000;
 const CONNECTION_TIMEOUT = 5000;

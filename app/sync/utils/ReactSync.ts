@@ -74,4 +74,35 @@ export class ReactSync<T> extends EventEmitter {
 
         return state;
     }
+
+    useOptional() {
+        const [state, setState] = React.useState(this.#value);
+        React.useEffect(() => {
+
+            let ended = false;
+
+            // Just in case of race conditions
+            if (state !== this.#value) {
+                setState(this.#value);
+            }
+
+            // Update handler
+            const handler = () => {
+                if (ended) {
+                    return;
+                }
+                setState(this.#value);
+            }
+
+            this.on('updated', handler);
+            this.on('ready', handler);
+            return () => {
+                ended = true;
+                this.off('updated', handler);
+                this.off('ready', handler);
+            };
+        }, []);
+
+        return state;
+    }
 }

@@ -1,4 +1,4 @@
-import { ReactSync } from "../react/ReactSync";
+import { ReactSync } from "./ReactSync";
 import { PersistedValueSync } from "./PersistedValueSync";
 
 export class SyncCollection<T> {
@@ -8,6 +8,10 @@ export class SyncCollection<T> {
 
     constructor() {
         this.#value.value = {};
+    }
+
+    get(key: string) {
+        return this.#items.get(key);
     }
 
     getAll() {

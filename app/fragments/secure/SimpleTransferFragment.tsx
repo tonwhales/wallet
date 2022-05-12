@@ -25,6 +25,7 @@ import VerifiedIcon from '../../../assets/ic_verified.svg';
 import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
+import { createJettonOrder, createSimpleOrder } from './ops/Order';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -39,10 +40,11 @@ export const SimpleTransferFragment = fragment(() => {
         comment?: string | null,
         amount?: BN | null,
         stateInit?: Cell | null,
-        job?: string | null
+        job?: string | null,
+        jetton?: Address | null,
     } | undefined = useRoute().params;
     const engine = useEngine();
-    const account = engine.products.main.useState();
+    const account = engine.storage.wallet(engine.address).useRequired();
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
@@ -51,6 +53,12 @@ export const SimpleTransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
+    const jettonWallet = params && params.jetton ? engine.storage.jettonWallet(params.jetton!).useRequired() : null;
+    const jettonMaster = jettonWallet ? engine.storage.jettonMaster(jettonWallet.master!).useRequired() : null;
+    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
+    const balance = jettonWallet ? jettonWallet.balance : account.balance;
+
+    // Auto-cancel job
     React.useEffect(() => {
         return () => {
             if (params && params.job) {
@@ -58,6 +66,54 @@ export const SimpleTransferFragment = fragment(() => {
             }
         }
     }, []);
+
+    // Resolve order
+    const order = React.useMemo(() => {
+
+        // Parse value
+        let value: BN;
+        try {
+            const validAmount = amount.replace(',', '.');
+            value = toNano(validAmount);
+        } catch (e) {
+            return null;
+        }
+
+        // Parse address
+        let address: Address;
+        try {
+            let parsed = Address.parseFriendly(target);
+            address = parsed.address;
+        } catch (e) {
+            return null;
+        }
+
+        // Resolve jetton order
+        if (jettonWallet) {
+            return createJettonOrder({
+                wallet: params!.jetton!,
+                target: target,
+                responseTarget: acc.address,
+                text: comment,
+                amount: value,
+                tonAmount: toNano(0.1),
+                txAmount: toNano(0.2),
+                payload: null
+            });
+        }
+
+        // Resolve order
+        return createSimpleOrder({
+            target: target,
+            text: comment,
+            payload: null,
+            amount: value.eq(account.balance) ? toNano('0') : value,
+            amountAll: value.eq(account.balance),
+            stateInit
+        });
+
+    }, [amount, target, comment, stateInit, jettonWallet, jettonMaster]);
+
     const doSend = React.useCallback(async () => {
 
         let address: Address;
@@ -81,6 +137,11 @@ export const SimpleTransferFragment = fragment(() => {
             return;
         }
 
+        // Might not happen
+        if (!order) {
+            return;
+        }
+
         // Load contract
         const contract = await contractFromPublicKey(acc.publicKey);
 
@@ -91,7 +152,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if (!value.eq(account.balance) && account.balance.lt(value)) {
+        if (!value.eq(balance) && balance.lt(value)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -107,15 +168,11 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Navigate to transaction confirmation
         navigation.navigateTransfer({
-            target,
             text: comment,
-            amount: value.eq(account.balance) ? toNano('0') : value,
-            amountAll: value.eq(account.balance),
-            payload: null,
-            stateInit,
+            order,
             job: params && params.job ? params.job : null,
         })
-    }, [amount, target, comment, account.seqno, stateInit]);
+    }, [amount, target, comment, account.seqno, stateInit, order]);
 
     // Estimate fee
     const lock = React.useMemo(() => {
@@ -135,15 +192,32 @@ export const SimpleTransferFragment = fragment(() => {
                     return;
                 }
 
-                // Parse address and value
-                let address: Address;
-                let value: BN;
-                try {
-                    address = Address.parseFriendly(target).address;
-                    value = toNano(amount);
-                } catch (e) {
-                    address = appState.address;
-                    value = new BN(0);
+                // Parse order
+                let intMessage: InternalMessage;
+                let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
+                if (!order) {
+                    intMessage = new InternalMessage({
+                        to: appState.address,
+                        value: new BN(0),
+                        bounce: false,
+                        body: new CommonMessageInfo({
+                            stateInit: stateInit ? new CellMessage(stateInit) : null,
+                            body: new CommentMessage(comment)
+                        })
+                    });
+                } else {
+                    intMessage = new InternalMessage({
+                        to: Address.parse(order.target),
+                        value: order.amount,
+                        bounce: false,
+                        body: new CommonMessageInfo({
+                            stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
+                            body: order.payload ? new CellMessage(order.payload) : null
+                        })
+                    });
+                    if (order.amountAll) {
+                        sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
+                    }
                 }
 
                 // Load contract
@@ -158,15 +232,7 @@ export const SimpleTransferFragment = fragment(() => {
                     walletId: contract.source.walletId,
                     secretKey: null,
                     sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                    order: new InternalMessage({
-                        to: address,
-                        value,
-                        bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: stateInit ? new CellMessage(stateInit) : null,
-                            body: new CommentMessage(comment)
-                        })
-                    })
+                    order: intMessage
                 });
                 if (ended) {
                     return;
@@ -183,7 +249,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [amount, target, comment, account.seqno, stateInit]);
+    }, [order, account.seqno]);
 
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
@@ -211,8 +277,8 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        setAmount(fromNano(account.balance));
-    }, [setAmount, account]);
+        setAmount(fromNano(balance));
+    }, [balance]);
 
     //
     // Scroll state tracking
@@ -270,14 +336,14 @@ export const SimpleTransferFragment = fragment(() => {
 
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.title')} />
+            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.title', { symbol })} />
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('transfer.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('transfer.title', { symbol })}</Text>
                 </View>
             )}
             <Animated.ScrollView
@@ -327,7 +393,7 @@ export const SimpleTransferFragment = fragment(() => {
                             color: '#6D6D71',
                             marginBottom: 5
                         }}>
-                            {fromNano(account?.balance || new BN(0))} TON
+                            {fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

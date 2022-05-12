@@ -1,11 +1,11 @@
 import BN from "bn.js";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
+import { fetchPlugins } from "../api/fetchPlugins";
+import { fetchSeqno } from "../api/fetchSeqno";
 import { Engine } from "../Engine";
 import { PersistedValueSync } from "../utils/PersistedValueSync";
 import { AccountFullSync } from "./AccountFullSync";
-import { fetchPlugins } from "./api/fetchPlugins";
-import { fetchSeqno } from "./api/fetchSeqno";
 
 export type WalletV4State = {
     block: number;
@@ -22,7 +22,7 @@ export class WalletV4Sync extends PersistedValueSync<WalletV4State> {
     readonly address: Address;
 
     constructor(parent: AccountFullSync) {
-        super(`wallet-v4(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.persistence.wallets.item(parent.address), parent.engine);
+        super(`wallet-v4(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.storage.wallet(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;

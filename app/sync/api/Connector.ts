@@ -1,8 +1,7 @@
 import BN from "bn.js";
 import { Address, Cell, Contract, TonClient } from "ton";
-import { InvalidateSync } from "teslabot";
 import axios from "axios";
-import { AppConfig } from "../AppConfig";
+import { AppConfig } from "../../AppConfig";
 
 export interface ConnectorAccountState {
     balance: BN;
@@ -21,8 +20,6 @@ export interface ConnectorTransaction {
 
 export interface Connector {
     readonly client: TonClient;
-    fetchAccountState(address: Address): Promise<ConnectorAccountState>;
-    watchAccountState(address: Address, handler: (state: ConnectorAccountState) => Promise<void> | void): () => void;
     fetchTransactions(address: Address, from: { lt: string, hash: string }): Promise<ConnectorTransaction[]>;
 
     sendExternalMessage(contract: Contract, src: Cell): Promise<void>;
@@ -41,40 +38,6 @@ export function createSimpleConnector(endpoints: {
 
     // Client
     const client = new TonClient({ endpoint: endpoints.main + '/jsonRPC' });
-
-    // Account state
-    const fetchAccountState: (address: Address) => Promise<ConnectorAccountState> = async (address) => {
-        const state = await client.getContractState(address);
-        return {
-            balance: state.balance,
-            state: state.state,
-            code: state.code,
-            data: state.data,
-            timestamp: state.timestampt,
-            lastTransaction: state.lastTransaction
-        };
-    };
-
-    // Account state watch
-    const watchAccountState: (address: Address, handler: (state: ConnectorAccountState) => Promise<void> | void) => () => void = (address, handler) => {
-        let ended = false;
-        const invalidateSync = new InvalidateSync(async () => {
-            const state = await fetchAccountState(address);
-            if (ended) {
-                return;
-            }
-            await handler(state);
-        });
-        const timer = setInterval(() => {
-            invalidateSync.invalidate();
-        }, 1000);
-        return () => {
-            if (!ended) {
-                ended = true;
-                clearInterval(timer);
-            }
-        }
-    }
 
     // Fetch transactions
     const fetchTransactions: (address: Address, from: { lt: string, hash: string }) => Promise<ConnectorTransaction[]> = async (address, from) => {
@@ -133,8 +96,6 @@ export function createSimpleConnector(endpoints: {
 
     return {
         client,
-        fetchAccountState,
-        watchAccountState,
         fetchTransactions,
         sendExternalMessage,
         estimateExternalMessageFee

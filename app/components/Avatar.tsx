@@ -266,18 +266,26 @@ export const avatarColors = [
     '#d1b04d'
 ];
 
-export const Avatar = React.memo((props: { size: number, id: string, address?: string }) => {
-    let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
-    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
+export const Avatar = React.memo((props: { size: number, id: string, address?: string, image?: string }) => {
 
     let known = props.address ? KnownWallets[props.address] : undefined;
     let size = Math.floor(props.size * 0.6);
     let verifiedSize = Math.floor(props.size * 0.35);
 
+    let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
+    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
+    let img: any;
+    if (props.image) {
+        img = <Image source={{ uri: props.image }} width={props.size} height={props.size} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
+    } else if (!known || (!known.ic)) {
+        img = <Img width={size} height={size} color="white" />;
+    } else {
+        img = <KnownAvatar size={props.size} wallet={known} />;
+    }
+
     return (
         <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: (!known || !known.ic) ? color : undefined, alignItems: 'center', justifyContent: 'center' }}>
-            {(!known || (!known.ic)) && (<Img width={size} height={size} color="white" />)}
-            {known && known.ic && <KnownAvatar size={props.size} wallet={known} />}
+            {img}
             <View style={{
                 width: props.size, height: props.size,
                 borderRadius: props.size / 2,

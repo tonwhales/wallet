@@ -3,7 +3,7 @@ import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { JettonsSync } from "../jettons/JettonsSync";
-import { ReactSync } from "../react/ReactSync";
+import { ReactSync } from "../utils/ReactSync";
 import { Transaction } from "../Transaction";
 import { SyncCollection } from "../utils/SyncCollection";
 import { PluginState, PluginSync } from "./PluginSync";
@@ -25,6 +25,10 @@ export class WalletSync {
     #state = new ReactSync<WalletState>();
     #plugins = new SyncCollection<PluginState>();
     #jettons: JettonsSync;
+
+    get jettons() {
+        return this.#jettons;
+    }
 
     constructor(parent: WalletV4Sync) {
         this.engine = parent.engine;

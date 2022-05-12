@@ -1,6 +1,6 @@
 import { fetchPrice } from "./fetchPrice";
 import { InvalidateSync } from "teslabot";
-import { PriceState } from "./products/PriceProduct";
+import { PriceState } from "../products/PriceProduct";
 
 // Price state watch
 export function watchPrice(handler: (state: PriceState) => Promise<void> | void) {

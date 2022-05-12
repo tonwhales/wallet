@@ -53,8 +53,7 @@ type ConfirmLoadedProps = {
     job: string | null,
     fees: BN,
     metadata: ContractMetadata,
-    restricted: boolean,
-    transferCell?: Cell | null
+    restricted: boolean
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -68,8 +67,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         order,
         job,
         fees,
-        metadata,
-        transferCell
+        metadata
     } = props;
 
     // Verified wallets
@@ -190,11 +188,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             })
         });
 
-        if (transferCell) {
-            transfer = transferCell;
-            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-        }
-
         // Sending transfer
         await backoff('transfer', () => engine.connector.sendExternalMessage(contract, transfer));
 
@@ -301,7 +294,6 @@ export const TransferFragment = fragment(() => {
         text: string | null,
         order: Order,
         job: string | null,
-        transfer: Cell | null
     } = useRoute().params! as any;
     const engine = useEngine();
     const account = engine.storage.wallet(engine.address).useRequired();
@@ -314,7 +306,6 @@ export const TransferFragment = fragment(() => {
     const text = React.useMemo(() => params.text, []);
     const order = React.useMemo(() => params.order, []);
     const job = React.useMemo(() => params.job, []);
-    const transferCell = React.useMemo(() => params.transfer, []);
 
     // Auto-cancel job on unmount
     React.useEffect(() => {
@@ -352,8 +343,8 @@ export const TransferFragment = fragment(() => {
                         stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
                         body: order.payload ? new CellMessage(order.payload) : new CommentMessage(text || '')
                     })
-                });
-            }
+                })
+            });
 
             // Fetch data
             const [
@@ -397,8 +388,7 @@ export const TransferFragment = fragment(() => {
                 text,
                 job,
                 fees,
-                metadata,
-                transferCell: transferCell
+                metadata
             });
         });
 

@@ -40,6 +40,8 @@ import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './sync/createEngine';
 import { useRecoilCallback } from 'recoil';
+import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
+import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();

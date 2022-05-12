@@ -11,18 +11,16 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
-import { Address } from "ton"
 import { JettonProdcut } from "./JettonProduct"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const address = getCurrentAddress().address;
     const oldWalletsBalance = engine.products.legacy.useState();
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
-    const plugins = engine.products.main.usePlugins();
     const jettons = engine.products.main.useJettons();
+    const plugins = engine.products.main.usePlugins();
 
     return (
         <View style={{ paddingTop: 8 }}>

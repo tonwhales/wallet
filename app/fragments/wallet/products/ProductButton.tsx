@@ -17,6 +17,7 @@ export function ProductButton(props: {
     symbol?: string,
     onPress: () => void,
     style?: StyleProp<ViewStyle>,
+    iconBackgroundTint?: string
 }) {
     const Icon = props.icon;
     return (
@@ -41,7 +42,7 @@ export function ProductButton(props: {
                         />
                     )}
                     {!props.image && (
-                        <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ backgroundColor: props.iconBackgroundTint ? props.iconBackgroundTint : Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
                             <Icon width={42} height={42} color={'white'} />
                         </View>
                     )}

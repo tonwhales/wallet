@@ -2,8 +2,9 @@ import * as Device from 'expo-device';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Platform } from 'react-native';
 import * as Keychain from 'react-native-keychain';
+import * as DeviceCredentialsStore from '../storage/modules/DeviceCredentialsStore';
 
-export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face' | 'device-biometrics' | 'device-passcode';
+export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face' | 'device-biometrics' | 'device-passcode' | 'device-credentials';
 
 export async function getDeviceEncryption(): Promise<DeviceEncryption> {
 
@@ -17,6 +18,10 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
         }
         if (biometryType === Keychain.BIOMETRY_TYPE.FINGERPRINT || biometryType === Keychain.BIOMETRY_TYPE.TOUCH_ID) {
             return 'fingerprint'
+        }
+        let deviceEncryption = await DeviceCredentialsStore.useDeviceCredentials();
+        if (deviceEncryption) {
+            return 'device-credentials';
         }
 
         // Fallback to lockal authentication

@@ -26,6 +26,8 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             setLoading(true);
             try {
 
+                console.log({ deviceEncryption: props.deviceEncryption });
+
                 // Generate New Key
                 await generateNewKey(!!(props.deviceEncryption === 'none' || props.deviceEncryption === 'device-biometrics' || props.deviceEncryption === 'device-passcode' || bypassEncryption));
 
@@ -109,6 +111,14 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             buttonText = t('secure.protectBiometrics');
             break;
         case 'device-passcode':
+            icon = <Ionicons
+                name="keypad"
+                size={20}
+                color="white"
+            />;
+            buttonText = t('secure.protectPasscode');
+            break;
+        case 'device-credentials':
             icon = <Ionicons
                 name="keypad"
                 size={20}

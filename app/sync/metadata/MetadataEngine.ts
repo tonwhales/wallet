@@ -4,14 +4,11 @@ import { AppConfig } from "../../AppConfig";
 import { log } from "../../utils/log";
 import { MapAsyncLock } from "../../utils/MapAsyncLock";
 import { Engine } from "../Engine";
-import { ReactSync } from "../utils/ReactSync";
 import { fetchMetadata } from "./fetchMetadata";
-import { ContractMetadata } from "./Metadata";
 
 export class MetadataEngine {
     readonly engine: Engine;
     #lock = new MapAsyncLock();
-    #cache = new Map<string, ReactSync<ContractMetadata>>();
     #pending = new Map<string, number>();
     #sync: InvalidateSync;
 
@@ -61,12 +58,12 @@ export class MetadataEngine {
     async prepareMetadata(seqno: number, address: Address) {
 
         // Check existing or invalidate
-        let sync = this.#getMetadata(address);
-        if (sync.value.seqno > 0) {
-            if (sync.value.seqno < seqno) {
+        let sync = this.engine.storage.metadata(address);
+        if (sync.current && sync.current.seqno > 0) {
+            if (sync.current.seqno < seqno) {
                 this.#invalidateAddress(seqno, address);
             }
-            return sync.value;
+            return sync.current;
         }
 
         // Fetch new metadata
@@ -76,9 +73,9 @@ export class MetadataEngine {
     async fetchFreshMetadata(seqno: number, address: Address) {
 
         // Check existing
-        let sync = this.#getMetadata(address);
-        if (sync.value.seqno >= seqno) {
-            return sync.value;
+        let sync = this.engine.storage.metadata(address);
+        if (sync.current && sync.current.seqno >= seqno) {
+            return sync.current!;
         }
 
         // Fetch new metadata
@@ -96,17 +93,16 @@ export class MetadataEngine {
             let metadata = await fetchMetadata(this.engine.client4, seqno, address);
 
             // Check if updated
-            let sync = this.#getMetadata(address);
-            if (sync.value.seqno > seqno) {
+            let sync = this.engine.storage.metadata(address);
+            if (sync.current && sync.current.seqno > seqno) {
                 log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Better metadata already exist`);
-                return sync.value; // Existing seqno
+                return sync.current!; // Existing seqno
             }
 
             log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Metadata ready`);
 
             // Update metadata
-            this.engine.persistence.metadata.setValue(address, metadata);
-            sync.value = metadata;
+            sync.update(metadata);
 
             // Updated seqno
             return metadata;
@@ -129,36 +125,5 @@ export class MetadataEngine {
             p[e[0]] = e[1];
         }
         this.engine.persistence.metadataPending.setValue(undefined, p);
-    }
-
-    //
-    // Get
-    //
-
-    #getMetadata(address: Address) {
-        let key = address.toFriendly({ testOnly: AppConfig.isTestnet });
-        let ch = this.#cache.get(key);
-        if (ch) {
-            return ch;
-        }
-        let ex = this.engine.persistence.metadata.getValue(address);
-        let sync = new ReactSync<ContractMetadata>();
-        this.#cache.set(key, sync);
-
-        if (ex) {
-            sync.value = ex;
-        } else {
-            sync.value = { seqno: -1, interfaces: [], jettonMaster: undefined, jettonWallet: undefined };
-        }
-
-        return sync;
-    }
-
-    getMetadata(address: Address) {
-        return this.#getMetadata(address).value;
-    }
-
-    useMetadata(address: Address) {
-        return this.#getMetadata(address).use();
     }
 }

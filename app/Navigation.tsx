@@ -39,6 +39,7 @@ import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './sync/createEngine';
+import { useRecoilCallback } from 'recoil';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -141,11 +142,13 @@ const navigation = [
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
 
+    const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
+
     const engine = React.useMemo(() => {
         let state = getAppState();
         if (0 <= state.selected && state.selected < state.addresses.length) {
             const ex = state.addresses[state.selected];
-            return createEngine({ address: ex.address, publicKey: ex.publicKey });
+            return createEngine({ address: ex.address, publicKey: ex.publicKey, recoilUpdater });
         } else {
             return null;
         }

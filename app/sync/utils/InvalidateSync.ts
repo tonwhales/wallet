@@ -18,9 +18,11 @@ export class InvalidateSync extends EventEmitter {
     private _invalidatedDouble = false;
     private _stopped = false;
     private _command: () => Promise<void>;
+    private _key: string;
 
-    constructor(command: () => Promise<void>) {
+    constructor(key: string, command: () => Promise<void>) {
         super();
+        this._key = key;
         this._command = command;
     }
 
@@ -52,7 +54,7 @@ export class InvalidateSync extends EventEmitter {
     }
 
     private _doSync = async () => {
-        await backoff('invalidate-sync', async () => {
+        await backoff(this._key, async () => {
             if (this._stopped) {
                 return;
             }

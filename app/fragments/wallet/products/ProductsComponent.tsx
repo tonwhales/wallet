@@ -11,6 +11,7 @@ import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
 import { Address } from "ton"
+import { JettonProdcut } from "./JettonProduct"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -59,16 +60,7 @@ export const ProductsComponent = React.memo(() => {
             )}
 
             {jettons.map((jt) => (
-                <ProductButton
-                    key={jt.master}
-                    name={jt.name}
-                    subtitle={jt.description}
-                    icon={OldWalletIcon}
-                    value={jt.balance}
-                    symbol={jt.symbol}
-                    onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: Address.parse(jt.wallet), stateInit: null, job: null })}
-                    style={{ marginVertical: 4 }}
-                />
+                <JettonProdcut jetton={jt} navigation={navigation} engine={engine} />
             ))}
             <StakingProductComponent pool={pool} />
             {oldWalletsBalance.gt(new BN(0)) && (

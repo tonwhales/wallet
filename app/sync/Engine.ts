@@ -15,6 +15,7 @@ import { Transactions } from './transactions/Transactions';
 import { SyncStateManager } from './SyncStateManager';
 import { WalletV4Sync } from './account/WalletV4Sync';
 import { WalletSync } from './account/WalletSync';
+import { AppStorage } from './storage/AppStorage';
 
 export type EngineProduct = {
     ready: boolean,
@@ -40,6 +41,7 @@ export class Engine {
     readonly transactions: Transactions;
     readonly accounts: Accounts;
     readonly metadata: MetadataEngine;
+    readonly storage: AppStorage;
 
     private _destroyed: boolean;
     private _dependencies: EngineProduct[] = [];
@@ -49,7 +51,8 @@ export class Engine {
         publicKey: Buffer,
         persistence: MMKV,
         client4Endpoint: string,
-        connector: Connector
+        connector: Connector,
+        recoilUpdater: (node: any, value: any) => void
     ) {
         this.persistence = new Persistence(persistence);
         this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
@@ -57,6 +60,7 @@ export class Engine {
         this.publicKey = publicKey;
         this.connector = connector;
         this._destroyed = false;
+        this.storage = new AppStorage(this, recoilUpdater);
         this.metadata = new MetadataEngine(this);
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.accounts = new Accounts(this);

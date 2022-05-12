@@ -4,7 +4,7 @@ import { storagePersistence } from "../storage/storage";
 import { createSimpleConnector } from "./api/Connector";
 import { Engine } from "./Engine";
 
-export function createEngine(args: { address: Address, publicKey: Buffer }) {
+export function createEngine(args: { address: Address, publicKey: Buffer, recoilUpdater: (node: any, value: any) => void }) {
     return new Engine(
         args.address,
         args.publicKey,
@@ -18,6 +18,7 @@ export function createEngine(args: { address: Address, publicKey: Buffer }) {
             main: 'https://sandbox.tonhubapi.com',
             estimate: 'https://connect.tonhubapi.com/net/sandbox/estimate',
             sender: 'https://connect.tonhubapi.com/net/sandbox/send',
-        })
+        }),
+        args.recoilUpdater
     );
 }

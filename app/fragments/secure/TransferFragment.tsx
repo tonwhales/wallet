@@ -59,7 +59,7 @@ type ConfirmLoadedProps = {
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const account = engine.products.main.useState();
+    const account = engine.storage.wallet(engine.address).useRequired();
     const {
         restricted,
         target,
@@ -296,7 +296,7 @@ export const TransferFragment = fragment(() => {
         job: string | null,
     } = useRoute().params! as any;
     const engine = useEngine();
-    const account = engine.products.main.useState();
+    const account = engine.storage.wallet(engine.address).useRequired();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 

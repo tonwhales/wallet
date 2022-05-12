@@ -57,15 +57,15 @@ export const TransactionPreviewFragment = fragment(() => {
 
     // Metadata
     // Fetch metadata
-    let metadata: ContractMetadata;
+    let metadata: ContractMetadata | null;
     if (transaction.address) {
-        metadata = engine.metadata.useMetadata(transaction.address);
+        metadata = engine.storage.metadata(transaction.address).use();
     } else {
-        metadata = engine.metadata.useMetadata(ZERO_ADDRESS);
+        metadata = engine.storage.metadata(ZERO_ADDRESS).use();
     }
 
     // Payload ovewrite
-    if (transaction.body && transaction.body.type === 'payload' && transaction.address) {
+    if (transaction.body && transaction.body.type === 'payload' && transaction.address && metadata) {
         let parsedBody = parseMessageBody(transaction.body.cell, metadata.interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);

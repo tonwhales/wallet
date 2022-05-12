@@ -22,7 +22,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
     readonly masters = new SyncCollection<JettonMasterState>();
 
     constructor(parent: AccountFullSync) {
-        super('jettons', parent.engine.persistence.tokens.item(parent.address), parent.engine);
+        super('jettons', parent.engine.storage.accountJettons(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;
@@ -56,7 +56,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
         let wallets = this.wallets.use();
         let masters = this.masters.use();
 
-        let tokens: { master: string, wallet: string, name: string, description: string, symbol: string, balance: BN }[] = [];
+        let tokens: { master: string, wallet: string, name: string, description: string, image: string | null, symbol: string, balance: BN }[] = [];
         for (let ms in map.tokens) {
             let wl = map.tokens[ms];
 
@@ -67,7 +67,15 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
                 continue;
             }
 
-            tokens.push({ master: ms, wallet: wl, name: masters[ms].name!, description: masters[ms].description!, balance: wallets[wl].balance, symbol: masters[ms].symbol! });
+            tokens.push({
+                master: ms,
+                wallet: wl,
+                name: masters[ms].name!,
+                description: masters[ms].description!,
+                balance: wallets[wl].balance,
+                symbol: masters[ms].symbol!,
+                image: masters[ms].image
+            });
         }
         return tokens;
     }
@@ -122,8 +130,8 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
 
         // Process metadata (already downloaded by parent sync)
         for (let m of mentioned) {
-            let md = this.engine.metadata.getMetadata(Address.parse(m));
-            if (md.jettonMaster) {
+            let md = this.engine.storage.metadata(Address.parse(m)).current;
+            if (md && md.jettonMaster) {
                 if (!pending.has(m) && tokens[m] === undefined) {
                     log(`[tokens]: registered ${m}`);
                     pending.add(m);
@@ -131,7 +139,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
             } else {
                 skipped.add(m);
             }
-            if (md.jettonWallet) {
+            if (md && md.jettonWallet) {
                 let kkl = md.jettonWallet.master.toFriendly({ testOnly: AppConfig.isTestnet });
                 if (!pending.has(kkl) && tokens[kkl] === undefined) {
                     log(`[tokens]: registered ${kkl}`);

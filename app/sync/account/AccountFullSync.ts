@@ -23,7 +23,7 @@ export class AccountFullSync extends PersistedValueSync<FullAccount> {
     readonly address: Address;
 
     constructor(parent: AccountLiteAtom) {
-        super(`account-full(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.persistence.fullAccounts.item(parent.address), parent.engine);
+        super(`account-full(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.storage.accountFull(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;

@@ -44,7 +44,7 @@ export const SimpleTransferFragment = fragment(() => {
         jetton?: Address | null,
     } | undefined = useRoute().params;
     const engine = useEngine();
-    const account = engine.products.main.useState();
+    const account = engine.storage.wallet(engine.address).useRequired();
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
@@ -53,8 +53,8 @@ export const SimpleTransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
-    const jettonWallet = params && params.jetton ? engine.products.main.jettons.wallets.get(params.jetton.toFriendly({ testOnly: AppConfig.isTestnet }))!.use() : null;
-    const jettonMaster = jettonWallet ? engine.products.main.jettons.masters.get(jettonWallet.master!.toFriendly({ testOnly: AppConfig.isTestnet }))?.use() : null;
+    const jettonWallet = params && params.jetton ? engine.storage.jettonWallet(params.jetton!).useRequired() : null;
+    const jettonMaster = jettonWallet ? engine.storage.jettonMaster(jettonWallet.master!).useRequired() : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = jettonWallet ? jettonWallet.balance : account.balance;
 

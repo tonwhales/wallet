@@ -32,6 +32,7 @@ export class Persistence {
     readonly tokens: PersistedCollection<Address, JettonsState>;
     readonly jettonWallets: PersistedCollection<Address, JettonWalletState>;
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
+    readonly downloads: PersistedCollection<string, string>;
 
     constructor(storage: MMKV) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -52,6 +53,7 @@ export class Persistence {
         this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec });
         this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec });
         this.tokens = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: tokensCodec });
+        this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string });
     }
 }
 
@@ -61,6 +63,7 @@ const addressWithTargetKey = (src: { address: Address, target: Address }) => src
 const transactionKey = (src: { address: Address, lt: BN }) => src.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '::' + src.lt.toString(10);
 const keyedAddressKey = (src: { address: Address, key: string }) => src.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '::' + src.key;
 const voidKey = (src: void) => 'void';
+const stringKey = (src: string) => Buffer.from(src).toString('base64');
 
 // Codecs
 const liteAccountCodec = t.type({

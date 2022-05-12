@@ -19,7 +19,7 @@ export class JettonWalletSync extends PersistedValueSync<JettonWalletState> {
     readonly engine: Engine;
 
     constructor(parent: AccountLiteAtom) {
-        super(`jetton-wallet(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.persistence.jettonWallets.item(parent.address), parent.engine);
+        super(`jetton-wallet(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.storage.jettonWallet(parent.address), parent.engine);
 
         this.address = parent.address;
         this.engine = parent.engine;

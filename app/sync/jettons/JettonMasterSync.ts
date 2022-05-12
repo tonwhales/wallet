@@ -19,7 +19,7 @@ export class JettonMasterSync extends PersistedValueSync<JettonMasterState> {
     readonly address: Address;
 
     constructor(address: Address, engine: Engine) {
-        super(`jetton-master(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.persistence.jettonMasters.item(address), engine);
+        super(`jetton-master(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.storage.jettonMaster(address), engine);
         this.address = address;
         this.invalidate();
     }

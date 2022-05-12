@@ -18,6 +18,7 @@ import { Engine } from '../../../sync/Engine';
 import { parseMessageBody } from '../../../secure/parseMessageBody';
 import { formatSupportedBody } from '../../../secure/formatSupportedBody';
 import { ContractMetadata } from '../../../sync/metadata/Metadata';
+import { JettonMasterState } from '../../../sync/jettons/JettonMasterSync';
 
 const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
@@ -48,15 +49,25 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     }
 
     // Fetch metadata
-    let metadata: ContractMetadata;
+    let metadata: ContractMetadata | null;
     if (parsed.address) {
-        metadata = props.engine.metadata.useMetadata(parsed.address);
+        metadata = props.engine.storage.metadata(parsed.address).use();
     } else {
-        metadata = props.engine.metadata.useMetadata(ZERO_ADDRESS);
+        metadata = props.engine.storage.metadata(ZERO_ADDRESS).use();
+    }
+
+    // Master metadata
+    let masterMetadata: JettonMasterState | null;
+    if (metadata && metadata.jettonWallet) {
+        masterMetadata = props.engine.storage.jettonMaster(metadata.jettonWallet.master).use();
+    } else if (metadata && metadata.jettonMaster && parsed.address) {
+        masterMetadata = props.engine.storage.jettonMaster(parsed.address).use();
+    } else {
+        masterMetadata = props.engine.storage.jettonMaster(ZERO_ADDRESS).use();
     }
 
     // Payload ovewrite
-    if (parsed.body && parsed.body.type === 'payload') {
+    if (parsed.body && parsed.body.type === 'payload' && metadata) {
         let parsedBody = parseMessageBody(parsed.body.cell, metadata.interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
@@ -71,15 +82,28 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     let known = friendlyAddress ? KnownWallets[friendlyAddress] : undefined;
 
     // Jetton
-    if (metadata.jettonMaster || metadata.jettonWallet) {
-        known = { name: 'Token Contract' };
+    if (metadata && (metadata.jettonMaster || metadata.jettonWallet)) {
+        if (masterMetadata && masterMetadata.name) {
+            known = { name: masterMetadata.name };
+        } else {
+            known = { name: 'Token Contract' };
+        }
     }
 
+    // Avatar
+    let downloaded: string | null = null;
+    if (masterMetadata && masterMetadata.image) {
+        props.engine.accounts.getDownload(masterMetadata.image);
+        downloaded = props.engine.storage.download(masterMetadata.image).use();
+    } else {
+        downloaded = props.engine.storage.download('').use();
+    }
+    
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} />)}
+                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={downloaded ? downloaded : undefined} />)}
                     {parsed.status === 'pending' && (
                         <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
                     )}

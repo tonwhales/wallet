@@ -45,7 +45,10 @@ export class LegacyProduct {
     useState = () => {
         let b = new BN(0);
         for (let w of this.wallets) {
-            b = b.add(w.use().balance);
+            let account = this.engine.storage.accountLite(w.address).use();
+            if (account) {
+                b = b.add(account.balance);
+            }
         }
         return b;
     }
@@ -53,7 +56,12 @@ export class LegacyProduct {
     useStateFull() {
         let wallets: { address: Address, balance: BN }[] = [];
         for (let w of this.wallets) {
-            wallets.push({ address: w.address, balance: w.use().balance });
+            let account = this.engine.storage.accountLite(w.address).use();
+            if (account) {
+                wallets.push({ address: w.address, balance: account.balance });
+            } else {
+                wallets.push({ address: w.address, balance: new BN(0) });
+            }
         }
         return wallets;
     }

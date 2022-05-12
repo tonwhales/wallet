@@ -4,6 +4,7 @@ import { AccountWatcher } from "../blocks/AccountWatcher";
 import { BlocksWatcher } from "../blocks/BlocksWatcher";
 import { AccountLiteAtom } from "./AccountLiteAtom";
 import { AccountFullSync } from "./AccountFullSync";
+import { DownloadAtom } from "../files/DownloadAtom";
 
 export class Accounts {
     readonly engine: Engine;
@@ -11,6 +12,7 @@ export class Accounts {
     #watchers: Map<string, AccountWatcher> = new Map();
     #liteSync: Map<string, AccountLiteAtom> = new Map();
     #fullSync: Map<string, AccountFullSync> = new Map();
+    #download: Map<string, DownloadAtom> = new Map();
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -49,6 +51,17 @@ export class Accounts {
         } else {
             let w = new AccountFullSync(this.getLiteSyncForAddress(address));
             this.#fullSync.set(k, w);
+            return w;
+        }
+    }
+
+    getDownload(link: string) {
+        let ex = this.#download.get(link);
+        if (ex) {
+            return ex;
+        } else {
+            let w = new DownloadAtom(link, this.engine);
+            this.#download.set(link, w);
             return w;
         }
     }

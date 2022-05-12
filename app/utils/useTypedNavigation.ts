@@ -2,6 +2,7 @@ import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
+import { Order } from '../fragments/secure/ops/Order';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -54,14 +55,9 @@ export class TypedNavigation {
     }
 
     navigateTransfer(tx: {
-        target: string,
-        amount: BN,
-        amountAll: boolean,
-        payload: Cell | null,
+        order: Order,
         text: string | null,
-        stateInit: Cell | null,
-        job: string | null,
-        transferCell?: Cell | null
+        job: string | null
     }) {
         this.navigate('Transfer', tx);
     }
@@ -71,7 +67,8 @@ export class TypedNavigation {
         comment: string | null,
         amount: BN | null,
         stateInit: Cell | null,
-        job: string | null
+        job: string | null,
+        jetton: Address | null
     }) {
         this.navigate('SimpleTransfer', tx);
     }

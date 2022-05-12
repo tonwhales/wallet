@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { StyleProp, Text, View, ViewStyle } from 'react-native';
+import { Image, StyleProp, Text, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
@@ -12,7 +12,7 @@ export function ProductButton(props: {
     name: string,
     subtitle: string,
     icon: React.FC<SvgProps>,
-    iconBackgroundTint?: string
+    image?: string,
     value: BN | null,
     symbol?: string,
     onPress: () => void,
@@ -34,9 +34,18 @@ export function ProductButton(props: {
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    <View style={{ backgroundColor: props.iconBackgroundTint ? props.iconBackgroundTint : Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon width={42} height={42} color={'white'} />
-                    </View>
+                    {props.image && (
+                        <Image
+                            source={{ uri: props.image }}
+                            style={{ width: 42, height: 42, borderRadius: 21, overflow: 'hidden' }}
+                        />
+                    )}
+                    {!props.image && (
+                        <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon width={42} height={42} color={'white'} />
+                        </View>
+                    )}
+
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>

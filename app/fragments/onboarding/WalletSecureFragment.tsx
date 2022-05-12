@@ -26,8 +26,6 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             setLoading(true);
             try {
 
-                console.log({ deviceEncryption: props.deviceEncryption });
-
                 // Generate New Key
                 await generateNewKey(!!(props.deviceEncryption === 'none' || props.deviceEncryption === 'device-biometrics' || props.deviceEncryption === 'device-passcode' || bypassEncryption));
 

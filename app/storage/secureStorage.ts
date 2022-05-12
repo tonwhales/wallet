@@ -8,7 +8,6 @@ import * as DeviceCredentialsStore from '../storage/modules/DeviceCredentialsSto
 
 function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keychain' | 'device-credentials-store' {
     let kind = storage.getString('ton-storage-kind');
-    console.log({ kind });
 
     // Legacy
     if (!kind) {

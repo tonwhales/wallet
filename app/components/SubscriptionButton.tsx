@@ -8,14 +8,12 @@ import { t } from "../i18n/t";
 import { formatDate } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { PluginState } from "../sync/account/PluginSync";
-import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
 import { getCurrentAddress } from "../storage/appState";
-import { Address, Cell } from "ton";
-import { sign } from "ton-crypto";
-import { createRemovePluginCommand } from "../utils/createRemovePluginCommand";
 import { useEngine } from "../sync/Engine";
 import { contractFromPublicKey } from "../sync/contractFromPublicKey";
-import { backoff } from "../utils/time";
+import { createRemovePluginCell } from "../utils/createRemovePluginCell";
+import { Address } from "ton";
+import BN from "bn.js";
 
 export const SubscriptionButton = React.memo((
     {
@@ -43,24 +41,26 @@ export const SubscriptionButton = React.memo((
                         text: t('common.yes'),
                         style: 'destructive',
                         onPress: async () => {
-                            // const contract = await contractFromPublicKey(acc.publicKey);
+                            const contract = await contractFromPublicKey(acc.publicKey);
+                            const transferCell = createRemovePluginCell(
+                                account.seqno,
+                                contract.source.walletId,
+                                Math.floor(Date.now() / 1e3) + 60,
+                                Address.parse(address)
+                            );
 
-                            // let walletKeys: WalletKeys;
-                            // try {
-                            //     walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                            // } catch (e) {
-                            //     resolve(false);
-                            //     return;
-                            // }
-
-                            // const transfer = new Cell();
-
-                            // const transferCell = createRemovePluginCommand(
-                            //     account.seqno,
-                            //     contract.source.walletId,
-                            //     Math.floor(Date.now() / 1e3) + 60,
-                            //     Address.parse(address)
-                            // );
+                            navigation.navigateTransfer({
+                                order: {
+                                    target: address,
+                                    amount: new BN(0),
+                                    amountAll: false,
+                                    payload: transferCell,
+                                    stateInit: null,
+                                    transferCell: true
+                                },
+                                text: null,
+                                job: null
+                            });
 
                             // transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
                             // transfer.writeCell(transferCell);

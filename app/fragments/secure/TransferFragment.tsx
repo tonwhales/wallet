@@ -30,6 +30,7 @@ import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
+import { sign } from 'ton-crypto';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -69,6 +70,20 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         fees,
         metadata
     } = props;
+
+    let transferCellAmount;
+    if (order.payload && order.transferCell) {
+        const preParsed = order.payload;
+        const parsed = preParsed.beginParse();
+        
+        parsed.skip(32);
+        parsed.skip(32);
+        parsed.skip(32);
+        parsed.skip(8);
+        parsed.skip(8 + 256);
+
+        transferCellAmount = parsed.readCoins();
+    }
 
     // Verified wallets
     const known = KnownWallets[target.address.toFriendly({ testOnly: AppConfig.isTestnet })];
@@ -128,7 +143,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (order.amount.eq(new BN(0))) {
+        if (order.amount.eq(new BN(0)) && !(order.transferCell && order.payload)) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -187,6 +202,21 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 })
             })
         });
+
+        // Check for plugin uninstall
+        if (order.transferCell && order.payload) {
+            const transferCell = new Cell();
+            transferCell.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+            transferCell.writeCell(order.payload);
+            transfer = transferCell;
+            const preParsed = transferCell;
+            const parsed = preParsed.beginParse();
+            parsed.skip(512);
+            parsed.skip(32);
+            parsed.skip(32);
+            parsed.skip(32);
+            console.log({ command: parsed.readIntNumber(8) });
+        }
 
         // Sending transfer
         await backoff('transfer', () => engine.connector.sendExternalMessage(contract, transfer));
@@ -252,7 +282,13 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             color: Theme.accent,
                             marginTop: 4
                         }}>
-                            {fromNano(order.amountAll ? account.balance : order.amount)}
+                            {fromNano(
+                                transferCellAmount
+                                    ? transferCellAmount
+                                    : order.amountAll
+                                        ? account.balance
+                                        : order.amount
+                            )}
                         </Text>
                     </View>
                     <ItemGroup>
@@ -345,6 +381,19 @@ export const TransferFragment = fragment(() => {
                     })
                 })
             });
+
+            // Check for plugin uninstall
+            if (params.order.transferCell && params.order.payload) {
+                transfer = params.order.payload;
+                const preParsed = transfer;
+                const parsed = preParsed.beginParse();
+                parsed.skip(32);
+                parsed.skip(32);
+                parsed.skip(32);
+                console.log({
+                    command: parsed.readIntNumber(8)
+                });
+            }
 
             // Fetch data
             const [

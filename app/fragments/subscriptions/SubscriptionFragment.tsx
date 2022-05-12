@@ -9,19 +9,15 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
-import { Address, Cell, fromNano, toNano } from "ton";
+import { Address, fromNano } from "ton";
 import { formatNum } from "../../utils/numbers";
 import { format } from "date-fns";
 import { is24Hour, locale } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { createRemovePluginCommand } from "../../utils/createRemovePluginCommand";
-import { storagePersistence } from "../../storage/storage";
+import { createRemovePluginCell } from "../../utils/createRemovePluginCell";
 import { contractFromPublicKey } from "../../sync/contractFromPublicKey";
-import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
 import { getCurrentAddress } from "../../storage/appState";
-import { sign } from "ton-crypto";
-import { backoff } from "../../utils/time";
 import BN from "bn.js";
 
 export const SubscriptionFragment = fragment(() => {
@@ -63,16 +59,7 @@ export const SubscriptionFragment = fragment(() => {
                         style: 'destructive',
                         onPress: async () => {
                             const contract = await contractFromPublicKey(acc.publicKey);
-
-                            let walletKeys: WalletKeys;
-                            try {
-                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                            } catch (e) {
-                                resolve(false);
-                                return;
-                            }
-
-                            const transferCell = createRemovePluginCommand(
+                            const transferCell = createRemovePluginCell(
                                 account.seqno,
                                 contract.source.walletId,
                                 Math.floor(Date.now() / 1e3) + 60,
@@ -80,14 +67,16 @@ export const SubscriptionFragment = fragment(() => {
                             );
 
                             navigation.navigateTransfer({
-                                target: params.address,
+                                order: {
+                                    target: params.address,
+                                    amount: new BN(0),
+                                    amountAll: false,
+                                    payload: transferCell,
+                                    stateInit: null,
+                                    transferCell: true
+                                },
                                 text: null,
-                                amount: new BN(0),
-                                amountAll: false,
-                                stateInit: null,
-                                payload: null,
-                                job: null,
-                                transferCell: transferCell
+                                job: null
                             });
 
                             resolve(true);

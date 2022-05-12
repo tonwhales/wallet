@@ -1,7 +1,7 @@
 import { Address, Cell } from "ton";
 import { getRandomQueryId } from "./createWithdrawStakeCommand";
 
-export function createRemovePluginCommand(
+export function createRemovePluginCell(
     seqno: number,
     walletId: number,
     timeout: number,
@@ -17,16 +17,11 @@ export function createRemovePluginCommand(
         cell.bits.writeUint(timeout, 32);
     }
     cell.bits.writeUint(seqno, 32);
-    cell.bits.writeUint8(3); // Simple order
+    cell.bits.writeUint8(3); // Remove plugin command
 
-    // Write order
-    // cell.bits.writeUint8(this.sendMode);
-    // let orderCell = new Cell();
-    // this.order.writeTo(orderCell);
     cell.bits.writeUint8(to.workChain);
     cell.bits.writeBuffer(to.hash);
-    cell.bits.writeCoins(0); // Gas
+    cell.bits.writeCoins(100000); // Gas
     cell.bits.writeUint(getRandomQueryId(), 64); // Query ID
-    // cell.refs.push(orderCell);
     return cell;
 }

@@ -150,9 +150,9 @@ export const TransactionPreviewFragment = fragment(() => {
                 justifyContent: 'center',
                 width: '100%'
             }}>
-                {transaction.body && transaction.body.type === 'comment' && (
+                {operation.comment && (
                     <>
-                        <ActionsMenuView content={transaction.body.comment}>
+                        <ActionsMenuView content={operation.comment}>
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text
                                     style={{
@@ -162,7 +162,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         lineHeight: 20
                                     }}
                                 >
-                                    {transaction.body.comment}
+                                    {operation.comment}
                                 </Text>
                                 <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
                                     {t('common.comment')}

@@ -1,10 +1,11 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address, Cell } from "ton";
 import { AppConfig } from "../AppConfig";
 import { t } from "../i18n/t";
 import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
 import { JettonMasterState } from "../sync/jettons/JettonMasterSync";
 import { ContractMetadata } from "../sync/metadata/Metadata";
+import { parseBody } from "../sync/parse/parseWalletTransaction";
 import { Transaction } from "../sync/Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "./parseMessageBody";
@@ -28,6 +29,9 @@ export function resolveOperation(args: {
 
     // Avatar image
     let image: string | undefined = undefined;
+
+    // Comment
+    let comment: string | undefined = undefined;
 
     // Resolve default name
     let name: string;
@@ -75,11 +79,19 @@ export function resolveOperation(args: {
                 let amount = parsedBody.data['amount'] as BN;
                 let symbol = args.jettonMaster.symbol;
                 items.unshift({ kind: 'token', amount, symbol });
+                let body = parseBody(parsedBody.data['payload'] as Cell);
+                if (body && body.type === 'comment') {
+                    comment = body.comment;
+                }
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 address = parsedBody.data['sender'] as Address;
                 let amount = parsedBody.data['amount'] as BN;
                 let symbol = args.jettonMaster.symbol;
                 items.unshift({ kind: 'token', amount, symbol });
+                let body = parseBody(parsedBody.data['payload'] as Cell);
+                if (body && body.type === 'comment') {
+                    comment = body.comment;
+                }
             } else {
                 if (args.jettonMaster && args.jettonMaster.image) {
                     image = args.jettonMaster.image;
@@ -99,7 +111,7 @@ export function resolveOperation(args: {
             image = args.jettonMaster.image;
         }
     }
-    
+
     // Resolve built-in known wallets
     let friendlyAddress = address.toFriendly({ testOnly: AppConfig.isTestnet });
     if (KnownWallets[friendlyAddress]) {
@@ -112,6 +124,7 @@ export function resolveOperation(args: {
         known,
         name,
         items,
-        image
+        image,
+        comment
     }
 }

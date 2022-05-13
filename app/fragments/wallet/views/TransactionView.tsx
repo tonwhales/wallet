@@ -54,7 +54,6 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     // Avatar
     let downloaded: string | null = null;
     if (operation.image) {
-        props.engine.accounts.getDownload(operation.image);
         downloaded = props.engine.storage.download(operation.image).use();
     } else {
         downloaded = props.engine.storage.download('').use();

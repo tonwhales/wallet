@@ -76,7 +76,6 @@ export const TransactionPreviewFragment = fragment(() => {
     // Avatar
     let downloaded: string | null = null;
     if (operation.image) {
-        engine.accounts.getDownload(operation.image);
         downloaded = engine.storage.download(operation.image).use();
     } else {
         downloaded = engine.storage.download('').use();

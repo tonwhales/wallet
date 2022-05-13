@@ -6,6 +6,8 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import * as Keychain from 'react-native-keychain';
 import * as KeyStore from './modules/KeyStore';
 
+const OsVer = Platform.OS === 'android' ? Platform.constants.Release : undefined;
+
 function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keychain' | 'key-store' {
     let kind = storage.getString('ton-storage-kind');
 
@@ -138,15 +140,20 @@ export async function generateNewKey(disableEncryption: boolean) {
     // Handle Android
     if (Platform.OS === 'android') {
         storage.set('ton-storage-ref', ref);
-        storage.set('ton-storage-kind', 'key-store');
-        await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
-        // storage.set('ton-storage-kind', 'keychain');
-        // await Keychain.setGenericPassword('username', privateKey.toString('base64'), {
-        //     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-        //     authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-        //     storage: Keychain.STORAGE_TYPE.RSA,
-        //     service: ref
-        // });
+        // Check for Android 11 version
+        if (parseInt(OsVer || '0') >= 11) {
+            storage.set('ton-storage-kind', 'key-store');
+            await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
+            return;
+        }
+        // Use react-native-keychian if Android version < 11
+        storage.set('ton-storage-kind', 'keychain');
+        await Keychain.setGenericPassword('username', privateKey.toString('base64'), {
+            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+            storage: Keychain.STORAGE_TYPE.RSA,
+            service: ref
+        });
     }
 }
 

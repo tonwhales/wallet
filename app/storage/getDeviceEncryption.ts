@@ -2,9 +2,11 @@ import * as Device from 'expo-device';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Platform } from 'react-native';
 import * as Keychain from 'react-native-keychain';
-import * as DeviceCredentialsStore from '../storage/modules/DeviceCredentialsStore';
+import * as KeyStore from './modules/KeyStore';
 
-export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face' | 'device-biometrics' | 'device-passcode' | 'device-credentials';
+export type DeviceEncryption = 'none' | 'passcode' | 'fingerprint' | 'face'
+    | 'device-biometrics' | 'device-passcode' 
+    | 'secret' | 'biometric';
 
 export async function getDeviceEncryption(): Promise<DeviceEncryption> {
 
@@ -12,17 +14,21 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
     if (Platform.OS === 'android') {
 
         // Strong protection
-        let biometryType = await Keychain.getSupportedBiometryType();
-        if (biometryType === Keychain.BIOMETRY_TYPE.FACE || biometryType === Keychain.BIOMETRY_TYPE.FACE_ID) {
-            return 'face';
+        let securityLevel = await KeyStore.getEnrolledLevelAsync();
+        if (securityLevel === KeyStore.SecurityLevel.BIOMETRIC) {
+            return 'biometric';
         }
-        if (biometryType === Keychain.BIOMETRY_TYPE.FINGERPRINT || biometryType === Keychain.BIOMETRY_TYPE.TOUCH_ID) {
-            return 'fingerprint'
+        if (securityLevel === KeyStore.SecurityLevel.SECRET) {
+            return 'secret';
         }
-        let deviceEncryption = await DeviceCredentialsStore.useDeviceCredentials();
-        if (deviceEncryption) {
-            return 'device-credentials';
-        }
+
+        // let biometryType = await Keychain.getSupportedBiometryType();
+        // if (biometryType === Keychain.BIOMETRY_TYPE.FACE || biometryType === Keychain.BIOMETRY_TYPE.FACE_ID) {
+        //     return 'face';
+        // }
+        // if (biometryType === Keychain.BIOMETRY_TYPE.FINGERPRINT || biometryType === Keychain.BIOMETRY_TYPE.TOUCH_ID) {
+        //     return 'fingerprint'
+        // }
 
         // Fallback to lockal authentication
         const level = await LocalAuthentication.getEnrolledLevelAsync();

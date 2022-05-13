@@ -1,4 +1,4 @@
-import KeychainStoreModule from './DeviceCredentialsModule';
+import KeyStore from './KeyStoreModule';
 
 export enum SecurityLevel {
   /**
@@ -17,7 +17,7 @@ export enum SecurityLevel {
 
 export async function useDeviceCredentials(): Promise<boolean> {
   try {
-    return await KeychainStoreModule.getEnrolledLevelAsync() === 1;
+    return await getEnrolledLevelAsync() === 1;
   } catch (error) {
     return false;
   }
@@ -31,10 +31,10 @@ export async function useDeviceCredentials(): Promise<boolean> {
  * enrolled.
  */
 export async function getEnrolledLevelAsync(): Promise<SecurityLevel> {
-  if (!KeychainStoreModule.getEnrolledLevelAsync) {
-    throw Error('KeychainStoreModule unavalible');
+  if (!KeyStore.getEnrolledLevelAsync) {
+    throw Error('KeyStore unavalible');
   }
-  return await KeychainStoreModule.getEnrolledLevelAsync();
+  return await KeyStore.getEnrolledLevelAsync();
 }
 
 const VALUE_BYTES_LIMIT = 2048;
@@ -48,7 +48,7 @@ const VALUE_BYTES_LIMIT = 2048;
  * on the current device. Currently this resolves `true` on iOS and Android only.
  */
 export async function isAvailableAsync(): Promise<boolean> {
-  return !!KeychainStoreModule.getValueWithKeyAsync;
+  return !!KeyStore.getValueWithKeyAsync;
 }
 
 // @needsAudit
@@ -64,10 +64,10 @@ export async function deleteItemAsync(
 ): Promise<void> {
   _ensureValidKey(key);
 
-  if (!KeychainStoreModule.deleteValueWithKeyAsync) {
-    throw new Error('KeychainStoreModule deleteItemAsync unawalible');
+  if (!KeyStore.deleteValueWithKeyAsync) {
+    throw new Error('KeyStore deleteItemAsync unawalible');
   }
-  await KeychainStoreModule.deleteValueWithKeyAsync(key);
+  await KeyStore.deleteValueWithKeyAsync(key);
 }
 
 // @needsAudit
@@ -83,7 +83,7 @@ export async function getItemAsync(
   key: string
 ): Promise<string | null> {
   _ensureValidKey(key);
-  return await KeychainStoreModule.getValueWithKeyAsync(key);
+  return await KeyStore.getValueWithKeyAsync(key);
 }
 
 // @needsAudit
@@ -106,10 +106,10 @@ export async function setItemAsync(
       `Invalid value provided to DeviceCredentialsStore. Values must be strings; consider JSON-encoding your values if they are serializable.`
     );
   }
-  if (!KeychainStoreModule.setValueWithKeyAsync) {
-    throw new Error('KeychainStoreModule setItemAsync unavalible');
+  if (!KeyStore.setValueWithKeyAsync) {
+    throw new Error('KeyStore setItemAsync unavalible');
   }
-  await KeychainStoreModule.setValueWithKeyAsync(value, key);
+  await KeyStore.setValueWithKeyAsync(value, key);
 }
 
 function _ensureValidKey(key: string) {

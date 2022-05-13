@@ -1,9 +1,7 @@
 package com.tonhub.wallet.modules.store;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.util.Log;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -11,11 +9,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.security.GeneralSecurityException;
 
@@ -43,7 +39,10 @@ public class AuthenticationHelper {
         }
 
         BiometricManager biometricManager = BiometricManager.from(mContext);
-        int checkRes = biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL);
+        int checkRes = biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                        | BiometricManager.Authenticators.BIOMETRIC_STRONG
+        );
         switch (checkRes) {
             case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
@@ -72,11 +71,8 @@ public class AuthenticationHelper {
         BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt
                 .PromptInfo.Builder()
                 .setTitle("Authenticate")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG)
                 .build();
-
-        Log.d("AuthHelper", "new prompt built");
-
 
         if (!isAppInforegrounded()) {
             promise.reject(
@@ -88,9 +84,7 @@ public class AuthenticationHelper {
 
         FragmentActivity fragmentActivity = getCurrentActivity();
 
-        Log.d("AuthHelper", "before fragmentActivity.runOnUiThread");
         fragmentActivity.runOnUiThread(() -> {
-        Log.d("AuthHelper", "fragmentActivity.runOnUiThread");
         isAuthenticating = true;
             new BiometricPrompt(
                     fragmentActivity,
@@ -133,7 +127,6 @@ public class AuthenticationHelper {
                         }
                     }
             ).authenticate(promptInfo, new BiometricPrompt.CryptoObject(cipher));
-            Log.d("AuthHelper", "after authenticate");
         });
     }
 

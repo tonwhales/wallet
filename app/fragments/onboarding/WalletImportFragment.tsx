@@ -211,6 +211,7 @@ function WalletWordsComponent(props: {
             return;
         }
         const deviceEncryption = await getDeviceEncryption();
+        console.log({ deviceEncryption });
         props.onComplete({ mnemonics: wordsLocal.join(' ').toLowerCase(), deviceEncryption });
     }, []);
 

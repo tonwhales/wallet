@@ -4,10 +4,12 @@ import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Keychain from 'react-native-keychain';
-import * as DeviceCredentialsStore from '../storage/modules/DeviceCredentialsStore';
+import * as KeyStore from './modules/KeyStore';
 
-function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keychain' | 'device-credentials-store' {
+function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keychain' | 'key-store' {
     let kind = storage.getString('ton-storage-kind');
+
+    console.log('[loadKeyStorageType]', { kind });
 
     // Legacy
     if (!kind) {
@@ -27,8 +29,8 @@ function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keycha
     if (kind === 'keychain') {
         return 'keychain';
     }
-    if (kind === 'device-credentials-store') {
-        return 'device-credentials-store';
+    if (kind === 'key-store') {
+        return 'key-store';
     }
     throw Error('Storage type invalid');
 }
@@ -77,21 +79,22 @@ async function getApplicationKey() {
     }
 
     // Keychain
-    if (storageType === 'keychain') {
-        let ex = await Keychain.getGenericPassword({
-            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-            storage: Keychain.STORAGE_TYPE.RSA,
-            service: ref
-        });
-        if (!ex) {
-            throw Error('Broken keystore');
-        }
-        return Buffer.from(ex.password, 'base64');
-    }
+    // if (storageType === 'keychain') {
+    //     let ex = await Keychain.getGenericPassword({
+    //         accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+    //         authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+    //         storage: Keychain.STORAGE_TYPE.RSA,
+    //         service: ref
+    //     });
+    //     if (!ex) {
+    //         throw Error('Broken keystore');
+    //     }
+    //     return Buffer.from(ex.password, 'base64');
+    // }
 
-    if (storageType === 'device-credentials-store') {
-        let ex = await DeviceCredentialsStore.getItemAsync(ref);
+    // Keystore
+    if (storageType === 'key-store') {
+        let ex = await KeyStore.getItemAsync(ref);
         if (!ex) {
             throw Error('Broken keystore');
         }
@@ -135,19 +138,15 @@ export async function generateNewKey(disableEncryption: boolean) {
     // Handle Android
     if (Platform.OS === 'android') {
         storage.set('ton-storage-ref', ref);
-        let useDeviceCredentials = await DeviceCredentialsStore.useDeviceCredentials();
-        if (useDeviceCredentials) {
-            storage.set('ton-storage-kind', 'device-credentials-store');
-            await DeviceCredentialsStore.setItemAsync(ref, privateKey.toString('base64'));
-            return;
-        }
-        storage.set('ton-storage-kind', 'keychain');
-        await Keychain.setGenericPassword('username', privateKey.toString('base64'), {
-            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-            storage: Keychain.STORAGE_TYPE.RSA,
-            service: ref
-        });
+        storage.set('ton-storage-kind', 'key-store');
+        await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
+        // storage.set('ton-storage-kind', 'keychain');
+        // await Keychain.setGenericPassword('username', privateKey.toString('base64'), {
+        //     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+        //     authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+        //     storage: Keychain.STORAGE_TYPE.RSA,
+        //     service: ref
+        // });
     }
 }
 

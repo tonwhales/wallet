@@ -15,7 +15,7 @@ import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
 
 import com.facebook.react.bridge.JSIModulePackage;
-import com.tonhub.wallet.modules.store.DeviceCredentialsStorePackage;
+import com.tonhub.wallet.modules.store.KeyStorePackage;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class MainApplication extends Application implements ReactApplication {
                     List<ReactPackage> packages = new PackageList(this).getPackages();
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // packages.add(new MyReactNativePackage());
-                    packages.add(new DeviceCredentialsStorePackage());
+                    packages.add(new KeyStorePackage());
                     return packages;
                 }
 

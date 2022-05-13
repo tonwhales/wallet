@@ -89,6 +89,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 ? t('secure.protectFaceID')
                 : t('secure.protectBiometrics');
             break;
+        case 'biometric':
         case 'fingerprint':
             iconImage = Platform.OS === 'ios'
                 ? require('../../../assets/ic_touch_id.png')
@@ -116,7 +117,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             />;
             buttonText = t('secure.protectPasscode');
             break;
-        case 'device-credentials':
+        case 'secret':
             icon = <Ionicons
                 name="keypad"
                 size={20}

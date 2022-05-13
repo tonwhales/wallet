@@ -10,50 +10,22 @@ import { Transaction } from '../../../sync/Transaction';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
-import { t } from '../../../i18n/t';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { KnownWallets } from '../../../secure/KnownWallets';
-import { knownAddressLabel } from '../../../secure/knownAddressLabel';
 import { Engine } from '../../../sync/Engine';
-import { parseMessageBody } from '../../../secure/parseMessageBody';
-import { formatSupportedBody } from '../../../secure/formatSupportedBody';
 import { ContractMetadata } from '../../../sync/metadata/Metadata';
 import { JettonMasterState } from '../../../sync/jettons/JettonMasterSync';
+import { resolveOperation } from '../../../operations/resolveOperation';
+import { KnownWallet } from '../../../secure/KnownWallets';
+import { shortAddress } from '../../../utils/shortAddress';
 
 const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
+function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
+    return wallet.name + ` (${shortAddress({ friendly })})`
+}
+
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, engine: Engine, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
-
-    // Address
-    let address = parsed.address;
-
-    // Amount
-    let amount = parsed.amount;
-    let symbol: string | null = null;
-
-    // Avatar
-    let avatarId = props.own.toFriendly({ testOnly: AppConfig.isTestnet });
-    if (parsed.address && !parsed.address.equals(props.own)) {
-        avatarId = parsed.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    }
-
-    // Transaction type
-    let transactionType = 'Transfer';
-    if (parsed.kind === 'out') {
-        if (parsed.status === 'pending') {
-            transactionType = t('tx.sending');
-        } else {
-            transactionType = t('tx.sent');
-        }
-    }
-    if (parsed.kind === 'in') {
-        if (parsed.bounced) {
-            transactionType = '⚠️ ' + t('tx.bounced');
-        } else {
-            transactionType = t('tx.received');
-        }
-    }
 
     // Fetch metadata
     let metadata: ContractMetadata | null;
@@ -73,58 +45,17 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         masterMetadata = props.engine.storage.jettonMaster(ZERO_ADDRESS).use();
     }
 
-    // Payload ovewrite
-    if (parsed.body && parsed.body.type === 'payload' && metadata && !masterMetadata) {
-        let parsedBody = parseMessageBody(parsed.body.cell, metadata.interfaces);
-        if (parsedBody) {
-            let f = formatSupportedBody(parsedBody);
-            if (f) {
-                transactionType = f.text;
-            }
-        }
-    }
-
-    // Jetton parsing
-    let parsedJetton = false;
-    if (parsed.body && parsed.body.type === 'payload' && masterMetadata && masterMetadata.symbol && metadata && metadata.jettonWallet) {
-        let parsedBody = parseMessageBody(parsed.body.cell, ['311736387032003861293477945447179662681']);
-        if (parsedBody) {
-            parsedJetton = true;
-            let f = formatSupportedBody(parsedBody);
-            if (f) {
-                transactionType = f.text;
-            }
-            if (parsedBody.type === 'jetton::transfer') {
-                address = parsedBody.data['destination'] as Address;
-                amount = parsedBody.data['amount'] as BN;
-                symbol = masterMetadata.symbol;
-            }
-            if (parsedBody.type === 'jetton::transfer_notification') {
-                address = parsedBody.data['sender'] as Address;
-                amount = parsedBody.data['amount'] as BN;
-                symbol = masterMetadata.symbol;
-            }
-        }
-    }
-
-    // Resolve address
-    let friendlyAddress = address?.toFriendly({ testOnly: AppConfig.isTestnet });
-    let known = friendlyAddress ? KnownWallets[friendlyAddress] : undefined;
-
-    // Jetton
-    if (metadata && (metadata.jettonMaster || metadata.jettonWallet) && !parsedJetton) {
-        if (masterMetadata && masterMetadata.name) {
-            known = { name: masterMetadata.name };
-        } else {
-            known = { name: 'Token Contract' };
-        }
-    }
+    // Operation
+    let operation = resolveOperation({ tx: parsed, metadata, jettonMaster: masterMetadata, account: props.own });
+    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let item = operation.items[0];
 
     // Avatar
     let downloaded: string | null = null;
-    if (masterMetadata && masterMetadata.image) {
-        props.engine.accounts.getDownload(masterMetadata.image);
-        downloaded = props.engine.storage.download(masterMetadata.image).use();
+    if (operation.image) {
+        props.engine.accounts.getDownload(operation.image);
+        downloaded = props.engine.storage.download(operation.image).use();
     } else {
         downloaded = props.engine.storage.download('').use();
     }
@@ -140,19 +71,19 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{transactionType}</Text>
+                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{operation.name}</Text>
                         {parsed.status === 'failed' ? (
                             <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                         ) : (
                             <Text
                                 style={{
-                                    color: amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000',
+                                    color: item.amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000',
                                     fontWeight: '400',
                                     fontSize: 16,
                                     marginRight: 2
                                 }}>
-                                <ValueComponent value={amount} />
-                                {symbol ? ' ' + symbol : ''}
+                                <ValueComponent value={item.amount} />
+                                {item.kind === 'token' ? ' ' + item.symbol : ''}
                             </Text>
                         )}
                     </View>
@@ -163,14 +94,12 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                             numberOfLines={1}
                         >
                             {
-                                known
-                                    ? knownAddressLabel(known, friendlyAddress)
-                                    : parsed.address
-                                        ? <AddressComponent address={parsed.address} />
-                                        : 'no address'
+                                operation.known
+                                    ? knownAddressLabel(operation.known, friendlyAddress)
+                                    : <AddressComponent address={operation.address} />
                             }
                         </Text>
-                        {parsed.body && parsed.body.type === 'comment' ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
+                        {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                         <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
                     </View>
                     <View style={{ flexGrow: 1 }} />

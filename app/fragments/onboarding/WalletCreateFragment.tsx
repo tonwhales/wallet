@@ -30,8 +30,6 @@ export const WalletCreateFragment = systemFragment(() => {
             // Fetch enrolled security
             const encryption = await getDeviceEncryption();
 
-            console.log({encryption});
-
             // Persist state
             setState({ mnemonics: mnemonics.join(' '), deviceEncryption: encryption });
         })()

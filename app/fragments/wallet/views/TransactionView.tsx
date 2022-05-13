@@ -25,6 +25,13 @@ const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, engine: Engine, onPress: (src: Transaction) => void }) {
     const parsed = props.tx;
 
+    // Address
+    let address = parsed.address;
+
+    // Amount
+    let amount = parsed.amount;
+    let symbol: string | null = null;
+
     // Avatar
     let avatarId = props.own.toFriendly({ testOnly: AppConfig.isTestnet });
     if (parsed.address && !parsed.address.equals(props.own)) {
@@ -67,7 +74,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     }
 
     // Payload ovewrite
-    if (parsed.body && parsed.body.type === 'payload' && metadata) {
+    if (parsed.body && parsed.body.type === 'payload' && metadata && !masterMetadata) {
         let parsedBody = parseMessageBody(parsed.body.cell, metadata.interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
@@ -77,12 +84,35 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
         }
     }
 
+    // Jetton parsing
+    let parsedJetton = false;
+    if (parsed.body && parsed.body.type === 'payload' && masterMetadata && masterMetadata.symbol && metadata && metadata.jettonWallet) {
+        let parsedBody = parseMessageBody(parsed.body.cell, ['311736387032003861293477945447179662681']);
+        if (parsedBody) {
+            parsedJetton = true;
+            let f = formatSupportedBody(parsedBody);
+            if (f) {
+                transactionType = f.text;
+            }
+            if (parsedBody.type === 'jetton::transfer') {
+                address = parsedBody.data['destination'] as Address;
+                amount = parsedBody.data['amount'] as BN;
+                symbol = masterMetadata.symbol;
+            }
+            if (parsedBody.type === 'jetton::transfer_notification') {
+                address = parsedBody.data['sender'] as Address;
+                amount = parsedBody.data['amount'] as BN;
+                symbol = masterMetadata.symbol;
+            }
+        }
+    }
+
     // Resolve address
-    let friendlyAddress = parsed?.address?.toFriendly({ testOnly: AppConfig.isTestnet });
+    let friendlyAddress = address?.toFriendly({ testOnly: AppConfig.isTestnet });
     let known = friendlyAddress ? KnownWallets[friendlyAddress] : undefined;
 
     // Jetton
-    if (metadata && (metadata.jettonMaster || metadata.jettonWallet)) {
+    if (metadata && (metadata.jettonMaster || metadata.jettonWallet) && !parsedJetton) {
         if (masterMetadata && masterMetadata.name) {
             known = { name: masterMetadata.name };
         } else {
@@ -98,7 +128,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     } else {
         downloaded = props.engine.storage.download('').use();
     }
-    
+
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
@@ -116,12 +146,13 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                         ) : (
                             <Text
                                 style={{
-                                    color: parsed.amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000',
+                                    color: amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000',
                                     fontWeight: '400',
                                     fontSize: 16,
                                     marginRight: 2
                                 }}>
-                                <ValueComponent value={parsed.amount} />
+                                <ValueComponent value={amount} />
+                                {symbol ? ' ' + symbol : ''}
                             </Text>
                         )}
                     </View>

@@ -27,5 +27,14 @@ export function formatSupportedBody(supportedMessage: SupportedMessage): { text:
     if (supportedMessage.type === 'upgrade::ok') {
         return { text: t('known.upgradeOk') };
     }
+    if (supportedMessage.type === 'jetton::excesses') {
+        return { text: t('known.cashback') };
+    }
+    if (supportedMessage.type === 'jetton::transfer') {
+        return { text: t('known.tokenSent') };
+    }
+    if (supportedMessage.type === 'jetton::transfer_notification') {
+        return { text: t('known.tokenReceived') };
+    }
     return null;
 }

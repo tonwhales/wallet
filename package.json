@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "1.11.4",
+  "version": "1.12.0",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -89,7 +89,7 @@
     "react-navigation": "^4.4.4",
     "recoil": "^0.5.2",
     "teslabot": "^1.4.1",
-    "ton": "11.5.0",
+    "ton": "11.6.0",
     "ton-contracts": "2.3.2",
     "ton-crypto": "2.1.0",
     "url-parse": "^1.5.4",

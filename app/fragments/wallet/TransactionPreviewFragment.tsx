@@ -20,9 +20,11 @@ import { useEngine } from "../../sync/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
-import { parseMessageBody } from "../../secure/parseMessageBody";
-import { formatSupportedBody } from "../../secure/formatSupportedBody";
+import { parseMessageBody } from "../../operations/parseMessageBody";
+import { formatSupportedBody } from "../../operations/formatSupportedBody";
 import { ContractMetadata } from "../../sync/metadata/Metadata";
+import { JettonMasterState } from "../../sync/jettons/JettonMasterSync";
+import { resolveOperation } from "../../operations/resolveOperation";
 
 const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
@@ -37,26 +39,7 @@ export const TransactionPreviewFragment = fragment(() => {
         throw Error('Unable to load transaction');
     }
 
-    // Avatar
-    let avatarId = engine.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    if (transaction.address && !transaction.address.equals(address)) {
-        avatarId = transaction.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    }
-
-    // Transaction type
-    let transactionType: string;
-    if (transaction.kind === 'out') {
-        if (transaction.status === 'pending') {
-            transactionType = t('tx.sending');
-        } else {
-            transactionType = t('tx.sent');
-        }
-    } else {
-        transactionType = t('tx.received');
-    }
-
     // Metadata
-    // Fetch metadata
     let metadata: ContractMetadata | null;
     if (transaction.address) {
         metadata = engine.storage.metadata(transaction.address).use();
@@ -64,15 +47,38 @@ export const TransactionPreviewFragment = fragment(() => {
         metadata = engine.storage.metadata(ZERO_ADDRESS).use();
     }
 
-    // Payload ovewrite
-    if (transaction.body && transaction.body.type === 'payload' && transaction.address && metadata) {
-        let parsedBody = parseMessageBody(transaction.body.cell, metadata.interfaces);
-        if (parsedBody) {
-            let f = formatSupportedBody(parsedBody);
-            if (f) {
-                transactionType = f.text;
-            }
-        }
+    // Master metadata
+    let masterMetadata: JettonMasterState | null;
+    if (metadata && metadata.jettonWallet) {
+        masterMetadata = engine.storage.jettonMaster(metadata.jettonWallet.master).use();
+    } else if (metadata && metadata.jettonMaster && transaction.address) {
+        masterMetadata = engine.storage.jettonMaster(transaction.address).use();
+    } else {
+        masterMetadata = engine.storage.jettonMaster(ZERO_ADDRESS).use();
+    }
+
+    // Operation
+    let operation = resolveOperation({ tx: transaction, metadata, jettonMaster: masterMetadata, account: engine.address });
+    let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let item = operation.items[0];
+
+    // // Payload ovewrite
+    // if (transaction.body && transaction.body.type === 'payload' && transaction.address && metadata) {
+    //     let parsedBody = parseMessageBody(transaction.body.cell, metadata.interfaces);
+    //     if (parsedBody) {
+    //         let f = formatSupportedBody(parsedBody);
+    //         if (f) {
+    //             transactionType = f.text;
+    //         }
+    //     }
+    // }
+
+    // Avatar
+    let downloaded: string | null = null;
+    if (operation.image) {
+        downloaded = engine.storage.download(operation.image).use();
+    } else {
+        downloaded = engine.storage.download('').use();
     }
 
     return (
@@ -84,24 +90,24 @@ export const TransactionPreviewFragment = fragment(() => {
             paddingHorizontal: 16
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={transactionType} />
+            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={operation.name} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
                     <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
-                        {transactionType}
+                        {operation.name}
                     </Text>
                 )}
             </View>
             <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, marginTop: 24, backgroundColor: '#5fbed5', alignItems: 'center', justifyContent: 'center' }}>
-                <Avatar address={transaction.address?.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={84} />
+                <Avatar address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={84} image={downloaded ? downloaded : undefined} />
             </View>
             <View style={{ marginTop: 34 }}>
                 {transaction.status === 'failed' ? (
                     <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                 ) : (
-                    <Text style={{ color: transaction.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
-                        <ValueComponent value={transaction.amount} centFontStyle={{ fontSize: 30, fontWeight: '400' }} />
-                        {/* {' TON'} */}
+                    <Text style={{ color: item.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
+                        <ValueComponent value={item.amount} centFontStyle={{ fontSize: 30, fontWeight: '400' }} />
+                        {item.kind === 'token' ? ' ' + item.symbol : ''}
                     </Text>
                 )}
             </View>
@@ -143,9 +149,9 @@ export const TransactionPreviewFragment = fragment(() => {
                 justifyContent: 'center',
                 width: '100%'
             }}>
-                {transaction.body && transaction.body.type === 'comment' && (
+                {operation.comment && (
                     <>
-                        <ActionsMenuView content={transaction.body.comment}>
+                        <ActionsMenuView content={operation.comment}>
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text
                                     style={{
@@ -155,7 +161,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         lineHeight: 20
                                     }}
                                 >
-                                    {transaction.body.comment}
+                                    {operation.comment}
                                 </Text>
                                 <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
                                     {t('common.comment')}
@@ -167,7 +173,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
                 <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                     <WalletAddress
-                        address={transaction?.address?.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         textProps={{ numberOfLines: undefined }}
                         textStyle={{
                             textAlign: 'left',

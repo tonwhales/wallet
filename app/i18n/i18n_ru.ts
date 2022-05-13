@@ -337,7 +337,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         withdrawCompleted: 'Вывод завершен',
         withdrawRequested: 'Запрос на вывод принят',
         upgrade: 'Обновление кода до {{hash}}',
-        upgradeOk: 'Обновление завершено'
+        upgradeOk: 'Обновление завершено',
+        cashback: 'Кэшбек',
+        tokenSent: 'Токен отправлен',
+        tokenReceived: 'Токен получен'
     }
 };
 

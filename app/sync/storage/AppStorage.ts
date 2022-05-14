@@ -70,13 +70,8 @@ export class AppStorage {
             return new PersistedValue('account/jetton/master/' + src, engine.persistence.jettonMasters.item(address), this, []);
         });
         this.#downloads = new LazyMap((src) => {
-            return new PersistedValue('file/' + src, engine.persistence.downloads.item(src), this, [
-                (effect) => {
-                    if (effect.trigger === 'set') {
-                        this.engine.accounts.getDownload(src);
-                    }
-                }
-            ]);
+            let v = new PersistedValue('file/' + src, engine.persistence.downloads.item(src), this, []);
+            return v;
         });
     }
 
@@ -117,6 +112,9 @@ export class AppStorage {
     }
 
     download(key: string) {
+        if (key !== '') {
+            setTimeout(() => { this.engine.accounts.getDownload(key); }, 10); // Create download lazily
+        }
         return this.#downloads.get(key);
     }
 }

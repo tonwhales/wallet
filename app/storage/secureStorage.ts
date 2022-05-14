@@ -86,7 +86,13 @@ async function getApplicationKey() {
     throw Error('Broken keystore');
 }
 
-export async function generateNewKey(disableEncryption: boolean) {
+async function doEncrypt(key: Buffer, data: Buffer) {
+    const nonce = await getSecureRandomBytes(24);
+    const sealed = sealBox(data, nonce, key);
+    return Buffer.concat([nonce, sealed]);
+}
+
+export async function generateNewKeyAndEncrypt(disableEncryption: boolean, data: Buffer) {
 
     // Generate new ref
     let ref = (await getSecureRandomBytes(32)).toString('hex');
@@ -99,7 +105,7 @@ export async function generateNewKey(disableEncryption: boolean) {
         storage.set('ton-storage-kind', 'local-authentication');
         storage.set('ton-storage-ref', ref);
         storage.set('ton-storage-key-' + ref, privateKey.toString('base64'));
-        return;
+        return doEncrypt(privateKey, data);
     }
 
     // Handle iOS
@@ -115,14 +121,15 @@ export async function generateNewKey(disableEncryption: boolean) {
             requireAuthentication: true,
             keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
         });
-    }
-
-    // Handle Android
-    if (Platform.OS === 'android') {
+    } else if (Platform.OS === 'android') {
         storage.set('ton-storage-ref', ref);
         storage.set('ton-storage-kind', 'key-store');
         await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
+    } else {
+        throw Error('Unsupporteed platform')
     }
+
+    return doEncrypt(privateKey, data);
 }
 
 export async function encryptData(data: Buffer) {

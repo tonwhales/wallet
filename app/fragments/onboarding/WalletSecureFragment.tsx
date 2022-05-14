@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { encryptData, generateNewKey } from '../../storage/secureStorage';
+import { generateNewKeyAndEncrypt } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
@@ -26,13 +26,13 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             setLoading(true);
             try {
 
-                // Generate New Key
-                await generateNewKey(!!(props.deviceEncryption === 'none' || props.deviceEncryption === 'device-biometrics' || props.deviceEncryption === 'device-passcode' || bypassEncryption));
-
-                // Enrtypt key
+                // Encrypted token
                 let token: Buffer;
+
+                // Generate New Key
                 try {
-                    token = await encryptData(Buffer.from(props.mnemonics));
+                    let disableEncryption = !!(props.deviceEncryption === 'none' || props.deviceEncryption === 'device-biometrics' || props.deviceEncryption === 'device-passcode' || bypassEncryption);
+                    token = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
                 } catch (e) {
                     // Ignore
                     return;

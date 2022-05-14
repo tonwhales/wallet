@@ -10,7 +10,6 @@ public interface AuthenticationCallback {
     void checkAuthentication(
             Promise promise,
             Cipher cipher,
-            GCMParameterSpec gcmParameterSpec,
             EncryptionCallback encryptionCallback,
             PostEncryptionCallback postEncryptionCallback
     );

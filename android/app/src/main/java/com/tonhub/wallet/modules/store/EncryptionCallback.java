@@ -13,7 +13,6 @@ public interface EncryptionCallback {
     Object run(
             Promise promise,
             Cipher cipher,
-            GCMParameterSpec gcmParameterSpec,
             PostEncryptionCallback postEncryptionCallback
     ) throws GeneralSecurityException, JSONException;
 }

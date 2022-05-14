@@ -15,14 +15,6 @@ export enum SecurityLevel {
   BIOMETRIC = 2,
 }
 
-export async function useDeviceCredentials(): Promise<boolean> {
-  try {
-    return await getEnrolledLevelAsync() === 1;
-  } catch (error) {
-    return false;
-  }
-}
-
 /**
  * **(Android Only)**
  * Determine what kind of authentication is enrolled on the device availible for expo-secure-store.

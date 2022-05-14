@@ -3,12 +3,9 @@ import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
-import * as Keychain from 'react-native-keychain';
 import * as KeyStore from './modules/KeyStore';
 
-const OsVer = Platform.OS === 'android' ? Platform.constants.Release : undefined;
-
-function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keychain' | 'key-store' {
+function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'key-store' {
     let kind = storage.getString('ton-storage-kind');
 
     console.log('[loadKeyStorageType]', { kind });
@@ -27,9 +24,6 @@ function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keycha
     }
     if (kind === 'secure-store') {
         return 'secure-store';
-    }
-    if (kind === 'keychain') {
-        return 'keychain';
     }
     if (kind === 'key-store') {
         return 'key-store';
@@ -80,20 +74,6 @@ async function getApplicationKey() {
         return Buffer.from(ex, 'base64');
     }
 
-    // Keychain
-    // if (storageType === 'keychain') {
-    //     let ex = await Keychain.getGenericPassword({
-    //         accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-    //         authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-    //         storage: Keychain.STORAGE_TYPE.RSA,
-    //         service: ref
-    //     });
-    //     if (!ex) {
-    //         throw Error('Broken keystore');
-    //     }
-    //     return Buffer.from(ex.password, 'base64');
-    // }
-
     // Keystore
     if (storageType === 'key-store') {
         let ex = await KeyStore.getItemAsync(ref);
@@ -140,20 +120,8 @@ export async function generateNewKey(disableEncryption: boolean) {
     // Handle Android
     if (Platform.OS === 'android') {
         storage.set('ton-storage-ref', ref);
-        // Check for Android 11 version
-        if (parseInt(OsVer || '0') >= 11) {
-            storage.set('ton-storage-kind', 'key-store');
-            await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
-            return;
-        }
-        // Use react-native-keychian if Android version < 11
-        storage.set('ton-storage-kind', 'keychain');
-        await Keychain.setGenericPassword('username', privateKey.toString('base64'), {
-            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-            storage: Keychain.STORAGE_TYPE.RSA,
-            service: ref
-        });
+        storage.set('ton-storage-kind', 'key-store');
+        await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
     }
 }
 

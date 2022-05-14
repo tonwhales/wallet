@@ -1,10 +1,13 @@
 package com.tonhub.wallet.modules.store;
+
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyInfo;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 import android.util.Log;
@@ -33,6 +36,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 
 public class KeyStoreModule extends ReactContextBaseJavaModule {
@@ -95,12 +99,12 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 KeyStore.SecretKeyEntry secretKeyEntry = getKeyEntry(KeyStore.SecretKeyEntry.class, mAESEncrypter);
                 mAESEncrypter.createEncryptedItem(
-                    promise, value, keyStore, secretKeyEntry, mAuthenticationHelper.getDefaultCallback(),
-                    (innerPromise, result) -> {
-                        JSONObject obj = (JSONObject) result;
-                        obj.put(SCHEME_PROPERTY, AESEncrypter.NAME);
-                        saveEncryptedItem(innerPromise, obj, prefs, key);
-                    }
+                        promise, value, keyStore, secretKeyEntry, mAuthenticationHelper.getDefaultCallback(),
+                        (innerPromise, result) -> {
+                            JSONObject obj = (JSONObject) result;
+                            obj.put(SCHEME_PROPERTY, AESEncrypter.NAME);
+                            saveEncryptedItem(innerPromise, obj, prefs, key);
+                        }
                 );
             } else {
                 promise.reject("BUILD_VERSION_CODES_ERROR", "There was an I/O error loading the keystore for KeyStoreModule");
@@ -134,7 +138,9 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
     @NonNull
     @Override
-    public String getName() { return TAG; }
+    public String getName() {
+        return TAG;
+    }
 
     @ReactMethod
     @SuppressWarnings("unused")
@@ -155,7 +161,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
                 level = SECURITY_LEVEL_BIOMETRIC;
             }
         }
-      promise.resolve(level);
+        promise.resolve(level);
     }
 
     @ReactMethod
@@ -305,7 +311,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
     protected static class AESEncrypter implements KeyStoreModule.KeyBasedEncrypter<KeyStore.SecretKeyEntry> {
         public static final String NAME = "aes";
 
-        private static final String DEFAULT_ALIAS = "keychain_key_v1";
+        private static final String DEFAULT_ALIAS = "tonhub_v4";
         private static final String AES_CIPHER = "AES/GCM/NoPadding";
         private static final int AES_KEY_SIZE_BITS = 256;
 
@@ -320,68 +326,101 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
         /**
          * Initialising KeyStoreEntry only with DEVICE_CREDENTIAL authentication
+         *
          * @param keyStore
          * @return
          * @throws GeneralSecurityException
          */
+        @SuppressLint("WrongConstant")
         @Override
-        @TargetApi(30)
         public KeyStore.SecretKeyEntry initializeKeyStoreEntry(KeyStore keyStore) throws GeneralSecurityException {
             String keystoreAlias = getKeyStoreAlias();
             int keyPurposes = KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT;
-            AlgorithmParameterSpec algorithmSpec = new KeyGenParameterSpec.Builder(keystoreAlias, keyPurposes)
+
+            // Configure specs
+            KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(keystoreAlias, keyPurposes)
                     .setKeySize(AES_KEY_SIZE_BITS)
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    // Set timeout for 1 sec and allow only DEVICE_CREDENTIAL auth
-                    .setUserAuthenticationParameters(1,KeyProperties.AUTH_DEVICE_CREDENTIAL | KeyProperties.AUTH_BIOMETRIC_STRONG)
-                    .build();
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE);
 
+            // Enable user authentication
+            builder = builder.setUserAuthenticationRequired(true);
+
+            // Set auth validity: per-use-auth
+            builder = builder.setUserAuthenticationValidityDurationSeconds(0);
+
+            // Require device to be unlocked
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                builder = builder.setUnlockedDeviceRequired(true);
+            }
+
+            // Disable invalidation since we don't want to randomly lose data
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                builder = builder.setInvalidatedByBiometricEnrollment(false);
+            }
+
+            // Disable strongbox since we don't want to randomly lose data for some internal magic
+            // CPU-bound encryption is enough for our case
+            // There are a lot of examples of instability and slowness
+            // Some random example: https://github.com/beemdevelopment/Aegis/issues/87
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                builder = builder.setIsStrongBoxBacked(false);
+            }
+
+            // Enable device credential and biometric auth on new devices
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                builder = builder.setUserAuthenticationParameters(0, KeyProperties.AUTH_DEVICE_CREDENTIAL | KeyProperties.AUTH_BIOMETRIC_STRONG);
+            }
+
+            // Init generator
+            AlgorithmParameterSpec algorithmSpec = builder.build();
             KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, keyStore.getProvider());
             keyGenerator.init(algorithmSpec);
 
             // KeyGenParameterSpec stores the key when it is generated
             keyGenerator.generateKey();
+
+            // Check result
             KeyStore.SecretKeyEntry keyStoreEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(keystoreAlias, null);
             if (keyStoreEntry == null) {
                 throw new UnrecoverableEntryException("Could not retrieve the newly generated secret key entry");
             }
 
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(keyStoreEntry.getSecretKey().getAlgorithm(), "AndroidKeyStore");
+            KeyInfo keyInfo = (KeyInfo) factory.getKeySpec(keyStoreEntry.getSecretKey(), KeyInfo.class);
+
             return keyStoreEntry;
         }
 
         @Override
-        public void createEncryptedItem(Promise promise, String plaintextValue, KeyStore keyStore, KeyStore.SecretKeyEntry secretKeyEntry,
-                                        AuthenticationCallback authenticationCallback, PostEncryptionCallback postEncryptionCallback) throws
-                GeneralSecurityException {
+        public void createEncryptedItem(
+                Promise promise,
+                String plaintextValue,
+                KeyStore keyStore,
+                KeyStore.SecretKeyEntry secretKeyEntry,
+                AuthenticationCallback authenticationCallback,
+                PostEncryptionCallback postEncryptionCallback) throws GeneralSecurityException {
 
             SecretKey secretKey = secretKeyEntry.getSecretKey();
             Cipher cipher = Cipher.getInstance(AES_CIPHER);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-            try {
-                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-
-            } catch (Error e) {
-                Log.e("createEncryptedItem", e.getMessage());
-            }
-
-            GCMParameterSpec gcmSpec = cipher.getParameters().getParameterSpec(GCMParameterSpec.class);
-
-            authenticationCallback.checkAuthentication(promise, cipher, gcmSpec,
-                    (promise1, cipher1, gcmParameterSpec, postEncryptionCallback1) ->
-                            createEncryptedItem(
-                                    promise1,
-                                    plaintextValue,
-                                    cipher1,
-                                    gcmSpec,
-                                    postEncryptionCallback1
-                            ),
+            authenticationCallback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
+                        GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
+                        return createEncryptedItem(
+                                promise1,
+                                plaintextValue,
+                                cipher1,
+                                gcmSpec,
+                                postEncryptionCallback1
+                        );
+                    },
                     postEncryptionCallback
             );
         }
 
         JSONObject createEncryptedItem(Promise promise, String plaintextValue, Cipher cipher,
-                                                     GCMParameterSpec gcmSpec, PostEncryptionCallback postEncryptionCallback) throws
+                                       GCMParameterSpec gcmSpec, PostEncryptionCallback postEncryptionCallback) throws
                 GeneralSecurityException, JSONException {
 
             byte[] plaintextBytes = plaintextValue.getBytes(StandardCharsets.UTF_8);
@@ -416,8 +455,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
             Cipher cipher = Cipher.getInstance(AES_CIPHER);
             cipher.init(Cipher.DECRYPT_MODE, secretKeyEntry.getSecretKey(), gcmSpec);
 
-            callback.checkAuthentication(promise, cipher, gcmSpec,
-                    (promise1, cipher1, gcmParameterSpec, postEncryptionCallback) -> {
+            callback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback) -> {
                         String result = new String(cipher1.doFinal(ciphertextBytes), StandardCharsets.UTF_8);
                         promise1.resolve(result);
                         return result;

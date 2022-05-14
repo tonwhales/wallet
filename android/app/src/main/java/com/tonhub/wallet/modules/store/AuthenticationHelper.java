@@ -28,7 +28,6 @@ public class AuthenticationHelper {
     private void openAuthenticationPrompt(Promise promise,
                                           EncryptionCallback encryptionCallback,
                                           Cipher cipher,
-                                          GCMParameterSpec gcmParameterSpec,
                                           PostEncryptionCallback postEncryptionCallback) {
         if (isAuthenticating) {
             promise.reject(
@@ -100,9 +99,8 @@ public class AuthenticationHelper {
                                     promise,
                                     encryptionCallback,
                                     cipher,
-                                    gcmParameterSpec,
                                     postEncryptionCallback
-                            );
+                                    );
                         }
 
                         @Override
@@ -134,11 +132,10 @@ public class AuthenticationHelper {
             Promise promise,
             EncryptionCallback encryptionCallback,
             Cipher cipher,
-            GCMParameterSpec gcmParameterSpec,
             PostEncryptionCallback postEncryptionCallback
     ) {
         try {
-            encryptionCallback.run(promise, cipher, gcmParameterSpec, postEncryptionCallback);
+            encryptionCallback.run(promise, cipher, postEncryptionCallback);
         } catch (GeneralSecurityException exception) {
             promise.reject(
                     "FAILURE",
@@ -172,11 +169,10 @@ public class AuthenticationHelper {
         public void checkAuthentication(
                 Promise promise,
                 Cipher cipher,
-                GCMParameterSpec gcmParameterSpec,
                 EncryptionCallback encryptionCallback,
                 PostEncryptionCallback postEncryptionCallback
         ) {
-            openAuthenticationPrompt(promise, encryptionCallback, cipher, gcmParameterSpec, postEncryptionCallback);
+            openAuthenticationPrompt(promise, encryptionCallback, cipher, postEncryptionCallback);
         }
     }
 

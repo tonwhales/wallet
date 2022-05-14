@@ -386,9 +386,6 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
                 throw new UnrecoverableEntryException("Could not retrieve the newly generated secret key entry");
             }
 
-            SecretKeyFactory factory = SecretKeyFactory.getInstance(keyStoreEntry.getSecretKey().getAlgorithm(), "AndroidKeyStore");
-            KeyInfo keyInfo = (KeyInfo) factory.getKeySpec(keyStoreEntry.getSecretKey(), KeyInfo.class);
-
             return keyStoreEntry;
         }
 

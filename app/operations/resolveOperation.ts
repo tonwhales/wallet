@@ -32,6 +32,9 @@ export function resolveOperation(args: {
 
     // Comment
     let comment: string | undefined = undefined;
+    if (args.tx.body && args.tx.body.type === 'comment') {
+        comment = args.tx.body.comment;
+    }
 
     // Resolve default name
     let name: string;

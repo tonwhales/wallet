@@ -2,6 +2,7 @@ import * as FileSystem from 'expo-file-system';
 import { Engine } from "../Engine";
 import { PersistedValueSync } from "../utils/PersistedValueSync";
 import { sha256_sync } from 'ton-crypto';
+import { warn } from '../../utils/log';
 
 export class DownloadAtom extends PersistedValueSync<string> {
 
@@ -14,16 +15,31 @@ export class DownloadAtom extends PersistedValueSync<string> {
     }
 
     protected doSync = async (existing: string | null): Promise<string | null> => {
+
+        // Link key
+        let key = sha256_sync(this.link).toString('hex');
+
+        // Check if file exist
         if (existing) {
-            return null;
+            try {
+                let info = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + existing);
+                if (info.exists) {
+                    return null;
+                }
+            } catch (e) {
+                warn(e);
+            }
+            console.log('Re-Downloading: ' + this.link);
         }
+
+        // Downloading
         console.log('Downloading: ' + this.link);
         let downloading = await FileSystem.downloadAsync(
             this.link,
-            FileSystem.documentDirectory + sha256_sync(this.link).toString('hex'),
+            FileSystem.cacheDirectory + key,
             {}
         );
         console.log('Downloaded to ' + downloading.uri);
-        return downloading.uri;
+        return key;
     }
 }

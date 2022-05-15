@@ -16,6 +16,7 @@ import { SyncStateManager } from './SyncStateManager';
 import { WalletV4Sync } from './account/WalletV4Sync';
 import { WalletSync } from './account/WalletSync';
 import { AppStorage } from './storage/AppStorage';
+import { Downloads } from './files/Downloads';
 
 export type EngineProduct = {
     ready: boolean,
@@ -35,6 +36,7 @@ export class Engine {
     readonly client4: TonClient4;
     readonly blocksWatcher: BlocksWatcher;
     readonly state: SyncStateManager = new SyncStateManager();
+    readonly downloads: Downloads;
 
     // Modules
     readonly products;
@@ -65,6 +67,7 @@ export class Engine {
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.accounts = new Accounts(this);
         this.transactions = new Transactions(this);
+        this.downloads = new Downloads(this);
 
         // Create products
         this.products = {

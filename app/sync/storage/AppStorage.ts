@@ -112,9 +112,6 @@ export class AppStorage {
     }
 
     download(key: string) {
-        if (key !== '') {
-            setTimeout(() => { this.engine.accounts.getDownload(key); }, 10); // Create download lazily
-        }
         return this.#downloads.get(key);
     }
 }

@@ -42,6 +42,12 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
         //
 
         const level = await LocalAuthentication.getEnrolledLevelAsync();
+
+        // Check is has supported auth type to call LocalAuthentication.authenticateAsync()
+        let hasSupportedAuth = (await LocalAuthentication.supportedAuthenticationTypesAsync()).length > 0;
+        if (!hasSupportedAuth) {
+            return 'none';
+        }
         if (level === LocalAuthentication.SecurityLevel.BIOMETRIC) {
             return 'device-biometrics';
         }
@@ -52,7 +58,6 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
         //
         // Last call: nothing at all enabled on device and there are nothing we can do.
         //
-        
         return 'none';
     }
 

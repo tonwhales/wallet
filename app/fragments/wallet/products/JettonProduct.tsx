@@ -23,10 +23,9 @@ export const JettonProdcut = React.memo((props: {
     // Downloaded
     let downloaded: string | null = null;
     if (props.jetton.image && props.jetton.image) {
-        props.engine.accounts.getDownload(props.jetton.image);
-        downloaded = props.engine.storage.download(props.jetton.image).use();
+        downloaded = props.engine.downloads.use(props.jetton.image);
     } else {
-        downloaded = props.engine.storage.download('').use();
+        downloaded = props.engine.downloads.use('');
     }
 
     return (

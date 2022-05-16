@@ -359,7 +359,10 @@ export type LocalizationSchema = {
         withdrawCompleted: string,
         withdrawRequested: string,
         upgrade: string,
-        upgradeOk: string
+        upgradeOk: string,
+        cashback: string,
+        tokenSent: string,
+        tokenReceived: string
     }
 };
 

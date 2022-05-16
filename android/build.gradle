@@ -2,22 +2,23 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "29.0.3"
-        minSdkVersion = 21
+        buildToolsVersion = "31.0.0"
+        minSdkVersion = 23
         compileSdkVersion = 31
-        targetSdkVersion = 30
+        targetSdkVersion = 31
         kotlinVersion = "1.6.10"
+        ndkVersion = "24.0.8215888"
     }
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:4.1.0")
+        classpath("com.android.tools.build:gradle:7.0.4")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath 'com.google.gms:google-services:4.3.10'
-        
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("de.undercouch:gradle-download-task:4.1.2")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -25,7 +26,6 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url(new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../android"))
@@ -36,8 +36,14 @@ allprojects {
         }
 
         google()
-        mavenCentral()
-        jcenter()
         maven { url 'https://www.jitpack.io' }
+        mavenCentral {
+            // We don't want to fetch react-native from Maven Central as there are
+            // older versions over there.
+            content {
+                excludeGroup "com.facebook.react"
+            }
+        }
+        jcenter() // Some library in react-native-fast-animations
     }
 }

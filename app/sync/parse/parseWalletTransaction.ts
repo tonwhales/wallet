@@ -2,7 +2,7 @@ import { BN } from "bn.js";
 import { Address, Cell, parseMessage, RawTransaction } from "ton";
 import { Body, Transaction } from "../Transaction";
 
-function parseBody(cell: Cell): Body | null {
+export function parseBody(cell: Cell): Body | null {
     let slice = cell.beginParse();
     if (slice.remaining < 32) {
         return null;

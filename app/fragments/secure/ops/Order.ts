@@ -88,9 +88,9 @@ export function createJettonOrder(args: {
         .storeCoins(args.amount)
         .storeAddress(Address.parse(args.target))
         .storeAddress(args.responseTarget)
-        .storeRefMaybe(payload)
+        .storeRefMaybe(null)
         .storeCoins(args.tonAmount)
-        .storeBit(false)
+        .storeRefMaybe(payload)
         .endCell();
 
 

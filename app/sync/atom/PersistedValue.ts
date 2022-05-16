@@ -1,5 +1,4 @@
-import { atom, RecoilState, useRecoilState, useRecoilValue } from "recoil";
-import { Engine } from "../Engine";
+import { atom, RecoilState, useRecoilValue, AtomEffect } from "recoil";
 import { PersistedItem } from "../PersistedCollection";
 import { AppStorage } from "../storage/AppStorage";
 import { ReactSync } from "../utils/ReactSync";
@@ -11,7 +10,7 @@ export class PersistedValue<T> {
     #item: PersistedItem<T>;
     #state: RecoilState<T | null>;
 
-    constructor(key: string, item: PersistedItem<T>, storage: AppStorage) {
+    constructor(key: string, item: PersistedItem<T>, storage: AppStorage, effects: AtomEffect<T | null>[]) {
         this.storage = storage;
         this.#item = item;
         let ex = item.getValue();
@@ -20,7 +19,9 @@ export class PersistedValue<T> {
         }
         this.#state = atom({
             key,
-            default: ex
+            default: ex,
+            effects_UNSTABLE: effects,
+            dangerouslyAllowMutability: true
         });
     };
 

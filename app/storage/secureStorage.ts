@@ -3,10 +3,12 @@ import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
-import * as Keychain from 'react-native-keychain';
+import * as KeyStore from './modules/KeyStore';
 
-function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keychain' {
+function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'key-store' {
     let kind = storage.getString('ton-storage-kind');
+
+    console.log('[loadKeyStorageType]', { kind });
 
     // Legacy
     if (!kind) {
@@ -23,8 +25,8 @@ function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'keycha
     if (kind === 'secure-store') {
         return 'secure-store';
     }
-    if (kind === 'keychain') {
-        return 'keychain';
+    if (kind === 'key-store') {
+        return 'key-store';
     }
     throw Error('Storage type invalid');
 }
@@ -72,24 +74,25 @@ async function getApplicationKey() {
         return Buffer.from(ex, 'base64');
     }
 
-    // Keychain
-    if (storageType === 'keychain') {
-        let ex = await Keychain.getGenericPassword({
-            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-            storage: Keychain.STORAGE_TYPE.RSA,
-            service: ref
-        });
+    // Keystore
+    if (storageType === 'key-store') {
+        let ex = await KeyStore.getItemAsync(ref);
         if (!ex) {
             throw Error('Broken keystore');
         }
-        return Buffer.from(ex.password, 'base64');
+        return Buffer.from(ex, 'base64');
     }
 
     throw Error('Broken keystore');
 }
 
-export async function generateNewKey(disableEncryption: boolean) {
+async function doEncrypt(key: Buffer, data: Buffer) {
+    const nonce = await getSecureRandomBytes(24);
+    const sealed = sealBox(data, nonce, key);
+    return Buffer.concat([nonce, sealed]);
+}
+
+export async function generateNewKeyAndEncrypt(disableEncryption: boolean, data: Buffer) {
 
     // Generate new ref
     let ref = (await getSecureRandomBytes(32)).toString('hex');
@@ -102,7 +105,7 @@ export async function generateNewKey(disableEncryption: boolean) {
         storage.set('ton-storage-kind', 'local-authentication');
         storage.set('ton-storage-ref', ref);
         storage.set('ton-storage-key-' + ref, privateKey.toString('base64'));
-        return;
+        return doEncrypt(privateKey, data);
     }
 
     // Handle iOS
@@ -118,19 +121,15 @@ export async function generateNewKey(disableEncryption: boolean) {
             requireAuthentication: true,
             keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
         });
+    } else if (Platform.OS === 'android') {
+        storage.set('ton-storage-ref', ref);
+        storage.set('ton-storage-kind', 'key-store');
+        await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
+    } else {
+        throw Error('Unsupporteed platform')
     }
 
-    // Handle Android
-    if (Platform.OS === 'android') {
-        storage.set('ton-storage-kind', 'keychain');
-        storage.set('ton-storage-ref', ref);
-        await Keychain.setGenericPassword('username', privateKey.toString('base64'), {
-            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-            storage: Keychain.STORAGE_TYPE.RSA,
-            service: ref
-        });
-    }
+    return doEncrypt(privateKey, data);
 }
 
 export async function encryptData(data: Buffer) {

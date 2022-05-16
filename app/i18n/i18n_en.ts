@@ -357,7 +357,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         withdrawCompleted: 'Withdraw completed',
         withdrawRequested: 'Withdraw requested',
         upgrade: 'Upgrade code to {{hash}}',
-        upgradeOk: 'Upgrade completed'
+        upgradeOk: 'Upgrade completed',
+        cashback: 'Cashback',
+        tokenSent: 'Token sent',
+        tokenReceived: 'Token received'
     }
 };
 

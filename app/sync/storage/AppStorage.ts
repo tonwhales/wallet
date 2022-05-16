@@ -33,44 +33,45 @@ export class AppStorage {
 
         this.#metadataCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('metadata/' + src, engine.persistence.metadata.item(address), this);
+            return new PersistedValue('metadata/' + src, engine.persistence.metadata.item(address), this, []);
         });
         this.#liteAccountCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/lite/' + src, engine.persistence.liteAccounts.item(address), this);
+            return new PersistedValue('account/lite/' + src, engine.persistence.liteAccounts.item(address), this, []);
         });
         this.#fullAccountCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/full/' + src, engine.persistence.fullAccounts.item(address), this);
+            return new PersistedValue('account/full/' + src, engine.persistence.fullAccounts.item(address), this, []);
         });
         this.#pluginCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/plugin/' + src, engine.persistence.plugins.item(address), this);
+            return new PersistedValue('account/plugin/' + src, engine.persistence.plugins.item(address), this, []);
         });
         this.#staking = new LazyMap((src) => {
             let parts = src.split('#');
             let address = Address.parse(parts[0]);
             let target = Address.parse(parts[1]);
-            return new PersistedValue('staking/' + parts[0] + '/' + parts[1] + '/' + src, engine.persistence.staking.item({ address, target }), this);
+            return new PersistedValue('staking/' + parts[0] + '/' + parts[1] + '/' + src, engine.persistence.staking.item({ address, target }), this, []);
         });
         this.#wallet = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/wallet/' + src, engine.persistence.wallets.item(address), this);
+            return new PersistedValue('account/wallet/' + src, engine.persistence.wallets.item(address), this, []);
         });
         this.#jettons = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/jettons/' + src, engine.persistence.tokens.item(address), this);
+            return new PersistedValue('account/jettons/' + src, engine.persistence.tokens.item(address), this, []);
         });
         this.#jettonWallet = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/jetton/wallet/' + src, engine.persistence.jettonWallets.item(address), this);
+            return new PersistedValue('account/jetton/wallet/' + src, engine.persistence.jettonWallets.item(address), this, []);
         });
         this.#jettonMaster = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/jetton/master/' + src, engine.persistence.jettonMasters.item(address), this);
+            return new PersistedValue('account/jetton/master/' + src, engine.persistence.jettonMasters.item(address), this, []);
         });
         this.#downloads = new LazyMap((src) => {
-            return new PersistedValue('file/' + src, engine.persistence.downloads.item(src), this);
+            let v = new PersistedValue('file/' + src, engine.persistence.downloads.item(src), this, []);
+            return v;
         });
     }
 

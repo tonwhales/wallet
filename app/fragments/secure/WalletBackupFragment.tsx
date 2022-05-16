@@ -38,6 +38,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 let keys = await loadWalletKeys(address.secretKeyEnc);
                 setMnemonics(keys.mnemonics);
             } catch (e) {
+                console.warn(e);
                 navigation.goBack();
                 return;
             }

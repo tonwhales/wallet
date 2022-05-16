@@ -11,7 +11,7 @@ import java.util.List;
 public class WalletJSIPackage extends ReanimatedJSIModulePackage {
     @Override
     public List<JSIModuleSpec> getJSIModules(ReactApplicationContext reactApplicationContext, JavaScriptContextHolder jsContext) {
-        MmkvModule.install(jsContext, reactApplicationContext.getFilesDir().getAbsolutePath() + "/mmkv");
+//        new MmkvModule(reactApplicationContext).install(reactApplicationContext.getFilesDir().getAbsolutePath() + "/mmkv");
         return super.getJSIModules(reactApplicationContext, jsContext);
     }
 }

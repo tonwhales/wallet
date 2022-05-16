@@ -142,6 +142,8 @@ def packageVersion = packageJson.version
 def versionCodeValue = Integer.parseInt(file('../../VERSION_CODE').text)
 
 android {
+    ndkVersion rootProject.ext.ndkVersion
+
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -161,7 +163,7 @@ android {
             // We configure the NDK build only if you decide to opt-in for the New Architecture.
             externalNativeBuild {
                 ndkBuild {
-                    arguments "APP_PLATFORM=android-21",
+                    arguments "APP_PLATFORM=android-23",
                             "APP_STL=c++_shared",
                             "NDK_TOOLCHAIN_VERSION=clang",
                             "GENERATED_SRC_DIR=$buildDir/generated/source",
@@ -172,7 +174,7 @@ android {
                     cppFlags "-std=c++17"
                     // Make sure this target name is the same you specify inside the
                     // src/main/jni/Android.mk file for the `LOCAL_MODULE` variable.
-                    targets "rndiffapp_appmodules"
+                    targets "tonhub_appmodules"
                     // Fix for windows limit on number of character in file paths and in command lines
                     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                         arguments "NDK_APP_SHORT_COMMANDS=true"
@@ -209,20 +211,31 @@ android {
             // If you wish to add a custom TurboModule or component locally,
             // you should uncomment this line.
             // preBuild.dependsOn("generateCodegenArtifactsFromSchema")
-            preDebugBuild.dependsOn(packageReactNdkDebugLibs)
-            preReleaseBuild.dependsOn(packageReactNdkReleaseLibs)
+            // FIX: source: https://github.com/facebook/react-native/issues/33596#issuecomment-1103577770
+            android.applicationVariants.all { def variant ->
+                def variantName = variant.name.capitalize()
+                def preVariantBuildTask = tasks.findByName("pre${variantName}Build")
 
-            // Due to a bug inside AGP, we have to explicitly set a dependency
-            // between configureNdkBuild* tasks and the preBuild tasks.
-            // This can be removed once this is solved: https://issuetracker.google.com/issues/207403732
-            configureNdkBuildRelease.dependsOn(preReleaseBuild)
-            configureNdkBuildDebug.dependsOn(preDebugBuild)
-            reactNativeArchitectures().each { architecture ->
-                tasks.findByName("configureNdkBuildDebug[${architecture}]")?.configure {
-                    dependsOn("preDebugBuild")
+                // Due to a bug inside AGP, we have to explicitly set a dependency
+                // between configureNdkBuild* tasks and the preBuild tasks.
+                // This can be removed once this is solved: https://issuetracker.google.com/issues/207403732
+                if (variantName.endsWith("Debug")) {
+                    preVariantBuildTask.dependsOn(packageReactNdkDebugLibs)
+                    configureNdkBuildDebug.dependsOn(preVariantBuildTask)
+                    reactNativeArchitectures().each { architecture ->
+                        tasks.findByName("configureNdkBuildDebug[${architecture}]")?.configure {
+                            dependsOn(preVariantBuildTask.name)
+                        }
+                    }
                 }
-                tasks.findByName("configureNdkBuildRelease[${architecture}]")?.configure {
-                    dependsOn("preReleaseBuild")
+                if (variantName.endsWith("Release")) {
+                    preVariantBuildTask.dependsOn(packageReactNdkReleaseLibs)
+                    configureNdkBuildRelease.dependsOn(preVariantBuildTask)
+                    reactNativeArchitectures().each { architecture ->
+                        tasks.findByName("configureNdkBuildRelease[${architecture}]")?.configure {
+                            dependsOn(preVariantBuildTask.name)
+                        }
+                    }
                 }
             }
         }

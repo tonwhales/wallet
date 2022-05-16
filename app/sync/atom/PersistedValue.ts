@@ -20,7 +20,8 @@ export class PersistedValue<T> {
         this.#state = atom({
             key,
             default: ex,
-            effects_UNSTABLE: effects
+            effects_UNSTABLE: effects,
+            dangerouslyAllowMutability: true
         });
     };
 

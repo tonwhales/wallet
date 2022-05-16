@@ -6,7 +6,8 @@ import { LogBox } from 'react-native';
 LogBox.ignoreLogs([
     'Overwriting fontFamily style attribute',
     'Non-serializable values were found in the navigation state',
-    'Fetching the token failed: MISSING'
+    'Fetching the token failed: MISSING',
+    'ViewPropTypes will be removed'
 ]);
 
 // Load i18n

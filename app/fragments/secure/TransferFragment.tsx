@@ -209,13 +209,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             transferCell.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
             transferCell.writeCell(order.payload);
             transfer = transferCell;
-            // const preParsed = transferCell;
-            // const parsed = preParsed.beginParse();
-            // parsed.skip(512);
-            // parsed.skip(32);
-            // parsed.skip(32);
-            // parsed.skip(32);
-            // console.log({ command: parsed.readIntNumber(8) });
         }
 
         // Sending transfer
@@ -385,14 +378,6 @@ export const TransferFragment = fragment(() => {
             // Check for plugin uninstall
             if (params.order.transferCell && params.order.payload) {
                 transfer = params.order.payload;
-                // const preParsed = transfer;
-                // const parsed = preParsed.beginParse();
-                // parsed.skip(32);
-                // parsed.skip(32);
-                // parsed.skip(32);
-                // console.log({
-                //     command: parsed.readIntNumber(8)
-                // });
             }
 
             // Fetch data

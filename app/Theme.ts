@@ -6,6 +6,7 @@ export const Theme = {
     textSecondary: '#8E8E92',
     loader: '#367CDE',
     background: '#F2F2F6',
+    item: 'white',
 
     accent: AppConfig.isTestnet ? '#F3A203' : '#47A9F1',
     accentDark: AppConfig.isTestnet ? '#F3A203' : '#288FD8',

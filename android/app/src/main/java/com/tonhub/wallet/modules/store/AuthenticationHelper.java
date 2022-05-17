@@ -2,8 +2,6 @@ package com.tonhub.wallet.modules.store;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.os.Build;
-import android.util.Log;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -20,7 +18,6 @@ import java.security.InvalidKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
 
 public class AuthenticationHelper {
     private final ReactContext mContext;

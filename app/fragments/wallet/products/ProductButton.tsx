@@ -27,7 +27,7 @@ export function ProductButton(props: {
             style={[
                 {
                     alignSelf: 'stretch', borderRadius: 14,
-                    backgroundColor: 'white',
+                    backgroundColor: Theme.item,
                     marginHorizontal: 16, marginVertical: 8
                 },
                 props.style

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, View, Text, Platform } from 'react-native';
+import { Alert, View, Text, Platform, Pressable } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
@@ -27,6 +27,26 @@ export const SettingsFragment = fragment(() => {
                     reboot();
                 }
             }, { text: t('common.cancel') }])
+    }, []);
+
+    const onVersionTap = React.useMemo(() => {
+        let count = 0;
+        let timer: any | null = null;
+        return () => {
+            count++;
+            if (count > 5) {
+                count = 0;
+                navigation.navigate('DeveloperTools')
+            } else {
+                if (timer) {
+                    clearTimeout(timer);
+                }
+                timer = setTimeout(() => {
+                    timer = null;
+                    count = 0;
+                }, 1000);
+            }
+        };
     }, []);
 
     return (
@@ -139,21 +159,6 @@ export const SettingsFragment = fragment(() => {
                     </View>
                 </View>
 
-                {__DEV__ && (
-                    <View style={{
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: "white",
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t('settings.developerTools')} onPress={() => navigation.navigate('DeveloperTools')} />
-                        </View>
-                    </View>
-                )}
-
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: "white",
@@ -167,16 +172,19 @@ export const SettingsFragment = fragment(() => {
                     </View>
                 </View>
             </ScrollView>
-            <View style={{
-                position: 'absolute',
-                bottom: 56 + 14 + safeArea.bottom,
-                flexShrink: 1,
-                alignSelf: 'center',
-                borderRadius: 20,
-                overflow: 'hidden',
-                paddingHorizontal: 6,
-                paddingVertical: 2,
-            }}>
+            <Pressable
+                onPress={onVersionTap}
+                style={{
+                    position: 'absolute',
+                    bottom: 56 + 14 + safeArea.bottom,
+                    flexShrink: 1,
+                    alignSelf: 'center',
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    paddingHorizontal: 6,
+                    paddingVertical: 2,
+                }}
+            >
                 <View style={{
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
@@ -190,7 +198,7 @@ export const SettingsFragment = fragment(() => {
                 }}>
                     Tonhub v{AppConfig.version}
                 </Text>
-            </View>
+            </Pressable>
         </View>
     );
 });

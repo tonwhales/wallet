@@ -60,7 +60,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     }
 
     return (
-        <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector}>
+        <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={downloaded ? downloaded : undefined} />)}
@@ -88,7 +88,7 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
                         <Text
-                            style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
+                            style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >

@@ -32,9 +32,13 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 // Generate New Key
                 try {
                     let disableEncryption = !!(props.deviceEncryption === 'none' || props.deviceEncryption === 'device-biometrics' || props.deviceEncryption === 'device-passcode' || bypassEncryption);
+                    if (Platform.OS === 'android' && Platform.Version < 30) {
+                        disableEncryption = true; // Encryption doesn't work well on older androids
+                    }
                     token = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
                 } catch (e) {
                     // Ignore
+                    console.warn(e);
                     return;
                 }
 

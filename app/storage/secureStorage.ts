@@ -5,10 +5,8 @@ import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
 
-function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'key-store' {
+export function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'key-store' {
     let kind = storage.getString('ton-storage-kind');
-
-    console.log('[loadKeyStorageType]', { kind });
 
     // Legacy
     if (!kind) {
@@ -31,7 +29,7 @@ function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'key-st
     throw Error('Storage type invalid');
 }
 
-function loadKeyStorageRef() {
+export function loadKeyStorageRef() {
     let ref = storage.getString('ton-storage-ref');
     if (ref) {
         return ref;
@@ -40,7 +38,7 @@ function loadKeyStorageRef() {
     }
 }
 
-async function getApplicationKey() {
+export async function getApplicationKey() {
 
     const storageType = loadKeyStorageType();
     const ref = loadKeyStorageRef();
@@ -58,7 +56,8 @@ async function getApplicationKey() {
         }
 
         // Read from keystore
-        const ex = storage.getString('ton-storage-key-' + ref);
+        let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref; // Legacy hack
+        const ex = storage.getString(key);
         if (!ex) {
             throw Error('Broken keystore');
         }

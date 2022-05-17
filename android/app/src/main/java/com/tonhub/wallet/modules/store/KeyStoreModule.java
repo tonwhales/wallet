@@ -95,29 +95,21 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
         try {
             KeyStore keyStore = getKeyStore();
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                KeyStore.SecretKeyEntry secretKeyEntry = getKeyEntry(KeyStore.SecretKeyEntry.class, mAESEncrypter);
-                mAESEncrypter.createEncryptedItem(
-                        promise, value, keyStore, secretKeyEntry, mAuthenticationHelper.getDefaultCallback(),
-                        (innerPromise, result) -> {
-                            JSONObject obj = (JSONObject) result;
-                            obj.put(SCHEME_PROPERTY, AESEncrypter.NAME);
-                            saveEncryptedItem(innerPromise, obj, prefs, key);
-                        }
-                );
-            } else {
-                promise.reject("BUILD_VERSION_CODES_ERROR", "There was an I/O error loading the keystore for KeyStoreModule");
-                return;
-            }
+            KeyStore.SecretKeyEntry secretKeyEntry = getKeyEntry(KeyStore.SecretKeyEntry.class, mAESEncrypter);
+            mAESEncrypter.createEncryptedItem(
+                    promise, value, keyStore, secretKeyEntry, mAuthenticationHelper.getDefaultCallback(),
+                    (innerPromise, result) -> {
+                        JSONObject obj = (JSONObject) result;
+                        obj.put(SCHEME_PROPERTY, AESEncrypter.NAME);
+                        saveEncryptedItem(innerPromise, obj, prefs, key);
+                    }
+            );
         } catch (IOException e) {
             Log.w(TAG, e);
             promise.reject("IO_ERROR", "There was an I/O error loading the keystore for KeyStoreModule", e);
-            return;
         } catch (GeneralSecurityException e) {
             Log.w(TAG, e);
             promise.reject("ENCRYPT_ERROR", "Could not encrypt the value for KeyStoreModule", e);
-            return;
         }
     }
 
@@ -336,7 +328,6 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
         public KeyStore.SecretKeyEntry initializeKeyStoreEntry(KeyStore keyStore) throws GeneralSecurityException {
             String keystoreAlias = getKeyStoreAlias();
             int keyPurposes = KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT;
-
             // Configure specs
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(keystoreAlias, keyPurposes)
                     .setKeySize(AES_KEY_SIZE_BITS)

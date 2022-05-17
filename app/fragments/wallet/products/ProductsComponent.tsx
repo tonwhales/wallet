@@ -32,13 +32,16 @@ export const ProductsComponent = React.memo(() => {
                     value={null}
                     onPress={() => {
                         if (currentJob.job.type === 'transaction') {
-                            navigation.navigate('Transfer', {
-                                target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                comment: currentJob.job.text,
-                                amount: currentJob.job.amount.toString(10),
-                                payload: currentJob.job.payload,
-                                stateInit: currentJob.job.stateInit,
-                                job: currentJob.jobRaw
+                            navigation.navigateTransfer({
+                                order: {
+                                    target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                    amount: currentJob.job.amount,
+                                    payload: currentJob.job.payload,
+                                    stateInit: currentJob.job.stateInit,
+                                    amountAll: false
+                                },
+                                job: currentJob.jobRaw,
+                                text: currentJob.job.text
                             });
                         }
                     }}

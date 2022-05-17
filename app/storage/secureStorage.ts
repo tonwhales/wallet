@@ -56,7 +56,8 @@ export async function getApplicationKey() {
         }
 
         // Read from keystore
-        const ex = storage.getString('ton-storage-key-' + ref);
+        let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref; // Legacy hack
+        const ex = storage.getString(key);
         if (!ex) {
             throw Error('Broken keystore');
         }

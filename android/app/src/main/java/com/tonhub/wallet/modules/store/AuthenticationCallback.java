@@ -13,5 +13,10 @@ public interface AuthenticationCallback {
             EncryptionCallback encryptionCallback,
             PostEncryptionCallback postEncryptionCallback
     );
+
+    void checkAuthNoCipher(
+            Promise promise,
+            PostAuthCallback postAuthCallback
+    );
 }
 

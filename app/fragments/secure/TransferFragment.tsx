@@ -75,7 +75,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     if (order.payload && order.transferCell) {
         const preParsed = order.payload;
         const parsed = preParsed.beginParse();
-        
+
         parsed.skip(32);
         parsed.skip(32);
         parsed.skip(32);
@@ -143,7 +143,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (!order.amountAll && order.amount.eq(new BN(0))) {
+        if (!order.transferCell &&!order.amountAll && order.amount.eq(new BN(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -209,13 +209,13 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             transferCell.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
             transferCell.writeCell(order.payload);
             transfer = transferCell;
-            const preParsed = transferCell;
-            const parsed = preParsed.beginParse();
-            parsed.skip(512);
-            parsed.skip(32);
-            parsed.skip(32);
-            parsed.skip(32);
-            console.log({ command: parsed.readIntNumber(8) });
+            // const preParsed = transferCell;
+            // const parsed = preParsed.beginParse();
+            // parsed.skip(512);
+            // parsed.skip(32);
+            // parsed.skip(32);
+            // parsed.skip(32);
+            // console.log({ command: parsed.readIntNumber(8) });
         }
 
         // Sending transfer
@@ -385,14 +385,14 @@ export const TransferFragment = fragment(() => {
             // Check for plugin uninstall
             if (params.order.transferCell && params.order.payload) {
                 transfer = params.order.payload;
-                const preParsed = transfer;
-                const parsed = preParsed.beginParse();
-                parsed.skip(32);
-                parsed.skip(32);
-                parsed.skip(32);
-                console.log({
-                    command: parsed.readIntNumber(8)
-                });
+                // const preParsed = transfer;
+                // const parsed = preParsed.beginParse();
+                // parsed.skip(32);
+                // parsed.skip(32);
+                // parsed.skip(32);
+                // console.log({
+                //     command: parsed.readIntNumber(8)
+                // });
             }
 
             // Fetch data

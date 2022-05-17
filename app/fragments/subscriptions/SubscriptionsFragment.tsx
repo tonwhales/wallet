@@ -8,6 +8,7 @@ import { EngineContext } from "../../sync/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SubscriptionButton } from '../../components/SubscriptionButton';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 export const SubscriptionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -20,6 +21,7 @@ export const SubscriptionsFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0
         }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar pageTitle={t('products.subscriptions.title')} />
             {Platform.OS === 'ios' && (
                 <View style={{

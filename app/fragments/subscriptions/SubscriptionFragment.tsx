@@ -19,6 +19,7 @@ import { createRemovePluginCell } from "../../utils/createRemovePluginCell";
 import { contractFromPublicKey } from "../../sync/contractFromPublicKey";
 import { getCurrentAddress } from "../../storage/appState";
 import BN from "bn.js";
+import { StatusBar } from "expo-status-bar";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -98,6 +99,7 @@ export const SubscriptionFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0
         }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar pageTitle={t('products.subscriptions.subscription.title')} />
             <View style={{
                 backgroundColor: Theme.background,

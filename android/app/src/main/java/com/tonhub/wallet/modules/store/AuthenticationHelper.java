@@ -2,6 +2,7 @@ package com.tonhub.wallet.modules.store;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.os.Build;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -63,11 +64,17 @@ public class AuthenticationHelper {
                 break;
         }
 
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt
+        BiometricPrompt.PromptInfo.Builder promptInfoBuilder = new BiometricPrompt
                 .PromptInfo.Builder()
-                .setTitle("Authenticate")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .build();
+                .setTitle("Authenticate");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            promptInfoBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        } else {
+            promptInfoBuilder.setNegativeButtonText(mContext.getString(android.R.string.cancel));
+        }
+
+        BiometricPrompt.PromptInfo promptInfo = promptInfoBuilder.build();
 
         if (!isAppInforegrounded()) {
             promise.reject(
@@ -173,11 +180,17 @@ public class AuthenticationHelper {
                 break;
         }
 
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt
+        BiometricPrompt.PromptInfo.Builder promptInfoBuilder = new BiometricPrompt
                 .PromptInfo.Builder()
-                .setTitle("Authenticate")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .build();
+                .setTitle("Authenticate");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            promptInfoBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        } else {
+            promptInfoBuilder.setNegativeButtonText(mContext.getString(android.R.string.cancel));
+        }
+
+        BiometricPrompt.PromptInfo promptInfo = promptInfoBuilder.build();
 
         if (!isAppInforegrounded()) {
             promise.reject(

@@ -147,7 +147,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                     onChangeText={onTextChange}
                     onBlur={onBlur}
                     returnKeyType="next"
-                    autoCompleteType="off"
+                    autoComplete='off'
                     autoCorrect={false}
                     keyboardType="ascii-capable"
                     autoCapitalize="none"
@@ -205,13 +205,14 @@ function WalletWordsComponent(props: {
     // }, [words]);
     const onSubmitEnd = React.useCallback(async () => {
         let wordsLocal = wordsRef.current;
-        let isValid = await mnemonicValidate(wordsLocal);
+        let normalized = wordsLocal.map((v) => v.toLowerCase().trim());
+        let isValid = await mnemonicValidate(normalized);
         if (!isValid) {
             Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
             return;
         }
         const deviceEncryption = await getDeviceEncryption();
-        props.onComplete({ mnemonics: wordsLocal.join(' ').toLowerCase(), deviceEncryption });
+        props.onComplete({ mnemonics: normalized.join(' '), deviceEncryption });
     }, []);
 
     //

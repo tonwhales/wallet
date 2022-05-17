@@ -336,7 +336,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
             builder = builder.setUserAuthenticationRequired(true);
 
             // Set auth validity: per-use-auth
-            builder = builder.setUserAuthenticationValidityDurationSeconds(1);
+            builder = builder.setUserAuthenticationValidityDurationSeconds(30);
 
             // Require device to be unlocked
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

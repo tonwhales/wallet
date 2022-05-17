@@ -43,10 +43,7 @@ public class AuthenticationHelper {
         }
 
         BiometricManager biometricManager = BiometricManager.from(mContext);
-        int checkRes = biometricManager.canAuthenticate(
-                BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                        | BiometricManager.Authenticators.BIOMETRIC_STRONG
-        );
+        int checkRes = biometricManager.canAuthenticate();
         switch (checkRes) {
             case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
@@ -74,13 +71,8 @@ public class AuthenticationHelper {
 
         BiometricPrompt.PromptInfo.Builder promptInfoBuilder = new BiometricPrompt
                 .PromptInfo.Builder()
+                .setNegativeButtonText(mContext.getString(android.R.string.cancel))
                 .setTitle("Authenticate");
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            promptInfoBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG);
-        } else {
-            promptInfoBuilder.setNegativeButtonText(mContext.getString(android.R.string.cancel));
-        }
 
         BiometricPrompt.PromptInfo promptInfo = promptInfoBuilder.build();
 
@@ -152,10 +144,7 @@ public class AuthenticationHelper {
         }
 
         BiometricManager biometricManager = BiometricManager.from(mContext);
-        int checkRes = biometricManager.canAuthenticate(
-                BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                        | BiometricManager.Authenticators.BIOMETRIC_STRONG
-        );
+        int checkRes = biometricManager.canAuthenticate();
         switch (checkRes) {
             case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
@@ -183,13 +172,8 @@ public class AuthenticationHelper {
 
         BiometricPrompt.PromptInfo.Builder promptInfoBuilder = new BiometricPrompt
                 .PromptInfo.Builder()
+                .setNegativeButtonText(mContext.getString(android.R.string.cancel))
                 .setTitle("Authenticate");
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            promptInfoBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG);
-        } else {
-            promptInfoBuilder.setNegativeButtonText(mContext.getString(android.R.string.cancel));
-        }
 
         BiometricPrompt.PromptInfo promptInfo = promptInfoBuilder.build();
 
@@ -204,7 +188,7 @@ public class AuthenticationHelper {
         FragmentActivity fragmentActivity = getCurrentActivity();
 
         fragmentActivity.runOnUiThread(() -> {
-        isAuthenticating = true;
+            isAuthenticating = true;
             new BiometricPrompt(
                     fragmentActivity,
                     ContextCompat.getMainExecutor(mContext),

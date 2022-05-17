@@ -1,14 +1,13 @@
 package com.tonhub.wallet.modules.store;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyInfo;
 import android.security.keystore.KeyProperties;
+import android.security.keystore.UserNotAuthenticatedException;
 import android.util.Base64;
 import android.util.Log;
 
@@ -36,7 +35,6 @@ import java.security.spec.AlgorithmParameterSpec;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 
 public class KeyStoreModule extends ReactContextBaseJavaModule {
@@ -400,20 +398,39 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
             SecretKey secretKey = secretKeyEntry.getSecretKey();
             Cipher cipher = Cipher.getInstance(AES_CIPHER);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-
-            authenticationCallback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
-                        GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
-                        return createEncryptedItem(
-                                promise1,
-                                plaintextValue,
-                                cipher1,
-                                gcmSpec,
-                                postEncryptionCallback1
-                        );
-                    },
-                    postEncryptionCallback
-            );
+            try {
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+                authenticationCallback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
+                            GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
+                            return createEncryptedItem(
+                                    promise1,
+                                    plaintextValue,
+                                    cipher1,
+                                    gcmSpec,
+                                    postEncryptionCallback1
+                            );
+                        },
+                        postEncryptionCallback
+                );
+            } catch (UserNotAuthenticatedException e) {
+                authenticationCallback.checkAuthNoCipher(promise, (success) -> {
+                    if (success) {
+                        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+                        authenticationCallback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
+                                GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
+                                return createEncryptedItem(
+                                        promise1,
+                                        plaintextValue,
+                                        cipher1,
+                                        gcmSpec,
+                                        postEncryptionCallback1
+                                );
+                            },
+                            postEncryptionCallback
+                    );
+                    }
+                });
+            }
         }
 
         JSONObject createEncryptedItem(Promise promise, String plaintextValue, Cipher cipher,

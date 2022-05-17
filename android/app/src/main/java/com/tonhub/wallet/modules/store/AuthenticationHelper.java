@@ -16,13 +16,119 @@ import org.json.JSONException;
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
 
 public class AuthenticationHelper {
     private final ReactContext mContext;
     private Boolean isAuthenticating = false;
     AuthenticationHelper(Context context) {
         this.mContext = (ReactContext) context;
+    }
+
+    private void authenticate(Promise promise, PostAuthCallback postAuthCallback) {
+        if (isAuthenticating) {
+            promise.reject(
+                    "AUTH_IN_PROGRESS",
+                    "Authentication is already in progress"
+            );
+            return;
+        }
+
+        BiometricManager biometricManager = BiometricManager.from(mContext);
+        int checkRes = biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                        | BiometricManager.Authenticators.BIOMETRIC_STRONG
+        );
+        switch (checkRes) {
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                promise.reject(
+                        "AUTH_NOT_AVAILABLE",
+                        "No hardware available for passcode authentication."
+                );
+                return;
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                promise.reject(
+                        "AUTH_NOT_CONFIGURED",
+                        "No passcode enrolled"
+                );
+                return;
+            case BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED:
+            case BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED:
+            case BiometricManager.BIOMETRIC_STATUS_UNKNOWN:
+                promise.reject(
+                        "AUTH_NOT_UNKNOWN_ERR",
+                        "STATUS_UNKNOWN"
+                );
+            case BiometricManager.BIOMETRIC_SUCCESS:
+                break;
+        }
+
+        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt
+                .PromptInfo.Builder()
+                .setTitle("Authenticate")
+                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build();
+
+        if (!isAppInforegrounded()) {
+            promise.reject(
+                    "APP_BACKGROUNDED",
+                    "Cannot display biometric prompt when the app is not in the foreground"
+            );
+            return;
+        }
+
+        FragmentActivity fragmentActivity = getCurrentActivity();
+
+        fragmentActivity.runOnUiThread(() -> {
+            isAuthenticating = true;
+            new BiometricPrompt(
+                    fragmentActivity,
+                    ContextCompat.getMainExecutor(mContext),
+                    new BiometricPrompt.AuthenticationCallback() {
+                        @Override
+                        public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                            super.onAuthenticationSucceeded(result);
+                            isAuthenticating = false;
+                            try {
+                                postAuthCallback.run(true);
+                            } catch (GeneralSecurityException e) {
+                                promise.reject(e);
+                            }
+                        }
+
+                        @Override
+                        public void onAuthenticationError(int errorCode, CharSequence errString) {
+                            super.onAuthenticationError(errorCode, errString);
+                            isAuthenticating = false;
+
+                            if (
+                                    errorCode == BiometricPrompt.ERROR_USER_CANCELED
+                                            || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                            ) {
+                                try {
+                                    postAuthCallback.run(false);
+                                } catch (GeneralSecurityException e) {
+                                    promise.reject(e);
+                                }
+                                promise.reject(
+                                        "CANCELLED",
+                                        "User canceled the authentication"
+                                );
+                            } else {
+                                try {
+                                    postAuthCallback.run(false);
+                                } catch (GeneralSecurityException e) {
+                                    promise.reject(e);
+                                }
+                                promise.reject(
+                                        "AUTH_FAILURE",
+                                        "Could not authenticate the user"
+                                );
+                            }
+                        }
+                    }
+            ).authenticate(promptInfo);
+        });
     }
 
     private void openAuthenticationPrompt(Promise promise,
@@ -173,6 +279,10 @@ public class AuthenticationHelper {
                 PostEncryptionCallback postEncryptionCallback
         ) {
             openAuthenticationPrompt(promise, encryptionCallback, cipher, postEncryptionCallback);
+        }
+
+        public void checkAuthNoCipher(Promise promise, PostAuthCallback postAuthCallback) {
+            authenticate(promise, postAuthCallback);
         }
     }
 

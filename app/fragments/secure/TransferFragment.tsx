@@ -139,11 +139,11 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
 
         // Check amount
-        if (!order.amount.eq(account.balance) && account.balance.lt(order.amount)) {
+        if (!order.amountAll && account.balance.lt(order.amount)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (order.amount.eq(new BN(0)) && !(order.transferCell && order.payload)) {
+        if (!order.amountAll && order.amount.eq(new BN(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }

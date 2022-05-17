@@ -336,7 +336,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
             builder = builder.setUserAuthenticationRequired(true);
 
             // Set auth validity: per-use-auth
-            builder = builder.setUserAuthenticationValidityDurationSeconds(0);
+            builder = builder.setUserAuthenticationValidityDurationSeconds(1);
 
             // Require device to be unlocked
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -404,23 +404,20 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
                         postEncryptionCallback
                 );
             } catch (UserNotAuthenticatedException e) {
-                authenticationCallback.checkAuthNoCipher(promise, (success) -> {
-                    if (success) {
-                        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                        authenticationCallback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
-                                GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
-                                return createEncryptedItem(
-                                        promise1,
-                                        plaintextValue,
-                                        cipher1,
-                                        gcmSpec,
-                                        postEncryptionCallback1
-                                );
-                            },
-                            postEncryptionCallback
-                    );
-                    }
-                });
+                authenticationCallback.checkAuthNoCipher(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
+                            cipher1.init(Cipher.ENCRYPT_MODE, secretKey);
+                            GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
+                            return createEncryptedItem(
+                                    promise1,
+                                    plaintextValue,
+                                    cipher1,
+                                    gcmSpec,
+                                    postEncryptionCallback1
+                            );
+                        },
+                        postEncryptionCallback,
+                        secretKey
+                );
             }
         }
 

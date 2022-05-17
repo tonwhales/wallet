@@ -2,6 +2,8 @@ package com.tonhub.wallet.modules.store;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.os.Build;
+import android.util.Log;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -14,8 +16,11 @@ import com.facebook.react.bridge.ReactContext;
 import org.json.JSONException;
 
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 
 public class AuthenticationHelper {
     private final ReactContext mContext;
@@ -24,7 +29,11 @@ public class AuthenticationHelper {
         this.mContext = (ReactContext) context;
     }
 
-    private void authenticate(Promise promise, PostAuthCallback postAuthCallback) {
+    private void authenticate(Promise promise,
+                              EncryptionCallback encryptionCallback,
+                              Cipher cipher,
+                              PostEncryptionCallback postEncryptionCallback,
+                              SecretKey secretKey) {
         if (isAuthenticating) {
             promise.reject(
                     "AUTH_IN_PROGRESS",
@@ -63,11 +72,17 @@ public class AuthenticationHelper {
                 break;
         }
 
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt
+        BiometricPrompt.PromptInfo.Builder promptInfoBuilder = new BiometricPrompt
                 .PromptInfo.Builder()
-                .setTitle("Authenticate")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .build();
+                .setTitle("Authenticate");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            promptInfoBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        } else {
+            promptInfoBuilder.setNegativeButtonText(mContext.getString(android.R.string.cancel));
+        }
+
+        BiometricPrompt.PromptInfo promptInfo = promptInfoBuilder.build();
 
         if (!isAppInforegrounded()) {
             promise.reject(
@@ -89,11 +104,14 @@ public class AuthenticationHelper {
                         public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
                             super.onAuthenticationSucceeded(result);
                             isAuthenticating = false;
-                            try {
-                                postAuthCallback.run(true);
-                            } catch (GeneralSecurityException e) {
-                                promise.reject(e);
-                            }
+
+                            handleSuccessAuthCallback(
+                                    promise,
+                                    encryptionCallback,
+                                    cipher,
+                                    postEncryptionCallback,
+                                    secretKey
+                            );
                         }
 
                         @Override
@@ -105,21 +123,11 @@ public class AuthenticationHelper {
                                     errorCode == BiometricPrompt.ERROR_USER_CANCELED
                                             || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
                             ) {
-                                try {
-                                    postAuthCallback.run(false);
-                                } catch (GeneralSecurityException e) {
-                                    promise.reject(e);
-                                }
                                 promise.reject(
                                         "CANCELLED",
                                         "User canceled the authentication"
                                 );
                             } else {
-                                try {
-                                    postAuthCallback.run(false);
-                                } catch (GeneralSecurityException e) {
-                                    promise.reject(e);
-                                }
                                 promise.reject(
                                         "AUTH_FAILURE",
                                         "Could not authenticate the user"
@@ -173,11 +181,17 @@ public class AuthenticationHelper {
                 break;
         }
 
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt
+        BiometricPrompt.PromptInfo.Builder promptInfoBuilder = new BiometricPrompt
                 .PromptInfo.Builder()
-                .setTitle("Authenticate")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .build();
+                .setTitle("Authenticate");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            promptInfoBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL | BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        } else {
+            promptInfoBuilder.setNegativeButtonText(mContext.getString(android.R.string.cancel));
+        }
+
+        BiometricPrompt.PromptInfo promptInfo = promptInfoBuilder.build();
 
         if (!isAppInforegrounded()) {
             promise.reject(
@@ -206,7 +220,7 @@ public class AuthenticationHelper {
                                     encryptionCallback,
                                     cipher,
                                     postEncryptionCallback
-                                    );
+                            );
                         }
 
                         @Override
@@ -232,6 +246,21 @@ public class AuthenticationHelper {
                     }
             ).authenticate(promptInfo, new BiometricPrompt.CryptoObject(cipher));
         });
+    }
+
+    private void handleSuccessAuthCallback(
+            Promise promise,
+            EncryptionCallback encryptionCallback,
+            Cipher cipher,
+            PostEncryptionCallback postEncryptionCallback,
+            SecretKey secretKey
+    ) {
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            openAuthenticationPrompt(promise, encryptionCallback, cipher, postEncryptionCallback);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
     }
 
     private void handleEncryptionCallback(
@@ -281,8 +310,14 @@ public class AuthenticationHelper {
             openAuthenticationPrompt(promise, encryptionCallback, cipher, postEncryptionCallback);
         }
 
-        public void checkAuthNoCipher(Promise promise, PostAuthCallback postAuthCallback) {
-            authenticate(promise, postAuthCallback);
+        public void checkAuthNoCipher(
+                Promise promise,
+                Cipher cipher,
+                EncryptionCallback encryptionCallback,
+                PostEncryptionCallback postEncryptionCallback,
+                SecretKey secretKey
+        ) {
+            authenticate(promise, encryptionCallback, cipher, postEncryptionCallback, secretKey);
         }
     }
 

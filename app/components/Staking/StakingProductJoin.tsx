@@ -15,7 +15,7 @@ export const StakingProductJoin = React.memo(({ loading }: { loading?: boolean }
             underlayColor={Theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: 'white',
+                backgroundColor: Theme.item,
                 marginHorizontal: 16, marginVertical: 4,
             }}
         >

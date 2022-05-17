@@ -8,7 +8,7 @@ import BN from "bn.js"
 import { PriceComponent } from "../PriceComponent"
 import { ValueComponent } from "../ValueComponent"
 import { t } from "../../i18n/t"
-import { StakingPoolState } from "../../sync/products/StakingPoolProduct"
+import { StakingPoolState } from "../../sync/account/StakingPoolSync"
 
 export const StakingProductMember = React.memo((
     {
@@ -32,7 +32,7 @@ export const StakingProductMember = React.memo((
             underlayColor={Theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: 'white',
+                backgroundColor: Theme.item,
                 marginHorizontal: 16, marginVertical: 4
             }}
         >

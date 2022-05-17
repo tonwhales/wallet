@@ -276,7 +276,7 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
     let img: any;
     if (props.image) {
-        img = <Image source={{ uri: props.image }} width={props.size} height={props.size} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
+        img = <Image source={{ uri: props.image }} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
     } else if (!known || (!known.ic)) {
         img = <Img width={size} height={size} color="white" />;
     } else {

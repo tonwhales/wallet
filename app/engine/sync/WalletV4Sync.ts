@@ -22,7 +22,7 @@ export class WalletV4Sync extends PersistedValueSync<WalletV4State> {
     readonly address: Address;
 
     constructor(parent: AccountFullSync) {
-        super(`wallet-v4(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.storage.wallet(parent.address), parent.engine);
+        super(`wallet-v4(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.model.wallet(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;

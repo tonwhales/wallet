@@ -1,10 +1,10 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
-import { AccountLiteAtom } from "../account/AccountLiteAtom";
-import { Engine } from "../Engine";
+import { AppConfig } from "../../../AppConfig";
+import { AccountLiteAtom } from "../AccountLiteAtom";
+import { Engine } from "../../Engine";
 import { tryFetchJettonWallet } from "../metadata/introspections/tryFetchJettonWallet";
-import { PersistedValueSync } from "../persistence/PersistedValueSync";
+import { PersistedValueSync } from "../../persistence/PersistedValueSync";
 
 export type JettonWalletState = {
     block: number;
@@ -19,7 +19,7 @@ export class JettonWalletSync extends PersistedValueSync<JettonWalletState> {
     readonly engine: Engine;
 
     constructor(parent: AccountLiteAtom) {
-        super(`jetton-wallet(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.storage.jettonWallet(parent.address), parent.engine);
+        super(`jetton-wallet(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.model.jettonWallet(parent.address), parent.engine);
 
         this.address = parent.address;
         this.engine = parent.engine;

@@ -1,11 +1,11 @@
 import axios from "axios";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
-import { warn } from "../../utils/log";
-import { backoff } from "../../utils/time";
-import { Engine } from "../Engine";
+import { AppConfig } from "../../../AppConfig";
+import { warn } from "../../../utils/log";
+import { backoff } from "../../../utils/time";
+import { Engine } from "../../Engine";
 import { tryFetchJettonMaster } from "../metadata/introspections/tryFetchJettonMaster";
-import { PersistedValueSync } from "../persistence/PersistedValueSync";
+import { PersistedValueSync } from "../../persistence/PersistedValueSync";
 
 export type JettonMasterState = {
     name: string | null;
@@ -19,7 +19,7 @@ export class JettonMasterSync extends PersistedValueSync<JettonMasterState> {
     readonly address: Address;
 
     constructor(address: Address, engine: Engine) {
-        super(`jetton-master(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.storage.jettonMaster(address), engine);
+        super(`jetton-master(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.model.jettonMaster(address), engine);
         this.address = address;
         this.invalidate();
     }

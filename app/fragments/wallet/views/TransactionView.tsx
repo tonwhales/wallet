@@ -12,8 +12,8 @@ import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { Engine } from '../../../engine/Engine';
-import { ContractMetadata } from '../../../engine/metadata/Metadata';
-import { JettonMasterState } from '../../../engine/jettons/JettonMasterSync';
+import { ContractMetadata } from '../../../engine/sync/metadata/Metadata';
+import { JettonMasterState } from '../../../engine/sync/jettons/JettonMasterSync';
 import { resolveOperation } from '../../../operations/resolveOperation';
 import { KnownWallet } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
@@ -31,19 +31,19 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     // Fetch metadata
     let metadata: ContractMetadata | null;
     if (parsed.address) {
-        metadata = useOptItem(props.engine.storage.metadata(parsed.address));
+        metadata = useOptItem(props.engine.model.metadata(parsed.address));
     } else {
-        metadata = useOptItem(props.engine.storage.metadata(ZERO_ADDRESS));
+        metadata = useOptItem(props.engine.model.metadata(ZERO_ADDRESS));
     }
 
     // Master metadata
     let masterMetadata: JettonMasterState | null;
     if (metadata && metadata.jettonWallet) {
-        masterMetadata = useOptItem(props.engine.storage.jettonMaster(metadata.jettonWallet.master));
+        masterMetadata = useOptItem(props.engine.model.jettonMaster(metadata.jettonWallet.master));
     } else if (metadata && metadata.jettonMaster && parsed.address) {
-        masterMetadata = useOptItem(props.engine.storage.jettonMaster(parsed.address));
+        masterMetadata = useOptItem(props.engine.model.jettonMaster(parsed.address));
     } else {
-        masterMetadata = useOptItem(props.engine.storage.jettonMaster(ZERO_ADDRESS));
+        masterMetadata = useOptItem(props.engine.model.jettonMaster(ZERO_ADDRESS));
     }
 
     // Operation

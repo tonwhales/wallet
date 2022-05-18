@@ -1,9 +1,9 @@
 import { InvalidateSync } from "teslabot";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
-import { log } from "../../utils/log";
-import { MapAsyncLock } from "../../utils/MapAsyncLock";
-import { Engine } from "../Engine";
+import { AppConfig } from "../../../AppConfig";
+import { log } from "../../../utils/log";
+import { MapAsyncLock } from "../../../utils/MapAsyncLock";
+import { Engine } from "../../Engine";
 import { fetchMetadata } from "./fetchMetadata";
 
 export class MetadataEngine {
@@ -58,7 +58,7 @@ export class MetadataEngine {
     async prepareMetadata(seqno: number, address: Address) {
 
         // Check existing or invalidate
-        let sync = this.engine.storage.metadata(address);
+        let sync = this.engine.model.metadata(address);
         if (sync.value && sync.value.seqno > 0) {
             if (sync.value.seqno < seqno) {
                 this.#invalidateAddress(seqno, address);
@@ -73,7 +73,7 @@ export class MetadataEngine {
     async fetchFreshMetadata(seqno: number, address: Address) {
 
         // Check existing
-        let sync = this.engine.storage.metadata(address);
+        let sync = this.engine.model.metadata(address);
         if (sync.value && sync.value.seqno >= seqno) {
             return sync.value!;
         }
@@ -93,7 +93,7 @@ export class MetadataEngine {
             let metadata = await fetchMetadata(this.engine.client4, seqno, address);
 
             // Check if updated
-            let sync = this.engine.storage.metadata(address);
+            let sync = this.engine.model.metadata(address);
             if (sync.value && sync.value.seqno > seqno) {
                 log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Better metadata already exist`);
                 return sync.value!; // Existing seqno

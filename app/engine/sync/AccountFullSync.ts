@@ -36,7 +36,7 @@ export class AccountFullSync {
     constructor(parent: AccountLiteAtom) {
 
         // Refs
-        this.#item = parent.engine.storage.accountFull(parent.address);
+        this.#item = parent.engine.model.accountFull(parent.address);
         this.engine = parent.engine;
         this.address = parent.address;
         this.parent = parent;

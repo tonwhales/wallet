@@ -1,6 +1,6 @@
 import { Engine } from "../Engine";
 import { StakingPool } from "../../utils/KnownPools";
-import { StakingPoolSync } from "../account/StakingPoolSync";
+import { StakingPoolSync } from "../sync/StakingPoolSync";
 
 export class StakingPoolProduct {
     readonly engine: Engine;
@@ -8,7 +8,7 @@ export class StakingPoolProduct {
 
     constructor(engine: Engine, pool: StakingPool) {
         this.engine = engine;
-        this.sync = new StakingPoolSync(engine.address, engine.accounts.getLiteSyncForAddress(pool.address), engine);
+        this.sync = new StakingPoolSync(engine.address, engine.sync.getLiteSyncForAddress(pool.address), engine);
     }
 
     get ready() {

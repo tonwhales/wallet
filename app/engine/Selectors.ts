@@ -1,6 +1,6 @@
 import { RecoilValueReadOnly, selector } from "recoil";
 import { AppConfig } from "../AppConfig";
-import { WalletV4State } from "./account/WalletV4Sync";
+import { WalletV4State } from "./sync/WalletV4Sync";
 import { Engine } from "./Engine";
 
 export class Selectors {
@@ -15,7 +15,7 @@ export class Selectors {
         this.home = selector({
             key: 'selector/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/account',
             get: ({ get }) => {
-                let wallet = get(engine.storage.wallet(engine.address).atom);
+                let wallet = get(engine.model.wallet(engine.address).atom);
                 if (!wallet) {
                     return null;
                 }

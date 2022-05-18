@@ -18,9 +18,9 @@ export class AccountLiteAtom extends PersistedValueSync<LiteAccount> {
     #watcher: AccountWatcher;
 
     constructor(address: Address, engine: Engine) {
-        super(`account-lite(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.storage.accountLite(address), engine);
+        super(`account-lite(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.model.accountLite(address), engine);
         this.address = address;
-        this.#watcher = engine.accounts.getWatcherForAddress(address);
+        this.#watcher = engine.sync.getWatcherForAddress(address);
         this.#watcher.on('account_changed', (account) => {
 
             // Check if changed

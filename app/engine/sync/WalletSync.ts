@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
-import { JettonsSync } from "../jettons/JettonsSync";
+import { JettonsSync } from "./jettons/JettonsSync";
 import { ReactSync } from "../utils/ReactSync";
 import { Transaction } from "../Transaction";
 import { SyncCollection } from "../utils/SyncCollection";
@@ -75,7 +75,7 @@ export class WalletSync {
         for (let p of wallet.plugins) {
             let k = p.toFriendly({ testOnly: AppConfig.isTestnet });
             if (!this.#plugins.has(k)) {
-                this.#plugins.add(k, new PluginSync(this.engine.accounts.getLiteSyncForAddress(p)));
+                this.#plugins.add(k, new PluginSync(this.engine.sync.getLiteSyncForAddress(p)));
             }
         }
 

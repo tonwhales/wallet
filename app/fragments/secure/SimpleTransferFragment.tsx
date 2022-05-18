@@ -45,7 +45,7 @@ export const SimpleTransferFragment = fragment(() => {
         jetton?: Address | null,
     } | undefined = useRoute().params;
     const engine = useEngine();
-    const account = useItem(engine.storage.wallet(engine.address));
+    const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
@@ -54,8 +54,8 @@ export const SimpleTransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
-    const jettonWallet = params && params.jetton ? useItem(engine.storage.jettonWallet(params.jetton!)) : null;
-    const jettonMaster = jettonWallet ? useItem(engine.storage.jettonMaster(jettonWallet.master!)) : null;
+    const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
+    const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = jettonWallet ? jettonWallet.balance : account.balance;
 

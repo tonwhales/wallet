@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Address, Slice, TonClient4 } from "ton";
-import { warn } from "../../../utils/log";
+import { warn } from "../../../../utils/log";
 import { ContentSource, JettonMaster } from "../Metadata";
 
 function parseString(slice: Slice) {

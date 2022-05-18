@@ -20,8 +20,8 @@ import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
-import { ContractMetadata } from "../../engine/metadata/Metadata";
-import { JettonMasterState } from "../../engine/jettons/JettonMasterSync";
+import { ContractMetadata } from "../../engine/sync/metadata/Metadata";
+import { JettonMasterState } from "../../engine/sync/jettons/JettonMasterSync";
 import { resolveOperation } from "../../operations/resolveOperation";
 import { useOptItem } from "../../engine/persistence/PersistedItem";
 
@@ -41,19 +41,19 @@ export const TransactionPreviewFragment = fragment(() => {
     // Metadata
     let metadata: ContractMetadata | null;
     if (transaction.address) {
-        metadata = useOptItem(engine.storage.metadata(transaction.address));
+        metadata = useOptItem(engine.model.metadata(transaction.address));
     } else {
-        metadata = useOptItem(engine.storage.metadata(ZERO_ADDRESS));
+        metadata = useOptItem(engine.model.metadata(ZERO_ADDRESS));
     }
 
     // Master metadata
     let masterMetadata: JettonMasterState | null;
     if (metadata && metadata.jettonWallet) {
-        masterMetadata = useOptItem(engine.storage.jettonMaster(metadata.jettonWallet.master));
+        masterMetadata = useOptItem(engine.model.jettonMaster(metadata.jettonWallet.master));
     } else if (metadata && metadata.jettonMaster && transaction.address) {
-        masterMetadata = useOptItem(engine.storage.jettonMaster(transaction.address));
+        masterMetadata = useOptItem(engine.model.jettonMaster(transaction.address));
     } else {
-        masterMetadata = useOptItem(engine.storage.jettonMaster(ZERO_ADDRESS));
+        masterMetadata = useOptItem(engine.model.jettonMaster(ZERO_ADDRESS));
     }
 
     // Operation

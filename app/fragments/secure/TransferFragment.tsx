@@ -22,7 +22,7 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { formatSupportedBody } from '../../operations/formatSupportedBody';
 import { fragment } from '../../fragment';
-import { ContractMetadata } from '../../engine/metadata/Metadata';
+import { ContractMetadata } from '../../engine/sync/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
@@ -61,7 +61,7 @@ type ConfirmLoadedProps = {
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const account = useItem(engine.storage.wallet(engine.address));
+    const account = useItem(engine.model.wallet(engine.address));
     const {
         restricted,
         target,
@@ -310,7 +310,7 @@ export const TransferFragment = fragment(() => {
         job: string | null,
     } = useRoute().params! as any;
     const engine = useEngine();
-    const account = useItem(engine.storage.wallet(engine.address));
+    const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 

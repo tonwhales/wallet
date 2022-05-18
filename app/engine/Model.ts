@@ -1,18 +1,18 @@
 import { Address } from 'ton';
-import { LazyMap } from '../../utils/LazyMap';
-import { FullAccount } from '../account/AccountFullSync';
-import { LiteAccount } from '../account/AccountLiteAtom';
-import { PluginState } from '../account/PluginSync';
-import { StakingPoolState } from '../account/StakingPoolSync';
-import { WalletV4State } from '../account/WalletV4Sync';
-import { PersistedItem } from '../persistence/PersistedItem';
-import { Engine } from "../Engine";
-import { JettonMasterState } from '../jettons/JettonMasterSync';
-import { JettonsState } from '../jettons/JettonsSync';
-import { JettonWalletState } from '../jettons/JettonWalletSync';
-import { ContractMetadata } from '../metadata/Metadata';
+import { LazyMap } from '../utils/LazyMap';
+import { FullAccount } from './sync/AccountFullSync';
+import { LiteAccount } from './sync/AccountLiteAtom';
+import { PluginState } from './sync/PluginSync';
+import { StakingPoolState } from './sync/StakingPoolSync';
+import { WalletV4State } from './sync/WalletV4Sync';
+import { PersistedItem } from './persistence/PersistedItem';
+import { Engine } from "./Engine";
+import { JettonMasterState } from './sync/jettons/JettonMasterSync';
+import { JettonsState } from './sync/jettons/JettonsSync';
+import { JettonWalletState } from './sync/jettons/JettonWalletSync';
+import { ContractMetadata } from './sync/metadata/Metadata';
 
-export class AppStorage {
+export class Model {
 
     readonly engine: Engine;
     readonly recoilUpdater: (node: any, value: any) => void;

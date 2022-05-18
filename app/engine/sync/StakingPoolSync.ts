@@ -28,7 +28,7 @@ export class StakingPoolSync extends PersistedValueSync<StakingPoolState> {
     readonly pool: AccountLiteAtom;
 
     constructor(member: Address, pool: AccountLiteAtom, engine: Engine) {
-        super(`staking(${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}##${member.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.storage.staking(pool.address, member), engine);
+        super(`staking(${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}##${member.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.model.staking(pool.address, member), engine);
         this.engine = engine;
         this.member = member;
         this.pool = pool;

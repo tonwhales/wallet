@@ -69,7 +69,7 @@ export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: StakingTransferParams | undefined = useRoute().params;
     const engine = useEngine();
-    const account = useItem(engine.storage.wallet(engine.address));
+    const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const pool = engine.products.whalesStakingPool.useState();
     const member = pool?.member

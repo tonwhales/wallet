@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
 import { atom } from 'recoil';
@@ -5,7 +6,19 @@ import { warn } from '../../utils/log';
 import { Engine } from '../Engine';
 import { PersistedItem } from './PersistedItem';
 
-export class PersistedCollection<K, T> {
+export interface PersistedCollection<K, T> {
+    emit(event: 'created', data: { key: K, value: T | null }): boolean;
+    on(event: 'created', listener: (data: { key: K, value: T | null }) => void): this;
+    off(event: 'created', listener: (data: { key: K, value: T | null }) => void): this;
+    once(event: 'created', listener: (data: { key: K, value: T | null }) => void): this;
+
+    emit(event: 'updated', data: { key: K, value: T | null }): boolean;
+    on(event: 'updated', listener: (data: { key: K, value: T | null }) => void): this;
+    off(event: 'updated', listener: (data: { key: K, value: T | null }) => void): this;
+    once(event: 'updated', listener: (data: { key: K, value: T | null }) => void): this;
+}
+
+export class PersistedCollection<K, T> extends EventEmitter {
     #engine: Engine;
     #storage: MMKV;
     #namespace: string;
@@ -20,6 +33,7 @@ export class PersistedCollection<K, T> {
         codec: t.Type<T, any>,
         engine: Engine
     }) {
+        super();
         this.#engine = args.engine;
         this.#storage = args.storage;
         this.#namespace = args.namespace;
@@ -45,13 +59,15 @@ export class PersistedCollection<K, T> {
                 let updated = updater(t.#getValue(key));
                 current = updated;
                 t.#setValue(key, updated);
-                t.#engine.storage.recoilUpdater(rc, updated);
+                t.emit('updated', { key, value: current });
+                t.#engine.model.recoilUpdater(rc, updated);
             },
             get value() {
                 return current;
             }
         }
         this.#items.set(id, pitm);
+        this.emit('created', { key, value: current });
         return pitm;
     }
 

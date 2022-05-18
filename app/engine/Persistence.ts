@@ -5,15 +5,15 @@ import { PersistedCollection } from "./persistence/PersistedCollection";
 import * as t from 'io-ts';
 import * as c from './utils/codecs';
 import BN from "bn.js";
-import { ContractMetadata } from "./metadata/Metadata";
-import { PluginState } from "./account/PluginSync";
-import { LiteAccount } from "./account/AccountLiteAtom";
-import { FullAccount } from "./account/AccountFullSync";
-import { WalletV4State } from "./account/WalletV4Sync";
-import { JettonsState } from "./jettons/JettonsSync";
-import { JettonWalletState } from "./jettons/JettonWalletSync";
-import { JettonMasterState } from "./jettons/JettonMasterSync";
-import { StakingPoolState } from "./account/StakingPoolSync";
+import { ContractMetadata } from "./sync/metadata/Metadata";
+import { PluginState } from "./sync/PluginSync";
+import { LiteAccount } from "./sync/AccountLiteAtom";
+import { FullAccount } from "./sync/AccountFullSync";
+import { WalletV4State } from "./sync/WalletV4Sync";
+import { JettonsState } from "./sync/jettons/JettonsSync";
+import { JettonWalletState } from "./sync/jettons/JettonWalletSync";
+import { JettonMasterState } from "./sync/jettons/JettonMasterSync";
+import { StakingPoolState } from "./sync/StakingPoolSync";
 import { Engine } from "./Engine";
 
 export class Persistence {

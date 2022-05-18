@@ -1,8 +1,8 @@
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
-import { tryFetchLegacyPlugin } from "../metadata/introspections/tryFetchLegacyPlugin";
-import { LegacySubscription } from "../metadata/Metadata";
+import { tryFetchLegacyPlugin } from "./metadata/introspections/tryFetchLegacyPlugin";
+import { LegacySubscription } from "./metadata/Metadata";
 import { PersistedValueSync } from "../persistence/PersistedValueSync";
 import { AccountLiteAtom } from "./AccountLiteAtom";
 
@@ -17,7 +17,7 @@ export class PluginSync extends PersistedValueSync<PluginState> {
     readonly parent: AccountLiteAtom;
 
     constructor(parent: AccountLiteAtom) {
-        super(`wallet-v4-plugin(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.storage.plugin(parent.address), parent.engine);
+        super(`wallet-v4-plugin(${parent.address.toFriendly({ testOnly: AppConfig.isTestnet })})`, parent.engine.model.plugin(parent.address), parent.engine);
         this.parent = parent;
         this.engine = parent.engine;
         this.address = parent.address;

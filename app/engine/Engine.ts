@@ -7,15 +7,15 @@ import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
 import { StakingPoolProduct } from './products/StakingPoolProduct';
 import { KnownPools } from '../utils/KnownPools';
-import { MetadataEngine } from './metadata/MetadataEngine';
+import { MetadataEngine } from './sync/metadata/MetadataEngine';
 import { BlocksWatcher } from './blocks/BlocksWatcher';
-import { Accounts } from './account/Accounts';
+import { Sync } from './sync/Sync';
 import { Persistence } from './Persistence';
 import { Transactions } from './transactions/Transactions';
 import { SyncStateManager } from './SyncStateManager';
-import { WalletV4Sync } from './account/WalletV4Sync';
-import { WalletSync } from './account/WalletSync';
-import { AppStorage } from './storage/AppStorage';
+import { WalletV4Sync } from './sync/WalletV4Sync';
+import { WalletSync } from './sync/WalletSync';
+import { Model } from './Model';
 import { Downloads } from './files/Downloads';
 import { Selectors } from './Selectors';
 
@@ -48,9 +48,9 @@ export class Engine {
         whalesStakingPool: StakingPoolProduct
     };
     readonly transactions: Transactions;
-    readonly accounts: Accounts;
+    readonly sync: Sync;
     readonly metadata: MetadataEngine;
-    readonly storage: AppStorage;
+    readonly model: Model;
     readonly selectors: Selectors;
 
     private _destroyed: boolean;
@@ -70,23 +70,23 @@ export class Engine {
         this.publicKey = publicKey;
         this.connector = connector;
         this._destroyed = false;
-        this.storage = new AppStorage(this, recoilUpdater);
+        this.model = new Model(this, recoilUpdater);
         this.metadata = new MetadataEngine(this);
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
-        this.accounts = new Accounts(this);
+        this.sync = new Sync(this);
         this.transactions = new Transactions(this);
         this.downloads = new Downloads(this);
         this.selectors = new Selectors(this);
 
         // Create products
         this.products = {
-            main: new WalletSync(new WalletV4Sync(this.accounts.getFullSyncForAddress(this.address))),
+            main: new WalletSync(new WalletV4Sync(this.sync.getFullSyncForAddress(this.address))),
             legacy: new LegacyProduct(this),
             price: new PriceProduct(this),
             apps: new AppProduct(this),
             whalesStakingPool: new StakingPoolProduct(this, KnownPools[0]),
         };
-        this._dependencies.push(this.accounts);
+        this._dependencies.push(this.sync);
         this._dependencies.push(this.products.main);
         this._dependencies.push(this.products.price);
         this._dependencies.push(this.products.whalesStakingPool);

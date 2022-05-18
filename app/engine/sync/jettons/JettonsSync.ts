@@ -1,13 +1,13 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
-import { log } from "../../utils/log";
-import { AccountFullSync } from "../account/AccountFullSync";
-import { Engine } from "../Engine";
+import { AppConfig } from "../../../AppConfig";
+import { log } from "../../../utils/log";
+import { AccountFullSync } from "../AccountFullSync";
+import { Engine } from "../../Engine";
 import { tryGetJettonWallet } from "../metadata/introspections/tryGetJettonWallet";
-import { useItem } from "../persistence/PersistedItem";
-import { PersistedValueSync } from "../persistence/PersistedValueSync";
-import { SyncCollection } from "../utils/SyncCollection";
+import { useItem } from "../../persistence/PersistedItem";
+import { PersistedValueSync } from "../../persistence/PersistedValueSync";
+import { SyncCollection } from "../../utils/SyncCollection";
 import { JettonMasterState, JettonMasterSync } from "./JettonMasterSync";
 import { JettonWalletState, JettonWalletSync } from "./JettonWalletSync";
 
@@ -23,7 +23,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
     readonly masters = new SyncCollection<JettonMasterState>();
 
     constructor(parent: AccountFullSync) {
-        super('jettons', parent.engine.storage.accountJettons(parent.address), parent.engine);
+        super('jettons', parent.engine.model.accountJettons(parent.address), parent.engine);
 
         this.engine = parent.engine;
         this.address = parent.address;
@@ -53,7 +53,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
     }
 
     useState() {
-        let map = useItem(this.engine.storage.accountJettons(this.address));
+        let map = useItem(this.engine.model.accountJettons(this.address));
         let wallets = this.wallets.use();
         let masters = this.masters.use();
 
@@ -88,7 +88,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
             let v = src.tokens[k];
             if (!!v) {
                 if (!this.wallets.has(v)) {
-                    this.wallets.add(v, new JettonWalletSync(this.engine.accounts.getLiteSyncForAddress(Address.parse(v))));
+                    this.wallets.add(v, new JettonWalletSync(this.engine.sync.getLiteSyncForAddress(Address.parse(v))));
                 }
             }
             if (!this.masters.has(k)) {
@@ -131,7 +131,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
 
         // Process metadata (already downloaded by parent sync)
         for (let m of mentioned) {
-            let md = this.engine.storage.metadata(Address.parse(m)).value;
+            let md = this.engine.model.metadata(Address.parse(m)).value;
             if (md && md.jettonMaster) {
                 if (!pending.has(m) && tokens[m] === undefined) {
                     log(`[tokens]: registered ${m}`);

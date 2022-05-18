@@ -2,7 +2,7 @@ import React from "react";
 import { StakingProductMember } from "./StakingProductMember";
 import { StakingProductJoin } from "./StakingProductJoin";
 import { BN } from "bn.js";
-import { StakingPoolState } from "../../engine/account/StakingPoolSync";
+import { StakingPoolState } from "../../engine/sync/StakingPoolSync";
 
 export const StakingProductComponent = React.memo(({ pool }: { pool: StakingPoolState }) => {
     const member = pool.member;

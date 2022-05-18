@@ -215,6 +215,7 @@ export class AccountFullSync {
             let loadedTransactions = await backoff('account-full-sync', async () => {
                 return await this.engine.connector.fetchTransactions(this.address, { lt: cursor.lt, hash: cursor.hash });
             });
+            loadedTransactions = loadedTransactions.slice(1); // Remove first
 
             log(`[${this.address.toFriendly()}]: Transactions downloaded`);
 

@@ -1,19 +1,26 @@
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
+import { atom } from 'recoil';
 import { warn } from '../../utils/log';
-
-export type PersistedItem<T> = {
-    update(updater: (value: T | null) => T | null): void;
-    getValue(): T | null;
-}
+import { Engine } from '../Engine';
+import { PersistedItem } from './PersistedItem';
 
 export class PersistedCollection<K, T> {
+    #engine: Engine;
     #storage: MMKV;
     #namespace: string;
     #key: (src: K) => string;
     #codec: t.Type<T, any>;
+    #items = new Map<string, PersistedItem<T>>();
 
-    constructor(args: { storage: MMKV, namespace: string, key: (src: K) => string, codec: t.Type<T, any> }) {
+    constructor(args: {
+        storage: MMKV,
+        namespace: string,
+        key: (src: K) => string,
+        codec: t.Type<T, any>,
+        engine: Engine
+    }) {
+        this.#engine = args.engine;
         this.#storage = args.storage;
         this.#namespace = args.namespace;
         this.#key = args.key;
@@ -21,17 +28,46 @@ export class PersistedCollection<K, T> {
     }
 
     item(key: K): PersistedItem<T> {
-        return {
-            update: (updater: (value: T | null) => T | null) => {
-                this.setValue(key, updater(this.getValue(key)));
+        let id = this.#key(key);
+        let ex = this.#items.get(id);
+        if (ex) {
+            return ex;
+        }
+        let current = this.#getValue(key);
+        let rc = atom<T | null>({
+            key: 'persistence/' + this.#namespace + '/' + id,
+            default: current
+        });
+        let t = this;
+        let pitm: PersistedItem<T> = {
+            atom: rc,
+            update(updater: (value: T | null) => T | null) {
+                let updated = updater(t.#getValue(key));
+                current = updated;
+                t.#setValue(key, updated);
+                t.#engine.storage.recoilUpdater(rc, updated);
             },
-            getValue: () => {
-                return this.getValue(key);
+            get value() {
+                return current;
             }
         }
+        this.#items.set(id, pitm);
+        return pitm;
     }
 
     setValue(key: K, value: T | null) {
+        this.item(key).update(() => value);
+    }
+
+    getValue(key: K) {
+        return this.item(key).value;
+    }
+
+    //
+    // Implementation
+    //
+
+    #setValue(key: K, value: T | null) {
         let k = this.#namespace + '.' + this.#key(key);
         if (value === null) {
             this.#storage.delete(k);
@@ -45,7 +81,7 @@ export class PersistedCollection<K, T> {
         }
     }
 
-    getValue(key: K): T | null {
+    #getValue(key: K): T | null {
         let k = this.#namespace + '.' + this.#key(key);
         let st = this.#storage.getString(k);
         if (st === undefined) {

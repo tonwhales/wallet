@@ -4,7 +4,7 @@ import LottieView from 'lottie-react-native';
 import BN from "bn.js";
 import { fromNano, toNano } from "ton";
 import { Theme } from "../../Theme";
-import { useEngine } from "../../sync/Engine";
+import { useEngine } from "../../engine/Engine";
 import { AppConfig } from "../../AppConfig";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";

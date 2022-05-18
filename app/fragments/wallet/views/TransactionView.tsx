@@ -6,17 +6,18 @@ import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/AddressComponent';
-import { Transaction } from '../../../sync/Transaction';
+import { Transaction } from '../../../engine/Transaction';
 import { TouchableHighlight } from 'react-native';
 import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { Engine } from '../../../sync/Engine';
-import { ContractMetadata } from '../../../sync/metadata/Metadata';
-import { JettonMasterState } from '../../../sync/jettons/JettonMasterSync';
+import { Engine } from '../../../engine/Engine';
+import { ContractMetadata } from '../../../engine/metadata/Metadata';
+import { JettonMasterState } from '../../../engine/jettons/JettonMasterSync';
 import { resolveOperation } from '../../../operations/resolveOperation';
 import { KnownWallet } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
+import { useOptItem } from '../../../engine/persistence/PersistedItem';
 
 const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
@@ -30,19 +31,19 @@ export function TransactionView(props: { own: Address, tx: Transaction, separato
     // Fetch metadata
     let metadata: ContractMetadata | null;
     if (parsed.address) {
-        metadata = props.engine.storage.metadata(parsed.address).use();
+        metadata = useOptItem(props.engine.storage.metadata(parsed.address));
     } else {
-        metadata = props.engine.storage.metadata(ZERO_ADDRESS).use();
+        metadata = useOptItem(props.engine.storage.metadata(ZERO_ADDRESS));
     }
 
     // Master metadata
     let masterMetadata: JettonMasterState | null;
     if (metadata && metadata.jettonWallet) {
-        masterMetadata = props.engine.storage.jettonMaster(metadata.jettonWallet.master).use();
+        masterMetadata = useOptItem(props.engine.storage.jettonMaster(metadata.jettonWallet.master));
     } else if (metadata && metadata.jettonMaster && parsed.address) {
-        masterMetadata = props.engine.storage.jettonMaster(parsed.address).use();
+        masterMetadata = useOptItem(props.engine.storage.jettonMaster(parsed.address));
     } else {
-        masterMetadata = props.engine.storage.jettonMaster(ZERO_ADDRESS).use();
+        masterMetadata = useOptItem(props.engine.storage.jettonMaster(ZERO_ADDRESS));
     }
 
     // Operation

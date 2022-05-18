@@ -5,7 +5,7 @@ import { LiteAccount } from '../account/AccountLiteAtom';
 import { PluginState } from '../account/PluginSync';
 import { StakingPoolState } from '../account/StakingPoolSync';
 import { WalletV4State } from '../account/WalletV4Sync';
-import { PersistedValue } from '../persistence/PersistedValue';
+import { PersistedItem } from '../persistence/PersistedItem';
 import { Engine } from "../Engine";
 import { JettonMasterState } from '../jettons/JettonMasterSync';
 import { JettonsState } from '../jettons/JettonsSync';
@@ -16,16 +16,16 @@ export class AppStorage {
 
     readonly engine: Engine;
     readonly recoilUpdater: (node: any, value: any) => void;
-    readonly #metadataCache: LazyMap<string, PersistedValue<ContractMetadata>>;
-    readonly #liteAccountCache: LazyMap<string, PersistedValue<LiteAccount>>;
-    readonly #fullAccountCache: LazyMap<string, PersistedValue<FullAccount>>;
-    readonly #pluginCache: LazyMap<string, PersistedValue<PluginState>>;
-    readonly #staking: LazyMap<string, PersistedValue<StakingPoolState>>;
-    readonly #wallet: LazyMap<string, PersistedValue<WalletV4State>>;
-    readonly #jettons: LazyMap<string, PersistedValue<JettonsState>>;
-    readonly #jettonWallet: LazyMap<string, PersistedValue<JettonWalletState>>;
-    readonly #jettonMaster: LazyMap<string, PersistedValue<JettonMasterState>>;
-    readonly #downloads: LazyMap<string, PersistedValue<string>>;
+    readonly #metadataCache: LazyMap<string, PersistedItem<ContractMetadata>>;
+    readonly #liteAccountCache: LazyMap<string, PersistedItem<LiteAccount>>;
+    readonly #fullAccountCache: LazyMap<string, PersistedItem<FullAccount>>;
+    readonly #pluginCache: LazyMap<string, PersistedItem<PluginState>>;
+    readonly #staking: LazyMap<string, PersistedItem<StakingPoolState>>;
+    readonly #wallet: LazyMap<string, PersistedItem<WalletV4State>>;
+    readonly #jettons: LazyMap<string, PersistedItem<JettonsState>>;
+    readonly #jettonWallet: LazyMap<string, PersistedItem<JettonWalletState>>;
+    readonly #jettonMaster: LazyMap<string, PersistedItem<JettonMasterState>>;
+    readonly #downloads: LazyMap<string, PersistedItem<string>>;
 
     constructor(engine: Engine, recoilUpdater: (node: any, value: any) => void) {
         this.engine = engine;
@@ -33,44 +33,44 @@ export class AppStorage {
 
         this.#metadataCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('metadata/' + src, engine.persistence.metadata.item(address), this, []);
+            return engine.persistence.metadata.item(address);
         });
         this.#liteAccountCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/lite/' + src, engine.persistence.liteAccounts.item(address), this, []);
+            return engine.persistence.liteAccounts.item(address);
         });
         this.#fullAccountCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/full/' + src, engine.persistence.fullAccounts.item(address), this, []);
+            return engine.persistence.fullAccounts.item(address);
         });
         this.#pluginCache = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/plugin/' + src, engine.persistence.plugins.item(address), this, []);
+            return engine.persistence.plugins.item(address);
         });
         this.#staking = new LazyMap((src) => {
             let parts = src.split('#');
             let address = Address.parse(parts[0]);
             let target = Address.parse(parts[1]);
-            return new PersistedValue('staking/' + parts[0] + '/' + parts[1] + '/' + src, engine.persistence.staking.item({ address, target }), this, []);
+            return engine.persistence.staking.item({ address, target });
         });
         this.#wallet = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/wallet/' + src, engine.persistence.wallets.item(address), this, []);
+            return engine.persistence.wallets.item(address);
         });
         this.#jettons = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/jettons/' + src, engine.persistence.tokens.item(address), this, []);
+            return engine.persistence.tokens.item(address);
         });
         this.#jettonWallet = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/jetton/wallet/' + src, engine.persistence.jettonWallets.item(address), this, []);
+            return engine.persistence.jettonWallets.item(address);
         });
         this.#jettonMaster = new LazyMap((src) => {
             let address = Address.parse(src);
-            return new PersistedValue('account/jetton/master/' + src, engine.persistence.jettonMasters.item(address), this, []);
+            return engine.persistence.jettonMasters.item(address);
         });
         this.#downloads = new LazyMap((src) => {
-            let v = new PersistedValue('file/' + src, engine.persistence.downloads.item(src), this, []);
+            let v = engine.persistence.downloads.item(src);
             return v;
         });
     }

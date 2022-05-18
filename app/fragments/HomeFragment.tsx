@@ -15,7 +15,7 @@ import { t } from '../i18n/t';
 import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
-import { useEngine } from '../sync/Engine';
+import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
 
 export const HomeFragment = fragment(() => {

@@ -3,12 +3,12 @@ import { Address, Cell } from "ton";
 import { AppConfig } from "../AppConfig";
 import { t } from "../i18n/t";
 import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
-import { JettonMasterState } from "../sync/jettons/JettonMasterSync";
-import { ContractMetadata } from "../sync/metadata/Metadata";
-import { parseBody } from "../sync/transactions/parseWalletTransaction";
-import { Transaction } from "../sync/Transaction";
+import { JettonMasterState } from "../engine/jettons/JettonMasterSync";
+import { ContractMetadata } from "../engine/metadata/Metadata";
+import { parseBody } from "../engine/transactions/parseWalletTransaction";
+import { Transaction } from "../engine/Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
-import { parseMessageBody } from "../sync/transactions/parseMessageBody";
+import { parseMessageBody } from "../engine/transactions/parseMessageBody";
 import { Operation, OperationItem } from "./types";
 
 export function resolveOperation(args: {

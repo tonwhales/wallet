@@ -14,6 +14,7 @@ import { JettonsState } from "./jettons/JettonsSync";
 import { JettonWalletState } from "./jettons/JettonWalletSync";
 import { JettonMasterState } from "./jettons/JettonMasterSync";
 import { StakingPoolState } from "./account/StakingPoolSync";
+import { Engine } from "./Engine";
 
 export class Persistence {
 
@@ -34,26 +35,26 @@ export class Persistence {
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
     readonly downloads: PersistedCollection<string, string>;
 
-    constructor(storage: MMKV) {
+    constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
             storage.clearAll();
             storage.set('storage-version', this.version);
         }
-        this.liteAccounts = new PersistedCollection({ storage, namespace: 'liteAccounts', key: addressKey, codec: liteAccountCodec });
-        this.fullAccounts = new PersistedCollection({ storage, namespace: 'fullAccounts', key: addressKey, codec: fullAccountCodec });
-        this.wallets = new PersistedCollection({ storage, namespace: 'wallets', key: addressKey, codec: walletCodec });
-        this.transactions = new PersistedCollection({ storage, namespace: 'transactions', key: transactionKey, codec: t.string });
-        this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number });
-        this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec });
-        this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string });
-        this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec });
-        this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec });
-        this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata });
-        this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec });
-        this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec });
-        this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec });
-        this.tokens = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: tokensCodec });
-        this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string });
+        this.liteAccounts = new PersistedCollection({ storage, namespace: 'liteAccounts', key: addressKey, codec: liteAccountCodec, engine });
+        this.fullAccounts = new PersistedCollection({ storage, namespace: 'fullAccounts', key: addressKey, codec: fullAccountCodec, engine });
+        this.wallets = new PersistedCollection({ storage, namespace: 'wallets', key: addressKey, codec: walletCodec, engine });
+        this.transactions = new PersistedCollection({ storage, namespace: 'transactions', key: transactionKey, codec: t.string, engine });
+        this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
+        this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
+        this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
+        this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
+        this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec, engine });
+        this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata, engine });
+        this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec, engine });
+        this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec, engine });
+        this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec, engine });
+        this.tokens = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: tokensCodec, engine });
+        this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string, engine });
     }
 }
 

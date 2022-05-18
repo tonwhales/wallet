@@ -59,11 +59,11 @@ export class MetadataEngine {
 
         // Check existing or invalidate
         let sync = this.engine.storage.metadata(address);
-        if (sync.current && sync.current.seqno > 0) {
-            if (sync.current.seqno < seqno) {
+        if (sync.value && sync.value.seqno > 0) {
+            if (sync.value.seqno < seqno) {
                 this.#invalidateAddress(seqno, address);
             }
-            return sync.current;
+            return sync.value;
         }
 
         // Fetch new metadata
@@ -74,8 +74,8 @@ export class MetadataEngine {
 
         // Check existing
         let sync = this.engine.storage.metadata(address);
-        if (sync.current && sync.current.seqno >= seqno) {
-            return sync.current!;
+        if (sync.value && sync.value.seqno >= seqno) {
+            return sync.value!;
         }
 
         // Fetch new metadata
@@ -94,15 +94,15 @@ export class MetadataEngine {
 
             // Check if updated
             let sync = this.engine.storage.metadata(address);
-            if (sync.current && sync.current.seqno > seqno) {
+            if (sync.value && sync.value.seqno > seqno) {
                 log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Better metadata already exist`);
-                return sync.current!; // Existing seqno
+                return sync.value!; // Existing seqno
             }
 
             log(`[${address.toFriendly({ testOnly: AppConfig.isTestnet })}]: Metadata ready`);
 
             // Update metadata
-            sync.update(metadata);
+            sync.update(() => metadata);
 
             // Updated seqno
             return metadata;

@@ -5,6 +5,7 @@ import { log } from "../../utils/log";
 import { AccountFullSync } from "../account/AccountFullSync";
 import { Engine } from "../Engine";
 import { tryGetJettonWallet } from "../metadata/introspections/tryGetJettonWallet";
+import { useItem } from "../persistence/PersistedItem";
 import { PersistedValueSync } from "../persistence/PersistedValueSync";
 import { SyncCollection } from "../utils/SyncCollection";
 import { JettonMasterState, JettonMasterSync } from "./JettonMasterSync";
@@ -52,7 +53,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
     }
 
     useState() {
-        let map = this.use();
+        let map = useItem(this.engine.storage.accountJettons(this.address));
         let wallets = this.wallets.use();
         let masters = this.masters.use();
 
@@ -130,7 +131,7 @@ export class JettonsSync extends PersistedValueSync<JettonsState> {
 
         // Process metadata (already downloaded by parent sync)
         for (let m of mentioned) {
-            let md = this.engine.storage.metadata(Address.parse(m)).current;
+            let md = this.engine.storage.metadata(Address.parse(m)).value;
             if (md && md.jettonMaster) {
                 if (!pending.has(m) && tokens[m] === undefined) {
                     log(`[tokens]: registered ${m}`);

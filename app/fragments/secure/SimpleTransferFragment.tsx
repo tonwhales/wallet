@@ -11,12 +11,12 @@ import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
-import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../sync/Engine';
+import { useEngine } from '../../engine/Engine';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
@@ -26,6 +26,7 @@ import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { createJettonOrder, createSimpleOrder } from './ops/Order';
+import { useItem } from '../../engine/persistence/PersistedItem';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -44,7 +45,7 @@ export const SimpleTransferFragment = fragment(() => {
         jetton?: Address | null,
     } | undefined = useRoute().params;
     const engine = useEngine();
-    const account = engine.storage.wallet(engine.address).useRequired();
+    const account = useItem(engine.storage.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
@@ -53,8 +54,8 @@ export const SimpleTransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
-    const jettonWallet = params && params.jetton ? engine.storage.jettonWallet(params.jetton!).useRequired() : null;
-    const jettonMaster = jettonWallet ? engine.storage.jettonMaster(jettonWallet.master!).useRequired() : null;
+    const jettonWallet = params && params.jetton ? useItem(engine.storage.jettonWallet(params.jetton!)) : null;
+    const jettonMaster = jettonWallet ? useItem(engine.storage.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = jettonWallet ? jettonWallet.balance : account.balance;
 

@@ -13,7 +13,7 @@ import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { getCurrentAddress } from "../../storage/appState";
-import { useEngine } from "../../sync/Engine";
+import { useEngine } from "../../engine/Engine";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';

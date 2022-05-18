@@ -1,5 +1,5 @@
 import { getAppState, getCurrentAddress, isAddressSecured } from "../storage/appState";
-import { Engine } from "../sync/Engine";
+import { Engine } from "../engine/Engine";
 
 export function resolveOnboarding(engine: Engine | null): 'backup' | 'sync' | 'home' | 'welcome' {
     const state = getAppState();

@@ -17,6 +17,7 @@ import { WalletV4Sync } from './account/WalletV4Sync';
 import { WalletSync } from './account/WalletSync';
 import { AppStorage } from './storage/AppStorage';
 import { Downloads } from './files/Downloads';
+import { Selectors } from './Selectors';
 
 export type EngineProduct = {
     ready: boolean,
@@ -50,6 +51,7 @@ export class Engine {
     readonly accounts: Accounts;
     readonly metadata: MetadataEngine;
     readonly storage: AppStorage;
+    readonly selectors: Selectors;
 
     private _destroyed: boolean;
     private _dependencies: EngineProduct[] = [];
@@ -62,7 +64,7 @@ export class Engine {
         connector: Connector,
         recoilUpdater: (node: any, value: any) => void
     ) {
-        this.persistence = new Persistence(persistence);
+        this.persistence = new Persistence(persistence, this);
         this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
         this.address = address;
         this.publicKey = publicKey;
@@ -74,6 +76,7 @@ export class Engine {
         this.accounts = new Accounts(this);
         this.transactions = new Transactions(this);
         this.downloads = new Downloads(this);
+        this.selectors = new Selectors(this);
 
         // Create products
         this.products = {
@@ -86,7 +89,6 @@ export class Engine {
         this._dependencies.push(this.accounts);
         this._dependencies.push(this.products.main);
         this._dependencies.push(this.products.price);
-        this._dependencies.push(this.products.legacy);
         this._dependencies.push(this.products.whalesStakingPool);
     }
 

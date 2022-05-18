@@ -3,7 +3,7 @@ import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "ton"
 import { AppConfig } from "../AppConfig"
-import { usePrice } from "../sync/PriceContext"
+import { usePrice } from "../engine/PriceContext"
 import { Theme } from "../Theme"
 
 export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount: BN, style?: StyleProp<ViewStyle>, textStyle?: StyleProp<TextStyle> }) => {

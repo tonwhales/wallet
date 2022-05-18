@@ -12,17 +12,18 @@ import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Transaction } from "../../sync/Transaction";
+import { Transaction } from "../../engine/Transaction";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
-import { useEngine } from "../../sync/Engine";
+import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
-import { ContractMetadata } from "../../sync/metadata/Metadata";
-import { JettonMasterState } from "../../sync/jettons/JettonMasterSync";
+import { ContractMetadata } from "../../engine/metadata/Metadata";
+import { JettonMasterState } from "../../engine/jettons/JettonMasterSync";
 import { resolveOperation } from "../../operations/resolveOperation";
+import { useOptItem } from "../../engine/persistence/PersistedItem";
 
 const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
@@ -40,19 +41,19 @@ export const TransactionPreviewFragment = fragment(() => {
     // Metadata
     let metadata: ContractMetadata | null;
     if (transaction.address) {
-        metadata = engine.storage.metadata(transaction.address).use();
+        metadata = useOptItem(engine.storage.metadata(transaction.address));
     } else {
-        metadata = engine.storage.metadata(ZERO_ADDRESS).use();
+        metadata = useOptItem(engine.storage.metadata(ZERO_ADDRESS));
     }
 
     // Master metadata
     let masterMetadata: JettonMasterState | null;
     if (metadata && metadata.jettonWallet) {
-        masterMetadata = engine.storage.jettonMaster(metadata.jettonWallet.master).use();
+        masterMetadata = useOptItem(engine.storage.jettonMaster(metadata.jettonWallet.master));
     } else if (metadata && metadata.jettonMaster && transaction.address) {
-        masterMetadata = engine.storage.jettonMaster(transaction.address).use();
+        masterMetadata = useOptItem(engine.storage.jettonMaster(transaction.address));
     } else {
-        masterMetadata = engine.storage.jettonMaster(ZERO_ADDRESS).use();
+        masterMetadata = useOptItem(engine.storage.jettonMaster(ZERO_ADDRESS));
     }
 
     // Operation

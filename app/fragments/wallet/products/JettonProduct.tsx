@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Address } from 'ton';
-import { Engine } from '../../../sync/Engine';
+import { Engine } from '../../../engine/Engine';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { ProductButton } from './ProductButton';
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';

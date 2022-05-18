@@ -1,28 +1,25 @@
-import { log } from "../../utils/log";
 import { Engine } from "../Engine";
 import { ReactSync } from "../utils/ReactSync";
 import { InvalidateSync } from "../utils/InvalidateSync";
-import { PersistedValue } from "./PersistedValue";
+import { PersistedItem } from "./PersistedItem";
 import { createEngineSync } from "../utils/createEngineSync";
 
 export abstract class PersistedValueSync<T> {
     readonly engine: Engine;
     readonly ref: ReactSync<T> = new ReactSync();
 
-    #item: PersistedValue<T>;
+    #item: PersistedItem<T>;
     #sync: InvalidateSync;
-    #last: T | null;
 
-    constructor(key: string, item: PersistedValue<T>, engine: Engine) {
+    constructor(key: string, item: PersistedItem<T>, engine: Engine) {
         this.engine = engine;
         this.#item = item;
-        this.#last = item.current;
-        if (this.#last) {
-            this.ref.value = this.#last;
+        if (this.#item.value) {
+            this.ref.value = this.#item.value;
         }
         this.#sync = createEngineSync(key, engine, async () => {
             // Do sync
-            let processed = await this.doSync(this.#last);
+            let processed = await this.doSync(this.#item.value);
 
             // Process
             if (processed) {
@@ -33,8 +30,7 @@ export abstract class PersistedValueSync<T> {
 
     protected updateValue(src: T) {
         // Apply local
-        this.#last = src;
-        this.#item.update(src);
+        this.#item.update(() => src);
 
         // Notify
         this.ref.value = src;
@@ -57,6 +53,6 @@ export abstract class PersistedValueSync<T> {
     }
 
     get current() {
-        return this.#last;
+        return this.#item.value;
     }
 }

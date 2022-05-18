@@ -1,5 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import { Engine } from "../Engine";
+import { useOptItem } from '../persistence/PersistedItem';
 
 export class Downloads {
     readonly engine: Engine;
@@ -13,7 +14,7 @@ export class Downloads {
         if (link !== '') {
             this.engine.accounts.getDownload(link);
         }
-        let path = res.use();
+        let path = useOptItem(res);
         if (path) {
             return FileSystem.cacheDirectory + path;
         } else {

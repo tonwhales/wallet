@@ -3,14 +3,13 @@ import { Address, Cell, parseTransaction } from "ton";
 import { Engine } from "../Engine";
 import { backoff } from '../../utils/time';
 import { AppConfig } from '../../AppConfig';
-import { log, warn } from '../../utils/log';
-import { PersistedValueSync } from '../persistence/PersistedValueSync';
+import { log } from '../../utils/log';
 import { AccountLiteAtom } from './AccountLiteAtom';
 import { InvalidateSync } from "../utils/InvalidateSync";
 import { ConnectorTransaction } from "../api/Connector";
 import { ReactSync } from "../utils/ReactSync";
-import { PersistedValue } from "../persistence/PersistedValue";
 import { createEngineSync } from "../utils/createEngineSync";
+import { PersistedItem } from "../persistence/PersistedItem";
 
 export type FullAccount = {
     balance: BN;
@@ -27,7 +26,7 @@ export class AccountFullSync {
     readonly parent: AccountLiteAtom;
     readonly address: Address;
     readonly ref: ReactSync<FullAccount> = new ReactSync();
-    #item: PersistedValue<FullAccount>;
+    #item: PersistedItem<FullAccount>;
     #primarySync: InvalidateSync;
     #loadMoreSync: InvalidateSync;
 
@@ -54,8 +53,8 @@ export class AccountFullSync {
         });
 
         // Forward value
-        if (this.#item.current) {
-            this.ref.value = this.#item.current;
+        if (this.#item.value) {
+            this.ref.value = this.#item.value;
         }
 
         // Forward parent
@@ -75,11 +74,11 @@ export class AccountFullSync {
     }
 
     get current() {
-        return this.#item.current;
+        return this.#item.value;
     }
 
     loadMore = (cursor: { lt: string, hash: string }) => {
-        let current = this.#item.current;
+        let current = this.#item.value;
         if (current && current.transactionsCursor && (current.transactionsCursor.hash === cursor.hash) && (current.transactionsCursor.lt.toString(10) === cursor.lt)) {
             this.loadMoreCursor = cursor;
             this.#loadMoreSync.invalidate();
@@ -89,7 +88,7 @@ export class AccountFullSync {
     protected doPrimarySync = async (): Promise<void> => {
 
         // Existing
-        let existing = this.#item.current;
+        let existing = this.#item.value;
 
         // Load lite account state
         const liteAccount = this.parent.current;
@@ -199,14 +198,14 @@ export class AccountFullSync {
             transactionsCursor,
             transactions
         };
-        this.#item.update(newState);
+        this.#item.update(() => newState);
         this.ref.value = newState;
     }
 
     protected doHistorySync = async (cursor: { lt: string, hash: string }) => {
 
         // Fetch current
-        let src = this.#item.current;
+        let src = this.#item.value;
         if (!src) {
             return;
         }
@@ -257,7 +256,7 @@ export class AccountFullSync {
             }
 
             // Apply transactions
-            let cr = this.#item.current!;
+            let cr = this.#item.value!;
             if (!cr.transactionsCursor || cr.transactionsCursor.hash !== cursor.hash && cursor.lt !== cr.transactionsCursor.lt.toString(10)) {
                 throw Error('Transactions cursor changed');
             }
@@ -275,7 +274,7 @@ export class AccountFullSync {
                 transactions,
                 last: nextCuror
             };
-            this.#item.update(newState);
+            this.#item.update(() => newState);
             this.ref.value = newState;
 
         } else {

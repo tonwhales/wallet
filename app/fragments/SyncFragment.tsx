@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { fragment } from '../fragment';
 import { t } from '../i18n/t';
-import { EngineContext } from '../sync/Engine';
+import { EngineContext } from '../engine/Engine';
 import { systemFragment } from '../systemFragment';
 import { useReboot } from '../utils/RebootContext';
 

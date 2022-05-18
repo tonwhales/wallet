@@ -7,22 +7,22 @@ import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
-import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../sync/Engine';
+import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
-import { fetchConfig } from '../../sync/api/fetchConfig';
+import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
 import { KnownWallets } from '../../secure/KnownWallets';
-import { parseMessageBody } from '../../sync/transactions/parseMessageBody';
+import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { formatSupportedBody } from '../../operations/formatSupportedBody';
 import { fragment } from '../../fragment';
-import { ContractMetadata } from '../../sync/metadata/Metadata';
+import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
@@ -30,7 +30,8 @@ import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
-import { parseBody } from '../../sync/transactions/parseWalletTransaction';
+import { parseBody } from '../../engine/transactions/parseWalletTransaction';
+import { useItem } from '../../engine/persistence/PersistedItem';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -60,7 +61,7 @@ type ConfirmLoadedProps = {
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const account = engine.storage.wallet(engine.address).useRequired();
+    const account = useItem(engine.storage.wallet(engine.address));
     const {
         restricted,
         target,
@@ -309,7 +310,7 @@ export const TransferFragment = fragment(() => {
         job: string | null,
     } = useRoute().params! as any;
     const engine = useEngine();
-    const account = engine.storage.wallet(engine.address).useRequired();
+    const account = useItem(engine.storage.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 

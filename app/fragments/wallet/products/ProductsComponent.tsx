@@ -2,7 +2,7 @@ import BN from "bn.js"
 import React from "react"
 import { View } from "react-native"
 import { ProductButton } from "./ProductButton"
-import { useEngine } from "../../../sync/Engine"
+import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';

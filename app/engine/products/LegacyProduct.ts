@@ -2,6 +2,7 @@ import BN from "bn.js";
 import { Address, contractAddress, WalletV1R1Source, WalletV1R2Source, WalletV1R3Source, WalletV2R1Source, WalletV2R2Source, WalletV3R1Source, WalletV3R2Source } from "ton";
 import { AccountLiteAtom } from "../account/AccountLiteAtom";
 import { Engine } from "../Engine";
+import { useOptItem } from "../persistence/PersistedItem";
 
 export class LegacyProduct {
 
@@ -25,27 +26,10 @@ export class LegacyProduct {
         }
     }
 
-    get ready() {
-        for (let w of this.wallets) {
-            if (!w.ref.ready) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    async awaitReady() {
-        for (let w of this.wallets) {
-            if (!w.ref.ready) {
-                await w.ref.awaitReady();
-            }
-        }
-    }
-
     useState = () => {
         let b = new BN(0);
         for (let w of this.wallets) {
-            let account = this.engine.storage.accountLite(w.address).use();
+            let account = useOptItem(this.engine.storage.accountLite(w.address));
             if (account) {
                 b = b.add(account.balance);
             }
@@ -56,7 +40,7 @@ export class LegacyProduct {
     useStateFull() {
         let wallets: { address: Address, balance: BN }[] = [];
         for (let w of this.wallets) {
-            let account = this.engine.storage.accountLite(w.address).use();
+            let account = useOptItem(this.engine.storage.accountLite(w.address));
             if (account) {
                 wallets.push({ address: w.address, balance: account.balance });
             } else {

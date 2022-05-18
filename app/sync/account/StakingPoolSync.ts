@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { Address, beginCell, TupleSlice4 } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 import { AccountLiteAtom } from "./AccountLiteAtom";
 
 export type StakingPoolState = {

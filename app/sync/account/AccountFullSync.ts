@@ -4,12 +4,12 @@ import { Engine } from "../Engine";
 import { backoff } from '../../utils/time';
 import { AppConfig } from '../../AppConfig';
 import { log, warn } from '../../utils/log';
-import { PersistedValueSync } from '../utils/PersistedValueSync';
+import { PersistedValueSync } from '../persistence/PersistedValueSync';
 import { AccountLiteAtom } from './AccountLiteAtom';
 import { InvalidateSync } from "../utils/InvalidateSync";
 import { ConnectorTransaction } from "../api/Connector";
 import { ReactSync } from "../utils/ReactSync";
-import { PersistedValue } from "../utils/PersistedValue";
+import { PersistedValue } from "../persistence/PersistedValue";
 import { createEngineSync } from "../utils/createEngineSync";
 
 export type FullAccount = {

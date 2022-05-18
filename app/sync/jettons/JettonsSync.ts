@@ -5,7 +5,7 @@ import { log } from "../../utils/log";
 import { AccountFullSync } from "../account/AccountFullSync";
 import { Engine } from "../Engine";
 import { tryGetJettonWallet } from "../metadata/introspections/tryGetJettonWallet";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 import { SyncCollection } from "../utils/SyncCollection";
 import { JettonMasterState, JettonMasterSync } from "./JettonMasterSync";
 import { JettonWalletState, JettonWalletSync } from "./JettonWalletSync";

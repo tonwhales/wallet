@@ -1,5 +1,5 @@
 import { ReactSync } from "./ReactSync";
-import { PersistedValueSync } from "./PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 
 export class SyncCollection<T> {
     #items = new Map<string, PersistedValueSync<T>>();

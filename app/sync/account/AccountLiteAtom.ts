@@ -3,7 +3,7 @@ import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { AccountWatcher } from "../blocks/AccountWatcher";
 import { Engine } from "../Engine";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 
 export type LiteAccount = {
     balance: BN;

@@ -4,7 +4,7 @@ import { AppConfig } from "../../AppConfig";
 import { fetchPlugins } from "../api/fetchPlugins";
 import { fetchSeqno } from "../api/fetchSeqno";
 import { Engine } from "../Engine";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 import { AccountFullSync } from "./AccountFullSync";
 
 export type WalletV4State = {

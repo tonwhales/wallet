@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import { Engine } from "../Engine";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 import { sha256_sync } from 'ton-crypto';
 import { warn } from '../../utils/log';
 

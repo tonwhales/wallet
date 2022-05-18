@@ -1,9 +1,9 @@
 import { log } from "../../utils/log";
 import { Engine } from "../Engine";
-import { ReactSync } from "./ReactSync";
-import { InvalidateSync } from "./InvalidateSync";
+import { ReactSync } from "../utils/ReactSync";
+import { InvalidateSync } from "../utils/InvalidateSync";
 import { PersistedValue } from "./PersistedValue";
-import { createEngineSync } from "./createEngineSync";
+import { createEngineSync } from "../utils/createEngineSync";
 
 export abstract class PersistedValueSync<T> {
     readonly engine: Engine;

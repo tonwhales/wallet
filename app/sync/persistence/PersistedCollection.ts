@@ -1,9 +1,9 @@
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
-import { warn } from '../utils/log';
+import { warn } from '../../utils/log';
 
 export type PersistedItem<T> = {
-    setValue(value: T | null): void;
+    update(updater: (value: T | null) => T | null): void;
     getValue(): T | null;
 }
 
@@ -22,8 +22,8 @@ export class PersistedCollection<K, T> {
 
     item(key: K): PersistedItem<T> {
         return {
-            setValue: (value: T | null) => {
-                this.setValue(key, value);
+            update: (updater: (value: T | null) => T | null) => {
+                this.setValue(key, updater(this.getValue(key)));
             },
             getValue: () => {
                 return this.getValue(key);

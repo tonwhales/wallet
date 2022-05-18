@@ -1,7 +1,7 @@
 import { atom, RecoilState, useRecoilValue, AtomEffect } from "recoil";
-import { PersistedItem } from "../PersistedCollection";
+import { PersistedItem } from "./PersistedCollection";
 import { AppStorage } from "../storage/AppStorage";
-import { ReactSync } from "./ReactSync";
+import { ReactSync } from "../utils/ReactSync";
 
 export class PersistedValue<T> {
     readonly storage: AppStorage;
@@ -26,7 +26,7 @@ export class PersistedValue<T> {
     };
 
     update(value: T) {
-        this.#item.setValue(value);
+        this.#item.update(() => value);
         this.ref.value = value;
         this.storage.recoilUpdater(this.#state, value);
     }

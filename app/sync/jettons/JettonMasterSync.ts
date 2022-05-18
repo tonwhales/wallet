@@ -5,7 +5,7 @@ import { warn } from "../../utils/log";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { tryFetchJettonMaster } from "../metadata/introspections/tryFetchJettonMaster";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 
 export type JettonMasterState = {
     name: string | null;

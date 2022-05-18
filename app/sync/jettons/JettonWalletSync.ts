@@ -4,7 +4,7 @@ import { AppConfig } from "../../AppConfig";
 import { AccountLiteAtom } from "../account/AccountLiteAtom";
 import { Engine } from "../Engine";
 import { tryFetchJettonWallet } from "../metadata/introspections/tryFetchJettonWallet";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 
 export type JettonWalletState = {
     block: number;

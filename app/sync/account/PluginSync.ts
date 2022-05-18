@@ -3,7 +3,7 @@ import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { tryFetchLegacyPlugin } from "../metadata/introspections/tryFetchLegacyPlugin";
 import { LegacySubscription } from "../metadata/Metadata";
-import { PersistedValueSync } from "../utils/PersistedValueSync";
+import { PersistedValueSync } from "../persistence/PersistedValueSync";
 import { AccountLiteAtom } from "./AccountLiteAtom";
 
 export type PluginState =

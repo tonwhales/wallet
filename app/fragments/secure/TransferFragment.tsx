@@ -30,6 +30,7 @@ import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
+import { parseBody } from '../../sync/parse/parseWalletTransaction';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -88,6 +89,17 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             let formatted = formatSupportedBody(supportedMessage);
             if (formatted) {
                 return formatted.text;
+            }
+        }
+        return null;
+    }, []);
+
+    // Resolve comment
+    const comment = React.useMemo(() => {
+        if (order.payload) {
+            let bd = parseBody(order.payload);
+            if (bd && bd.type === 'comment') {
+                return bd.comment
             }
         }
         return null;
@@ -268,10 +280,10 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <ItemLarge title={t('transfer.purpose')} text={message} />
                             </>
                         )}
-                        {!message && !!text && !order.payload && (
+                        {!!comment && (
                             <>
                                 <ItemDivider />
-                                <ItemLarge title={t('transfer.comment')} text={text} />
+                                <ItemLarge title={t('transfer.comment')} text={comment} />
                             </>
                         )}
                         <ItemDivider />

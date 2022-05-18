@@ -39,7 +39,13 @@ export class Engine {
     readonly downloads: Downloads;
 
     // Modules
-    readonly products;
+    readonly products: {
+        main: WalletSync,
+        legacy: LegacyProduct,
+        price: PriceProduct,
+        apps: AppProduct,
+        whalesStakingPool: StakingPoolProduct
+    };
     readonly transactions: Transactions;
     readonly accounts: Accounts;
     readonly metadata: MetadataEngine;

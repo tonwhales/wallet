@@ -499,7 +499,7 @@ export const SimpleTransferFragment = fragment(() => {
                             }
                             multiline
                             autoCorrect={false}
-                            autoCompleteType={'off'}
+                            autoComplete={'off'}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0,

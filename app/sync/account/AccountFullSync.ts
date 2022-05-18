@@ -70,6 +70,10 @@ export class AccountFullSync {
         });
     }
 
+    get ready() {
+        return this.ref.ready;
+    }
+
     get current() {
         return this.#item.current;
     }

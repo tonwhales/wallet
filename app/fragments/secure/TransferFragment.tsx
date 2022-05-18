@@ -220,7 +220,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             body: order.payload ? { type: 'payload', cell: order.payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
             status: 'pending',
             time: Math.floor(Date.now() / 1000),
-            bounced: false
+            bounced: false,
+            prev: null
         });
 
         // Reset stack to root

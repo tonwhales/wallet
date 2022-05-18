@@ -82,7 +82,7 @@ export const NeocryptoFragment = fragment(() => {
 
     const onOpenBuy = useCallback(() => {
         if (accepted) {
-            storage.set(skipLegalNeocrypto, doNotShow);
+            storage.set(skipLegalNeocrypto, doNotShow!);
             navigation.goBack();
             openWithInApp(main);
         }

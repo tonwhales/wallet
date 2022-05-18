@@ -2,7 +2,7 @@ import { log } from "../../utils/log";
 import { Engine } from "../Engine";
 import { ReactSync } from "./ReactSync";
 import { InvalidateSync } from "./InvalidateSync";
-import { PersistedValue } from "../atom/PersistedValue";
+import { PersistedValue } from "./PersistedValue";
 
 export abstract class PersistedValueSync<T> {
     readonly engine: Engine;

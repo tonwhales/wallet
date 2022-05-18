@@ -19,7 +19,7 @@ import { fetchConfig } from '../../sync/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
 import { KnownWallets } from '../../secure/KnownWallets';
-import { parseMessageBody } from '../../operations/parseMessageBody';
+import { parseMessageBody } from '../../sync/transactions/parseMessageBody';
 import { formatSupportedBody } from '../../operations/formatSupportedBody';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../sync/metadata/Metadata';
@@ -30,7 +30,7 @@ import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
-import { parseBody } from '../../sync/parse/parseWalletTransaction';
+import { parseBody } from '../../sync/transactions/parseWalletTransaction';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

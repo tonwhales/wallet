@@ -1,7 +1,7 @@
 import { BN } from "bn.js";
 import { Address, Cell, parseTransaction, RawTransaction } from "ton";
 import { Engine } from "../Engine";
-import { parseWalletTransaction } from "../parse/parseWalletTransaction";
+import { parseWalletTransaction } from "./parseWalletTransaction";
 import { Transaction } from "../Transaction";
 
 export class Transactions {

@@ -5,7 +5,7 @@ import { LiteAccount } from '../account/AccountLiteAtom';
 import { PluginState } from '../account/PluginSync';
 import { StakingPoolState } from '../account/StakingPoolSync';
 import { WalletV4State } from '../account/WalletV4Sync';
-import { PersistedValue } from '../atom/PersistedValue';
+import { PersistedValue } from '../utils/PersistedValue';
 import { Engine } from "../Engine";
 import { JettonMasterState } from '../jettons/JettonMasterSync';
 import { JettonsState } from '../jettons/JettonsSync';

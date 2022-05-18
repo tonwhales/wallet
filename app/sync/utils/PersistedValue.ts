@@ -1,7 +1,7 @@
 import { atom, RecoilState, useRecoilValue, AtomEffect } from "recoil";
 import { PersistedItem } from "../PersistedCollection";
 import { AppStorage } from "../storage/AppStorage";
-import { ReactSync } from "../utils/ReactSync";
+import { ReactSync } from "./ReactSync";
 
 export class PersistedValue<T> {
     readonly storage: AppStorage;

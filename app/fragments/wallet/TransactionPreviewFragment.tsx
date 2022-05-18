@@ -20,8 +20,6 @@ import { useEngine } from "../../sync/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
-import { parseMessageBody } from "../../operations/parseMessageBody";
-import { formatSupportedBody } from "../../operations/formatSupportedBody";
 import { ContractMetadata } from "../../sync/metadata/Metadata";
 import { JettonMasterState } from "../../sync/jettons/JettonMasterSync";
 import { resolveOperation } from "../../operations/resolveOperation";

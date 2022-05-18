@@ -1,6 +1,6 @@
 import React from "react"
 import { View, Text } from "react-native"
-import { TouchableHighlight } from "react-native-gesture-handler"
+import { TouchableHighlight } from "react-native"
 import { Theme } from "../../Theme"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import StakingIcon from '../../../assets/ic_staking.svg';

@@ -3,6 +3,7 @@ import { Engine } from "../Engine";
 import { ReactSync } from "./ReactSync";
 import { InvalidateSync } from "./InvalidateSync";
 import { PersistedValue } from "./PersistedValue";
+import { createEngineSync } from "./createEngineSync";
 
 export abstract class PersistedValueSync<T> {
     readonly engine: Engine;
@@ -10,9 +11,7 @@ export abstract class PersistedValueSync<T> {
 
     #item: PersistedValue<T>;
     #sync: InvalidateSync;
-    #lock: (() => void) | null = null;
     #last: T | null;
-    #invalidateTime: number | null = null;
 
     constructor(key: string, item: PersistedValue<T>, engine: Engine) {
         this.engine = engine;
@@ -21,28 +20,13 @@ export abstract class PersistedValueSync<T> {
         if (this.#last) {
             this.ref.value = this.#last;
         }
-        this.#sync = new InvalidateSync(key, async () => {
-
+        this.#sync = createEngineSync(key, engine, async () => {
             // Do sync
             let processed = await this.doSync(this.#last);
 
             // Process
             if (processed) {
                 this.updateValue(processed);
-            }
-        });
-        this.#sync.on('invalidated', () => {
-            if (!this.#lock) {
-                this.#invalidateTime = Date.now();
-                log(`${key}: invalidated`);
-                this.#lock = engine.state.beginUpdating();
-            }
-        });
-        this.#sync.on('ready', () => {
-            if (this.#lock) {
-                log(`${key}: ready in ${Date.now() - this.#invalidateTime!} ms`);
-                this.#lock();
-                this.#lock = null;
             }
         });
     }

@@ -15,4 +15,5 @@ export type Transaction = {
     status: 'success' | 'failed' | 'pending';
     time: number;
     bounced: boolean;
+    prev: { lt: string, hash: string } | null;
 }

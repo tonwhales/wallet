@@ -30,6 +30,15 @@ export function parseBody(cell: Cell): Body | null {
 export function parseWalletTransaction(tx: RawTransaction): Transaction {
 
     //
+    // Resolve previous
+    //
+
+    let prev: { lt: string, hash: string } | null = null;
+    if (!tx.prevTransaction.lt.eq(new BN(0))) {
+        prev = { lt: tx.prevTransaction.lt.toString(10), hash: tx.prevTransaction.hash.toString('base64') };
+    }
+
+    //
     // Resolve fees
     // 
 
@@ -133,6 +142,7 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         body,
         status,
         time: tx.time,
-        bounced
-    }
+        bounced,
+        prev
+    };
 }

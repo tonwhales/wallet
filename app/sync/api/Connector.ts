@@ -54,9 +54,7 @@ export function createSimpleConnector(endpoints: {
             data: string
         }[];
         if (!data.find((v) => v.transaction_id.lt == from.lt)) {
-            if (!AppConfig.isTestnet) {
-                throw Error('Unable to find transaction');
-            }
+            throw Error('Unable to find transaction');
         }
 
         return data.map((d) => ({

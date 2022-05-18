@@ -48,6 +48,10 @@ export class WalletSync {
         }
     }
 
+    loadMore = (lt: string, hash: string) => {
+        this.parent.parent.loadMore({ lt, hash });
+    }
+
     #handleAccount = (wallet: WalletV4State) => {
 
         // Account

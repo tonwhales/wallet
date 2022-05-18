@@ -29,7 +29,7 @@ export class WalletV4Sync extends PersistedValueSync<WalletV4State> {
         this.parent = parent;
 
         // Forward parent
-        if (parent.ready) {
+        if (parent.ref.ready) {
             this.invalidate();
         }
         parent.ref.on('ready', () => {
@@ -46,6 +46,14 @@ export class WalletV4Sync extends PersistedValueSync<WalletV4State> {
         const parentValue = this.parent.current;
         if (!parentValue) {
             return null;
+        }
+
+        // If block not changed it might be just transactions
+        if (src && src.block === parentValue.block) {
+            return {
+                ...src,
+                transactions: parentValue.transactions
+            };
         }
 
         // Check updated

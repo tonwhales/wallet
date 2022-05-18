@@ -11,7 +11,7 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Engine, useEngine } from '../../sync/Engine';
 import { Transaction } from '../../sync/Transaction';
@@ -28,6 +28,7 @@ import { fragment } from '../../fragment';
 import { openWithInApp } from '../../utils/openWithInApp';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -66,6 +67,21 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
         );
     }
 
+    // Last
+    if (props.txs.length > 0) {
+        if (props.txs[props.txs.length - 1].prev) {
+            components.push(
+                <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
+                    <LoadingIndicator simple={true} />
+                </View>
+            );
+        } else {
+            components.push(
+                <View key="footer" style={{ height: 64 }} />
+            );
+        }
+    }
+
     return <>{components}</>;
 })
 
@@ -77,6 +93,11 @@ export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const syncState = engine.state.use();
     const account = engine.products.main.useState();
+
+    //
+    // Transactions
+    //
+
     const transactions = React.useMemo<Transaction[]>(() => {
         let txs = account.transactions.map((v) => engine.transactions.getWalletTransaction(address, v));
         return [...account.pending, ...txs];
@@ -91,6 +112,25 @@ export const WalletFragment = fragment(() => {
             });
         }
     }, [navigation]);
+
+    const onReachedEnd = React.useMemo(() => {
+        let prev = transactions.length > 0 ? transactions[transactions.length - 1].prev : null;
+        let called = false;
+        return () => {
+            if (called) {
+                return;
+            }
+            called = true;
+            if (prev) {
+                console.warn('Reached end: ' + prev);
+                engine.products.main.loadMore(prev.lt, prev.hash);
+            }
+        }
+    }, [transactions.length > 0 ? transactions[transactions.length - 1].prev : null]);
+
+    //
+    // Animations
+    //
 
     const window = useWindowDimensions();
 
@@ -114,7 +154,13 @@ export const WalletFragment = fragment(() => {
             titleOpacity.value = 1;
             smallCardY.value = Math.floor(cardHeight * 0.15 / 2);
         }
-    }, [cardHeight]);
+
+        // Bottom reached
+        let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
+        if (bottomOffset < 300) {
+            runOnJS(onReachedEnd)();
+        }
+    }, [cardHeight, onReachedEnd]);
 
     const cardOpacityStyle = useAnimatedStyle(() => {
         return {
@@ -230,7 +276,6 @@ export const WalletFragment = fragment(() => {
         },
         [],
     );
-
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>

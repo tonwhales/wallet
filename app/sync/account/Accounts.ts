@@ -73,7 +73,7 @@ export class Accounts {
             }
         }
         for (let lt of this.#fullSync) {
-            if (!lt[1].ready) {
+            if (!lt[1].ref.ready) {
                 return false;
             }
         }
@@ -87,7 +87,7 @@ export class Accounts {
             }
         }
         for (let lt of this.#fullSync) {
-            if (!lt[1].ready) {
+            if (!lt[1].ref.ready) {
                 await lt[1].ref.awaitReady();
             }
         }

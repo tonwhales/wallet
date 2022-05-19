@@ -26,7 +26,7 @@ export class PersistedCollection<K, T> extends EventEmitter {
     #namespace: string;
     #key: (src: K) => string;
     #codec: t.Type<T, any>;
-    #items = new Map<string, PersistedItem<T>>();
+    #items = new Map<string, { key: K, value: PersistedItem<T> }>();
 
     constructor(args: {
         storage: MMKV,
@@ -47,7 +47,7 @@ export class PersistedCollection<K, T> extends EventEmitter {
         let id = this.#key(key);
         let ex = this.#items.get(id);
         if (ex) {
-            return ex;
+            return ex.value;
         }
         let current = this.#getValue(key);
         let rc = atom<T | null>({
@@ -89,7 +89,7 @@ export class PersistedCollection<K, T> extends EventEmitter {
                 });
             }
         }
-        this.#items.set(id, pitm);
+        this.#items.set(id, { key, value: pitm });
         this.emit('created', { key, value: current });
         logger.log(this.#namespace + '/' + id);
         return pitm;
@@ -101,6 +101,13 @@ export class PersistedCollection<K, T> extends EventEmitter {
 
     getValue(key: K) {
         return this.item(key).value;
+    }
+
+    each(handler: (key: K) => void) {
+        this.on('created', (e) => handler(e.key));
+        for (let k of this.#items.values()) {
+            handler(k.key);
+        }
     }
 
     //

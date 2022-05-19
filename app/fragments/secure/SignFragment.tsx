@@ -11,7 +11,7 @@ import { t } from '../../i18n/t';
 import { getConnectionReferences, getCurrentAddress } from '../../storage/appState';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useEngine } from '../../engine/Engine';
-import { parseJob } from '../../engine/parse/parseJob';
+import { parseJob } from '../../engine/apps/parseJob';
 import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 

@@ -25,46 +25,21 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
 }
 
-export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, engine: Engine, onPress: (src: Transaction) => void }) {
-    const parsed = props.tx;
-
-    // Fetch metadata
-    let metadata: ContractMetadata | null;
-    if (parsed.address) {
-        metadata = useOptItem(props.engine.model.metadata(parsed.address));
-    } else {
-        metadata = useOptItem(props.engine.model.metadata(ZERO_ADDRESS));
-    }
-
-    // Master metadata
-    let masterMetadata: JettonMasterState | null;
-    if (metadata && metadata.jettonWallet) {
-        masterMetadata = useOptItem(props.engine.model.jettonMaster(metadata.jettonWallet.master));
-    } else if (metadata && metadata.jettonMaster && parsed.address) {
-        masterMetadata = useOptItem(props.engine.model.jettonMaster(parsed.address));
-    } else {
-        masterMetadata = useOptItem(props.engine.model.jettonMaster(ZERO_ADDRESS));
-    }
-
+export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
+    const tx = props.engine.products.main.useTransaction(props.tx);
+    let parsed = tx.base;
+    let operation = tx.operation;
+    
     // Operation
-    let operation = resolveOperation({ tx: parsed, metadata, jettonMaster: masterMetadata, account: props.own });
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = operation.items[0];
-
-    // Avatar
-    let downloaded: string | null = null;
-    if (operation.image) {
-        downloaded = props.engine.downloads.use(operation.image);
-    } else {
-        downloaded = props.engine.downloads.use('');
-    }
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={downloaded ? downloaded : undefined} />)}
+                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={tx.icon ? tx.icon : undefined} />)}
                     {parsed.status === 'pending' && (
                         <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
                     )}

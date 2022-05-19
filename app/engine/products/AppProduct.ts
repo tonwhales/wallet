@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Cell } from "ton";
 import { Engine } from "../Engine";
-import { Job } from "../parse/Job";
-import { parseJob } from "../parse/parseJob";
+import { Job } from "../apps/Job";
+import { parseJob } from "../apps/parseJob";
 import EventEmitter from "events";
 import { backoff } from '../../utils/time';
 import { getAppInstanceKeyPair } from '../../storage/appState';

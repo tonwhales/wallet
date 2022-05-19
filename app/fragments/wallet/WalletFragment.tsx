@@ -31,12 +31,18 @@ import CircularProgress from '../../components/CircularProgress/CircularProgress
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { WalletState } from '../../engine/products/WalletProduct';
 
-const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
+const WalletTransactions = React.memo((props: {
+    txs: { id: string, time: number }[],
+    hasMore: boolean,
+    address: Address,
+    engine: Engine,
+    onPress: (tx: string) => void
+}) => {
     const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: Transaction[] }[] = [];
+        let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
             let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: Transaction[] = [];
+            let lastSection: string[] = [];
             let title = formatDate(props.txs[0].time);
             sections.push({ title, items: lastSection });
             for (let t of props.txs) {
@@ -47,7 +53,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
                     title = formatDate(t.time);
                     sections.push({ title, items: lastSection });
                 }
-                lastSection.push(t);
+                lastSection.push(t.id);
             }
         }
         return sections;
@@ -63,24 +69,22 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
         components.push(
             < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
             } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
+                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t} onPress={props.onPress} />)}
             </View >
         );
     }
 
     // Last
-    if (props.txs.length > 0) {
-        if (props.txs[props.txs.length - 1].prev) {
-            components.push(
-                <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
-                    <LoadingIndicator simple={true} />
-                </View>
-            );
-        } else {
-            components.push(
-                <View key="footer" style={{ height: 64 }} />
-            );
-        }
+    if (props.hasMore) {
+        components.push(
+            <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
+                <LoadingIndicator simple={true} />
+            </View>
+        );
+    } else {
+        components.push(
+            <View key="footer" style={{ height: 64 }} />
+        );
     }
 
     return <>{components}</>;
@@ -101,23 +105,16 @@ function WalletComponent(props: { wallet: WalletState }) {
     // Transactions
     //
 
-    const transactions = React.useMemo<Transaction[]>(() => {
-        let txs = account.transactions.map((v) => engine.transactions.getWalletTransaction(address, v));
-        return [...account.pending, ...txs];
-    }, [account.transactions, account.pending]);
-
-    const openTransactionFragment = React.useCallback((transaction: Transaction | null) => {
+    const openTransactionFragment = React.useCallback((transaction: string) => {
         if (transaction) {
             navigation.navigate('Transaction', {
-                transaction: {
-                    ...transaction
-                }
+                transaction: transaction
             });
         }
     }, [navigation]);
 
     const onReachedEnd = React.useMemo(() => {
-        let prev = transactions.length > 0 ? transactions[transactions.length - 1].prev : null;
+        let prev = account.transactions.length > 0 ? account.transactions[account.transactions.length - 1] : null;
         let called = false;
         return () => {
             if (called) {
@@ -126,10 +123,10 @@ function WalletComponent(props: { wallet: WalletState }) {
             called = true;
             if (prev) {
                 console.warn('Reached end: ' + prev);
-                engine.products.main.loadMore(prev.lt, prev.hash);
+                // engine.products.main.loadMore(prev.lt, prev.hash);
             }
         }
-    }, [transactions.length > 0 ? transactions[transactions.length - 1].prev : null]);
+    }, [account.transactions.length > 0 ? account.transactions[account.transactions.length - 1] : null]);
 
     //
     // Animations
@@ -426,7 +423,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 <ProductsComponent />
 
                 {
-                    transactions.length === 0 && (
+                    account.transactions.length === 0 && (
                         <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                             <Pressable
                                 onPress={() => {
@@ -454,9 +451,10 @@ function WalletComponent(props: { wallet: WalletState }) {
                     )
                 }
                 {
-                    transactions.length > 0 && (
+                    account.transactions.length > 0 && (
                         <WalletTransactions
-                            txs={transactions}
+                            txs={account.transactions}
+                            hasMore={account.hasMore}
                             address={address}
                             engine={engine}
                             onPress={openTransactionFragment}

@@ -11,6 +11,7 @@ import { startWalletV4Sync } from "./startWalletV4Sync";
 import { startJettonWalletSync } from "./startJettonWalletSync";
 import { startHintsTxSync } from "./startHintsTxSync";
 import { startHintSync } from "./startHintSync";
+import { startFileSync } from "./startFileSync";
 
 export function startSync(engine: Engine) {
 
@@ -18,29 +19,29 @@ export function startSync(engine: Engine) {
     // Lite accounts
     //
 
-    engine.persistence.liteAccounts.on('created', (e) => {
-        startAccountLiteSync(e.key, engine);
+    engine.persistence.liteAccounts.each((key) => {
+        startAccountLiteSync(key, engine);
     });
 
     //
     // Full accounts
     //
 
-    engine.persistence.fullAccounts.on('created', (e) => {
-        startAccountFullSync(e.key, engine);
+    engine.persistence.fullAccounts.each((key) => {
+        startAccountFullSync(key, engine);
     });
 
     //
     // Wallet v4
     //
 
-    engine.persistence.wallets.on('created', (e) => {
-        startWalletV4Sync(e.key, engine);
+    engine.persistence.wallets.each((key) => {
+        startWalletV4Sync(key, engine);
     });
 
     // Staking
-    engine.persistence.staking.on('created', (e) => {
-        startStakingPoolSync(e.key.target, e.key.address, engine);
+    engine.persistence.staking.each((key) => {
+        startStakingPoolSync(key.target, key.address, engine);
     });
 
     //
@@ -124,5 +125,12 @@ export function startSync(engine: Engine) {
         for (let addr of e) {
             startHints(addr);
         }
+    });
+
+    //
+    // Downloads
+    //
+    engine.persistence.downloads.each((file) => {
+        startFileSync(file, engine);
     });
 }

@@ -14,7 +14,6 @@ import { Transactions } from './transactions/Transactions';
 import { SyncStateManager } from './SyncStateManager';
 import { WalletProduct } from './products/WalletProduct';
 import { Model } from './Model';
-import { Downloads } from './files/Downloads';
 import { startSync } from './sync/startSync';
 
 export type EngineProduct = {
@@ -39,7 +38,6 @@ export class Engine {
     readonly client4: TonClient4;
     readonly blocksWatcher: BlocksWatcher;
     readonly state: SyncStateManager = new SyncStateManager();
-    readonly downloads: Downloads;
 
     // Modules
     readonly products: {
@@ -76,7 +74,6 @@ export class Engine {
         this.metadata = new MetadataEngine(this);
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.transactions = new Transactions(this);
-        this.downloads = new Downloads(this);
 
         //
         // Start sync

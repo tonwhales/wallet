@@ -7,12 +7,11 @@ import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano } from "ton";
+import { fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Transaction } from "../../engine/Transaction";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
@@ -20,65 +19,17 @@ import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
-import { ContractMetadata } from "../../engine/sync/metadata/Metadata";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
-import { resolveOperation } from "../../operations/resolveOperation";
-import { useOptItem } from "../../engine/persistence/PersistedItem";
-
-const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const { transaction } = useParams<{ transaction?: Transaction | null }>();
+    const params = useParams<{ transaction: string }>();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
-
-    if (!transaction) {
-        throw Error('Unable to load transaction');
-    }
-
-    // Metadata
-    let metadata: ContractMetadata | null;
-    if (transaction.address) {
-        metadata = useOptItem(engine.model.metadata(transaction.address));
-    } else {
-        metadata = useOptItem(engine.model.metadata(ZERO_ADDRESS));
-    }
-
-    // Master metadata
-    let masterMetadata: JettonMasterState | null;
-    if (metadata && metadata.jettonWallet) {
-        masterMetadata = useOptItem(engine.model.jettonMaster(metadata.jettonWallet.master));
-    } else if (metadata && metadata.jettonMaster && transaction.address) {
-        masterMetadata = useOptItem(engine.model.jettonMaster(transaction.address));
-    } else {
-        masterMetadata = useOptItem(engine.model.jettonMaster(ZERO_ADDRESS));
-    }
-
-    // Operation
-    let operation = resolveOperation({ tx: transaction, metadata, jettonMaster: masterMetadata, account: engine.address });
-    let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    let item = operation.items[0];
-
-    // // Payload ovewrite
-    // if (transaction.body && transaction.body.type === 'payload' && transaction.address && metadata) {
-    //     let parsedBody = parseMessageBody(transaction.body.cell, metadata.interfaces);
-    //     if (parsedBody) {
-    //         let f = formatSupportedBody(parsedBody);
-    //         if (f) {
-    //             transactionType = f.text;
-    //         }
-    //     }
-    // }
-
-    // Avatar
-    let downloaded: string | null = null;
-    if (operation.image) {
-        downloaded = engine.downloads.use(operation.image);
-    } else {
-        downloaded = engine.downloads.use('');
-    }
+    let transaction = engine.products.main.useTransaction(params.transaction);
+    let operation = transaction.operation;
+    let avatarId = transaction.operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let item = transaction.operation.items[0];
 
     return (
         <View style={{
@@ -98,10 +49,10 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
             </View>
             <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, marginTop: 24, backgroundColor: '#5fbed5', alignItems: 'center', justifyContent: 'center' }}>
-                <Avatar address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={84} image={downloaded ? downloaded : undefined} />
+                <Avatar address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={84} image={transaction.icon ? transaction.icon : undefined} />
             </View>
             <View style={{ marginTop: 34 }}>
-                {transaction.status === 'failed' ? (
+                {transaction.base.status === 'failed' ? (
                     <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                 ) : (
                     <Text style={{ color: item.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
@@ -111,16 +62,16 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
             </View>
             <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 10 }}>
-                {`${formatDate(transaction.time, 'dd.MM.yyyy')} ${formatTime(transaction.time)}`}
+                {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             <View style={{ flexDirection: 'row', marginTop: 39 }} collapsable={false}>
-                {transaction.kind === 'out' && (transaction.body === null || transaction.body.type !== 'payload') && (
+                {transaction.base.kind === 'out' && (transaction.base.body === null || transaction.base.body.type !== 'payload') && (
                     <Pressable
                         style={(p) => ({ flexGrow: 1, flexBasis: 0, marginRight: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
                         onPress={() => navigation.navigateSimpleTransfer({
-                            target: transaction.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            comment: transaction.body && transaction.body.type === 'comment' ? transaction.body.comment : null,
-                            amount: transaction.amount.neg(),
+                            target: transaction.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            comment: transaction.base.body && transaction.base.body.type === 'comment' ? transaction.base.body.comment : null,
+                            amount: transaction.base.amount.neg(),
                             job: null,
                             stateInit: null,
                             jetton: null
@@ -203,7 +154,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         fontSize: 16,
                         lineHeight: 20,
                     }}>
-                        {fromNano(transaction.fees)}
+                        {fromNano(transaction.base.fees)}
                     </Text>
                 </View>
             </View>

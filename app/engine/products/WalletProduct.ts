@@ -3,14 +3,18 @@ import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
-import { atom, RecoilState, RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
+import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoilValue, selectorFamily } from "recoil";
 import * as FileSystem from 'expo-file-system';
+import { ContractMetadata } from "../sync/metadata/Metadata";
+import { JettonMasterState } from "../sync/startJettonMasterSync";
+import { resolveOperation } from "../../operations/resolveOperation";
+import { Operation } from "../../operations/types";
 
 export type WalletState = {
     balance: BN;
     seqno: number;
-    transactions: string[];
-    pending: Transaction[]
+    transactions: { id: string, time: number }[];
+    hasMore: boolean;
 }
 
 export type JettonsState = {
@@ -25,6 +29,14 @@ export type JettonsState = {
     }[]
 }
 
+export type TransactionDescription = {
+    base: Transaction;
+    metadata: ContractMetadata | null;
+    masterMetadata: JettonMasterState | null;
+    operation: Operation;
+    icon: string | null;
+};
+
 export class WalletProduct {
 
     readonly engine: Engine;
@@ -34,6 +46,9 @@ export class WalletProduct {
     #state: WalletState | null = null;
     #atom: RecoilState<WalletState | null>;
     #jettons: RecoilValueReadOnly<JettonsState>;
+    #txs = new Map<string, Transaction>();
+    #pending: Transaction[] = [];
+    #txsAtom: (lt: string) => RecoilState<TransactionDescription>;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -94,20 +109,88 @@ export class WalletProduct {
                 return { jettons: jettonWalletsWithMasters }
             }
         });
+        this.#txsAtom = atomFamily<TransactionDescription, string>({
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/txs',
+            default: selectorFamily({
+                key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/txs/default',
+                get: (id) => ({ get }) => {
+                    let base = this.#txs.get(id);
+                    if (!base) {
+                        throw Error('Invalid transaction #' + id);
+                    }
+
+                    // Metadata
+                    let metadata: ContractMetadata | null = null;
+                    if (base.address) {
+                        metadata = get(engine.persistence.metadata.item(base.address).atom);
+                    }
+
+                    // Jetton master
+                    let masterMetadata: JettonMasterState | null = null;
+                    if (metadata && metadata.jettonWallet) {
+                        masterMetadata = get(engine.persistence.jettonMasters.item(metadata.jettonWallet.master).atom);
+                    } else if (metadata && metadata.jettonMaster && base.address) {
+                        masterMetadata = get(engine.persistence.jettonMasters.item(base.address).atom);
+                    }
+
+                    // Operation
+                    let operation = resolveOperation({ tx: base, metadata, jettonMaster: masterMetadata, account: engine.address });
+
+                    // Icon
+                    let icon: string | null = null;
+                    if (operation.image) {
+                        let downloaded = get(engine.persistence.downloads.item(operation.image).atom);
+                        if (downloaded) {
+                            icon = FileSystem.cacheDirectory + downloaded;
+                        }
+                    }
+
+                    return {
+                        base,
+                        metadata,
+                        masterMetadata,
+                        operation,
+                        icon
+                    };
+                },
+            })
+        })
 
         engine.persistence.wallets.item(engine.address).for((state) => {
 
-            // Resolve pending
-            let pending: Transaction[] = [];
-            if (this.#state) {
-                pending = this.#state.pending.filter((t) => t.seqno! > state.seqno)
+            // Update pending
+            this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
+
+            // Resolve hasMore flag
+            let hasMore: boolean;
+            if (state.transactions.length === 0) {
+                hasMore = false;
+            } else {
+                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[state.transactions.length - 1]);
+                hasMore = !!tx.prev;
             }
 
             // Resolve updated state
             this.#state = {
-                ...state,
-                pending
+                balance: state.balance,
+                seqno: state.seqno,
+                transactions: [
+                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
+                    ...state.transactions.map((v) => {
+                        let tx = this.engine.transactions.getWalletTransaction(this.address, v);
+                        return { id: tx.id, time: tx.time };
+                    })
+                ],
+                hasMore
             };
+
+            // Update transactions
+            for (let t of state.transactions) {
+                if (!this.#txs.has(t)) {
+                    let tx = this.engine.transactions.getWalletTransaction(this.address, t);
+                    this.#txs.set(tx.id, tx);
+                }
+            }
 
             // Notify
             engine.recoil.updater(this.#atom, this.#state);
@@ -133,7 +216,9 @@ export class WalletProduct {
         }
 
         // Update
-        this.#state = { ...this.#state, pending: [src, ...this.#state.pending] };
+        this.#state = { ...this.#state, transactions: [{ id: src.id, time: src.time }, ...this.#state.transactions] };
+        this.#pending.push(src);
+        this.#txs.set(src.id, src);
 
         // Notify
         this.engine.recoil.updater(this.#atom, this.#state);
@@ -145,5 +230,9 @@ export class WalletProduct {
 
     useJettons() {
         return useRecoilValue(this.#jettons).jettons;
+    }
+
+    useTransaction(id: string) {
+        return useRecoilValue(this.#txsAtom(id));
     }
 }

@@ -12,8 +12,8 @@ export function createBackoff(
     }): BackoffFunc {
     return async <T>(tag: string, callback: () => Promise<T>): Promise<T> => {
         let currentFailureCount = 0;
-        const minDelay = opts && opts.minDelay !== undefined ? opts.minDelay : 250;
-        const maxDelay = opts && opts.maxDelay !== undefined ? opts.maxDelay : 1000;
+        const minDelay = opts && opts.minDelay !== undefined ? opts.minDelay : 2000;
+        const maxDelay = opts && opts.maxDelay !== undefined ? opts.maxDelay : 5000;
         const maxFailureCount = opts && opts.maxFailureCount !== undefined ? opts.maxFailureCount : 50;
         while (true) {
             try {

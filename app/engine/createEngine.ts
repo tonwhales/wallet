@@ -1,11 +1,14 @@
 import { Address } from "ton";
 import { AppConfig } from "../AppConfig";
 import { storagePersistence } from "../storage/storage";
+import { log } from "../utils/log";
 import { createSimpleConnector } from "./api/Connector";
 import { Engine } from "./Engine";
 
 export function createEngine(args: { address: Address, publicKey: Buffer, recoilUpdater: (node: any, value: any) => void }) {
-    return new Engine(
+    let start = Date.now();
+    log('Starting engine...');
+    let res = new Engine(
         args.address,
         args.publicKey,
         storagePersistence,
@@ -21,4 +24,6 @@ export function createEngine(args: { address: Address, publicKey: Buffer, recoil
         }),
         { updater: args.recoilUpdater }
     );
+    log('Engine started in ' + (Date.now() - start) + ' ms');
+    return res;
 }

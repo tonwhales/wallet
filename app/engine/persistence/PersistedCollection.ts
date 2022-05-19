@@ -52,7 +52,8 @@ export class PersistedCollection<K, T> extends EventEmitter {
         let current = this.#getValue(key);
         let rc = atom<T | null>({
             key: 'persistence/' + this.#namespace + '/' + id,
-            default: current
+            default: current,
+            dangerouslyAllowMutability: true
         });
         let events = new EventEmitter();
         let t = this;

@@ -31,7 +31,8 @@ export class LegacyProduct {
                     }
                 }
                 return b;
-            }
+            },
+            dangerouslyAllowMutability: true
         });
         this.atomFull = selector({
             key: 'selector/legacy/full',
@@ -46,7 +47,8 @@ export class LegacyProduct {
                     }
                 }
                 return wallets;
-            }
+            },
+            dangerouslyAllowMutability: true
         });
     }
 

@@ -9,12 +9,13 @@ import { ContractMetadata } from "../sync/metadata/Metadata";
 import { JettonMasterState } from "../sync/startJettonMasterSync";
 import { resolveOperation } from "../../operations/resolveOperation";
 import { Operation } from "../../operations/types";
+import { createHistorySync } from "../sync/createHistorySync";
 
 export type WalletState = {
     balance: BN;
     seqno: number;
     transactions: { id: string, time: number }[];
-    hasMore: boolean;
+    next: { lt: string, hash: string } | null;
 }
 
 export type JettonsState = {
@@ -49,13 +50,15 @@ export class WalletProduct {
     #txs = new Map<string, Transaction>();
     #pending: Transaction[] = [];
     #txsAtom: (lt: string) => RecoilState<TransactionDescription>;
+    #history: { loadMore(lt: string, hash: string): void };
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.address = engine.address;
         this.#atom = atom<WalletState | null>({
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            default: null
+            default: null,
+            dangerouslyAllowMutability: true
         });
         this.#jettons = selector({
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/jettons',
@@ -107,7 +110,8 @@ export class WalletProduct {
                 }
 
                 return { jettons: jettonWalletsWithMasters }
-            }
+            },
+            dangerouslyAllowMutability: true
         });
         this.#txsAtom = atomFamily<TransactionDescription, string>({
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/txs',
@@ -153,7 +157,8 @@ export class WalletProduct {
                         icon
                     };
                 },
-            })
+            }),
+            dangerouslyAllowMutability: true
         })
 
         engine.persistence.wallets.item(engine.address).for((state) => {
@@ -162,12 +167,12 @@ export class WalletProduct {
             this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
 
             // Resolve hasMore flag
-            let hasMore: boolean;
-            if (state.transactions.length === 0) {
-                hasMore = false;
-            } else {
+            let next: { lt: string, hash: string } | null = null;
+            if (state.transactions.length > 0) {
                 let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[state.transactions.length - 1]);
-                hasMore = !!tx.prev;
+                if (tx.prev) {
+                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                }
             }
 
             // Resolve updated state
@@ -181,7 +186,7 @@ export class WalletProduct {
                         return { id: tx.id, time: tx.time };
                     })
                 ],
-                hasMore
+                next
             };
 
             // Update transactions
@@ -194,11 +199,14 @@ export class WalletProduct {
 
             // Notify
             engine.recoil.updater(this.#atom, this.#state);
-        })
+        });
+
+        // History
+        this.#history = createHistorySync(engine.address, engine);
     }
 
     loadMore = (lt: string, hash: string) => {
-        // this.parent.parent.loadMore({ lt, hash });
+        this.#history.loadMore(lt, hash);
     }
 
     registerPending(src: Transaction) {

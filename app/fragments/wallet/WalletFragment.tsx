@@ -30,10 +30,11 @@ import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { WalletState } from '../../engine/products/WalletProduct';
+import { log } from '../../utils/log';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
-    hasMore: boolean,
+    next: { lt: string, hash: string } | null,
     address: Address,
     engine: Engine,
     onPress: (tx: string) => void
@@ -75,7 +76,7 @@ const WalletTransactions = React.memo((props: {
     }
 
     // Last
-    if (props.hasMore) {
+    if (props.next) {
         components.push(
             <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
                 <LoadingIndicator simple={true} />
@@ -114,7 +115,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     }, [navigation]);
 
     const onReachedEnd = React.useMemo(() => {
-        let prev = account.transactions.length > 0 ? account.transactions[account.transactions.length - 1] : null;
+        let prev = account.next;
         let called = false;
         return () => {
             if (called) {
@@ -122,11 +123,11 @@ function WalletComponent(props: { wallet: WalletState }) {
             }
             called = true;
             if (prev) {
-                console.warn('Reached end: ' + prev);
-                // engine.products.main.loadMore(prev.lt, prev.hash);
+                log('Reached end: ' + prev.lt);
+                engine.products.main.loadMore(prev.lt, prev.hash);
             }
         }
-    }, [account.transactions.length > 0 ? account.transactions[account.transactions.length - 1] : null]);
+    }, [account.next ? account.next.lt : null]);
 
     //
     // Animations
@@ -454,7 +455,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     account.transactions.length > 0 && (
                         <WalletTransactions
                             txs={account.transactions}
-                            hasMore={account.hasMore}
+                            next={account.next}
                             address={address}
                             engine={engine}
                             onPress={openTransactionFragment}

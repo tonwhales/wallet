@@ -19,6 +19,6 @@ export function createEngine(args: { address: Address, publicKey: Buffer, recoil
             estimate: 'https://connect.tonhubapi.com/net/sandbox/estimate',
             sender: 'https://connect.tonhubapi.com/net/sandbox/send',
         }),
-        args.recoilUpdater
+        { updater: args.recoilUpdater }
     );
 }

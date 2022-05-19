@@ -20,5 +20,6 @@ export function createEngineSync(key: string, engine: Engine, handler: () => Pro
             lock = null;
         }
     });
+    log(`${key}: created`);
     return sync;
 }

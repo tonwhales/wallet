@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
 import { atom } from 'recoil';
-import { warn } from '../../utils/log';
+import { log, warn } from '../../utils/log';
 import { Engine } from '../Engine';
 import { PersistedItem } from './PersistedItem';
 
@@ -52,6 +52,7 @@ export class PersistedCollection<K, T> extends EventEmitter {
             key: 'persistence/' + this.#namespace + '/' + id,
             default: current
         });
+        let events = new EventEmitter();
         let t = this;
         let pitm: PersistedItem<T> = {
             atom: rc,
@@ -60,14 +61,35 @@ export class PersistedCollection<K, T> extends EventEmitter {
                 current = updated;
                 t.#setValue(key, updated);
                 t.emit('updated', { key, value: current });
-                t.#engine.model.recoilUpdater(rc, updated);
+                events.emit('updated', current);
+                t.#engine.recoil.updater(rc, updated);
             },
             get value() {
                 return current;
+            },
+            on(event: 'updated', callback: (value: T | null) => void) {
+                events.on(event, callback);
+            },
+            off(event: 'updated', callback: (value: T | null) => void) {
+                events.off(event, callback);
+            },
+            once(event: 'updated', callback: (value: T | null) => void) {
+                events.once(event, callback);
+            },
+            for(callback: (value: T) => void) {
+                if (current) {
+                    callback(current);
+                }
+                events.on('updated', (e) => {
+                    if (e) {
+                        callback(e);
+                    }
+                });
             }
         }
         this.#items.set(id, pitm);
         this.emit('created', { key, value: current });
+        log('[persited]: ' + this.#namespace + '/' + id);
         return pitm;
     }
 

@@ -8,7 +8,7 @@ import BN from "bn.js"
 import { PriceComponent } from "../PriceComponent"
 import { ValueComponent } from "../ValueComponent"
 import { t } from "../../i18n/t"
-import { StakingPoolState } from "../../engine/sync/StakingPoolSync"
+import { StakingPoolState } from "../../engine/sync/startStakingPoolSync"
 
 export const StakingProductMember = React.memo((
     {

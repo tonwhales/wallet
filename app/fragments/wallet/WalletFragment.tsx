@@ -29,6 +29,7 @@ import { openWithInApp } from '../../utils/openWithInApp';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { WalletState } from '../../engine/products/WalletProduct';
 
 const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
     const transactionsSectioned = React.useMemo(() => {
@@ -83,16 +84,18 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
     }
 
     return <>{components}</>;
-})
+});
 
-export const WalletFragment = fragment(() => {
+function WalletComponent(props: { wallet: WalletState }) {
+
+    // Dependencies
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const syncState = engine.state.use();
-    const account = engine.products.main.useState();
+    const account = props.wallet;
 
     //
     // Transactions
@@ -638,4 +641,14 @@ export const WalletFragment = fragment(() => {
             }
         </View >
     );
+}
+
+export const WalletFragment = fragment(() => {
+    const engine = useEngine();
+    const account = engine.products.main.useAccount();
+    if (!account) {
+        return <LoadingIndicator />
+    } else {
+        return <WalletComponent wallet={account} />
+    }
 });

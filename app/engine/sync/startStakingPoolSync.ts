@@ -2,8 +2,7 @@ import BN from "bn.js";
 import { Address, beginCell, TupleSlice4 } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
-import { PersistedValueSync } from "../persistence/PersistedValueSync";
-import { AccountLiteAtom } from "./AccountLiteAtom";
+import { startDependentSync } from "./utils/startDependentSync";
 
 export type StakingPoolState = {
     lt: BN,
@@ -22,47 +21,31 @@ export type StakingPoolState = {
     }
 };
 
-export class StakingPoolSync extends PersistedValueSync<StakingPoolState> {
-    readonly engine: Engine;
-    readonly member: Address;
-    readonly pool: AccountLiteAtom;
+export function startStakingPoolSync(member: Address, pool: Address, engine: Engine) {
+    let key = `staking(${pool.toFriendly({ testOnly: AppConfig.isTestnet })}##${member.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let lite = engine.persistence.liteAccounts.item(pool);
+    let item = engine.persistence.staking.item({ address: pool, target: member });
 
-    constructor(member: Address, pool: AccountLiteAtom, engine: Engine) {
-        super(`staking(${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}##${member.toFriendly({ testOnly: AppConfig.isTestnet })})`, engine.model.staking(pool.address, member), engine);
-        this.engine = engine;
-        this.member = member;
-        this.pool = pool;
+    startDependentSync(key, lite, engine, async (parent) => {
 
-        // Forward parent
-        if (pool.ready) {
-            this.invalidate();
-        }
-        pool.ref.on('ready', () => {
-            this.invalidate();
-        });
-        pool.ref.on('updated', () => {
-            this.invalidate();
-        });
-    }
-
-    protected doSync = async (src: StakingPoolState | null): Promise<StakingPoolState | null> => {
+        // Existing state
+        let src = item.value;
 
         // Check parent
-        const parentValue = this.pool.current;
-        if (!parentValue || !parentValue.last) {
-            return null;
+        if (!parent.last) {
+            return;
         }
 
         // Check updated
-        if (src && new BN(src.lt).gte(parentValue.last.lt)) {
-            return null;
+        if (src && new BN(src.lt).gte(parent.last.lt)) {
+            return;
         }
 
         // Fetch fresh state
         const [statusResponse, paramsResponse, memberResponse] = await Promise.all([
-            this.engine.client4.runMethod(parentValue.block, this.pool.address, 'get_staking_status'),
-            this.engine.client4.runMethod(parentValue.block, this.pool.address, 'get_params'),
-            this.engine.client4.runMethod(parentValue.block, this.pool.address, 'get_member', [{ type: 'slice', cell: beginCell().storeAddress(this.member).endCell() }])
+            engine.client4.runMethod(parent.block, pool, 'get_staking_status'),
+            engine.client4.runMethod(parent.block, pool, 'get_params'),
+            engine.client4.runMethod(parent.block, pool, 'get_member', [{ type: 'slice', cell: beginCell().storeAddress(member).endCell() }])
         ]);
 
         // Parse state
@@ -105,7 +88,7 @@ export class StakingPoolSync extends PersistedValueSync<StakingPoolState> {
 
         // Member
         let memberParser = new TupleSlice4(memberResponse.result);
-        let member: {
+        let memberState: {
             balance: BN;
             pendingWithdraw: BN;
             pendingDeposit: BN;
@@ -117,9 +100,10 @@ export class StakingPoolSync extends PersistedValueSync<StakingPoolState> {
             withdraw: memberParser.readBigNumber()
         };
 
-        return {
-            lt: parentValue.last.lt,
-            member,
+        // Update
+        let newState: StakingPoolState = {
+            lt: parent.last.lt,
+            member: memberState,
             params: {
                 minStake: params.minStake,
                 depositFee: params.depositFee,
@@ -128,5 +112,6 @@ export class StakingPoolSync extends PersistedValueSync<StakingPoolState> {
                 receiptPrice: params.receiptPrice
             }
         };
-    }
+        item.update(() => newState);
+    });
 }

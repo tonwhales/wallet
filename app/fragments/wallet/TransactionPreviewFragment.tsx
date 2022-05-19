@@ -21,7 +21,7 @@ import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { ContractMetadata } from "../../engine/sync/metadata/Metadata";
-import { JettonMasterState } from "../../engine/sync/jettons/JettonMasterSync";
+import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { resolveOperation } from "../../operations/resolveOperation";
 import { useOptItem } from "../../engine/persistence/PersistedItem";
 

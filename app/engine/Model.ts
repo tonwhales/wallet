@@ -1,21 +1,20 @@
 import { Address } from 'ton';
 import { LazyMap } from '../utils/LazyMap';
-import { FullAccount } from './sync/AccountFullSync';
-import { LiteAccount } from './sync/AccountLiteAtom';
-import { PluginState } from './sync/PluginSync';
-import { StakingPoolState } from './sync/StakingPoolSync';
-import { WalletV4State } from './sync/WalletV4Sync';
+import { FullAccount } from './sync/startAccountFullSync';
+import { LiteAccount } from './sync/startAccountLiteSync';
+import { PluginState } from './sync/startPluginSync';
+import { StakingPoolState } from './sync/startStakingPoolSync';
+import { WalletV4State } from './sync/startWalletV4Sync';
 import { PersistedItem } from './persistence/PersistedItem';
 import { Engine } from "./Engine";
-import { JettonMasterState } from './sync/jettons/JettonMasterSync';
+import { JettonMasterState } from './sync/startJettonMasterSync';
 import { JettonsState } from './sync/jettons/JettonsSync';
-import { JettonWalletState } from './sync/jettons/JettonWalletSync';
+import { JettonWalletState } from './sync/startJettonWalletSync';
 import { ContractMetadata } from './sync/metadata/Metadata';
 
 export class Model {
 
     readonly engine: Engine;
-    readonly recoilUpdater: (node: any, value: any) => void;
     readonly #metadataCache: LazyMap<string, PersistedItem<ContractMetadata>>;
     readonly #liteAccountCache: LazyMap<string, PersistedItem<LiteAccount>>;
     readonly #fullAccountCache: LazyMap<string, PersistedItem<FullAccount>>;
@@ -27,9 +26,8 @@ export class Model {
     readonly #jettonMaster: LazyMap<string, PersistedItem<JettonMasterState>>;
     readonly #downloads: LazyMap<string, PersistedItem<string>>;
 
-    constructor(engine: Engine, recoilUpdater: (node: any, value: any) => void) {
+    constructor(engine: Engine) {
         this.engine = engine;
-        this.recoilUpdater = recoilUpdater;
 
         this.#metadataCache = new LazyMap((src) => {
             let address = Address.parse(src);

@@ -6,14 +6,14 @@ import * as t from 'io-ts';
 import * as c from './utils/codecs';
 import BN from "bn.js";
 import { ContractMetadata } from "./sync/metadata/Metadata";
-import { PluginState } from "./sync/PluginSync";
-import { LiteAccount } from "./sync/AccountLiteAtom";
-import { FullAccount } from "./sync/AccountFullSync";
-import { WalletV4State } from "./sync/WalletV4Sync";
+import { PluginState } from "./sync/startPluginSync";
+import { LiteAccount } from "./sync/startAccountLiteSync";
+import { FullAccount } from "./sync/startAccountFullSync";
+import { WalletV4State } from "./sync/startWalletV4Sync";
 import { JettonsState } from "./sync/jettons/JettonsSync";
-import { JettonWalletState } from "./sync/jettons/JettonWalletSync";
-import { JettonMasterState } from "./sync/jettons/JettonMasterSync";
-import { StakingPoolState } from "./sync/StakingPoolSync";
+import { JettonWalletState } from "./sync/startJettonWalletSync";
+import { JettonMasterState } from "./sync/startJettonMasterSync";
+import { StakingPoolState } from "./sync/startStakingPoolSync";
 import { Engine } from "./Engine";
 
 export class Persistence {
@@ -34,6 +34,9 @@ export class Persistence {
     readonly jettonWallets: PersistedCollection<Address, JettonWalletState>;
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
     readonly downloads: PersistedCollection<string, string>;
+    readonly hintsProcessed: PersistedCollection<string, boolean>;
+    readonly knownJettons: PersistedCollection<void, Address[]>;
+    readonly knownAccountJettons: PersistedCollection<Address, Address[]>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -55,6 +58,9 @@ export class Persistence {
         this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec, engine });
         this.tokens = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: tokensCodec, engine });
         this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string, engine });
+        this.hintsProcessed = new PersistedCollection({ storage, namespace: 'hintsProcessed', key: stringKey, codec: t.boolean, engine });
+        this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
+        this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
     }
 }
 
@@ -156,6 +162,7 @@ const jettonWalletCodec = t.type({
 });
 
 const jettonMasterCodec = t.type({
+    version: t.number,
     name: t.union([t.null, t.string]),
     description: t.union([t.null, t.string]),
     image: t.union([t.null, t.string]),

@@ -9,14 +9,9 @@ import { startPluginSync } from "./startPluginSync";
 import { startStakingPoolSync } from "./startStakingPoolSync";
 import { startWalletV4Sync } from "./startWalletV4Sync";
 import { startJettonWalletSync } from "./startJettonWalletSync";
+import { startHintsTxSync } from "./startHintsTxSync";
 
 export function startSync(engine: Engine) {
-
-    //
-    // Hints
-    //
-
-    startHintsSync(engine);
 
     //
     // Lite accounts
@@ -108,4 +103,11 @@ export function startSync(engine: Engine) {
             startJettonWallet(addr);
         }
     });
+
+    //
+    // Hints
+    //
+
+    startHintsSync(engine.address, engine);
+    startHintsTxSync(engine.address, engine);
 }

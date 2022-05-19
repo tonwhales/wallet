@@ -10,7 +10,6 @@ import { PluginState } from "./sync/startPluginSync";
 import { LiteAccount } from "./sync/startAccountLiteSync";
 import { FullAccount } from "./sync/startAccountFullSync";
 import { WalletV4State } from "./sync/startWalletV4Sync";
-import { JettonsState } from "./sync/jettons/JettonsSync";
 import { JettonWalletState } from "./sync/startJettonWalletSync";
 import { JettonMasterState } from "./sync/startJettonMasterSync";
 import { StakingPoolState } from "./sync/startStakingPoolSync";
@@ -30,13 +29,15 @@ export class Persistence {
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
     readonly plugins: PersistedCollection<Address, PluginState>;
-    readonly tokens: PersistedCollection<Address, JettonsState>;
+
     readonly jettonWallets: PersistedCollection<Address, JettonWalletState>;
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
-    readonly downloads: PersistedCollection<string, string>;
-    readonly hintsProcessed: PersistedCollection<string, boolean>;
     readonly knownJettons: PersistedCollection<void, Address[]>;
     readonly knownAccountJettons: PersistedCollection<Address, Address[]>;
+
+    readonly downloads: PersistedCollection<string, string>;
+    readonly hintsProcessed: PersistedCollection<string, boolean>;
+    readonly accountHints: PersistedCollection<Address, Address[]>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -54,11 +55,15 @@ export class Persistence {
         this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec, engine });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata, engine });
         this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec, engine });
+        this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string, engine });
+
+        // Hints
+        this.hintsProcessed = new PersistedCollection({ storage, namespace: 'hintsProcessed', key: stringKey, codec: t.boolean, engine });
+        this.accountHints = new PersistedCollection({ storage, namespace: 'hintsAccount', key: addressKey, codec: t.array(c.address), engine });
+
+        // Jettons
         this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec, engine });
         this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec, engine });
-        this.tokens = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: tokensCodec, engine });
-        this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string, engine });
-        this.hintsProcessed = new PersistedCollection({ storage, namespace: 'hintsProcessed', key: stringKey, codec: t.boolean, engine });
         this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
     }
@@ -170,5 +175,5 @@ const jettonMasterCodec = t.type({
 });
 
 const tokensCodec = t.type({
-    tokens: t.record(t.string, t.union([t.string, t.null]))
+    tokens: t.record(t.string, t.union([t.string, t.literal(false)]))
 });

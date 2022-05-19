@@ -63,7 +63,7 @@ export const ProductsComponent = React.memo(() => {
             )}
 
             {jettons.map((jt) => (
-                <JettonProdcut jetton={jt} navigation={navigation} engine={engine} />
+                <JettonProdcut key={'jt' + jt.wallet.toFriendly()} jetton={jt} navigation={navigation} engine={engine} />
             ))}
             {/* 
             <StakingProductComponent pool={pool} /> */}

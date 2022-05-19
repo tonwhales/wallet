@@ -7,7 +7,7 @@ import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 
 export function startHintsSync(address: Address, engine: Engine) {
-    let key = `hints-external(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/hints/external`;
     let state = engine.persistence.accountHints.item(address);
 
     let sync = createEngineSync(key, engine, async () => {

@@ -15,7 +15,7 @@ export type WalletV4State = {
 }
 
 export function startWalletV4Sync(address: Address, engine: Engine) {
-    let key = `wallet-v4(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/wallet`;
     let full = engine.persistence.fullAccounts.item(address);
     let wallet = engine.persistence.wallets.item(address);
 

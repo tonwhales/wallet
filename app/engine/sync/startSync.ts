@@ -10,6 +10,7 @@ import { startStakingPoolSync } from "./startStakingPoolSync";
 import { startWalletV4Sync } from "./startWalletV4Sync";
 import { startJettonWalletSync } from "./startJettonWalletSync";
 import { startHintsTxSync } from "./startHintsTxSync";
+import { startHintSync } from "./startHintSync";
 
 export function startSync(engine: Engine) {
 
@@ -110,4 +111,18 @@ export function startSync(engine: Engine) {
 
     startHintsSync(engine.address, engine);
     startHintsTxSync(engine.address, engine);
+    let hintsStarted = new Set<string>();
+    function startHints(address: Address) {
+        let k = address.toFriendly({ testOnly: AppConfig.isTestnet });
+        if (hintsStarted.has(k)) {
+            return;
+        }
+        hintsStarted.add(k);
+        startHintSync(address, engine);
+    }
+    engine.persistence.accountHints.item(engine.address).for((e) => {
+        for (let addr of e) {
+            startHints(addr);
+        }
+    });
 }

@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import * as t from 'io-ts';
 import { exponentialBackoffDelay } from "teslabot";
-import { log, warn } from "../../utils/log";
+import { createLogger } from "../../utils/log";
 import { SyncStateManager } from "../SyncStateManager";
 
 const MESSAGE_TIMEOUT = 15000;
@@ -24,6 +24,8 @@ export interface BlocksWatcher {
     on(event: 'block', listener: (data: BlockChanged) => void): this
     once(event: 'block', listener: (data: BlockChanged) => void): this
 }
+
+const logger = createLogger('blocks');
 
 export class BlocksWatcher extends EventEmitter {
 
@@ -53,7 +55,7 @@ export class BlocksWatcher extends EventEmitter {
             return;
         }
 
-        log('[blocks]: Connecting');
+        logger.log('Connecting');
 
         // Get lock
         let lock = this.#syncState.beginConnecting();
@@ -69,7 +71,7 @@ export class BlocksWatcher extends EventEmitter {
         let nws = new WebSocket('wss://' + this.endpoint + '/block/watch/changed');
         nws.onopen = () => {
             if (this.#ws === nws) {
-                log('[blocks]: Connected');
+                logger.log('Connected');
 
                 // Start message watchdog
                 this.#startMessageWatchdog();
@@ -79,7 +81,7 @@ export class BlocksWatcher extends EventEmitter {
             if (this.#ws === nws) {
                 // What if connection just aborted
                 if (this.#wsConnected) {
-                    warn('[blocks]: Connection lost: reconnecting immediatelly');
+                    logger.warn('Connection lost: reconnecting immediatelly');
                     this.#wsConnected = false;
                     this.#wsFailures = 0;
                     this.#start();
@@ -102,11 +104,11 @@ export class BlocksWatcher extends EventEmitter {
             try {
                 parsed = JSON.parse(ev.data);
             } catch (e) {
-                warn(e);
+                logger.warn(e);
                 return;
             }
             if (!changeCodec.is(parsed)) {
-                warn('[blocks]: Invalid block message');
+                logger.warn('Invalid block message');
                 return;
             }
 
@@ -116,23 +118,25 @@ export class BlocksWatcher extends EventEmitter {
 
             // Process
             if (!this.#cursor) {
-                log('[blocks]: Session started from #' + parsed.seqno);
+                logger.log('Session started from #' + parsed.seqno);
                 this.#cursor = { first: { seqno: parsed.seqno }, current: { seqno: parsed.seqno } };
                 this.emit('new_session', { seqno: parsed.seqno });
             } else {
 
                 if (parsed.seqno <= this.#cursor.current.seqno) {
                     // Old block
-                    warn('[blocks]: Ignoring block index. Received #' + parsed.seqno + ', current cursor #' + this.#cursor.current.seqno);
+                    if (parsed.seqno !== this.#cursor.current.seqno) {
+                        logger.warn('Ignoring block index. Received #' + parsed.seqno + ', current cursor #' + this.#cursor.current.seqno);
+                    }
                 } else if (parsed.seqno > this.#cursor.current.seqno + 1) {
                     // Hole detected
-                    warn('[blocks]: Session lost. Restarting from #' + parsed.seqno);
+                    logger.warn('Session lost. Restarting from #' + parsed.seqno);
                     this.#cursor = { first: { seqno: parsed.seqno }, current: { seqno: parsed.seqno } };
                     this.emit('new_session', { seqno: parsed.seqno });
 
                 } else {
                     // Sequental
-                    log('[blocks]: Valid block #' + parsed.seqno);
+                    logger.log('Valid block #' + parsed.seqno);
                     this.#cursor.current = { seqno: parsed.seqno };
                     this.emit('block', parsed);
                 }
@@ -167,7 +171,7 @@ export class BlocksWatcher extends EventEmitter {
         // Retry delay
         this.#wsFailures = Math.max(this.#wsFailures + 1, 50);
         let delay = exponentialBackoffDelay(this.#wsFailures, 1000, 5000, 50);
-        warn('[blocks]: Connection atttempt failed. Reconnecting in ' + delay + ' ms');
+        logger.warn('Connection atttempt failed. Reconnecting in ' + delay + ' ms');
         this.#close();
 
         // Reconnect
@@ -186,7 +190,7 @@ export class BlocksWatcher extends EventEmitter {
 
         // Start timeout
         this.#wsTimer = setTimeout(() => {
-            warn('[blocks]: Message timeout: restarting');
+            logger.warn('Message timeout: restarting');
             this.#start();
         }, MESSAGE_TIMEOUT);
     }

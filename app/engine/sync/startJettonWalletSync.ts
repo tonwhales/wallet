@@ -12,7 +12,7 @@ export type JettonWalletState = {
 };
 
 export function startJettonWalletSync(address: Address, engine: Engine) {
-    let key = `jetton-wallet(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/jetton/wallet`;
     let lite = engine.persistence.liteAccounts.item(address);
     let jettonWallet = engine.persistence.jettonWallets.item(address);
 

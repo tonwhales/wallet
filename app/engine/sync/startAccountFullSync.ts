@@ -3,7 +3,7 @@ import { Address, Cell, parseTransaction } from "ton";
 import { Engine } from "../Engine";
 import { backoff } from '../../utils/time';
 import { AppConfig } from '../../AppConfig';
-import { log } from '../../utils/log';
+import { createLogger, log } from '../../utils/log';
 import { ConnectorTransaction } from "../api/Connector";
 import { startDependentSync } from "./utils/startDependentSync";
 
@@ -15,9 +15,9 @@ export type FullAccount = {
     transactionsCursor: { lt: BN, hash: string } | null;
     transactions: string[];
 }
-
+const logger = createLogger('account');
 export function startAccountFullSync(address: Address, engine: Engine) {
-    let key = `account-full(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/account/full`;
     let lite = engine.persistence.liteAccounts.item(address);
     let full = engine.persistence.fullAccounts.item(address);
 
@@ -35,14 +35,14 @@ export function startAccountFullSync(address: Address, engine: Engine) {
             // If both are not null
             if (existing.last && liteAccount.last) {
                 if (existing.last.lt.gte(new BN(liteAccount.last.lt))) {
-                    log(`[${address.toFriendly()}]: Ignore since last is same`);
+                    // logger.log(`${address.toFriendly()}: Ignore since last is same`);
                     return;
                 }
             }
 
             // If both null
             if ((!existing.last) && (!liteAccount.last)) {
-                log(`[${address.toFriendly()}]: Ignore since last both empty`);
+                // logger.log(`${address.toFriendly()}: Ignore since last both empty`);
                 return;
             }
         }

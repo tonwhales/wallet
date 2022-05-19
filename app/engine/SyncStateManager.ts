@@ -1,5 +1,7 @@
-import { log, warn } from "../utils/log";
+import { createLogger } from "../utils/log";
 import { ReactSync } from "./utils/ReactSync";
+
+const logger = createLogger('status');
 
 export class SyncStateManager {
     #connecting = 0;
@@ -21,7 +23,7 @@ export class SyncStateManager {
         let released = false;
         return () => {
             if (released) {
-                warn('Already released');
+                logger.warn('Already released');
                 return;
             }
             released = true;
@@ -37,7 +39,7 @@ export class SyncStateManager {
         let released = false;
         return () => {
             if (released) {
-                warn('Already released');
+                logger.warn('Already released');
                 return;
             }
             released = true;
@@ -49,17 +51,17 @@ export class SyncStateManager {
     #updateState() {
         if (this.#connecting > 0) {
             if (this.#state.value !== 'connecting') {
-                log('[state]: ' + this.#state.value + ' -> connecting');
+                logger.log(this.#state.value + ' -> connecting');
                 this.#state.value = 'connecting';
             }
         } else if (this.#updating > 0) {
             if (this.#state.value !== 'updating') {
-                log('[state]: ' + this.#state.value + ' -> updating');
+                logger.log(this.#state.value + ' -> updating');
                 this.#state.value = 'updating';
             }
         } else {
             if (this.#state.value !== 'online') {
-                log('[state]: ' + this.#state.value + ' -> online');
+                logger.log(this.#state.value + ' -> online');
                 this.#state.value = 'online';
             }
         }

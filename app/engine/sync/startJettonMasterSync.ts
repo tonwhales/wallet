@@ -27,14 +27,18 @@ function safeTrim(src: string, length: number) {
 }
 
 export function startJettonMasterSync(address: Address, engine: Engine) {
-    let key = `jetton-master(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/jetton/master`;
     let master = engine.persistence.jettonMasters.item(address);
     let sync = createEngineSync(key, engine, async () => {
         if (master.value && master.value.version === CURRENT_VERSION) {
             return;
         }
 
+        // Download state
         let res: JettonMasterState = { version: CURRENT_VERSION, name: null, symbol: null, image: null, description: null };
+        if (master.value) {
+            res = { ...res, ...master.value, version: CURRENT_VERSION };
+        }
         let block = await engine.client4.getLastBlock();
         let masterInfo = await tryFetchJettonMaster(engine.client4, block.last.seqno, address);
         if (masterInfo && masterInfo.content && masterInfo.content.type === 'offchain') {
@@ -63,6 +67,18 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
                 }
             }
         }
+
+        // Persist
+        master.update((src) => {
+            if (src) {
+                return {
+                    ...src,
+                    ...res
+                }
+            } else {
+                return res;
+            }
+        });
     });
     sync.invalidate();
 }

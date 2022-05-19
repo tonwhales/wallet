@@ -10,34 +10,25 @@ export const JettonProdcut = React.memo((props: {
     navigation: TypedNavigation,
     engine: Engine,
     jetton: {
-        master: string;
-        wallet: string;
+        master: Address;
+        wallet: Address;
         name: string;
         description: string;
         symbol: string;
         balance: BN;
-        image: string | null;
+        icon: string | null;
     }
 }) => {
-
-    // Downloaded
-    let downloaded: string | null = null;
-    if (props.jetton.image && props.jetton.image) {
-        downloaded = props.engine.downloads.use(props.jetton.image);
-    } else {
-        downloaded = props.engine.downloads.use('');
-    }
-
     return (
         <ProductButton
-            key={props.jetton.master}
+            key={props.jetton.master.toFriendly()}
             name={props.jetton.name}
             subtitle={props.jetton.description}
             icon={OldWalletIcon}
-            image={downloaded ? downloaded : undefined}
+            image={props.jetton.icon ? props.jetton.icon : undefined}
             value={props.jetton.balance}
             symbol={props.jetton.symbol}
-            onPress={() => props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: Address.parse(props.jetton.wallet), stateInit: null, job: null })}
+            onPress={() => props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null })}
             style={{ marginVertical: 4 }}
         />
     );

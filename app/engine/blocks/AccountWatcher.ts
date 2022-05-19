@@ -2,7 +2,7 @@ import BN from "bn.js";
 import EventEmitter from "events";
 import { SyncValue } from "teslabot";
 import { Address } from "ton";
-import { log } from "../../utils/log";
+import { createLogger } from "../../utils/log";
 import { Engine } from "../Engine";
 
 export type AccountState = {
@@ -26,6 +26,8 @@ export interface AccountWatcher {
     on(event: 'account_changed', listener: (data: { address: Address, state: AccountState }) => void): this
     once(event: 'account_changed', listener: (data: { address: Address, state: AccountState }) => void): this
 }
+
+const logger = createLogger('watcher');
 
 export class AccountWatcher extends EventEmitter {
     readonly address: Address;
@@ -63,10 +65,10 @@ export class AccountWatcher extends EventEmitter {
 
             // Check if changed
             if (this.#state && this.#state.last) {
-                log(`[${key}]: Check if state changed #` + v);
+                logger.log(`${key}: Check if state changed #` + v);
                 let changed = await engine.client4.isAccountChanged(v, address, new BN(this.#state.last.lt, 10));
                 if (!changed.changed) {
-                    log(`[${key}]: State not changed #` + v);
+                    logger.log(`${key}: State not changed #` + v);
                     if (this.#syncLock) {
                         this.#syncLock();
                         this.#syncLock = null;
@@ -77,7 +79,7 @@ export class AccountWatcher extends EventEmitter {
 
             // Downloading fresh state
             let start = Date.now();
-            log(`[${key}]: Downloading new state at #` + v);
+            logger.log(`${key}: Downloading new state at #` + v);
             let state = await engine.client4.getAccountLite(v, address);
             this.#state = {
                 balance: new BN(state.account.balance.coins, 10),
@@ -85,7 +87,7 @@ export class AccountWatcher extends EventEmitter {
                 seqno: v,
                 state: state.account.state
             };
-            log(`[${key}]: State downloaded in ${Date.now() - start} ms`);
+            logger.log(`${key}: State downloaded in ${Date.now() - start} ms`);
             this.emit('account_changed', { address, state: this.#state });
 
             // Release lock

@@ -19,7 +19,7 @@ export const ProductsComponent = React.memo(() => {
     const oldWalletsBalance = engine.products.legacy.useState();
     // const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
-    // const jettons = engine.products.main.useJettons();
+    const jettons = engine.products.main.useJettons();
 
     return (
         <View style={{ paddingTop: 8 }}>
@@ -62,9 +62,10 @@ export const ProductsComponent = React.memo(() => {
                 />
             )}
 
-            {/* {jettons.map((jt) => (
+            {jettons.map((jt) => (
                 <JettonProdcut jetton={jt} navigation={navigation} engine={engine} />
             ))}
+            {/* 
             <StakingProductComponent pool={pool} /> */}
             {oldWalletsBalance.gt(new BN(0)) && (
                 <ProductButton

@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
 import { atom } from 'recoil';
-import { log, warn } from '../../utils/log';
+import { createLogger } from '../../utils/log';
 import { Engine } from '../Engine';
 import { PersistedItem } from './PersistedItem';
 
@@ -17,6 +17,8 @@ export interface PersistedCollection<K, T> {
     off(event: 'updated', listener: (data: { key: K, value: T | null }) => void): this;
     once(event: 'updated', listener: (data: { key: K, value: T | null }) => void): this;
 }
+
+const logger = createLogger('persistence');
 
 export class PersistedCollection<K, T> extends EventEmitter {
     #engine: Engine;
@@ -89,7 +91,7 @@ export class PersistedCollection<K, T> extends EventEmitter {
         }
         this.#items.set(id, pitm);
         this.emit('created', { key, value: current });
-        log('[persited]: ' + this.#namespace + '/' + id);
+        logger.log(this.#namespace + '/' + id);
         return pitm;
     }
 
@@ -111,7 +113,7 @@ export class PersistedCollection<K, T> extends EventEmitter {
             this.#storage.delete(k);
         } else {
             if (!this.#codec.is(value)) {
-                warn(value);
+                logger.warn(value);
                 throw Error('Invalid value for ' + this.#namespace);
             }
             let encoded = this.#codec.encode(value);
@@ -129,7 +131,7 @@ export class PersistedCollection<K, T> extends EventEmitter {
         try {
             json = JSON.parse(st)
         } catch (e) {
-            warn(e);
+            logger.warn(e);
             return null;
         }
         let decoded = this.#codec.decode(json);

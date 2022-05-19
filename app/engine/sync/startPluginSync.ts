@@ -11,7 +11,7 @@ export type PluginState =
 
 export function startPluginSync(address: Address, engine: Engine) {
 
-    let key = `wallet-v4-plugin(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/plugin`;
     let lite = engine.persistence.liteAccounts.item(address);
     let item = engine.persistence.plugins.item(address);
 

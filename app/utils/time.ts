@@ -1,5 +1,5 @@
 import { delay, exponentialBackoffDelay } from "teslabot";
-import { warn } from "./log";
+import { createLogger, warn } from "./log";
 
 export type BackoffFunc = <T>(tag: string, callback: () => Promise<T>) => Promise<T>;
 
@@ -32,4 +32,4 @@ export function createBackoff(
     };
 }
 
-export const backoff = createBackoff({ onError: (tag, e) => warn(tag + ': ' + e.message) });
+export const backoff = createBackoff({ onError: (tag, e) => createLogger(tag).warn(e.message) });

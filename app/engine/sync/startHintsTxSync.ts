@@ -5,7 +5,7 @@ import { Engine } from "../Engine";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export function startHintsTxSync(address: Address, engine: Engine) {
-    let key = `hints-scanner(${address.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/hints/tx`;
     let account = engine.persistence.fullAccounts.item(address);
     let state = engine.persistence.accountHints.item(address);
 

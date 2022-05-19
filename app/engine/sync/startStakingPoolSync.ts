@@ -22,7 +22,7 @@ export type StakingPoolState = {
 };
 
 export function startStakingPoolSync(member: Address, pool: Address, engine: Engine) {
-    let key = `staking(${pool.toFriendly({ testOnly: AppConfig.isTestnet })}##${member.toFriendly({ testOnly: AppConfig.isTestnet })})`;
+    let key = `${member.toFriendly({ testOnly: AppConfig.isTestnet })}/staking/${pool.toFriendly({ testOnly: AppConfig.isTestnet })}`;
     let lite = engine.persistence.liteAccounts.item(pool);
     let item = engine.persistence.staking.item({ address: pool, target: member });
 

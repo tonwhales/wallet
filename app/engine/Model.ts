@@ -8,7 +8,6 @@ import { WalletV4State } from './sync/startWalletV4Sync';
 import { PersistedItem } from './persistence/PersistedItem';
 import { Engine } from "./Engine";
 import { JettonMasterState } from './sync/startJettonMasterSync';
-import { JettonsState } from './sync/jettons/JettonsSync';
 import { JettonWalletState } from './sync/startJettonWalletSync';
 import { ContractMetadata } from './sync/metadata/Metadata';
 
@@ -21,7 +20,6 @@ export class Model {
     readonly #pluginCache: LazyMap<string, PersistedItem<PluginState>>;
     readonly #staking: LazyMap<string, PersistedItem<StakingPoolState>>;
     readonly #wallet: LazyMap<string, PersistedItem<WalletV4State>>;
-    readonly #jettons: LazyMap<string, PersistedItem<JettonsState>>;
     readonly #jettonWallet: LazyMap<string, PersistedItem<JettonWalletState>>;
     readonly #jettonMaster: LazyMap<string, PersistedItem<JettonMasterState>>;
     readonly #downloads: LazyMap<string, PersistedItem<string>>;
@@ -55,10 +53,6 @@ export class Model {
             let address = Address.parse(src);
             return engine.persistence.wallets.item(address);
         });
-        this.#jettons = new LazyMap((src) => {
-            let address = Address.parse(src);
-            return engine.persistence.tokens.item(address);
-        });
         this.#jettonWallet = new LazyMap((src) => {
             let address = Address.parse(src);
             return engine.persistence.jettonWallets.item(address);
@@ -83,10 +77,6 @@ export class Model {
 
     jettonMaster(address: Address) {
         return this.#jettonMaster.get(address.toFriendly());
-    }
-
-    accountJettons(owner: Address) {
-        return this.#jettons.get(owner.toFriendly());
     }
 
     staking(pool: Address, member: Address) {

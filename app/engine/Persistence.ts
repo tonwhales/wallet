@@ -14,6 +14,7 @@ import { JettonWalletState } from "./sync/startJettonWalletSync";
 import { JettonMasterState } from "./sync/startJettonMasterSync";
 import { StakingPoolState } from "./sync/startStakingPoolSync";
 import { Engine } from "./Engine";
+import { HintProcessingState } from "./sync/startHintSync";
 
 export class Persistence {
 
@@ -36,7 +37,7 @@ export class Persistence {
     readonly knownAccountJettons: PersistedCollection<Address, Address[]>;
 
     readonly downloads: PersistedCollection<string, string>;
-    readonly hintsProcessed: PersistedCollection<string, boolean>;
+    readonly hintState: PersistedCollection<Address, HintProcessingState>;
     readonly accountHints: PersistedCollection<Address, Address[]>;
 
     constructor(storage: MMKV, engine: Engine) {
@@ -58,7 +59,7 @@ export class Persistence {
         this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string, engine });
 
         // Hints
-        this.hintsProcessed = new PersistedCollection({ storage, namespace: 'hintsProcessed', key: stringKey, codec: t.boolean, engine });
+        this.hintState = new PersistedCollection({ storage, namespace: 'hintState', key: addressKey, codec: hintProcessingState, engine });
         this.accountHints = new PersistedCollection({ storage, namespace: 'hintsAccount', key: addressKey, codec: t.array(c.address), engine });
 
         // Jettons
@@ -174,6 +175,6 @@ const jettonMasterCodec = t.type({
     symbol: t.union([t.null, t.string])
 });
 
-const tokensCodec = t.type({
-    tokens: t.record(t.string, t.union([t.string, t.literal(false)]))
+const hintProcessingState = t.type({
+    version: t.number
 });

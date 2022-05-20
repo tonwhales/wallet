@@ -64,7 +64,8 @@ export type LocalizationSchema = {
         sending: string,
         sent: string,
         received: string,
-        bounced: string
+        bounced: string,
+        tokenTransfer: string
     },
     txPreview: {
         sendAgain: string,

@@ -1,78 +1,62 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
-import { AppConfig } from "../AppConfig";
-import { t } from "../i18n/t";
-import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
-import { JettonMasterState } from "../engine/sync/startJettonMasterSync";
-import { ContractMetadata } from "../engine/metadata/Metadata";
-import { parseBody } from "../engine/transactions/parseWalletTransaction";
-import { Transaction } from "../engine/Transaction";
+import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
+import { ContractMetadata } from "../../engine/metadata/Metadata";
+import { parseBody } from "../../engine/transactions/parseWalletTransaction";
+import { Body, Transaction } from "../../engine/Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
-import { parseMessageBody } from "../engine/transactions/parseMessageBody";
+import { parseMessageBody } from "../../engine/transactions/parseMessageBody";
 import { Operation, OperationItem } from "./types";
+import { t } from "../../i18n/t";
 
 export function resolveOperation(args: {
     account: Address,
-    tx: Transaction,
+    amount: BN,
+    body: Body | null,
     metadata: ContractMetadata | null,
     jettonMaster: JettonMasterState | null
 }): Operation {
 
     // Resolve default address
-    let address: Address = args.tx.address || args.account;
-
-    // Resolve known
-    let known: KnownWallet | undefined = undefined;
+    let address: Address = args.account;
 
     // Avatar image
     let image: string | undefined = undefined;
 
     // Comment
     let comment: string | undefined = undefined;
-    if (args.tx.body && args.tx.body.type === 'comment') {
-        comment = args.tx.body.comment;
+    if (args.body && args.body.type === 'comment') {
+        comment = args.body.comment;
     }
 
     // Resolve default name
-    let name: string;
-    if (args.tx.kind === 'out') {
-        if (args.tx.status === 'pending') {
-            name = t('tx.sending');
-        } else {
-            name = t('tx.sent');
-        }
-    } else if (args.tx.kind === 'in') {
-        if (args.tx.bounced) {
-            name = '⚠️ ' + t('tx.bounced');
-        } else {
-            name = t('tx.received');
-        }
-    } else {
-        throw Error('Unknown kind');
-    }
+    let op: string | undefined = undefined;
+
+    // Resolve default name
+    let title: string | undefined = undefined;
 
     // Resolve default items
     let items: OperationItem[] = [];
-    items.push({ kind: 'ton', amount: args.tx.amount });
+    items.push({ kind: 'ton', amount: args.amount });
 
     // Simple payload overwrite
-    if (args.tx.body && args.tx.body.type === 'payload' && args.metadata && !args.jettonMaster) {
-        let parsedBody = parseMessageBody(args.tx.body.cell, args.metadata.interfaces);
+    if (args.body && args.body.type === 'payload' && args.metadata && !args.jettonMaster) {
+        let parsedBody = parseMessageBody(args.body.cell, args.metadata.interfaces);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                name = f.text;
+                op = f.text;
             }
         }
     }
 
     // Jetton payloads
-    if (args.tx.body && args.tx.body.type === 'payload' && args.jettonMaster && args.jettonMaster.symbol && args.metadata && args.metadata.jettonWallet) {
-        let parsedBody = parseMessageBody(args.tx.body.cell, ['311736387032003861293477945447179662681']);
+    if (args.body && args.body.type === 'payload' && args.jettonMaster && args.jettonMaster.symbol && args.metadata && args.metadata.jettonWallet) {
+        let parsedBody = parseMessageBody(args.body.cell, ['311736387032003861293477945447179662681']);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                name = f.text;
+                op = f.text;
             }
             if (parsedBody.type === 'jetton::transfer') {
                 address = parsedBody.data['destination'] as Address;
@@ -83,6 +67,7 @@ export function resolveOperation(args: {
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
+                op = t('tx.tokenTransfer');
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 address = parsedBody.data['sender'] as Address;
                 let amount = parsedBody.data['amount'] as BN;
@@ -106,22 +91,17 @@ export function resolveOperation(args: {
 
     // Resolve jetton name
     if (args.metadata && args.metadata.jettonMaster && args.jettonMaster && args.jettonMaster.name) {
-        known = { name: args.jettonMaster.name };
+        title = args.jettonMaster.name;
         if (args.jettonMaster.image) {
             image = args.jettonMaster.image;
         }
     }
 
-    // Resolve built-in known wallets
-    let friendlyAddress = address.toFriendly({ testOnly: AppConfig.isTestnet });
-    if (KnownWallets[friendlyAddress]) {
-        known = KnownWallets[friendlyAddress];
-    }
 
     return {
         address,
-        known,
-        name,
+        title,
+        op,
         items,
         image,
         comment

@@ -40,7 +40,7 @@ export const UnstakeBanner = React.memo((
     const validAmount = amount?.replace(',', '.') || '0';
     const value = toNano(validAmount);
     const estInc = parseFloat(fromNano(value)) * 0.1;
-    const estIncPrice = estInc * price.price.usd;
+    const estIncPrice = estInc * price!.price.usd;
     const formattedInc = formatNum(estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2));
     const formattedPrice = formatNum(estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2))
 

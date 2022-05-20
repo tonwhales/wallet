@@ -71,7 +71,7 @@ export const StakingTransferFragment = fragment(() => {
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.whalesStakingPool.useState();
+    const pool = engine.products.whalesStakingPool.useState()!;
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');

@@ -648,7 +648,11 @@ export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
     if (!account) {
-        return <LoadingIndicator />
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <LoadingIndicator />
+            </View>
+        );
     } else {
         return <WalletComponent wallet={account} />
     }

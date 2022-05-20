@@ -77,7 +77,7 @@ export const ProductsComponent = React.memo(() => {
                     style={{ marginVertical: 4 }}
                 />
             )}
-            {plugins!! && Object.keys(plugins).length > 0 && (
+            {plugins!! && plugins.plugins.length > 0 && (
                 <ProductButton
                     name={t('products.subscriptions.productTitle')}
                     subtitle={t('products.subscriptions.productDescription', { count: Object.keys(plugins).length })}

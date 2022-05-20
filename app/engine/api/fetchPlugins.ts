@@ -9,29 +9,23 @@ export async function fetchPlugins(client: TonClient4, block: number, address: A
     if (seqnoRes.result.length !== 1) {
         return [];
     }
-    if (seqnoRes.result[0].type !== 'tuple') {
-        return [];
-    }
-    let items = seqnoRes.result[0].items;
+    let tail = seqnoRes.result[0];
     let plugins: Address[] = [];
-    for (let i of items) {
-        if (i.type === 'null') {
-            continue;
-        }
-        if (i.type !== 'tuple') {
+    while (tail.type === 'tuple') {
+        if (tail.items[0].type !== 'tuple') {
             return [];
         }
-        if (i.items[0].type !== 'int') {
+        if (tail.items[0].items[0].type !== 'int') {
             return [];
         }
-        if (i.items[1].type !== 'int') {
+        if (tail.items[0].items[1].type !== 'int') {
             return [];
         }
-
-        let workchain = i.items[0].value.toNumber();
-        let hash = Buffer.from(i.items[1].value.toString('hex', 32), 'hex');
+        let workchain = tail.items[0].items[0].value.toNumber();
+        let hash = Buffer.from(tail.items[0].items[1].value.toString('hex', 32), 'hex');
         let address = new Address(workchain, hash);
         plugins.push(address);
+        tail = tail.items[1];
     }
     return plugins
 }

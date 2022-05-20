@@ -10,6 +10,7 @@ import { JettonMasterState } from "../sync/startJettonMasterSync";
 import { createHistorySync } from "../sync/createHistorySync";
 import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
+import { PluginState } from "../sync/startPluginSync";
 
 export type WalletState = {
     balance: BN;
@@ -29,6 +30,10 @@ export type JettonsState = {
         icon: string | null
     }[]
 }
+
+export type PluginsState = {
+    plugins: PluginState[]
+};
 
 export type TransactionDescription = {
     base: Transaction;
@@ -51,6 +56,7 @@ export class WalletProduct {
     #pending: Transaction[] = [];
     #txsAtom: (lt: string) => RecoilState<TransactionDescription>;
     #history: { loadMore(lt: string, hash: string): void };
+    #plugins: RecoilValueReadOnly<PluginsState>;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -204,6 +210,30 @@ export class WalletProduct {
 
         // History
         this.#history = createHistorySync(engine.address, engine);
+
+        // Plugins
+        this.#plugins = selector({
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/plugins',
+            get: ({ get }) => {
+                // Load wallet
+                let wallet = get(engine.persistence.wallets.item(engine.address).atom);
+                if (!wallet) {
+                    return { plugins: [] }
+                }
+
+                // Load plugins
+                let plugins: PluginState[] = [];
+                for (let p of wallet.plugins) {
+                    let pstate = get(engine.persistence.plugins.item(p).atom);
+                    if (pstate) {
+                        plugins.push(pstate);
+                    }
+                }
+
+                return { plugins };
+            },
+            dangerouslyAllowMutability: true
+        })
     }
 
     loadMore = (lt: string, hash: string) => {
@@ -243,5 +273,9 @@ export class WalletProduct {
 
     useTransaction(id: string) {
         return useRecoilValue(this.#txsAtom(id));
+    }
+
+    usePlugins() {
+        return useRecoilValue(this.#plugins);
     }
 }

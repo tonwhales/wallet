@@ -22,7 +22,6 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme, Theme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext } from './engine/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { backoff } from './utils/time';
@@ -42,6 +41,7 @@ import { createEngine } from './engine/createEngine';
 import { useRecoilCallback } from 'recoil';
 import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
 import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
+import { EngineContext } from './engine/Engine';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();

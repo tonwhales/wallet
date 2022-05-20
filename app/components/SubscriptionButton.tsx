@@ -10,15 +10,14 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { getCurrentAddress } from "../storage/appState";
 import { createRemovePluginCell } from "../utils/createRemovePluginCell";
 import { Address, Cell } from "ton";
-import BN from "bn.js";
-import { useEngine } from "../engine/Engine";
 import { contractFromPublicKey } from "../engine/contractFromPublicKey";
-import { PluginState } from "../engine/sync/startPluginSync";
 import { backoff } from "../utils/time";
 import { sign } from "ton-crypto";
 import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
 import { warn } from "../utils/log";
 import { useItem } from "../engine/persistence/PersistedItem";
+import { PluginState } from "../engine/sync/startPluginSync";
+import { useEngine } from "../engine/Engine";
 
 export const SubscriptionButton = React.memo((
     {
@@ -69,19 +68,7 @@ export const SubscriptionButton = React.memo((
                             transfer.writeCell(transferCell);
 
                             await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
-
-                            // navigation.navigateTransfer({
-                            //     order: {
-                            //         target: address,
-                            //         amount: new BN(0),
-                            //         amountAll: false,
-                            //         payload: transferCell,
-                            //         stateInit: null,
-                            //         transferCell: true
-                            //     },
-                            //     text: null,
-                            //     job: null
-                            // });
+                            
                             resolve(true);
                         }
                     }, {

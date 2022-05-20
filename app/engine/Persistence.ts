@@ -15,6 +15,7 @@ import { JettonMasterState } from "./sync/startJettonMasterSync";
 import { StakingPoolState } from "./sync/startStakingPoolSync";
 import { Engine } from "./Engine";
 import { HintProcessingState } from "./sync/startHintSync";
+import { TxHints } from "./sync/startHintsTxSync";
 
 export class Persistence {
 
@@ -40,6 +41,7 @@ export class Persistence {
     readonly hintState: PersistedCollection<Address, HintProcessingState>;
     readonly hintRequest: PersistedCollection<Address, number>;
     readonly accountHints: PersistedCollection<Address, Address[]>;
+    readonly scannerState: PersistedCollection<Address, TxHints>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -63,6 +65,7 @@ export class Persistence {
         this.hintState = new PersistedCollection({ storage, namespace: 'hintState', key: addressKey, codec: hintProcessingState, engine });
         this.hintRequest = new PersistedCollection({ storage, namespace: 'hintRequest', key: addressKey, codec: t.number, engine });
         this.accountHints = new PersistedCollection({ storage, namespace: 'hintsAccount', key: addressKey, codec: t.array(c.address), engine });
+        this.scannerState = new PersistedCollection({ storage, namespace: 'hintsScanner', key: addressKey, codec: hintScannerCodec, engine });
 
         // Jettons
         this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec, engine });
@@ -180,4 +183,8 @@ const jettonMasterCodec = t.type({
 const hintProcessingState = t.type({
     version: t.number,
     seqno: t.number
+});
+const hintScannerCodec = t.type({
+    min: c.bignum,
+    max: c.bignum
 });

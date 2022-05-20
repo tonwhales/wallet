@@ -44,7 +44,6 @@ export function startHintSync(address: Address, engine: Engine) {
         //
 
         logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Start hint investigation`);
-        logger.warn(hint.value);
 
         //
         // Read seqno

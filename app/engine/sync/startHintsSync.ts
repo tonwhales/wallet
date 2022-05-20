@@ -14,7 +14,7 @@ export function startHintsSync(address: Address, engine: Engine) {
         let hints = await fetchHints(address);
 
         // Request all hints
-        requestAllHintsIfNeeded(hints, engine);
+        requestAllHintsIfNeeded(hints, null, engine);
     });
 
     // Invalidate on start

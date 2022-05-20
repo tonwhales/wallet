@@ -12,28 +12,33 @@ function addToSetArray(src: Address[] | null, value: Address) {
     }
 }
 
-function mergeSetArrays(src: Address[] | null, dst: Address[] | null) {
+function mergeSetArrays(src: Address[] | null, dst: Address[]) {
+
+    // Return destination if no source
+    if (!src) {
+        return { added: dst, res: dst };
+    }
+
     let added = new Set<string>();
     let res: Address[] = [];
-    if (src) {
-        for (let s of src) {
-            let f = s.toFriendly();
-            if (!added.has(f)) {
-                added.add(f);
-                res.push(s);
-            }
+
+    for (let s of src) {
+        let f = s.toFriendly();
+        if (!added.has(f)) {
+            added.add(f);
+            res.push(s);
         }
     }
-    if (dst) {
-        for (let s of dst) {
-            let f = s.toFriendly();
-            if (!added.has(f)) {
-                added.add(f);
-                res.push(s);
-            }
+    let addedAddresses: Address[] = [];
+    for (let s of dst) {
+        let f = s.toFriendly();
+        if (!added.has(f)) {
+            added.add(f);
+            res.push(s);
+            addedAddresses.push(s);
         }
     }
-    return res;
+    return { added: addedAddresses, res: addedAddresses.length === 0 ? src : res };
 }
 
 export function registerKnownJettonMaster(engine: Engine, master: Address) {
@@ -57,43 +62,23 @@ export function requestHintsIfNeeded(address: Address, seqno: number | null, eng
     engine.persistence.accountHints.item(engine.address).update((src) => addToSetArray(src, address));
 }
 
-export function requestAllHintsIfNeeded(addresses: Address[], engine: Engine) {
+export function requestAllHintsIfNeeded(addresses: Address[], seqno: number | null, engine: Engine) {
+
+    // Ignore on empty input
+    if (addresses.length === 0) {
+        return;
+    }
+
+    // Request seqno update
+    if (seqno !== null) {
+        for (let a of addresses) {
+            engine.persistence.hintRequest.item(a).update((src) => Math.max(src || 0, seqno));
+        }
+    }
 
     // Register account hints
-    engine.persistence.accountHints.item(engine.address).update((src) => mergeSetArrays(src, addresses));
-
-    // state.update((s) => {
-    //     if (s) {
-
-    //         // Result array
-    //         let res = [...s];
-
-    //         // Existing
-    //         let ex = new Set<string>();
-    //         for (let a of s) {
-    //             ex.add(a.toFriendly({ testOnly: AppConfig.isTestnet }));
-    //         }
-
-    //         // New
-    //         for (let m of hints) {
-    //             if (!ex.has(m.toFriendly({ testOnly: AppConfig.isTestnet }))) {
-    //                 res.push(m);
-    //                 log('[hints]: ' + m.toFriendly({ testOnly: AppConfig.isTestnet }));
-    //             }
-    //         }
-
-    //         return res;
-    //     } else {
-    //         return hints;
-    //     }
-    // });
-
-
-    // // Register hint request
-    // if (seqno !== null) {
-    //     engine.persistence.hintRequest.item(address).update((src) => Math.max(src || 0, seqno));
-    // }
-
-    // // Register account hint
-    // engine.persistence.accountHints.item(engine.address).update((src) => addToSetArray(src, address));
+    let merged = mergeSetArrays(engine.persistence.accountHints.item(engine.address).value, addresses);
+    if (merged.added.length > 0) {
+        engine.persistence.accountHints.item(engine.address).update((src) => merged.res);
+    }
 }

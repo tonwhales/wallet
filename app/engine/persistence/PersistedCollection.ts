@@ -61,11 +61,13 @@ export class PersistedCollection<K, T> extends EventEmitter {
             atom: rc,
             update(updater: (value: T | null) => T | null) {
                 let updated = updater(t.#getValue(key));
-                current = updated;
-                t.#setValue(key, updated);
-                t.emit('updated', { key, value: current });
-                events.emit('updated', current);
-                t.#engine.recoil.updater(rc, updated);
+                if (current !== updated) {
+                    current = updated;
+                    t.#setValue(key, updated);
+                    t.emit('updated', { key, value: current });
+                    events.emit('updated', current);
+                    t.#engine.recoil.updater(rc, updated);
+                }
             },
             get value() {
                 return current;

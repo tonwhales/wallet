@@ -98,7 +98,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
                         transfer.writeCell(transferCell);
 
-                        await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
+                        await backoff('deploy-and-install-subscription', () => engine.connector.sendExternalMessage(contract, transfer));
                     }} />
                 </View>
             </View>

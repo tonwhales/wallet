@@ -29,25 +29,28 @@ export const SubscriptionFragment = fragment(() => {
     const engine = useEngine();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const account = useItem(engine.model.wallet(engine.address));
-    const plugins = engine.products.main.usePlugins();
-    const subscription = plugins[params.address];
+    const plugins = engine.products.main.usePlugins().plugins;
+    const subscriptionPlugin = plugins.find(
+        (p) => p.type !== 'unknown'
+            && p.state.wallet.toFriendly({ testOnly: AppConfig.isTestnet }) === params.address
+    );
     const price = engine.products.price.useState();
     const [loading, setLoading] = useState(false);
 
-    console.log('[SubscriptionFragment]', { plugins, subscription });
+    console.log('[SubscriptionFragment]', { plugins, subscription: subscriptionPlugin });
 
-    if (!params.address || !subscription || subscription.type === 'unknown') {
+    if (!params.address || !subscriptionPlugin || subscriptionPlugin.type === 'unknown') {
         navigation.goBack();
         return null;
     }
 
-    const cost = subscription.state.amount;
+    const cost = subscriptionPlugin.state.amount;
     const costNum = parseFloat(fromNano(cost));
-    const costInUsd = price? costNum * price.price.usd: undefined;
+    const costInUsd = price ? costNum * price.price.usd : undefined;
     const formattedCost = formatNum(costNum < 0.01 ? costNum.toFixed(6) : costNum.toFixed(2));
-    const formattedPrice = costInUsd? formatNum(costNum < 0.01 ? costInUsd.toFixed(6) : costInUsd.toFixed(2)) : undefined;
+    const formattedPrice = costInUsd ? formatNum(costNum < 0.01 ? costInUsd.toFixed(6) : costInUsd.toFixed(2)) : undefined;
 
-    const nextBilling = subscription.state.lastPayment + subscription.state.period;
+    const nextBilling = subscriptionPlugin.state.lastPayment + subscriptionPlugin.state.period;
 
     const onCancelSub = useCallback(
         async () => {
@@ -79,7 +82,7 @@ export const SubscriptionFragment = fragment(() => {
             });
             setLoading(false);
         },
-        [subscription],
+        [subscriptionPlugin],
     );
 
     return (
@@ -116,7 +119,7 @@ export const SubscriptionFragment = fragment(() => {
                         t('products.subscriptions.subscription.startDate')
                         + ' '
                         + format(
-                            subscription.state.startAt * 1000,
+                            subscriptionPlugin.state.startAt * 1000,
                             is24Hour ? 'y MMM d, HH:mm' : 'y MMM d, hh:mm aa',
                             { locale: locale() }
                         )
@@ -128,7 +131,7 @@ export const SubscriptionFragment = fragment(() => {
                     flex: 1,
                     paddingHorizontal: 16
                 }}>
-                    {!!subscription && subscription.type === 'legacy-subscription' && (
+                    {!!subscriptionPlugin && subscriptionPlugin.type === 'legacy-subscription' && (
                         <View style={{
                             marginBottom: 16, marginTop: 17,
                             backgroundColor: "white",
@@ -157,7 +160,7 @@ export const SubscriptionFragment = fragment(() => {
                                     fontWeight: '400',
                                     maxWidth: 262
                                 }}>
-                                    {subscription.state.wallet.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                    {subscriptionPlugin.state.wallet.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 </Text>
                             </View>
                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
@@ -185,7 +188,7 @@ export const SubscriptionFragment = fragment(() => {
                                         fontWeight: '400',
                                         maxWidth: 262,
                                     }}>
-                                        {`${formattedCost} TON ${formattedPrice? `($${formattedPrice})` : ''}`}
+                                        {`${formattedCost} TON ${formattedPrice ? `($${formattedPrice})` : ''}`}
                                     </Text>
                                 </View>
                             </View>

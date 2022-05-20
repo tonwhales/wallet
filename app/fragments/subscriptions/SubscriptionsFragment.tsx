@@ -14,7 +14,7 @@ export const SubscriptionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
-    const plugins = engine.products.main.usePlugins();
+    const plugins = engine.products.main.usePlugins().plugins;
 
     return (
         <View style={{

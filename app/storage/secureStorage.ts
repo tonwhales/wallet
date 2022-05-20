@@ -51,7 +51,10 @@ export async function getApplicationKey() {
         if (supportedAuthTypes.length > 0) {
             let authRes = await LocalAuthentication.authenticateAsync();
             if (!authRes.success) {
-                throw Error('Authentication canceled');
+                // Ignore device not being secured with a PIN, pattern or password.
+                if (authRes.error !== 'not_enrolled') {
+                    throw Error('Authentication canceled');
+                }
             }
         }
 

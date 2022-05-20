@@ -1,6 +1,6 @@
 import React from "react"
 import { View, Text } from "react-native"
-import { TouchableHighlight } from "react-native-gesture-handler"
+import { TouchableHighlight } from "react-native"
 import { Theme } from "../../Theme"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import StakingIcon from '../../../assets/ic_staking.svg';
@@ -8,7 +8,7 @@ import BN from "bn.js"
 import { PriceComponent } from "../PriceComponent"
 import { ValueComponent } from "../ValueComponent"
 import { t } from "../../i18n/t"
-import { StakingPoolState } from "../../sync/account/StakingPoolSync"
+import { StakingPoolState } from "../../engine/sync/startStakingPoolSync"
 
 export const StakingProductMember = React.memo((
     {

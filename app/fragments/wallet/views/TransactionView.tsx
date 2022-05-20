@@ -6,17 +6,18 @@ import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/AddressComponent';
-import { Transaction } from '../../../sync/Transaction';
-import { TouchableHighlight } from 'react-native-gesture-handler';
+import { Transaction } from '../../../engine/Transaction';
+import { TouchableHighlight } from 'react-native';
 import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { Engine } from '../../../sync/Engine';
-import { ContractMetadata } from '../../../sync/metadata/Metadata';
-import { JettonMasterState } from '../../../sync/jettons/JettonMasterSync';
+import { Engine } from '../../../engine/Engine';
+import { ContractMetadata } from '../../../engine/metadata/Metadata';
+import { JettonMasterState } from '../../../engine/sync/startJettonMasterSync';
 import { resolveOperation } from '../../../operations/resolveOperation';
 import { KnownWallet } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
+import { useOptItem } from '../../../engine/persistence/PersistedItem';
 
 const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
 
@@ -24,46 +25,21 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
 }
 
-export function TransactionView(props: { own: Address, tx: Transaction, separator: boolean, engine: Engine, onPress: (src: Transaction) => void }) {
-    const parsed = props.tx;
-
-    // Fetch metadata
-    let metadata: ContractMetadata | null;
-    if (parsed.address) {
-        metadata = props.engine.storage.metadata(parsed.address).use();
-    } else {
-        metadata = props.engine.storage.metadata(ZERO_ADDRESS).use();
-    }
-
-    // Master metadata
-    let masterMetadata: JettonMasterState | null;
-    if (metadata && metadata.jettonWallet) {
-        masterMetadata = props.engine.storage.jettonMaster(metadata.jettonWallet.master).use();
-    } else if (metadata && metadata.jettonMaster && parsed.address) {
-        masterMetadata = props.engine.storage.jettonMaster(parsed.address).use();
-    } else {
-        masterMetadata = props.engine.storage.jettonMaster(ZERO_ADDRESS).use();
-    }
-
+export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
+    const tx = props.engine.products.main.useTransaction(props.tx);
+    let parsed = tx.base;
+    let operation = tx.operation;
+    
     // Operation
-    let operation = resolveOperation({ tx: parsed, metadata, jettonMaster: masterMetadata, account: props.own });
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = operation.items[0];
-
-    // Avatar
-    let downloaded: string | null = null;
-    if (operation.image) {
-        downloaded = props.engine.downloads.use(operation.image);
-    } else {
-        downloaded = props.engine.downloads.use('');
-    }
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={downloaded ? downloaded : undefined} />)}
+                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={tx.icon ? tx.icon : undefined} />)}
                     {parsed.status === 'pending' && (
                         <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
                     )}

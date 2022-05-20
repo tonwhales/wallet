@@ -1,5 +1,5 @@
 import { delay, exponentialBackoffDelay } from "teslabot";
-import { warn } from "./log";
+import { createLogger, warn } from "./log";
 
 export type BackoffFunc = <T>(tag: string, callback: () => Promise<T>) => Promise<T>;
 
@@ -12,8 +12,8 @@ export function createBackoff(
     }): BackoffFunc {
     return async <T>(tag: string, callback: () => Promise<T>): Promise<T> => {
         let currentFailureCount = 0;
-        const minDelay = opts && opts.minDelay !== undefined ? opts.minDelay : 250;
-        const maxDelay = opts && opts.maxDelay !== undefined ? opts.maxDelay : 1000;
+        const minDelay = opts && opts.minDelay !== undefined ? opts.minDelay : 2000;
+        const maxDelay = opts && opts.maxDelay !== undefined ? opts.maxDelay : 5000;
         const maxFailureCount = opts && opts.maxFailureCount !== undefined ? opts.maxFailureCount : 50;
         while (true) {
             try {
@@ -32,4 +32,4 @@ export function createBackoff(
     };
 }
 
-export const backoff = createBackoff({ onError: (tag, e) => warn(tag + ': ' + e.message) });
+export const backoff = createBackoff({ onError: (tag, e) => createLogger(tag).warn(e.message) });

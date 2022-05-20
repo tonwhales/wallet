@@ -2,7 +2,7 @@ import BN from "bn.js"
 import React from "react"
 import { View } from "react-native"
 import { ProductButton } from "./ProductButton"
-import { useEngine } from "../../../sync/Engine"
+import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import SubsriptionsIcon from '../../../../assets/ic_subscriptions.svg';
@@ -64,9 +64,9 @@ export const ProductsComponent = React.memo(() => {
             )}
 
             {jettons.map((jt) => (
-                <JettonProdcut jetton={jt} navigation={navigation} engine={engine} />
+                <JettonProdcut key={'jt' + jt.wallet.toFriendly()} jetton={jt} navigation={navigation} engine={engine} />
             ))}
-            <StakingProductComponent pool={pool} />
+            {pool && (<StakingProductComponent pool={pool} />)}
             {oldWalletsBalance.gt(new BN(0)) && (
                 <ProductButton
                     name={t('products.oldWallets.title')}

@@ -4,7 +4,7 @@ import { View, Text } from "react-native"
 import { fromNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
-import { StakingPoolState } from "../../sync/products/StakingPoolProduct";
+import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 

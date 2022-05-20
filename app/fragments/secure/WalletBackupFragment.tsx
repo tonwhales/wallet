@@ -10,7 +10,7 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
-import { EngineContext } from '../../sync/Engine';
+import { EngineContext } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 
 export const WalletBackupFragment = systemFragment(() => {

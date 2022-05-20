@@ -3,7 +3,7 @@ import { StyleProp, View, ViewStyle } from "react-native"
 import { avatarHash } from "../utils/avatarHash";
 import { avatarColors, avatarImages } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
-import { KnownAvatar } from "../secure/KnownAvatar";
+import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
 import { Theme } from "../Theme";
 

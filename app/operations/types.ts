@@ -3,7 +3,6 @@ import { Address } from "ton";
 import { KnownWallet } from "../secure/KnownWallets";
 
 export type Operation = {
-    kind: 'out' | 'in';
     name: string;
     items: OperationItem[];
     address: Address;

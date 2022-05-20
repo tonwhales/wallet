@@ -11,10 +11,10 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { Engine, useEngine } from '../../sync/Engine';
-import { Transaction } from '../../sync/Transaction';
+import { Engine, useEngine } from '../../engine/Engine';
+import { Transaction } from '../../engine/Transaction';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
@@ -28,13 +28,22 @@ import { fragment } from '../../fragment';
 import { openWithInApp } from '../../utils/openWithInApp';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { WalletState } from '../../engine/products/WalletProduct';
+import { log } from '../../utils/log';
 
-const WalletTransactions = React.memo((props: { txs: Transaction[], address: Address, engine: Engine, onPress: (tx: Transaction) => void }) => {
+const WalletTransactions = React.memo((props: {
+    txs: { id: string, time: number }[],
+    next: { lt: string, hash: string } | null,
+    address: Address,
+    engine: Engine,
+    onPress: (tx: string) => void
+}) => {
     const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: Transaction[] }[] = [];
+        let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
             let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: Transaction[] = [];
+            let lastSection: string[] = [];
             let title = formatDate(props.txs[0].time);
             sections.push({ title, items: lastSection });
             for (let t of props.txs) {
@@ -45,7 +54,7 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
                     title = formatDate(t.time);
                     sections.push({ title, items: lastSection });
                 }
-                lastSection.push(t);
+                lastSection.push(t.id);
             }
         }
         return sections;
@@ -61,36 +70,68 @@ const WalletTransactions = React.memo((props: { txs: Transaction[], address: Add
         components.push(
             < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
             } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t.id} onPress={props.onPress} />)}
+                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t} onPress={props.onPress} />)}
             </View >
         );
     }
 
-    return <>{components}</>;
-})
+    // Last
+    if (props.next) {
+        components.push(
+            <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
+                <LoadingIndicator simple={true} />
+            </View>
+        );
+    } else {
+        components.push(
+            <View key="footer" style={{ height: 64 }} />
+        );
+    }
 
-export const WalletFragment = fragment(() => {
+    return <>{components}</>;
+});
+
+function WalletComponent(props: { wallet: WalletState }) {
+
+    // Dependencies
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const syncState = engine.state.use();
-    const account = engine.products.main.useState();
-    const transactions = React.useMemo<Transaction[]>(() => {
-        let txs = account.transactions.map((v) => engine.transactions.getWalletTransaction(address, v));
-        return [...account.pending, ...txs];
-    }, [account.transactions, account.pending]);
+    const account = props.wallet;
 
-    const openTransactionFragment = React.useCallback((transaction: Transaction | null) => {
+    //
+    // Transactions
+    //
+
+    const openTransactionFragment = React.useCallback((transaction: string) => {
         if (transaction) {
             navigation.navigate('Transaction', {
-                transaction: {
-                    ...transaction
-                }
+                transaction: transaction
             });
         }
     }, [navigation]);
+
+    const onReachedEnd = React.useMemo(() => {
+        let prev = account.next;
+        let called = false;
+        return () => {
+            if (called) {
+                return;
+            }
+            called = true;
+            if (prev) {
+                log('Reached end: ' + prev.lt);
+                engine.products.main.loadMore(prev.lt, prev.hash);
+            }
+        }
+    }, [account.next ? account.next.lt : null]);
+
+    //
+    // Animations
+    //
 
     const window = useWindowDimensions();
 
@@ -114,7 +155,15 @@ export const WalletFragment = fragment(() => {
             titleOpacity.value = 1;
             smallCardY.value = Math.floor(cardHeight * 0.15 / 2);
         }
-    }, [cardHeight]);
+
+        // Bottom reached
+        if (event.contentSize.height > 0) {
+            let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
+            if (bottomOffset < 300) {
+                runOnJS(onReachedEnd)();
+            }
+        }
+    }, [cardHeight, onReachedEnd]);
 
     const cardOpacityStyle = useAnimatedStyle(() => {
         return {
@@ -230,7 +279,6 @@ export const WalletFragment = fragment(() => {
         },
         [],
     );
-
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -378,7 +426,7 @@ export const WalletFragment = fragment(() => {
                 <ProductsComponent />
 
                 {
-                    transactions.length === 0 && (
+                    account.transactions.length === 0 && (
                         <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                             <Pressable
                                 onPress={() => {
@@ -406,9 +454,10 @@ export const WalletFragment = fragment(() => {
                     )
                 }
                 {
-                    transactions.length > 0 && (
+                    account.transactions.length > 0 && (
                         <WalletTransactions
-                            txs={transactions}
+                            txs={account.transactions}
+                            next={account.next}
                             address={address}
                             engine={engine}
                             onPress={openTransactionFragment}
@@ -593,4 +642,18 @@ export const WalletFragment = fragment(() => {
             }
         </View >
     );
+}
+
+export const WalletFragment = fragment(() => {
+    const engine = useEngine();
+    const account = engine.products.main.useAccount();
+    if (!account) {
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <LoadingIndicator />
+            </View>
+        );
+    } else {
+        return <WalletComponent wallet={account} />
+    }
 });

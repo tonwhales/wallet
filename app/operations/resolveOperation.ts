@@ -3,12 +3,12 @@ import { Address, Cell } from "ton";
 import { AppConfig } from "../AppConfig";
 import { t } from "../i18n/t";
 import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
-import { JettonMasterState } from "../sync/jettons/JettonMasterSync";
-import { ContractMetadata } from "../sync/metadata/Metadata";
-import { parseBody } from "../sync/parse/parseWalletTransaction";
-import { Transaction } from "../sync/Transaction";
+import { JettonMasterState } from "../engine/sync/startJettonMasterSync";
+import { ContractMetadata } from "../engine/metadata/Metadata";
+import { parseBody } from "../engine/transactions/parseWalletTransaction";
+import { Transaction } from "../engine/Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
-import { parseMessageBody } from "./parseMessageBody";
+import { parseMessageBody } from "../engine/transactions/parseMessageBody";
 import { Operation, OperationItem } from "./types";
 
 export function resolveOperation(args: {
@@ -17,9 +17,6 @@ export function resolveOperation(args: {
     metadata: ContractMetadata | null,
     jettonMaster: JettonMasterState | null
 }): Operation {
-
-    // Resolve transaction kind
-    let kind: 'out' | 'in' = args.tx.kind;
 
     // Resolve default address
     let address: Address = args.tx.address || args.account;
@@ -122,7 +119,6 @@ export function resolveOperation(args: {
     }
 
     return {
-        kind,
         address,
         known,
         name,

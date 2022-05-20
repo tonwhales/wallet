@@ -14,7 +14,7 @@ import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../sync/Engine';
+import { useEngine } from '../../engine/Engine';
 import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -26,6 +26,7 @@ import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
 import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
+import { useItem } from '../../engine/persistence/PersistedItem';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -68,7 +69,7 @@ export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: StakingTransferParams | undefined = useRoute().params;
     const engine = useEngine();
-    const account = engine.storage.wallet(engine.address).useRequired();
+    const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const pool = engine.products.whalesStakingPool.useState();
     const member = pool?.member

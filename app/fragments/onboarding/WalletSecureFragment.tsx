@@ -6,7 +6,7 @@ import { generateNewKeyAndEncrypt } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
-import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { RoundButton } from '../../components/RoundButton';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { useReboot } from '../../utils/RebootContext';

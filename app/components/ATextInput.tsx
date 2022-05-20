@@ -15,20 +15,45 @@ export interface ATextInputProps {
     autoCorrect?: boolean;
     keyboardType?: KeyboardTypeOptions;
     returnKeyType?: ReturnKeyTypeOptions;
-    autoCompleteType?:
+    autoComplete?:
+    | 'birthdate-day'
+    | 'birthdate-full'
+    | 'birthdate-month'
+    | 'birthdate-year'
     | 'cc-csc'
     | 'cc-exp'
+    | 'cc-exp-day'
     | 'cc-exp-month'
     | 'cc-exp-year'
     | 'cc-number'
     | 'email'
+    | 'gender'
     | 'name'
+    | 'name-family'
+    | 'name-given'
+    | 'name-middle'
+    | 'name-middle-initial'
+    | 'name-prefix'
+    | 'name-suffix'
     | 'password'
+    | 'password-new'
+    | 'postal-address'
+    | 'postal-address-country'
+    | 'postal-address-extended'
+    | 'postal-address-extended-postal-code'
+    | 'postal-address-locality'
+    | 'postal-address-region'
     | 'postal-code'
     | 'street-address'
+    | 'sms-otp'
     | 'tel'
+    | 'tel-country-code'
+    | 'tel-national'
+    | 'tel-device'
     | 'username'
-    | 'off';
+    | 'username-new'
+    | 'off'
+    | undefined;
     value?: string;
     onValueChange?: (value: string) => void;
     autoFocus?: boolean;
@@ -173,7 +198,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                         autoCorrect={props.autoCorrect}
                         keyboardType={props.keyboardType}
                         returnKeyType={props.returnKeyType}
-                        autoCompleteType={props.autoCompleteType}
+                        autoComplete={props.autoComplete}
                         multiline={props.multiline}
                         enabled={props.enabled}
                         blurOnSubmit={props.blurOnSubmit}

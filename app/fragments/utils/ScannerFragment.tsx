@@ -140,7 +140,7 @@ export const ScannerFragment = systemFragment(() => {
                 <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
                 <View style={{ flexDirection: 'row', alignSelf: 'stretch' }}>
                     <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
-                    <Image height={232} width={232} source={require('../../../assets/frame.png')} />
+                    <Image style={{ height: 232, width: 232 }} source={require('../../../assets/frame.png')} />
                     <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
                 </View>
                 <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
@@ -155,7 +155,7 @@ export const ScannerFragment = systemFragment(() => {
             }}
                 onPress={() => { setFlashOn(!flashOn); }}
             >
-                <Image height={61} width={61} source={flashOn ? require('../../../assets/ic_flash_on.png') : require('../../../assets/ic_flash.png')} />
+                <Image style={{ height: 61, width: 61 }} source={flashOn ? require('../../../assets/ic_flash_on.png') : require('../../../assets/ic_flash.png')} />
             </Pressable>
             <View style={{
                 position: 'absolute', top: safeArea.top + 77,

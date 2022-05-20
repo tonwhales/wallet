@@ -127,7 +127,7 @@ import Img_zebra from '../../assets/images/img_zebra.svg';
 
 import Verified from '../../assets/ic_verified.svg';
 import { KnownWallets } from '../secure/KnownWallets';
-import { KnownAvatar } from '../secure/KnownAvatar';
+import { KnownAvatar } from './KnownAvatar';
 
 export const avatarImages = [
     Img_ant,

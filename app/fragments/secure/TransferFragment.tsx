@@ -20,7 +20,7 @@ import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
 import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
-import { formatSupportedBody } from '../../operations/formatSupportedBody';
+import { formatSupportedBody } from '../../engine/transactions/formatSupportedBody';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';

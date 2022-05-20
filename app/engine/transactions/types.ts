@@ -1,13 +1,16 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { KnownWallet } from "../secure/KnownWallets";
 
 export type Operation = {
-    name: string;
-    items: OperationItem[];
+    
+    // Operation
     address: Address;
+    op?: string;
+    items: OperationItem[];
+    
+    // Address
+    title?: string;
     image?: string;
-    known?: KnownWallet;
     comment?: string;
 };
 

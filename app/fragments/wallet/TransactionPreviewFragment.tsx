@@ -19,6 +19,7 @@ import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
+// import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -30,6 +31,34 @@ export const TransactionPreviewFragment = fragment(() => {
     let operation = transaction.operation;
     let avatarId = transaction.operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
+    let op: string;
+    if (operation.op) {
+        op = operation.op;
+    } else {
+        if (transaction.base.kind === 'out') {
+            if (transaction.base.status === 'pending') {
+                op = t('tx.sending');
+            } else {
+                op = t('tx.sent');
+            }
+        } else if (transaction.base.kind === 'in') {
+            if (transaction.base.bounced) {
+                op = '⚠️ ' + t('tx.bounced');
+            } else {
+                op = t('tx.received');
+            }
+        } else {
+            throw Error('Unknown kind');
+        }
+    }
+
+    // Resolve built-in known wallets
+    // let known: KnownWallet | undefined = undefined;
+    // if (KnownWallets[friendlyAddress]) {
+    //     known = KnownWallets[friendlyAddress];
+    // } else if (operation.title) {
+    //     known = { name: operation.title };
+    // }
 
     return (
         <View style={{
@@ -40,11 +69,11 @@ export const TransactionPreviewFragment = fragment(() => {
             paddingHorizontal: 16
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={operation.name} />
+            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
                     <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
-                        {operation.name}
+                        {op}
                     </Text>
                 )}
             </View>

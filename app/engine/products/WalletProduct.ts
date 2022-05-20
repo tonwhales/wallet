@@ -7,9 +7,9 @@ import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoil
 import * as FileSystem from 'expo-file-system';
 import { ContractMetadata } from "../metadata/Metadata";
 import { JettonMasterState } from "../sync/startJettonMasterSync";
-import { resolveOperation } from "../../operations/resolveOperation";
-import { Operation } from "../../operations/types";
 import { createHistorySync } from "../sync/createHistorySync";
+import { Operation } from "../transactions/types";
+import { resolveOperation } from "../transactions/resolveOperation";
 
 export type WalletState = {
     balance: BN;

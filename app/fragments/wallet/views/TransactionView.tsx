@@ -6,20 +6,14 @@ import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/AddressComponent';
-import { Transaction } from '../../../engine/Transaction';
 import { TouchableHighlight } from 'react-native';
 import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { Engine } from '../../../engine/Engine';
-import { ContractMetadata } from '../../../engine/metadata/Metadata';
-import { JettonMasterState } from '../../../engine/sync/startJettonMasterSync';
-import { resolveOperation } from '../../../operations/resolveOperation';
-import { KnownWallet } from '../../../secure/KnownWallets';
+import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
-import { useOptItem } from '../../../engine/persistence/PersistedItem';
-
-const ZERO_ADDRESS = new Address(-1, Buffer.alloc(32, 0));
+import { t } from '../../../i18n/t';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -29,11 +23,39 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     const tx = props.engine.products.main.useTransaction(props.tx);
     let parsed = tx.base;
     let operation = tx.operation;
-    
+
     // Operation
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = operation.items[0];
+    let op: string;
+    if (operation.op) {
+        op = operation.op;
+    } else {
+        if (parsed.kind === 'out') {
+            if (parsed.status === 'pending') {
+                op = t('tx.sending');
+            } else {
+                op = t('tx.sent');
+            }
+        } else if (parsed.kind === 'in') {
+            if (parsed.bounced) {
+                op = '⚠️ ' + t('tx.bounced');
+            } else {
+                op = t('tx.received');
+            }
+        } else {
+            throw Error('Unknown kind');
+        }
+    }
+
+    // Resolve built-in known wallets
+    let known: KnownWallet | undefined = undefined;
+    if (KnownWallets[friendlyAddress]) {
+        known = KnownWallets[friendlyAddress];
+    } else if (operation.title) {
+        known = { name: operation.title };
+    }
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
@@ -46,7 +68,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{operation.name}</Text>
+                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
                         {parsed.status === 'failed' ? (
                             <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                         ) : (
@@ -68,11 +90,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
-                            {
-                                operation.known
-                                    ? knownAddressLabel(operation.known, friendlyAddress)
-                                    : <AddressComponent address={operation.address} />
-                            }
+                            {known ? knownAddressLabel(known, friendlyAddress) : <AddressComponent address={operation.address} />}
                         </Text>
                         {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                         <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>

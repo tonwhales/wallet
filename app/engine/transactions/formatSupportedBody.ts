@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Cell, fromNano, SupportedMessage, toNano } from "ton";
-import { t } from "../i18n/t";
+import { t } from "../../i18n/t";
 
 export function formatSupportedBody(supportedMessage: SupportedMessage): { text: string } | null {
     if (supportedMessage.type === 'deposit') {

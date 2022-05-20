@@ -1,14 +1,11 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
-import { AppConfig } from "../AppConfig";
-import { t } from "../i18n/t";
-import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
-import { JettonMasterState } from "../engine/sync/startJettonMasterSync";
-import { ContractMetadata } from "../engine/metadata/Metadata";
-import { parseBody } from "../engine/transactions/parseWalletTransaction";
-import { Transaction } from "../engine/Transaction";
+import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
+import { ContractMetadata } from "../../engine/metadata/Metadata";
+import { parseBody } from "../../engine/transactions/parseWalletTransaction";
+import { Transaction } from "../../engine/Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
-import { parseMessageBody } from "../engine/transactions/parseMessageBody";
+import { parseMessageBody } from "../../engine/transactions/parseMessageBody";
 import { Operation, OperationItem } from "./types";
 
 export function resolveOperation(args: {
@@ -21,9 +18,6 @@ export function resolveOperation(args: {
     // Resolve default address
     let address: Address = args.tx.address || args.account;
 
-    // Resolve known
-    let known: KnownWallet | undefined = undefined;
-
     // Avatar image
     let image: string | undefined = undefined;
 
@@ -34,22 +28,10 @@ export function resolveOperation(args: {
     }
 
     // Resolve default name
-    let name: string;
-    if (args.tx.kind === 'out') {
-        if (args.tx.status === 'pending') {
-            name = t('tx.sending');
-        } else {
-            name = t('tx.sent');
-        }
-    } else if (args.tx.kind === 'in') {
-        if (args.tx.bounced) {
-            name = '⚠️ ' + t('tx.bounced');
-        } else {
-            name = t('tx.received');
-        }
-    } else {
-        throw Error('Unknown kind');
-    }
+    let op: string | undefined = undefined;
+
+    // Resolve default name
+    let title: string | undefined = undefined;
 
     // Resolve default items
     let items: OperationItem[] = [];
@@ -61,7 +43,7 @@ export function resolveOperation(args: {
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                name = f.text;
+                op = f.text;
             }
         }
     }
@@ -72,7 +54,7 @@ export function resolveOperation(args: {
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                name = f.text;
+                op = f.text;
             }
             if (parsedBody.type === 'jetton::transfer') {
                 address = parsedBody.data['destination'] as Address;
@@ -106,22 +88,18 @@ export function resolveOperation(args: {
 
     // Resolve jetton name
     if (args.metadata && args.metadata.jettonMaster && args.jettonMaster && args.jettonMaster.name) {
-        known = { name: args.jettonMaster.name };
+        title = args.jettonMaster.name;
         if (args.jettonMaster.image) {
             image = args.jettonMaster.image;
         }
     }
 
-    // Resolve built-in known wallets
-    let friendlyAddress = address.toFriendly({ testOnly: AppConfig.isTestnet });
-    if (KnownWallets[friendlyAddress]) {
-        known = KnownWallets[friendlyAddress];
-    }
+    
 
     return {
         address,
-        known,
-        name,
+        title,
+        op,
         items,
         image,
         comment

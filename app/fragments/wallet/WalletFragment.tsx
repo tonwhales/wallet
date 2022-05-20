@@ -157,9 +157,11 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
 
         // Bottom reached
-        let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
-        if (bottomOffset < 300) {
-            runOnJS(onReachedEnd)();
+        if (event.contentSize.height > 0) {
+            let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
+            if (bottomOffset < 300) {
+                runOnJS(onReachedEnd)();
+            }
         }
     }, [cardHeight, onReachedEnd]);
 

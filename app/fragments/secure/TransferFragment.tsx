@@ -77,44 +77,12 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         jettonMaster
     } = props;
 
-    // Verified wallets
-    const known = KnownWallets[target.address.toFriendly({ testOnly: AppConfig.isTestnet })];
-
     // Resolve operation
     let body = order.payload ? parseBody(order.payload) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
-    console.warn(operation)
 
-    // // Known Messages
-    // const supportedMessage = React.useMemo(() => {
-    //     let res: SupportedMessage | null = null;
-    //     if (order.payload) {
-    //         res = parseMessageBody(order.payload, metadata.interfaces);
-    //     }
-    //     return res;
-    // }, []);
-
-    // // Resolve message
-    // const message = React.useMemo(() => {
-    //     if (supportedMessage) {
-    //         let formatted = formatSupportedBody(supportedMessage);
-    //         if (formatted) {
-    //             return formatted.text;
-    //         }
-    //     }
-    //     return null;
-    // }, []);
-
-    // // Resolve comment
-    // const comment = React.useMemo(() => {
-    //     if (order.payload) {
-    //         let bd = parseBody(order.payload);
-    //         if (bd && bd.type === 'comment') {
-    //             return bd.comment
-    //         }
-    //     }
-    //     return null;
-    // }, []);
+    // Verified wallets
+    const known = KnownWallets[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     // Confirmation
     const doSend = React.useCallback(async () => {
@@ -282,7 +250,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     <ItemGroup>
                         <ItemLarge
                             title={t('common.walletAddress')}
-                            text={target.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                             verified={!!known}
                             secondary={known ? known.name : undefined}
                         />

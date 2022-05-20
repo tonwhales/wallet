@@ -33,6 +33,7 @@ import { Order } from './ops/Order';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
+import { sign } from 'ton-crypto';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

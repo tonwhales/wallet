@@ -166,5 +166,4 @@ export const TransactionPreviewFragment = fragment(() => {
             )}
         </View>
     );
-}); );
 });

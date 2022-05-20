@@ -20,6 +20,7 @@ import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
+import { useItem } from "../../engine/persistence/PersistedItem";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -27,7 +28,7 @@ export const SubscriptionFragment = fragment(() => {
     const params = useParams<{ address: string }>();
     const engine = useEngine();
     const acc = React.useMemo(() => getCurrentAddress(), []);
-    const account = engine.products.main.useState();
+    const account = useItem(engine.model.wallet(engine.address));
     const plugins = engine.products.main.usePlugins();
     const subscription = plugins[params.address];
     const price = engine.products.price.useState();
@@ -42,9 +43,9 @@ export const SubscriptionFragment = fragment(() => {
 
     const cost = subscription.state.amount;
     const costNum = parseFloat(fromNano(cost));
-    const costInUsd = costNum * price.price.usd;
+    const costInUsd = price? costNum * price.price.usd: undefined;
     const formattedCost = formatNum(costNum < 0.01 ? costNum.toFixed(6) : costNum.toFixed(2));
-    const formattedPrice = formatNum(costNum < 0.01 ? costInUsd.toFixed(6) : costInUsd.toFixed(2));
+    const formattedPrice = costInUsd? formatNum(costNum < 0.01 ? costInUsd.toFixed(6) : costInUsd.toFixed(2)) : undefined;
 
     const nextBilling = subscription.state.lastPayment + subscription.state.period;
 
@@ -66,19 +67,6 @@ export const SubscriptionFragment = fragment(() => {
                                 Math.floor(Date.now() / 1e3) + 60,
                                 Address.parse(params.address)
                             );
-
-                            navigation.navigateTransfer({
-                                order: {
-                                    target: params.address,
-                                    amount: new BN(0),
-                                    amountAll: false,
-                                    payload: transferCell,
-                                    stateInit: null,
-                                    transferCell: true
-                                },
-                                text: null,
-                                job: null
-                            });
 
                             resolve(true);
                         }
@@ -197,7 +185,7 @@ export const SubscriptionFragment = fragment(() => {
                                         fontWeight: '400',
                                         maxWidth: 262,
                                     }}>
-                                        {`${formattedCost} TON ($${formattedPrice})`}
+                                        {`${formattedCost} TON ${formattedPrice? `($${formattedPrice})` : ''}`}
                                     </Text>
                                 </View>
                             </View>

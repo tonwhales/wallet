@@ -18,6 +18,7 @@ import { backoff } from "../utils/time";
 import { sign } from "ton-crypto";
 import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
 import { warn } from "../utils/log";
+import { useItem } from "../engine/persistence/PersistedItem";
 
 export const SubscriptionButton = React.memo((
     {
@@ -31,7 +32,7 @@ export const SubscriptionButton = React.memo((
     const navigation = useTypedNavigation();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const engine = useEngine();
-    const account = engine.products.main.useState();
+    const account = useItem(engine.model.wallet(engine.address));
 
     console.log({ address });
 

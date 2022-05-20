@@ -33,6 +33,8 @@ import { Order } from './ops/Order';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
+import { resolveOperation } from '../../engine/transactions/resolveOperation';
+import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -56,7 +58,8 @@ type ConfirmLoadedProps = {
     job: string | null,
     fees: BN,
     metadata: ContractMetadata,
-    restricted: boolean
+    restricted: boolean,
+    jettonMaster: JettonMasterState | null
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -70,42 +73,48 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         order,
         job,
         fees,
-        metadata
+        metadata,
+        jettonMaster
     } = props;
 
     // Verified wallets
     const known = KnownWallets[target.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
-    // Known Messages
-    const supportedMessage = React.useMemo(() => {
-        let res: SupportedMessage | null = null;
-        if (order.payload) {
-            res = parseMessageBody(order.payload, metadata.interfaces);
-        }
-        return res;
-    }, []);
+    // Resolve operation
+    let body = order.payload ? parseBody(order.payload) : null;
+    let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+    console.warn(operation)
 
-    // Resolve message
-    const message = React.useMemo(() => {
-        if (supportedMessage) {
-            let formatted = formatSupportedBody(supportedMessage);
-            if (formatted) {
-                return formatted.text;
-            }
-        }
-        return null;
-    }, []);
+    // // Known Messages
+    // const supportedMessage = React.useMemo(() => {
+    //     let res: SupportedMessage | null = null;
+    //     if (order.payload) {
+    //         res = parseMessageBody(order.payload, metadata.interfaces);
+    //     }
+    //     return res;
+    // }, []);
 
-    // Resolve comment
-    const comment = React.useMemo(() => {
-        if (order.payload) {
-            let bd = parseBody(order.payload);
-            if (bd && bd.type === 'comment') {
-                return bd.comment
-            }
-        }
-        return null;
-    }, []);
+    // // Resolve message
+    // const message = React.useMemo(() => {
+    //     if (supportedMessage) {
+    //         let formatted = formatSupportedBody(supportedMessage);
+    //         if (formatted) {
+    //             return formatted.text;
+    //         }
+    //     }
+    //     return null;
+    // }, []);
+
+    // // Resolve comment
+    // const comment = React.useMemo(() => {
+    //     if (order.payload) {
+    //         let bd = parseBody(order.payload);
+    //         if (bd && bd.type === 'comment') {
+    //             return bd.comment
+    //         }
+    //     }
+    //     return null;
+    // }, []);
 
     // Confirmation
     const doSend = React.useCallback(async () => {
@@ -277,16 +286,16 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             verified={!!known}
                             secondary={known ? known.name : undefined}
                         />
-                        {!!message && (
+                        {!!operation.op && (
                             <>
                                 <ItemDivider />
-                                <ItemLarge title={t('transfer.purpose')} text={message} />
+                                <ItemLarge title={t('transfer.purpose')} text={operation.op} />
                             </>
                         )}
-                        {!!comment && (
+                        {!!operation.comment && (
                             <>
                                 <ItemDivider />
-                                <ItemLarge title={t('transfer.comment')} text={comment} />
+                                <ItemLarge title={t('transfer.comment')} text={operation.comment} />
                             </>
                         )}
                         <ItemDivider />
@@ -390,6 +399,12 @@ export const TransferFragment = fragment(() => {
                 }
             }
 
+            // Read jetton master
+            let jettonMaster: JettonMasterState | null = null;
+            if (metadata.jettonWallet) {
+                jettonMaster = engine.persistence.jettonMasters.item(metadata.jettonWallet!.master).value;
+            }
+
             // Set state
             setLoadedProps({
                 restricted,
@@ -403,7 +418,8 @@ export const TransferFragment = fragment(() => {
                 text,
                 job,
                 fees,
-                metadata
+                metadata,
+                jettonMaster
             });
         });
 

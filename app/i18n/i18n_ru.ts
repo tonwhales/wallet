@@ -126,7 +126,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sending: 'Отправка',
         sent: 'Отправлено',
         received: 'Получено',
-        bounced: 'Возвращено'
+        bounced: 'Возвращено',
+        tokenTransfer: 'Трансфер токенов'
     },
     txPreview: {
         sendAgain: 'повторить',

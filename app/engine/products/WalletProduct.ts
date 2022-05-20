@@ -138,7 +138,7 @@ export class WalletProduct {
                     }
 
                     // Operation
-                    let operation = resolveOperation({ tx: base, metadata, jettonMaster: masterMetadata, account: engine.address });
+                    let operation = resolveOperation({ body: base.body, amount: base.amount, account: base.address || engine.address, metadata, jettonMaster: masterMetadata });
 
                     // Icon
                     let icon: string | null = null;

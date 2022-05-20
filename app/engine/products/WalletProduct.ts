@@ -157,6 +157,7 @@ export class WalletProduct {
                         icon
                     };
                 },
+                dangerouslyAllowMutability: true
             }),
             dangerouslyAllowMutability: true
         })

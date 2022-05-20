@@ -1,6 +1,6 @@
 import { Engine } from "../Engine";
 import { Address } from "ton";
-import { useItem } from "../persistence/PersistedItem";
+import { useItem, useOptItem } from "../persistence/PersistedItem";
 
 export class StakingPoolProduct {
     readonly engine: Engine;
@@ -12,6 +12,6 @@ export class StakingPoolProduct {
     }
 
     useState() {
-        return useItem(this.engine.persistence.staking.item({ address: this.pool, target: this.engine.address }));
+        return useOptItem(this.engine.persistence.staking.item({ address: this.pool, target: this.engine.address }));
     }
 }

@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Address, TonClient4 } from "ton";
-import { warn } from "../../../../utils/log";
+import { warn } from "../../../utils/log";
 import { JettonWallet } from "../Metadata";
 
 export async function tryFetchJettonWallet(client: TonClient4, seqno: number, address: Address): Promise<JettonWallet | null> {

@@ -157,9 +157,11 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
 
         // Bottom reached
-        let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
-        if (bottomOffset < 300) {
-            runOnJS(onReachedEnd)();
+        if (event.contentSize.height > 0) {
+            let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
+            if (bottomOffset < 300) {
+                runOnJS(onReachedEnd)();
+            }
         }
     }, [cardHeight, onReachedEnd]);
 
@@ -646,7 +648,11 @@ export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
     if (!account) {
-        return <LoadingIndicator />
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <LoadingIndicator />
+            </View>
+        );
     } else {
         return <WalletComponent wallet={account} />
     }

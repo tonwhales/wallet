@@ -12,6 +12,7 @@ import { startJettonWalletSync } from "./startJettonWalletSync";
 import { startHintsTxSync } from "./startHintsTxSync";
 import { startHintSync } from "./startHintSync";
 import { startFileSync } from "./startFileSync";
+import { requestHintsIfNeeded } from "./ops";
 
 export function startSync(engine: Engine) {
 
@@ -130,7 +131,16 @@ export function startSync(engine: Engine) {
     //
     // Downloads
     //
+
     engine.persistence.downloads.each((file) => {
         startFileSync(file, engine);
     });
+
+    //
+    // Auto-query on metadata fetching
+    //
+
+    engine.persistence.metadata.each((address) => {
+        requestHintsIfNeeded(address, null, engine);
+    })
 }

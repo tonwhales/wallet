@@ -22,7 +22,7 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { formatSupportedBody } from '../../operations/formatSupportedBody';
 import { fragment } from '../../fragment';
-import { ContractMetadata } from '../../engine/sync/metadata/Metadata';
+import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
@@ -32,6 +32,7 @@ import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { useItem } from '../../engine/persistence/PersistedItem';
+import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -371,7 +372,7 @@ export const TransferFragment = fragment(() => {
                 backoff('transfer', async () => {
                     let block = await backoff('transfer', () => engine.client4.getLastBlock());
                     return Promise.all([
-                        backoff('transfer', () => engine.metadata.fetchFreshMetadata(block.last.seqno, target.address)),
+                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target.address)),
                         backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
                     ])
                 }),

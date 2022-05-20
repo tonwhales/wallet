@@ -12,7 +12,7 @@ import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { Engine } from '../../../engine/Engine';
-import { ContractMetadata } from '../../../engine/sync/metadata/Metadata';
+import { ContractMetadata } from '../../../engine/metadata/Metadata';
 import { JettonMasterState } from '../../../engine/sync/startJettonMasterSync';
 import { resolveOperation } from '../../../operations/resolveOperation';
 import { KnownWallet } from '../../../secure/KnownWallets';

@@ -37,14 +37,14 @@ export class PriceProduct {
     }
 
     useState() {
-        const [state, setState] = React.useState(this.state);
+        const [state, setState] = React.useState(this._state);
         React.useEffect(() => {
 
             let ended = false;
 
             // Just in case of race conditions
-            if (state !== this.state) {
-                setState(this.state);
+            if (state !== this._state) {
+                setState(this._state);
             }
 
             // Update handler
@@ -52,13 +52,15 @@ export class PriceProduct {
                 if (ended) {
                     return;
                 }
-                setState(this.state);
+                setState(this._state);
             }
 
             this._eventEmitter.on('updated', handler);
+            this._eventEmitter.on('ready', handler);
             return () => {
                 ended = true;
                 this._eventEmitter.off('updated', handler);
+                this._eventEmitter.off('ready', handler);
             };
         }, []);
         return state;

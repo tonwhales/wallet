@@ -5,7 +5,7 @@ import { PersistedCollection } from "./persistence/PersistedCollection";
 import * as t from 'io-ts';
 import * as c from './utils/codecs';
 import BN from "bn.js";
-import { ContractMetadata } from "./sync/metadata/Metadata";
+import { ContractMetadata } from "./metadata/Metadata";
 import { PluginState } from "./sync/startPluginSync";
 import { LiteAccount } from "./sync/startAccountLiteSync";
 import { FullAccount } from "./sync/startAccountFullSync";
@@ -38,6 +38,7 @@ export class Persistence {
 
     readonly downloads: PersistedCollection<string, string>;
     readonly hintState: PersistedCollection<Address, HintProcessingState>;
+    readonly hintRequest: PersistedCollection<Address, number>;
     readonly accountHints: PersistedCollection<Address, Address[]>;
 
     constructor(storage: MMKV, engine: Engine) {
@@ -60,6 +61,7 @@ export class Persistence {
 
         // Hints
         this.hintState = new PersistedCollection({ storage, namespace: 'hintState', key: addressKey, codec: hintProcessingState, engine });
+        this.hintRequest = new PersistedCollection({ storage, namespace: 'hintRequest', key: addressKey, codec: t.number, engine });
         this.accountHints = new PersistedCollection({ storage, namespace: 'hintsAccount', key: addressKey, codec: t.array(c.address), engine });
 
         // Jettons
@@ -176,5 +178,6 @@ const jettonMasterCodec = t.type({
 });
 
 const hintProcessingState = t.type({
-    version: t.number
+    version: t.number,
+    seqno: t.number
 });

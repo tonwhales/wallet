@@ -9,7 +9,7 @@ import { PersistedItem } from './persistence/PersistedItem';
 import { Engine } from "./Engine";
 import { JettonMasterState } from './sync/startJettonMasterSync';
 import { JettonWalletState } from './sync/startJettonWalletSync';
-import { ContractMetadata } from './sync/metadata/Metadata';
+import { ContractMetadata } from './metadata/Metadata';
 
 export class Model {
 

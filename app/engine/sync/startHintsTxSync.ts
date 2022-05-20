@@ -1,17 +1,19 @@
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
-import { log } from "../../utils/log";
 import { Engine } from "../Engine";
+import { requestAllHintsIfNeeded } from "./ops";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export function startHintsTxSync(address: Address, engine: Engine) {
     let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/hints/tx`;
     let account = engine.persistence.fullAccounts.item(address);
-    let state = engine.persistence.accountHints.item(address);
 
     startDependentSync(key, account, engine, async (account) => {
 
+        //
         // Collect referenced addresses
+        //
+
         let mentioned = new Set<string>();
         for (let t of account.transactions) {
             let tx = engine.transactions.get(address, t);
@@ -25,31 +27,11 @@ export function startHintsTxSync(address: Address, engine: Engine) {
             }
         }
 
-        // Persist
-        state.update((s) => {
-            if (s) {
-
-                // Result array
-                let res = [...s];
-
-                // Existing
-                let ex = new Set<string>();
-                for (let a of s) {
-                    ex.add(a.toFriendly({ testOnly: AppConfig.isTestnet }));
-                }
-
-                // New
-                for (let m of mentioned) {
-                    if (!ex.has(m)) {
-                        res.push(Address.parse(m));
-                        log('[hints]: ' + m);
-                    }
-                }
-
-                return res;
-            } else {
-                return Array.from(mentioned).map(Address.parse);
-            }
-        });
+        //
+        // Request hints
+        // TODO: Respect seqno
+        //
+        
+        requestAllHintsIfNeeded(Array.from(mentioned).map((v) => Address.parse(v)), engine);
     });
 }

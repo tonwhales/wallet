@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
-import { tryFetchJettonWallet } from "./metadata/introspections/tryFetchJettonWallet";
+import { tryFetchJettonWallet } from "../metadata/introspections/tryFetchJettonWallet";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export type JettonWalletState = {

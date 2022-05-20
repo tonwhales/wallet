@@ -57,10 +57,6 @@ export function createHistorySync(address: Address, engine: Engine) {
             }
         }
 
-        // Prepare metadata
-        let block = await backoff('account-history', () => engine.client4.getLastBlock());
-        await Promise.all(Array.from(mentioned).map((src) => backoff('account-history', () => engine.metadata.prepareMetadata(block.last.seqno, Address.parse(src)))));
-
         // Persist transactions
         for (let l of loadedTransactions) {
             engine.transactions.set(address, l.id.lt, l.data);
@@ -75,18 +71,6 @@ export function createHistorySync(address: Address, engine: Engine) {
                 nextCuror = { lt: lastTx.prevTransaction.lt, hash: lastTx.prevTransaction.hash.toString('base64') };
             }
         }
-
-        //         // Apply transactions
-        //         let cr = this.#item.value!;
-        //         if (!cr.transactionsCursor || cr.transactionsCursor.hash !== cursor.hash && cursor.lt !== cr.transactionsCursor.lt.toString(10)) {
-        //             throw Error('Transactions cursor changed');
-        //         }
-
-        //         // Transaction ids
-        //         let transactions: string[] = [...cr.transactions];
-        //         for (let l of loadedTransactions) {
-        //             transactions.push(l.id.lt);
-        //         }
 
         // Apply history
         logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Apply history state`);

@@ -4,7 +4,7 @@ import { AppConfig } from "../AppConfig";
 import { t } from "../i18n/t";
 import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
 import { JettonMasterState } from "../engine/sync/startJettonMasterSync";
-import { ContractMetadata } from "../engine/sync/metadata/Metadata";
+import { ContractMetadata } from "../engine/metadata/Metadata";
 import { parseBody } from "../engine/transactions/parseWalletTransaction";
 import { Transaction } from "../engine/Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";

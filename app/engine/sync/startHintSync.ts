@@ -3,8 +3,8 @@ import { AppConfig } from "../../AppConfig";
 import { createLogger } from "../../utils/log";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
-import { fetchMetadata } from "./metadata/fetchMetadata";
-import { tryGetJettonWallet } from "./metadata/introspections/tryGetJettonWallet";
+import { fetchMetadata } from "../metadata/fetchMetadata";
+import { tryGetJettonWallet } from "../metadata/introspections/tryGetJettonWallet";
 import { registerKnownJettonMaster, registerKnownJettonWallet } from "./ops";
 
 const logger = createLogger('hints');
@@ -13,31 +13,69 @@ const CURRENT_VERSION = 1;
 
 export type HintProcessingState = {
     version: number;
+    seqno: number;
 };
 
 export function startHintSync(address: Address, engine: Engine) {
     let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/hint`;
     let hint = engine.persistence.hintState.item(address);
+    let request = engine.persistence.hintRequest.item(address);
+    let metadataItem = engine.persistence.metadata.item(address);
     const sync = createEngineSync(key, engine, async () => {
 
+        //
+        // Requested Seqno
+        //
+
+        let requestedSeqno = request.value;
+
+        //
         // Check if invesigation required
-        if (hint.value && hint.value.version === CURRENT_VERSION) {
+        //
+
+        if (hint.value
+            && (hint.value.version === CURRENT_VERSION)
+            && (requestedSeqno === null || hint.value.seqno >= requestedSeqno)) {
             return;
         }
 
+        //
         // Start investigation
-        logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Start hint investigation`);
+        //
 
+        logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Start hint investigation`);
+        logger.warn(hint.value);
+
+        //
+        // Read seqno
+        //
+
+        let seqno: number;
+        if (requestedSeqno !== null) {
+            seqno = requestedSeqno;
+        } else {
+            seqno = (await engine.client4.getLastBlock()).last.seqno;
+        }
+        logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Investigate at #${seqno}`);
+
+        //
         // Collect metadata
-        let last = await engine.client4.getLastBlock();
-        let metadata = await fetchMetadata(engine.client4, last.last.seqno, address);
+        //
+
+        let metadata = await fetchMetadata(engine.client4, seqno, address);
+
+        //
+        // Persist metadata
+        //
+
+        metadataItem.update(() => metadata); // TODO: Implement correct merge
 
         //
         // Process jetton master
         //
 
         if (metadata.jettonMaster) {
-            let wallet = await tryGetJettonWallet(engine.client4, last.last.seqno, { address: engine.address, master: address });
+            let wallet = await tryGetJettonWallet(engine.client4, seqno, { address: engine.address, master: address });
             if (wallet) {
 
                 // Register master
@@ -61,11 +99,20 @@ export function startHintSync(address: Address, engine: Engine) {
             registerKnownJettonWallet(engine, metadata.jettonWallet.owner, address);
         }
 
+        //
         // Persist
-        let newState: HintProcessingState = {
-            version: CURRENT_VERSION
-        };
-        hint.update(() => newState);
+        //
+
+        logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Finished for #${seqno}`);
+        hint.update(() => ({
+            version: CURRENT_VERSION,
+            seqno
+        }));
     });
+
+    // Invalidate on start
     sync.invalidate();
+
+    // Invalidate on request
+    request.for(() => sync.invalidate());
 }

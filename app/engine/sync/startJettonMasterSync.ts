@@ -5,7 +5,7 @@ import { warn } from "../../utils/log";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
-import { tryFetchJettonMaster } from "./metadata/introspections/tryFetchJettonMaster";
+import { tryFetchJettonMaster } from "../metadata/introspections/tryFetchJettonMaster";
 
 // Update this version to re-index
 const CURRENT_VERSION = 1;

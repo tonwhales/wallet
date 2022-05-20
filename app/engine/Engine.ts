@@ -7,7 +7,6 @@ import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
 import { StakingPoolProduct } from './products/StakingProduct';
 import { KnownPools } from '../utils/KnownPools';
-import { MetadataEngine } from './sync/metadata/MetadataEngine';
 import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { Persistence } from './Persistence';
 import { Transactions } from './transactions/Transactions';
@@ -15,11 +14,6 @@ import { SyncStateManager } from './SyncStateManager';
 import { WalletProduct } from './products/WalletProduct';
 import { Model } from './Model';
 import { startSync } from './sync/startSync';
-
-export type EngineProduct = {
-    ready: boolean,
-    awaitReady: () => Promise<void>
-}
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -48,12 +42,9 @@ export class Engine {
         whalesStakingPool: StakingPoolProduct
     };
     readonly transactions: Transactions;
-    readonly metadata: MetadataEngine;
     readonly model: Model;
     readonly recoil: RecoilInterface;
-
     private _destroyed: boolean;
-    private _dependencies: EngineProduct[] = [];
 
     constructor(
         address: Address,
@@ -71,7 +62,6 @@ export class Engine {
         this.connector = connector;
         this._destroyed = false;
         this.model = new Model(this);
-        this.metadata = new MetadataEngine(this);
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.transactions = new Transactions(this);
 
@@ -99,25 +89,16 @@ export class Engine {
 
         // this._dependencies.push(this.sync);
         // this._dependencies.push(this.products.main);
-        this._dependencies.push(this.products.price);
+        // this._dependencies.push(this.products.price);
         // this._dependencies.push(this.products.whalesStakingPool);
     }
 
     get ready() {
-        for (let p of this._dependencies) {
-            if (!p.ready) {
-                return false;
-            }
-        }
         return true;
     }
 
     async awaitReady() {
-        for (let p of this._dependencies) {
-            if (!p.ready) {
-                await p.awaitReady();
-            }
-        }
+        // Nothing await
     }
 
     destroy() {

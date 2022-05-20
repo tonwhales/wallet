@@ -5,7 +5,7 @@ import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
 import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoilValue, selectorFamily } from "recoil";
 import * as FileSystem from 'expo-file-system';
-import { ContractMetadata } from "../sync/metadata/Metadata";
+import { ContractMetadata } from "../metadata/Metadata";
 import { JettonMasterState } from "../sync/startJettonMasterSync";
 import { resolveOperation } from "../../operations/resolveOperation";
 import { Operation } from "../../operations/types";

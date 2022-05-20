@@ -1,8 +1,8 @@
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
-import { tryFetchLegacyPlugin } from "./metadata/introspections/tryFetchLegacyPlugin";
-import { LegacySubscription } from "./metadata/Metadata";
+import { tryFetchLegacyPlugin } from "../metadata/introspections/tryFetchLegacyPlugin";
+import { LegacySubscription } from "../plugins/LegacySubscription";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export type PluginState =

@@ -130,6 +130,7 @@ export function startSync(engine: Engine) {
     //
     // Downloads
     //
+
     engine.persistence.downloads.each((file) => {
         startFileSync(file, engine);
     });

@@ -4,7 +4,6 @@ import { Engine } from "../Engine";
 import { backoff } from '../../utils/time';
 import { AppConfig } from '../../AppConfig';
 import { createLogger, log } from '../../utils/log';
-import { ConnectorTransaction } from "../api/Connector";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export type FullAccount = {
@@ -58,9 +57,6 @@ export function startAccountFullSync(address: Address, engine: Engine) {
             let loadedTransactions = await backoff('account-full-sync', async () => {
                 return await engine.connector.fetchTransactions(address, { lt: liteAccount.last!.lt.toString(10), hash: liteAccount.last!.hash });
             });
-
-            // Prepare transactions
-            await prepareTransactions(liteAccount.block, loadedTransactions, engine, address);
 
             // Persist transactions
             for (let l of loadedTransactions) {
@@ -128,110 +124,4 @@ export function startAccountFullSync(address: Address, engine: Engine) {
         };
         full.update(() => newState);
     });
-}
-
-// protected doHistorySync = async (cursor: { lt: string, hash: string }) => {
-
-//     // Fetch current
-//     let src = this.#item.value;
-//     if (!src) {
-//         return;
-//     }
-
-//     // Loading next
-//     if (src.transactionsCursor && src.transactionsCursor.hash === cursor.hash && cursor.lt === src.transactionsCursor.lt.toString(10)) {
-//         log(`[${this.address.toFriendly()}]: Loading more transactions after ${cursor.lt}`);
-
-//         // Loading transactions
-//         let loadedTransactions = await backoff('account-full-sync', async () => {
-//             return await this.engine.connector.fetchTransactions(this.address, { lt: cursor.lt, hash: cursor.hash });
-//         });
-//         loadedTransactions = loadedTransactions.slice(1); // Remove first
-
-//         log(`[${this.address.toFriendly()}]: Transactions downloaded`);
-
-//         // Prepare
-//         await this.prepareTransactions(src.block, loadedTransactions);
-
-//         // Download introspection
-//         let mentioned = new Set<string>();
-//         for (let t of loadedTransactions) {
-//             let txData = Buffer.from(t.data, 'base64');
-//             let tx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
-//             if (tx.inMessage && tx.inMessage.info.src) {
-//                 mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
-//             }
-//             for (let out of tx.outMessages) {
-//                 if (out.info.dest) {
-//                     mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
-//                 }
-//             }
-//         }
-
-//         // Persist transactions
-//         for (let l of loadedTransactions) {
-//             this.engine.transactions.set(this.address, l.id.lt, l.data);
-//         }
-
-//         // Read previous transaction
-//         let nextCuror: { lt: BN, hash: string } | null = null;
-//         if (loadedTransactions.length > 0) {
-//             let txData = Buffer.from(loadedTransactions[loadedTransactions.length - 1].data, 'base64');
-//             const lastTx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
-//             if (!lastTx.prevTransaction.lt.eq(new BN(0))) {
-//                 nextCuror = { lt: lastTx.prevTransaction.lt, hash: lastTx.prevTransaction.hash.toString('base64') };
-//             }
-//         }
-
-//         // Apply transactions
-//         let cr = this.#item.value!;
-//         if (!cr.transactionsCursor || cr.transactionsCursor.hash !== cursor.hash && cursor.lt !== cr.transactionsCursor.lt.toString(10)) {
-//             throw Error('Transactions cursor changed');
-//         }
-
-//         // Transaction ids
-//         let transactions: string[] = [...cr.transactions];
-//         for (let l of loadedTransactions) {
-//             transactions.push(l.id.lt);
-//         }
-
-//         // Update
-//         log(`[${this.address.toFriendly()}]: Apply new state`);
-//         let newState: FullAccount = {
-//             ...cr,
-//             transactions,
-//             last: nextCuror
-//         };
-//         this.#item.update(() => newState);
-//         this.ref.value = newState;
-
-//     } else {
-//         log(`[${this.address.toFriendly()}]: Loading more transactions ignored because of lt mismatch`);
-//     }
-// }
-
-async function prepareTransactions(block: number, loadedTransactions: ConnectorTransaction[], engine: Engine, address: Address) {
-
-    // Download introspection
-    let mentioned = new Set<string>();
-    for (let t of loadedTransactions) {
-        let txData = Buffer.from(t.data, 'base64');
-        let tx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
-        if (tx.inMessage && tx.inMessage.info.src) {
-            mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
-        }
-        for (let out of tx.outMessages) {
-            if (out.info.dest) {
-                mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
-            }
-        }
-    }
-
-    // Prepare metadata
-    await Promise.all(Array.from(mentioned).map((src) => backoff('account-full-sync', () => engine.metadata.prepareMetadata(block, Address.parse(src)))));
-
-    // Persist transactions
-    for (let l of loadedTransactions) {
-        engine.transactions.set(address, l.id.lt, l.data);
-    }
 }

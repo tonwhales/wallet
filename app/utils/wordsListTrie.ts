@@ -96,6 +96,9 @@ export class Trie {
         // recursively words in the node
         findAllWords(node, output);
 
+        // Sort output to let complete match word be present within suggestions
+        output = output.sort();
+
         return output;
     };
 

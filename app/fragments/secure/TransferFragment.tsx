@@ -7,22 +7,22 @@ import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
-import { contractFromPublicKey } from '../../sync/contractFromPublicKey';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../sync/Engine';
+import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
-import { fetchConfig } from '../../sync/api/fetchConfig';
+import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
 import { KnownWallets } from '../../secure/KnownWallets';
-import { parseMessageBody } from '../../operations/parseMessageBody';
+import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { formatSupportedBody } from '../../operations/formatSupportedBody';
 import { fragment } from '../../fragment';
-import { ContractMetadata } from '../../sync/metadata/Metadata';
+import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
@@ -30,7 +30,9 @@ import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
-import { sign } from 'ton-crypto';
+import { parseBody } from '../../engine/transactions/parseWalletTransaction';
+import { useItem } from '../../engine/persistence/PersistedItem';
+import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -60,7 +62,7 @@ type ConfirmLoadedProps = {
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const account = engine.storage.wallet(engine.address).useRequired();
+    const account = useItem(engine.model.wallet(engine.address));
     const {
         restricted,
         target,
@@ -103,6 +105,17 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             let formatted = formatSupportedBody(supportedMessage);
             if (formatted) {
                 return formatted.text;
+            }
+        }
+        return null;
+    }, []);
+
+    // Resolve comment
+    const comment = React.useMemo(() => {
+        if (order.payload) {
+            let bd = parseBody(order.payload);
+            if (bd && bd.type === 'comment') {
+                return bd.comment
             }
         }
         return null;
@@ -231,7 +244,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             body: order.payload ? { type: 'payload', cell: order.payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
             status: 'pending',
             time: Math.floor(Date.now() / 1000),
-            bounced: false
+            bounced: false,
+            prev: null
         });
 
         // Reset stack to root
@@ -297,10 +311,10 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <ItemLarge title={t('transfer.purpose')} text={message} />
                             </>
                         )}
-                        {!message && !!text && !order.payload && (
+                        {!!comment && (
                             <>
                                 <ItemDivider />
-                                <ItemLarge title={t('transfer.comment')} text={text} />
+                                <ItemLarge title={t('transfer.comment')} text={comment} />
                             </>
                         )}
                         <ItemDivider />
@@ -325,7 +339,7 @@ export const TransferFragment = fragment(() => {
         job: string | null,
     } = useRoute().params! as any;
     const engine = useEngine();
-    const account = engine.storage.wallet(engine.address).useRequired();
+    const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -391,7 +405,7 @@ export const TransferFragment = fragment(() => {
                 backoff('transfer', async () => {
                     let block = await backoff('transfer', () => engine.client4.getLastBlock());
                     return Promise.all([
-                        backoff('transfer', () => engine.metadata.fetchFreshMetadata(block.last.seqno, target.address)),
+                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target.address)),
                         backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
                     ])
                 }),

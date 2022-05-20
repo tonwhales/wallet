@@ -7,13 +7,17 @@ import { PriceComponent } from "./PriceComponent";
 import { t } from "../i18n/t";
 import { formatDate } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { PluginState } from "../sync/account/PluginSync";
 import { getCurrentAddress } from "../storage/appState";
-import { useEngine } from "../sync/Engine";
-import { contractFromPublicKey } from "../sync/contractFromPublicKey";
 import { createRemovePluginCell } from "../utils/createRemovePluginCell";
-import { Address } from "ton";
+import { Address, Cell } from "ton";
 import BN from "bn.js";
+import { useEngine } from "../engine/Engine";
+import { contractFromPublicKey } from "../engine/contractFromPublicKey";
+import { PluginState } from "../engine/sync/startPluginSync";
+import { backoff } from "../utils/time";
+import { sign } from "ton-crypto";
+import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
+import { warn } from "../utils/log";
 
 export const SubscriptionButton = React.memo((
     {
@@ -48,24 +52,35 @@ export const SubscriptionButton = React.memo((
                                 Math.floor(Date.now() / 1e3) + 60,
                                 Address.parse(address)
                             );
+                            
+                            let walletKeys: WalletKeys;
+                            try {
+                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                            } catch (e) {
+                                warn(e);
+                                resolve(false);
+                                return;
+                            }
 
-                            navigation.navigateTransfer({
-                                order: {
-                                    target: address,
-                                    amount: new BN(0),
-                                    amountAll: false,
-                                    payload: transferCell,
-                                    stateInit: null,
-                                    transferCell: true
-                                },
-                                text: null,
-                                job: null
-                            });
+                            const transfer = new Cell();
 
-                            // transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                            // transfer.writeCell(transferCell);
+                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                            transfer.writeCell(transferCell);
 
-                            // await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
+                            await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
+
+                            // navigation.navigateTransfer({
+                            //     order: {
+                            //         target: address,
+                            //         amount: new BN(0),
+                            //         amountAll: false,
+                            //         payload: transferCell,
+                            //         stateInit: null,
+                            //         transferCell: true
+                            //     },
+                            //     text: null,
+                            //     job: null
+                            // });
                             resolve(true);
                         }
                     }, {

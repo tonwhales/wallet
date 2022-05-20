@@ -4,16 +4,16 @@ import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { EngineContext } from "../../sync/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SubscriptionButton } from '../../components/SubscriptionButton';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { useEngine } from "../../engine/Engine";
 
 export const SubscriptionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = React.useContext(EngineContext)!
+    const engine = useEngine();
     const plugins = engine.products.main.usePlugins();
 
     return (

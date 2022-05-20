@@ -4,7 +4,6 @@ import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { EngineContext } from "../../sync/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
@@ -16,16 +15,17 @@ import { is24Hour, locale } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createRemovePluginCell } from "../../utils/createRemovePluginCell";
-import { contractFromPublicKey } from "../../sync/contractFromPublicKey";
 import { getCurrentAddress } from "../../storage/appState";
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
+import { useEngine } from "../../engine/Engine";
+import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ address: string }>();
-    const engine = React.useContext(EngineContext)!
+    const engine = useEngine();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const account = engine.products.main.useState();
     const plugins = engine.products.main.usePlugins();

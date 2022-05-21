@@ -16,6 +16,7 @@ import { StakingPoolState } from "./sync/startStakingPoolSync";
 import { Engine } from "./Engine";
 import { HintProcessingState } from "./sync/startHintSync";
 import { TxHints } from "./sync/startHintsTxSync";
+import { ConfigState } from "./sync/startConfigSync";
 
 export class Persistence {
 
@@ -42,6 +43,8 @@ export class Persistence {
     readonly hintRequest: PersistedCollection<Address, number>;
     readonly accountHints: PersistedCollection<Address, Address[]>;
     readonly scannerState: PersistedCollection<Address, TxHints>;
+
+    readonly config: PersistedCollection<void, ConfigState>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -72,6 +75,8 @@ export class Persistence {
         this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec, engine });
         this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
+
+        this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
     }
 }
 
@@ -87,7 +92,16 @@ const stringKey = (src: string) => Buffer.from(src).toString('base64');
 const liteAccountCodec = t.type({
     balance: c.bignum,
     block: t.number,
-    last: t.union([t.null, t.type({ lt: c.bignum, hash: t.string })])
+    last: t.union([t.null, t.type({ lt: c.bignum, hash: t.string })]),
+    storageStats: t.union([t.null, t.type({
+        lastPaid: t.number,
+        duePayment: t.union([t.null, t.string]),
+        used: t.type({
+            bits: t.number,
+            cells: t.number,
+            publicCells: t.number
+        })
+    })])
 });
 const fullAccountCodec = t.type({
     balance: c.bignum,
@@ -187,4 +201,30 @@ const hintProcessingState = t.type({
 const hintScannerCodec = t.type({
     min: c.bignum,
     max: c.bignum
+});
+
+const chainConfigCodec = t.type({
+    gas: t.type({
+        flatLimit: c.bignum,
+        flatGasPrice: c.bignum,
+        price: c.bignum,
+    }),
+    message: t.type({
+        lumpPrice: c.bignum,
+        bitPrice: c.bignum,
+        cellPrice: c.bignum,
+        firstFrac: c.bignum
+    })
+})
+
+const configCodec = t.type({
+    storage: t.array(t.type({
+        utime_since: c.bignum,
+        bit_price_ps: c.bignum,
+        cell_price_ps: c.bignum,
+        mc_bit_price_ps: c.bignum,
+        mc_cell_price_ps: c.bignum
+    })),
+    workchain: chainConfigCodec,
+    masterchain: chainConfigCodec
 });

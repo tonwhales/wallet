@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, SupportedMessage } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, SupportedMessage } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
@@ -35,6 +35,8 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
+import { useRecoilValue } from 'recoil';
+import { estimateFees } from '../../engine/estimate/estimateFees';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -310,7 +312,14 @@ export const TransferFragment = fragment(() => {
 
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
+    const netConfig = engine.products.config.useConfig();
     React.useEffect(() => {
+
+        // Await data
+        if (!netConfig) {
+            return;
+        }
+
         let exited = false;
 
         backoff('transfer', async () => {
@@ -322,30 +331,29 @@ export const TransferFragment = fragment(() => {
             }
 
             // Create transfer
+            let intMessage = new InternalMessage({
+                to: target.address,
+                value: order.amount,
+                bounce: false,
+                body: new CommonMessageInfo({
+                    stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
+                    body: order.payload ? new CellMessage(order.payload) : new CommentMessage(text || '')
+                })
+            });
             let transfer = await contract.createTransfer({
                 seqno: account.seqno,
                 walletId: contract.source.walletId,
                 secretKey: null,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                order: new InternalMessage({
-                    to: target.address,
-                    value: order.amount,
-                    bounce: false,
-                    body: new CommonMessageInfo({
-                        stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
-                        body: order.payload ? new CellMessage(order.payload) : new CommentMessage(text || '')
-                    })
-                })
+                order: intMessage
             });
 
             // Fetch data
             const [
                 config,
-                fees,
                 [metadata, state]
             ] = await Promise.all([
                 backoff('transfer', () => fetchConfig()),
-                backoff('transfer', () => engine.connector.estimateExternalMessageFee(contract, transfer)),
                 backoff('transfer', async () => {
                     let block = await backoff('transfer', () => engine.client4.getLastBlock());
                     return Promise.all([
@@ -373,6 +381,19 @@ export const TransferFragment = fragment(() => {
                 jettonMaster = engine.persistence.jettonMasters.item(metadata.jettonWallet!.master).value;
             }
 
+            // Estimate fee
+            let inMsg = new Cell();
+            new ExternalMessage({
+                to: contract.address,
+                body: new CommonMessageInfo({
+                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                    body: new CellMessage(transfer)
+                })
+            }).writeTo(inMsg);
+            let outMsg = new Cell();
+            intMessage.writeTo(outMsg);
+            let fees = estimateFees(netConfig!, inMsg, outMsg, state!.account.storageStat);
+
             // Set state
             setLoadedProps({
                 restricted,
@@ -394,7 +415,7 @@ export const TransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, []);
+    }, [netConfig]);
 
     return (
         <>

@@ -19,6 +19,15 @@ export type AccountState = {
         type: 'frozen';
         stateHash: string;
     };
+    storageStats: {
+        lastPaid: number;
+        duePayment: string | null;
+        used: {
+            bits: number;
+            cells: number;
+            publicCells: number;
+        };
+    } | null
 }
 
 export interface AccountWatcher {
@@ -85,7 +94,16 @@ export class AccountWatcher extends EventEmitter {
                 balance: new BN(state.account.balance.coins, 10),
                 last: state.account.last,
                 seqno: v,
-                state: state.account.state
+                state: state.account.state,
+                storageStats: state.account.storageStat ? {
+                    lastPaid: state.account.storageStat.lastPaid,
+                    duePayment: state.account.storageStat.duePayment,
+                    used: {
+                        bits: state.account.storageStat.used.bits,
+                        cells: state.account.storageStat.used.cells,
+                        publicCells: state.account.storageStat.used.publicCells
+                    }
+                } : null
             };
             logger.log(`${key}: State downloaded in ${Date.now() - start} ms`);
             this.emit('account_changed', { address, state: this.#state });

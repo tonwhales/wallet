@@ -23,7 +23,6 @@ export interface Connector {
     fetchTransactions(address: Address, from: { lt: string, hash: string }): Promise<ConnectorTransaction[]>;
 
     sendExternalMessage(contract: Contract, src: Cell): Promise<void>;
-    estimateExternalMessageFee(contract: Contract, src: Cell): Promise<BN>;
 }
 
 //
@@ -78,24 +77,9 @@ export function createSimpleConnector(endpoints: {
         }
     };
 
-    const estimateExternalMessageFee: (contract: Contract, src: Cell) => Promise<BN> = async (contract, src) => {
-        const deployed = await client.isContractDeployed(contract.address);
-        let res = await axios.post(endpoints.estimate, {
-            address: contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            body: src.toBoc({ idx: false }).toString('base64'),
-            code: !deployed ? contract.source.initialCode.toBoc({ idx: false }).toString('base64') : null,
-            data: !deployed ? contract.source.initialData.toBoc({ idx: false }).toString('base64') : null,
-            ignoreSignatures: true
-        }, { timeout: 5000 });
-        let total = new BN(res.data.total, 10)
-        return total;
-    }
-
-
     return {
         client,
         fetchTransactions,
-        sendExternalMessage,
-        estimateExternalMessageFee
+        sendExternalMessage
     };
 }

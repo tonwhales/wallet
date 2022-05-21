@@ -13,8 +13,15 @@ import { startHintsTxSync } from "./startHintsTxSync";
 import { startHintSync } from "./startHintSync";
 import { startFileSync } from "./startFileSync";
 import { requestHintsIfNeeded } from "./ops";
+import { startConfigSync } from "./startConfigSync";
 
 export function startSync(engine: Engine) {
+
+    //
+    // Config
+    //
+
+    startConfigSync(engine);
 
     //
     // Lite accounts

@@ -99,6 +99,15 @@ export const DeveloperToolsFragment = fragment(() => {
                             return;
                         }
 
+                        const tempTransferRaw = transferCell;
+                        const tempTransfer = tempTransferRaw.beginParse();
+                        const transferWalletId = tempTransfer.readUintNumber(32);
+
+                        console.log({
+                            contract_walletId: contract.source.walletId,
+                            transfer_walletId: transferWalletId
+                        });
+
                         const transfer = new Cell();
 
                         // Signature
@@ -116,7 +125,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         let msg = new Cell();
                         extMessage.writeTo(msg);
 
-                        await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                        // await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
                     }} />
                 </View>
             </View>

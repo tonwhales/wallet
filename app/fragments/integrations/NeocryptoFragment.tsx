@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Image, Platform, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -191,6 +192,7 @@ export const NeocryptoFragment = fragment(() => {
             backgroundColor: Theme.background,
             flexGrow: 1
         }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {!accepted && (
                 <>
                     <AndroidToolbar />

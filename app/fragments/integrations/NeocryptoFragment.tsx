@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, Image, Platform, Pressable } from "react-native";
+import { View, Text, Image, Platform, Pressable, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { AppConfig } from "../../AppConfig";
@@ -62,7 +62,6 @@ export const ConfirmLegal = React.memo((
         <View style={{
             justifyContent: 'center', alignItems: 'center',
             paddingHorizontal: 16,
-            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
             flex: 1
         }}>
             <View style={{ flexGrow: 1 }} />
@@ -190,7 +189,8 @@ export const NeocryptoFragment = fragment(() => {
         <View style={{
             flex: 1,
             backgroundColor: Theme.background,
-            flexGrow: 1
+            flexGrow: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {!accepted && (
@@ -218,18 +218,31 @@ export const NeocryptoFragment = fragment(() => {
                     }} />}
                 </View>
             )}
-            {Platform.OS === 'ios' && (
-                <Pressable
-                    style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1, position: 'absolute', top: 16, right: 16 } }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                >
-                    <Image source={require('../../../assets/ic_close.png')} style={{
-                        height: 32, width: 32
-                    }} />
-                </Pressable>
-            )}
+            <Pressable
+                style={({ pressed }) => {
+                    return {
+                        opacity: pressed ? 0.5 : 1,
+                        position: 'absolute',
+                        top: Platform.OS === 'android' ? safeArea.top + 16 : 16,
+                        right: 16
+                    }
+                }}
+                onPress={() => {
+                    Alert.alert(t('neocrypto.confirm.title'), t('neocrypto.confirm.message'), [{
+                        text: t('common.close'),
+                        style: 'destructive',
+                        onPress: () => {
+                            navigation.goBack();
+                        }
+                    }, {
+                        text: t('common.cancel'),
+                    }]);
+                }}
+            >
+                <Image source={require('../../../assets/ic_close.png')} style={{
+                    height: 32, width: 32
+                }} />
+            </Pressable>
         </View>
     );
 })

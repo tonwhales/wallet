@@ -45,6 +45,6 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsg: Cell, sto
     total = total.add(storageFees);
     total = total.add(importFees);
     total = total.add(gasFees);
-    total = total.add(fwdFees.fees.add(fwdFees.remaining));
+    total = total.add(fwdFees.fees);
     return total;
 }

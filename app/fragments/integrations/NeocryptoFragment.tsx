@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, Image, Platform } from "react-native";
+import { View, Text, Image, Platform, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CheckBox } from "../../components/CheckBox";
-import { CloseButton } from "../../components/CloseButton";
+import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -19,47 +19,17 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 const Logo = require('../../../assets/known/neocrypto_logo.png');
 export const skipLegalNeocrypto = 'skip_legal_neocrypto';
 
-export const NeocryptoFragment = fragment(() => {
-
-    if (AppConfig.isTestnet) {
-        return (
-            <View style={{
-                flexGrow: 1,
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    color: Theme.textColor
-                }}>
-                    {'Neocrypto service availible only on mainnet'}
-                </Text>
-            </View>
-        );
+export const ConfirmLegal = React.memo((
+    {
+        onOpenBuy
+    }: {
+        onOpenBuy: () => void
     }
-
-    const params = useParams<{
-        amount?: string,
-        fix_amount?: 'true' | 'false'
-    }>();
-    const address = getCurrentAddress();
-    const navigation = useTypedNavigation();
+) => {
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(false);
     const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
 
-    const wref = React.useRef<WebView>(null);
-
-    const queryParams = useMemo(() => new URLSearchParams({
-        partner: 'tonhub',
-        address: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-        cur_from: 'USD',
-        cur_to: 'TON',
-        fix_cur_to: 'true',
-        fix_address: 'true',
-        ...params
-    }), [params]);
-
-    const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
     const privacy = 'https://neocrypto.net/privacypolicy.html';
     const terms = 'https://neocrypto.net/terms.html';
 
@@ -80,30 +50,20 @@ export const NeocryptoFragment = fragment(() => {
         [],
     );
 
-    const onOpenBuy = useCallback(() => {
+    const onOpen = useCallback(() => {
         if (accepted) {
-            storage.set(skipLegalNeocrypto, doNotShow!);
-            navigation.goBack();
-            openWithInApp(main);
+            storage.set(skipLegalNeocrypto, doNotShow || false);
+            onOpenBuy();
         }
     }, [accepted, doNotShow]);
 
     return (
         <View style={{
-            flex: 1,
-            backgroundColor: Theme.background,
-            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
+            justifyContent: 'center', alignItems: 'center',
             paddingHorizontal: 16,
-            justifyContent: 'center', alignItems: 'center'
+            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
+            flex: 1
         }}>
-            <AndroidToolbar />
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
-                        {'Neorcypto'}
-                    </Text>
-                )}
-            </View>
             <View style={{ flexGrow: 1 }} />
             <Image
                 style={{
@@ -172,16 +132,101 @@ export const NeocryptoFragment = fragment(() => {
                 <RoundButton
                     disabled={!accepted}
                     title={t('common.continue')}
-                    onPress={onOpenBuy}
+                    onPress={onOpen}
                 />
             </View>
+        </View>
+    );
+});
+
+export const NeocryptoFragment = fragment(() => {
+
+    if (AppConfig.isTestnet) {
+        return (
+            <View style={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{
+                    color: Theme.textColor
+                }}>
+                    {'Neocrypto service availible only on mainnet'}
+                </Text>
+            </View>
+        );
+    }
+
+    const params = useParams<{
+        amount?: string,
+        fix_amount?: 'true' | 'false'
+    }>();
+    const address = getCurrentAddress();
+    const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
+    const [accepted, setAccepted] = useState(storage.getBoolean(skipLegalNeocrypto));
+    const [loading, setloading] = useState(false);
+
+    const wref = React.useRef<WebView>(null);
+
+    const queryParams = useMemo(() => new URLSearchParams({
+        partner: 'tonhub',
+        address: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+        cur_from: 'USD',
+        cur_to: 'TON',
+        fix_cur_to: 'true',
+        fix_address: 'true',
+        ...params
+    }), [params]);
+
+    const main = `https://demo4.neocrypto.net/tonhub.html?${queryParams.toString()}`;
+
+    const onOpenBuy = useCallback(() => {
+        setAccepted(true);
+    }, []);
+
+    return (
+        <View style={{
+            flex: 1,
+            backgroundColor: Theme.background,
+            flexGrow: 1
+        }}>
+            {!accepted && (
+                <>
+                    <AndroidToolbar />
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        {Platform.OS === 'ios' && (
+                            <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
+                                {'Neorcypto'}
+                            </Text>
+                        )}
+                    </View>
+                    <ConfirmLegal onOpenBuy={onOpenBuy} />
+                </>
+            )}
+            {accepted && (
+                <View style={{ flexGrow: 1 }}>
+                    <WebView
+                        source={{ uri: main }}
+                        onLoadStart={() => setloading(true)}
+                        onLoadEnd={() => setloading(false)}
+                    />
+                    {loading && <LoadingIndicator simple style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0
+                    }} />}
+                </View>
+            )}
             {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
+                <Pressable
+                    style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1, position: 'absolute', top: 16, right: 16 } }}
                     onPress={() => {
                         navigation.goBack();
                     }}
-                />
+                >
+                    <Image source={require('../../../assets/ic_close.png')} style={{
+                        height: 32, width: 32
+                    }} />
+                </Pressable>
             )}
         </View>
     );

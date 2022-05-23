@@ -51,7 +51,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         balanceTitle: 'Баланс Ton',
         actions: {
             receive: 'Получить',
-            send: 'Отправить'
+            send: 'Отправить',
+            buy: 'Купить'
         },
         empty: {
             message: 'У вас нет транзакций',

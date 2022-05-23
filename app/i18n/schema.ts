@@ -53,7 +53,8 @@ export type LocalizationSchema = {
         balanceTitle: string,
         actions: {
             receive: string,
-            send: string
+            send: string,
+            buy: string
         },
         empty: {
             message: string,

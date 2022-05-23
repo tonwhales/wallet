@@ -21,8 +21,6 @@ export interface ConnectorTransaction {
 export interface Connector {
     readonly client: TonClient;
     fetchTransactions(address: Address, from: { lt: string, hash: string }): Promise<ConnectorTransaction[]>;
-
-    sendExternalMessage(contract: Contract, src: Cell): Promise<void>;
 }
 
 //
@@ -63,23 +61,8 @@ export function createSimpleConnector(endpoints: {
         }));
     }
 
-    // Send
-    const sendExternalMessage: (contract: Contract, src: Cell) => Promise<void> = async (contract, src) => {
-        const deployed = await client.isContractDeployed(contract.address);
-        let res = await axios.post(endpoints.sender, {
-            address: contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            body: src.toBoc({ idx: false }).toString('base64'),
-            code: !deployed ? contract.source.initialCode.toBoc({ idx: false }).toString('base64') : null,
-            data: !deployed ? contract.source.initialData.toBoc({ idx: false }).toString('base64') : null
-        }, { timeout: 5000 });
-        if (!res.data.ok) {
-            throw Error('Invalid request')
-        }
-    };
-
     return {
         client,
-        fetchTransactions,
-        sendExternalMessage
+        fetchTransactions
     };
 }

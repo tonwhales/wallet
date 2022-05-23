@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees, fromNano } from "ton";
+import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "ton";
 import { ConfigState } from "../sync/startConfigSync";
 
 export function estimateFees(config: ConfigState, inMsg: Cell, outMsg: Cell, storageStat: {

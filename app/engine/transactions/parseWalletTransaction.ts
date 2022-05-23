@@ -43,14 +43,14 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
     // 
 
     let fees = tx.fees.coins;
-    if (tx.description.storagePhase) {
-        fees = fees.add(tx.description.storagePhase.storageFeesCollected);
-    }
-    for (let out of tx.outMessages) {
-        if (out.info.type === 'internal') {
-            fees = fees.add(out.info.fwdFee);
-        }
-    }
+    // if (tx.description.storagePhase) {
+    //     fees = fees.add(tx.description.storagePhase.storageFeesCollected);
+    // }
+    // for (let out of tx.outMessages) {
+    //     if (out.info.type === 'internal') {
+    //         fees = fees.add(out.info.fwdFee);
+    //     }
+    // }
 
     //
     // Resolve amount

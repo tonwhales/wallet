@@ -77,7 +77,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             notEnoughCoins: 'К сожалению, на кошельке не достаточно монет для совершения транзакции',
             addressIsForTestnet: 'Этот адрес для тестовой сети',
             addressCantReceive: 'Этот адрес не может принимать монеты',
-            addressIsNotActive: 'Этот адрес не активен'
+            addressIsNotActive: 'Этот кошелёк никогда не использовался'
         },
         sendAll: 'отправить все',
         scanQR: 'считать QR код',

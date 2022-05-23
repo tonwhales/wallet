@@ -83,7 +83,13 @@ export const DeveloperToolsFragment = fragment(() => {
                 <View style={{ marginHorizontal: 16, width: '100%' }}>
                     <Item title={"Deploy and install sub plugin"} onPress={async () => {
                         const contract = await contractFromPublicKey(acc.publicKey);
-                        const transferCell = createDeploySubCell(acc.address);
+
+                        const transferCell = createDeploySubCell(
+                            account.seqno,
+                            contract.source.walletId,
+                            Math.floor(Date.now() / 1e3) + 60,
+                            acc.address
+                        );
 
                         let walletKeys: WalletKeys;
                         try {
@@ -98,7 +104,34 @@ export const DeveloperToolsFragment = fragment(() => {
                         transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
                         transfer.writeCell(transferCell);
 
-                        await backoff('deploy-and-install-subscription', () => engine.connector.sendExternalMessage(contract, transfer));
+                        const externalTransferMsgRaw = transfer;
+                        const msgParsed = transfer.beginParse();
+                        msgParsed.skip(512); // signature
+                        const subwallet_id = msgParsed.readUint(32);
+                        const valid_until = msgParsed.readUint(32);
+                        const seqno = msgParsed.readUint(32);
+                        const op = msgParsed.readUint(8);
+                        const plugin_workchain = msgParsed.readUint(8);
+                        const plugin_balance = msgParsed.readCoins();
+                        const state_init = msgParsed.readRef().toCell();
+                        const body = msgParsed.readRef();
+
+                        console.log({
+                            hash: state_init.hash().toString()
+                        });
+
+                        console.log({
+                            subwallet_id,
+                            valid_until,
+                            seqno,
+                            op,
+                            plugin_workchain,
+                            plugin_balance,
+                            state_init,
+                            body
+                        });
+
+                        // await backoff('deploy-and-install-subscription', () => engine.connector.sendExternalMessage(contract, transfer));
                     }} />
                 </View>
             </View>

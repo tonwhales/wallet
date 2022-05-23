@@ -45,31 +45,31 @@ export const SubscriptionButton = React.memo((
                         text: t('common.yes'),
                         style: 'destructive',
                         onPress: async () => {
-                            const contract = await contractFromPublicKey(acc.publicKey);
-                            const transferCell = createRemovePluginCell(
-                                account.seqno,
-                                contract.source.walletId,
-                                Math.floor(Date.now() / 1e3) + 60,
-                                Address.parse(address)
-                            );
+                            // const contract = await contractFromPublicKey(acc.publicKey);
+                            // const transferCell = createRemovePluginCell(
+                            //     account.seqno,
+                            //     contract.source.walletId,
+                            //     Math.floor(Date.now() / 1e3) + 60,
+                            //     Address.parse(address)
+                            // );
                             
-                            let walletKeys: WalletKeys;
-                            try {
-                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                            } catch (e) {
-                                warn(e);
-                                resolve(false);
-                                return;
-                            }
+                            // let walletKeys: WalletKeys;
+                            // try {
+                            //     walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                            // } catch (e) {
+                            //     warn(e);
+                            //     resolve(false);
+                            //     return;
+                            // }
 
-                            const transfer = new Cell();
+                            // const transfer = new Cell();
 
-                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                            transfer.writeCell(transferCell);
+                            // transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                            // transfer.writeCell(transferCell);
 
-                            await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
+                            // await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
                             
-                            resolve(true);
+                            // resolve(true);
                         }
                     }, {
                         text: t('common.no'),

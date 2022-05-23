@@ -13,7 +13,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { useEngine } from '../../engine/Engine';
 import { createRemovePluginCell } from '../../utils/createRemovePluginCell';
 import { useItem } from '../../engine/persistence/PersistedItem';
-import { Address, Cell } from 'ton';
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, StateInit } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { createDeploySubCell } from '../../utils/createDeploySubCell';
 import { warn } from '../../utils/log';
@@ -101,11 +101,13 @@ export const DeveloperToolsFragment = fragment(() => {
 
                         const transfer = new Cell();
 
+                        // Signature
                         transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                        // Transfer
                         transfer.writeCell(transferCell);
 
                         const externalTransferMsgRaw = transfer;
-                        const msgParsed = transfer.beginParse();
+                        const msgParsed = externalTransferMsgRaw.beginParse();
                         msgParsed.skip(512); // signature
                         const subwallet_id = msgParsed.readUint(32);
                         const valid_until = msgParsed.readUint(32);
@@ -115,10 +117,6 @@ export const DeveloperToolsFragment = fragment(() => {
                         const plugin_balance = msgParsed.readCoins();
                         const state_init = msgParsed.readRef().toCell();
                         const body = msgParsed.readRef();
-
-                        console.log({
-                            hash: state_init.hash().toString()
-                        });
 
                         console.log({
                             subwallet_id,
@@ -131,7 +129,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             body
                         });
 
-                        // await backoff('deploy-and-install-subscription', () => engine.connector.sendExternalMessage(contract, transfer));
+                        await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(transfer.toBoc({ idx: false })));
                     }} />
                 </View>
             </View>

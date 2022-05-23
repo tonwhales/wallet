@@ -181,8 +181,19 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             })
         });
 
-        // Sending transfer
-        await backoff('transfer', () => engine.connector.sendExternalMessage(contract, transfer));
+        // Create external message
+        let extMessage = new ExternalMessage({
+            to: contract.address,
+            body: new CommonMessageInfo({
+                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                body: new CellMessage(transfer)
+            })
+        });
+        let msg = new Cell();
+        extMessage.writeTo(msg);
+
+        // Sending transaction
+        await backoff('transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
         if (job) {

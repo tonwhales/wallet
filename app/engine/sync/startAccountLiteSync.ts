@@ -6,7 +6,16 @@ import { Engine } from "../Engine";
 export type LiteAccount = {
     balance: BN;
     last: { lt: BN, hash: string } | null;
-    block: number;
+    block: number,
+    storageStats: {
+        lastPaid: number;
+        duePayment: string | null;
+        used: {
+            bits: number;
+            cells: number;
+            publicCells: number;
+        };
+    } | null
 }
 
 export function startAccountLiteSync(address: Address, engine: Engine) {
@@ -16,7 +25,8 @@ export function startAccountLiteSync(address: Address, engine: Engine) {
         item.update((src) => ({
             balance: account.state.balance,
             last: account.state.last ? { lt: new BN(account.state.last.lt, 10), hash: account.state.last.hash } : null,
-            block: account.state.seqno
+            block: account.state.seqno,
+            storageStats: account.state.storageStats
         }));
     });
 }

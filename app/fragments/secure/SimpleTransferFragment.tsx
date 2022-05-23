@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, SendMode, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -27,6 +27,9 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { createJettonOrder, createSimpleOrder } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
+import { estimateFees } from '../../engine/estimate/estimateFees';
+import { log } from '../../utils/log';
+import { useRecoilValue } from 'recoil';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -176,6 +179,8 @@ export const SimpleTransferFragment = fragment(() => {
     }, [amount, target, comment, account.seqno, stateInit, order]);
 
     // Estimate fee
+    const config = engine.products.config.useConfig();
+    const accountState = useRecoilValue(engine.persistence.liteAccounts.item(engine.address).atom);
     const lock = React.useMemo(() => {
         return new AsyncLock();
     }, []);
@@ -189,9 +194,6 @@ export const SimpleTransferFragment = fragment(() => {
 
                 // Load app state
                 const appState = getCurrentAddress();
-                if (!appState) {
-                    return;
-                }
 
                 // Parse order
                 let intMessage: InternalMessage;
@@ -223,34 +225,40 @@ export const SimpleTransferFragment = fragment(() => {
 
                 // Load contract
                 const contract = await contractFromPublicKey(appState.publicKey);
-                if (ended) {
-                    return;
-                }
 
                 // Create transfer
                 let transfer = await contract.createTransfer({
                     seqno: account.seqno,
                     walletId: contract.source.walletId,
                     secretKey: null,
-                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                    sendMode,
                     order: intMessage
                 });
                 if (ended) {
                     return;
                 }
 
-                // Check fees
-                const fee = await engine.connector.estimateExternalMessageFee(contract, transfer);
-                if (ended) {
-                    return;
+                // Resolve fee
+                if (config && accountState) {
+                    let inMsg = new Cell();
+                    new ExternalMessage({
+                        to: contract.address,
+                        body: new CommonMessageInfo({
+                            stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                            body: new CellMessage(transfer)
+                        })
+                    }).writeTo(inMsg);
+                    let outMsg = new Cell();
+                    intMessage.writeTo(outMsg);
+                    let local = estimateFees(config, inMsg, outMsg, accountState.storageStats);
+                    setEstimation(local);
                 }
-                setEstimation(fee);
             });
         });
         return () => {
             ended = true;
         }
-    }, [order, account.seqno]);
+    }, [order, account.seqno, config, accountState, comment]);
 
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);

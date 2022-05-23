@@ -45,7 +45,7 @@ export function startConfigSync(engine: Engine) {
     // Sync
     let sync = createEngineSync('config', engine, async () => {
         let block = await engine.client4.getLastBlock();
-        let configRaw = await engine.client4.getConfig(block.last.seqno);
+        let configRaw = await engine.client4.getConfig(block.last.seqno, [18, 20, 21, 24, 25]);
         let config = parseDictRefs(Cell.fromBoc(Buffer.from(configRaw.config.cell, 'base64'))[0].beginParse(), 32);
 
         // Config values

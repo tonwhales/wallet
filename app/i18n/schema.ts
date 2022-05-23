@@ -138,7 +138,10 @@ export type LocalizationSchema = {
     qr: {
         title: string,
         requestingPermission: string,
-        noPermission: string
+        noPermission: string,
+        requestPermission: string,
+        denied: string,
+        privacySettingsMessage: string
     },
     products: {
         oldWallets: {

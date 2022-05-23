@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { StatusBar } from 'expo-status-bar';
@@ -10,6 +10,7 @@ import { useCameraDevices } from 'react-native-vision-camera';
 import { CloseButton } from '../../components/CloseButton';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
+import { RoundButton } from '../../components/RoundButton';
 
 export const ScannerFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -90,6 +91,9 @@ export const ScannerFragment = systemFragment(() => {
         return (
             <View style={styles.container}>
                 <View style={{
+                    flexGrow: 1
+                }} />
+                <View style={{
                     alignSelf: 'center',
                     width: 170,
                     backgroundColor: 'rgba(30,30,30,1)',
@@ -107,6 +111,26 @@ export const ScannerFragment = systemFragment(() => {
                     >
                         {t('qr.noPermission')}
                     </Text>
+                </View>
+                <View style={{
+                    flexGrow: 1
+                }} />
+                <View style={{ height: 64, marginTop: 16, marginHorizontal: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                    <RoundButton
+                        title={t('qr.requestPermission')}
+                        onPress={(async () => {
+                            const status = await Camera.requestCameraPermission();
+                            if (status === 'authorized') {
+                                setHasPermission(status === 'authorized');
+                            } else {
+                                Alert.alert(
+                                    t('qr.denied'),
+                                    t('qr.privacySettingsMessage'),
+                                    [{ text: t('common.back') }]
+                                );
+                            }
+                        })}
+                    />
                 </View>
                 <CloseButton
                     style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}

@@ -136,7 +136,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     qr: {
         title: 'Отсканируйте QR-код',
         requestingPermission: 'Запрашиваем доступ к камере...',
-        noPermission: 'Нет доступа к камере'
+        noPermission: 'Нет доступа к камере',
+        requestPermission: 'Запросить доступ',
+        denied: 'Отказано в доступе',
+        privacySettingsMessage: 'Попробуйте войти в настройки конфиденциальности на телефоне и включить доступ к камере.'
     },
     products: {
         oldWallets: {

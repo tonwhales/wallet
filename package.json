@@ -41,6 +41,7 @@
     "expo-constants": "~13.1.1",
     "expo-device": "~4.2.0",
     "expo-haptics": "~11.2.0",
+    "expo-intent-launcher": "^10.2.0",
     "expo-keep-awake": "~10.1.1",
     "expo-local-authentication": "~12.2.0",
     "expo-notifications": "~0.15.2",

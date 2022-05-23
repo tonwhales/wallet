@@ -139,9 +139,7 @@ export type LocalizationSchema = {
         title: string,
         requestingPermission: string,
         noPermission: string,
-        requestPermission: string,
-        denied: string,
-        privacySettingsMessage: string
+        requestPermission: string
     },
     products: {
         oldWallets: {

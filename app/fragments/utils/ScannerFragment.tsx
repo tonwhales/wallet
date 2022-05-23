@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator, Alert } from 'react-native';
+import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fragment } from '../../fragment';
+import * as Application from 'expo-application';
+import * as IntentLauncher from 'expo-intent-launcher';
 import { StatusBar } from 'expo-status-bar';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { Camera } from 'react-native-vision-camera';
@@ -119,14 +120,13 @@ export const ScannerFragment = systemFragment(() => {
                     <RoundButton
                         title={t('qr.requestPermission')}
                         onPress={(async () => {
-                            const status = await Camera.requestCameraPermission();
-                            if (status === 'authorized') {
-                                setHasPermission(status === 'authorized');
-                            } else {
-                                Alert.alert(
-                                    t('qr.denied'),
-                                    t('qr.privacySettingsMessage'),
-                                    [{ text: t('common.back') }]
+                            if (Platform.OS === 'ios') {
+                                Linking.openURL('app-settings:');
+                            } else if (Platform.OS === 'android') {
+                                const pkg = Application.applicationId;
+                                IntentLauncher.startActivityAsync(
+                                    IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+                                    { data: 'package:' + pkg }
                                 );
                             }
                         })}

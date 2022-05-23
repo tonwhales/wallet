@@ -137,9 +137,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         title: 'Scan QR code',
         requestingPermission: 'Requesting for camera permission...',
         noPermission: 'No access to camera',
-        requestPermission: 'Request permission',
-        denied: 'Access denied',
-        privacySettingsMessage: 'Please try going into Privacy Settings on your phone and turning Camera access on'
+        requestPermission: 'Open settings',
     },
     products: {
         oldWallets: {

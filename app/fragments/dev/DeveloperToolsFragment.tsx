@@ -106,30 +106,17 @@ export const DeveloperToolsFragment = fragment(() => {
                         // Transfer
                         transfer.writeCell(transferCell);
 
-                        const externalTransferMsgRaw = transfer;
-                        const msgParsed = externalTransferMsgRaw.beginParse();
-                        msgParsed.skip(512); // signature
-                        const subwallet_id = msgParsed.readUint(32);
-                        const valid_until = msgParsed.readUint(32);
-                        const seqno = msgParsed.readUint(32);
-                        const op = msgParsed.readUint(8);
-                        const plugin_workchain = msgParsed.readUint(8);
-                        const plugin_balance = msgParsed.readCoins();
-                        const state_init = msgParsed.readRef().toCell();
-                        const body = msgParsed.readRef();
-
-                        console.log({
-                            subwallet_id,
-                            valid_until,
-                            seqno,
-                            op,
-                            plugin_workchain,
-                            plugin_balance,
-                            state_init,
-                            body
+                        let extMessage = new ExternalMessage({
+                            to: contract.address,
+                            body: new CommonMessageInfo({
+                                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                body: new CellMessage(transfer)
+                            })
                         });
+                        let msg = new Cell();
+                        extMessage.writeTo(msg);
 
-                        await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(transfer.toBoc({ idx: false })));
+                        await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
                     }} />
                 </View>
             </View>

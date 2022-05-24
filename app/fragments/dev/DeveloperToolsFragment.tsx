@@ -11,14 +11,16 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { getCurrentAddress } from '../../storage/appState';
 import { useEngine } from '../../engine/Engine';
 import { useItem } from '../../engine/persistence/PersistedItem';
-import { Cell, CellMessage, CommonMessageInfo, ExternalMessage, StateInit } from 'ton';
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, StateInit } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { createDeploySubCell } from '../../utils/createDeploySubCell';
+import { createDeployPluginCell } from '../../utils/createDeployPluginCell';
 import { warn } from '../../utils/log';
 import { sign } from 'ton-crypto';
 import { backoff } from '../../utils/time';
 import { Page } from '../../components/Page';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import BN from 'bn.js';
+import { createInstallPluginCell } from '../../utils/createInstallPluinCell';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -102,48 +104,90 @@ export const DeveloperToolsFragment = fragment(() => {
                     <Item title={"Storage Key"} hint={value} />
                 </View> */}
                 {AppConfig.isTestnet && (
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Deploy and install sub plugin"} onPress={async () => {
-                            const acc = getCurrentAddress();
-                            const contract = await contractFromPublicKey(acc.publicKey);
+                    <>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <Item title={"Deploy and install plugin"} onPress={async () => {
+                                const acc = getCurrentAddress();
+                                const contract = await contractFromPublicKey(acc.publicKey);
 
-                            const transferCell = createDeploySubCell(
-                                account.seqno,
-                                contract.source.walletId,
-                                Math.floor(Date.now() / 1e3) + 60,
-                                acc.address
-                            );
+                                const transferCell = createDeployPluginCell(
+                                    account.seqno,
+                                    contract.source.walletId,
+                                    Math.floor(Date.now() / 1e3) + 60,
+                                    Address.parse('kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1')
+                                );
 
-                            let walletKeys: WalletKeys;
-                            try {
-                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                            } catch (e) {
-                                warn(e);
-                                return;
-                            }
+                                let walletKeys: WalletKeys;
+                                try {
+                                    walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                                } catch (e) {
+                                    warn(e);
+                                    return;
+                                }
 
-                            const transfer = new Cell();
+                                const transfer = new Cell();
 
-                            // Signature
-                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                            // Transfer
-                            transfer.writeCell(transferCell);
+                                // Signature
+                                transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                                // Transfer
+                                transfer.writeCell(transferCell);
 
-                            let extMessage = new ExternalMessage({
-                                to: contract.address,
-                                body: new CommonMessageInfo({
-                                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                                    body: new CellMessage(transfer)
-                                })
-                            });
-                            let msg = new Cell();
-                            extMessage.writeTo(msg);
+                                let extMessage = new ExternalMessage({
+                                    to: contract.address,
+                                    body: new CommonMessageInfo({
+                                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                        body: new CellMessage(transfer)
+                                    })
+                                });
+                                let msg = new Cell();
+                                extMessage.writeTo(msg);
 
-                            await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
-                        }} />
-                    </View>
-                )
-                }
+                                await backoff('deploy-plugin', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                            }} />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <Item title={"Install plugin"} onPress={async () => {
+                                const acc = getCurrentAddress();
+                                const contract = await contractFromPublicKey(acc.publicKey);
+
+                                const transferCell = createInstallPluginCell(
+                                    account.seqno,
+                                    contract.source.walletId,
+                                    Math.floor(Date.now() / 1e3) + 60,
+                                    Address.parse('kQCHw3pPx57A7aycAm2NXR0li23RDplM0dtOq8vN2n5ACh1k'),
+                                    new BN(100000000)
+                                );
+
+                                let walletKeys: WalletKeys;
+                                try {
+                                    walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                                } catch (e) {
+                                    warn(e);
+                                    return;
+                                }
+
+                                const transfer = new Cell();
+
+                                // Signature
+                                transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                                // Transfer
+                                transfer.writeCell(transferCell);
+
+                                let extMessage = new ExternalMessage({
+                                    to: contract.address,
+                                    body: new CommonMessageInfo({
+                                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                        body: new CellMessage(transfer)
+                                    })
+                                });
+                                let msg = new Cell();
+                                extMessage.writeTo(msg);
+
+                                await backoff('install-plugin', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                            }} />
+                        </View>
+                    </>
+                )}
             </View>
         </Page>
     );

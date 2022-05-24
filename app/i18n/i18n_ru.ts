@@ -259,7 +259,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: "Уверены, что хотите вывести?"
             }
         },
-        subscriptions: {
+        plugins: {
             title: 'Мои подписки',
             productTitle: 'Подписки',
             noActive: 'У вас нет активных подписок',
@@ -277,6 +277,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 startDate: 'Дата создания',
                 cancel: 'Отменить подписку',
                 cancelConfirm: 'Вы уверены, что хотите отменить эту подписку?'
+            },
+            operation: {
+                install: 'Установить плагин',
+                remove: 'Удалить плагин',
+                deploy_install: 'Опубликовать и установить плагин'
             }
         }
     },

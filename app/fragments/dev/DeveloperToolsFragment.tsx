@@ -21,6 +21,7 @@ import { Page } from '../../components/Page';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import BN from 'bn.js';
 import { createInstallPluginCell } from '../../utils/createInstallPluinCell';
+import { createRemovePluginCell } from '../../utils/createRemovePluginCell';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -104,89 +105,16 @@ export const DeveloperToolsFragment = fragment(() => {
                     <Item title={"Storage Key"} hint={value} />
                 </View> */}
                 {AppConfig.isTestnet && (
-                    <>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <Item title={"Deploy and install plugin"} onPress={async () => {
-                                const acc = getCurrentAddress();
-                                const contract = await contractFromPublicKey(acc.publicKey);
-
-                                const transferCell = createDeployPluginCell(
-                                    account.seqno,
-                                    contract.source.walletId,
-                                    Math.floor(Date.now() / 1e3) + 60,
-                                    Address.parse('kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1')
-                                );
-
-                                let walletKeys: WalletKeys;
-                                try {
-                                    walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                                } catch (e) {
-                                    warn(e);
-                                    return;
-                                }
-
-                                const transfer = new Cell();
-
-                                // Signature
-                                transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                                // Transfer
-                                transfer.writeCell(transferCell);
-
-                                let extMessage = new ExternalMessage({
-                                    to: contract.address,
-                                    body: new CommonMessageInfo({
-                                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                                        body: new CellMessage(transfer)
-                                    })
-                                });
-                                let msg = new Cell();
-                                extMessage.writeTo(msg);
-
-                                await backoff('deploy-plugin', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
-                            }} />
-                        </View>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <Item title={"Install plugin"} onPress={async () => {
-                                const acc = getCurrentAddress();
-                                const contract = await contractFromPublicKey(acc.publicKey);
-
-                                const transferCell = createInstallPluginCell(
-                                    account.seqno,
-                                    contract.source.walletId,
-                                    Math.floor(Date.now() / 1e3) + 60,
-                                    Address.parse('kQCHw3pPx57A7aycAm2NXR0li23RDplM0dtOq8vN2n5ACh1k'),
-                                    new BN(100000000)
-                                );
-
-                                let walletKeys: WalletKeys;
-                                try {
-                                    walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                                } catch (e) {
-                                    warn(e);
-                                    return;
-                                }
-
-                                const transfer = new Cell();
-
-                                // Signature
-                                transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                                // Transfer
-                                transfer.writeCell(transferCell);
-
-                                let extMessage = new ExternalMessage({
-                                    to: contract.address,
-                                    body: new CommonMessageInfo({
-                                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                                        body: new CellMessage(transfer)
-                                    })
-                                });
-                                let msg = new Cell();
-                                extMessage.writeTo(msg);
-
-                                await backoff('install-plugin', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
-                            }} />
-                        </View>
-                    </>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Deploy and install plugin"} onPress={() => {
+                            const acc = getCurrentAddress();
+                            navigation.navigate('PluginTransfer', {
+                                address: acc.address,
+                                operation: 'deploy_install',
+                                amount: new BN(100000000)
+                            });
+                        }} />
+                    </View>
                 )}
             </View>
         </Page>

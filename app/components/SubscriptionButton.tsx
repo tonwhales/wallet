@@ -8,16 +8,10 @@ import { t } from "../i18n/t";
 import { formatDate } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { getCurrentAddress } from "../storage/appState";
-import { createRemovePluginCell } from "../utils/createRemovePluginCell";
-import { Address, Cell } from "ton";
-import { contractFromPublicKey } from "../engine/contractFromPublicKey";
-import { backoff } from "../utils/time";
-import { sign } from "ton-crypto";
-import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
-import { warn } from "../utils/log";
 import { useItem } from "../engine/persistence/PersistedItem";
 import { PluginState } from "../engine/sync/startPluginSync";
 import { useEngine } from "../engine/Engine";
+import { Address } from "ton";
 
 export const SubscriptionButton = React.memo((
     {
@@ -37,8 +31,8 @@ export const SubscriptionButton = React.memo((
         async () => {
             await new Promise<boolean>(resolve => {
                 Alert.alert(
-                    t('products.subscriptions.subscription.cancel'),
-                    t('products.subscriptions.subscription.cancelConfirm'),
+                    t('products.plugins.subscription.cancel'),
+                    t('products.plugins.subscription.cancelConfirm'),
                     [{
                         text: t('common.yes'),
                         style: 'destructive',
@@ -168,11 +162,11 @@ export const SubscriptionButton = React.memo((
     const nextBilling = subscription.state.lastPayment + subscription.state.period;
     let period = '';
     if (periodFullDays === 30) {
-        period = t('products.subscriptions.monthly');
+        period = t('products.plugins.monthly');
     } else if (periodFullDays > 30) {
-        period = t('products.subscriptions.inDays', { count: periodFullDays });
+        period = t('products.plugins.inDays', { count: periodFullDays });
     } else {
-        period = t('products.subscriptions.inHours', { count: Math.floor(subscription.state.period / (60 * 60)) });
+        period = t('products.plugins.inHours', { count: Math.floor(subscription.state.period / (60 * 60)) });
     }
 
     return (
@@ -250,7 +244,7 @@ export const SubscriptionButton = React.memo((
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        <AddressComponent address={subscription.state.wallet} />
+                        <AddressComponent address={Address.parse(address)} />
                     </Text>
                     {period!! && period.length > 0 && (
                         <Text style={{
@@ -264,7 +258,7 @@ export const SubscriptionButton = React.memo((
                         fontSize: 13, fontWeight: '400',
                         maxWidth: 160, color: '#787F83'
                     }}>
-                        {t('products.subscriptions.nextBilling') + ': ' + formatDate(nextBilling)}
+                        {t('products.plugins.nextBilling') + ': ' + formatDate(nextBilling)}
                     </Text>
                 </View>
                 <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>

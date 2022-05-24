@@ -56,8 +56,8 @@ export const SubscriptionFragment = fragment(() => {
             setLoading(true);
             await new Promise<boolean>(resolve => {
                 Alert.alert(
-                    t('products.subscriptions.subscription.cancel'),
-                    t('products.subscriptions.subscription.cancelConfirm'),
+                    t('products.plugins.subscription.cancel'),
+                    t('products.plugins.subscription.cancelConfirm'),
                     [{
                         text: t('common.yes'),
                         style: 'destructive',
@@ -118,7 +118,7 @@ export const SubscriptionFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('products.subscriptions.subscription.title')} />
+            <AndroidToolbar pageTitle={t('products.plugins.subscription.title')} />
             <View style={{
                 backgroundColor: Theme.background,
                 justifyContent: 'center',
@@ -133,7 +133,7 @@ export const SubscriptionFragment = fragment(() => {
                         <Text style={[{
                             fontWeight: '600',
                             fontSize: 17
-                        }, { textAlign: 'center' }]}>{t('products.subscriptions.subscription.title')}</Text>
+                        }, { textAlign: 'center' }]}>{t('products.plugins.subscription.title')}</Text>
                     </View>
                 )}
                 <Text style={{
@@ -143,7 +143,7 @@ export const SubscriptionFragment = fragment(() => {
                     marginTop: 6,
                 }}>
                     {
-                        t('products.subscriptions.subscription.startDate')
+                        t('products.plugins.subscription.startDate')
                         + ' '
                         + format(
                             subscription.startAt * 1000,
@@ -205,7 +205,7 @@ export const SubscriptionFragment = fragment(() => {
                                     color: '#7D858A',
                                     marginBottom: 6
                                 }}>
-                                    {t('products.subscriptions.subscription.charge')}
+                                    {t('products.plugins.subscription.charge')}
                                 </Text>
                                 <View style={{
                                     flexDirection: 'row'
@@ -234,7 +234,7 @@ export const SubscriptionFragment = fragment(() => {
                                     color: '#7D858A',
                                     marginBottom: 6
                                 }}>
-                                    {t('products.subscriptions.nextBilling')}
+                                    {t('products.plugins.nextBilling')}
                                 </Text>
                                 <View style={{
                                     flexDirection: 'row'
@@ -257,7 +257,7 @@ export const SubscriptionFragment = fragment(() => {
                     // disabled={canceled}
                     display={'secondary'}
                     onPress={onCancelSub}
-                    title={t('products.subscriptions.subscription.cancel')}
+                    title={t('products.plugins.subscription.cancel')}
                     loading={loading}
                 />
             </View>

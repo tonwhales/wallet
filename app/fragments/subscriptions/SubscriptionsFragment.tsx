@@ -14,7 +14,8 @@ export const SubscriptionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
-    const plugins = engine.products.main.usePlugins().plugins;
+    const pluginProduct = engine.products.main.usePlugins();
+    const plugins = pluginProduct.plugins;
 
     return (
         <View style={{
@@ -22,7 +23,7 @@ export const SubscriptionsFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('products.subscriptions.title')} />
+            <AndroidToolbar pageTitle={t('products.plugins.title')} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     marginTop: 12,
@@ -33,7 +34,7 @@ export const SubscriptionsFragment = fragment(() => {
                         fontWeight: '600',
                         marginLeft: 17,
                         fontSize: 17
-                    }, { textAlign: 'center' }]}>{t('products.subscriptions.title')}</Text>
+                    }, { textAlign: 'center' }]}>{t('products.plugins.title')}</Text>
                 </View>
             )}
             <ScrollView>

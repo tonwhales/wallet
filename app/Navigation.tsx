@@ -43,6 +43,7 @@ import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFr
 import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
 import { EngineContext } from './engine/Engine';
 import { DevBluetoothFragment } from './fragments/dev/DevBluetoothFragment';
+import { PluginTransferFragment } from './fragments/subscriptions/PluginTransferFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -141,6 +142,7 @@ const navigation = [
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Subscriptions', SubscriptionsFragment),
     modalScreen('Subscription', SubscriptionFragment),
+    modalScreen('PluginTransfer', PluginTransferFragment),
 
     genericScreen('Dev', DeveloperToolsFragment),
     genericScreen('DevBluetooth', DevBluetoothFragment),

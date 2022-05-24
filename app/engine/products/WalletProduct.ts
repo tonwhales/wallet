@@ -32,7 +32,7 @@ export type JettonsState = {
 }
 
 export type PluginsState = {
-    plugins: PluginState[]
+    plugins: { [key: string]: PluginState }
 };
 
 export type TransactionDescription = {
@@ -218,15 +218,15 @@ export class WalletProduct {
                 // Load wallet
                 let wallet = get(engine.persistence.wallets.item(engine.address).atom);
                 if (!wallet) {
-                    return { plugins: [] }
+                    return { plugins: {} }
                 }
 
                 // Load plugins
-                let plugins: PluginState[] = [];
+                let plugins: { [key: string]: PluginState } = {};
                 for (let p of wallet.plugins) {
                     let pstate = get(engine.persistence.plugins.item(p).atom);
                     if (pstate) {
-                        plugins.push(pstate);
+                        plugins[p.toFriendly({ testOnly: AppConfig.isTestnet })] = pstate;
                     }
                 }
 

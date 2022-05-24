@@ -259,7 +259,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Are you sure about the unstaking?'
             }
         },
-        subscriptions: {
+        plugins: {
             title: 'My subscriptions',
             productTitle: 'Subscriptions',
             noActive: 'You have no active subscriptions',
@@ -277,6 +277,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 startDate: 'Created on',
                 cancel: 'Cancel subscription',
                 cancelConfirm: 'Are you sure you want to cancel this subscription?'
+            },
+            operation: {
+                install: 'Install plugin',
+                remove: 'Uninstall plugin', 
+                deploy_install: 'Deploy & Install plugin'
             }
         }
     },

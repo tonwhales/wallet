@@ -261,7 +261,7 @@ export type LocalizationSchema = {
                 message: string
             }
         },
-        subscriptions: {
+        plugins: {
             title: string,
             productTitle: string,
             noActive: string,
@@ -279,6 +279,11 @@ export type LocalizationSchema = {
                 startDate: string,
                 cancel: string,
                 cancelConfirm: string
+            },
+            operation: {
+                install: string,
+                remove: string, 
+                deploy_install: string
             }
         }
     }

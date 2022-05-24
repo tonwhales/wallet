@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "1.15.3",
+  "version": "1.15.4",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -41,6 +41,7 @@
     "expo-constants": "~13.1.1",
     "expo-device": "~4.2.0",
     "expo-haptics": "~11.2.0",
+    "expo-intent-launcher": "^10.2.0",
     "expo-keep-awake": "~10.1.1",
     "expo-local-authentication": "~12.2.0",
     "expo-notifications": "~0.15.2",
@@ -62,6 +63,7 @@
     "react-dom": "17.0.2",
     "react-i18next": "^11.15.3",
     "react-native": "0.68.2",
+    "react-native-ble-plx": "^2.0.3",
     "react-native-boring-avatars": "^1.0.1",
     "react-native-bouncy-checkbox": "^2.1.9",
     "react-native-fast-animations": "^0.0.4",

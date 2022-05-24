@@ -36,7 +36,6 @@ allprojects {
         }
 
         google()
-        maven { url 'https://www.jitpack.io' }
         mavenCentral {
             // We don't want to fetch react-native from Maven Central as there are
             // older versions over there.
@@ -45,5 +44,6 @@ allprojects {
             }
         }
         jcenter() // Some library in react-native-fast-animations
+        maven { url 'https://www.jitpack.io' }
     }
 }

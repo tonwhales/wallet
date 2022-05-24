@@ -228,8 +228,7 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                         />
                         <ItemDivider />
                         <ItemLarge title={t('transfer.purpose')} text={t(`products.plugins.operation.${operation}`)} />
-                        <ItemDivider />
-                        {/* <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} /> */}
+                        {/* <ItemDivider /> */}
                         {/* <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} /> */}
                     </ItemGroup>
                 </View>

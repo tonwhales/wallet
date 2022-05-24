@@ -4790,6 +4790,11 @@ expo-image-loader@~3.2.0:
   resolved "https://registry.yarnpkg.com/expo-image-loader/-/expo-image-loader-3.2.0.tgz#d98b021660edef7243f7c5ec011b8d0545626d41"
   integrity sha512-LU3Q2prn64/HxdToDmxgMIRXS1ZvD9Q3iCxRVTZn1fPQNNDciIQFE5okaa74Ogx20DFHs90r6WoUd7w9Af1OGQ==
 
+expo-intent-launcher@^10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/expo-intent-launcher/-/expo-intent-launcher-10.2.0.tgz#2ca00f4c86fe7e5adad8627c6d623ebc27c96a13"
+  integrity sha512-PZn86QEOAE89SAi4kn1av+XGXZpfnXddByHjBUJbgJcyUDfJWb6nHd0B8los4ceETzlgIMozqSe/Kex2MPjWFA==
+
 expo-keep-awake@~10.1.1:
   version "10.1.1"
   resolved "https://registry.yarnpkg.com/expo-keep-awake/-/expo-keep-awake-10.1.1.tgz#03023c130f7e3824b738e3fdd5353b8a2c0c1980"

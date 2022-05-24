@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fragment } from '../../fragment';
+import * as Application from 'expo-application';
+import * as IntentLauncher from 'expo-intent-launcher';
 import { StatusBar } from 'expo-status-bar';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { Camera } from 'react-native-vision-camera';
@@ -10,6 +11,7 @@ import { useCameraDevices } from 'react-native-vision-camera';
 import { CloseButton } from '../../components/CloseButton';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
+import { RoundButton } from '../../components/RoundButton';
 
 export const ScannerFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -90,6 +92,9 @@ export const ScannerFragment = systemFragment(() => {
         return (
             <View style={styles.container}>
                 <View style={{
+                    flexGrow: 1
+                }} />
+                <View style={{
                     alignSelf: 'center',
                     width: 170,
                     backgroundColor: 'rgba(30,30,30,1)',
@@ -107,6 +112,25 @@ export const ScannerFragment = systemFragment(() => {
                     >
                         {t('qr.noPermission')}
                     </Text>
+                </View>
+                <View style={{
+                    flexGrow: 1
+                }} />
+                <View style={{ height: 64, marginTop: 16, marginHorizontal: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                    <RoundButton
+                        title={t('qr.requestPermission')}
+                        onPress={(async () => {
+                            if (Platform.OS === 'ios') {
+                                Linking.openURL('app-settings:');
+                            } else if (Platform.OS === 'android') {
+                                const pkg = Application.applicationId;
+                                IntentLauncher.startActivityAsync(
+                                    IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+                                    { data: 'package:' + pkg }
+                                );
+                            }
+                        })}
+                    />
                 </View>
                 <CloseButton
                     style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}

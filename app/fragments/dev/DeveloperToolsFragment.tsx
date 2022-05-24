@@ -1,13 +1,22 @@
 import * as React from 'react';
 import { View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
-import { Theme } from "../../Theme";
 import { Item } from '../../components/Item';
 import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
 import { storagePersistence } from '../../storage/storage';
 import { loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { getCurrentAddress } from '../../storage/appState';
+import { useEngine } from '../../engine/Engine';
+import { useItem } from '../../engine/persistence/PersistedItem';
+import { Cell, CellMessage, CommonMessageInfo, ExternalMessage, StateInit } from 'ton';
+import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { createDeploySubCell } from '../../utils/createDeploySubCell';
+import { warn } from '../../utils/log';
+import { sign } from 'ton-crypto';
+import { backoff } from '../../utils/time';
 import { Page } from '../../components/Page';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
@@ -16,6 +25,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const reboot = useReboot();
     let ref = loadKeyStorageRef();
     let kind = loadKeyStorageType();
+    const engine = useEngine();
+    const account = useItem(engine.model.wallet(engine.address));
     // let [value, setValue] = React.useState('');
     // React.useEffect(() => {
     //     (async () => {
@@ -90,6 +101,49 @@ export const DeveloperToolsFragment = fragment(() => {
                 {/* <View style={{ marginHorizontal: 16, width: '100%' }}>
                     <Item title={"Storage Key"} hint={value} />
                 </View> */}
+                {AppConfig.isTestnet && (
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Deploy and install sub plugin"} onPress={async () => {
+                            const acc = getCurrentAddress();
+                            const contract = await contractFromPublicKey(acc.publicKey);
+
+                            const transferCell = createDeploySubCell(
+                                account.seqno,
+                                contract.source.walletId,
+                                Math.floor(Date.now() / 1e3) + 60,
+                                acc.address
+                            );
+
+                            let walletKeys: WalletKeys;
+                            try {
+                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                            } catch (e) {
+                                warn(e);
+                                return;
+                            }
+
+                            const transfer = new Cell();
+
+                            // Signature
+                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                            // Transfer
+                            transfer.writeCell(transferCell);
+
+                            let extMessage = new ExternalMessage({
+                                to: contract.address,
+                                body: new CommonMessageInfo({
+                                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                    body: new CellMessage(transfer)
+                                })
+                            });
+                            let msg = new Cell();
+                            extMessage.writeTo(msg);
+
+                            await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                        }} />
+                    </View>
+                )
+                }
             </View>
         </Page>
     );

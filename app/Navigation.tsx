@@ -39,6 +39,9 @@ import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './engine/createEngine';
 import { useRecoilCallback } from 'recoil';
+import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
+import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
+import { EngineContext } from './engine/Engine';
 import { DevBluetoothFragment } from './fragments/dev/DevBluetoothFragment';
 
 const Stack = createNativeStackNavigator();
@@ -136,6 +139,8 @@ const navigation = [
     modalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
+    modalScreen('Subscriptions', SubscriptionsFragment),
+    modalScreen('Subscription', SubscriptionFragment),
 
     genericScreen('Dev', DeveloperToolsFragment),
     genericScreen('DevBluetooth', DevBluetoothFragment),

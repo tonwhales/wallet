@@ -36,7 +36,7 @@ export const SettingsFragment = fragment(() => {
             count++;
             if (count > 5) {
                 count = 0;
-                navigation.navigate('DeveloperTools')
+                navigation.navigate('Dev');
             } else {
                 if (timer) {
                     clearTimeout(timer);

@@ -58,6 +58,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Allow access to the Bluetooth to connect to hardware keys</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to the camera to be able to scan QR Code</string>
 	<key>NSFaceIDUsageDescription</key>

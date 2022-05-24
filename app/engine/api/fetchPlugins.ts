@@ -3,7 +3,6 @@ import { AppConfig } from "../../AppConfig";
 
 export async function fetchPlugins(client: TonClient4, block: number, address: Address) {
     let seqnoRes = await client.runMethod(block, address, 'get_plugin_list');
-    console.log({ seqnoRes: seqnoRes.result });
     if (seqnoRes.exitCode !== 0 && seqnoRes.exitCode !== 1) {
         return [];
     }
@@ -25,7 +24,6 @@ export async function fetchPlugins(client: TonClient4, block: number, address: A
         let workchain = tail.items[0].items[0].value.toNumber();
         let hash = Buffer.from(tail.items[0].items[1].value.toString('hex', 32), 'hex');
         let address = new Address(workchain, hash);
-        console.log({ address: address.toFriendly({ testOnly: AppConfig.isTestnet }) });
         plugins.push(address);
         tail = tail.items[1];
     }

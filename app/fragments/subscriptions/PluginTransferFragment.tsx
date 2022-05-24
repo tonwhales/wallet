@@ -101,7 +101,7 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
 
         // Check if same address
-        if (target.address.equals(contract.address)) {
+        if (operation !== 'deploy_install' && target.address.equals(contract.address)) {
             Alert.alert(t('transfer.error.sendingToYourself'));
             return;
         }

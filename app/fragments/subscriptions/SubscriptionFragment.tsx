@@ -8,35 +8,26 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, StateInit } from "ton";
+import { Address, fromNano } from "ton";
 import { formatNum } from "../../utils/numbers";
 import { format } from "date-fns";
 import { is24Hour, locale } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { createRemovePluginCell } from "../../utils/createRemovePluginCell";
-import { getCurrentAddress } from "../../storage/appState";
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
-import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useItem } from "../../engine/persistence/PersistedItem";
 import { LegacySubscription } from "../../engine/plugins/LegacySubscription";
-import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
-import { warn } from "../../utils/log";
-import { sign } from "ton-crypto";
-import { backoff } from "../../utils/time";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const { subscription } = useParams<{ subscription: LegacySubscription }>();
+    const { address, subscription } = useParams<{ address: Address, subscription: LegacySubscription }>();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const price = engine.products.price.useState();
     const [loading, setLoading] = useState(false);
-
-    console.log('[SubscriptionFragment]', { subscription });
 
     if (!subscription) {
         navigation.goBack();
@@ -62,42 +53,11 @@ export const SubscriptionFragment = fragment(() => {
                         text: t('common.yes'),
                         style: 'destructive',
                         onPress: async () => {
-                            const acc = getCurrentAddress();
-                            const contract = await contractFromPublicKey(acc.publicKey);
-                            const transferCell = createRemovePluginCell(
-                                account.seqno,
-                                contract.source.walletId,
-                                Math.floor(Date.now() / 1e3) + 60,
-                                subscription.wallet
-                            );
-
-                            let walletKeys: WalletKeys;
-                            try {
-                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                            } catch (e) {
-                                warn(e);
-                                return;
-                            }
-
-                            const transfer = new Cell();
-
-                            // Signature
-                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                            // Transfer
-                            transfer.writeCell(transferCell);
-
-                            let extMessage = new ExternalMessage({
-                                to: contract.address,
-                                body: new CommonMessageInfo({
-                                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                                    body: new CellMessage(transfer)
-                                })
+                            navigation.navigate('PluginTransfer', {
+                                address: address,
+                                operation: 'remove',
+                                amount: new BN(0)
                             });
-                            let msg = new Cell();
-                            extMessage.writeTo(msg);
-
-                            await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
-
                             resolve(true);
                         }
                     }, {

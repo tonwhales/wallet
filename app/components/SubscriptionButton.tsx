@@ -12,6 +12,7 @@ import { useItem } from "../engine/persistence/PersistedItem";
 import { PluginState } from "../engine/sync/startPluginSync";
 import { useEngine } from "../engine/Engine";
 import { Address } from "ton";
+import BN from "bn.js";
 
 export const SubscriptionButton = React.memo((
     {
@@ -37,31 +38,12 @@ export const SubscriptionButton = React.memo((
                         text: t('common.yes'),
                         style: 'destructive',
                         onPress: async () => {
-                            // const contract = await contractFromPublicKey(acc.publicKey);
-                            // const transferCell = createRemovePluginCell(
-                            //     account.seqno,
-                            //     contract.source.walletId,
-                            //     Math.floor(Date.now() / 1e3) + 60,
-                            //     Address.parse(address)
-                            // );
-
-                            // let walletKeys: WalletKeys;
-                            // try {
-                            //     walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                            // } catch (e) {
-                            //     warn(e);
-                            //     resolve(false);
-                            //     return;
-                            // }
-
-                            // const transfer = new Cell();
-
-                            // transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                            // transfer.writeCell(transferCell);
-
-                            // await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
-
-                            // resolve(true);
+                            navigation.navigate('PluginTransfer', {
+                                address: Address.parse(address),
+                                operation: 'remove',
+                                amount: new BN(0)
+                            });
+                            resolve(true);
                         }
                     }, {
                         text: t('common.no'),
@@ -177,10 +159,7 @@ export const SubscriptionButton = React.memo((
                     marginBottom: 8
                 }
             }}
-            onPress={() => {
-                console.log(address);
-                navigation.navigate('Subscription', { subscription: subscription.state });
-            }}
+            onPress={() => { navigation.navigate('Subscription', { address: Address.parse(address), subscription: subscription.state }); }}
         >
             <View style={{
                 minHeight: 62, borderRadius: 14,

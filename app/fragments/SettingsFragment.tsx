@@ -17,7 +17,7 @@ export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const plugins = engine.products.main.usePlugins();
+    const plugins = engine.products.main.usePlugins().plugins;
     const reboot = useReboot();
 
     const doSignout = React.useCallback(() => {

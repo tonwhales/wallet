@@ -1,5 +1,6 @@
 import { BN } from "bn.js";
 import { Address, Cell, parseMessage, RawTransaction } from "ton";
+import { t } from "../../i18n/t";
 import { Body, Transaction } from "../Transaction";
 
 export function parseBody(cell: Cell): Body | null {
@@ -129,7 +130,19 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         if (command === 3) {
             body = {
                 type: 'comment',
-                comment: 'Remove plugin'
+                comment: t('products.plugins.operation.remove')
+            }
+        }
+        if (command === 2) {
+            body = {
+                type: 'comment',
+                comment: t('products.plugins.operation.install')
+            }
+        }
+        if (command === 1) {
+            body = {
+                type: 'comment',
+                comment: t('products.plugins.operation.deploy_install')
             }
         }
     }

@@ -53,7 +53,7 @@ type ConfirmLoadedProps = {
         balance: BN
     },
     transferCell: Cell,
-    fees: BN,
+    // fees: BN,
     amount: BN,
     metadata: ContractMetadata,
     restricted: boolean,
@@ -68,7 +68,7 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         restricted,
         target,
         transferCell,
-        fees,
+        // fees,
         amount,
         operation
     } = props;
@@ -162,7 +162,8 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         engine.products.main.registerPending({
             id: 'pending-' + account.seqno,
             lt: null,
-            fees: fees,
+            // fees: fees,
+            fees: new BN(0),
             amount: amount.mul(new BN(-1)),
             address: target.address,
             seqno: account.seqno,
@@ -228,7 +229,8 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                         <ItemDivider />
                         <ItemLarge title={t('transfer.purpose')} text={t(`products.plugins.operation.${operation}`)} />
                         <ItemDivider />
-                        <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
+                        {/* <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} /> */}
+                        {/* <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} /> */}
                     </ItemGroup>
                 </View>
             </ScrollView>
@@ -334,8 +336,8 @@ export const PluginTransferFragment = fragment(() => {
             }
 
             // Estimate fee
-            let outMsg = operationTransfer;
-            let fees = estimateFees(netConfig!, operationTransfer, outMsg, state!.account.storageStat);
+            // let outMsg = operationTransfer;
+            // let fees = estimateFees(netConfig!, operationTransfer, outMsg, state!.account.storageStat);
 
             // Set state
             setLoadedProps({
@@ -347,7 +349,7 @@ export const PluginTransferFragment = fragment(() => {
                 },
                 amount: params.amount,
                 transferCell: operationTransfer,
-                fees,
+                // fees,
                 metadata,
                 restricted,
                 operation: params.operation

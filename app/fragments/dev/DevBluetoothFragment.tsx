@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Page } from '../../components/Page';
 import { fragment } from '../../fragment';
 import { BleManager, Device, State } from 'react-native-ble-plx';
-import { PermissionsAndroid, Platform, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Item } from '../../components/Item';
 
 export const DevBluetoothFragment = fragment(() => {
@@ -34,8 +34,7 @@ export const DevBluetoothFragment = fragment(() => {
     React.useEffect(() => {
         if (state === State.PoweredOn) {
             manager.startDeviceScan(null, null, (e, d) => {
-                
-                if (d && d.name && d.name.startsWith('CoolWallet')) {
+                if (d && d.name && d.isConnectable) {
                     console.warn(d);
                     setDevices((src) => {
                         if (src.findIndex((v) => v.id === d.id) < 0) {
@@ -51,12 +50,6 @@ export const DevBluetoothFragment = fragment(() => {
             setDevices([]);
         }
     }, [state]);
-
-    if (Platform.OS === 'android') {
-        React.useEffect(() => {
-            PermissionsAndroid.requestMultiple(['android.permission.BLUETOOTH_SCAN']);
-        }, []);
-    }
 
     return (
         <Page>

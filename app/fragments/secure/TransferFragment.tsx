@@ -181,6 +181,10 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             })
         });
 
+        console.log({
+            walletId: contract.source.walletId
+        })
+
         // Create external message
         let extMessage = new ExternalMessage({
             to: contract.address,
@@ -191,6 +195,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         });
         let msg = new Cell();
         extMessage.writeTo(msg);
+
+        console.log(msg.toBoc({ idx: false }).toString('base64'));
 
         // Sending transaction
         await backoff('transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));

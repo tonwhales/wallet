@@ -1,5 +1,6 @@
 import BN from "bn.js";
-import { Address, Cell } from "ton";
+import { Address, Cell, StateInit } from "ton";
+import { getRandomQueryId } from "./createWithdrawStakeCommand";
 
 export function createDeploySubCell(
     seqno: number,
@@ -21,7 +22,7 @@ export function createDeploySubCell(
     // msg_seqno
     cell.bits.writeUint(seqno, 32);
     // op == 1 deploy & install plugin
-    cell.bits.writeUint(1, 8); 
+    cell.bits.writeUint(1, 8);
     // plugin_workchain
     cell.bits.writeInt(to.workChain, 8);
     // plugin_balance
@@ -35,17 +36,22 @@ export function createDeploySubCell(
     data.bits.writeAddress(to);               // wallet 
     data.bits.writeAddress(to);               // beinificiary address
     data.bits.writeCoins(new BN(100000000));  // amount
-    data.bits.writeUint(10 * 60, 32);         // period 10 min
-    data.bits.writeUint(0, 32);               // start_time
+    data.bits.writeUint(60 * 1 * 60, 32);         // period 1 hour
+    data.bits.writeUint(Math.floor(Date.now() / 1e3) + 10, 32);               // start_time
     data.bits.writeUint(0, 32);               // timeout
-    data.bits.writeUint(0, 32);               // last_payment_time
-    data.bits.writeUint(0, 32);               // last_request_time
-    data.bits.writeUint(0, 8);                // failed attempts
-    data.bits.writeUint(0, 32);               // subscription id
+    data.bits.writeUint(Math.floor(Date.now() / 1e3) + 10, 32);               // last_payment_time
+    data.bits.writeUint(Math.floor(Date.now() / 1e3) + 10, 32);               // last_request_time
+    data.bits.writeUint(1, 8);                // failed attempts
+    data.bits.writeUint(Math.floor(Math.random() * Math.pow(2, 32)), 32);               // subscription id
 
 
-    cell.withReference(code);
-    cell.withReference(data);
+    let stateInit = new Cell();
+    new StateInit({ code, data }).writeTo(stateInit);
+
+    cell.withReference(stateInit);
+    cell.withReference(new Cell()); // or plugin initial message
+    // cell.withReference(code);
+    // cell.withReference(data);
 
     return cell;
 }

@@ -8,7 +8,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
-import { Address, fromNano } from "ton";
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, StateInit } from "ton";
 import { formatNum } from "../../utils/numbers";
 import { format } from "date-fns";
 import { is24Hour, locale } from "../../utils/dates";
@@ -21,36 +21,35 @@ import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useItem } from "../../engine/persistence/PersistedItem";
+import { LegacySubscription } from "../../engine/plugins/LegacySubscription";
+import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
+import { warn } from "../../utils/log";
+import { sign } from "ton-crypto";
+import { backoff } from "../../utils/time";
 
 export const SubscriptionFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const params = useParams<{ address: string }>();
+    const { subscription } = useParams<{ subscription: LegacySubscription }>();
     const engine = useEngine();
-    const acc = React.useMemo(() => getCurrentAddress(), []);
     const account = useItem(engine.model.wallet(engine.address));
-    const plugins = engine.products.main.usePlugins().plugins;
-    const subscriptionPlugin = plugins.find(
-        (p) => p.type !== 'unknown'
-            && p.state.wallet.toFriendly({ testOnly: AppConfig.isTestnet }) === params.address
-    );
     const price = engine.products.price.useState();
     const [loading, setLoading] = useState(false);
 
-    console.log('[SubscriptionFragment]', { plugins, subscription: subscriptionPlugin });
+    console.log('[SubscriptionFragment]', { subscription });
 
-    if (!params.address || !subscriptionPlugin || subscriptionPlugin.type === 'unknown') {
+    if (!subscription) {
         navigation.goBack();
         return null;
     }
 
-    const cost = subscriptionPlugin.state.amount;
+    const cost = subscription.amount;
     const costNum = parseFloat(fromNano(cost));
     const costInUsd = price ? costNum * price.price.usd : undefined;
     const formattedCost = formatNum(costNum < 0.01 ? costNum.toFixed(6) : costNum.toFixed(2));
     const formattedPrice = costInUsd ? formatNum(costNum < 0.01 ? costInUsd.toFixed(6) : costInUsd.toFixed(2)) : undefined;
 
-    const nextBilling = subscriptionPlugin.state.lastPayment + subscriptionPlugin.state.period;
+    const nextBilling = subscription.lastPayment + subscription.period;
 
     const onCancelSub = useCallback(
         async () => {
@@ -63,13 +62,41 @@ export const SubscriptionFragment = fragment(() => {
                         text: t('common.yes'),
                         style: 'destructive',
                         onPress: async () => {
+                            const acc = getCurrentAddress();
                             const contract = await contractFromPublicKey(acc.publicKey);
                             const transferCell = createRemovePluginCell(
                                 account.seqno,
                                 contract.source.walletId,
                                 Math.floor(Date.now() / 1e3) + 60,
-                                Address.parse(params.address)
+                                subscription.wallet
                             );
+
+                            let walletKeys: WalletKeys;
+                            try {
+                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                            } catch (e) {
+                                warn(e);
+                                return;
+                            }
+
+                            const transfer = new Cell();
+
+                            // Signature
+                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                            // Transfer
+                            transfer.writeCell(transferCell);
+
+                            let extMessage = new ExternalMessage({
+                                to: contract.address,
+                                body: new CommonMessageInfo({
+                                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                    body: new CellMessage(transfer)
+                                })
+                            });
+                            let msg = new Cell();
+                            extMessage.writeTo(msg);
+
+                            await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
 
                             resolve(true);
                         }
@@ -82,7 +109,7 @@ export const SubscriptionFragment = fragment(() => {
             });
             setLoading(false);
         },
-        [subscriptionPlugin],
+        [subscription],
     );
 
     return (
@@ -119,7 +146,7 @@ export const SubscriptionFragment = fragment(() => {
                         t('products.subscriptions.subscription.startDate')
                         + ' '
                         + format(
-                            subscriptionPlugin.state.startAt * 1000,
+                            subscription.startAt * 1000,
                             is24Hour ? 'y MMM d, HH:mm' : 'y MMM d, hh:mm aa',
                             { locale: locale() }
                         )
@@ -131,7 +158,7 @@ export const SubscriptionFragment = fragment(() => {
                     flex: 1,
                     paddingHorizontal: 16
                 }}>
-                    {!!subscriptionPlugin && subscriptionPlugin.type === 'legacy-subscription' && (
+                    {!!subscription && (
                         <View style={{
                             marginBottom: 16, marginTop: 17,
                             backgroundColor: "white",
@@ -160,7 +187,7 @@ export const SubscriptionFragment = fragment(() => {
                                     fontWeight: '400',
                                     maxWidth: 262
                                 }}>
-                                    {subscriptionPlugin.state.wallet.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                    {subscription.wallet.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 </Text>
                             </View>
                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />

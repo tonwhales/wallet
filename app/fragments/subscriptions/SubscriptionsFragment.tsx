@@ -40,7 +40,6 @@ export const SubscriptionsFragment = fragment(() => {
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     marginHorizontal: 16,
-                    backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

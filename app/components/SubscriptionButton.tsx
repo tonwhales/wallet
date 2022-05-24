@@ -33,8 +33,6 @@ export const SubscriptionButton = React.memo((
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
 
-    console.log({ address });
-
     const onCancelSub = useCallback(
         async () => {
             await new Promise<boolean>(resolve => {
@@ -52,7 +50,7 @@ export const SubscriptionButton = React.memo((
                             //     Math.floor(Date.now() / 1e3) + 60,
                             //     Address.parse(address)
                             // );
-                            
+
                             // let walletKeys: WalletKeys;
                             // try {
                             //     walletKeys = await loadWalletKeys(acc.secretKeyEnc);
@@ -68,7 +66,7 @@ export const SubscriptionButton = React.memo((
                             // transfer.writeCell(transferCell);
 
                             // await backoff('remove-plugin', () => engine.connector.sendExternalMessage(contract, transfer));
-                            
+
                             // resolve(true);
                         }
                     }, {
@@ -181,12 +179,13 @@ export const SubscriptionButton = React.memo((
         <Pressable
             style={({ pressed }) => {
                 return {
-                    opacity: pressed ? 0.3 : 1
+                    opacity: pressed ? 0.3 : 1,
+                    marginBottom: 8
                 }
             }}
             onPress={() => {
                 console.log(address);
-                navigation.navigate('Subscription', { address });
+                navigation.navigate('Subscription', { subscription: subscription.state });
             }}
         >
             <View style={{

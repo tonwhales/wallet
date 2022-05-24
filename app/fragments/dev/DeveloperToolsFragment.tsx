@@ -25,7 +25,6 @@ export const DeveloperToolsFragment = fragment(() => {
     let ref = loadKeyStorageRef();
     let kind = loadKeyStorageType();
     let [value, setValue] = React.useState('');
-    const acc = React.useMemo(() => getCurrentAddress(), []);
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     React.useEffect(() => {
@@ -80,54 +79,49 @@ export const DeveloperToolsFragment = fragment(() => {
                 <View style={{ marginHorizontal: 16, width: '100%' }}>
                     <Item title={"Storage Key"} hint={value} />
                 </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Deploy and install sub plugin"} onPress={async () => {
-                        const contract = await contractFromPublicKey(acc.publicKey);
+                {AppConfig.isTestnet && (
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Deploy and install sub plugin"} onPress={async () => {
+                            const acc = getCurrentAddress();
+                            const contract = await contractFromPublicKey(acc.publicKey);
 
-                        const transferCell = createDeploySubCell(
-                            account.seqno,
-                            contract.source.walletId,
-                            Math.floor(Date.now() / 1e3) + 60,
-                            acc.address
-                        );
+                            const transferCell = createDeploySubCell(
+                                account.seqno,
+                                contract.source.walletId,
+                                Math.floor(Date.now() / 1e3) + 60,
+                                acc.address
+                            );
 
-                        let walletKeys: WalletKeys;
-                        try {
-                            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-                        } catch (e) {
-                            warn(e);
-                            return;
-                        }
+                            let walletKeys: WalletKeys;
+                            try {
+                                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                            } catch (e) {
+                                warn(e);
+                                return;
+                            }
 
-                        const tempTransferRaw = transferCell;
-                        const tempTransfer = tempTransferRaw.beginParse();
-                        const transferWalletId = tempTransfer.readUintNumber(32);
+                            const transfer = new Cell();
 
-                        console.log({
-                            contract_walletId: contract.source.walletId,
-                            transfer_walletId: transferWalletId
-                        });
+                            // Signature
+                            transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
+                            // Transfer
+                            transfer.writeCell(transferCell);
 
-                        const transfer = new Cell();
+                            let extMessage = new ExternalMessage({
+                                to: contract.address,
+                                body: new CommonMessageInfo({
+                                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                    body: new CellMessage(transfer)
+                                })
+                            });
+                            let msg = new Cell();
+                            extMessage.writeTo(msg);
 
-                        // Signature
-                        transfer.bits.writeBuffer(sign(await transferCell.hash(), walletKeys.keyPair.secretKey));
-                        // Transfer
-                        transfer.writeCell(transferCell);
-
-                        let extMessage = new ExternalMessage({
-                            to: contract.address,
-                            body: new CommonMessageInfo({
-                                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                                body: new CellMessage(transfer)
-                            })
-                        });
-                        let msg = new Cell();
-                        extMessage.writeTo(msg);
-
-                        // await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
-                    }} />
-                </View>
+                            await backoff('deploy-and-install-subscription', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                        }} />
+                    </View>
+                )
+                }
             </View>
         </View>
     );

@@ -7,13 +7,8 @@ import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
 import { storage, storagePersistence } from '../../storage/storage';
 import { getApplicationKey, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
-import { getCurrentAddress } from '../../storage/appState';
-import BN from 'bn.js';
-import { Theme } from '../../Theme';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const DeveloperToolsFragment = fragment(() => {
-    const navigation = useTypedNavigation();
     const reboot = useReboot();
     let ref = loadKeyStorageRef();
     let kind = loadKeyStorageType();
@@ -70,18 +65,6 @@ export const DeveloperToolsFragment = fragment(() => {
                 <View style={{ marginHorizontal: 16, width: '100%' }}>
                     <Item title={"Storage Key"} hint={value} />
                 </View>
-                {AppConfig.isTestnet && (
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Deploy and install plugin"} onPress={() => {
-                            const acc = getCurrentAddress();
-                            navigation.navigate('PluginTransfer', {
-                                address: acc.address,
-                                operation: 'deploy_install',
-                                amount: new BN(100000000)
-                            });
-                        }} />
-                    </View>
-                )}
             </View>
         </View>
     );

@@ -15,10 +15,11 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
-import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
+import { SpamWallets } from "../../utils/SpamWallets";
+import { useEngine } from "../../engine/Engine";
 // import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 
 export const TransactionPreviewFragment = fragment(() => {
@@ -30,6 +31,8 @@ export const TransactionPreviewFragment = fragment(() => {
     let transaction = engine.products.main.useTransaction(params.transaction);
     let operation = transaction.operation;
     let avatarId = transaction.operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let spam: boolean = SpamWallets.findIndex((addr) => addr === friendlyAddress) != -1;
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
@@ -78,13 +81,26 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
             </View>
             <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, marginTop: 24, backgroundColor: '#5fbed5', alignItems: 'center', justifyContent: 'center' }}>
-                <Avatar address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={84} image={transaction.icon ? transaction.icon : undefined} />
+                <Avatar address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })} id={avatarId} size={84} image={transaction.icon ? transaction.icon : undefined} spam={spam} />
             </View>
-            <View style={{ marginTop: 34 }}>
+            {spam && (
+                <View style={{
+                    borderColor: '#ADB6BE',
+                    borderWidth: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 4,
+                    marginTop: 13,
+                    paddingHorizontal: 4
+                }}>
+                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
+                </View>
+            )}
+            <View style={{ marginTop: spam ? 34 - 13 : 34 }}>
                 {transaction.base.status === 'failed' ? (
                     <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                 ) : (
-                    <Text style={{ color: item.amount.gte(new BN(0)) ? '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
+                    <Text style={{ color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
                         <ValueComponent value={item.amount} centFontStyle={{ fontSize: 30, fontWeight: '400' }} />
                         {item.kind === 'token' ? ' ' + item.symbol : ''}
                     </Text>

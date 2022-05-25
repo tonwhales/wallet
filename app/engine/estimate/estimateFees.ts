@@ -37,16 +37,8 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsg: Cell, sto
     // console.log('gas_fees: ' + fromNano(gasFees));
 
     // Forward fees
-    let fwdFees = {
-        fees: new BN(0),
-        remaining: new BN(0)
-    }
-    try {
-        fwdFees = computeMessageForwardFees(config.workchain.message as any, outMsg);
-        // console.log('fwd_fees: ' + fromNano(fwdFees.fees.add(fwdFees.remaining)));
-    } catch (error) {
-        console.warn(error);
-    }
+    let fwdFees = computeMessageForwardFees(config.workchain.message as any, outMsg);
+    // console.log('fwd_fees: ' + fromNano(fwdFees.fees.add(fwdFees.remaining)));
 
     // Total
     let total = new BN(0);

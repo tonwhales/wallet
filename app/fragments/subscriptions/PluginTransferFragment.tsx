@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
@@ -53,7 +53,7 @@ type ConfirmLoadedProps = {
         balance: BN
     },
     transferCell: Cell,
-    // fees: BN,
+    fees: BN,
     amount: BN,
     metadata: ContractMetadata,
     restricted: boolean,
@@ -68,7 +68,7 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         restricted,
         target,
         transferCell,
-        // fees,
+        fees,
         amount,
         operation
     } = props;
@@ -162,8 +162,7 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         engine.products.main.registerPending({
             id: 'pending-' + account.seqno,
             lt: null,
-            // fees: fees,
-            fees: new BN(0),
+            fees: fees,
             amount: amount.mul(new BN(-1)),
             address: target.address,
             seqno: account.seqno,
@@ -228,8 +227,8 @@ const PluginTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                         />
                         <ItemDivider />
                         <ItemLarge title={t('transfer.purpose')} text={t(`products.plugins.operation.${operation}`)} />
-                        {/* <ItemDivider /> */}
-                        {/* <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} /> */}
+                        <ItemDivider />
+                        <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
                     </ItemGroup>
                 </View>
             </ScrollView>
@@ -270,7 +269,7 @@ export const PluginTransferFragment = fragment(() => {
 
         let exited = false;
 
-        backoff('transfer', async () => {
+        backoff('transfer-load', async () => {
 
             // Get contract
             const contract = await contractFromPublicKey(from.publicKey);
@@ -333,8 +332,46 @@ export const PluginTransferFragment = fragment(() => {
             }
 
             // Estimate fee
-            // let outMsg = operationTransfer;
-            // let fees = estimateFees(netConfig!, operationTransfer, outMsg, state!.account.storageStat);
+            let outMsg = operationTransfer;
+            const storageStat = state!.account.storageStat;
+            // Storage fees
+            let storageFees = storageStat ? computeStorageFees({
+                lastPaid: storageStat.lastPaid,
+                masterchain: false,
+                now: Math.floor(Date.now() / 1000),
+                special: false,
+                storagePrices: netConfig.storage,
+                storageStat: {
+                    bits: storageStat.used.bits,
+                    cells: storageStat.used.cells,
+                    publicCells: storageStat.used.publicCells
+                }
+            }) : new BN(0);
+
+            // Calculate import fees
+            let importFees = computeExternalMessageFees(netConfig.workchain.message as any, operationTransfer);
+
+            // Any transaction use this amount of gas
+            const gasUsed = 3308;
+            let gasFees = computeGasPrices(new BN(gasUsed), { flatLimit: netConfig.workchain.gas.flatLimit, flatPrice: netConfig.workchain.gas.flatGasPrice, price: netConfig.workchain.gas.price });
+
+            // Forward fees
+            let fwdFees = {
+                fees: new BN(0),
+                remaining: new BN(0)
+            }
+            try {
+                fwdFees = computeMessageForwardFees(netConfig.workchain.message as any, outMsg);
+            } catch (error) {
+                console.warn(error);
+            }
+
+            // Total
+            let fees = new BN(0);
+            fees = fees.add(storageFees);
+            fees = fees.add(importFees);
+            fees = fees.add(gasFees);
+            fees = fees.add(fwdFees.fees);
 
             // Set state
             setLoadedProps({
@@ -346,7 +383,7 @@ export const PluginTransferFragment = fragment(() => {
                 },
                 amount: params.amount,
                 transferCell: operationTransfer,
-                // fees,
+                fees,
                 metadata,
                 restricted,
                 operation: params.operation

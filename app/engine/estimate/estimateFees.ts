@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "ton";
+import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees, fromNano } from "ton";
 import { ConfigState } from "../sync/startConfigSync";
 
 export function estimateFees(config: ConfigState, inMsg: Cell, outMsg: Cell, storageStat: {
@@ -37,8 +37,16 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsg: Cell, sto
     // console.log('gas_fees: ' + fromNano(gasFees));
 
     // Forward fees
-    let fwdFees = computeMessageForwardFees(config.workchain.message as any, outMsg);
-    // console.log('fwd_fees: ' + fromNano(fwdFees.fees.add(fwdFees.remaining)));
+    let fwdFees = {
+        fees: new BN(0),
+        remaining: new BN(0)
+    }
+    try {
+        fwdFees = computeMessageForwardFees(config.workchain.message as any, outMsg);
+        // console.log('fwd_fees: ' + fromNano(fwdFees.fees.add(fwdFees.remaining)));
+    } catch (error) {
+        console.warn(error);
+    }
 
     // Total
     let total = new BN(0);

@@ -39,11 +39,6 @@ import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './engine/createEngine';
 import { useRecoilCallback } from 'recoil';
-import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
-import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
-import { EngineContext } from './engine/Engine';
-import { DevBluetoothFragment } from './fragments/dev/DevBluetoothFragment';
-import { PluginTransferFragment } from './fragments/subscriptions/PluginTransferFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -137,15 +132,10 @@ const navigation = [
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
+    genericScreen('DeveloperTools', DeveloperToolsFragment),
     modalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
-    modalScreen('Subscriptions', SubscriptionsFragment),
-    modalScreen('Subscription', SubscriptionFragment),
-    modalScreen('PluginTransfer', PluginTransferFragment),
-
-    genericScreen('Dev', DeveloperToolsFragment),
-    genericScreen('DevBluetooth', DevBluetoothFragment),
 ];
 
 export const Navigation = React.memo(() => {

@@ -90,7 +90,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notEnoughCoins: 'Unfortunatelly you don\'t have enougth coins for this transaction',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
-            addressIsNotActive: 'This address does not active'
+            addressIsNotActive: 'This wallet has never been used'
         },
         sendAll: 'send all',
         scanQR: 'scan qr code',
@@ -138,7 +138,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     qr: {
         title: 'Scan QR code',
         requestingPermission: 'Requesting for camera permission...',
-        noPermission: 'No access to camera'
+        noPermission: 'No access to camera',
+        requestPermission: 'Open settings',
     },
     products: {
         oldWallets: {

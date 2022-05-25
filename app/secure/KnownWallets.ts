@@ -151,19 +151,11 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             ic: Img_Disintar
         },
         [Address.parse('EQBgbag2XqQzAqVn-nuExgREK9aFXRQVa2tYaFpgTOD7HLfv').toFriendly()]: {
-            name: 'Nisintar.io',
-            colors: {
-                primary: '#2c3556',
-                secondary: '#7f88b5'
-            },
-            ic: Img_Neocrypto
-        },
-        [Address.parse('EQCx2VGggIF3VSlU0lNOH53gDJtOPpNGxVoky6m9-WY8-ozE').toFriendly()]: {
             name: 'Neocrypto.net',
             colors: {
                 primary: '#2c3556',
                 secondary: '#7f88b5'
             },
             ic: Img_Neocrypto
-        },
+        }
     }

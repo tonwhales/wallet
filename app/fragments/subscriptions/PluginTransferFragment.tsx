@@ -249,16 +249,14 @@ export const PluginTransferFragment = fragment(() => {
         operation: 'install' | 'remove' | 'deploy_install',
         amount: BN
     } = useRoute().params! as any;
+
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
-    // Memmoize all parameters just in case
     const from = React.useMemo(() => getCurrentAddress(), []);
     const target = React.useMemo(() => Address.parseFriendly(params.address.toFriendly({ testOnly: AppConfig.isTestnet })), []);
-    // const order = React.useMemo(() => params.order, []);
-    // const job = React.useMemo(() => params.job, []);
 
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
@@ -353,20 +351,6 @@ export const PluginTransferFragment = fragment(() => {
                 restricted,
                 operation: params.operation
             });
-
-            // target: {
-            //     address: Address,
-            //     isTestOnly: boolean,
-            //     active: boolean,
-            //     balance: BN
-            // },
-            // text: string | null,
-            // transferCell: Cell,
-            // fees: BN,
-            // amount: BN,
-            // metadata: ContractMetadata,
-            // restricted: boolean,
-            // operation: 'install' | 'remove' | 'deploy_install'
         });
 
         return () => {

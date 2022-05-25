@@ -179,7 +179,7 @@ export const NeocryptoFragment = fragment(() => {
         ...params
     }), [params]);
 
-    const main = `https://demo4.neocrypto.net/tonhub.html?${queryParams.toString()}`;
+    const main = `https://neocrypto.net/tonhub.html?${queryParams.toString()}`;
 
     const onOpenBuy = useCallback(() => {
         setAccepted(true);

@@ -13,18 +13,14 @@ import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { Transaction } from '../../engine/Transaction';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
-import { storage } from '../../storage/storage';
-import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
-import { openWithInApp } from '../../utils/openWithInApp';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -259,22 +255,6 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     const onOpenBuy = React.useCallback(
         () => {
-            if (storage.getBoolean(skipLegalNeocrypto)) {
-                // storage.set(skipLegalNeocrypto, false);
-                // const queryParams = new URLSearchParams({
-                //     partner: 'tonhub',
-                //     address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                //     cur_from: 'USD',
-                //     cur_to: 'TON',
-                //     fix_cur_to: 'true',
-                //     fix_address: 'true',
-                // });
-
-                // const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
-
-                // openWithInApp(main);
-            } else {
-            }
             navigation.navigate('Buy');
         },
         [],

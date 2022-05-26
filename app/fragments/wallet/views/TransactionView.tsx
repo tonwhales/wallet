@@ -14,6 +14,7 @@ import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import { Engine } from '../../../engine/Engine';
+import { useIsSpamWallet } from '../../../engine/useIsSpamWallet';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -21,7 +22,6 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
 
 export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
     const tx = props.engine.products.main.useTransaction(props.tx);
-    const spamWallets = props.engine.products.serverConfig.useServerConfig()?.wallets.spam;
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -58,7 +58,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         known = { name: operation.title };
     }
 
-    let spam: boolean = spamWallets?.findIndex((addr) => addr === friendlyAddress) != -1;
+    let spam = useIsSpamWallet(props.engine, friendlyAddress);
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>

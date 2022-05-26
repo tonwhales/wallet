@@ -19,6 +19,7 @@ import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
+import { useIsSpamWallet } from "../../engine/useIsSpamWallet";
 // import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 
 export const TransactionPreviewFragment = fragment(() => {
@@ -27,12 +28,11 @@ export const TransactionPreviewFragment = fragment(() => {
     const params = useParams<{ transaction: string }>();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
-    const spamWallets = engine.products.serverConfig.useServerConfig()?.wallets.spam;
     let transaction = engine.products.main.useTransaction(params.transaction);
     let operation = transaction.operation;
     let avatarId = transaction.operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    let spam: boolean = spamWallets?.findIndex((addr) => addr === friendlyAddress) != -1;
+    let spam = useIsSpamWallet(engine, friendlyAddress);
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {

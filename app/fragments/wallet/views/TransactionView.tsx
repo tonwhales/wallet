@@ -13,7 +13,6 @@ import { PendingTransactionAvatar } from '../../../components/PendingTransaction
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
-import { SpamWallets } from '../../../utils/SpamWallets';
 import { Engine } from '../../../engine/Engine';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
@@ -22,6 +21,7 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
 
 export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
     const tx = props.engine.products.main.useTransaction(props.tx);
+    const spamWallets = props.engine.products.serverConfig.useServerConfig()?.wallets.spam;
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -58,7 +58,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         known = { name: operation.title };
     }
 
-    let spam: boolean = SpamWallets.findIndex((addr) => addr === friendlyAddress) != -1;
+    let spam: boolean = spamWallets?.findIndex((addr) => addr === friendlyAddress) != -1;
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>

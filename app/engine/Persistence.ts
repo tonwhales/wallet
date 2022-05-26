@@ -17,6 +17,7 @@ import { Engine } from "./Engine";
 import { HintProcessingState } from "./sync/startHintSync";
 import { TxHints } from "./sync/startHintsTxSync";
 import { ConfigState } from "./sync/startConfigSync";
+import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
 
 export class Persistence {
 
@@ -44,6 +45,7 @@ export class Persistence {
     readonly accountHints: PersistedCollection<Address, Address[]>;
     readonly scannerState: PersistedCollection<Address, TxHints>;
 
+    readonly serverConfig: PersistedCollection<void, ServerConfig>
     readonly config: PersistedCollection<void, ConfigState>;
 
     constructor(storage: MMKV, engine: Engine) {
@@ -77,6 +79,7 @@ export class Persistence {
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
 
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
+        this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
     }
 }
 

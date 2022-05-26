@@ -15,6 +15,7 @@ import { WalletProduct } from './products/WalletProduct';
 import { Model } from './Model';
 import { startSync } from './sync/startSync';
 import { ConfigProduct } from './products/ConfigProduct';
+import { ServerConfigProduct } from './products/ServerConfigProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -41,7 +42,8 @@ export class Engine {
         price: PriceProduct,
         apps: AppProduct,
         whalesStakingPool: StakingPoolProduct,
-        config: ConfigProduct
+        config: ConfigProduct,
+        serverConfig: ServerConfigProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -83,7 +85,8 @@ export class Engine {
             price: new PriceProduct(this),
             apps: new AppProduct(this),
             whalesStakingPool: new StakingPoolProduct(this, KnownPools[0].address),
-            config: new ConfigProduct(this)
+            config: new ConfigProduct(this),
+            serverConfig: new ServerConfigProduct(this)
         };
 
         //

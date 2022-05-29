@@ -20,16 +20,14 @@ import { AppConfig } from '../../AppConfig';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
-import { storage } from '../../storage/storage';
-import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
-import { openWithInApp } from '../../utils/openWithInApp';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { WalletState } from '../../engine/products/WalletProduct';
 import { log } from '../../utils/log';
+import { Engine, useEngine } from '../../engine/Engine';
+import { WalletState } from '../../engine/products/WalletProduct';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -258,23 +256,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     const onOpenBuy = React.useCallback(
         () => {
-            if (storage.getBoolean(skipLegalNeocrypto)) {
-                // storage.set(skipLegalNeocrypto, false);
-                const queryParams = new URLSearchParams({
-                    partner: 'tonhub',
-                    address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    cur_from: 'USD',
-                    cur_to: 'TON',
-                    fix_cur_to: 'true',
-                    fix_address: 'true',
-                });
-
-                const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
-
-                openWithInApp(main);
-            } else {
-                navigation.navigate('Buy')
-            }
+            navigation.navigate('Buy');
         },
         [],
     );
@@ -386,7 +368,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
-                    {/* {
+                    {
                         !AppConfig.isTestnet && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                                 <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
@@ -399,7 +381,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 </TouchableHighlight>
                             </View>
                         )
-                    } */}
+                    }
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>

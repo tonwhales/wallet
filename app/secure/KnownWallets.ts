@@ -7,6 +7,7 @@ const Img_Whales = require('../../assets/known/whales.png');
 const Img_OKX = require('../../assets/known/okx.png');
 const Img_FTX = require('../../assets/known/ftx.png');
 const Img_Disintar = require('../../assets/known/disintar_logo.png');
+const Img_Neocrypto = require('../../assets/known/neocrypto.png')
 
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
@@ -149,4 +150,12 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Disintar
         },
+        [Address.parse('EQBgbag2XqQzAqVn-nuExgREK9aFXRQVa2tYaFpgTOD7HLfv').toFriendly()]: {
+            name: 'Neocrypto.net',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_Neocrypto
+        }
     }

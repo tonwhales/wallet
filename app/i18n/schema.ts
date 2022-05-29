@@ -29,7 +29,8 @@ export type LocalizationSchema = {
         confirm: string,
         soon: string,
         in: string,
-        max: string
+        max: string,
+        close: string
     },
     syncStatus: {
         connecting: string,
@@ -53,7 +54,8 @@ export type LocalizationSchema = {
         balanceTitle: string,
         actions: {
             receive: string,
-            send: string
+            send: string,
+            buy: string
         },
         empty: {
             message: string,
@@ -332,6 +334,10 @@ export type LocalizationSchema = {
         description: string,
         doNotShow: string,
         termsAndPrivacy: string,
+        confirm: {
+            title: string,
+            message: string
+        },
     },
     known: {
         deposit: string,

@@ -27,7 +27,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         confirm: 'Confirm',
         soon: 'soon',
         in: 'in',
-        max: 'Max'
+        max: 'Max',
+        close: 'Close'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -51,7 +52,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         balanceTitle: 'Ton balance',
         actions: {
             receive: 'Receive',
-            send: 'Send'
+            send: 'Send',
+            buy: 'Buy'
         },
         empty: {
             message: 'You have no transactions',
@@ -330,6 +332,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service. ',
         doNotShow: 'Do not show it again for Neocrypto',
         termsAndPrivacy: 'I have read and agree to the ',
+        confirm: {
+            title: 'Are you sure want to close this form?',
+            message: 'This will discard all of you changes'
+        },
     },
     known: {
         deposit: 'Deposit',

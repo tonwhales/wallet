@@ -94,6 +94,11 @@ export class WalletProduct {
                 }[] = [];
                 for (let w of jettonWallets) {
                     let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
+                    
+                    if (jm && !jm.description) {
+                        jm.description = `$${jm.symbol} token`;
+                    }
+
                     if (jm && jm.name && jm.symbol && jm.description) {
 
                         // Image path

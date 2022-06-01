@@ -6,25 +6,14 @@ import { Item } from '../../components/Item';
 import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storage, storagePersistence } from '../../storage/storage';
-import { getApplicationKey, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
+import { storagePersistence } from '../../storage/storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const DeveloperToolsFragment = fragment(() => {
+    const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
-    let ref = loadKeyStorageRef();
-    let kind = loadKeyStorageType();
-    let [value, setValue] = React.useState('');
-    React.useEffect(() => {
-        (async () => {
-            try {
-                let key = await getApplicationKey();
-                setValue(key.toString('base64'));
-            } catch (e) {
-                console.warn(e);
-                setValue('error');
-            }
-        })();
-    }, []);
     const restart = React.useCallback(() => {
         // TODO: Implement
     }, [])
@@ -39,34 +28,34 @@ export const DeveloperToolsFragment = fragment(() => {
     //     reboot();
     // }, []);
     return (
-        <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 64 }}>
-            <View style={{
-                marginBottom: 16, marginTop: 17,
-                backgroundColor: "white",
-                borderRadius: 14,
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexShrink: 1,
-            }}>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
-                </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
-                </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
-                </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Storage Kind"} hint={kind} />
-                </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Storage Ref"} hint={ref} />
-                </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Storage Key"} hint={value} />
+        <>
+            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+                <View style={{
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: "white",
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Test App"} onPress={() => navigation.navigate('App')} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                    </View>
                 </View>
             </View>
-        </View>
+        </>
     );
 });

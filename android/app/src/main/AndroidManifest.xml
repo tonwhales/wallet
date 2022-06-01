@@ -24,7 +24,7 @@
         android:usesCleartextTraffic="true">
         <meta-data
             android:name="expo.modules.updates.ENABLED"
-            android:value="true" />
+            android:value="false" />
         <meta-data
             android:name="expo.modules.updates.EXPO_SDK_VERSION"
             android:value="44.0.0" />

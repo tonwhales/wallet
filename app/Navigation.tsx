@@ -40,6 +40,8 @@ import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './engine/createEngine';
 import { useRecoilCallback } from 'recoil';
+import { AppFragment } from './fragments/apps/AppFragment';
+import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -134,9 +136,11 @@ const navigation = [
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment),
+    genericScreen('DeveloperToolsStorage', DevStorageFragment),
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
+    modalScreen('App', AppFragment),
 ];
 
 export const Navigation = React.memo(() => {

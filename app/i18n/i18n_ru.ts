@@ -349,6 +349,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         cashback: 'Кэшбек',
         tokenSent: 'Токен отправлен',
         tokenReceived: 'Токен получен'
+    },
+    jetton: {
+        token: 'токен'
     }
 };
 

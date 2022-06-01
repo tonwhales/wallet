@@ -11,6 +11,7 @@ import { createHistorySync } from "../sync/createHistorySync";
 import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { PluginState } from "../sync/startPluginSync";
+import { t } from "../../i18n/t";
 
 export type WalletState = {
     balance: BN;
@@ -94,9 +95,9 @@ export class WalletProduct {
                 }[] = [];
                 for (let w of jettonWallets) {
                     let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
-                    
+
                     if (jm && !jm.description) {
-                        jm.description = `$${jm.symbol} token`;
+                        jm.description = `$${jm.symbol} ${t('jetton.token')}`;
                     }
 
                     if (jm && jm.name && jm.symbol && jm.description) {

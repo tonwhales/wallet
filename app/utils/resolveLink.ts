@@ -4,7 +4,7 @@ export function resolveLink(link: string) {
     let resolved: string | null = null;
     try {
         let temp = link;
-        if (temp.includes('ipfs://')) {
+        if (temp.startsWith('ipfs://')) {
             temp = temp.replace('ipfs://', 'http://whales.infura-ipfs.io/ipfs/');
         }
         new URL(temp);

@@ -351,6 +351,9 @@ export type LocalizationSchema = {
         cashback: string,
         tokenSent: string,
         tokenReceived: string
+    },
+    jetton: {
+        token: string
     }
 };
 

@@ -96,7 +96,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         scanQR: 'scan qr code',
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',
-        feeTitle: 'Blocchain fees',
+        feeTitle: 'Blockchain fees',
         purpose: 'Purpose of transaction',
         comment: 'Optional message',
         commentRequired: 'Сomment required',

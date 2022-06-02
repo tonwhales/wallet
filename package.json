@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -22,6 +22,7 @@
     "@react-navigation/native-stack": "^6.2.5",
     "@react-navigation/stack": "^6.0.11",
     "@types/bn.js": "^5.1.0",
+    "@types/color": "^3.0.3",
     "@types/events": "^3.0.0",
     "@types/jest": "^27.4.0",
     "@types/murmurhash": "^2.0.0",
@@ -31,6 +32,7 @@
     "axios": "^0.24.0",
     "bn.js": "^5.2.0",
     "buffer": "^6.0.3",
+    "color": "^4.2.3",
     "date-fns": "^2.28.0",
     "events": "^3.3.0",
     "expo": "^45.0.0",

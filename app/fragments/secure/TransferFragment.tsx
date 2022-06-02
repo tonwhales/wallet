@@ -279,6 +279,12 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <ItemLarge title={t('transfer.comment')} text={operation.comment} />
                             </>
                         )}
+                        {!operation.comment && !operation.op && !!text && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.purpose')} text={text} />
+                            </>
+                        )}
                         <ItemDivider />
                         <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
                     </ItemGroup>

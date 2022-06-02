@@ -19,6 +19,7 @@ import java.util.List;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
 
+import com.tonhub.wallet.modules.navbarcolor.NavigationBarColorPackage;
 import com.tonhub.wallet.modules.store.KeyStorePackage;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -37,6 +38,7 @@ public class MainApplication extends Application implements ReactApplication {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // packages.add(new MyReactNativePackage());
                     packages.add(new KeyStorePackage());
+                    packages.add(new NavigationBarColorPackage());
                     return packages;
                 }
 

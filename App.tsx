@@ -21,6 +21,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
 import { Root } from './app/Root';
+import { changeNavBarColor } from './app/components/modules/NavBar';
+
+changeNavBarColor('white');
 
 function Boot() {
   return (

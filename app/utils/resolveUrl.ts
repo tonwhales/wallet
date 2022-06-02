@@ -2,6 +2,7 @@ import BN from "bn.js";
 import { Address, Cell } from "ton";
 import Url from 'url-parse';
 import { warn } from "./log";
+import { SupportedDomains } from "./SupportedDomains";
 
 type ResolvedUrl = {
     type: 'transaction',
@@ -91,7 +92,7 @@ export function resolveUrl(src: string): ResolvedUrl {
 
         // HTTP(s) url
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com' || url.host.toLowerCase() === 'test.tonhub.com')
+            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
             let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
             let comment: string | null = null;
@@ -126,7 +127,7 @@ export function resolveUrl(src: string): ResolvedUrl {
 
         // Tokeeper url support for QR
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (url.host.toLowerCase() === 'app.tonkeeper.com' || url.host.toLowerCase() === 'www.app.tonkeeper.com')
+            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
             let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
             let comment: string | null = null;
@@ -161,7 +162,7 @@ export function resolveUrl(src: string): ResolvedUrl {
 
         // HTTP(s) Sign Url
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com' || url.host.toLowerCase() === 'test.tonhub.com')
+            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/connect/'))) {
             let session = url.pathname.slice('/connect/'.length);
             let endpoint: string | null = null;

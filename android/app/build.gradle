@@ -247,9 +247,6 @@ android {
         netmain {
             applicationId 'com.tonhub.wallet'
         }
-        netmainVz {
-            applicationId 'com.tonhub.wallet.vz'
-        }
         nettest {
             applicationId 'com.tonhub.wallet.testnet'
         }

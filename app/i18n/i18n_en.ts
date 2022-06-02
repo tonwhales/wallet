@@ -349,6 +349,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         cashback: 'Cashback',
         tokenSent: 'Token sent',
         tokenReceived: 'Token received'
+    },
+    jetton: {
+        token: 'token'
     }
 };
 

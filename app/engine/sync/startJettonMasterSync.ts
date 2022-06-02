@@ -6,6 +6,7 @@ import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 import { tryFetchJettonMaster } from "../metadata/introspections/tryFetchJettonMaster";
+import { resolveLink } from "../../utils/resolveLink";
 
 // Update this version to re-index
 const CURRENT_VERSION = 1;
@@ -43,13 +44,7 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
         let masterInfo = await tryFetchJettonMaster(engine.client4, block.last.seqno, address);
         if (masterInfo && masterInfo.content && masterInfo.content.type === 'offchain') {
             // Resolve link
-            let link: string | null = null;
-            try {
-                new URL(masterInfo.content.link);
-                link = masterInfo.content.link;
-            } catch (e) {
-                warn(e);
-            }
+            let link: string | null = resolveLink(masterInfo.content.link);
 
             if (link) {
                 let response = await backoff('jetton-master', () => axios.get(link!, { timeout: 5000 }));

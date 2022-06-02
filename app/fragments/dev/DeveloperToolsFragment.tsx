@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { Theme } from "../../Theme";
 import { Item } from '../../components/Item';
@@ -9,6 +9,8 @@ import { fragment } from '../../fragment';
 import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { StatusBar } from 'expo-status-bar';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -28,7 +30,12 @@ export const DeveloperToolsFragment = fragment(() => {
     //     reboot();
     // }, []);
     return (
-        <>
+        <View style={{
+            flex: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+        }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <AndroidToolbar pageTitle={'Dev Tools'} />
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
@@ -56,6 +63,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                 </View>
             </View>
-        </>
+        </View>
     );
 });

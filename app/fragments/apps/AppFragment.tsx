@@ -9,14 +9,24 @@ import { CloseButton } from '../../components/CloseButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AppComponent } from './components/AppComponent';
 import Color from 'color';
+import { getMetaTags, MetaTags } from '../../utils/meta/getMetaTags';
 
 export const AppFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const endpoint = 'https://tonwhales.com';
-    const color = '#fff';
+    const [metaTags, setMetaTags] = React.useState<MetaTags>({});
+    const color = metaTags['msapplication-TileColor'] ? metaTags['msapplication-TileColor'] : '#fff';
     const c = Color(color);
-    const fontColor = c.isDark() ? c.lighten(0.9).toString() : c.darken(0.8).toString();
+    const fontColor = c.isDark() ? c.lighten(0.9).hex() : c.darken(0.8).hex();
+
+    React.useEffect(() => {
+        (async () => {
+            const metaRes = await getMetaTags(endpoint);
+            setMetaTags(metaRes);
+        })();
+    }, [endpoint]);
+
     return (
         <View style={{
             flex: 1,

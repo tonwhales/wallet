@@ -124,6 +124,40 @@ export function resolveUrl(src: string): ResolvedUrl {
             }
         }
 
+        if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
+            && (url.host.toLowerCase() === 'app.tonkeeper.com' || url.host.toLowerCase() === 'www.app.tonkeeper.com')
+            && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
+            let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
+            let comment: string | null = null;
+            let amount: BN | null = null;
+            let payload: Cell | null = null;
+            let stateInit: Cell | null = null;
+            if (url.query) {
+                for (let key in url.query) {
+                    if (key.toLowerCase() === 'text') {
+                        comment = url.query[key]!;
+                    }
+                    if (key.toLowerCase() === 'amount') {
+                        amount = new BN(url.query[key]!, 10);
+                    }
+                    if (key.toLowerCase() === 'bin') {
+                        payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                    }
+                    if (key.toLowerCase() === 'init') {
+                        stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                    }
+                }
+            }
+            return {
+                type: 'transaction',
+                address,
+                comment,
+                amount,
+                payload,
+                stateInit
+            }
+        }
+
         // HTTP(s) Sign Url
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
             && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com' || url.host.toLowerCase() === 'test.tonhub.com')

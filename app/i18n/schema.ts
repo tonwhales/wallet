@@ -115,6 +115,7 @@ export type LocalizationSchema = {
         completed: string,
         noApps: string,
         name: string,
+        yourWallet: string,
         revoke: {
             title: string,
             message: string,

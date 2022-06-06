@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRoute } from "@react-navigation/native";
-import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Image } from "react-native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { t, tStyled } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -19,6 +19,9 @@ import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
+import ChainIcon from '../../../assets/ic_chain.svg';
+import ProtectedIcon from '../../../assets/ic_protected.svg';
+import { CloseButton } from '../../components/CloseButton';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -26,9 +29,15 @@ const labelStyle: StyleProp<TextStyle> = {
     fontSize: 17
 };
 
+type SignState = { type: 'loading' }
+    | { type: 'expired' }
+    | { type: 'initing', name: string, url: string, icon?: string | null }
+    | { type: 'completed' }
+
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const navigation = useTypedNavigation();
-    const [state, setState] = React.useState<{ type: 'loading' } | { type: 'expired' } | { type: 'initing', name: string, url: string } | { type: 'completed' }>({ type: 'loading' });
+    const safeArea = useSafeAreaInsets();
+    const [state, setState] = React.useState<SignState>({ type: 'loading' });
     React.useEffect(() => {
         let ended = false;
         backoff('authenticate', async () => {
@@ -168,16 +177,206 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
 
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{tStyled('auth.message', { name: state.name })}</Text>
-            <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textSecondary, marginBottom: 32 }}>{state.url}</Text>
-            <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textSecondary, marginBottom: 32 }}>{t('auth.hint')}</Text>
-            <RoundButton title={t('auth.action')} action={approve} size="large" style={{ width: 200 }} />
+            <View style={{ flexGrow: 1 }} />
+            <View
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    width: '100%',
+                    justifyContent: 'center',
+                }}
+            >
+                <View style={{
+                    position: 'absolute',
+                    height: 64,
+                    top: 0, left: 0, right: 0,
+                    justifyContent: 'center'
+                }}>
+                    <View style={{
+                        backgroundColor: Theme.divider,
+                        position: 'absolute',
+                        left: 88, right: 88,
+                        height: 1, top: 32
+                    }} />
+                    <View style={{
+                        alignSelf: 'center',
+                        backgroundColor: Theme.accent,
+                        height: 30, width: 30,
+                        borderRadius: 15
+                    }}>
+                        <ChainIcon style={{ height: 24, width: 24 }} />
+                    </View>
+                </View>
+                <View style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: 154,
+                }}>
+                    <View style={{
+                        backgroundColor: 'grey',
+                        width: 64, height: 64,
+                        borderRadius: 16,
+                        marginBottom: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <Image
+                            source={state.icon
+                                ? { uri: state.icon }
+                                : require('../../../assets/ic_app_placeholder.png')
+                            }
+                            style={{ width: 64, height: 64 }}
+                            resizeMode={'cover'}
+                        />
+                        <View style={{
+                            borderRadius: 16,
+                            borderWidth: 0.5,
+                            borderColor: 'black',
+                            backgroundColor: 'transparent',
+                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                            opacity: 0.06
+                        }} />
+                    </View>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            fontSize: 16,
+                            fontWeight: '700',
+                            color: Theme.textColor,
+                            marginBottom: 4
+                        }}
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                    >
+                        {state.name}
+                    </Text>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            fontSize: 16,
+                            fontWeight: '400',
+                            color: Theme.textSecondary
+                        }}
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                    >
+                        {state.url.replace('https://', '').replace('http://', '')}
+                    </Text>
+                </View>
+                <View style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: 154,
+                }}>
+                    <View style={{
+                        backgroundColor: 'grey',
+                        width: 64, height: 64,
+                        borderRadius: 16,
+                        overflow: 'hidden',
+                        marginBottom: 8
+                    }}>
+                        <Image
+                            source={require('../../../assets/ic_app_tonhub.png')}
+                            style={{ width: 64, height: 64 }}
+                            resizeMode={'cover'}
+                        />
+                        <View style={{
+                            borderRadius: 10,
+                            borderWidth: 0.5,
+                            borderColor: 'black',
+                            backgroundColor: 'transparent',
+                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                            opacity: 0.06
+                        }} />
+                    </View>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            fontSize: 16,
+                            fontWeight: '700',
+                            color: Theme.textColor,
+                            marginBottom: 4
+                        }}
+                    >
+                        {t('auth.yourWallet')}
+                    </Text>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 16,
+                        fontWeight: '400',
+                        color: Theme.textSecondary,
+                    }}>
+                        <Text>
+                            {
+                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 4)
+                                + '...'
+                                + acc.address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
+                            }
+                        </Text>
+                    </Text>
+                </View>
+            </View>
+            <Text
+                style={{
+                    fontSize: 24,
+                    marginHorizontal: 32,
+                    textAlign: 'center',
+                    color: Theme.textColor,
+                    marginBottom: 32,
+                    fontWeight: '600',
+                    marginTop: 24
+                }}
+            >
+                {tStyled('auth.message', { name: state.name })}
+            </Text>
+            <View style={{ flexGrow: 1 }} />
+            <View style={{ flexDirection: 'row', marginHorizontal: 32 }}>
+                <ProtectedIcon height={26} width={26} style={{ marginRight: 10 }} />
+                <Text
+                    style={{
+                        fontSize: 14,
+                        fontWeight: '400',
+                        color: Theme.textColor,
+                        marginBottom: 32,
+                        opacity: 0.6
+                    }}
+                >{
+                        t('auth.hint')}
+                </Text>
+            </View>
+            <View style={{
+                height: 64,
+                marginBottom: safeArea.bottom + 16,
+                marginHorizontal: 16,
+                flexDirection: 'row',
+                justifyContent: 'space-evenly'
+            }}>
+                <RoundButton
+                    title={t('common.cancel')}
+                    display={'secondary'}
+                    onPress={() => navigation.goBack()}
+                    style={{
+                        flexGrow: 1,
+                        marginRight: 7,
+                        height: 56
+                    }}
+                />
+                <RoundButton
+                    title={t('auth.action')}
+                    action={approve}
+                    style={{
+                        marginLeft: 7,
+                        height: 56,
+                        flexGrow: 1,
+                    }}
+                />
+            </View>
         </View>
     );
 });
 
 export const AuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
     const params: {
         session: string,
         endpoint: string | null
@@ -195,6 +394,14 @@ export const AuthenticateFragment = fragment(() => {
                 </View>
             )}
             <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} />
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+            )}
         </>
     );
 });

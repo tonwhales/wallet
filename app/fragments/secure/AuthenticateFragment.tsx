@@ -19,6 +19,7 @@ import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
+import SuccessIcon from '../../../assets/ic_success.svg';
 import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
@@ -33,6 +34,7 @@ type SignState = { type: 'loading' }
     | { type: 'expired' }
     | { type: 'initing', name: string, url: string, icon?: string | null }
     | { type: 'completed' }
+    | { type: 'authorized' }
 
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const navigation = useTypedNavigation();
@@ -142,7 +144,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 return;
             }
 
-            navigation.goBack();
+            setState({ type: 'authorized' });
         });
     }, [state]);
 
@@ -171,6 +173,49 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
+            </View>
+        );
+    }
+
+    // Authorised
+    if (state.type === 'authorized') {
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
+                <SuccessIcon
+                    style={{
+                        marginBottom: 24
+                    }}
+                    height={56}
+                    width={56}
+                />
+                <Text
+                    style={{
+                        fontSize: 24,
+                        marginHorizontal: 32,
+                        textAlign: 'center',
+                        color: Theme.textColor,
+                    }}
+                >
+                    {t('auth.authorized')}
+                </Text>
+                <Text style={{
+                    color: Theme.textSecondary,
+                    fontWeight: '400',
+                    fontSize: 16,
+                    marginTop: 10,
+                    marginBottom: 32,
+                    textAlign: 'center',
+                    marginHorizontal: 32
+                }}>
+                    {t('auth.authorizedDescription')}
+                </Text>
+                <RoundButton
+                    title={t('common.back')}
+                    onPress={() => navigation.goBack()}
+                    size="large"
+                    style={{ width: 200 }}
+                    display="outline"
+                />
             </View>
         );
     }

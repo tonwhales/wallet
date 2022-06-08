@@ -113,6 +113,8 @@ export type LocalizationSchema = {
         action: string,
         expired: string,
         completed: string,
+        authorized: string,
+        authorizedDescription: string,
         noApps: string,
         name: string,
         yourWallet: string,

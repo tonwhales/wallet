@@ -15,6 +15,7 @@ import { startFileSync } from "./startFileSync";
 import { requestHintsIfNeeded } from "./ops";
 import { startConfigSync } from "./startConfigSync";
 import { startServerConfigSync } from "./startServerConfigSync";
+import { resolveLink } from "../../utils/resolveLink";
 
 export function startSync(engine: Engine) {
 

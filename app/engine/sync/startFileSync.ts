@@ -4,6 +4,7 @@ import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import * as FileSystem from 'expo-file-system';
 import { createLogger } from "../../utils/log";
+import { resolveLink } from "../../utils/resolveLink";
 
 let lock = new BoundedConcurrencyPool(16);
 let logger = createLogger('download');
@@ -31,12 +32,15 @@ export function startFileSync(link: string, engine: Engine) {
             }
 
             // Downloading
-            logger.log('Downloading: ' + link);
-            let downloading = await FileSystem.downloadAsync(link, FileSystem.cacheDirectory + key, {});
-            logger.log('Downloaded to ' + downloading.uri);
+            const resolved = resolveLink(link);
+            if (resolved) {
+                logger.log('Downloading: ' + resolved);
+                let downloading = await FileSystem.downloadAsync(resolved, FileSystem.cacheDirectory + key, {});
+                logger.log('Downloaded to ' + downloading.uri);
 
-            // Persist
-            item.update(() => key);
+                // Persist
+                item.update(() => key);
+            }
         });
     });
 }

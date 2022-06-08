@@ -111,6 +111,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         action: 'Allow',
         expired: 'This authentication request already expired',
         completed: 'This authentication request already completed',
+        authorized: 'Authorization request approved',
+        authorizedDescription: 'You can now continue your work in the authorized application',
         noApps: 'No connected apps',
         name: 'Connected apps',
         yourWallet: 'Your wallet',

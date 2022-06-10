@@ -22,9 +22,7 @@ export const AppIcon = React.memo((
 ) => {
     const engine = useEngine();
     const [loading, setLoading] = useState();
-    const downloaded = app?.image?.preview256
-        ? useRecoilValue(engine.persistence.downloads.item(app.image.preview256).atom)
-        : undefined;
+    const downloaded = useRecoilValue(engine.persistence.downloads.item(app?.image?.preview256 || '').atom);
 
     if (downloaded) {
         return (

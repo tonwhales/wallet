@@ -35,11 +35,12 @@ export class AppsProduct {
 
     async getAppData(url: string) {
         const persisted = this.engine.persistence.deApps.item(url).value;
+        // fetch and add if does not exist
         if (!persisted) {
             try {
                 const appData = await fetchAppData(url);
                 if (appData) {
-                    await this.addApp(url, appData);
+                    await this.addAppData(url, appData);
                     return appData;
                 }
             } catch (e) {
@@ -51,7 +52,7 @@ export class AppsProduct {
         return persisted;
     }
 
-    async addApp(url: string, appData: AppData) {
+    async addAppData(url: string, appData: AppData) {
         const app = this.engine.persistence.deApps.item(url);
 
         // Resolve app icon image
@@ -62,7 +63,7 @@ export class AppsProduct {
 
             try {
                 let info = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + key);
-                // Check if file exist
+                // Check if file exists
                 if (!info.exists) {
                     let url = resolveLink(link || '');
                     if (url) {
@@ -78,12 +79,24 @@ export class AppsProduct {
         app.update(() => appData);
     }
 
+    addAppToList(url: string) {
+        const item = this.engine.persistence.deAppsList.item();
+        const apps = item.value || [];
+        const index = apps.findIndex((s) => s === url);
+        if (index !== -1) {
+            return;
+        }
+        apps.push(url);
+        item.update(() => apps);
+    }
+
     removeApp(url: string) {
-        const apps = this.engine.persistence.deAppsList.getValue() || [];
+        const item = this.engine.persistence.deAppsList.item();
+        const apps = item.value || [];
         const index = apps.findIndex((s) => s === url);
         if (index !== -1) {
             apps.splice(index, 1);
-            this.engine.persistence.deAppsList.item().update(() => apps);
+            item.update(() => apps);
         }
     }
 }

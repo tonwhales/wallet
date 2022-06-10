@@ -15,7 +15,6 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
 import { Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { sign } from 'ton-crypto';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
@@ -23,6 +22,9 @@ import SuccessIcon from '../../../assets/ic_success.svg';
 import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
+import { AppData } from '../../engine/api/fetchAppData';
+import { useEngine } from '../../engine/Engine';
+import { AppIcon } from '../apps/components/AppIcon';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -32,7 +34,7 @@ const labelStyle: StyleProp<TextStyle> = {
 
 type SignState = { type: 'loading' }
     | { type: 'expired' }
-    | { type: 'initing', name: string, url: string, icon?: string | null }
+    | { type: 'initing', name: string, url: string, app?: AppData | null }
     | { type: 'completed' }
     | { type: 'authorized' }
 
@@ -40,6 +42,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
+    const engine = useEngine();
     React.useEffect(() => {
         let ended = false;
         backoff('authenticate', async () => {
@@ -55,7 +58,8 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 return;
             }
             if (currentState.data.state === 'initing') {
-                setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url });
+                const appData = await engine.products.deApps.getAppData(currentState.data.url);
+                setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
                 return;
             }
             if (currentState.data.state === 'ready') {
@@ -235,7 +239,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     position: 'absolute',
                     height: 64,
                     top: 0, left: 0, right: 0,
-                    justifyContent: 'center'
+                    justifyContent: 'center',
                 }}>
                     <View style={{
                         backgroundColor: Theme.divider,
@@ -257,30 +261,13 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     alignItems: 'center',
                     width: 154,
                 }}>
-                    <View style={{
-                        backgroundColor: 'grey',
-                        width: 64, height: 64,
-                        borderRadius: 16,
-                        marginBottom: 8,
-                        overflow: 'hidden'
-                    }}>
-                        <Image
-                            source={state.icon
-                                ? { uri: state.icon }
-                                : require('../../../assets/ic_app_placeholder.png')
-                            }
-                            style={{ width: 64, height: 64 }}
-                            resizeMode={'cover'}
-                        />
-                        <View style={{
-                            borderRadius: 16,
-                            borderWidth: 0.5,
-                            borderColor: 'black',
-                            backgroundColor: 'transparent',
-                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                            opacity: 0.06
-                        }} />
-                    </View>
+                    <AppIcon
+                        heigh={64}
+                        width={64}
+                        style={{ marginBottom: 8 }}
+                        app={state.app}
+                        borderRadius={16}
+                    />
                     <Text
                         style={{
                             textAlign: 'center',
@@ -292,7 +279,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {state.name}
+                        {state.type === 'initing' && state.app ? state.app.title : state.name}
                     </Text>
                     <Text
                         style={{
@@ -304,7 +291,12 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {state.url.replace('https://', '').replace('http://', '')}
+                        {
+                            (state.type === 'initing' && state.app
+                                ? new URL(state.app.url).host
+                                : new URL(state.url).host
+                            )
+                        }
                     </Text>
                 </View>
                 <View style={{
@@ -313,11 +305,11 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     width: 154,
                 }}>
                     <View style={{
-                        backgroundColor: 'grey',
                         width: 64, height: 64,
                         borderRadius: 16,
                         overflow: 'hidden',
-                        marginBottom: 8
+                        marginBottom: 8,
+                        backgroundColor: 'white'
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}
@@ -371,7 +363,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     marginTop: 24
                 }}
             >
-                {tStyled('auth.message', { name: state.name })}
+                {tStyled('auth.message', { name: state.app ? state.app.title : state.name })}
             </Text>
             <View style={{ flexGrow: 1 }} />
             <View style={{ flexDirection: 'row', marginHorizontal: 32 }}>
@@ -429,7 +421,7 @@ export const AuthenticateFragment = fragment(() => {
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('auth.title')} />
-            <StatusBar style="dark" />
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,

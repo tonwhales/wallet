@@ -1,6 +1,7 @@
 import axios from "axios";
 import { isLeft } from "fp-ts/lib/Either";
 import * as t from 'io-ts';
+import { warn } from "../../utils/log";
 
 export type AppDataIcon = {
     blurhash: string | null,
@@ -36,10 +37,15 @@ export async function fetchAppData(link: string) {
     try {
         url = new URL(link);
     } catch (e) {
+        warn(e)
         return null;
     }
 
-    const res = await axios.get(`https://connect.tonhubapi.com/apps/metadata?url=${link.toString()}`);
+    if (link.includes('https://test.tonwhales.com')) {
+        url = new URL('https://sandbox.tonwhales.com');
+    }
+    const reqUrl = `https://connect.tonhubapi.com/apps/metadata?url=${url.toString()}`;
+    const res = await axios.get(reqUrl);
 
     if (res.status === 200) {
         const parsed = appDataCodec.decode(res.data);

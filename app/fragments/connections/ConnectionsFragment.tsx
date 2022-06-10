@@ -114,13 +114,11 @@ export const ConnectionsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     {apps.map((app) => (
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <View key={`app-${app.key}`} style={{ marginHorizontal: 16, width: '100%' }}>
                             <ConnectedAppButton
-                                onPress={() => disconnectApp(app.key)}
+                                onRevoke={() => disconnectApp(app.key)}
                                 url={app.url}
                                 name={app.name}
-                                key={app.key}
-                                date={app.date}
                             />
                         </View>
                     ))}

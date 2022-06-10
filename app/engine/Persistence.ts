@@ -18,6 +18,7 @@ import { HintProcessingState } from "./sync/startHintSync";
 import { TxHints } from "./sync/startHintsTxSync";
 import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
+import { AppData, appDataCodec } from "./api/fetchAppData";
 
 export class Persistence {
 
@@ -47,6 +48,9 @@ export class Persistence {
 
     readonly serverConfig: PersistedCollection<void, ServerConfig>
     readonly config: PersistedCollection<void, ConfigState>;
+
+    readonly deAppsList: PersistedCollection<void, string[]>;
+    readonly deApps: PersistedCollection<string, AppData>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -78,8 +82,13 @@ export class Persistence {
         this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
 
+        // Configs
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
         this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
+
+        // DeApps
+        this.deAppsList = new PersistedCollection({ storage, namespace: 'deAppsList', key: voidKey, codec: t.array(t.string), engine });
+        this.deApps = new PersistedCollection({ storage, namespace: 'deApps', key: stringKey, codec: appDataCodec, engine });
     }
 }
 

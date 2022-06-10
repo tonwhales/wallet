@@ -19,7 +19,6 @@ export const ConnectedAppButton = React.memo((
     const engine = useEngine();
     const apps = engine.products.deApps.useAppsList();
     const app = engine.products.deApps.useAppData(url);
-    console.log({ app, apps });
 
     return (
         <View style={{

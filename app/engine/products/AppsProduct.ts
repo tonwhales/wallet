@@ -16,10 +16,8 @@ export class AppsProduct {
         this.selector = selectorFamily<AppData | null, string>({
             key: 'deApps',
             get: (url) => ({ get }) => {
-                console.log('[selector get]', url);
                 const atom = this.engine.persistence.deApps.item(url).atom;
                 const data = get(atom);
-                console.log('[selector get]', url, atom.key, data);
                 return data;
             }
         });

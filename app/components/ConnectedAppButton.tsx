@@ -1,5 +1,7 @@
 import React from "react";
 import { ImageSourcePropType, View, Image, Text, Pressable } from "react-native";
+import { useEngine } from "../engine/Engine";
+import { AppIcon } from "../fragments/apps/components/AppIcon";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 
@@ -7,19 +9,16 @@ export const ConnectedAppButton = React.memo((
     {
         name,
         url,
-        icon,
-        key,
-        date,
-        onPress
+        onRevoke
     }: {
-        name?: string,
-        url?: string,
-        icon?: ImageSourcePropType,
-        key: string,
-        date: number,
-        onPress?: () => void
+        name: string,
+        url: string,
+        onRevoke?: () => void
     }
 ) => {
+    const engine = useEngine();
+    const apps = engine.products.deApps.useAppsList();
+    const app = engine.products.deApps.useAppData(url);
 
     return (
         <View style={{
@@ -28,46 +27,13 @@ export const ConnectedAppButton = React.memo((
             alignItems: 'center',
             padding: 10
         }}>
-            <View
-                style={{
-                    height: 42, width: 42,
-                    backgroundColor: 'white',
-                    borderRadius: 10,
-                    overflow: 'hidden',
-                    marginRight: 10
-                }}
-            >
-                <View style={{
-                    position: 'absolute',
-                    top: 0, bottom: 0,
-                    left: 0, right: 0,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <Text style={{
-                        fontWeight: '800',
-                        fontSize: 18,
-                    }}>
-                        {'APP'}
-                    </Text>
-                </View>
-                {!!icon && (
-                    <Image
-                        source={icon}
-                        style={{
-                            height: 42, width: 42, borderRadius: 10,
-                            overflow: 'hidden'
-                        }} />
-                )}
-                <View style={{
-                    borderRadius: 10,
-                    borderWidth: 0.5,
-                    borderColor: 'black',
-                    backgroundColor: 'transparent',
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: 0.06
-                }} />
-            </View>
+            <AppIcon
+                heigh={42}
+                width={42}
+                app={app}
+                style={{ marginRight: 10 }}
+                borderRadius={10}
+            />
             <View
                 style={{
                     flexDirection: 'column',
@@ -113,7 +79,7 @@ export const ConnectedAppButton = React.memo((
                         alignItems: 'center'
                     }
                 }}
-                onPress={onPress}
+                onPress={onRevoke}
             >
                 <Text
                     style={{

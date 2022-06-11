@@ -2,6 +2,7 @@ import axios from "axios";
 import { isLeft } from "fp-ts/lib/Either";
 import * as t from 'io-ts';
 import { warn } from "../../utils/log";
+import qs from 'qs';
 
 export type AppDataIcon = {
     blurhash: string | null,
@@ -41,10 +42,7 @@ export async function fetchAppData(link: string) {
         return null;
     }
 
-    if (link.includes('https://test.tonwhales.com')) {
-        url = new URL('https://sandbox.tonwhales.com');
-    }
-    const reqUrl = `https://connect.tonhubapi.com/apps/metadata?url=${url.toString()}`;
+    const reqUrl = `https://connect.tonhubapi.com/apps/metadata?${qs.stringify({ url: url.toString() })}`;
     const res = await axios.get(reqUrl);
 
     if (res.status === 200) {

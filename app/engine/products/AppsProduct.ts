@@ -14,9 +14,9 @@ export class AppsProduct {
         this.engine = engine;
 
         this.selector = selectorFamily<AppData | null, string>({
-            key: 'deApps',
+            key: 'dApps',
             get: (url) => ({ get }) => {
-                const atom = this.engine.persistence.deApps.item(url).atom;
+                const atom = this.engine.persistence.dApps.item(url).atom;
                 const data = get(atom);
                 return data;
             }
@@ -24,7 +24,7 @@ export class AppsProduct {
     }
 
     useAppsList() {
-        return useRecoilValue(this.engine.persistence.deAppsList.item().atom);
+        return useRecoilValue(this.engine.persistence.dAppsList.item().atom);
     }
 
     useAppData(url: string) {
@@ -32,13 +32,13 @@ export class AppsProduct {
     }
 
     async getAppData(url: string) {
-        const persisted = this.engine.persistence.deApps.item(url).value;
+        const persisted = this.engine.persistence.dApps.item(url).value;
         // fetch and add if does not exist
         if (!persisted) {
             try {
                 const appData = await fetchAppData(url);
                 if (appData) {
-                    await this.addAppData(url, appData);
+                    await this.fetchAppData(url, appData);
                     return appData;
                 }
             } catch (e) {
@@ -50,22 +50,22 @@ export class AppsProduct {
         return persisted;
     }
 
-    async addAppData(url: string, appData: AppData) {
-        const app = this.engine.persistence.deApps.item(url);
+    private async fetchAppData(url: string, appData: AppData) {
+        const app = this.engine.persistence.dApps.item(url);
 
         // Resolve app icon image
-        const link = appData.image?.preview256;
-        if (link) {
-            let item = this.engine.persistence.downloads.item(link);
-            let key = sha256_sync(link).toString('hex');
+        const imageLink = appData.image?.preview256;
+        if (imageLink) {
+            let item = this.engine.persistence.downloads.item(imageLink);
+            let key = sha256_sync(imageLink).toString('hex');
 
             try {
                 let info = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + key);
                 // Check if file exists
                 if (!info.exists) {
-                    let url = resolveLink(link || '');
+                    let url = resolveLink(imageLink || '');
                     if (url) {
-                        let downloading = await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + key, {});
+                        await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + key, {});
                         item.update(() => key);
                     }
                 }
@@ -78,7 +78,7 @@ export class AppsProduct {
     }
 
     addAppToList(url: string) {
-        const item = this.engine.persistence.deAppsList.item();
+        const item = this.engine.persistence.dAppsList.item();
         const apps = item.value || [];
         const index = apps.findIndex((s) => s === url);
         if (index !== -1) {
@@ -89,7 +89,7 @@ export class AppsProduct {
     }
 
     removeApp(url: string) {
-        const item = this.engine.persistence.deAppsList.item();
+        const item = this.engine.persistence.dAppsList.item();
         const apps = item.value || [];
         const index = apps.findIndex((s) => s === url);
         if (index !== -1) {

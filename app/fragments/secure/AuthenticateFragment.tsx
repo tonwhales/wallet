@@ -58,7 +58,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 return;
             }
             if (currentState.data.state === 'initing') {
-                const appData = await engine.products.deApps.getAppData(currentState.data.url);
+                const appData = await engine.products.dApps.getAppData(currentState.data.url);
                 setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
                 return;
             }

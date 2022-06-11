@@ -45,7 +45,7 @@ export class Engine {
         whalesStakingPool: StakingPoolProduct,
         config: ConfigProduct,
         serverConfig: ServerConfigProduct,
-        deApps: AppsProduct
+        dApps: AppsProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -89,7 +89,7 @@ export class Engine {
             whalesStakingPool: new StakingPoolProduct(this, KnownPools[0].address),
             config: new ConfigProduct(this),
             serverConfig: new ServerConfigProduct(this),
-            deApps: new AppsProduct(this)
+            dApps: new AppsProduct(this)
         };
 
         //

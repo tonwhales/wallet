@@ -49,8 +49,8 @@ export class Persistence {
     readonly serverConfig: PersistedCollection<void, ServerConfig>
     readonly config: PersistedCollection<void, ConfigState>;
 
-    readonly deAppsList: PersistedCollection<void, string[]>;
-    readonly deApps: PersistedCollection<string, AppData>;
+    readonly dAppsList: PersistedCollection<void, string[]>;
+    readonly dApps: PersistedCollection<string, AppData>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -86,9 +86,9 @@ export class Persistence {
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
         this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
 
-        // DeApps
-        this.deAppsList = new PersistedCollection({ storage, namespace: 'deAppsList', key: voidKey, codec: t.array(t.string), engine });
-        this.deApps = new PersistedCollection({ storage, namespace: 'deApps', key: stringKey, codec: appDataCodec, engine });
+        // dApps
+        this.dAppsList = new PersistedCollection({ storage, namespace: 'dAppsList', key: voidKey, codec: t.array(t.string), engine });
+        this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
     }
 }
 

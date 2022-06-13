@@ -11,11 +11,14 @@ import { BlurView } from 'expo-blur';
 import { useReboot } from '../utils/RebootContext';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
+import { ProfileComponent } from './profile/ProfileComponent';
+import { useEngine } from '../engine/Engine';
 
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
+    const engine = useEngine();
 
     const doSignout = React.useCallback(() => {
         Alert.alert(
@@ -104,7 +107,7 @@ export const SettingsFragment = fragment(() => {
                 </View>
             )}
             <ScrollView
-                contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom + 52 }}
+                contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingTop: 8, paddingBottom: safeArea.bottom + 52 }}
                 style={{
                     flexGrow: 1,
                     flexBasis: 0,
@@ -112,6 +115,9 @@ export const SettingsFragment = fragment(() => {
                     paddingHorizontal: 16,
                 }}
             >
+                {__DEV__ && (
+                    <ProfileComponent address={engine.address} />
+                )}
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: "white",
@@ -130,7 +136,7 @@ export const SettingsFragment = fragment(() => {
                 </View>
 
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginBottom: 16, marginTop: 16,
                     backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
@@ -143,7 +149,7 @@ export const SettingsFragment = fragment(() => {
                 </View>
 
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginBottom: 16, marginTop: 16,
                     backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
@@ -160,7 +166,7 @@ export const SettingsFragment = fragment(() => {
                 </View>
 
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginBottom: 16, marginTop: 16,
                     backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',

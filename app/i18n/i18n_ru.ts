@@ -100,7 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         action: 'Разрешить',
         expired: 'Этот запрос на авторизацию уже истек',
         completed: 'Этот запрос на авторизацию уже подтвержден',
-        authorizedDescription: 'Вы можете продолжить работу в аторизованном приложении',
+        authorizedDescription: 'Теперь вы можете вернуться в приложение.',
         authorized: 'Запрос на авторизацию подтвержден',
         noApps: 'Нет связанных приложений',
         name: 'Приложения',

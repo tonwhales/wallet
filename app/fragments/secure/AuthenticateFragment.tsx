@@ -214,7 +214,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     {t('auth.authorizedDescription')}
                 </Text>
                 <RoundButton
-                    title={t('common.back')}
+                    title={t('common.close')}
                     onPress={() => navigation.goBack()}
                     size="large"
                     style={{ width: 200 }}

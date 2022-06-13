@@ -14,6 +14,7 @@ import { t } from '../../i18n/t';
 import { Theme } from '../../Theme';
 import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
+import { deriveUtilityKey } from '../../storage/utilityKeys';
 
 export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
@@ -27,7 +28,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             try {
 
                 // Encrypted token
-                let token: Buffer;
+                let secretKeyEnc: Buffer;
 
                 // Generate New Key
                 try {
@@ -35,7 +36,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                     if (Platform.OS === 'android' && Platform.Version < 30) {
                         disableEncryption = true; // Encryption doesn't work well on older androids
                     }
-                    token = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
+                    secretKeyEnc = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
                 } catch (e) {
                     // Ignore
                     console.warn(e);
@@ -44,6 +45,9 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
 
                 // Resolve key
                 const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+
+                // Resolve utility key
+                const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
 
                 // Resolve contract
                 const contract = await contractFromPublicKey(key.publicKey);
@@ -56,7 +60,8 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                         {
                             address: contract.address,
                             publicKey: key.publicKey,
-                            secretKeyEnc: token
+                            secretKeyEnc,
+                            utilityKey,
                         }
                     ],
                     selected: state.addresses.length

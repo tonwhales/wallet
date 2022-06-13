@@ -5,35 +5,49 @@ import { isLeft } from 'fp-ts/lib/Either';
 import { AppConfig } from '../AppConfig';
 import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
 import { warn } from '../utils/log';
+import { loadWalletKeys } from './walletKeys';
+import { deriveUtilityKey } from './utilityKeys';
 
 export type AppState = {
     addresses: {
         address: Address,
         publicKey: Buffer,
-        secretKeyEnc: Buffer
+        secretKeyEnc: Buffer,
+        utilityKey: Buffer
     }[],
     selected: number
 }
 
-const stateStorage = t.type({
+const stateStorage_v1 = t.type({
     version: t.literal(1),
     addresses: t.array(t.type({
         address: t.string,
         publicKey: t.string,
-        secretKeyEnc: t.string
+        secretKeyEnc: t.string,
     })),
     selected: t.number
 });
 
-const latestVersion = stateStorage;
+const stateStorage_v2 = t.type({
+    version: t.literal(2),
+    addresses: t.array(t.type({
+        address: t.string,
+        publicKey: t.string,
+        secretKeyEnc: t.string,
+        utilityKey: t.string,
+    })),
+    selected: t.number
+});
+
+const latestVersion = stateStorage_v2;
 
 function parseAppState(src: any): t.TypeOf<typeof latestVersion> | null {
-    const parsed = stateStorage.decode(src);
+    const parsed = stateStorage_v2.decode(src);
     if (isLeft(parsed)) {
         return null;
     }
     const stored = parsed.right;
-    if (stored.version === 1) {
+    if (stored.version === 2) {
         return stored;
     }
     return null;
@@ -41,14 +55,89 @@ function parseAppState(src: any): t.TypeOf<typeof latestVersion> | null {
 
 function serializeAppState(state: AppState): t.TypeOf<typeof latestVersion> {
     return {
-        version: 1,
+        version: 2,
         selected: state.selected,
         addresses: state.addresses.map((v) => ({
             address: v.address.toFriendly({ testOnly: AppConfig.isTestnet }),
             publicKey: v.publicKey.toString('base64'),
             secretKeyEnc: v.secretKeyEnc.toString('base64'),
+            utilityKey: v.utilityKey.toString('base64')
         }))
     };
+}
+
+export function canUpgradeAppState(): boolean {
+
+    // Read from store
+    const state = storage.getString('app_state');
+    if (!state) {
+        return false;
+    }
+
+    // Parse JSON from value
+    let jstate: any = null;
+    try {
+        jstate = JSON.parse(state);
+    } catch (e) {
+        warn(e);
+        return false;
+    }
+
+    // Already on latest version
+    if (latestVersion.is(jstate)) {
+        return false;
+    }
+
+    // Matches previous version
+    if (stateStorage_v1.is(jstate)) {
+        return true;
+    }
+
+    return false;
+}
+
+export async function doUpgrade() {
+    // Read from store
+    const state = storage.getString('app_state');
+    if (!state) {
+        return;
+    }
+
+    // Parse JSON from value
+    let jstate: any = null;
+    try {
+        jstate = JSON.parse(state);
+    } catch (e) {
+        warn(e);
+        return;
+    }
+
+    // Already on latest version
+    if (latestVersion.is(jstate)) {
+        return;
+    }
+
+    // Upgrade from v1
+    if (stateStorage_v1.is(jstate)) {
+        let res: AppState = {
+            selected: jstate.selected,
+            addresses: await Promise.all(jstate.addresses.map(async (a) => {
+                let address = Address.parse(a.address);
+                let publicKey = Buffer.from(a.publicKey, 'base64');
+                let secretKeyEnc = Buffer.from(a.secretKeyEnc, 'base64');
+                let wallet = await loadWalletKeys(secretKeyEnc);
+                let utilityKey = await deriveUtilityKey(wallet.mnemonics);
+                return {
+                    address,
+                    publicKey,
+                    secretKeyEnc,
+                    utilityKey
+                };
+            }))
+        }
+        setAppState(res);
+        return;
+    }
 }
 
 export function setAppState(state: AppState | null) {
@@ -95,7 +184,8 @@ export function getAppState(): AppState {
         addresses: parsed.addresses.map((v) => ({
             address: Address.parseFriendly(v.address).address,
             publicKey: global.Buffer.from(v.publicKey, 'base64'),
-            secretKeyEnc: global.Buffer.from(v.secretKeyEnc, 'base64')
+            secretKeyEnc: global.Buffer.from(v.secretKeyEnc, 'base64'),
+            utilityKey: global.Buffer.from(v.utilityKey, 'base64')
         }))
     };
 }
@@ -106,6 +196,32 @@ export function getCurrentAddress() {
         throw Error('No active addresses');
     }
     return state.addresses[state.selected];
+}
+
+export function getBackup(): { address: Address, secretKeyEnc: Buffer } {
+    // Read from store
+    const state = storage.getString('app_state');
+    if (!state) {
+        throw Error('No keys');
+    }
+
+    // Parse JSON from value
+    let jstate: any = null;
+    try {
+        jstate = JSON.parse(state);
+    } catch (e) {
+        warn(e);
+        throw Error('No keys');
+    }
+
+
+    // Storages
+    if (stateStorage_v1.is(jstate) || stateStorage_v2.is(jstate)) {
+        let addr = jstate.addresses[jstate.addresses.length - 1];
+        return { address: Address.parse(addr.address), secretKeyEnc: Buffer.from(addr.secretKeyEnc, 'base64') };
+    }
+
+    throw Error('No keys');
 }
 
 export function markAddressSecured(src: Address) {

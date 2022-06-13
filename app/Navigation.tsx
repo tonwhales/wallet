@@ -42,6 +42,7 @@ import { createEngine } from './engine/createEngine';
 import { useRecoilCallback } from 'recoil';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
+import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -123,6 +124,7 @@ const navigation = [
     genericScreen('WalletCreated', WalletCreatedFragment),
     genericScreen('WalletBackupInit', WalletBackupFragment),
     genericScreen('WalletBackup', WalletBackupFragment),
+    genericScreen('WalletUpgrade', WalletUpgradeFragment),
     genericScreen('Settings', SettingsFragment),
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
@@ -175,6 +177,8 @@ export const Navigation = React.memo(() => {
             return 'Sync';
         } else if (onboarding === 'welcome') {
             return 'Welcome';
+        } else if (onboarding === 'upgrade-store') {
+            return 'WalletUpgrade';
         } else {
             throw Error('Invalid onboarding state');
         }

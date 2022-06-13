@@ -298,7 +298,11 @@ export type LocalizationSchema = {
         protectFaceID: string,
         protectTouchID: string,
         protectBiometrics: string,
-        protectPasscode: string
+        protectPasscode: string,
+        upgradeTitle: string,
+        upgradeMessage: string,
+        allowUpgrade: string,
+        backup: string
     },
     backup: {
         title: string,

@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { View, Image, StyleProp, ViewStyle } from "react-native";
-import { useRecoilValue } from "recoil";
 import { AppData } from "../../../engine/api/fetchAppData";
-import { useEngine } from "../../../engine/Engine";
-import * as FileSystem from 'expo-file-system';
 import { resolveLink } from "../../../utils/resolveLink";
 import { Blurhash } from 'react-native-blurhash';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
@@ -23,11 +20,8 @@ export const AppIcon = React.memo((
         borderRadius: number
     }
 ) => {
-    // const engine = useEngine();
-    // const downloaded = useRecoilValue(engine.persistence.downloads.item(app?.image?.preview256 || '').atom);
     const [loading, setLoading] = useState(false);
     let url = resolveLink(app?.image?.preview256 || '');
-    console.log('[AppIcon]', { app });
 
     if (url) {
         return (

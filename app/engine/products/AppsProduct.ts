@@ -1,10 +1,7 @@
 import { selectorFamily, useRecoilValue } from "recoil";
 import { AppData, fetchAppData } from "../api/fetchAppData";
 import { Engine } from "../Engine";
-import * as FileSystem from 'expo-file-system';
-import { sha256_sync } from "ton-crypto";
 import { warn } from "../../utils/log";
-import { resolveLink } from "../../utils/resolveLink";
 
 export class AppsProduct {
     readonly engine: Engine;
@@ -48,30 +45,6 @@ export class AppsProduct {
 
     private async updateAppData(url: string, appData: AppData) {
         const app = this.engine.persistence.dApps.item(url);
-
-        // Resolve app icon image
-        // const imageLink = appData.image?.preview256;
-        // if (imageLink) {
-        //     let item = this.engine.persistence.downloads.item(imageLink);
-        //     let key = sha256_sync(imageLink).toString('hex');
-
-        //     try {
-        //         let info = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + key);
-        //         // Check if file exists
-        //         if (!info.exists) {
-        //             let url = resolveLink(imageLink || '');
-        //             if (url) {
-        //                 (async () => {
-        //                     await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + key, {});
-        //                     item.update(() => key);
-        //                 })();
-        //             }
-        //         }
-        //     } catch (e) {
-        //         warn(e);
-        //     }
-        // }
-
         app.update(() => appData);
     }
 }

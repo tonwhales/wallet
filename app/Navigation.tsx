@@ -154,7 +154,7 @@ export const Navigation = React.memo(() => {
         let state = getAppState();
         if (0 <= state.selected && state.selected < state.addresses.length) {
             const ex = state.addresses[state.selected];
-            return createEngine({ address: ex.address, publicKey: ex.publicKey, recoilUpdater });
+            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater });
         } else {
             return null;
         }

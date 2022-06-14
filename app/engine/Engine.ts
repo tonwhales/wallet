@@ -17,6 +17,7 @@ import { startSync } from './sync/startSync';
 import { ConfigProduct } from './products/ConfigProduct';
 import { ServerConfigProduct } from './products/ServerConfigProduct';
 import { AppsProduct } from './products/AppsProduct';
+import { Cloud } from './cloud/Cloud';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -29,6 +30,7 @@ export class Engine {
 
     // Storage
     readonly persistence: Persistence;
+    readonly cloud: Cloud
 
     // Connector
     readonly connector: Connector;
@@ -55,6 +57,7 @@ export class Engine {
     constructor(
         address: Address,
         publicKey: Buffer,
+        utilityKey: Buffer,
         persistence: MMKV,
         client4Endpoint: string,
         connector: Connector,
@@ -70,6 +73,7 @@ export class Engine {
         this.model = new Model(this);
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.transactions = new Transactions(this);
+        this.cloud = new Cloud(this, utilityKey);
 
         //
         // Start sync

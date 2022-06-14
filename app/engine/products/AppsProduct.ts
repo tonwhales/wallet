@@ -5,20 +5,10 @@ import * as FileSystem from 'expo-file-system';
 import { sha256_sync } from "ton-crypto";
 import { warn } from "../../utils/log";
 import { resolveLink } from "../../utils/resolveLink";
-import * as t from 'io-ts';
-
-export type TrustedApp = {
-    url: string,
-}
-
-export const trustedAppCodec = t.type({
-    url: t.string,
-});
 
 export class AppsProduct {
     readonly engine: Engine;
     readonly appDataSelector;
-    readonly appSessionSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -31,23 +21,6 @@ export class AppsProduct {
                 return data;
             }
         });
-        this.appSessionSelector = selectorFamily<TrustedApp | undefined, string>({
-            key: 'dAppsList',
-            get: (url) => ({ get }) => {
-                const atom = this.engine.persistence.dAppsList.item().atom;
-                const data = get(atom)?.apps;
-                const session = data?.find((i) => i.url === url);
-                return session;
-            }
-        });
-    }
-
-    useAppsList() {
-        return useRecoilValue(this.engine.persistence.dAppsList.item().atom)?.apps;
-    }
-
-    useAppSession(url: string) {
-        return useRecoilValue(this.appSessionSelector(url));
     }
 
     useAppData(url: string) {
@@ -100,29 +73,5 @@ export class AppsProduct {
         // }
 
         app.update(() => appData);
-    }
-
-    addAppToList(app: TrustedApp) {
-        const item = this.engine.persistence.dAppsList.item();
-        const apps = item.value?.apps || [];
-        const index = apps.findIndex((s) => s.url === app.url);
-        if (index !== -1) {
-            apps[index] = app
-            item.update(() => { return { apps } });
-            return app;
-        }
-        apps.push(app);
-        item.update(() => { return { apps } });
-        return app;
-    }
-
-    removeApp(url: string) {
-        const item = this.engine.persistence.dAppsList.item();
-        const apps = item.value?.apps || [];
-        const index = apps.findIndex((s) => s.url === url);
-        if (index !== -1) {
-            apps.splice(index, 1);
-        }
-        item.update(() => { return { apps } });
     }
 }

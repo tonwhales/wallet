@@ -19,7 +19,6 @@ import { TxHints } from "./sync/startHintsTxSync";
 import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
 import { AppData, appDataCodec } from "./api/fetchAppData";
-import { TrustedApp, trustedAppCodec } from "./products/AppsProduct";
 
 export class Persistence {
 
@@ -50,7 +49,6 @@ export class Persistence {
     readonly serverConfig: PersistedCollection<void, ServerConfig>
     readonly config: PersistedCollection<void, ConfigState>;
 
-    readonly dAppsList: PersistedCollection<void, { apps: TrustedApp[] }>;
     readonly dApps: PersistedCollection<string, AppData>;
 
     constructor(storage: MMKV, engine: Engine) {
@@ -88,7 +86,6 @@ export class Persistence {
         this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
 
         // dApps
-        this.dAppsList = new PersistedCollection({ storage, namespace: 'dAppsList', key: voidKey, codec: t.type({ apps: t.array(trustedAppCodec) }), engine });
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
     }
 }

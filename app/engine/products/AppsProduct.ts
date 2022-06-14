@@ -9,46 +9,10 @@ import * as t from 'io-ts';
 
 export type TrustedApp = {
     url: string,
-    session: {
-        state: 'ready',
-        name: string,
-        url: string,
-        wallet: {
-            address: string,
-            endpoint: string,
-            walletConfig: string,
-            walletType: string,
-            walletSig: string,
-            appPublicKey: string
-        },
-        granted: boolean,
-        testnet: boolean,
-        created: number,
-        updated: number,
-        revoked: boolean
-    }
 }
 
 export const trustedAppCodec = t.type({
     url: t.string,
-    session: t.type({
-        state: t.literal('ready'),
-        name: t.string,
-        url: t.string,
-        wallet: t.type({
-            address: t.string,
-            endpoint: t.string,
-            walletConfig: t.string,
-            walletType: t.string,
-            walletSig: t.string,
-            appPublicKey: t.string
-        }),
-        granted: t.boolean,
-        testnet: t.boolean,
-        created: t.number,
-        updated: t.number,
-        revoked: t.boolean
-    })
 });
 
 export class AppsProduct {

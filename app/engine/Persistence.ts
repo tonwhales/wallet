@@ -52,6 +52,8 @@ export class Persistence {
     readonly dAppsList: PersistedCollection<void, string[]>;
     readonly dApps: PersistedCollection<string, AppData>;
 
+    readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
+
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
             storage.clearAll();
@@ -89,6 +91,9 @@ export class Persistence {
         // dApps
         this.dAppsList = new PersistedCollection({ storage, namespace: 'dAppsList', key: voidKey, codec: t.array(t.string), engine });
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
+
+        // Cloud
+        this.cloud = new PersistedCollection({ storage, namespace: 'cloud', key: keyedAddressKey, codec: t.string, engine });
     }
 }
 

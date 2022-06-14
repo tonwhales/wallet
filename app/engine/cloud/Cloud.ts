@@ -2,9 +2,10 @@ import axios from 'axios';
 import { beginCell, safeSign } from 'ton';
 import { deriveSymmetricPath, getSecureRandomBytes, keyPairFromSeed, openBox, sealBox, sha256_sync } from 'ton-crypto';
 import { AppConfig } from '../../AppConfig';
-import { backoff } from '../../utils/time';
 import { Engine } from '../Engine';
 import * as t from 'io-ts';
+import { CloudValue } from './CloudValue';
+import * as Automerge from 'automerge';
 
 async function deriveContentKey(utilityKey: Buffer, contentId: string) {
     let signKey = await deriveSymmetricPath(utilityKey, [AppConfig.isTestnet ? 'sandbox' : 'mainnet', 'content', contentId, 'sign']);
@@ -34,35 +35,45 @@ const writeCodec = t.type({
 
 export class Cloud {
     readonly engine: Engine;
-    readonly #utilityKey: Buffer
+    readonly #utilityKey: Buffer;
+    readonly #syncs: Map<string, CloudValue<any>> = new Map();
 
     constructor(engine: Engine, utilityKey: Buffer) {
         this.engine = engine;
         this.#utilityKey = utilityKey;
     }
 
-    async readKey(key: string) {
-        return await backoff('cloud', async () => {
-            return (await (this.#requestRead(key))).value;
+    get<T>(key: string, initial: () => Automerge.Doc<T>) {
+        let ex = this.#syncs.get(key);
+        if (ex) {
+            return ex as CloudValue<T>;
+        }
+        let v = new CloudValue<T>(this, key, initial);
+        this.#syncs.set(key, v);
+        return v;
+    }
+
+    counter(key: string) {
+        return this.get(key, () => {
+            return Automerge.from<{ counter: Automerge.Counter }>({ counter: new Automerge.Counter(0) });
         });
     }
 
-    async update(key: string, updater: (src: Buffer | null) => Buffer | Promise<Buffer>) {
-        let current = await backoff('cloud', async () => {
-            return await this.#requestRead(key);
-        });
+    async readKey(key: string) {
+        return (await (this.#requestRead(key))).value;
+    }
 
-        return await backoff('cloud', async () => {
-            while (true) {
-                let updated = await updater(current.value);
-                let res = await this.#requestWrite(key, current.seq, updated);
-                if (!res.updated) {
-                    current = res.current;
-                } else {
-                    return res.current.value;
-                }
+    async update(key: string, updater: (src: Buffer | null) => Buffer | Promise<Buffer>) {
+        let current = await this.#requestRead(key);
+        while (true) {
+            let updated = await updater(current.value);
+            let res = await this.#requestWrite(key, current.seq, updated);
+            if (!res.updated) {
+                current = res.current;
+            } else {
+                return res.current.value;
             }
-        });
+        }
     }
 
     async #requestRead(key: string): Promise<{ seq: number, value: Buffer | null }> {

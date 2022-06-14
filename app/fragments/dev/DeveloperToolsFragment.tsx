@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { useEngine } from '../../engine/Engine';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -23,6 +24,11 @@ export const DeveloperToolsFragment = fragment(() => {
         storagePersistence.clearAll();
         reboot();
     }, []);
+
+    const engine = useEngine();
+    const counter = React.useMemo(() => engine.cloud.counter('counter.sample'), []);
+    const counterValue = counter.use().counter;
+
     // const isTestNet = useTestnet();
     // const switchNetwork = React.useCallback(() => {
     //     let state = (getAppState())!;
@@ -57,6 +63,9 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Test App"} onPress={() => navigation.navigate('App')} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Cloud Counter"} hint={counterValue.toString()} onPress={() => counter.update((src) => src.counter.increment())} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />

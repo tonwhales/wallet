@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { beginCell, safeSign } from 'ton';
-import { deriveSymmetricPath, keyPairFromSeed, sha256_sync } from 'ton-crypto';
+import { deriveSymmetricPath, getSecureRandomBytes, keyPairFromSeed, openBox, sealBox, sha256_sync } from 'ton-crypto';
 import { AppConfig } from '../../AppConfig';
 import { backoff } from '../../utils/time';
 import { Engine } from '../Engine';
@@ -89,19 +89,29 @@ export class Cloud {
         // Res
         let r = res.data;
         if (r.value.value) {
-            return { value: Buffer.from(r.value.value, 'base64'), seq: r.value.seq };
+            let v = Buffer.from(r.value.value, 'base64');
+            let nonce = v.slice(0, 24);
+            let data = v.slice(24);
+            let open = openBox(data, nonce, keys.encryption);
+            return { value: open, seq: r.value.seq };
         } else {
             return { value: null, seq: r.value.seq };
         }
     }
 
     async #requestWrite(key: string, seq: number, value: Buffer): Promise<{ updated: boolean, current: { seq: number, value: Buffer | null } }> {
-        // Prepare
+
+        // Encrypt
         let keys = await deriveContentKey(this.#utilityKey, key);
+        let nonce = await getSecureRandomBytes(24);
+        let data = sealBox(value, nonce, keys.encryption);
+        let encrypted = Buffer.concat([nonce, data]);
+
+        // Prepare
         let time = Math.floor(Date.now() / 1000) + 60;
         let toSign = beginCell()
             .storeBuffer(keys.signKey.publicKey)
-            .storeBuffer(sha256_sync(value))
+            .storeBuffer(sha256_sync(encrypted))
             .storeUint(seq, 32)
             .storeUint(time, 32)
             .endCell();
@@ -113,7 +123,7 @@ export class Cloud {
             signature: signature.toString('base64'),
             time,
             seq,
-            value: value.toString('base64')
+            value: encrypted.toString('base64')
         }, { timeout: 10000 });
         if (!writeCodec.is(res.data)) {
             throw Error('Invalid data');
@@ -121,9 +131,13 @@ export class Cloud {
 
         let r = res.data;
         if (r.current.value) {
+            let v = Buffer.from(r.current.value, 'base64');
+            let nonce = v.slice(0, 24);
+            let data = v.slice(24);
+            let open = openBox(data, nonce, keys.encryption);
             return {
                 updated: r.updated,
-                current: { seq: r.current.seq, value: Buffer.from(r.current.value, 'base64') }
+                current: { seq: r.current.seq, value: open }
             };
         } else {
             return {

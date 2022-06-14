@@ -5,15 +5,61 @@ import * as FileSystem from 'expo-file-system';
 import { sha256_sync } from "ton-crypto";
 import { warn } from "../../utils/log";
 import { resolveLink } from "../../utils/resolveLink";
+import * as t from 'io-ts';
+
+export type TrustedApp = {
+    url: string,
+    session: {
+        state: 'ready',
+        name: string,
+        url: string,
+        wallet: {
+            address: string,
+            endpoint: string,
+            walletConfig: string,
+            walletType: string,
+            walletSig: string,
+            appPublicKey: string
+        },
+        granted: boolean,
+        testnet: boolean,
+        created: number,
+        updated: number,
+        revoked: boolean
+    }
+}
+
+export const trustedAppCodec = t.type({
+    url: t.string,
+    session: t.type({
+        state: t.literal('ready'),
+        name: t.string,
+        url: t.string,
+        wallet: t.type({
+            address: t.string,
+            endpoint: t.string,
+            walletConfig: t.string,
+            walletType: t.string,
+            walletSig: t.string,
+            appPublicKey: t.string
+        }),
+        granted: t.boolean,
+        testnet: t.boolean,
+        created: t.number,
+        updated: t.number,
+        revoked: t.boolean
+    })
+});
 
 export class AppsProduct {
     readonly engine: Engine;
-    readonly selector;
+    readonly appDataSelector;
+    readonly appSessionSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
 
-        this.selector = selectorFamily<AppData | null, string>({
+        this.appDataSelector = selectorFamily<AppData | null, string>({
             key: 'dApps',
             get: (url) => ({ get }) => {
                 const atom = this.engine.persistence.dApps.item(url).atom;
@@ -21,14 +67,27 @@ export class AppsProduct {
                 return data;
             }
         });
+        this.appSessionSelector = selectorFamily<TrustedApp | undefined, string>({
+            key: 'dAppsList',
+            get: (url) => ({ get }) => {
+                const atom = this.engine.persistence.dAppsList.item().atom;
+                const data = get(atom)?.apps;
+                const session = data?.find((i) => i.url === url);
+                return session;
+            }
+        });
     }
 
     useAppsList() {
-        return useRecoilValue(this.engine.persistence.dAppsList.item().atom);
+        return useRecoilValue(this.engine.persistence.dAppsList.item().atom)?.apps;
+    }
+
+    useAppSession(url: string) {
+        return useRecoilValue(this.appSessionSelector(url));
     }
 
     useAppData(url: string) {
-        return useRecoilValue(this.selector(url));
+        return useRecoilValue(this.appDataSelector(url));
     }
 
     async getAppData(url: string) {
@@ -38,7 +97,7 @@ export class AppsProduct {
             try {
                 const appData = await fetchAppData(url);
                 if (appData) {
-                    await this.fetchAppData(url, appData);
+                    await this.updateAppData(url, appData);
                     return appData;
                 }
             } catch (e) {
@@ -50,51 +109,56 @@ export class AppsProduct {
         return persisted;
     }
 
-    private async fetchAppData(url: string, appData: AppData) {
+    private async updateAppData(url: string, appData: AppData) {
         const app = this.engine.persistence.dApps.item(url);
 
         // Resolve app icon image
-        const imageLink = appData.image?.preview256;
-        if (imageLink) {
-            let item = this.engine.persistence.downloads.item(imageLink);
-            let key = sha256_sync(imageLink).toString('hex');
+        // const imageLink = appData.image?.preview256;
+        // if (imageLink) {
+        //     let item = this.engine.persistence.downloads.item(imageLink);
+        //     let key = sha256_sync(imageLink).toString('hex');
 
-            try {
-                let info = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + key);
-                // Check if file exists
-                if (!info.exists) {
-                    let url = resolveLink(imageLink || '');
-                    if (url) {
-                        await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + key, {});
-                        item.update(() => key);
-                    }
-                }
-            } catch (e) {
-                warn(e);
-            }
-        }
+        //     try {
+        //         let info = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + key);
+        //         // Check if file exists
+        //         if (!info.exists) {
+        //             let url = resolveLink(imageLink || '');
+        //             if (url) {
+        //                 (async () => {
+        //                     await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + key, {});
+        //                     item.update(() => key);
+        //                 })();
+        //             }
+        //         }
+        //     } catch (e) {
+        //         warn(e);
+        //     }
+        // }
 
         app.update(() => appData);
     }
 
-    addAppToList(url: string) {
+    addAppToList(app: TrustedApp) {
         const item = this.engine.persistence.dAppsList.item();
-        const apps = item.value || [];
-        const index = apps.findIndex((s) => s === url);
+        const apps = item.value?.apps || [];
+        const index = apps.findIndex((s) => s.url === app.url);
         if (index !== -1) {
-            return;
+            apps[index] = app
+            item.update(() => { return { apps } });
+            return app;
         }
-        apps.push(url);
-        item.update(() => apps);
+        apps.push(app);
+        item.update(() => { return { apps } });
+        return app;
     }
 
     removeApp(url: string) {
         const item = this.engine.persistence.dAppsList.item();
-        const apps = item.value || [];
-        const index = apps.findIndex((s) => s === url);
+        const apps = item.value?.apps || [];
+        const index = apps.findIndex((s) => s.url === url);
         if (index !== -1) {
             apps.splice(index, 1);
-            item.update(() => apps);
         }
+        item.update(() => { return { apps } });
     }
 }

@@ -8468,6 +8468,11 @@ react-native-animatable@1.3.3:
   dependencies:
     prop-types "^15.7.2"
 
+react-native-blurhash@^1.1.10:
+  version "1.1.10"
+  resolved "https://registry.yarnpkg.com/react-native-blurhash/-/react-native-blurhash-1.1.10.tgz#3969af24ebab098976cba90d100ba157760d3132"
+  integrity sha512-ScLdguCk+g9er2ccdwArNet1BOMoU7MClHV2MiNheHwn6HFr9vDkFPnUG011B5ddzCJlqj9JazFBNnxwhSWZhg==
+
 react-native-boring-avatars@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-native-boring-avatars/-/react-native-boring-avatars-1.0.1.tgz#73264a47591714b80cacf2c8cabe40de3e09a6ca"

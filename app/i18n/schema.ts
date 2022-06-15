@@ -124,10 +124,7 @@ export type LocalizationSchema = {
             action: string
         },
         apps: {
-            title: string,
-            addAppShortcut: string,
-            wrongChainTitle: string,
-            wrongChainMesage: string
+            title: string
         }
     },
     install: {

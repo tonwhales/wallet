@@ -57,8 +57,9 @@ export const AppComponent = React.memo((props: {
         (event: WebViewMessageEvent) => {
             const nativeEvent = event.nativeEvent;
             const data = JSON.parse(nativeEvent.data);
+            console.log('[WebViewMessageEvent]', { data });
         },
-    [webRef]);
+        [webRef]);
 
     return (
         <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>

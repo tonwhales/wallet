@@ -111,10 +111,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             action: 'Удалить'
         },
         apps: {
-            title: 'Доверенные приложения',
-            addAppShortcut: 'Добавить приложение в избранное',
-            wrongChainTitle: 'Неверная сеть',
-            wrongChainMesage: 'Вы пытаетесь подключиться из несовместимой c этим приложением сети'
+            title: 'Доверенные приложения'
         }
     },
     install: {

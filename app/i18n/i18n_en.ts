@@ -122,10 +122,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             action: 'Revoke'
         },
         apps: {
-            title: 'Trusted Apps',
-            addAppShortcut: 'Add app shortcut',
-            wrongChainTitle: 'Wrong network',
-            wrongChainMesage: 'You are trying to connect from an incompatible network with this app'
+            title: 'Trusted Apps'
         }
     },
     install: {

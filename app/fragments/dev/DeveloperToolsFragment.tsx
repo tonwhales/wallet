@@ -62,7 +62,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test App"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.scaleton.io' : 'https://scaleton.io' })} />
+                        <ItemButton title={"Test App"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.towhales.com' : 'https://towhales.com' })} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Cloud Counter"} hint={counterValue.toString()} onPress={() => counter.update((src) => src.counter.increment())} />

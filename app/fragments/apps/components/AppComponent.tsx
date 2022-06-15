@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Alert, Linking, View } from 'react-native';
+import { ActivityIndicator, Linking, View } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,12 +9,6 @@ import { extractDomain } from '../../../utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from '../../../Navigation';
 import { tonXinjectionSource } from '../../../engine/tonx/tonXinjectionSource';
-import { TonXMessage, tonXMessageCodec } from '../../../engine/tonx/codecs';
-import { isLeft } from 'fp-ts/lib/Either';
-import { AppConfig } from '../../../AppConfig';
-import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { handleTonXMessage } from '../../../engine/tonx/transport';
-import { t } from '../../../i18n/t';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -25,13 +19,11 @@ export const AppComponent = React.memo((props: {
 }) => {
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
-    const [locked, setLocked] = React.useState(false);
     const webRef = React.createRef<WebView>();
-    const navigation = useTypedNavigation();
+
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
-
             position: 'absolute',
             top: 0,
             left: 0,
@@ -43,6 +35,7 @@ export const AppComponent = React.memo((props: {
             opacity: withTiming(opacity.value, { duration: 300 }),
         };
     });
+
     const linkNavigator = useLinkNavigator();
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
@@ -60,35 +53,13 @@ export const AppComponent = React.memo((props: {
         Linking.openURL(event.url);
         return false;
     }, []);
-
     const handleWebViewMessage = React.useCallback(
         (event: WebViewMessageEvent) => {
-            if (locked) return;
             const nativeEvent = event.nativeEvent;
-            const parsedTonXMessage = tonXMessageCodec.decode(JSON.parse(nativeEvent.data));
-            // Ignore non toxMessages
-            if (!isLeft(parsedTonXMessage)) {
-                const message = parsedTonXMessage.right as TonXMessage<any>;
+            const data = JSON.parse(nativeEvent.data);
+        },
+    [webRef]);
 
-                // Check for net missmatch
-                if (message.data.testnet !== AppConfig.isTestnet) {
-                    setLocked(true);
-
-                    Alert.alert(
-                        t('auth.apps.wrongChainTitle'),
-                        t('auth.apps.wrongChainMesage'),
-                        [{
-                            text: t('common.yes'),
-                            style: 'destructive',
-                            onPress: () => { navigation.goBack(); }
-                        }]
-                    );
-                    return;
-                }
-
-                handleTonXMessage(message, props.domainKey, webRef);
-            }
-        }, [props.domainKey, webRef, locked]);
     return (
         <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
             <WebView

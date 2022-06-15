@@ -17,7 +17,7 @@ export function postTonXMessage(webRef: React.RefObject<WebView>, message: TonXR
     webRef.current?.injectJavaScript(injectedMessage);
 }
 
-export async function handleTonXMessage(
+export function handleTonXMessage(
     message: TonXMessage<any>,
     domainSubKey: DomainSubkey,
     webRef: React.RefObject<WebView>,

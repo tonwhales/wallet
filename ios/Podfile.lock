@@ -352,6 +352,8 @@ PODS:
   - React-jsinspector (0.68.2)
   - React-logger (0.68.2):
     - glog
+  - react-native-blurhash (1.1.10):
+    - React-Core
   - react-native-fast-animations (0.0.4):
     - React
     - SwiftyJSON
@@ -545,6 +547,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-blurhash (from `../node_modules/react-native-blurhash`)
   - react-native-fast-animations (from `../node_modules/react-native-fast-animations`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
@@ -680,6 +683,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-blurhash:
+    :path: "../node_modules/react-native-blurhash"
   react-native-fast-animations:
     :path: "../node_modules/react-native-fast-animations"
   react-native-fast-pbkdf2:
@@ -800,6 +805,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
+  react-native-blurhash: add4df9a937b4e021a24bc67a0714f13e0bd40b7
   react-native-fast-animations: 23e8aa365e97ef3013bf0ac5219701cefb6578ff
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-menu: 52089949cbe30b035c51e54f92a7d99136c2fed4

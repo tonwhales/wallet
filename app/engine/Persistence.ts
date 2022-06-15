@@ -49,7 +49,6 @@ export class Persistence {
     readonly serverConfig: PersistedCollection<void, ServerConfig>
     readonly config: PersistedCollection<void, ConfigState>;
 
-    readonly dAppsList: PersistedCollection<void, string[]>;
     readonly dApps: PersistedCollection<string, AppData>;
 
     readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
@@ -89,7 +88,6 @@ export class Persistence {
         this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
 
         // dApps
-        this.dAppsList = new PersistedCollection({ storage, namespace: 'dAppsList', key: voidKey, codec: t.array(t.string), engine });
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
 
         // Cloud

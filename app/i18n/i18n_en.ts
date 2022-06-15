@@ -126,7 +126,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     install: {
-        title: 'Install App',
+        title: 'Install Addon',
         message: '<strong>{{name}}</strong> wants to connect to your account',
         action: 'Install'
     },

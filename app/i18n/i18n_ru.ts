@@ -115,7 +115,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         }
     },
     install: {
-        title: 'Установить приложение',
+        title: 'Установить дополнение',
         message: '<strong>{{name}}</strong> хочет подключиться к вашему аккаунту',
         action: 'Установить'
     },

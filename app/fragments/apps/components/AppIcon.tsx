@@ -21,7 +21,7 @@ export const AppIcon = React.memo((
     }
 ) => {
     const [loading, setLoading] = useState(false);
-    let url = resolveLink(app?.image?.preview256 || '');
+    let url = app && app.image && app.image.preview256 ? resolveLink(app.image.preview256) : null;
 
     if (url) {
         return (

@@ -165,6 +165,21 @@ export const SettingsFragment = fragment(() => {
                     </View>
                 </View>
 
+                {__DEV__ && (
+                    <View style={{
+                        marginBottom: 16, marginTop: 16,
+                        backgroundColor: "white",
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title='Dev Tools' onPress={() => navigation.navigate('DeveloperTools')} />
+                        </View>
+                    </View>
+                )}
+
                 <View style={{
                     marginBottom: 16, marginTop: 16,
                     backgroundColor: "white",

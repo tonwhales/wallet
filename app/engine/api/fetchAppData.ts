@@ -5,8 +5,8 @@ import { warn } from "../../utils/log";
 import qs from 'qs';
 
 export type AppDataIcon = {
-    blurhash: string | null,
-    preview256: string | null
+    blurhash: string,
+    preview256: string
 }
 
 export type AppData = {
@@ -26,8 +26,8 @@ export const appDataCodec = t.type({
     image: t.union([
         t.null,
         t.type({
-            blurhash: t.union([t.null, t.string]),
-            preview256: t.union([t.null, t.string]),
+            blurhash: t.string,
+            preview256: t.string,
         })
     ]),
     originalImage: t.union([t.null, t.string])

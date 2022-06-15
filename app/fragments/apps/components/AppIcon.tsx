@@ -48,11 +48,7 @@ export const AppIcon = React.memo((
                             top: 0, bottom: 0, left: 0, right: 0
                         }}>
                         <Blurhash
-                            blurhash={
-                                app?.image?.blurhash
-                                    ? app?.image?.blurhash
-                                    : 'UBN,_D?b?b?b_3j[ofof~qof9Fof?bofIUay'
-                            }
+                            blurhash={app!.image!.blurhash}
                             style={{ flexGrow: 1 }}
                             decodeHeight={16}
                             decodeWidth={16}

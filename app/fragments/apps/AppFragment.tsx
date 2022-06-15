@@ -10,22 +10,24 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AppComponent } from './components/AppComponent';
 import Color from 'color';
 import { getMetaTags, MetaTags } from '../../utils/meta/getMetaTags';
+import { useRoute } from '@react-navigation/native';
+import { extractDomain } from '../../utils/extractDomain';
+import { useEngine } from '../../engine/Engine';
 
 export const AppFragment = fragment(() => {
+    const engine = useEngine();
+    const url = (useRoute().params as any).url;
+    const domain = extractDomain(url);
+    const appData = engine.products.dApps.useAppData(url);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const endpoint = 'https://tonwhales.com';
-    const [metaTags, setMetaTags] = React.useState<MetaTags>({});
-    const color = metaTags['msapplication-TileColor'] ? metaTags['msapplication-TileColor'] : '#fff';
+    const color = appData && appData.color ? appData.color : '#fff';
     const c = Color(color);
     const fontColor = c.isDark() ? c.lighten(0.9).hex() : c.darken(0.8).hex();
-
-    React.useEffect(() => {
-        (async () => {
-            const metaRes = await getMetaTags(endpoint);
-            setMetaTags(metaRes);
-        })();
-    }, [endpoint]);
+    const key = engine.persistence.domainKeys.getValue(domain);
+    if (!appData || !key) {
+        throw Error('Impossible');
+    }
 
     return (
         <View style={{
@@ -45,11 +47,17 @@ export const AppFragment = fragment(() => {
                         marginLeft: 17,
                         fontSize: 17,
                         color: fontColor
-                    }, { textAlign: 'center' }]}>{t('auth.apps.title')}</Text>
+                    }, { textAlign: 'center' }]}>{appData.title}</Text>
                 </View>
             )}
 
-            <AppComponent endpoint={endpoint} color={color} foreground={fontColor} />
+            <AppComponent
+                endpoint={url}
+                color={color}
+                foreground={fontColor}
+                title={appData.title}
+                domainKey={key}
+            />
 
             {Platform.OS === 'ios' && (
                 <CloseButton

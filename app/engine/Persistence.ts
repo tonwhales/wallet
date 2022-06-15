@@ -19,6 +19,7 @@ import { TxHints } from "./sync/startHintsTxSync";
 import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
 import { AppData, appDataCodec } from "./api/fetchAppData";
+import { DomainSubkey } from "./products/AppsProduct";
 
 export class Persistence {
 
@@ -50,6 +51,7 @@ export class Persistence {
     readonly config: PersistedCollection<void, ConfigState>;
 
     readonly dApps: PersistedCollection<string, AppData>;
+    readonly domainKeys: PersistedCollection<string, DomainSubkey>;
 
     readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
 
@@ -89,6 +91,7 @@ export class Persistence {
 
         // dApps
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
+        this.domainKeys = new PersistedCollection({ storage, namespace: 'domainKeys', key: stringKey, codec: domainKeyCodec, engine });
 
         // Cloud
         this.cloud = new PersistedCollection({ storage, namespace: 'cloud', key: keyedAddressKey, codec: t.string, engine });
@@ -242,4 +245,10 @@ const configCodec = t.type({
     })),
     workchain: chainConfigCodec,
     masterchain: chainConfigCodec
+});
+
+const domainKeyCodec = t.type({
+    time: t.number,
+    signature: c.buffer,
+    secret: c.buffer
 });

@@ -3,6 +3,12 @@ import { AppData, fetchAppData } from "../api/fetchAppData";
 import { Engine } from "../Engine";
 import { warn } from "../../utils/log";
 
+export type DomainSubkey = {
+    time: number,
+    signature: Buffer,
+    secret: Buffer
+}
+
 export class AppsProduct {
     readonly engine: Engine;
     readonly appDataSelector;

@@ -48,3 +48,27 @@ export class BNType extends Type<BN, string, unknown> {
 }
 
 export const bignum = new BNType();
+
+
+export class BufferType extends Type<Buffer, string, unknown> {
+    readonly _tag: 'BufferType' = 'BufferType'
+    constructor() {
+        super(
+            'Address',
+            (u): u is Buffer => Buffer.isBuffer(u),
+            (u, c) => {
+                if (!t.string.validate(u, c)) {
+                    return failure(u, c);
+                }
+                try {
+                    return success(Buffer.from(u as string, 'base64'));
+                } catch (e) {
+                    return failure(u, c);
+                }
+            },
+            (u) => u.toString('base64')
+        )
+    }
+}
+
+export const buffer = new BufferType();

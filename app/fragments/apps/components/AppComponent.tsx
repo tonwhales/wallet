@@ -3,8 +3,15 @@ import { ActivityIndicator, View } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DomainSubkey } from '../../../engine/products/AppsProduct';
 
-export const AppComponent = React.memo((props: { endpoint: string, color: string, foreground: string }) => {
+export const AppComponent = React.memo((props: {
+    endpoint: string,
+    color: string,
+    foreground: string,
+    title: string,
+    domainKey: DomainSubkey
+}) => {
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
     const opacity = useSharedValue(1);
@@ -36,6 +43,7 @@ export const AppComponent = React.memo((props: { endpoint: string, color: string
                 autoManageStatusBarEnabled={false}
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
+                decelerationRate="normal"
             />
 
             <Animated.View

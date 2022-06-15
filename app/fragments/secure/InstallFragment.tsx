@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { backoff } from '../../utils/time';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { getCurrentAddress } from '../../storage/appState';
+import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
@@ -19,6 +19,12 @@ import { CloseButton } from '../../components/CloseButton';
 import { AppData } from '../../engine/api/fetchAppData';
 import { useEngine } from '../../engine/Engine';
 import { AppIcon } from '../apps/components/AppIcon';
+import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { warn } from '../../utils/log';
+import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { beginCell, safeSign } from 'ton';
+import { extractDomain } from '../../utils/extractDomain';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -63,77 +69,39 @@ const SignStateLoader = React.memo((props: { url: string }) => {
         return () => { active.current = false; };
     }, []);
     const approve = React.useCallback(async () => {
+
+        // Load data
+        const contract = await contractFromPublicKey(acc.publicKey);
+        let appInstanceKeyPair = await getAppInstanceKeyPair();
+        let domain = extractDomain(props.url);
+        let time = Math.floor(Date.now() / 1000);
+
+        // Create signing key
+        let walletKeys: WalletKeys;
+        try {
+            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+        } catch (e) {
+            warn(e);
+            return;
+        }
+        let secret = await getSecureRandomBytes(32);
+        let subkey = keyPairFromSeed(secret);
+        let toSign = beginCell()
+            .storeCoins(1)
+            .storeBuffer(subkey.publicKey)
+            .storeUint(time, 32)
+            .storeAddress(contract.address)
+            .storeRef(beginCell().storeBuffer(Buffer.from(domain)).endCell())
+            .storeRef(beginCell().storeBuffer(appInstanceKeyPair.publicKey).endCell())
+            .endCell();
+        let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
+
+        // Persist key
+        engine.persistence.domainKeys.setValue(domain, { time, signature, secret });
+
+        // Navigate
         navigation.goBack();
-        navigation.navigate('App');
-        // if (state.type !== 'initing') {
-        //     return;
-        // }
-
-        // // Load data
-        // const contract = await contractFromPublicKey(acc.publicKey);
-        // let walletConfig = contract.source.backup();
-        // let walletType = contract.source.type;
-        // let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
-        // let appInstanceKeyPair = await getAppInstanceKeyPair();
-        // let endpoint = 'https://connect.tonhubapi.com/connect/command';
-        // let name = state.name;
-        // let url = state.url;
-
-        // // Sign
-        // let walletKeys: WalletKeys;
-        // try {
-        //     walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-        // } catch (e) {
-        //     warn(e);
-        //     return;
-        // }
-        // let toSign = beginCell()
-        //     .storeCoins(0)
-        //     .storeBuffer(Buffer.from(props.session, 'base64'))
-        //     .storeAddress(contract.address)
-        //     .storeRefMaybe(beginCell()
-        //         .storeBuffer(Buffer.from(endpoint))
-        //         .endCell())
-        //     .storeRef(beginCell()
-        //         .storeBuffer(appInstanceKeyPair.publicKey)
-        //         .endCell())
-        //     .endCell();
-        // let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
-
-        // // Notify
-        // await backoff('authenticate', async () => {
-        //     if (!active.current) {
-        //         return;
-        //     }
-
-        //     // Apply answer
-        //     await axios.post('https://' + props.endpoint + '/connect/answer', {
-        //         key: props.session,
-        //         appPublicKey: appInstanceKeyPair.publicKey.toString('base64'),
-        //         address: address,
-        //         walletType,
-        //         walletConfig,
-        //         walletSig: signature.toString('base64'),
-        //         endpoint
-        //     }, { timeout: 5000 });
-
-        //     // Persist reference
-        //     addConnectionReference(props.session, name, url, Date.now());
-        //     addPendingGrant(props.session);
-
-        //     // Grant access
-        //     await backoff('authenticate', async () => {
-        //         await axios.post('https://connect.tonhubapi.com/connect/grant', { key: props.session }, { timeout: 5000 });
-        //         removePendingGrant(props.session);
-        //     });
-
-        //     // Exit if already exited screen
-        //     if (!active.current) {
-        //         return;
-        //     }
-
-        //     setState({ type: 'authorized' });
-        // });
+        navigation.navigate('App', { url: props.url });
     }, [state]);
 
     // When loading
@@ -222,7 +190,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {new URL(props.url).host}
+                        {extractDomain(props.url)}
                     </Text>
                 </View>
                 <View style={{

@@ -8,6 +8,7 @@ import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from '../../../Navigation';
+import { tonXinjectionSource } from '../../../engine/tonx/tonXinjectionSource';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -65,6 +66,7 @@ export const AppComponent = React.memo((props: {
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
                 decelerationRate="normal"
+                injectedJavaScriptBeforeContentLoaded={tonXinjectionSource}
                 onShouldStartLoadWithRequest={loadWithRequest}
             />
 

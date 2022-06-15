@@ -145,6 +145,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         requestPermission: 'Open settings',
     },
     products: {
+        accounts: 'Accounts',
+        services: 'Services',
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'

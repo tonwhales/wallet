@@ -1,6 +1,6 @@
 import BN from "bn.js"
 import React from "react"
-import { View } from "react-native"
+import { Text, View } from "react-native"
 import { ProductButton } from "./ProductButton"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
@@ -10,8 +10,8 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
-import { Address } from "ton"
 import { JettonProdcut } from "./JettonProduct"
+import { Theme } from "../../../Theme"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -20,6 +20,32 @@ export const ProductsComponent = React.memo(() => {
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons();
+
+    // Resolve accounts
+    let accounts: React.ReactElement[] = [];
+    if (oldWalletsBalance.gt(new BN(0))) {
+        accounts.push(
+            <ProductButton
+                name={t('products.oldWallets.title')}
+                subtitle={t("products.oldWallets.subtitle")}
+                icon={OldWalletIcon}
+                value={oldWalletsBalance}
+                onPress={() => navigation.navigate('Migration')}
+                style={{ marginVertical: 4 }}
+            />
+        );
+    }
+    for (let j of jettons) {
+        accounts.push(
+            <JettonProdcut key={'jt' + j.wallet.toFriendly()} jetton={j} navigation={navigation} engine={engine} />
+        );
+    }
+
+    // Resolve apps
+    let apps: React.ReactElement[] = [];
+    if (pool) {
+        apps.push(<StakingProductComponent key={'pool'} pool={pool} />);
+    }
 
     return (
         <View style={{ paddingTop: 8 }}>
@@ -62,19 +88,22 @@ export const ProductsComponent = React.memo(() => {
                 />
             )}
 
-            {jettons.map((jt) => (
-                <JettonProdcut key={'jt' + jt.wallet.toFriendly()} jetton={jt} navigation={navigation} engine={engine} />
-            ))}
-            {pool && (<StakingProductComponent pool={pool} />)}
-            {oldWalletsBalance.gt(new BN(0)) && (
-                <ProductButton
-                    name={t('products.oldWallets.title')}
-                    subtitle={t("products.oldWallets.subtitle")}
-                    icon={OldWalletIcon}
-                    value={oldWalletsBalance}
-                    onPress={() => navigation.navigate('Migration')}
-                    style={{ marginVertical: 4 }}
-                />
+            {accounts.length > 0 && (
+                <>
+                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.accounts')}</Text>
+                    </View>
+                    {accounts}
+                </>
+            )}
+
+            {apps.length > 0 && (
+                <>
+                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
+                    </View>
+                    {apps}
+                </>
             )}
         </View>
     )

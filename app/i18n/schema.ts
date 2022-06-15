@@ -147,6 +147,8 @@ export type LocalizationSchema = {
         requestPermission: string
     },
     products: {
+        accounts: string,
+        services: string,
         oldWallets: {
             title: string,
             subtitle: string

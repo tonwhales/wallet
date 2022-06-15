@@ -63,7 +63,8 @@ const SignStateLoader = React.memo((props: { url: string }) => {
         return () => { active.current = false; };
     }, []);
     const approve = React.useCallback(async () => {
-
+        navigation.goBack();
+        navigation.navigate('App');
         // if (state.type !== 'initing') {
         //     return;
         // }

@@ -13,7 +13,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
-import { Cell, safeSign } from 'ton';
+import { beginCell, Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
@@ -103,17 +103,17 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             warn(e);
             return;
         }
-        let toSign = new Cell();
-        toSign.bits.writeCoins(0);
-        toSign.bits.writeBuffer(Buffer.from(props.session, 'base64'));
-        toSign.bits.writeAddress(contract.address);
-        toSign.bits.writeBit(1);
-        let ref = new Cell();
-        ref.bits.writeBuffer(Buffer.from(endpoint));
-        toSign.refs.push(ref);
-        let ref2 = new Cell();
-        ref2.bits.writeBuffer(appInstanceKeyPair.publicKey);
-        toSign.refs.push(ref2);
+        let toSign = beginCell()
+            .storeCoins(0)
+            .storeBuffer(Buffer.from(props.session, 'base64'))
+            .storeAddress(contract.address)
+            .storeRefMaybe(beginCell()
+                .storeBuffer(Buffer.from(endpoint))
+                .endCell())
+            .storeRef(beginCell()
+                .storeBuffer(appInstanceKeyPair.publicKey)
+                .endCell())
+            .endCell();
         let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
 
         // Notify

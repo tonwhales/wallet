@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Linking, View } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DomainSubkey } from '../../../engine/products/AppsProduct';
+import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
+import { extractDomain } from '../../../utils/extractDomain';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -29,6 +31,13 @@ export const AppComponent = React.memo((props: {
             opacity: withTiming(opacity.value, { duration: 300 }),
         };
     });
+    const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
+        if (extractDomain(event.url) === extractDomain(props.endpoint)) {
+            return true;
+        }
+        Linking.openURL(event.url);
+        return false;
+    }, []);
     return (
         <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
             <WebView
@@ -44,6 +53,7 @@ export const AppComponent = React.memo((props: {
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
                 decelerationRate="normal"
+                onShouldStartLoadWithRequest={loadWithRequest}
             />
 
             <Animated.View

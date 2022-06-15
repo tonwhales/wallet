@@ -127,6 +127,11 @@ export type LocalizationSchema = {
             title: string
         }
     },
+    install: {
+        title: string,
+        message: string,
+        action: string
+    },
     sign: {
         title: string,
         message: string,

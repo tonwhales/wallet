@@ -289,7 +289,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                     marginTop: 24
                 }}
             >
-                {tStyled('auth.message', { name: state.app.title })}
+                {tStyled('install.message', { name: state.app.title })}
             </Text>
             <View style={{ flexGrow: 1 }} />
             <View style={{ flexDirection: 'row', marginHorizontal: 32 }}>
@@ -324,7 +324,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                     }}
                 />
                 <RoundButton
-                    title={t('auth.action')}
+                    title={t('install.action')}
                     action={approve}
                     style={{
                         marginLeft: 7,
@@ -343,14 +343,14 @@ export const InstallFragment = fragment(() => {
     const params: { url: string } = useRoute().params as any;
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('auth.title')} />
+            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('install.title')} />
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('auth.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('install.title')}</Text>
                 </View>
             )}
             <SignStateLoader url={params.url} />

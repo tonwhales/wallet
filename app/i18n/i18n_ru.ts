@@ -95,7 +95,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     auth: {
         title: 'Запрос на подключение',
-        message: '<strong>{{name}}</strong> хочет присоединиться к вашему аккаунту',
+        message: '<strong>{{name}}</strong> хочет подключиться к вашему аккаунту',
         hint: 'Никакие средства не будут переведены и приложение не сможет получить доступ к вашим монетам.',
         action: 'Разрешить',
         expired: 'Этот запрос на авторизацию уже истек',
@@ -113,6 +113,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         apps: {
             title: 'Доверенные приложения'
         }
+    },
+    install: {
+        title: 'Установить приложение',
+        message: '<strong>{{name}}</strong> хочет подключиться к вашему аккаунту',
+        action: 'Установить'
     },
     sign: {
         title: 'Запрос подписи',

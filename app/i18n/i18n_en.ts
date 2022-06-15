@@ -125,6 +125,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Trusted Apps'
         }
     },
+    install: {
+        title: 'Install App',
+        message: '<strong>{{name}}</strong> wants to connect to your account',
+        action: 'Install'
+    },
     sign: {
         title: 'Signature request',
         message: 'Requested to sign a message',

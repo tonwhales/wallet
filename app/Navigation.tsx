@@ -22,7 +22,7 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme, Theme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext } from './engine/Engine';
+import { EngineContext, useEngine } from './engine/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { backoff } from './utils/time';
@@ -44,6 +44,12 @@ import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/InstallFragment';
+import { useGlobalLoader } from './components/useGlobalLoader';
+import * as SplashScreen from 'expo-splash-screen';
+import { useTypedNavigation } from './utils/useTypedNavigation';
+import { AppConfig } from './AppConfig';
+import { ResolvedUrl, resolveUrl } from './utils/resolveUrl';
+import BN from 'bn.js';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -312,3 +318,42 @@ export const Navigation = React.memo(() => {
         </EngineContext.Provider>
     );
 });
+
+export function useLinkNavigator() {
+    const navigation = useTypedNavigation();
+
+    const handler = React.useCallback((resolved: ResolvedUrl) => {
+        if (resolved.type === 'transaction') {
+            if (resolved.payload) {
+                navigation.navigateTransfer({
+                    order: {
+                        target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        amount: resolved.amount || new BN(0),
+                        amountAll: false,
+                        stateInit: resolved.stateInit,
+                        payload: resolved.payload,
+                    },
+                    text: resolved.comment,
+                    job: null
+                });
+            } else {
+                navigation.navigateSimpleTransfer({
+                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    comment: resolved.comment,
+                    amount: resolved.amount,
+                    stateInit: resolved.stateInit,
+                    job: null,
+                    jetton: null
+                });
+            }
+        }
+        if (resolved.type === 'connect') {
+            navigation.navigate('Authenticate', {
+                session: resolved.session,
+                endpoint: resolved.endpoint
+            });
+        }
+    }, []);
+
+    return handler;
+}

@@ -27,6 +27,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { log } from '../../utils/log';
 import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
+import { useLinkNavigator } from '../../Navigation';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -210,44 +211,14 @@ function WalletComponent(props: { wallet: WalletState }) {
             }),
         };
     }, []);
+    const linkNavigator = useLinkNavigator();
 
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src);
-            if (res && res.type === 'transaction') {
-                // if QR is valid navigate to transfer fragment
-
-                if (!res.payload) {
-                    navigation.navigateSimpleTransfer({
-                        target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                        comment: res.comment,
-                        amount: res.amount,
-                        stateInit: res.stateInit,
-                        job: null,
-                        jetton: null
-                    });
-                } else {
-                    navigation.navigateTransfer({
-                        order: {
-                            target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            amount: res.amount || new BN(0),
-                            amountAll: false,
-                            stateInit: res.stateInit,
-                            payload: res.payload,
-                        },
-                        text: res.comment,
-                        job: null
-                    });
-                }
+            if (res) {
+                linkNavigator(res);
             }
-            if (res && res.type === 'connect') {
-                // if QR is valid navigate to sign fragment
-                navigation.navigate('Authenticate', {
-                    session: res.session,
-                    endpoint: res.endpoint
-                });
-            }
-
         } catch (error) {
             // Ignore
         }

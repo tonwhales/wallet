@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DomainSubkey } from '../../../engine/products/AppsProduct';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../utils/extractDomain';
+import { resolveUrl } from '../../../utils/resolveUrl';
+import { useLinkNavigator } from '../../../Navigation';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -31,10 +33,20 @@ export const AppComponent = React.memo((props: {
             opacity: withTiming(opacity.value, { duration: 300 }),
         };
     });
+    const linkNavigator = useLinkNavigator();
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
+
+        // Resolve internal url
+        const resolved = resolveUrl(event.url);
+        if (resolved) {
+            linkNavigator(resolved);
+            return false;
+        }
+
+        // Resolve linking
         Linking.openURL(event.url);
         return false;
     }, []);

@@ -4,7 +4,7 @@ import Url from 'url-parse';
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 
-type ResolvedUrl = {
+export type ResolvedUrl = {
     type: 'transaction',
     address: Address,
     comment: string | null,
@@ -15,9 +15,9 @@ type ResolvedUrl = {
     type: 'connect',
     session: string,
     endpoint: string | null
-} | null;
+};
 
-export function resolveUrl(src: string): ResolvedUrl {
+export function resolveUrl(src: string): ResolvedUrl | null {
 
 
     // Try address parsing

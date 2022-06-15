@@ -16,7 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
-import BN from 'bn.js';
+import { useLinkNavigator } from '../Navigation';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -24,6 +24,7 @@ export const HomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const engine = useEngine();
+    const linkNavigator = useLinkNavigator();
 
     // Subscribe for links
     React.useEffect(() => {
@@ -75,37 +76,13 @@ export const HomeFragment = fragment(() => {
                 })()
             } else {
                 let resolved = resolveUrl(link);
-                if (resolved && resolved.type === 'transaction') {
-                    SplashScreen.hideAsync();
-                    if (resolved.payload) {
-                        navigation.navigateTransfer({
-                            order: {
-                                target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                amount: resolved.amount || new BN(0),
-                                amountAll: false,
-                                stateInit: resolved.stateInit,
-                                payload: resolved.payload,
-                            },
-                            text: resolved.comment,
-                            job: null
-                        });
-                    } else {
-                        navigation.navigateSimpleTransfer({
-                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            comment: resolved.comment,
-                            amount: resolved.amount,
-                            stateInit: resolved.stateInit,
-                            job: null,
-                            jetton: null
-                        });
+                if (resolved) {
+                    try {
+                        SplashScreen.hideAsync();
+                    } catch (e) {
+                        // Ignore
                     }
-                }
-                if (resolved && resolved.type === 'connect') {
-                    SplashScreen.hideAsync();
-                    navigation.navigate('Authenticate', {
-                        session: resolved.session,
-                        endpoint: resolved.endpoint
-                    });
+                    linkNavigator(resolved);
                 }
             }
         });

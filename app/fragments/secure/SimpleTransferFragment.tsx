@@ -30,6 +30,7 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { log } from '../../utils/log';
 import { useRecoilValue } from 'recoil';
+import { useLinkNavigator } from '../../Navigation';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -260,14 +261,13 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [order, account.seqno, config, accountState, comment]);
 
+    const linkNavigator = useLinkNavigator();
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src);
         if (res && res.type === 'transaction') {
             if (res.payload) {
-                navigation.dismiss();
-                navigation.navigate('Confirm', {
-
-                })
+                navigation.goBack();
+                linkNavigator(res);
             } else {
                 setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
                 if (res.amount) {

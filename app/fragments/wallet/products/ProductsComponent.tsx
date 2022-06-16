@@ -12,6 +12,7 @@ import { StakingProductComponent } from "../../../components/Staking/StakingProd
 import { t } from "../../../i18n/t"
 import { JettonProdcut } from "./JettonProduct"
 import { Theme } from "../../../Theme"
+import { getConnectionReferences } from "../../../storage/appState"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -66,7 +67,8 @@ export const ProductsComponent = React.memo(() => {
                                     amountAll: false
                                 },
                                 job: currentJob.jobRaw,
-                                text: currentJob.job.text
+                                text: currentJob.job.text,
+                                callback: null
                             });
                         }
                     }}
@@ -80,8 +82,17 @@ export const ProductsComponent = React.memo(() => {
                     value={null}
                     onPress={() => {
                         if (currentJob.job.type === 'sign') {
-                            navigation.navigate('Sign', {
-                                job: currentJob.jobRaw
+                            const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(currentJob.key));
+                            if (!connection) {
+                                return; // Just in case
+                            }
+                            navigation.navigateSign({
+                                text: currentJob.job.text,
+                                textCell: currentJob.job.textCell,
+                                payloadCell: currentJob.job.payloadCell,
+                                job: currentJob.jobRaw,
+                                callback: null,
+                                name: connection.name
                             });
                         }
                     }}

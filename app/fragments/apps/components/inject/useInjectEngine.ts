@@ -4,7 +4,7 @@ import { InjectEngine } from './InjectEngine';
 import { AppConfig } from '../../../../AppConfig';
 import * as c from '../../../../engine/utils/codecs';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
-import { Cell } from 'ton';
+import { Cell, Slice } from 'ton';
 
 const transCodec = t.type({
     network: t.union([t.literal('sandbox'), t.literal('mainnet')]),
@@ -20,7 +20,28 @@ const transactionResponse = t.type({
     result: t.union([c.cell, t.null])
 });
 
-export function useInjectEngine() {
+const signCodec = t.type({
+    network: t.union([t.literal('sandbox'), t.literal('mainnet')]),
+    textCell: c.cell,
+    payloadCell: c.cell
+});
+
+const signResponseCodec = t.type({
+    state: t.union([t.literal('sent'), t.literal('rejected')]),
+    result: t.union([c.cell, t.null])
+});
+
+function parseString(slice: Slice) {
+    let res = slice.readBuffer(Math.floor(slice.remaining / 8)).toString();
+    let rr = slice;
+    if (rr.remainingRefs > 0) {
+        rr = rr.readRef();
+        res += rr.readBuffer(Math.floor(rr.remaining / 8)).toString();
+    }
+    return res;
+}
+
+export function useInjectEngine(name: string) {
     const navigation = useTypedNavigation();
     return React.useMemo(() => {
         const inj = new InjectEngine();
@@ -69,6 +90,36 @@ export function useInjectEngine() {
                     back: 1
                 });
             }
+
+            return await future;
+        });
+        inj.registerMethod('sign', signCodec, signResponseCodec, async (src) => {
+
+            // Check network
+            if (AppConfig.isTestnet && src.network !== 'sandbox') {
+                throw Error('Invalid network');
+            }
+            if (!AppConfig.isTestnet && src.network !== 'mainnet') {
+                throw Error('Invalid network');
+            }
+
+            // Callback
+            let callback: (ok: boolean, res: Cell | null) => void;
+            let future = new Promise<{ state: 'sent' | 'rejected', result: Cell | null }>((resolve) => {
+                callback = (ok, res) => {
+                    resolve({ state: ok ? 'sent' : 'rejected', result: res });
+                };
+            });
+
+            // Navigation
+            navigation.navigateSign({
+                textCell: src.textCell,
+                payloadCell: src.payloadCell,
+                text: parseString(src.textCell.beginParse()),
+                job: null,
+                callback: callback!,
+                name
+            });
 
             return await future;
         });

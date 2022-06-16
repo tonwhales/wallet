@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { CloseButton } from '../../components/CloseButton';
 import { ConnectedAppButton } from '../../components/ConnectedAppButton';
+import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
@@ -47,6 +48,8 @@ function groupItems(items: Item[]): GroupedItems[] {
 export const ConnectionsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const engine = useEngine();
+    const extensions = engine.products.extensions.useExtensions();
     let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
     let disconnectApp = React.useCallback((url: string) => {
 
@@ -72,7 +75,10 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
-    if (apps.length === 0) {
+    let removeExtension = React.useCallback((url: string) => {
+        engine.products.extensions.removeExtension(url);
+    }, []);
+    if (apps.length === 0 && extensions.length === 0) {
         return (
             <View style={{
                 flexGrow: 1, flexBasis: 0,
@@ -138,6 +144,21 @@ export const ConnectionsFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
+                    {extensions.length > 0 && (
+                        <Text>Extensions</Text>
+                    )}
+                    {extensions.map((app) => (
+                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                            <ConnectedAppButton
+                                onRevoke={() => removeExtension(app.url)}
+                                url={app.url}
+                                name={app.name}
+                            />
+                        </View>
+                    ))}
+                    {extensions.length > 0 && (
+                        <Text>Connections</Text>
+                    )}
                     {apps.map((app) => (
                         <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                             <ConnectedAppButton

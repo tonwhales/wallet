@@ -21,6 +21,7 @@ export const ProductsComponent = React.memo(() => {
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons();
+    const extensions = engine.products.extensions.useExtensions();
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];
@@ -44,6 +45,16 @@ export const ProductsComponent = React.memo(() => {
 
     // Resolve apps
     let apps: React.ReactElement[] = [];
+    for (let e of extensions) {
+        apps.push(<ProductButton
+            name={e.name}
+            subtitle={e.url}
+            icon={OldWalletIcon}
+            value={null}
+            onPress={() => navigation.navigate('App', { url: e.url })}
+            style={{ marginVertical: 4 }}
+        />);
+    }
     if (pool) {
         apps.push(<StakingProductComponent key={'pool'} pool={pool} />);
     }

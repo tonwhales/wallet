@@ -4,6 +4,8 @@ import { InvalidateSync } from "../utils/InvalidateSync";
 import { Cloud } from "./Cloud";
 import * as Automerge from 'automerge';
 import { createLogger, warn } from '../../utils/log';
+import { atom, RecoilState, useRecoilValue } from 'recoil';
+import { AppConfig } from '../../AppConfig';
 
 export interface CloudValue<T> {
     emit(event: 'updated', data: T): boolean;
@@ -18,8 +20,9 @@ export class CloudValue<T> extends EventEmitter {
     #key: string;
     #sync: InvalidateSync;
     #value: Automerge.Doc<T>;
+    readonly atom: RecoilState<T>;
 
-    constructor(cloud: Cloud, key: string, initial: () => Automerge.Doc<T>) {
+    constructor(cloud: Cloud, key: string, init: (src: T) => void) {
         super();
         this.#cloud = cloud;
         this.#key = key;
@@ -37,8 +40,15 @@ export class CloudValue<T> extends EventEmitter {
         if (v) {
             this.#value = v;
         } else {
-            this.#value = initial();
+            this.#value = Automerge.change(Automerge.init<T>(), init);
         }
+
+        // Atom
+        this.atom = atom({
+            key: 'cloud/' + cloud.engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/' + key,
+            dangerouslyAllowMutability: true,
+            default: this.#value as T
+        });
 
         // Configure sync
         const logger = createLogger('cloud');
@@ -63,6 +73,7 @@ export class CloudValue<T> extends EventEmitter {
             if (updated) {
                 this.#value = Automerge.merge(this.#value, Automerge.load<T>(updated as any));
                 this.emit('updated', this.value);
+                this.#cloud.engine.recoil.updater(this.atom, this.value);
             }
         });
         this.#sync.invalidate();
@@ -73,32 +84,7 @@ export class CloudValue<T> extends EventEmitter {
     }
 
     use() {
-        const [state, setState] = React.useState(this.value);
-        React.useEffect(() => {
-
-            let ended = false;
-
-            // Just in case of race conditions
-            if (state !== this.value) {
-                setState(this.value);
-            }
-
-            // Update handler
-            const handler = () => {
-                if (ended) {
-                    return;
-                }
-                setState(this.value);
-            }
-
-            this.on('updated', handler);
-            return () => {
-                ended = true;
-                this.off('updated', handler);
-            };
-        }, []);
-
-        return state;
+        return useRecoilValue(this.atom);
     }
 
     update = (updater: (src: T) => void) => {
@@ -112,6 +98,7 @@ export class CloudValue<T> extends EventEmitter {
         this.#value = res;
         this.#cloud.engine.persistence.cloud.setValue({ address: this.#cloud.engine.address, key: this.#key }, Automerge.save(res));
         this.emit('updated', this.value);
+        this.#cloud.engine.recoil.updater(this.atom, this.value);
 
         // Sync
         this.#sync.invalidate();

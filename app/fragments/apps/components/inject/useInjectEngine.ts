@@ -16,7 +16,8 @@ const transCodec = t.type({
 });
 
 const transactionResponse = t.type({
-    result: t.union([t.literal('sent'), t.literal('rejected')])
+    state: t.union([t.literal('sent'), t.literal('rejected')]),
+    result: t.union([c.cell, t.null])
 });
 
 export function useInjectEngine() {
@@ -35,13 +36,9 @@ export function useInjectEngine() {
 
             // Callback
             let callback: (ok: boolean, res: Cell | null) => void;
-            let future = new Promise<{ result: 'sent' | 'rejected' }>((resolve) => {
+            let future = new Promise<{ state: 'sent' | 'rejected', result: Cell | null }>((resolve) => {
                 callback = (ok, res) => {
-                    if (ok) {
-                        resolve({ result: 'sent' });
-                    } else {
-                        resolve({ result: 'rejected' });
-                    }
+                    resolve({ state: ok ? 'sent' : 'rejected', result: res });
                 };
             });
 

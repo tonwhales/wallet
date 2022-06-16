@@ -62,7 +62,7 @@ export const SignFragment = fragment(() => {
         // Commit
         await engine.products.apps.commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());
 
-        // Go backj
+        // Go back
         navigation.goBack();
     }, []);
     const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(job.key));

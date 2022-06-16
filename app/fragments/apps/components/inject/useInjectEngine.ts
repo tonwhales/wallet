@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as t from 'io-ts';
-import { InjectEngine } from './injectEngine';
+import { InjectEngine } from './InjectEngine';
 import { AppConfig } from '../../../../AppConfig';
 import * as c from '../../../../engine/utils/codecs';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';

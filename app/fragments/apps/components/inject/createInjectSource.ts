@@ -1,9 +1,9 @@
-export function createInjectSource() {
+export function createInjectSource(config: any) {
     return `
     window['ton-x'] = (() => {
         let requestId = 0;
         let callbacks = {};
-        let config = {};
+        let config = ${JSON.stringify(config)};
     
         window.addEventListener('ton-x-message', (ev) => {
             let payload = ev.detail;

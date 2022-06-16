@@ -12,6 +12,11 @@ import { warn } from '../../../utils/log';
 import { dispatchWebViewMessage } from './inject/dispatchWebViewMessage';
 import { createInjectSource } from './inject/createInjectSource';
 import { useInjectEngine } from './inject/useInjectEngine';
+import { AppConfig } from '../../../AppConfig';
+import { useEngine } from '../../../engine/Engine';
+import { keyPairFromSeed } from 'ton-crypto';
+import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
+import { beginCell, safeSign } from 'ton';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -69,8 +74,40 @@ export const AppComponent = React.memo((props: {
     // Injection
     //
 
+    const engine = useEngine();
     const injectSource = React.useMemo(() => {
-        return createInjectSource();
+        const subkey = keyPairFromSeed(props.domainKey.secret);
+        const contract = contractFromPublicKey(engine.publicKey);
+        const walletConfig = contract.source.backup();
+        const walletType = contract.source.type;
+        const domain = extractDomain(props.endpoint);
+
+        const time = Math.floor((Date.now() / 1000));
+        const toSign = beginCell()
+            .storeCoins(1)
+            .storeAddress(contract.address)
+            .storeUint(time, 32)
+            .storeRefMaybe(beginCell()
+                .storeBuffer(Buffer.from(domain))
+                .endCell())
+            .endCell();
+        const signature = safeSign(toSign, subkey.secretKey);
+
+        return createInjectSource({
+            network: AppConfig.isTestnet ? 'sandbox' : 'mainnet',
+            address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            publicKey: engine.publicKey.toString('base64'),
+            walletConfig,
+            walletType,
+            signature: signature.toString('base64'),
+            time,
+            subkey: {
+                domain: domain,
+                publicKey: subkey.publicKey.toString('base64'),
+                time: props.domainKey.time,
+                signature: props.domainKey.signature.toString('base64')
+            }
+        });
     }, []);
     const injectionEngine = useInjectEngine();
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {

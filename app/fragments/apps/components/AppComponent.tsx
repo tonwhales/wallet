@@ -9,8 +9,7 @@ import { extractDomain } from '../../../utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from '../../../Navigation';
 import { warn } from '../../../utils/log';
-import { dispatchWebViewMessage } from './inject/dispatchWebViewMessage';
-import { createInjectSource } from './inject/createInjectSource';
+import { createInjectSource, dispatchResponse } from './inject/createInjectSource';
 import { useInjectEngine } from './inject/useInjectEngine';
 import { AppConfig } from '../../../AppConfig';
 import { useEngine } from '../../../engine/Engine';
@@ -32,7 +31,7 @@ export const AppComponent = React.memo((props: {
 
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
-    const webRef = React.createRef<WebView>();
+    const webRef = React.useRef<WebView>(null);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -131,13 +130,13 @@ export const AppComponent = React.memo((props: {
 
         // Execute
         (async () => {
-            let res = { type: 'error', message: 'Unknown error' }
+            let res = { type: 'error', message: 'Unknown error' };
             try {
                 res = await injectionEngine.execute(data);
             } catch (e) {
                 warn(e);
             }
-            dispatchWebViewMessage(webRef, 'ton-x-message', { id, data: res });
+            dispatchResponse(webRef, { id, data: res });
         })();
 
     }, []);

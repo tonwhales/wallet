@@ -126,7 +126,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     install: {
-        title: 'Install Addon',
+        title: 'Install Extension',
         message: '<strong>{{name}}</strong> wants to connect to your account',
         action: 'Install'
     },
@@ -151,7 +151,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     products: {
         accounts: 'Accounts',
-        services: 'Addons',
+        services: 'Extensions',
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'

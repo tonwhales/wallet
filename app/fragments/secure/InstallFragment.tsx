@@ -24,7 +24,7 @@ import { warn } from '../../utils/log';
 import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { beginCell, safeSign } from 'ton';
-import { extractDomain } from '../../utils/extractDomain';
+import { extractDomain } from '../../engine/utils/extractDomain';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

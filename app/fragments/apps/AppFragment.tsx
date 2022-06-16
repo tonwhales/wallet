@@ -11,7 +11,7 @@ import { AppComponent } from './components/AppComponent';
 import Color from 'color';
 import { getMetaTags, MetaTags } from '../../utils/meta/getMetaTags';
 import { useRoute } from '@react-navigation/native';
-import { extractDomain } from '../../utils/extractDomain';
+import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
 
 export const AppFragment = fragment(() => {

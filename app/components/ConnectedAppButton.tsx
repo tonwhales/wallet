@@ -1,6 +1,7 @@
 import React from "react";
 import { ImageSourcePropType, View, Image, Text, Pressable } from "react-native";
 import { useEngine } from "../engine/Engine";
+import { extractDomain } from "../engine/utils/extractDomain";
 import { AppIcon } from "../fragments/apps/components/AppIcon";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
@@ -64,7 +65,7 @@ export const ConnectedAppButton = React.memo((
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {url}
+                        {extractDomain(url)}
                     </Text>
                 )}
             </View>

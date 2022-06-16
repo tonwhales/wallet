@@ -14,35 +14,63 @@ import { Theme } from '../../Theme';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
+type Item = {
+    key: string;
+    name: string;
+    url: string;
+    date: number;
+}
+
+type GroupedItems = {
+    name: string;
+    url: string;
+    items: Item[];
+};
+
+function groupItems(items: Item[]): GroupedItems[] {
+    let sorted = [...items].sort((a, b) => b.date - a.date);
+    let groups: GroupedItems[] = [];
+    for (let s of sorted) {
+        let g = groups.find((v) => v.url.toLowerCase() === s.url.toLowerCase());
+        if (g) {
+            g.items.push(s);
+        } else {
+            groups.push({
+                name: s.name, url: s.url,
+                items: [s]
+            });
+        }
+    }
+    return groups;
+}
+
 export const ConnectionsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    let [apps, setApps] = React.useState(getConnectionReferences());
-    let disconnectApp = React.useCallback((src: string) => {
+    let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
+    let disconnectApp = React.useCallback((url: string) => {
 
         let refs = getConnectionReferences();
-        let ex = refs.find((v) => v.key === src);
-        if (!ex) {
+        let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
+        if (toRemove.length === 0) {
             return;
         }
 
-        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [
-            {
-                text: t('common.cancel')
-            },
-            {
-                text: t('auth.revoke.action'), style: 'destructive', onPress: () => {
-                    addPendingRevoke(src);
-                    removeConnectionReference(src);
-                    setApps((a) => a.filter((v) => v.key !== src));
+        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
+            text: t('auth.revoke.action'),
+            style: 'destructive',
+            onPress: () => {
+                for (let s of toRemove) {
+                    addPendingRevoke(s.key);
+                    removeConnectionReference(s.key);
                     backoff('revoke', async () => {
-                        await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: src }, { timeout: 5000 });
-                        removePendingRevoke(src);
+                        await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: s.key }, { timeout: 5000 });
+                        removePendingRevoke(s.key);
                     });
                 }
+                setApps(groupItems(getConnectionReferences()));
             }
-        ]);
-
+        }]);
     }, []);
     if (apps.length === 0) {
         return (
@@ -111,9 +139,9 @@ export const ConnectionsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     {apps.map((app) => (
-                        <View key={`app-${app.key}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                             <ConnectedAppButton
-                                onRevoke={() => disconnectApp(app.key)}
+                                onRevoke={() => disconnectApp(app.url)}
                                 url={app.url}
                                 name={app.name}
                             />

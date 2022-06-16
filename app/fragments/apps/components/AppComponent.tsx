@@ -8,7 +8,10 @@ import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webvie
 import { extractDomain } from '../../../utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from '../../../Navigation';
-import { tonXinjectionSource } from '../../../engine/tonx/tonXinjectionSource';
+import { warn } from '../../../utils/log';
+import { dispatchWebViewMessage } from './inject/dispatchWebViewMessage';
+import { createInjectSource } from './inject/createInjectSource';
+import { useInjectEngine } from './inject/useInjectEngine';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -17,10 +20,14 @@ export const AppComponent = React.memo((props: {
     title: string,
     domainKey: DomainSubkey
 }) => {
+
+    //
+    // View
+    //
+
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
     const webRef = React.createRef<WebView>();
-
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -35,6 +42,10 @@ export const AppComponent = React.memo((props: {
             opacity: withTiming(opacity.value, { duration: 300 }),
         };
     });
+
+    //
+    // Navigation
+    //
 
     const linkNavigator = useLinkNavigator();
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
@@ -53,13 +64,46 @@ export const AppComponent = React.memo((props: {
         Linking.openURL(event.url);
         return false;
     }, []);
-    const handleWebViewMessage = React.useCallback(
-        (event: WebViewMessageEvent) => {
-            const nativeEvent = event.nativeEvent;
-            const data = JSON.parse(nativeEvent.data);
-            console.log('[WebViewMessageEvent]', { data });
-        },
-        [webRef]);
+
+    //
+    // Injection
+    //
+
+    const injectSource = React.useMemo(() => {
+        return createInjectSource();
+    }, []);
+    const injectionEngine = useInjectEngine();
+    const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
+        const nativeEvent = event.nativeEvent;
+
+        // Resolve parameters
+        let data: any;
+        let id: number;
+        try {
+            let parsed = JSON.parse(nativeEvent.data);
+            if (typeof parsed.id !== 'number') {
+                warn('Invalid operation id');
+                return;
+            }
+            id = parsed.id;
+            data = parsed.data;
+        } catch (e) {
+            warn(e);
+            return;
+        }
+
+        // Execute
+        (async () => {
+            let res = { type: 'error', message: 'Unknown error' }
+            try {
+                res = await injectionEngine.execute(data);
+            } catch (e) {
+                warn(e);
+            }
+            dispatchWebViewMessage(webRef, 'response', res);
+        })();
+
+    }, []);
 
     return (
         <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -77,7 +121,7 @@ export const AppComponent = React.memo((props: {
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
                 decelerationRate="normal"
-                injectedJavaScriptBeforeContentLoaded={tonXinjectionSource}
+                injectedJavaScriptBeforeContentLoaded={injectSource}
                 onShouldStartLoadWithRequest={loadWithRequest}
                 onMessage={handleWebViewMessage}
             />

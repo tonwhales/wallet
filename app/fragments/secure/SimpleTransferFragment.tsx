@@ -28,7 +28,6 @@ import { fragment } from '../../fragment';
 import { createJettonOrder, createSimpleOrder } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
-import { log } from '../../utils/log';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
 
@@ -47,6 +46,7 @@ export const SimpleTransferFragment = fragment(() => {
         stateInit?: Cell | null,
         job?: string | null,
         jetton?: Address | null,
+        callback?: ((ok: boolean, result: Cell | null) => void) | null,
     } | undefined = useRoute().params;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -62,6 +62,7 @@ export const SimpleTransferFragment = fragment(() => {
     const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = jettonWallet ? jettonWallet.balance : account.balance;
+    const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
     // Auto-cancel job
     React.useEffect(() => {
@@ -176,8 +177,9 @@ export const SimpleTransferFragment = fragment(() => {
             text: comment,
             order,
             job: params && params.job ? params.job : null,
+            callback
         })
-    }, [amount, target, comment, account.seqno, stateInit, order]);
+    }, [amount, target, comment, account.seqno, stateInit, order, callback]);
 
     // Estimate fee
     const config = engine.products.config.useConfig();

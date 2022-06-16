@@ -1,6 +1,6 @@
 import { failure, success, Type } from "io-ts"
 import * as t from 'io-ts';
-import { Address } from "ton"
+import { Address, Cell } from "ton"
 import { AppConfig } from "../../AppConfig";
 import BN from "bn.js";
 
@@ -30,7 +30,7 @@ export class BNType extends Type<BN, string, unknown> {
     readonly _tag: 'BNType' = 'BNType'
     constructor() {
         super(
-            'Address',
+            'BN',
             (u): u is BN => BN.isBN(u),
             (u, c) => {
                 if (!t.string.validate(u, c)) {
@@ -54,7 +54,7 @@ export class BufferType extends Type<Buffer, string, unknown> {
     readonly _tag: 'BufferType' = 'BufferType'
     constructor() {
         super(
-            'Address',
+            'Buffer',
             (u): u is Buffer => Buffer.isBuffer(u),
             (u, c) => {
                 if (!t.string.validate(u, c)) {
@@ -72,3 +72,27 @@ export class BufferType extends Type<Buffer, string, unknown> {
 }
 
 export const buffer = new BufferType();
+
+export class CellType extends Type<Cell, string, unknown> {
+    readonly _tag: 'CellType' = 'CellType'
+    constructor() {
+        super(
+            'Cell',
+            (u): u is Cell => u instanceof Cell,
+            (u, c) => {
+                if (!t.string.validate(u, c)) {
+                    return failure(u, c);
+                }
+                try {
+                    let boc = Buffer.from(u as string, 'base64');
+                    return success(Cell.fromBoc(boc)[0]);
+                } catch (e) {
+                    return failure(u, c);
+                }
+            },
+            (u) => u.toBoc({ idx: false }).toString('base64')
+        )
+    }
+}
+
+export const cell = new CellType();

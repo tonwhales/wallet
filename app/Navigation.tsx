@@ -334,7 +334,8 @@ export function useLinkNavigator() {
                         payload: resolved.payload,
                     },
                     text: resolved.comment,
-                    job: null
+                    job: null,
+                    callback: null
                 });
             } else {
                 navigation.navigateSimpleTransfer({
@@ -343,7 +344,8 @@ export function useLinkNavigator() {
                     amount: resolved.amount,
                     stateInit: resolved.stateInit,
                     job: null,
-                    jetton: null
+                    jetton: null,
+                    callback: null
                 });
             }
         }

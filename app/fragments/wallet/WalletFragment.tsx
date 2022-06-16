@@ -363,7 +363,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_send.png')} />

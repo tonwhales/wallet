@@ -57,7 +57,8 @@ export class TypedNavigation {
     navigateTransfer(tx: {
         order: Order,
         text: string | null,
-        job: string | null
+        job: string | null,
+        callback: ((ok: boolean, result: Cell | null) => void) | null
     }) {
         this.navigate('Transfer', tx);
     }
@@ -68,7 +69,8 @@ export class TypedNavigation {
         amount: BN | null,
         stateInit: Cell | null,
         job: string | null,
-        jetton: Address | null
+        jetton: Address | null,
+        callback: ((ok: boolean, result: Cell | null) => void) | null
     }) {
         this.navigate('SimpleTransfer', tx);
     }

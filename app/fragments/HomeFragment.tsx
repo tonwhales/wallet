@@ -51,7 +51,8 @@ export const HomeFragment = fragment(() => {
                                             stateInit: existing.job.job.stateInit,
                                         },
                                         text: existing.job.job.text,
-                                        job: existing.raw
+                                        job: existing.raw,
+                                        callback: null
                                     });
                                 } else {
                                     navigation.navigateSimpleTransfer({
@@ -60,7 +61,8 @@ export const HomeFragment = fragment(() => {
                                         amount: existing.job.job.amount,
                                         stateInit: existing.job.job.stateInit,
                                         job: existing.raw,
-                                        jetton: null
+                                        jetton: null,
+                                        callback: null
                                     })
                                 }
                             }

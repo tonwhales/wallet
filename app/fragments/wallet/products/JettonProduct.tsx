@@ -28,7 +28,7 @@ export const JettonProdcut = React.memo((props: {
             image={props.jetton.icon ? props.jetton.icon : undefined}
             value={props.jetton.balance}
             symbol={props.jetton.symbol}
-            onPress={() => props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null })}
+            onPress={() => props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })}
             style={{ marginVertical: 4 }}
         />
     );

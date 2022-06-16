@@ -118,7 +118,8 @@ export const TransactionPreviewFragment = fragment(() => {
                             amount: transaction.base.amount.neg(),
                             job: null,
                             stateInit: null,
-                            jetton: null
+                            jetton: null,
+                            callback: null
                         })}
                     >
                         <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>

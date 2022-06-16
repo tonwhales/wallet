@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, SupportedMessage } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
@@ -19,8 +19,6 @@ import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
 import { KnownWallets } from '../../secure/KnownWallets';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
-import { formatSupportedBody } from '../../engine/transactions/formatSupportedBody';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -35,8 +33,8 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { useRecoilValue } from 'recoil';
 import { estimateFees } from '../../engine/estimate/estimateFees';
+import { warn } from '../../utils/log';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -62,6 +60,7 @@ type ConfirmLoadedProps = {
     metadata: ContractMetadata,
     restricted: boolean,
     jettonMaster: JettonMasterState | null
+    callback: ((ok: boolean, result: Cell | null) => void) | null
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -76,7 +75,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         job,
         fees,
         metadata,
-        jettonMaster
+        jettonMaster,
+        callback
     } = props;
 
     // Resolve operation
@@ -200,6 +200,16 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             await engine.products.apps.commitCommand(true, job, transfer);
         }
 
+        // Notify callback
+        if (callback) {
+            try {
+                callback(true, transfer);
+            } catch (e) {
+                warn(e);
+                // Ignore on error
+            }
+        }
+
         // Register pending
         engine.products.main.registerPending({
             id: 'pending-' + account.seqno,
@@ -305,6 +315,7 @@ export const TransferFragment = fragment(() => {
         text: string | null,
         order: Order,
         job: string | null,
+        callback?: ((ok: boolean, result: Cell | null) => void) | null
     } = useRoute().params! as any;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -317,6 +328,7 @@ export const TransferFragment = fragment(() => {
     const text = React.useMemo(() => params.text, []);
     const order = React.useMemo(() => params.order, []);
     const job = React.useMemo(() => params.job, []);
+    const callback = React.useMemo(() => params.callback, []);
 
     // Auto-cancel job on unmount
     React.useEffect(() => {
@@ -425,7 +437,8 @@ export const TransferFragment = fragment(() => {
                 job,
                 fees,
                 metadata,
-                jettonMaster
+                jettonMaster,
+                callback: callback ? callback : null
             });
         });
 

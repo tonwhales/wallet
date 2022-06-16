@@ -151,7 +151,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     products: {
         accounts: 'Accounts',
-        services: 'Services',
+        services: 'Addons',
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'

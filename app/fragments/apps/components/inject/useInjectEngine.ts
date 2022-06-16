@@ -10,10 +10,9 @@ const transCodec = t.type({
     network: t.union([t.literal('sandbox'), t.literal('mainnet')]),
     to: c.address,
     value: c.bignum,
-    timeout: t.number,
-    stateInit: t.union([c.cell, t.null]),
-    text: t.union([t.string, t.null]),
-    payload: t.union([c.cell, t.null])
+    stateInit: t.union([c.cell, t.null, t.undefined]),
+    text: t.union([t.string, t.null, t.undefined]),
+    payload: t.union([c.cell, t.null, t.undefined])
 });
 
 const transactionResponse = t.type({
@@ -54,9 +53,9 @@ export function useInjectEngine() {
                         amount: src.value,
                         amountAll: false,
                         payload: src.payload,
-                        stateInit: src.stateInit,
+                        stateInit: src.stateInit ? src.stateInit : null,
                     },
-                    text: src.text,
+                    text: src.text ? src.text : null,
                     job: null,
                     callback: callback!
                 });
@@ -64,8 +63,8 @@ export function useInjectEngine() {
                 navigation.navigateSimpleTransfer({
                     target: src.to.toFriendly({ testOnly: AppConfig.isTestnet }),
                     amount: src.value,
-                    stateInit: src.stateInit,
-                    comment: src.text,
+                    stateInit: src.stateInit ? src.stateInit : null,
+                    comment: src.text ? src.text : null,
                     job: null,
                     jetton: null,
                     callback: callback!

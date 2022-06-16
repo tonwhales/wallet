@@ -151,7 +151,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     products: {
         accounts: 'Счета',
-        services: 'Сервисы',
+        services: 'Дополнения',
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'

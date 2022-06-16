@@ -24,15 +24,15 @@ export class InjectEngine {
 
             // Check
             if (!msgCodec.is(src)) {
-                throw Error('Invalid method call');
+                throw Error('Invalid package');
             }
             let method = this.#methods.get(src.name);
             if (!method) {
-                throw Error('Invalid method call');
+                throw Error('Invalid method name');
             }
             let dargs = method.argCodec.decode(src.args);
             if (isLeft(dargs)) {
-                throw Error('Invalid method call');
+                throw Error('Invalid method arguments');
             }
 
             // Execute

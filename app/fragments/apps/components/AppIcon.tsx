@@ -20,7 +20,7 @@ export const AppIcon = React.memo((
         borderRadius: number
     }
 ) => {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     let url = app && app.image && app.image.preview256 ? resolveLink(app.image.preview256) : null;
 
     if (url) {
@@ -35,12 +35,10 @@ export const AppIcon = React.memo((
                     source={{ uri: url }}
                     style={{ width: width, height: heigh }}
                     resizeMode={'cover'}
-                    onLoadStart={() => setLoading(true)}
                     onLoadEnd={() => setLoading(false)}
                 />
                 {loading && (
                     <Animated.View
-                        entering={FadeIn}
                         exiting={FadeOut}
                         style={{
                             borderRadius,

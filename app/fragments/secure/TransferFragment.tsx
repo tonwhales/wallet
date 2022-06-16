@@ -61,6 +61,7 @@ type ConfirmLoadedProps = {
     restricted: boolean,
     jettonMaster: JettonMasterState | null
     callback: ((ok: boolean, result: Cell | null) => void) | null
+    back?: number
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -76,7 +77,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         fees,
         metadata,
         jettonMaster,
-        callback
+        callback,
+        back
     } = props;
 
     // Resolve operation
@@ -227,7 +229,13 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         });
 
         // Reset stack to root
-        navigation.popToTop();
+        if (props.back && props.back > 0) {
+            for (let i = 0; i < props.back; i++) {
+                navigation.goBack();
+            }
+        } else {
+            navigation.popToTop();
+        }
     }, []);
 
     return (
@@ -315,7 +323,8 @@ export const TransferFragment = fragment(() => {
         text: string | null,
         order: Order,
         job: string | null,
-        callback?: ((ok: boolean, result: Cell | null) => void) | null
+        callback?: ((ok: boolean, result: Cell | null) => void) | null,
+        back?: number
     } = useRoute().params! as any;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -438,7 +447,8 @@ export const TransferFragment = fragment(() => {
                 fees,
                 metadata,
                 jettonMaster,
-                callback: callback ? callback : null
+                callback: callback ? callback : null,
+                back: params.back
             });
         });
 

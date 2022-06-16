@@ -137,7 +137,7 @@ export const AppComponent = React.memo((props: {
             } catch (e) {
                 warn(e);
             }
-            dispatchWebViewMessage(webRef, 'response', res);
+            dispatchWebViewMessage(webRef, 'ton-x-message', { id, data: res });
         })();
 
     }, []);

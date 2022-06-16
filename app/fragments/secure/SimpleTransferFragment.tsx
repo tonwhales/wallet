@@ -47,6 +47,7 @@ export const SimpleTransferFragment = fragment(() => {
         job?: string | null,
         jetton?: Address | null,
         callback?: ((ok: boolean, result: Cell | null) => void) | null,
+        back?: number
     } | undefined = useRoute().params;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -177,7 +178,8 @@ export const SimpleTransferFragment = fragment(() => {
             text: comment,
             order,
             job: params && params.job ? params.job : null,
-            callback
+            callback,
+            back: params && params.back ? params.back + 1 : undefined
         })
     }, [amount, target, comment, account.seqno, stateInit, order, callback]);
 

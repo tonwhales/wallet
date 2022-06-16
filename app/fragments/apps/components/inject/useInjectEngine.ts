@@ -57,7 +57,8 @@ export function useInjectEngine() {
                     },
                     text: src.text ? src.text : null,
                     job: null,
-                    callback: callback!
+                    callback: callback!,
+                    back: 1
                 });
             } else {
                 navigation.navigateSimpleTransfer({
@@ -67,7 +68,8 @@ export function useInjectEngine() {
                     comment: src.text ? src.text : null,
                     job: null,
                     jetton: null,
-                    callback: callback!
+                    callback: callback!,
+                    back: 1
                 });
             }
 

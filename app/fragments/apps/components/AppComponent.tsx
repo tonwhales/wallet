@@ -93,8 +93,9 @@ export const AppComponent = React.memo((props: {
         const signature = safeSign(toSign, subkey.secretKey);
 
         return createInjectSource({
+            version: 1,
             platform: Platform.OS,
-            version: Platform.Version,
+            platformVersion: Platform.Version,
             network: AppConfig.isTestnet ? 'sandbox' : 'mainnet',
             address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
             publicKey: engine.publicKey.toString('base64'),

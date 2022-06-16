@@ -11,7 +11,7 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import Animated, { Easing, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, runOnJS, runOnUI, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -32,18 +32,32 @@ import { useLinkNavigator } from '../../Navigation';
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
     next: { lt: string, hash: string } | null,
+    cursor?: string,
     address: Address,
     engine: Engine,
     onPress: (tx: string) => void
 }) => {
+    let cursorIndex = React.useMemo(() => {
+        return props.txs.findIndex((tx) => tx.id === props.cursor);
+    }, [props.txs, props.cursor]);
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
             let lastTime: string = getDateKey(props.txs[0].time);
             let lastSection: string[] = [];
             let title = formatDate(props.txs[0].time);
+
             sections.push({ title, items: lastSection });
-            for (let t of props.txs) {
+
+            let renderTxs = props.txs
+            let cursorIndex = renderTxs.findIndex((tx) => tx.id === props.cursor);
+
+            // Render only scrolled to cursor views
+            if (cursorIndex !== -1) {
+                renderTxs = renderTxs.slice(0, cursorIndex);
+            }
+
+            for (let t of renderTxs) {
                 let time = getDateKey(t.time);
                 if (lastTime !== time) {
                     lastSection = [];
@@ -55,7 +69,7 @@ const WalletTransactions = React.memo((props: {
             }
         }
         return sections;
-    }, [props.txs]);
+    }, [props.txs, props.cursor]);
 
     const components: any[] = [];
     for (let s of transactionsSectioned) {
@@ -72,8 +86,8 @@ const WalletTransactions = React.memo((props: {
         );
     }
 
-    // Last
-    if (props.next) {
+    // Last or under cursor
+    if (props.next || (cursorIndex !== -1 && cursorIndex < props.txs.length - 1)) {
         components.push(
             <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
                 <LoadingIndicator simple={true} />
@@ -103,6 +117,17 @@ function WalletComponent(props: { wallet: WalletState }) {
     // Transactions
     //
 
+    const initialCursor = React.useMemo(() => {
+        if (account.transactions.length >= 10) {
+            return account.transactions[9].id;
+        }
+        if (account.transactions.length > 0) {
+            return account.transactions[account.transactions.length - 1].id
+        }
+    }, []);
+
+    const [txsCursor, setTxsCursor] = React.useState(initialCursor);
+
     const openTransactionFragment = React.useCallback((transaction: string) => {
         if (transaction) {
             navigation.navigate('Transaction', {
@@ -125,6 +150,22 @@ function WalletComponent(props: { wallet: WalletState }) {
             }
         }
     }, [account.next ? account.next.lt : null]);
+
+    const onScollToEnd = React.useCallback(() => {
+        const cursorIndex = account.transactions.findIndex((tx) => tx.id === txsCursor);
+        // Load more if cursor is on the last of loaded
+        if (cursorIndex === account.transactions.length - 1) {
+            onReachedEnd();
+            return;
+        }
+        // Set new cursor 
+        if (cursorIndex !== -1 && cursorIndex < account.transactions.length - 1) {
+            const newCursorIndex = (account.transactions.length - 1 - cursorIndex >= 10)
+                ? cursorIndex + 10
+                : cursorIndex + (account.transactions.length - 1 - cursorIndex);
+            setTxsCursor(account.transactions[newCursorIndex].id);
+        }
+    }, [account.transactions, txsCursor, onReachedEnd]);
 
     //
     // Animations
@@ -157,10 +198,10 @@ function WalletComponent(props: { wallet: WalletState }) {
         if (event.contentSize.height > 0) {
             let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
             if (bottomOffset < 300) {
-                runOnJS(onReachedEnd)();
+                runOnJS(onScollToEnd)();
             }
         }
-    }, [cardHeight, onReachedEnd]);
+    }, [cardHeight, onScollToEnd]);
 
     const cardOpacityStyle = useAnimatedStyle(() => {
         return {
@@ -244,6 +285,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
+                removeClippedSubviews={true}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
                 <Animated.View
@@ -411,6 +453,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             next={account.next}
                             address={address}
                             engine={engine}
+                            cursor={txsCursor}
                             onPress={openTransactionFragment}
                         />
                     )

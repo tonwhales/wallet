@@ -9,7 +9,7 @@ export type DomainSubkey = {
     secret: Buffer
 }
 
-export class AppsProduct {
+export class ExtensionsProduct {
     readonly engine: Engine;
     readonly appDataSelector;
 

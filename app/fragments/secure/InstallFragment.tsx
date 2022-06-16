@@ -47,7 +47,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
             if (ended) {
                 return;
             }
-            const appData = await engine.products.dApps.getAppData(props.url);
+            const appData = await engine.products.extensions.getAppData(props.url);
             if (ended) {
                 return;
             }

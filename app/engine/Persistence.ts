@@ -19,7 +19,7 @@ import { TxHints } from "./sync/startHintsTxSync";
 import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
 import { AppData, appDataCodec } from "./api/fetchAppData";
-import { DomainSubkey } from "./products/AppsProduct";
+import { DomainSubkey } from "./products/ExtensionsProduct";
 
 export class Persistence {
 

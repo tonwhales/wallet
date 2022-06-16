@@ -18,7 +18,7 @@ export const AppFragment = fragment(() => {
     const engine = useEngine();
     const url = (useRoute().params as any).url;
     const domain = extractDomain(url);
-    const appData = engine.products.dApps.useAppData(url);
+    const appData = engine.products.extensions.useAppData(url);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const color = appData && appData.color ? appData.color : '#fff';

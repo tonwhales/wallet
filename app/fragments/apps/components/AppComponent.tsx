@@ -3,7 +3,7 @@ import { ActivityIndicator, Linking, Platform, View } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DomainSubkey } from '../../../engine/products/AppsProduct';
+import { DomainSubkey } from '../../../engine/products/ExtensionsProduct';
 import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';

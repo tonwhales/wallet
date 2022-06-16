@@ -4,10 +4,11 @@ import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DomainSubkey } from '../../../engine/products/AppsProduct';
-import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
+import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from '../../../Navigation';
+import { tonXinjectionSource } from '../../../engine/tonx/tonXinjectionSource';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -18,10 +19,11 @@ export const AppComponent = React.memo((props: {
 }) => {
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
+    const webRef = React.createRef<WebView>();
+
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
-
             position: 'absolute',
             top: 0,
             left: 0,
@@ -33,6 +35,7 @@ export const AppComponent = React.memo((props: {
             opacity: withTiming(opacity.value, { duration: 300 }),
         };
     });
+
     const linkNavigator = useLinkNavigator();
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
@@ -50,9 +53,18 @@ export const AppComponent = React.memo((props: {
         Linking.openURL(event.url);
         return false;
     }, []);
+    const handleWebViewMessage = React.useCallback(
+        (event: WebViewMessageEvent) => {
+            const nativeEvent = event.nativeEvent;
+            const data = JSON.parse(nativeEvent.data);
+            console.log('[WebViewMessageEvent]', { data });
+        },
+        [webRef]);
+
     return (
         <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
             <WebView
+                ref={webRef}
                 source={{ uri: props.endpoint }}
                 startInLoadingState={true}
                 style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
@@ -65,7 +77,9 @@ export const AppComponent = React.memo((props: {
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
                 decelerationRate="normal"
+                injectedJavaScriptBeforeContentLoaded={tonXinjectionSource}
                 onShouldStartLoadWithRequest={loadWithRequest}
+                onMessage={handleWebViewMessage}
             />
 
             <Animated.View

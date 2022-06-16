@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, View } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -93,6 +93,8 @@ export const AppComponent = React.memo((props: {
         const signature = safeSign(toSign, subkey.secretKey);
 
         return createInjectSource({
+            platform: Platform.OS,
+            version: Platform.Version,
             network: AppConfig.isTestnet ? 'sandbox' : 'mainnet',
             address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
             publicKey: engine.publicKey.toString('base64'),

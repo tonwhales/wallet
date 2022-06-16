@@ -6,6 +6,7 @@ export function createInjectSource(config: any) {
         let requestId = 0;
         let callbacks = {};
         let config = ${JSON.stringify(config)};
+        let __IS_TON_X = true;
     
         const call = (name, args, callback) => {
             let id = requestId++;
@@ -21,7 +22,9 @@ export function createInjectSource(config: any) {
             }
         }
         
-        return { call, config, __response };
+        const obj = { call, config, __IS_TON_X, __response };
+        Object.freeze(obj);
+        return obj;
     })();
     
     true;

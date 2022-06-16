@@ -7,7 +7,18 @@ const Img_Whales = require('../../assets/known/whales.png');
 const Img_OKX = require('../../assets/known/okx.png');
 const Img_FTX = require('../../assets/known/ftx.png');
 const Img_Disintar = require('../../assets/known/disintar_logo.png');
-const Img_Neocrypto = require('../../assets/known/neocrypto.png')
+const Img_Neocrypto = require('../../assets/known/neocrypto.png');
+
+// NFT
+const Img_tonwhalesNFT = require('../../assets/known/tonwhalesNFT.png');
+
+const Img_kingyTON = require('../../assets/known/kingyTON.png');
+const Img_kingyru = require('../../assets/known/kingyru.png');
+const Img_thetrixter = require('../../assets/known/thetrixter.jpg');
+
+const Img_Web3TON = require('../../assets/known/Web3TON.jpg');
+const Img_TONLab_Pro_Inc = require('../../assets/known/TONLab_Pro_Inc.png');
+
 
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
@@ -157,5 +168,64 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 secondary: '#7f88b5'
             },
             ic: Img_Neocrypto
-        }
+        },
+
+        // NFTs
+        [Address.parse('EQDvRFMYLdxmvY3Tk-cfWMLqDnXF_EclO2Fp4wwj33WhlNFT').toFriendly()]: {
+            name: 'Whales Club',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_tonwhalesNFT
+        },
+        [Address.parse('EQC_wH7JVbDd73ggWjkwe_qdSuL96pOmZL1o1Me3_7V0wN3o').toFriendly()]: {
+            name: 'kingyTON',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_kingyTON
+        },
+        [Address.parse('EQAj-RQTlNNwjkuRVYWdfamU0jjvQbH31lkxTw-osulj4oqm').toFriendly()]: {
+            name: 'kingyru',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_kingyru
+        },
+        [Address.parse('EQBMyAnR4icEM6QH7knxpyqi715vhubtX22Y0RD4uWmoIRWd').toFriendly()]: {
+            name: 'thetrixter',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_thetrixter
+        },
+        [Address.parse('EQDcl_WYgxJ-FYUErehXIdWknowUKSy-LzjJ94gudSX9bZuU').toFriendly()]: {
+            name: 'Web3TON',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_Web3TON
+        },
+        [Address.parse('EQCNyEcHg5I7YR_PhtuPye7yDMs9Imnm22MY5CiZPyCALBA4').toFriendly()]: {
+            name: 'Web3TON',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_Web3TON
+        },
+
+        [Address.parse('EQDs9dAPQ1I3hee_7WbWnl0pkFX5MgYlrSJ4j8_al_cFhM7I').toFriendly()]: {
+            name: 'TONLab.Pro Inc.',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_TONLab_Pro_Inc
+        },
     }

@@ -25,7 +25,6 @@ function WordComponent(props: { text: string | null, highlight?: boolean, onSele
                     flexGrow: 1,
                     flexBasis: 0,
                     backgroundColor: props.text && props.highlight ? Theme.divider : undefined
-                    // backgroundColor: 'red'
                 }}>
                     <Text style={{ fontSize: 16 }}>
                         {props.text}
@@ -55,10 +54,6 @@ export const AutocompleteView = React.memo((props: {
         word1 = props.suggestions[0];
         word0 = props.suggestions[1];
         word2 = props.suggestions[2];
-    }
-
-    if (props.suggestions.length === 0) {
-        return null;
     }
 
     return (

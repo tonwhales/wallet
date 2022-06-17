@@ -16,7 +16,6 @@ import { useEngine } from '../../../engine/Engine';
 import { keyPairFromSeed } from 'ton-crypto';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { beginCell, safeSign } from 'ton';
-import { getAppInstancePublicKey } from '../../../storage/appState';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -87,7 +86,7 @@ export const AppComponent = React.memo((props: {
             .storeCoins(1)
             .storeAddress(contract.address)
             .storeUint(time, 32)
-            .storeRefMaybe(beginCell()
+            .storeRef(beginCell()
                 .storeBuffer(Buffer.from(domain))
                 .endCell())
             .endCell();

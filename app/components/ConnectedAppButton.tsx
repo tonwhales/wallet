@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
-import { AppIcon } from "../fragments/apps/components/AppIcon";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
+import { WImage } from "./WImage";
 
 export const ConnectedAppButton = React.memo((
     {
@@ -27,12 +27,13 @@ export const ConnectedAppButton = React.memo((
             alignItems: 'center',
             padding: 10
         }}>
-            <AppIcon
+            <WImage
                 heigh={42}
                 width={42}
-                app={app}
+                src={app?.image?.preview256}
+                blurhash={app?.image?.blurhash}
                 style={{ marginRight: 10 }}
-                borderRadius={10}
+                borderRadius={8}
             />
             <View
                 style={{

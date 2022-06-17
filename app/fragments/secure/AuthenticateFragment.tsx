@@ -24,7 +24,7 @@ import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { AppData } from '../../engine/api/fetchAppData';
 import { useEngine } from '../../engine/Engine';
-import { AppIcon } from '../apps/components/AppIcon';
+import { WImage } from '../../components/WImage';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -261,11 +261,12 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     alignItems: 'center',
                     width: 154,
                 }}>
-                    <AppIcon
+                    <WImage
                         heigh={64}
                         width={64}
                         style={{ marginBottom: 8 }}
-                        app={state.app}
+                        src={state.app?.image?.preview256}
+                        blurhash={state.app?.image?.blurhash}
                         borderRadius={16}
                     />
                     <Text

@@ -23,14 +23,14 @@ export class ExtensionsProduct {
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
-                let res: { url: string, name: string, date: number }[] = [];
+                let res: { url: string, name: string, date: number, image: { blurhash: string, url: string } | null }[] = [];
                 for (let k in apps) {
                     let ap = apps[k];
-                    let data = this.engine.persistence.dApps.item(ap.url);
-                    if (!data.value) {
+                    let data = get(this.engine.persistence.dApps.item(ap.url).atom);
+                    if (!data) {
                         continue;
                     }
-                    res.push({ url: ap.url, name: data.value.title, date: ap.date });
+                    res.push({ url: ap.url, name: data.title, date: ap.date, image: data.image ? { url: data.image.preview256, blurhash: data.image.blurhash } : null });
                 }
                 return res;
             }

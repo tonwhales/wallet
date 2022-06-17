@@ -16,13 +16,13 @@ import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
-import { AppIcon } from '../apps/components/AppIcon';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
 import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { beginCell, safeSign } from 'ton';
 import { extractDomain } from '../../engine/utils/extractDomain';
+import { WImage } from '../../components/WImage';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -129,11 +129,12 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                     alignItems: 'center',
                     width: 154,
                 }}>
-                    <AppIcon
+                    <WImage
                         heigh={64}
                         width={64}
                         style={{ marginBottom: 8 }}
-                        app={appData}
+                        src={appData.image?.preview256}
+                        blurhash={appData.image?.blurhash}
                         borderRadius={16}
                     />
                     <Text

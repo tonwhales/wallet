@@ -49,9 +49,11 @@ export const ProductsComponent = React.memo(() => {
         apps.push(<ProductButton
             name={e.name}
             subtitle={e.url}
-            icon={OldWalletIcon}
+            image={e.image?.url}
+            blurhash={e.image?.blurhash}
             value={null}
             onPress={() => navigation.navigate('App', { url: e.url })}
+            extension={true}
             style={{ marginVertical: 4 }}
         />);
     }

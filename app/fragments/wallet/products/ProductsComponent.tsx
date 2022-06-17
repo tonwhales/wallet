@@ -112,21 +112,21 @@ export const ProductsComponent = React.memo(() => {
                 />
             )}
 
-            {accounts.length > 0 && (
-                <>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.accounts')}</Text>
-                    </View>
-                    {accounts}
-                </>
-            )}
-
             {apps.length > 0 && (
                 <>
                     <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
                         <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
                     </View>
                     {apps}
+                </>
+            )}
+
+            {accounts.length > 0 && (
+                <>
+                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.accounts')}</Text>
+                    </View>
+                    {accounts}
                 </>
             )}
         </View>

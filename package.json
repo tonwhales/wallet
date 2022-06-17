@@ -31,7 +31,7 @@
     "@types/qs": "^6.9.7",
     "@types/url-parse": "^1.4.6",
     "@types/uuid": "^8.3.4",
-    "automerge": "0.14.2",
+    "automerge": "1.0.1-preview.7",
     "axios": "^0.24.0",
     "bn.js": "^5.2.0",
     "buffer": "^6.0.3",

@@ -32,7 +32,7 @@ export class CloudValue<T> extends EventEmitter {
         let existing = cloud.engine.persistence.cloud.getValue({ key, address: cloud.engine.address });
         if (existing) {
             try {
-                v = Automerge.load<T>(existing);
+                v = Automerge.load<T>(Buffer.from(existing, 'base64') as any);
             } catch (e) {
                 // Ignore errors
             }
@@ -40,7 +40,16 @@ export class CloudValue<T> extends EventEmitter {
         if (v) {
             this.#value = v;
         } else {
-            this.#value = Automerge.change(Automerge.init<T>(), init);
+
+            // Create schema
+            let schema = Automerge.change(Automerge.init<T>({ actorId: '0000' }), { time: 0 }, (src) => {
+                init(src);
+            });
+            let initChange = Automerge.getLastLocalChange(schema);
+
+            // Create initial document
+            let [doc] = Automerge.applyChanges(Automerge.init<T>(), [initChange])
+            this.#value = doc;
         }
 
         // Atom
@@ -54,17 +63,17 @@ export class CloudValue<T> extends EventEmitter {
         const logger = createLogger('cloud');
         this.#sync = new InvalidateSync('cloud:' + key, async () => {
             logger.log(`Updating ${key}, current: ${JSON.stringify(this.#value)}`);
-            let current = this.#value;
+            let current = Automerge.clone(this.#value);
             let updated = await cloud.update(key, (src) => {
                 logger.log('Updating');
                 if (src) {
                     try {
-                        let ex = Automerge.load<T>(src.toString());
+                        let ex = Automerge.load<T>(src as any);
                         logger.log(`Merging ${key}, local: ${JSON.stringify(current)}, remote: ${JSON.stringify(ex)}`);
                         let merged = Automerge.merge(current, ex);
                         return Buffer.from(Automerge.save(merged));
                     } catch (e) {
-                        warn(e);
+                        console.warn(e);
                     }
                 }
 
@@ -96,7 +105,7 @@ export class CloudValue<T> extends EventEmitter {
 
         // Update value
         this.#value = res;
-        this.#cloud.engine.persistence.cloud.setValue({ address: this.#cloud.engine.address, key: this.#key }, Automerge.save(res));
+        this.#cloud.engine.persistence.cloud.setValue({ address: this.#cloud.engine.address, key: this.#key }, Buffer.from(Automerge.save(res)).toString('base64'));
         this.emit('updated', this.value);
         this.#cloud.engine.recoil.updater(this.atom, this.value);
 

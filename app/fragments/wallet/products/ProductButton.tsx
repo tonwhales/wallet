@@ -7,6 +7,7 @@ import { Theme } from '../../../Theme';
 import { SvgProps } from 'react-native-svg';
 import { t } from '../../../i18n/t';
 import { PriceComponent } from '../../../components/PriceComponent';
+import { fromNano } from 'ton';
 
 export function ProductButton(props: {
     name: string,
@@ -53,7 +54,9 @@ export function ProductButton(props: {
                             {props.name}
                         </Text>
                         {props.value && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2 }}><ValueComponent value={props.value} />{props.symbol ? (' ' + props.symbol) : ''}</Text>
+                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2 }}>
+                                <ValueComponent value={props.value} />{props.symbol ? (' ' + props.symbol) : ''}
+                            </Text>
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>

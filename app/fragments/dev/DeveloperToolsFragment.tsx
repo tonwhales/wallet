@@ -62,7 +62,13 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test App"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.tonwhales.com/tools/x' : 'https://tonwhales.com/tools/x' })} />
+                        <ItemButton title={"Test Whales"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.tonwhales.com/tools/x' : 'https://tonwhales.com/tools/x' })} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Test Scaleton"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.scaleton.io' : 'https://v' })} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Test Gems"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://getgems.io' : 'https://getgems.io' })} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Cloud Counter"} hint={counterValue.toString()} onPress={() => counter.update((src) => src.counter.increment())} />

@@ -355,6 +355,11 @@ export function useLinkNavigator() {
                 endpoint: resolved.endpoint
             });
         }
+        if (resolved.type === 'install') {
+            navigation.navigate('Install', {
+                url: resolved.url
+            });
+        }
     }, []);
 
     return handler;

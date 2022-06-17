@@ -4,21 +4,19 @@ import { Platform, View, Text } from 'react-native';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { t } from '../../i18n/t';
 import { CloseButton } from '../../components/CloseButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AppComponent } from './components/AppComponent';
 import Color from 'color';
-import { getMetaTags, MetaTags } from '../../utils/meta/getMetaTags';
 import { useRoute } from '@react-navigation/native';
-import { extractDomain } from '../../utils/extractDomain';
+import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
 
 export const AppFragment = fragment(() => {
     const engine = useEngine();
     const url = (useRoute().params as any).url;
     const domain = extractDomain(url);
-    const appData = engine.products.dApps.useAppData(url);
+    const appData = engine.products.extensions.useAppData(url);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const color = appData && appData.color ? appData.color : '#fff';

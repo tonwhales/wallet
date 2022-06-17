@@ -28,7 +28,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         soon: 'скоро',
         in: 'через',
         max: 'Макс.',
-        close: 'Закрыть'
+        close: 'Закрыть',
+        delete: 'Удалить'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -366,6 +367,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     jetton: {
         token: 'токен'
+    },
+    connections: {
+        extensions: 'Расширения',
+        connections: 'Внешние приложения'
     }
 };
 

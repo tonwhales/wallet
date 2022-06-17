@@ -3,9 +3,9 @@ import { ActivityIndicator, Linking, Platform, View } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DomainSubkey } from '../../../engine/products/AppsProduct';
+import { DomainSubkey } from '../../../engine/products/ExtensionsProduct';
 import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
-import { extractDomain } from '../../../utils/extractDomain';
+import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from '../../../Navigation';
 import { warn } from '../../../utils/log';
@@ -86,7 +86,7 @@ export const AppComponent = React.memo((props: {
             .storeCoins(1)
             .storeAddress(contract.address)
             .storeUint(time, 32)
-            .storeRefMaybe(beginCell()
+            .storeRef(beginCell()
                 .storeBuffer(Buffer.from(domain))
                 .endCell())
             .endCell();
@@ -111,7 +111,7 @@ export const AppComponent = React.memo((props: {
             }
         });
     }, []);
-    const injectionEngine = useInjectEngine();
+    const injectionEngine = useInjectEngine(props.title);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 

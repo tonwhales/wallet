@@ -12,6 +12,7 @@ import { StakingProductComponent } from "../../../components/Staking/StakingProd
 import { t } from "../../../i18n/t"
 import { JettonProdcut } from "./JettonProduct"
 import { Theme } from "../../../Theme"
+import { getConnectionReferences } from "../../../storage/appState"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -20,6 +21,7 @@ export const ProductsComponent = React.memo(() => {
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons();
+    const extensions = engine.products.extensions.useExtensions();
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];
@@ -43,6 +45,18 @@ export const ProductsComponent = React.memo(() => {
 
     // Resolve apps
     let apps: React.ReactElement[] = [];
+    for (let e of extensions) {
+        apps.push(<ProductButton
+            name={e.name}
+            subtitle={e.url}
+            image={e.image?.url}
+            blurhash={e.image?.blurhash}
+            value={null}
+            onPress={() => navigation.navigate('App', { url: e.url })}
+            extension={true}
+            style={{ marginVertical: 4 }}
+        />);
+    }
     if (pool) {
         apps.push(<StakingProductComponent key={'pool'} pool={pool} />);
     }
@@ -66,7 +80,8 @@ export const ProductsComponent = React.memo(() => {
                                     amountAll: false
                                 },
                                 job: currentJob.jobRaw,
-                                text: currentJob.job.text
+                                text: currentJob.job.text,
+                                callback: null
                             });
                         }
                     }}
@@ -80,8 +95,17 @@ export const ProductsComponent = React.memo(() => {
                     value={null}
                     onPress={() => {
                         if (currentJob.job.type === 'sign') {
-                            navigation.navigate('Sign', {
-                                job: currentJob.jobRaw
+                            const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(currentJob.key));
+                            if (!connection) {
+                                return; // Just in case
+                            }
+                            navigation.navigateSign({
+                                text: currentJob.job.text,
+                                textCell: currentJob.job.textCell,
+                                payloadCell: currentJob.job.payloadCell,
+                                job: currentJob.jobRaw,
+                                callback: null,
+                                name: connection.name
                             });
                         }
                     }}

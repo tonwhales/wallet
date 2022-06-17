@@ -28,7 +28,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         soon: 'soon',
         in: 'in',
         max: 'Max',
-        close: 'Close'
+        close: 'Close',
+        delete: 'Delete'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -366,6 +367,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'token'
+    },
+    connections: {
+        extensions: 'Extensions',
+        connections: 'External apps'
     }
 };
 

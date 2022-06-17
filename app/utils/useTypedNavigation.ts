@@ -3,6 +3,7 @@ import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@rea
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
 import { Order } from '../fragments/secure/ops/Order';
+import { getConnectionReferences } from '../storage/appState';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -75,6 +76,17 @@ export class TypedNavigation {
         back?: number
     }) {
         this.navigate('SimpleTransfer', tx);
+    }
+
+    navigateSign(tx: {
+        textCell: Cell,
+        payloadCell: Cell,
+        text: string,
+        job: string | null,
+        name: string,
+        callback: ((ok: boolean, result: Cell | null) => void) | null,
+    }) {
+        this.navigate('Sign', tx);
     }
 }
 

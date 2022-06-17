@@ -1,6 +1,7 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
 import Url from 'url-parse';
+import { AppConfig } from "../AppConfig";
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 
@@ -15,7 +16,10 @@ export type ResolvedUrl = {
     type: 'connect',
     session: string,
     endpoint: string | null
-};
+} | {
+    type: 'install',
+    url: string
+}
 
 export function resolveUrl(src: string): ResolvedUrl | null {
 
@@ -184,6 +188,36 @@ export function resolveUrl(src: string): ResolvedUrl | null {
         // Ignore
         warn(e);
     }
+
+    // Parse apps
+    try {
+        const url = new Url(src, true);
+        if ((url.protocol.toLowerCase() === 'https:')
+            && ((AppConfig.isTestnet ? 'test.tonhub.com' : 'tonhub.com') === url.host.toLowerCase())
+            && (url.pathname.toLowerCase().startsWith('/app/'))) {
+            let id = url.pathname.slice('/app/'.length);
+            let slice = Cell.fromBoc(Buffer.from(id, 'base64'))[0].beginParse();
+            let endpoint = slice.readRef().readRemainingBytes().toString();
+            let extras = slice.readBit(); // For future compatibility
+            if (!extras) {
+                if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                    throw Error('Invalid endpoint');
+                }
+            }
+            let parsedEndpoint = new Url(src, true);
+            if (parsedEndpoint.protocol !== 'https:') {
+                throw Error('Invalid endpoint');
+            }
+            return {
+                type: 'install',
+                url: endpoint
+            };
+        }
+    } catch (e) {
+        // Ignore
+        warn(e);
+    }
+
 
     return null;
 }

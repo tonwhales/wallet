@@ -13,6 +13,7 @@ import { t } from "../../../i18n/t"
 import { JettonProdcut } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
+import { extractDomain } from "../../../engine/utils/extractDomain"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -22,6 +23,18 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons();
     const extensions = engine.products.extensions.useExtensions();
+    const openExtension = React.useCallback((url: string) => {
+        let domain = extractDomain(url);
+        if (!domain) {
+            return; // Shouldn't happen
+        }
+        let k = engine.persistence.domainKeys.getValue(domain);
+        if (!k) {
+            navigation.navigate('Install', { url });
+        } else {
+            navigation.navigate('App', { url });
+        }
+    }, []);
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];

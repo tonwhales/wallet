@@ -4,6 +4,7 @@ import { Engine } from "../Engine";
 import { warn } from "../../utils/log";
 import { CloudValue } from "../cloud/CloudValue";
 import { AppConfig } from "../../AppConfig";
+import { AppState } from "react-native";
 
 export type DomainSubkey = {
     time: number,
@@ -13,19 +14,19 @@ export type DomainSubkey = {
 
 export class ExtensionsProduct {
     readonly engine: Engine;
-    readonly extensions: CloudValue<{ [key: string]: { url: string, date: number } }>;
+    readonly extensions: CloudValue<{ installed: { [key: string]: { url: string, date: number } } }>;
     readonly #extensionsSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.extensions = this.engine.cloud.get('extensions', (src) => { });
+        this.extensions = this.engine.cloud.get('wallet.extensions', (src) => { src.installed = {} });
         this.#extensionsSelector = selector({
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
                 let res: { url: string, name: string, date: number, image: { blurhash: string, url: string } | null }[] = [];
-                for (let k in apps) {
-                    let ap = apps[k];
+                for (let k in apps.installed) {
+                    let ap = apps.installed[k];
                     let data = get(this.engine.persistence.dApps.item(ap.url).atom);
                     if (!data) {
                         continue;
@@ -35,6 +36,11 @@ export class ExtensionsProduct {
                 return res;
             }
         });
+
+        // Refresh on app load
+        AppState.addEventListener('change', () => {
+            this.extensions.invalidate();
+        });
     }
 
     useExtensions() {
@@ -43,11 +49,11 @@ export class ExtensionsProduct {
 
     addExtension(url: string) {
         let key = url.toLowerCase().trim();
-        if (this.extensions.value[key]) {
+        if (this.extensions.value.installed[key]) {
             return;
         }
         this.extensions.update((doc) => {
-            doc[key] = {
+            doc.installed[key] = {
                 url,
                 date: Math.floor((Date.now() / 1000))
             }
@@ -56,11 +62,11 @@ export class ExtensionsProduct {
 
     removeExtension(url: string) {
         let key = url.toLowerCase().trim();
-        if (!this.extensions.value[key]) {
+        if (!this.extensions.value.installed[key]) {
             return;
         }
         this.extensions.update((doc) => {
-            delete doc[key];
+            delete doc.installed[key];
         });
     }
 

@@ -164,7 +164,7 @@ export const ConnectionsFragment = fragment(() => {
                             />
                         </View>
                     ))}
-                    {extensions.length > 0 && (
+                    {apps.length > 0 && (
                         <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                             <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.connections')}</Text>
                         </View>

@@ -5,17 +5,18 @@ import { TouchableHighlight } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
 import { SvgProps } from 'react-native-svg';
-import { t } from '../../../i18n/t';
 import { PriceComponent } from '../../../components/PriceComponent';
-import { fromNano } from 'ton';
+import { WImage } from '../../../components/WImage';
 
 export function ProductButton(props: {
     name: string,
     subtitle: string,
-    icon: React.FC<SvgProps>,
+    icon?: React.FC<SvgProps>,
     image?: string,
+    blurhash?: string,
     value: BN | null,
     symbol?: string,
+    extension?: boolean,
     onPress: () => void,
     style?: StyleProp<ViewStyle>,
 }) {
@@ -35,18 +36,20 @@ export function ProductButton(props: {
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {props.image && (
-                        <Image
-                            source={{ uri: props.image }}
-                            style={{ width: 42, height: 42, borderRadius: 21, overflow: 'hidden' }}
-                        />
-                    )}
-                    {!props.image && (
+                    {Icon && !props.image && (
                         <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
                             <Icon width={42} height={42} color={'white'} />
                         </View>
                     )}
-
+                    {(props.image || !Icon) && (
+                        <WImage
+                            src={props.image}
+                            blurhash={props.blurhash}
+                            width={42}
+                            heigh={42}
+                            borderRadius={props.extension ? 8 : 21}
+                        />
+                    )}
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>

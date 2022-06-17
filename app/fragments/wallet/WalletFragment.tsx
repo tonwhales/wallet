@@ -117,8 +117,8 @@ function WalletComponent(props: { wallet: WalletState }) {
     //
 
     const initialCursor = React.useMemo(() => {
-        if (account.transactions.length >= 10) {
-            return account.transactions[9].id;
+        if (account.transactions.length >= 40) {
+            return account.transactions[39].id;
         }
         if (account.transactions.length > 0) {
             return account.transactions[account.transactions.length - 1].id
@@ -150,17 +150,15 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [account.next ? account.next.lt : null]);
 
-    const onScollToEnd = React.useCallback(() => {
+    const onScollToPageEnd = React.useCallback(() => {
         const cursorIndex = account.transactions.findIndex((tx) => tx.id === txsCursor);
-        // Load more if cursor is on the last of loaded
         if (cursorIndex === account.transactions.length - 1) {
-            onReachedEnd();
             return;
         }
         // Set new cursor 
         if (cursorIndex !== -1 && cursorIndex < account.transactions.length - 1) {
-            const newCursorIndex = (account.transactions.length - 1 - cursorIndex >= 10)
-                ? cursorIndex + 10
+            const newCursorIndex = (account.transactions.length - 1 - cursorIndex >= 40)
+                ? cursorIndex + 40
                 : cursorIndex + (account.transactions.length - 1 - cursorIndex);
             setTxsCursor(account.transactions[newCursorIndex].id);
         }
@@ -193,14 +191,18 @@ function WalletComponent(props: { wallet: WalletState }) {
             smallCardY.value = Math.floor(cardHeight * 0.15 / 2);
         }
 
-        // Bottom reached
         if (event.contentSize.height > 0) {
             let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
+            // Render new views
+            if (bottomOffset >= 300 && bottomOffset < 2000) {
+                runOnJS(onScollToPageEnd)();
+            }
+            // Bottom reached
             if (bottomOffset < 300) {
-                runOnJS(onScollToEnd)();
+                runOnJS(onReachedEnd)();
             }
         }
-    }, [cardHeight, onScollToEnd]);
+    }, [cardHeight, onScollToPageEnd, onReachedEnd]);
 
     const cardOpacityStyle = useAnimatedStyle(() => {
         return {

@@ -76,7 +76,13 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
     let removeExtension = React.useCallback((url: string) => {
-        engine.products.extensions.removeExtension(url);
+        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
+            text: t('auth.revoke.action'),
+            style: 'destructive',
+            onPress: () => {
+                engine.products.extensions.removeExtension(url);
+            }
+        }]);
     }, []);
     if (apps.length === 0 && extensions.length === 0) {
         return (
@@ -132,7 +138,7 @@ export const ConnectionsFragment = fragment(() => {
                         fontWeight: '600',
                         marginLeft: 17,
                         fontSize: 17
-                    }, { textAlign: 'center' }]}>{t('auth.apps.title')}</Text>
+                    }, { textAlign: 'center' }]}>{t('auth.name')}</Text>
                 </View>
             )}
             <ScrollView>
@@ -145,7 +151,9 @@ export const ConnectionsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     {extensions.length > 0 && (
-                        <Text>Extensions</Text>
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.extensions')}</Text>
+                        </View>
                     )}
                     {extensions.map((app) => (
                         <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
@@ -157,7 +165,9 @@ export const ConnectionsFragment = fragment(() => {
                         </View>
                     ))}
                     {extensions.length > 0 && (
-                        <Text>Connections</Text>
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.connections')}</Text>
+                        </View>
                     )}
                     {apps.map((app) => (
                         <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>

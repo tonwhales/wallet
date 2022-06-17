@@ -1,5 +1,5 @@
 import React from "react";
-import { ImageSourcePropType, View, Image, Text, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { AppIcon } from "../fragments/apps/components/AppIcon";
@@ -88,7 +88,7 @@ export const ConnectedAppButton = React.memo((
                         fontSize: 16
                     }}
                 >
-                    {t('auth.revoke.action')}
+                    {t('common.delete')}
                 </Text>
             </Pressable>
         </View>

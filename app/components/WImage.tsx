@@ -63,44 +63,46 @@ export const WImage = React.memo((props: {
     }
 
     if (url) {
-        <View style={[{
-            width: props.width, height: props.heigh,
-            overflow: 'hidden',
-            backgroundColor: 'white',
-            borderRadius: props.borderRadius
-        }, props.style]}>
-            <Image
-                source={{ uri: url }}
-                style={{ width: props.width, height: props.heigh }}
-                resizeMode={'cover'}
-                onLoadStart={() => setLoading(true)}
-                onLoadEnd={() => setLoading(false)}
-            />
-            {loading && (
-                <Animated.View
-                    entering={FadeIn}
-                    exiting={FadeOut}
-                    style={{
-                        borderRadius: props.borderRadius,
-                        position: 'absolute',
-                        top: 0, bottom: 0, left: 0, right: 0
-                    }}>
-                    <Image
-                        source={require('../../assets/ic_app_placeholder.png')}
-                        style={{ width: props.width, height: props.heigh }}
-                        resizeMode={'cover'}
-                    />
-                </Animated.View>
-            )}
-            <View style={{
-                borderWidth: 0.5,
-                borderColor: 'black',
-                backgroundColor: 'transparent',
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                opacity: 0.06,
+        return (
+            <View style={[{
+                width: props.width, height: props.heigh,
+                overflow: 'hidden',
+                backgroundColor: 'white',
                 borderRadius: props.borderRadius
-            }} />
-        </View>
+            }, props.style]}>
+                <Image
+                    source={{ uri: url }}
+                    style={{ width: props.width, height: props.heigh }}
+                    resizeMode={'cover'}
+                    onLoadStart={() => setLoading(true)}
+                    onLoadEnd={() => setLoading(false)}
+                />
+                {loading && (
+                    <Animated.View
+                        entering={FadeIn}
+                        exiting={FadeOut}
+                        style={{
+                            borderRadius: props.borderRadius,
+                            position: 'absolute',
+                            top: 0, bottom: 0, left: 0, right: 0
+                        }}>
+                        <Image
+                            source={require('../../assets/ic_app_placeholder.png')}
+                            style={{ width: props.width, height: props.heigh }}
+                            resizeMode={'cover'}
+                        />
+                    </Animated.View>
+                )}
+                <View style={{
+                    borderWidth: 0.5,
+                    borderColor: 'black',
+                    backgroundColor: 'transparent',
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    opacity: 0.06,
+                    borderRadius: props.borderRadius
+                }} />
+            </View>
+        );
     }
 
     return (

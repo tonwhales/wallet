@@ -19,6 +19,7 @@ const Img_thetrixter = require('../../assets/known/thetrixter.jpg');
 const Img_Web3TON = require('../../assets/known/Web3TON.jpg');
 const Img_TONLab_Pro_Inc = require('../../assets/known/TONLab_Pro_Inc.png');
 
+const Img_TON_Chuwee_Boys = require('../../assets/known/TON_Chuwee_Boys.png');
 
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
@@ -227,5 +228,14 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 secondary: '#7f88b5'
             },
             ic: Img_TONLab_Pro_Inc
+        },
+
+        [Address.parse('EQB3qjjd9U3-QXLW1iwxg_AGKZh-yaa8lKJxf-A35bkzD0T4').toFriendly()]: {
+            name: 'TON Chuwee Boys',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_TON_Chuwee_Boys
         },
     }

@@ -65,7 +65,7 @@ export const ProductsComponent = React.memo(() => {
             image={e.image?.url}
             blurhash={e.image?.blurhash}
             value={null}
-            onPress={() => navigation.navigate('App', { url: e.url })}
+            onPress={() => openExtension(e.url)}
             extension={true}
             style={{ marginVertical: 4 }}
         />);

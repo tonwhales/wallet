@@ -156,7 +156,7 @@ function WalletComponent(props: { wallet: WalletState }) {
         // Bottom reached
         if (event.contentSize.height > 0) {
             let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
-            if (bottomOffset < 300) {
+            if (bottomOffset < 2000) {
                 runOnJS(onReachedEnd)();
             }
         }

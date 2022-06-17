@@ -1,9 +1,10 @@
 import React from "react";
-import { ImageSourcePropType, View, Image, Text, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { useEngine } from "../engine/Engine";
-import { AppIcon } from "../fragments/apps/components/AppIcon";
+import { extractDomain } from "../engine/utils/extractDomain";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
+import { WImage } from "./WImage";
 
 export const ConnectedAppButton = React.memo((
     {
@@ -17,7 +18,7 @@ export const ConnectedAppButton = React.memo((
     }
 ) => {
     const engine = useEngine();
-    const app = engine.products.dApps.useAppData(url);
+    const app = engine.products.extensions.useAppData(url);
 
     return (
         <View style={{
@@ -26,12 +27,13 @@ export const ConnectedAppButton = React.memo((
             alignItems: 'center',
             padding: 10
         }}>
-            <AppIcon
+            <WImage
                 heigh={42}
                 width={42}
-                app={app}
+                src={app?.image?.preview256}
+                blurhash={app?.image?.blurhash}
                 style={{ marginRight: 10 }}
-                borderRadius={10}
+                borderRadius={8}
             />
             <View
                 style={{
@@ -64,7 +66,7 @@ export const ConnectedAppButton = React.memo((
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {url}
+                        {extractDomain(url)}
                     </Text>
                 )}
             </View>
@@ -87,7 +89,7 @@ export const ConnectedAppButton = React.memo((
                         fontSize: 16
                     }}
                 >
-                    {t('auth.revoke.action')}
+                    {t('common.delete')}
                 </Text>
             </Pressable>
         </View>

@@ -17,6 +17,7 @@ import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from '../Navigation';
+import { getConnectionReferences } from '../storage/appState';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -67,8 +68,17 @@ export const HomeFragment = fragment(() => {
                                 }
                             }
                             if (existing.job.job.type === 'sign') {
-                                navigation.navigate('Sign', {
-                                    job: existing.raw
+                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(existing!.job.key));
+                                if (!connection) {
+                                    return; // Just in case
+                                }
+                                navigation.navigateSign({
+                                    text: existing.job.job.text,
+                                    textCell: existing.job.job.textCell,
+                                    payloadCell: existing.job.job.payloadCell,
+                                    job: existing.raw,
+                                    callback: null,
+                                    name: connection.name
                                 });
                             }
                         });

@@ -30,7 +30,8 @@ export type LocalizationSchema = {
         soon: string,
         in: string,
         max: string,
-        close: string
+        close: string,
+        delete: string
     },
     syncStatus: {
         connecting: string,
@@ -368,6 +369,10 @@ export type LocalizationSchema = {
     },
     jetton: {
         token: string
+    },
+    connections: {
+        extensions: string,
+        connections: string
     }
 };
 

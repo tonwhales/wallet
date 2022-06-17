@@ -6,7 +6,6 @@ import { t, tStyled } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { backoff } from '../../utils/time';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
@@ -16,15 +15,14 @@ import { fragment } from '../../fragment';
 import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
-import { AppData } from '../../engine/api/fetchAppData';
 import { useEngine } from '../../engine/Engine';
-import { AppIcon } from '../apps/components/AppIcon';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
 import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { beginCell, safeSign } from 'ton';
-import { extractDomain } from '../../utils/extractDomain';
+import { extractDomain } from '../../engine/utils/extractDomain';
+import { WImage } from '../../components/WImage';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -32,35 +30,13 @@ const labelStyle: StyleProp<TextStyle> = {
     fontSize: 17
 };
 
-type SignState = { type: 'loading' }
-    | { type: 'loaded', app: AppData }
-    | { type: 'failed' }
-
 const SignStateLoader = React.memo((props: { url: string }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const [state, setState] = React.useState<SignState>({ type: 'loading' });
     const engine = useEngine();
-    React.useEffect(() => {
-        let ended = false;
-        backoff('install', async () => {
-            if (ended) {
-                return;
-            }
-            const appData = await engine.products.dApps.getAppData(props.url);
-            if (ended) {
-                return;
-            }
-            if (!appData) {
-                setState({ type: 'failed' });
-                return;
-            }
-            setState({ type: 'loaded', app: appData });
-        });
-        return () => {
-            ended = true;
-        };
-    }, []);
+
+    // App Data
+    let appData = engine.products.extensions.useAppData(props.url);
 
     // Approve
     const acc = React.useMemo(() => getCurrentAddress(), []);
@@ -71,8 +47,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
     const approve = React.useCallback(async () => {
 
         // Load data
-        const contract = await contractFromPublicKey(acc.publicKey);
-        let appInstanceKeyPair = await getAppInstanceKeyPair();
+        const contract = contractFromPublicKey(acc.publicKey);
         let domain = extractDomain(props.url);
         let time = Math.floor(Date.now() / 1000);
 
@@ -92,35 +67,27 @@ const SignStateLoader = React.memo((props: { url: string }) => {
             .storeUint(time, 32)
             .storeAddress(contract.address)
             .storeRef(beginCell().storeBuffer(Buffer.from(domain)).endCell())
-            .storeRef(beginCell().storeBuffer(appInstanceKeyPair.publicKey).endCell())
             .endCell();
         let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
 
         // Persist key
         engine.persistence.domainKeys.setValue(domain, { time, signature, secret });
 
+        // Add extension
+        engine.products.extensions.addExtension(props.url);
+
         // Navigate
         navigation.goBack();
         navigation.navigate('App', { url: props.url });
-    }, [state]);
+    }, []);
 
     // When loading
-    if (state.type === 'loading') {
+    if (!appData) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <LoadingIndicator simple={true} />
             </View>
         )
-    }
-
-    // Expired
-    if (state.type === 'failed') {
-        return (
-            <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
-                <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
-            </View>
-        );
     }
 
     return (
@@ -160,11 +127,12 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                     alignItems: 'center',
                     width: 154,
                 }}>
-                    <AppIcon
+                    <WImage
                         heigh={64}
                         width={64}
                         style={{ marginBottom: 8 }}
-                        app={state.app}
+                        src={appData.image?.preview256}
+                        blurhash={appData.image?.blurhash}
                         borderRadius={16}
                     />
                     <Text
@@ -178,7 +146,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {state.app.title}
+                        {appData.title}
                     </Text>
                     <Text
                         style={{
@@ -257,7 +225,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                     marginTop: 24
                 }}
             >
-                {tStyled('install.message', { name: state.app.title })}
+                {tStyled('install.message', { name: appData.title })}
             </Text>
             <View style={{ flexGrow: 1 }} />
             <View style={{ flexDirection: 'row', marginHorizontal: 32 }}>

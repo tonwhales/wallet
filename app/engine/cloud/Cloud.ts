@@ -43,7 +43,7 @@ export class Cloud {
         this.#utilityKey = utilityKey;
     }
 
-    get<T>(key: string, initial: () => Automerge.Doc<T>) {
+    get<T>(key: string, initial: (src: T) => void) {
         let ex = this.#syncs.get(key);
         if (ex) {
             return ex as CloudValue<T>;
@@ -54,8 +54,8 @@ export class Cloud {
     }
 
     counter(key: string) {
-        return this.get(key, () => {
-            return Automerge.from<{ counter: Automerge.Counter }>({ counter: new Automerge.Counter(0) });
+        return this.get<{ counter: Automerge.Counter }>(key, (src) => {
+            src.counter = new Automerge.Counter();
         });
     }
 

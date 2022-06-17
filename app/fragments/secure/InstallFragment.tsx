@@ -48,7 +48,6 @@ const SignStateLoader = React.memo((props: { url: string }) => {
 
         // Load data
         const contract = contractFromPublicKey(acc.publicKey);
-        let appInstanceKeyPair = await getAppInstanceKeyPair();
         let domain = extractDomain(props.url);
         let time = Math.floor(Date.now() / 1000);
 
@@ -68,7 +67,6 @@ const SignStateLoader = React.memo((props: { url: string }) => {
             .storeUint(time, 32)
             .storeAddress(contract.address)
             .storeRef(beginCell().storeBuffer(Buffer.from(domain)).endCell())
-            .storeRef(beginCell().storeBuffer(appInstanceKeyPair.publicKey).endCell())
             .endCell();
         let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
 

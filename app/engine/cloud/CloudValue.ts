@@ -1,11 +1,10 @@
-import * as React from 'react';
 import EventEmitter from 'events';
 import { InvalidateSync } from "../utils/InvalidateSync";
 import { Cloud } from "./Cloud";
-import * as Automerge from 'automerge';
-import { createLogger, warn } from '../../utils/log';
+import { createLogger } from '../../utils/log';
 import { atom, RecoilState, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
+import { AutomergeValue } from './AutomergeValue';
 
 export interface CloudValue<T> {
     emit(event: 'updated', data: T): boolean;
@@ -19,7 +18,7 @@ export class CloudValue<T> extends EventEmitter {
     #cloud: Cloud;
     #key: string;
     #sync: InvalidateSync;
-    #value: Automerge.Doc<T>;
+    #value: AutomergeValue<T>;
     readonly atom: RecoilState<T>;
 
     constructor(cloud: Cloud, key: string, init: (src: T) => void) {
@@ -28,11 +27,13 @@ export class CloudValue<T> extends EventEmitter {
         this.#key = key;
 
         // Load initial value
-        let v: Automerge.Doc<T> | null = null;
+        let v: AutomergeValue<T> | null = null;
         let existing = cloud.engine.persistence.cloud.getValue({ key, address: cloud.engine.address });
         if (existing) {
             try {
-                v = Automerge.load<T>(Buffer.from(existing, 'base64') as any);
+                let e = AutomergeValue.fromExisting<T>(Buffer.from(existing, 'base64'));
+                e.apply(e.clone()); // Check validity
+                v = e;
             } catch (e) {
                 // Ignore errors
             }
@@ -40,47 +41,46 @@ export class CloudValue<T> extends EventEmitter {
         if (v) {
             this.#value = v;
         } else {
-
-            // Create schema
-            let schema = Automerge.change(Automerge.init<T>({ actorId: '0000' }), { time: 0 }, (src) => {
-                init(src);
-            });
-            let initChange = Automerge.getLastLocalChange(schema);
-
-            // Create initial document
-            let [doc] = Automerge.applyChanges(Automerge.init<T>(), [initChange])
-            this.#value = doc;
+            this.#value = AutomergeValue.fromEmpty(init);
         }
 
         // Atom
         this.atom = atom({
             key: 'cloud/' + cloud.engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/' + key,
             dangerouslyAllowMutability: true,
-            default: this.#value as T
+            default: this.#value.getDoc() as T
         });
 
         // Configure sync
         const logger = createLogger('cloud');
         this.#sync = new InvalidateSync('cloud:' + key, async () => {
-            logger.log(`Updating ${key}, current: ${JSON.stringify(this.#value)}`);
-            let current = Automerge.clone(this.#value);
+            logger.log(`Updating ${key}, current: ${JSON.stringify(this.#value.getDoc())}`);
+            let current = this.#value.clone();
             let updated = await cloud.update(key, (src) => {
-                logger.log('Updating');
                 if (src) {
                     try {
-                        let ex = Automerge.load<T>(src as any);
-                        logger.log(`Merging ${key}, local: ${JSON.stringify(current)}, remote: ${JSON.stringify(ex)}`);
-                        let merged = Automerge.merge(current, ex);
-                        return Buffer.from(Automerge.save(merged));
+                        // Load value
+                        let ex = AutomergeValue.fromExisting<T>(src);
+                        logger.log(`Merging ${key}, local: ${JSON.stringify(current.getDoc())}, remote: ${JSON.stringify(ex.getDoc())}`);
+
+                        // Apply value
+                        current.apply(ex);
                     } catch (e) {
                         console.warn(e);
                     }
                 }
 
-                return Buffer.from(Automerge.save(current));
+                // Fallback
+                return current.save();
             });
             if (updated) {
-                this.#value = Automerge.merge(this.#value, Automerge.load<T>(updated as any));
+
+                // Apply Change
+                let loaded = AutomergeValue.fromExisting<T>(updated);
+                this.#value.apply(loaded);
+                logger.log(`Received ${key}, current: ${JSON.stringify(this.#value.getDoc())}`);
+
+                // Notify
                 this.emit('updated', this.value);
                 this.#cloud.engine.recoil.updater(this.atom, this.value);
             }
@@ -88,8 +88,12 @@ export class CloudValue<T> extends EventEmitter {
         this.#sync.invalidate();
     }
 
+    invalidate() {
+        this.#sync.invalidate();
+    }
+
     get value() {
-        return this.#value as T;
+        return this.#value.getDoc() as T;
     }
 
     use() {
@@ -99,13 +103,8 @@ export class CloudValue<T> extends EventEmitter {
     update = (updater: (src: T) => void) => {
 
         // Apply diff
-        let res = Automerge.change(this.#value, (s) => {
-            updater(s);
-        });
-
-        // Update value
-        this.#value = res;
-        this.#cloud.engine.persistence.cloud.setValue({ address: this.#cloud.engine.address, key: this.#key }, Buffer.from(Automerge.save(res)).toString('base64'));
+        this.#value.update(updater);
+        this.#cloud.engine.persistence.cloud.setValue({ address: this.#cloud.engine.address, key: this.#key }, this.#value.save().toString('base64'));
         this.emit('updated', this.value);
         this.#cloud.engine.recoil.updater(this.atom, this.value);
 

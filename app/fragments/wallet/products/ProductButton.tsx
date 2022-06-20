@@ -18,12 +18,14 @@ export function ProductButton(props: {
     symbol?: string,
     extension?: boolean,
     onPress: () => void,
+    onLongPress?: () => void
     style?: StyleProp<ViewStyle>,
 }) {
     const Icon = props.icon;
     return (
         <TouchableHighlight
             onPress={props.onPress}
+            onLongPress={props.onLongPress}
             underlayColor={Theme.selector}
             style={[
                 {

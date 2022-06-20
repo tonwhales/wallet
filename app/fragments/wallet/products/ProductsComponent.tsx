@@ -1,6 +1,6 @@
 import BN from "bn.js"
 import React from "react"
-import { Text, View } from "react-native"
+import { Alert, Pressable, Text, View } from "react-native"
 import { ProductButton } from "./ProductButton"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
@@ -56,19 +56,32 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
+    let removeExtension = React.useCallback((key: string) => {
+        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
+            text: t('common.delete'),
+            style: 'destructive',
+            onPress: () => {
+                engine.products.extensions.removeExtension(key);
+            }
+        }]);
+    }, []);
+
     // Resolve apps
     let apps: React.ReactElement[] = [];
     for (let e of extensions) {
-        apps.push(<ProductButton
-            name={e.name}
-            subtitle={e.url}
-            image={e.image?.url}
-            blurhash={e.image?.blurhash}
-            value={null}
-            onPress={() => openExtension(e.url)}
-            extension={true}
-            style={{ marginVertical: 4 }}
-        />);
+        apps.push(
+            <ProductButton
+                name={e.name}
+                subtitle={e.url}
+                image={e.image?.url}
+                blurhash={e.image?.blurhash}
+                value={null}
+                onLongPress={() => removeExtension(e.key)}
+                onPress={() => openExtension(e.url)}
+                extension={true}
+                style={{ marginVertical: 4 }}
+            />
+        );
     }
     if (pool) {
         apps.push(<StakingProductComponent key={'pool'} pool={pool} />);

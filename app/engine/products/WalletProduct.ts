@@ -200,7 +200,7 @@ export class WalletProduct {
                 balance: state.balance,
                 seqno: state.seqno,
                 transactions: [
-                    ...this.#pending.map((v) => ({ id: v.id, time: v.time, lt: v.lt || '0' })),
+                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
                     ...state.transactions.slice(undefined, nextIndex ? nextIndex + 1 : undefined).map((v) => {
                         let tx = this.engine.transactions.getWalletTransaction(this.address, v);
                         return { id: tx.id, time: tx.time };
@@ -286,7 +286,7 @@ export class WalletProduct {
                 balance: state.balance,
                 seqno: state.seqno,
                 transactions: [
-                    ...this.#pending.map((v) => ({ id: v.id, time: v.time, lt: v.lt || '0' })),
+                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
                     ...state.transactions.slice(undefined, nextIndex ? nextIndex + 1 : undefined).map((v) => {
                         let tx = this.engine.transactions.getWalletTransaction(this.address, v);
                         return { id: tx.id, time: tx.time };

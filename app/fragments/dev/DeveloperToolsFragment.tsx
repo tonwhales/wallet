@@ -40,7 +40,7 @@ export const DeveloperToolsFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{

@@ -33,6 +33,7 @@
     "@types/uuid": "^8.3.4",
     "automerge": "1.0.1-preview.7",
     "axios": "^0.24.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "bn.js": "^5.2.0",
     "buffer": "^6.0.3",
     "color": "^4.2.3",

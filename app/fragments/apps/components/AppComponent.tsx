@@ -16,6 +16,7 @@ import { useEngine } from '../../../engine/Engine';
 import { keyPairFromSeed } from 'ton-crypto';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { beginCell, safeSign } from 'ton';
+import { protectNavigation } from './protect/protectNavigation';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -63,6 +64,12 @@ export const AppComponent = React.memo((props: {
         if (resolved) {
             linkNavigator(resolved);
             return false;
+        }
+
+        // Secondary protection
+        let prt = protectNavigation(event.url, props.endpoint);
+        if (prt) {
+            return true;
         }
 
         // Resolve linking

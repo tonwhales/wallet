@@ -123,7 +123,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             action: 'Revoke'
         },
         apps: {
-            title: 'Trusted Apps'
+            title: 'Trusted Apps',
+            delete: 'Are you sure want to delete this app?'
         }
     },
     install: {

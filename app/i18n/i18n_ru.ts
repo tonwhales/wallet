@@ -112,7 +112,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             action: 'Удалить'
         },
         apps: {
-            title: 'Доверенные приложения'
+            title: 'Доверенные приложения',
+            delete: 'Вы уверены что хотите удалить это приложение?'
         }
     },
     install: {

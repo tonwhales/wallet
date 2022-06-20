@@ -6,6 +6,7 @@ import { CloudValue } from "../cloud/CloudValue";
 import { AppConfig } from "../../AppConfig";
 import { AppState } from "react-native";
 import { sha256_sync } from "ton-crypto";
+import { toUrlSafe } from "../../utils/toUrlSafe";
 
 export type DomainSubkey = {
     time: number,
@@ -14,7 +15,7 @@ export type DomainSubkey = {
 }
 
 function extensionKey(src: string) {
-    return sha256_sync(src.toLocaleLowerCase().trim()).toString('base64url');
+    return toUrlSafe(sha256_sync(src.toLocaleLowerCase().trim()).toString('base64'));
 }
 
 export class ExtensionsProduct {
@@ -29,14 +30,14 @@ export class ExtensionsProduct {
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
-                let res: { url: string, name: string, date: number, image: { blurhash: string, url: string } | null }[] = [];
+                let res: { key: string, url: string, name: string, date: number, image: { blurhash: string, url: string } | null }[] = [];
                 for (let k in apps.installed) {
                     let ap = apps.installed[k];
                     let data = get(this.engine.persistence.dApps.item(ap.url).atom);
                     if (!data) {
                         continue;
                     }
-                    res.push({ url: ap.url, name: data.title, date: ap.date, image: data.image ? { url: data.image.preview256, blurhash: data.image.blurhash } : null });
+                    res.push({ key: k, url: ap.url, name: data.title, date: ap.date, image: data.image ? { url: data.image.preview256, blurhash: data.image.blurhash } : null });
                 }
                 return res;
             }
@@ -65,8 +66,7 @@ export class ExtensionsProduct {
         });
     }
 
-    removeExtension(url: string) {
-        let key = extensionKey(url);
+    removeExtension(key: string) {
         if (!this.extensions.value.installed[key]) {
             return;
         }

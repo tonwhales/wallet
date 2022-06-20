@@ -1,17 +1,25 @@
 module.exports = function (api) {
+  const babelEnv = api.env();
   api.cache(true);
+
+  const plugins = [
+    [
+      'react-native-reanimated/plugin',
+      {
+        globals: ['__scanCodes'],
+      },
+    ],
+    ["@babel/plugin-proposal-private-methods", {
+      "loose": true
+    }]
+  ];
+
+  if (babelEnv !== 'development') {
+    plugins.push(['transform-remove-console']);
+  }
+
   return {
     presets: ['babel-preset-expo'],
-    plugins: [
-      [
-        'react-native-reanimated/plugin',
-        {
-          globals: ['__scanCodes'],
-        },
-      ],
-      ["@babel/plugin-proposal-private-methods", {
-        "loose": true
-      }]
-    ]
+    plugins: plugins
   };
 };

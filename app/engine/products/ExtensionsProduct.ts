@@ -61,8 +61,8 @@ export class ExtensionsProduct {
         this.extensions.update((doc) => {
             doc.installed[key] = {
                 url,
-                title: title,
-                image: image,
+                title: title ? title : null,
+                image: image ? image : null,
                 date: Math.floor((Date.now() / 1000))
             }
         });

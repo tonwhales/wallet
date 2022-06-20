@@ -124,7 +124,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         apps: {
             title: 'Trusted Apps',
-            delete: 'Are you sure want to delete this app?'
+            delete: 'Delete this app?'
         }
     },
     install: {

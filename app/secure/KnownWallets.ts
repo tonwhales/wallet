@@ -9,6 +9,10 @@ const Img_FTX = require('../../assets/known/ftx.png');
 const Img_Disintar = require('../../assets/known/disintar_logo.png');
 const Img_Neocrypto = require('../../assets/known/neocrypto.png');
 
+// Tegro
+const Img_Tegro_Money_bot = require('../../assets/known/Tegro_Money_bot.png');
+const Img_Tegro_TON_bot = require('../../assets/known/Tegro_TON_bot.png');
+
 // NFT
 const Img_tonwhalesNFT = require('../../assets/known/tonwhalesNFT.png');
 
@@ -170,6 +174,25 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Neocrypto
         },
+        
+        // Tegro
+        [Address.parse('EQC5VTeQo1K7T0fWJvdiymrjJTUAXVhk3RsZoxzehh0qU4Yo').toFriendly()]: {
+            name: 'Tegro Money bot',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_Tegro_Money_bot
+        },
+        [Address.parse('EQC9hxkJ9YQVhonPhlIMVMjvojVZlz3cSwggy9EsUUgywsRY').toFriendly()]: {
+            name: 'Tegro TON bot',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_Tegro_TON_bot
+        },
+
 
         // NFTs
         [Address.parse('EQDvRFMYLdxmvY3Tk-cfWMLqDnXF_EclO2Fp4wwj33WhlNFT').toFriendly()]: {

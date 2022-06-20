@@ -5,11 +5,16 @@ import { warn } from "../../utils/log";
 import { CloudValue } from "../cloud/CloudValue";
 import { AppConfig } from "../../AppConfig";
 import { AppState } from "react-native";
+import { sha256_sync } from "ton-crypto";
 
 export type DomainSubkey = {
     time: number,
     signature: Buffer,
     secret: Buffer
+}
+
+function extensionKey(src: string) {
+    return sha256_sync(src.toLocaleLowerCase().trim()).toString('base64url');
 }
 
 export class ExtensionsProduct {
@@ -48,7 +53,7 @@ export class ExtensionsProduct {
     }
 
     addExtension(url: string) {
-        let key = url.toLowerCase().trim();
+        let key = extensionKey(url);
         if (this.extensions.value.installed[key]) {
             return;
         }
@@ -61,7 +66,7 @@ export class ExtensionsProduct {
     }
 
     removeExtension(url: string) {
-        let key = url.toLowerCase().trim();
+        let key = extensionKey(url);
         if (!this.extensions.value.installed[key]) {
             return;
         }

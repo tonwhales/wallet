@@ -252,7 +252,7 @@ export class WalletProduct {
     loadMore = (lt: string, hash: string) => {
         this.engine.persistence.wallets.item(this.engine.address).for((state) => {            
             let ltIndex = findLtIndex(state.transactions, lt, 0, state.transactions.length - 1);
-            // If not cached load more from sertver
+            // If not cached load more from server
             if (ltIndex === state.transactions.length - 1) {
                 this.#history.loadMore(lt, hash);
             }

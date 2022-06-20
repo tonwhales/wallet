@@ -41,6 +41,7 @@ export const ProductsComponent = React.memo(() => {
     if (oldWalletsBalance.gt(new BN(0))) {
         accounts.push(
             <ProductButton
+                key={'old-wallets'}
                 name={t('products.oldWallets.title')}
                 subtitle={t("products.oldWallets.subtitle")}
                 icon={OldWalletIcon}
@@ -71,6 +72,7 @@ export const ProductsComponent = React.memo(() => {
     for (let e of extensions) {
         apps.push(
             <ProductButton
+                key={e.key}
                 name={e.name}
                 subtitle={e.url}
                 image={e.image?.url}

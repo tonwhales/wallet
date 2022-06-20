@@ -60,7 +60,7 @@ export const AppComponent = React.memo((props: {
         }
 
         // Resolve internal url
-        const resolved = resolveUrl(event.url);
+        const resolved = resolveUrl(event.url, AppConfig.isTestnet);
         if (resolved) {
             linkNavigator(resolved);
             return false;

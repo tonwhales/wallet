@@ -87,7 +87,7 @@ export const HomeFragment = fragment(() => {
                     }
                 })()
             } else {
-                let resolved = resolveUrl(link);
+                let resolved = resolveUrl(link, AppConfig.isTestnet);
                 if (resolved) {
                     try {
                         SplashScreen.hideAsync();

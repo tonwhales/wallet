@@ -217,8 +217,6 @@ export class WalletProduct {
                 }
             }
 
-            console.log({ txsLen: this.#state.transactions.length });
-
             // Notify
             engine.recoil.updater(this.#atom, this.#state);
         });
@@ -254,9 +252,8 @@ export class WalletProduct {
     loadMore = (lt: string, hash: string) => {
         this.engine.persistence.wallets.item(this.engine.address).for((state) => {            
             let ltIndex = findLtIndex(state.transactions, lt, 0, state.transactions.length - 1);
-            // If is last in cache load from server
+            // If not cached load more from sertver
             if (ltIndex === state.transactions.length - 1) {
-                console.log('LOADING MORE FROM SERVER');
                 this.#history.loadMore(lt, hash);
             }
 
@@ -267,12 +264,11 @@ export class WalletProduct {
             let next: { lt: string, hash: string } | null = null;
             let nextIndex: number | undefined;
             if (state.transactions.length > 0) {
-                console.log({ ltIndex });
                 if (ltIndex != -1 && (state.transactions.length - 1 - ltIndex) >= 40) {
+                    // Load next 40
                     nextIndex = ltIndex - 1 + 40;
-                    console.log('LOADING NEXT BATCH', { ltIndex, nextIndex });
                 } else {
-                    console.log('LOADING ALL FROM CACHE', {ltIndex, nextIndex});
+                    // Load rest
                     nextIndex = state.transactions.length - 1
                 }
                 let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[nextIndex]);

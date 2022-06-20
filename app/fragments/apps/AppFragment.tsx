@@ -11,6 +11,8 @@ import Color from 'color';
 import { useRoute } from '@react-navigation/native';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
+import { RoundButton } from '../../components/RoundButton';
+import { t } from '../../i18n/t';
 
 export const AppFragment = fragment(() => {
     const engine = useEngine();
@@ -21,7 +23,8 @@ export const AppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const color = appData && appData.color ? appData.color : '#fff';
     const c = Color(color);
-    const fontColor = c.isDark() ? c.lighten(0.9).hex() : c.darken(0.8).hex();
+    const dark = c.isDark();
+    const fontColor = dark ? '#fff' : '#000';
     const key = engine.persistence.domainKeys.getValue(domain);
     if (!appData) {
         throw Error('No App Data');
@@ -36,38 +39,20 @@ export const AppFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             backgroundColor: color
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 12,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        marginLeft: 17,
-                        fontSize: 17,
-                        color: fontColor
-                    }, { textAlign: 'center' }]}>{appData.title}</Text>
-                </View>
-            )}
+            <StatusBar style={dark ? 'light' : 'dark'} />
 
             <AppComponent
                 endpoint={url}
                 color={color}
+                dark={dark}
                 foreground={fontColor}
                 title={appData.title}
                 domainKey={key}
             />
 
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <View style={{ height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom }}>
+                <RoundButton title={t('common.close')} display="secondary" size="normal" style={{ paddingHorizontal: 8 }} onPress={() => navigation.goBack()} />
+            </View>
         </View>
     );
 });

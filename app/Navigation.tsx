@@ -150,7 +150,12 @@ const navigation = [
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
-    modalScreen('App', AppFragment),
+    <Stack.Screen
+        key={`genericScreen-App`}
+        name={'App'}
+        component={AppFragment}
+        options={{ headerShown: false, headerBackVisible: false }}
+    />
 ];
 
 export const Navigation = React.memo(() => {

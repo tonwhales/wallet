@@ -75,12 +75,12 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
-    let removeExtension = React.useCallback((url: string) => {
+    let removeExtension = React.useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                engine.products.extensions.removeExtension(url);
+                engine.products.extensions.removeExtension(key);
             }
         }]);
     }, []);
@@ -158,7 +158,7 @@ export const ConnectionsFragment = fragment(() => {
                     {extensions.map((app) => (
                         <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                             <ConnectedAppButton
-                                onRevoke={() => removeExtension(app.url)}
+                                onRevoke={() => removeExtension(app.key)}
                                 url={app.url}
                                 name={app.name}
                             />

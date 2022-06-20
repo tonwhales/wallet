@@ -150,7 +150,12 @@ const navigation = [
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
-    modalScreen('App', AppFragment),
+    <Stack.Screen
+        key={`genericScreen-App`}
+        name={'App'}
+        component={AppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />
 ];
 
 export const Navigation = React.memo(() => {
@@ -357,7 +362,9 @@ export function useLinkNavigator() {
         }
         if (resolved.type === 'install') {
             navigation.navigate('Install', {
-                url: resolved.url
+                url: resolved.url,
+                title: resolved.customTitle,
+                image: resolved.customImage
             });
         }
     }, []);

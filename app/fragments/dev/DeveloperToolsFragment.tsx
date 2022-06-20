@@ -40,7 +40,7 @@ export const DeveloperToolsFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{
@@ -65,7 +65,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton title={"Test Whales"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.tonwhales.com/tools/x' : 'https://tonwhales.com/tools/x' })} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test Scaleton"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.scaleton.io' : 'https://v' })} />
+                        <ItemButton title={"Test Scaleton"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.scaleton.io' : 'https://scaleton.io' })} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Test Gems"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://getgems.io' : 'https://getgems.io' })} />

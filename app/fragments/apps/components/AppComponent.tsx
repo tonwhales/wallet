@@ -16,10 +16,12 @@ import { useEngine } from '../../../engine/Engine';
 import { keyPairFromSeed } from 'ton-crypto';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { beginCell, safeSign } from 'ton';
+import { protectNavigation } from './protect/protectNavigation';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
     color: string,
+    dark: boolean,
     foreground: string,
     title: string,
     domainKey: DomainSubkey
@@ -62,6 +64,12 @@ export const AppComponent = React.memo((props: {
         if (resolved) {
             linkNavigator(resolved);
             return false;
+        }
+
+        // Secondary protection
+        let prt = protectNavigation(event.url, props.endpoint);
+        if (prt) {
+            return true;
         }
 
         // Resolve linking
@@ -146,6 +154,7 @@ export const AppComponent = React.memo((props: {
 
     return (
         <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ height: safeArea.top }} />
             <WebView
                 ref={webRef}
                 source={{ uri: props.endpoint }}
@@ -155,11 +164,12 @@ export const AppComponent = React.memo((props: {
                     setLoaded(true);
                     opacity.value = 0;
                 }}
-                contentInset={{ bottom: safeArea.bottom }}
+                contentInset={{ top: 0, bottom: 0 }}
                 autoManageStatusBarEnabled={false}
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
                 decelerationRate="normal"
+                allowsInlineMediaPlayback={true}
                 injectedJavaScriptBeforeContentLoaded={injectSource}
                 onShouldStartLoadWithRequest={loadWithRequest}
                 onMessage={handleWebViewMessage}

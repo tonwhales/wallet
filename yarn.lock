@@ -6120,6 +6120,13 @@ is-unicode-supported@^0.1.0:
   resolved "https://registry.yarnpkg.com/is-unicode-supported/-/is-unicode-supported-0.1.0.tgz#3f26c76a809593b52bfa2ecb5710ed2779b522a7"
   integrity sha512-knxG2q4UC3u8stRGyAVJCOdxFmv5DZiRcdlIaAQXAbSfJya+OhopNotLQrstBhququ4ZpuKbDc/8S6mgXgPFPw==
 
+is-valid-domain@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/is-valid-domain/-/is-valid-domain-0.1.6.tgz#3c85469d2938f170c8f82ce6e52df8ad9fca8105"
+  integrity sha512-ZKtq737eFkZr71At8NxOFcP9O1K89gW3DkdrGMpp1upr/ueWjj+Weh4l9AI4rN0Gt8W2M1w7jrG2b/Yv83Ljpg==
+  dependencies:
+    punycode "^2.1.1"
+
 is-valid-path@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/is-valid-path/-/is-valid-path-0.1.1.tgz#110f9ff74c37f663e1ec7915eb451f2db93ac9df"
@@ -9915,10 +9922,10 @@ ton-crypto@3.2.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton@11.15.0:
-  version "11.15.0"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-11.15.0.tgz#12203602d2720e478f6b7516786df5bb2b2c3ddc"
-  integrity sha512-E4UOhtVdvhzshm+t9CkEQgnSt2Ca2nKNfaKE7TcOWz3/fNRrMuov+gA248izo/yl8HITkFW00dHTEbDWJdcY5g==
+ton@11.18.0:
+  version "11.18.0"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-11.18.0.tgz#b29e0027aab7de986543b605540dd9ae08894e1c"
+  integrity sha512-CHDFs9Oc063EliFMKiw5ZwrFENtXetOrPOePt3TCv+hvr7yqxLjRZEOWhkoHHUVHRf05L/I/ge+qGC9ziEBxWw==
   dependencies:
     axios "^0.25.0"
     bn.js "5.2.0"

@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
+import { getCurrentAddress } from '../../storage/appState';
 import { AppConfig } from '../../AppConfig';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
@@ -30,7 +30,7 @@ const labelStyle: StyleProp<TextStyle> = {
     fontSize: 17
 };
 
-const SignStateLoader = React.memo((props: { url: string }) => {
+const SignStateLoader = React.memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
@@ -74,7 +74,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
         engine.persistence.domainKeys.setValue(domain, { time, signature, secret });
 
         // Add extension
-        engine.products.extensions.addExtension(props.url);
+        engine.products.extensions.addExtension(props.url, props.title, props.image);
 
         // Navigate
         navigation.goBack();
@@ -131,8 +131,8 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                         heigh={64}
                         width={64}
                         style={{ marginBottom: 8 }}
-                        src={appData.image?.preview256}
-                        blurhash={appData.image?.blurhash}
+                        src={props.image ? props.image.url : appData.image?.preview256}
+                        blurhash={props.image ? props.image.blurhash : appData.image?.blurhash}
                         borderRadius={16}
                     />
                     <Text
@@ -146,7 +146,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {appData.title}
+                        {props.title ? props.title : appData.title}
                     </Text>
                     <Text
                         style={{
@@ -276,7 +276,7 @@ const SignStateLoader = React.memo((props: { url: string }) => {
 export const InstallFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const params: { url: string } = useRoute().params as any;
+    const params: { url: string, title: string | null, image: { url: string, blurhash: string } | null } = useRoute().params as any;
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('install.title')} />
@@ -289,7 +289,7 @@ export const InstallFragment = fragment(() => {
                     <Text style={[labelStyle, { textAlign: 'center' }]}>{t('install.title')}</Text>
                 </View>
             )}
-            <SignStateLoader url={params.url} />
+            <SignStateLoader url={params.url} image={params.image} title={params.title} />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

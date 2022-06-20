@@ -362,7 +362,9 @@ export function useLinkNavigator() {
         }
         if (resolved.type === 'install') {
             navigation.navigate('Install', {
-                url: resolved.url
+                url: resolved.url,
+                title: resolved.customTitle,
+                image: resolved.customImage
             });
         }
     }, []);

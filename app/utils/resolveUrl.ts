@@ -19,7 +19,9 @@ export type ResolvedUrl = {
     endpoint: string | null
 } | {
     type: 'install',
-    url: string
+    url: string,
+    customTitle: string | null,
+    customImage: { url: string, blurhash: string } | null
 }
 
 export function resolveUrl(src: string): ResolvedUrl | null {
@@ -200,11 +202,36 @@ export function resolveUrl(src: string): ResolvedUrl | null {
             let slice = Cell.fromBoc(Buffer.from(id, 'base64'))[0].beginParse();
             let endpoint = slice.readRef().readRemainingBytes().toString();
             let extras = slice.readBit(); // For future compatibility
+            let customTitle: string | null = null;
+            let customImage: { url: string, blurhash: string } | null = null;
             if (!extras) {
                 if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
                     throw Error('Invalid endpoint');
                 }
+            } else {
+                if (slice.readBit()) {
+                    customTitle = slice.readRef().readRemainingBytes().toString()
+                    if (customTitle.trim().length === 0) {
+                        customTitle = null;
+                    }
+                }
+                if (slice.readBit()) {
+                    let imageUrl = slice.readRef().readRemainingBytes().toString();
+                    let imageBlurhash = slice.readRef().readRemainingBytes().toString();
+                    new Url(imageUrl, true); // Check url
+                    customImage = { url: imageUrl, blurhash: imageBlurhash };
+                }
+
+                // Future compatibility
+                extras = slice.readBit(); // For future compatibility
+                if (!extras) {
+                    if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                        throw Error('Invalid endpoint');
+                    }
+                }
             }
+
+            // Validate endpoint
             let parsedEndpoint = new Url(endpoint, true);
             if (parsedEndpoint.protocol !== 'https:') {
                 throw Error('Invalid endpoint');
@@ -215,7 +242,9 @@ export function resolveUrl(src: string): ResolvedUrl | null {
 
             return {
                 type: 'install',
-                url: endpoint
+                url: endpoint,
+                customTitle,
+                customImage
             };
         }
     } catch (e) {

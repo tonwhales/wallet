@@ -20,7 +20,7 @@ function extensionKey(src: string) {
 
 export class ExtensionsProduct {
     readonly engine: Engine;
-    readonly extensions: CloudValue<{ installed: { [key: string]: { url: string, date: number } } }>;
+    readonly extensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string, image?: { url: string, blurhash: string } } } }>;
     readonly #extensionsSelector;
 
     constructor(engine: Engine) {
@@ -37,7 +37,7 @@ export class ExtensionsProduct {
                     if (!data) {
                         continue;
                     }
-                    res.push({ key: k, url: ap.url, name: data.title, date: ap.date, image: data.image ? { url: data.image.preview256, blurhash: data.image.blurhash } : null });
+                    res.push({ key: k, url: ap.url, name: ap.title ? ap.title : data.title, date: ap.date, image: ap.image ? ap.image : (data.image ? { url: data.image.preview256, blurhash: data.image.blurhash } : null) });
                 }
                 return res;
             }
@@ -53,7 +53,7 @@ export class ExtensionsProduct {
         return useRecoilValue(this.#extensionsSelector);
     }
 
-    addExtension(url: string) {
+    addExtension(url: string, title: string | null, image: { url: string, blurhash: string } | null) {
         let key = extensionKey(url);
         if (this.extensions.value.installed[key]) {
             return;
@@ -61,6 +61,8 @@ export class ExtensionsProduct {
         this.extensions.update((doc) => {
             doc.installed[key] = {
                 url,
+                title: title ? title : undefined,
+                image: image ? image : undefined,
                 date: Math.floor((Date.now() / 1000))
             }
         });

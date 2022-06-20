@@ -24,7 +24,7 @@ export type ResolvedUrl = {
     customImage: { url: string, blurhash: string } | null
 }
 
-export function resolveUrl(src: string): ResolvedUrl | null {
+export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
 
     // Try address parsing
@@ -196,7 +196,7 @@ export function resolveUrl(src: string): ResolvedUrl | null {
     try {
         const url = new Url(src, true);
         if ((url.protocol.toLowerCase() === 'https:')
-            && ((AppConfig.isTestnet ? 'test.tonhub.com' : 'tonhub.com') === url.host.toLowerCase())
+            && ((testOnly ? 'test.tonhub.com' : 'tonhub.com') === url.host.toLowerCase())
             && (url.pathname.toLowerCase().startsWith('/app/'))) {
             let id = url.pathname.slice('/app/'.length);
             let slice = Cell.fromBoc(Buffer.from(id, 'base64'))[0].beginParse();

@@ -270,7 +270,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const linkNavigator = useLinkNavigator();
     const onQRCodeRead = React.useCallback((src: string) => {
-        let res = resolveUrl(src);
+        let res = resolveUrl(src, AppConfig.isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
                 navigation.goBack();

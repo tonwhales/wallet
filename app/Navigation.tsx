@@ -44,11 +44,9 @@ import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/InstallFragment';
-import { useGlobalLoader } from './components/useGlobalLoader';
-import * as SplashScreen from 'expo-splash-screen';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { AppConfig } from './AppConfig';
-import { ResolvedUrl, resolveUrl } from './utils/resolveUrl';
+import { ResolvedUrl } from './utils/resolveUrl';
 import BN from 'bn.js';
 
 const Stack = createNativeStackNavigator();

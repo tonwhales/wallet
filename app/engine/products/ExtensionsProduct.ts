@@ -20,12 +20,12 @@ function extensionKey(src: string) {
 
 export class ExtensionsProduct {
     readonly engine: Engine;
-    readonly extensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string, image?: { url: string, blurhash: string } } } }>;
+    readonly extensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string | null, image?: { url: string, blurhash: string } | null } } }>;
     readonly #extensionsSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.extensions = this.engine.cloud.get('wallet.extensions', (src) => { src.installed = {} });
+        this.extensions = this.engine.cloud.get('wallet.extensions.v2', (src) => { src.installed = {} });
         this.#extensionsSelector = selector({
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/extensions',
             get: ({ get }) => {
@@ -61,8 +61,8 @@ export class ExtensionsProduct {
         this.extensions.update((doc) => {
             doc.installed[key] = {
                 url,
-                title: title ? title : undefined,
-                image: image ? image : undefined,
+                title: title,
+                image: image,
                 date: Math.floor((Date.now() / 1000))
             }
         });

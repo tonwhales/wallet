@@ -215,7 +215,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     const onQRCodeRead = (src: string) => {
         try {
-            let res = resolveUrl(src);
+            let res = resolveUrl(src, AppConfig.isTestnet);
             if (res) {
                 linkNavigator(res);
             }

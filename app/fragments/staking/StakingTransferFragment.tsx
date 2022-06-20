@@ -189,7 +189,8 @@ export const StakingTransferFragment = fragment(() => {
                 stateInit: null,
             },
             text: null,
-            job: null
+            job: null,
+            callback: null
         });
     }, [amount, params, member, pool, balance]);
 

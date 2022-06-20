@@ -4,6 +4,7 @@ import Url from 'url-parse';
 import { AppConfig } from "../AppConfig";
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
+import isValid from 'is-valid-domain';
 
 export type ResolvedUrl = {
     type: 'transaction',
@@ -204,10 +205,14 @@ export function resolveUrl(src: string): ResolvedUrl | null {
                     throw Error('Invalid endpoint');
                 }
             }
-            let parsedEndpoint = new Url(src, true);
+            let parsedEndpoint = new Url(endpoint, true);
             if (parsedEndpoint.protocol !== 'https:') {
                 throw Error('Invalid endpoint');
             }
+            if (!isValid(parsedEndpoint.hostname)) {
+                throw Error('Invalid endpoint');
+            }
+
             return {
                 type: 'install',
                 url: endpoint

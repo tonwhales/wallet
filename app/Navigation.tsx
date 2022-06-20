@@ -154,7 +154,7 @@ const navigation = [
         key={`genericScreen-App`}
         name={'App'}
         component={AppFragment}
-        options={{ headerShown: false, headerBackVisible: false }}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
     />
 ];
 

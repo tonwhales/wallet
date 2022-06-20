@@ -57,7 +57,7 @@ export const ProductsComponent = React.memo(() => {
     }
 
     let removeExtension = React.useCallback((key: string) => {
-        Alert.alert(t('auth.apps.delete'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
+        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
             text: t('common.delete'),
             style: 'destructive',
             onPress: () => {

@@ -124,7 +124,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         apps: {
             title: 'Trusted Apps',
-            delete: 'Delete this app?'
+            delete: {
+                title: 'Delete this extension?',
+                message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
+            }
         }
     },
     install: {

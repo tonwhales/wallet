@@ -126,7 +126,10 @@ export type LocalizationSchema = {
         },
         apps: {
             title: string,
-            delete: string
+            delete: {
+                title: string,
+                message: string
+            }
         }
     },
     install: {

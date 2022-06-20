@@ -162,6 +162,7 @@ export const AppComponent = React.memo((props: {
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
                 decelerationRate="normal"
+                allowsInlineMediaPlayback={true}
                 injectedJavaScriptBeforeContentLoaded={injectSource}
                 onShouldStartLoadWithRequest={loadWithRequest}
                 onMessage={handleWebViewMessage}

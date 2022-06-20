@@ -231,6 +231,8 @@ function WalletComponent(props: { wallet: WalletState }) {
         [],
     );
 
+    console.log('[WalletFragment] txs: ', account.transactions.length);
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView

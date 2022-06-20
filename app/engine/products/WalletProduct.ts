@@ -175,6 +175,8 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         })
 
+        const t0 = performance.now();
+
         engine.persistence.wallets.item(engine.address).for((state) => {
 
             // Update pending
@@ -221,6 +223,9 @@ export class WalletProduct {
             engine.recoil.updater(this.#atom, this.#state);
         });
 
+        const t1 = performance.now();
+        console.log("[Performance] Load initial " + (t1 - t0) + " milliseconds.")
+
         // History
         this.#history = createHistorySync(engine.address, engine);
 
@@ -250,7 +255,9 @@ export class WalletProduct {
     }
 
     loadMore = (lt: string, hash: string) => {
-        this.engine.persistence.wallets.item(this.engine.address).for((state) => {            
+        const t0 = performance.now();
+
+        this.engine.persistence.wallets.item(this.engine.address).for((state) => {
             let ltIndex = findLtIndex(state.transactions, lt, 0, state.transactions.length - 1);
             // If not cached load more from server
             if (ltIndex === state.transactions.length - 1) {
@@ -302,6 +309,9 @@ export class WalletProduct {
             // Notify
             this.engine.recoil.updater(this.#atom, this.#state);
         });
+
+        const t1 = performance.now();
+        console.log("[Performance] Load more " + (t1 - t0) + " milliseconds.")
     }
 
     registerPending(src: Transaction) {

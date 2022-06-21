@@ -53,14 +53,14 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         let status: {
             proxyStakeAt: number,
             proxyStakeUntil: number,
-            proxyStakeSent: number,
+            proxyStakeSent: BN,
             querySent: boolean,
             unlocked: boolean,
             ctxLocked: boolean
         } = {
             proxyStakeAt: statusParser.readNumber(),
             proxyStakeUntil: statusParser.readNumber(),
-            proxyStakeSent: statusParser.readNumber(),
+            proxyStakeSent: statusParser.readBigNumber(),
             querySent: statusParser.readBoolean(),
             unlocked: statusParser.readBoolean(),
             ctxLocked: statusParser.readBoolean()

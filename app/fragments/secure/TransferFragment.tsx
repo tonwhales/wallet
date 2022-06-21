@@ -363,11 +363,8 @@ export const TransferFragment = fragment(() => {
         backoff('transfer', async () => {
 
             // Get contract
-            const contract = await contractFromPublicKey(from.publicKey);
-            if (exited) {
-                return;
-            }
-
+            const contract = contractFromPublicKey(from.publicKey);
+            
             // Create transfer
             let intMessage = new InternalMessage({
                 to: target.address,

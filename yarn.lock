@@ -7559,6 +7559,11 @@ mixin-deep@^1.2.0:
     for-in "^1.0.2"
     is-extendable "^1.0.1"
 
+mixpanel-react-native@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/mixpanel-react-native/-/mixpanel-react-native-1.4.2.tgz#47f87f0844efa60b3fa635d774f44d8b3c9091b3"
+  integrity sha512-44NL5uXwjA9ldV5tk3XDJ8wE4fYy4yMLucx05NOWkAweD7eHxf/o8m+wXUC6tC0Y0UzUhHIPEHkQw2vB6DYxZA==
+
 mkdirp@^0.5.1:
   version "0.5.5"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.5.tgz#d91cefd62d1436ca0f41620e251288d420099def"

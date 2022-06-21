@@ -28,6 +28,7 @@ import { log } from '../../utils/log';
 import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from '../../Navigation';
+import { ExchangeRate } from '../../components/ExchangeRate';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -314,7 +315,10 @@ function WalletComponent(props: { wallet: WalletState }) {
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>
-                    <PriceComponent amount={account.balance} style={{ marginHorizontal: 22, marginTop: 6 }} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
+                        <PriceComponent amount={account.balance} />
+                        <ExchangeRate style={{ marginLeft: 8 }} />
+                    </View>
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={address.toFriendly({ testOnly: AppConfig.isTestnet })}

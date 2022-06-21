@@ -225,7 +225,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                     marginTop: 24
                 }}
             >
-                {tStyled('install.message', { name: appData.title })}
+                {tStyled('install.message', { name: props.title ? props.title : appData.title })}
             </Text>
             <View style={{ flexGrow: 1 }} />
             <View style={{ flexDirection: 'row', marginHorizontal: 32 }}>

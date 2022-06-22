@@ -21,7 +21,7 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
 
 export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
     const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale === 1;
+    const fontScaleNormal = dimentions.fontScale <= 1;
 
     const tx = props.engine.products.main.useTransaction(props.tx);
     let parsed = tx.base;

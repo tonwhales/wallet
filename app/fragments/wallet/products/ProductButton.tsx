@@ -23,7 +23,7 @@ export function ProductButton(props: {
 }) {
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale === 1;
+    const fontScaleNormal = dimentions.fontScale <= 1;
 
     return (
         <TouchableHighlight

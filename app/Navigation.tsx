@@ -187,9 +187,6 @@ export const Navigation = React.memo(() => {
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine);
 
-        // Track onboarding
-        trackEvent(MixpanelEvent.Onboarding, { state: onboarding });
-
         if (onboarding === 'backup') {
             return 'WalletCreated';
         } else if (onboarding === 'home') {

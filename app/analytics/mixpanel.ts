@@ -10,7 +10,11 @@ export const mixpanel = __DEV__
 
 export enum MixpanelEvent {
     Reset = 'reset',
-    Onboarding = 'onboarding'
+    Screen = 'screen'
+}
+
+export function trackScreen(screen: string, properties?: MixpanelProperties) {
+    trackEvent(MixpanelEvent.Screen, { screen: screen, ...properties });
 }
 
 export function trackEvent(eventName: MixpanelEvent, properties?: MixpanelProperties) {

@@ -37,7 +37,8 @@ function groupItems(items: Item[]): GroupedItems[] {
             g.items.push(s);
         } else {
             groups.push({
-                name: s.name, url: s.url,
+                name: s.name,
+                url: s.url,
                 items: [s]
             });
         }
@@ -50,7 +51,9 @@ export const ConnectionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const extensions = engine.products.extensions.useExtensions();
+    
     let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
+
     let disconnectApp = React.useCallback((url: string) => {
 
         let refs = getConnectionReferences();
@@ -75,6 +78,7 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
+
     let removeExtension = React.useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
@@ -84,7 +88,8 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
-    if (apps.length === 0 && extensions.length === 0) {
+
+    if (apps?.length === 0 && extensions?.length === 0) {
         return (
             <View style={{
                 flexGrow: 1, flexBasis: 0,
@@ -150,12 +155,12 @@ export const ConnectionsFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
-                    {extensions.length > 0 && (
+                    {extensions?.length > 0 && (
                         <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                             <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.extensions')}</Text>
                         </View>
                     )}
-                    {extensions.map((app) => (
+                    {extensions?.map((app) => (
                         <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                             <ConnectedAppButton
                                 onRevoke={() => removeExtension(app.key)}
@@ -164,12 +169,12 @@ export const ConnectionsFragment = fragment(() => {
                             />
                         </View>
                     ))}
-                    {apps.length > 0 && (
+                    {apps?.length > 0 && (
                         <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                             <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.connections')}</Text>
                         </View>
                     )}
-                    {apps.map((app) => (
+                    {apps?.map((app) => (
                         <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                             <ConnectedAppButton
                                 onRevoke={() => disconnectApp(app.url)}

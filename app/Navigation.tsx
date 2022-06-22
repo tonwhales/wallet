@@ -48,6 +48,7 @@ import { useTypedNavigation } from './utils/useTypedNavigation';
 import { AppConfig } from './AppConfig';
 import { ResolvedUrl } from './utils/resolveUrl';
 import BN from 'bn.js';
+import { mixpanel } from './staitistics/mixpanel';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -165,6 +166,11 @@ export const Navigation = React.memo(() => {
         let state = getAppState();
         if (0 <= state.selected && state.selected < state.addresses.length) {
             const ex = state.addresses[state.selected];
+
+            // Identify user profile by address
+            mixpanel.identify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            mixpanel.flush();
+
             return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater });
         } else {
             return null;

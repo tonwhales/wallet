@@ -50,7 +50,12 @@ export class ExtensionsProduct {
     }
 
     useExtensions() {
-        return useRecoilValue(this.#extensionsSelector);
+        try {
+            return useRecoilValue(this.#extensionsSelector);
+        } catch (error) {
+            warn(error);
+            return [];
+        }
     }
 
     addExtension(url: string, title: string | null, image: { url: string, blurhash: string } | null) {

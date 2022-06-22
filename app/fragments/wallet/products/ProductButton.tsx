@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, StyleProp, Text, View, ViewStyle } from 'react-native';
+import { Image, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
@@ -22,6 +22,9 @@ export function ProductButton(props: {
     style?: StyleProp<ViewStyle>,
 }) {
     const Icon = props.icon;
+    const dimentions = useWindowDimensions();
+    const fontScaleNormal = dimentions.fontScale === 1;
+
     return (
         <TouchableHighlight
             onPress={props.onPress}
@@ -36,7 +39,7 @@ export function ProductButton(props: {
                 props.style
             ]}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
+            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     {Icon && !props.image && (
                         <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
@@ -54,17 +57,17 @@ export function ProductButton(props: {
                     )}
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
+                        <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
                             {props.name}
                         </Text>
                         {props.value && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2 }}>
+                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                 <ValueComponent value={props.value} />{props.symbol ? (' ' + props.symbol) : ''}
                             </Text>
                         )}
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: 10 }}>
                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
                         {!!props.value && !props.symbol &&
                             (

@@ -22,7 +22,7 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
 import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
-import { mixpanel } from './app/staitistics/mixpanel';
+import { mixpanel } from './app/analytics/mixpanel';
 
 changeNavBarColor('white');
 

@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Text, useWindowDimensions, View } from 'react-native';
 import { Address } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
@@ -20,6 +20,9 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
 }
 
 export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
+    const dimentions = useWindowDimensions();
+    const fontScaleNormal = dimentions.fontScale <= 1;
+
     const tx = props.engine.products.main.useTransaction(props.tx);
     let parsed = tx.base;
     let operation = tx.operation;
@@ -60,7 +63,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
+            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={tx.icon ? tx.icon : undefined} spam={spam} />)}
                     {parsed.status === 'pending' && (
@@ -103,7 +106,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                             </Text>
                         )}
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
                         <Text
                             style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
                             ellipsizeMode="middle"

@@ -19,7 +19,7 @@ export function useTrackScreen(screen: string, properties?: MixpanelProperties) 
     useFocusEffect(
         useCallback(() => {
             trackScreen(screen, properties);
-        }, [screen, properties])
+        }, [])
     );
 }
 

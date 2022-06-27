@@ -226,4 +226,4 @@ export const SettingsFragment = fragment(() => {
             </Pressable>
         </View>
     );
-});
+}, true);

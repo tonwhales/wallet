@@ -105,7 +105,8 @@ export type LocalizationSchema = {
         commentRequired: string,
         commentLabel: string,
         checkComment: string,
-        confirmTitle: string
+        confirmTitle: string,
+        unknown: string
     },
     auth: {
         title: string,

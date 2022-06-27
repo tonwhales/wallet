@@ -92,7 +92,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         commentRequired: 'Обязательный комментарий',
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',
-        confirmTitle: 'Подтверждение транзакции'
+        confirmTitle: 'Подтверждение транзакции',
+        unknown: 'Неизвестная операция'
     },
     auth: {
         title: 'Запрос на подключение',

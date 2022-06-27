@@ -303,6 +303,12 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <ItemLarge title={t('transfer.purpose')} text={text} />
                             </>
                         )}
+                        {!operation.comment && !operation.op && order.payload && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.unknown')} text={order.payload.hash().toString('base64')} />
+                            </>
+                        )}
                         <ItemDivider />
                         <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
                     </ItemGroup>
@@ -364,7 +370,7 @@ export const TransferFragment = fragment(() => {
 
             // Get contract
             const contract = contractFromPublicKey(from.publicKey);
-            
+
             // Create transfer
             let intMessage = new InternalMessage({
                 to: target.address,

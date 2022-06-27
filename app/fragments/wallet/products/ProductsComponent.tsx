@@ -52,9 +52,11 @@ export const ProductsComponent = React.memo(() => {
         );
     }
     for (let j of jettons) {
-        accounts.push(
-            <JettonProdcut key={'jt' + j.wallet.toFriendly()} jetton={j} navigation={navigation} engine={engine} />
-        );
+        if (j.balance.gt(new BN(0))) {
+            accounts.push(
+                <JettonProdcut key={'jt' + j.wallet.toFriendly()} jetton={j} navigation={navigation} engine={engine} />
+            );
+        }
     }
 
     let removeExtension = React.useCallback((key: string) => {

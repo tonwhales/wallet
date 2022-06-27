@@ -98,6 +98,12 @@ PODS:
   - lottie-react-native (5.0.1):
     - lottie-ios (~> 3.2.3)
     - React-Core
+  - Mixpanel-swift (3.2.6):
+    - Mixpanel-swift/Complete (= 3.2.6)
+  - Mixpanel-swift/Complete (3.2.6)
+  - MixpanelReactNative (1.4.2):
+    - Mixpanel-swift (= 3.2.6)
+    - React
   - MLImage (1.0.0-beta2)
   - MLKitBarcodeScanning (2.0.0):
     - MLKitCommon (~> 6.0)
@@ -531,6 +537,7 @@ DEPENDENCIES:
   - hermes-engine (~> 0.11.0)
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -592,6 +599,7 @@ SPEC REPOS:
     - libevent
     - libwebp
     - lottie-ios
+    - Mixpanel-swift
     - MLImage
     - MLKitBarcodeScanning
     - MLKitCommon
@@ -655,6 +663,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
+  MixpanelReactNative:
+    :path: "../node_modules/mixpanel-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -782,6 +792,8 @@ SPEC CHECKSUMS:
   libwebp: 98a37e597e40bfdb4c911fc98f2c53d0b12d05fc
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
   lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
+  Mixpanel-swift: ce120e0d51dcb0d0bf5a25e1ee232fe89ad1136b
+  MixpanelReactNative: 1226c336e93b87feb3ae1f50009e2780e7e635a4
   MLImage: a454f9f8ecfd537783a12f9488f5be1a68820829
   MLKitBarcodeScanning: 05aaf6edc24417fa195a4e5d5dcb11550e80fb92
   MLKitCommon: 534d2b24c1f8676db247bd7ee5733eca1b52968b

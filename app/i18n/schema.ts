@@ -113,6 +113,7 @@ export type LocalizationSchema = {
         hint: string,
         action: string,
         expired: string,
+        failed: string,
         completed: string,
         authorized: string,
         authorizedDescription: string,

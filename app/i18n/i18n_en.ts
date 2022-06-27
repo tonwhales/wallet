@@ -111,6 +111,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
         action: 'Allow',
         expired: 'This authentication request already expired',
+        failed: 'Invalid URL',
         completed: 'This authentication request already completed',
         authorized: 'Authorization request approved',
         authorizedDescription: 'Now you can get back the the app.',

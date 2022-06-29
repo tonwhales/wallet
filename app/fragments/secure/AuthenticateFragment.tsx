@@ -37,6 +37,7 @@ type SignState = { type: 'loading' }
     | { type: 'initing', name: string, url: string, app?: AppData | null }
     | { type: 'completed' }
     | { type: 'authorized' }
+    | { type: 'failed' }
 
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const navigation = useTypedNavigation();
@@ -59,7 +60,11 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             }
             if (currentState.data.state === 'initing') {
                 const appData = await engine.products.extensions.getAppData(currentState.data.url);
-                setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
+                if (appData) {
+                    setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
+                    return;
+                }
+                setState({ type: 'failed' });
                 return;
             }
             if (currentState.data.state === 'ready') {
@@ -166,6 +171,16 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
+                <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
+            </View>
+        );
+    }
+
+    // Failed
+    if (state.type === 'failed') {
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );

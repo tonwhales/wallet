@@ -13,10 +13,11 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
 import { RoundButton } from '../../components/RoundButton';
 import { t } from '../../i18n/t';
+import { MixpanelEvent, trackEvent, useTrackEvent } from '../../analytics/mixpanel';
 
 export const AppFragment = fragment(() => {
     const engine = useEngine();
-    const url = (useRoute().params as any).url;
+    const url = (useRoute().params as any).url as string;
     const domain = extractDomain(url);
     const appData = engine.products.extensions.useAppData(url);
     const safeArea = useSafeAreaInsets();
@@ -26,6 +27,15 @@ export const AppFragment = fragment(() => {
     const dark = c.isDark();
     const fontColor = dark ? '#fff' : '#000';
     const key = engine.persistence.domainKeys.getValue(domain);
+    const start = React.useMemo(() => {
+        return Date.now();
+    }, []);
+    const close = React.useCallback(() => {
+        navigation.goBack();
+        trackEvent(MixpanelEvent.AppClose, { url, domain, duration: Date.now() - start });
+    }, []);
+    useTrackEvent(MixpanelEvent.AppOpen, { url, domain });
+
     if (!appData) {
         throw Error('No App Data');
     }
@@ -51,7 +61,7 @@ export const AppFragment = fragment(() => {
             />
 
             <View style={{ height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom }}>
-                <RoundButton title={t('common.close')} display="secondary" size="normal" style={{ paddingHorizontal: 8 }} onPress={() => navigation.goBack()} />
+                <RoundButton title={t('common.close')} display="secondary" size="normal" style={{ paddingHorizontal: 8 }} onPress={close} />
             </View>
         </View>
     );

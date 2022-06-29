@@ -1,6 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Mixpanel, MixpanelProperties } from "mixpanel-react-native";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { AppConfig } from "../AppConfig";
 import { warn } from "../utils/log";
 
@@ -12,7 +12,17 @@ export const mixpanel = __DEV__
 
 export enum MixpanelEvent {
     Reset = 'reset',
-    Screen = 'screen'
+    Screen = 'screen',
+    LinkReceived = 'link_received',
+    NotificationReceived = 'notification_received',
+    AppOpen = 'app_open',
+    AppClose = 'app_close',
+    AppInstall = 'app_install',
+    AppInstallCancel = 'app_install_cancel',
+    AppUninstall = 'app_uninstall',
+    Connect = 'connect',
+    Transfer = 'transfer',
+    TransferCancel = 'transfer_cancel',
 }
 
 export function useTrackScreen(screen: string, properties?: MixpanelProperties) {
@@ -33,4 +43,10 @@ export function trackEvent(eventName: MixpanelEvent, properties?: MixpanelProper
     } catch (error) {
         warn(error);
     }
+}
+
+export function useTrackEvent(event: MixpanelEvent, properties?: MixpanelProperties) {
+    useEffect(() => {
+        trackEvent(event, properties);
+    }, [])
 }

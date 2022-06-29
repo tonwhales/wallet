@@ -13,7 +13,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
-import { beginCell, Cell, safeSign } from 'ton';
+import { beginCell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
@@ -25,6 +25,7 @@ import { CloseButton } from '../../components/CloseButton';
 import { AppData } from '../../engine/api/fetchAppData';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -91,7 +92,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         }
 
         // Load data
-        const contract = await contractFromPublicKey(acc.publicKey);
+        const contract = contractFromPublicKey(acc.publicKey);
         let walletConfig = contract.source.backup();
         let walletType = contract.source.type;
         let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -147,6 +148,9 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 await axios.post('https://connect.tonhubapi.com/connect/grant', { key: props.session }, { timeout: 5000 });
                 removePendingGrant(props.session);
             });
+
+            // Track
+            trackEvent(MixpanelEvent.Connect, { url, name });
 
             // Exit if already exited screen
             if (!active.current) {

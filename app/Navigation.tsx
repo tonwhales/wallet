@@ -48,7 +48,7 @@ import { useTypedNavigation } from './utils/useTypedNavigation';
 import { AppConfig } from './AppConfig';
 import { ResolvedUrl } from './utils/resolveUrl';
 import BN from 'bn.js';
-import { mixpanel } from './staitistics/mixpanel';
+import { mixpanel, MixpanelEvent, trackEvent } from './analytics/mixpanel';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -186,6 +186,7 @@ export const Navigation = React.memo(() => {
 
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine);
+
         if (onboarding === 'backup') {
             return 'WalletCreated';
         } else if (onboarding === 'home') {

@@ -13,7 +13,7 @@ import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
 import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
-import { mixpanel } from '../staitistics/mixpanel';
+import { mixpanel, MixpanelEvent, trackEvent } from '../analytics/mixpanel';
 
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -29,6 +29,7 @@ export const SettingsFragment = fragment(() => {
                 text: t('common.logout'), style: 'destructive', onPress: () => {
                     storage.clearAll();
                     mixpanel.reset(); // Clear super properties and generates a new random distinctId
+                    trackEvent(MixpanelEvent.Reset);
                     mixpanel.flush();
                     reboot();
                 }
@@ -225,4 +226,4 @@ export const SettingsFragment = fragment(() => {
             </Pressable>
         </View>
     );
-});
+}, true);

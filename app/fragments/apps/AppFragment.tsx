@@ -79,7 +79,7 @@ export const AppFragment = fragment(() => {
                     display="secondary"
                     size="normal"
                     style={{ paddingHorizontal: 8 }}
-                    onPress={() => navigation.goBack()}
+                    onPress={close}
                 />
                 <MenuView
                     style={{

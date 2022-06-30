@@ -19,10 +19,7 @@ import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
-import schemaEn from '../../i18n/i18n_en';
-import schemaRu from '../../i18n/i18n_ru';
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-// import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -56,20 +53,6 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }
 
-    let isKnownOp = false;
-    Object.values(schemaEn.known).forEach((v) => {
-        if (v === op) {
-            isKnownOp = true;
-            return;
-        }
-    });
-    Object.values(schemaRu.known).forEach((v) => {
-        if (v === op) {
-            isKnownOp = true;
-            return;
-        }
-    });
-
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets[friendlyAddress]) {
@@ -81,10 +64,7 @@ export const TransactionPreviewFragment = fragment(() => {
     let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
         || (
             Math.abs(parseFloat(fromNano(transaction.base.amount))) < 0.05
-            && op !== t('tx.tokenTransfer') // not token transfer
-            && transaction.base.kind !== 'out' // not outcoming tx
-            && !isKnownOp // not known operation
-            && !known // not verified wallet
+            && transaction.base.body?.type === 'comment'
         );
 
     return (

@@ -13,10 +13,7 @@ import { PendingTransactionAvatar } from '../../../components/PendingTransaction
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
-import { LocalizationSchema } from '../../../i18n/schema';
 import { Engine } from '../../../engine/Engine';
-import schemaEn from '../../../i18n/i18n_en';
-import schemaRu from '../../../i18n/i18n_ru';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -63,27 +60,10 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         known = { name: operation.title };
     }
 
-    let isKnownOp = false;
-    Object.values(schemaEn.known).forEach((v) => {
-        if (v === op) {
-            isKnownOp = true;
-            return;
-        }
-    });
-    Object.values(schemaRu.known).forEach((v) => {
-        if (v === op) {
-            isKnownOp = true;
-            return;
-        }
-    });
-
     let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
         || (
             Math.abs(parseFloat(fromNano(parsed.amount))) < 0.05
-            && op !== t('tx.tokenTransfer') // not token transfer
-            && parsed.kind !== 'out' // not outcoming tx
-            && !isKnownOp // not known operation
-            && !known // not verified wallet
+            && tx.base.body?.type === 'comment'
         );
 
     return (

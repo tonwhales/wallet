@@ -11,6 +11,9 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
 import { RoundButton } from '../../components/RoundButton';
 import { t } from '../../i18n/t';
+import MoreIcon from '../../../assets/ic_more.svg';
+import { MenuView } from '@react-native-menu/menu';
+import { generateAppLink } from '../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../analytics/mixpanel';
 
 export const AppFragment = fragment(() => {
@@ -70,8 +73,29 @@ export const AppFragment = fragment(() => {
                 domainKey={key}
             />
 
-            <View style={{ height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom }}>
-                <RoundButton title={t('common.close')} display="secondary" size="normal" style={{ paddingHorizontal: 8 }} onPress={close} />
+            <View style={{ flexDirection: 'row', height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom }}>
+                <RoundButton
+                    title={t('common.close')}
+                    display="secondary"
+                    size="normal"
+                    style={{ paddingHorizontal: 8 }}
+                    onPress={() => navigation.goBack()}
+                />
+                <MenuView
+                    style={{
+                        position: 'absolute',
+                        top: 8, right: 16,
+                        height: 32
+                    }}
+                    onPressAction={({ nativeEvent }) => {
+                        if (nativeEvent.event === 'share') onShare();
+                    }}
+                    actions={[
+                        { title: t('common.share'), id: 'share', image: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+                    ]}
+                >
+                    <MoreIcon color={'black'} height={30} width={30} />
+                </MenuView>
             </View>
         </View>
     );

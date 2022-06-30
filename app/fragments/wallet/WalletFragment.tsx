@@ -611,4 +611,4 @@ export const WalletFragment = fragment(() => {
     } else {
         return <WalletComponent wallet={account} />
     }
-});
+}, true);

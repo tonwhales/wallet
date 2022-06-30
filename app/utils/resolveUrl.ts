@@ -1,7 +1,6 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
 import Url from 'url-parse';
-import { AppConfig } from "../AppConfig";
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';

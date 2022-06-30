@@ -1,5 +1,6 @@
 import { Linking } from "react-native";
 import * as Notifications from 'expo-notifications';
+import { MixpanelEvent, trackEvent } from "../analytics/mixpanel";
 
 let lastLink: string | null = null;
 let listener: (((link: string) => void) | null) = null;
@@ -22,6 +23,7 @@ function handleLinkReceived(link: string) {
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {
+    trackEvent(MixpanelEvent.LinkReceived, { url: e.url });
     handleLinkReceived(e.url);
 });
 
@@ -29,6 +31,7 @@ Linking.addEventListener('url', (e) => {
 Notifications.addNotificationResponseReceivedListener((response) => {
     let data = response.notification.request.content.data;
     if (data && typeof data['url'] === 'string') {
+        trackEvent(MixpanelEvent.NotificationReceived, { url: data['url'] });
         handleLinkReceived(data['url']);
     }
 });

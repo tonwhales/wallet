@@ -91,7 +91,7 @@ export class AppProduct {
 
     async commitCommand(success: boolean, job: string, result: Cell) {
         if (this._completed.has(job)) {
-            return;
+            return false;
         }
         this._completed.add(job);
         if (this._state && this._state.jobRaw === job) {
@@ -108,6 +108,7 @@ export class AppProduct {
                 result: result.toBoc({ idx: false }).toString('base64')
             });
         });
+        return true;
     }
 
     async fetchJob() {

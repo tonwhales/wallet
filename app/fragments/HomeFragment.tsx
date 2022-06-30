@@ -18,6 +18,7 @@ import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from '../Navigation';
 import { getConnectionReferences } from '../storage/appState';
+import { useTrackScreen } from '../analytics/mixpanel';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -99,6 +100,12 @@ export const HomeFragment = fragment(() => {
             }
         });
     }, []);
+
+    if (tab === 0) {
+        useTrackScreen('Wallet');
+    } else if (tab === 1) {
+        useTrackScreen('Settings');
+    }
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -192,4 +199,4 @@ export const HomeFragment = fragment(() => {
             </View>
         </View>
     );
-});
+}, true);

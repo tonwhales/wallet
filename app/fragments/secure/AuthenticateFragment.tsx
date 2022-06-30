@@ -13,7 +13,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
-import { beginCell, Cell, safeSign } from 'ton';
+import { beginCell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
@@ -25,6 +25,7 @@ import { CloseButton } from '../../components/CloseButton';
 import { AppData } from '../../engine/api/fetchAppData';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -37,6 +38,7 @@ type SignState = { type: 'loading' }
     | { type: 'initing', name: string, url: string, app?: AppData | null }
     | { type: 'completed' }
     | { type: 'authorized' }
+    | { type: 'failed' }
 
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const navigation = useTypedNavigation();
@@ -59,7 +61,11 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             }
             if (currentState.data.state === 'initing') {
                 const appData = await engine.products.extensions.getAppData(currentState.data.url);
-                setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
+                if (appData) {
+                    setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
+                    return;
+                }
+                setState({ type: 'failed' });
                 return;
             }
             if (currentState.data.state === 'ready') {
@@ -86,7 +92,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         }
 
         // Load data
-        const contract = await contractFromPublicKey(acc.publicKey);
+        const contract = contractFromPublicKey(acc.publicKey);
         let walletConfig = contract.source.backup();
         let walletType = contract.source.type;
         let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -143,6 +149,9 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 removePendingGrant(props.session);
             });
 
+            // Track
+            trackEvent(MixpanelEvent.Connect, { url, name });
+
             // Exit if already exited screen
             if (!active.current) {
                 return;
@@ -166,6 +175,16 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
+                <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
+            </View>
+        );
+    }
+
+    // Failed
+    if (state.type === 'failed') {
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );

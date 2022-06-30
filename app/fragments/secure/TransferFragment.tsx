@@ -35,6 +35,7 @@ import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { warn } from '../../utils/log';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -84,6 +85,14 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     // Resolve operation
     let body = order.payload ? parseBody(order.payload) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+
+    // Tracking
+    const success = React.useRef(false);
+    React.useEffect(() => {
+        if (!success.current) {
+            trackEvent(MixpanelEvent.TransferCancel, { target: order.target, amount: order.amount.toString(10) });
+        }
+    }, []);
 
     // Verified wallets
     const known = KnownWallets[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
@@ -211,6 +220,10 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 // Ignore on error
             }
         }
+
+        // Track
+        success.current = true;
+        trackEvent(MixpanelEvent.Transfer, { target: order.target, amount: order.amount.toString(10) });
 
         // Register pending
         engine.products.main.registerPending({

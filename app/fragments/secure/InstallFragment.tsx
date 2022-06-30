@@ -23,6 +23,7 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { beginCell, safeSign } from 'ton';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -41,6 +42,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
     // Approve
     const acc = React.useMemo(() => getCurrentAddress(), []);
     let active = React.useRef(true);
+    let success = React.useRef(false);
     React.useEffect(() => {
         return () => { active.current = false; };
     }, []);
@@ -76,9 +78,19 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
         // Add extension
         engine.products.extensions.addExtension(props.url, props.title, props.image);
 
+        // Track installation
+        success.current = true;
+        trackEvent(MixpanelEvent.AppInstall, { url: props.url, domain: domain });
+
         // Navigate
         navigation.goBack();
         navigation.navigate('App', { url: props.url });
+    }, []);
+    React.useEffect(() => {
+        if (!success.current) {
+            let domain = extractDomain(props.url);
+            trackEvent(MixpanelEvent.AppInstallCancel, { url: props.url, domain: domain });
+        }
     }, []);
 
     // When loading

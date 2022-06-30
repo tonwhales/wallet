@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Platform, View, Text } from 'react-native';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { Platform, Share, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CloseButton } from '../../components/CloseButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AppComponent } from './components/AppComponent';
 import Color from 'color';
@@ -13,6 +11,9 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
 import { RoundButton } from '../../components/RoundButton';
 import { t } from '../../i18n/t';
+import MoreIcon from '../../../assets/ic_more.svg';
+import { MenuView } from '@react-native-menu/menu';
+import { generateAppLink } from '../../utils/generateAppLink';
 
 export const AppFragment = fragment(() => {
     const engine = useEngine();
@@ -33,6 +34,18 @@ export const AppFragment = fragment(() => {
         throw Error('No Domain Key');
     }
 
+    const onShare = React.useCallback(
+        () => {
+            const link = generateAppLink(url, appData.title);
+            if (Platform.OS === 'ios') {
+                Share.share({ title: t('receive.share.title'), url: link });
+            } else {
+                Share.share({ title: t('receive.share.title'), message: link });
+            }
+        },
+        [appData],
+    );
+
     return (
         <View style={{
             flex: 1,
@@ -50,8 +63,29 @@ export const AppFragment = fragment(() => {
                 domainKey={key}
             />
 
-            <View style={{ height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom }}>
-                <RoundButton title={t('common.close')} display="secondary" size="normal" style={{ paddingHorizontal: 8 }} onPress={() => navigation.goBack()} />
+            <View style={{ flexDirection: 'row', height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom }}>
+                <RoundButton
+                    title={t('common.close')}
+                    display="secondary"
+                    size="normal"
+                    style={{ paddingHorizontal: 8 }}
+                    onPress={() => navigation.goBack()}
+                />
+                <MenuView
+                    style={{
+                        position: 'absolute',
+                        top: 8, right: 16,
+                        height: 32
+                    }}
+                    onPressAction={({ nativeEvent }) => {
+                        if (nativeEvent.event === 'share') onShare();
+                    }}
+                    actions={[
+                        { title: t('common.share'), id: 'share', image: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+                    ]}
+                >
+                    <MoreIcon color={'black'} height={30} width={30} />
+                </MenuView>
             </View>
         </View>
     );

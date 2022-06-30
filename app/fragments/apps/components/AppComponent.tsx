@@ -20,13 +20,10 @@ import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
 import MoreIcon from '../../../../assets/ic_more.svg';
-import IosForward from '../../../../assets/ic_ios_forward.svg';
-import IosBack from '../../../../assets/ic_ios_back.svg';
 import { MenuView } from '@react-native-menu/menu';
 import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { IconButton } from '../../../components/IconButton';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -65,18 +62,6 @@ export const AppComponent = React.memo((props: {
             }
         },
         [props],
-    );
-
-    // 
-    // WebView navigation state
-    // 
-
-    const [navState, setNavState] = React.useState<WebViewNativeEvent>();
-    const handleWebViewNavigationStateChange = React.useCallback(
-        (newNavState: WebViewNativeEvent) => {
-            setNavState(newNavState);
-        },
-        [],
     );
 
     //
@@ -226,7 +211,6 @@ export const AppComponent = React.memo((props: {
                     injectedJavaScriptBeforeContentLoaded={injectSource}
                     onShouldStartLoadWithRequest={loadWithRequest}
                     onMessage={handleWebViewMessage}
-                    onNavigationStateChange={handleWebViewNavigationStateChange}
                 />
 
                 <Animated.View
@@ -238,31 +222,6 @@ export const AppComponent = React.memo((props: {
 
             </View>
             <View style={{ flexDirection: 'row', height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom, backgroundColor: props.color }}>
-                <View style={{
-                    position: 'absolute',
-                    top: 8, left: 16,
-                    height: 32,
-                    flexDirection: 'row',
-                    justifyContent: 'center', alignItems: 'center'
-                }}>
-                    <IconButton
-                        disabled={!navState?.canGoBack}
-                        height={30}
-                        width={30}
-                        color={'black'}
-                        icon={IosBack}
-                        onPress={webRef.current?.goBack}
-                    />
-                    <View style={{ width: 16 }} />
-                    <IconButton
-                        disabled={!navState?.canGoForward}
-                        height={30}
-                        width={30}
-                        color={'black'}
-                        icon={IosForward}
-                        onPress={webRef.current?.goForward}
-                    />
-                </View>
                 <RoundButton
                     title={t('common.close')}
                     display="secondary"

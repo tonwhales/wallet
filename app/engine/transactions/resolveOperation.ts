@@ -79,12 +79,12 @@ export function resolveOperation(args: {
                 }
             } else {
                 if (args.jettonMaster && args.jettonMaster.image) {
-                    image = args.jettonMaster.image;
+                    image = args.jettonMaster.image.preview256;
                 }
             }
         } else {
             if (args.jettonMaster && args.jettonMaster.image) {
-                image = args.jettonMaster.image;
+                image = args.jettonMaster.image.preview256;
             }
         }
     }
@@ -93,7 +93,7 @@ export function resolveOperation(args: {
     if (args.metadata && args.metadata.jettonMaster && args.jettonMaster && args.jettonMaster.name) {
         title = args.jettonMaster.name;
         if (args.jettonMaster.image) {
-            image = args.jettonMaster.image;
+            image = args.jettonMaster.image.preview256;
         }
     }
 

@@ -7,16 +7,20 @@ import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 import { tryFetchJettonMaster } from "../metadata/introspections/tryFetchJettonMaster";
 import { resolveLink } from "../../utils/resolveLink";
+import { ImagePreview } from "../api/fetchAppData";
+import { fetchJettonMasterContent } from "../metadata/fetchJettonMasterContent";
 
 // Update this version to re-index
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
 
 export type JettonMasterState = {
     version: number;
     name: string | null;
     symbol: string | null;
-    image: string | null;
+    image: ImagePreview | null;
     description: string | null;
+    originalImage: string | null;
+    decimals: number | null;
 }
 
 function safeTrim(src: string, length: number) {
@@ -36,30 +40,25 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
         }
 
         // Download state
-        let res: JettonMasterState = { version: CURRENT_VERSION, name: null, symbol: null, image: null, description: null };
+        let res: JettonMasterState = {
+            version: CURRENT_VERSION,
+            name: null,
+            symbol: null,
+            image: null,
+            description: null,
+            decimals: null,
+            originalImage: null
+        };
         if (master.value) {
             res = { ...res, ...master.value, version: CURRENT_VERSION };
         }
         let block = await engine.client4.getLastBlock();
         let masterInfo = await tryFetchJettonMaster(engine.client4, block.last.seqno, address);
         if (masterInfo && masterInfo.content && masterInfo.content.type === 'offchain') {
-            // Resolve link
-            let link: string | null = resolveLink(masterInfo.content.link);
-
-            if (link) {
-                let response = await backoff('jetton-master', () => axios.get(link!, { timeout: 5000 }));
-                if (typeof response.data.name === 'string') {
-                    res.name = safeTrim(response.data.name, 128);
-                }
-                if (typeof response.data.symbol === 'string') {
-                    res.symbol = safeTrim(response.data.symbol, 6);
-                }
-                if (typeof response.data.description === 'string') {
-                    res.description = safeTrim(response.data.description, 512);
-                }
-                if (typeof response.data.image === 'string') {
-                    res.image = safeTrim(response.data.image, 128);
-                }
+            // Fetch content
+            const content = await fetchJettonMasterContent(address);
+            if (content) {
+                res = { ...res, ...content };
             }
         }
 

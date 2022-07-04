@@ -76,7 +76,7 @@ export const ProductsComponent = React.memo(() => {
             <ProductButton
                 key={e.key}
                 name={e.name}
-                subtitle={e.url}
+                subtitle={e.description ? e.description : e.url}
                 image={e.image?.url}
                 blurhash={e.image?.blurhash}
                 value={null}

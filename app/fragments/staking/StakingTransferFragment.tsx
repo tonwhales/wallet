@@ -27,6 +27,7 @@ import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../.
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useItem } from '../../engine/persistence/PersistedItem';
+import { useParams } from '../../utils/useParams';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -41,7 +42,7 @@ export type ATextInputRef = {
 export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
 
 export type StakingTransferParams = {
-    target?: string,
+    target?: Address,
     comment?: string | null,
     amount?: BN | null,
     lockAmount?: boolean,
@@ -67,11 +68,11 @@ export function actionTitle(action?: TransferAction) {
 
 export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const params: StakingTransferParams | undefined = useRoute().params;
+    const params = useParams<StakingTransferParams>();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.whalesStakingPool.useState()!;
+    const pool = engine.products.whalesStakingPools.usePool(params.target);
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');
@@ -96,7 +97,6 @@ export const StakingTransferFragment = fragment(() => {
         }, []);
 
     const doContinue = React.useCallback(async () => {
-        let address: Address;
         let value: BN;
         let minAmount = pool?.params.minStake
             ? pool.params.minStake
@@ -105,14 +105,6 @@ export const StakingTransferFragment = fragment(() => {
             : toNano(AppConfig.isTestnet ? '10.2' : '50');
 
         if (!params?.target) {
-            Alert.alert(t('transfer.error.invalidAddress'));
-            return;
-        }
-
-        try {
-            let parsed = Address.parseFriendly(params.target);
-            address = parsed.address;
-        } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
         }
@@ -182,7 +174,7 @@ export const StakingTransferFragment = fragment(() => {
         // Navigate to TransferFragment
         navigation.navigateTransfer({
             order: {
-                target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: params.target.toFriendly({ testOnly: AppConfig.isTestnet }),
                 payload,
                 amount: transferAmount,
                 amountAll: false,
@@ -393,7 +385,7 @@ export const StakingTransferFragment = fragment(() => {
                                 {minAmountWarn}
                             </Text>
                         )}
-                        {(params?.action === 'deposit' || params?.action === 'top_up') && (
+                        {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
                             <>
                                 {!AppConfig.isTestnet && (
                                     < StakingCalcComponent

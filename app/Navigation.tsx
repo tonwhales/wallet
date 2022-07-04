@@ -49,6 +49,7 @@ import { AppConfig } from './AppConfig';
 import { ResolvedUrl } from './utils/resolveUrl';
 import BN from 'bn.js';
 import { mixpanel } from './analytics/mixpanel';
+import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -148,6 +149,7 @@ const navigation = [
     genericScreen('DeveloperToolsStorage', DevStorageFragment),
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
+    fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     <Stack.Screen
         key={`genericScreen-App`}

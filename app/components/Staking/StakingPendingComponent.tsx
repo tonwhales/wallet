@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
-import { fromNano } from "ton";
+import { Address, fromNano } from "ton";
 import { Theme } from "../../Theme";
 import { PoolAddress } from "../../utils/PoolAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -15,6 +15,7 @@ import { t } from "../../i18n/t";
 export const StakingPendingComponent = React.memo((
     {
         member,
+        target,
         params,
         style
     }: {
@@ -24,6 +25,7 @@ export const StakingPendingComponent = React.memo((
             pendingWithdraw: BN,
             withdraw: BN
         } | null,
+        target: Address,
         params?: {
             minStake: BN,
             depositFee: BN,
@@ -171,20 +173,15 @@ export const StakingPendingComponent = React.memo((
                         <Pressable
                             style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })}
                             onPress={() => {
-                                navigation.navigate(
-                                    'StakingTransfer',
-                                    {
-                                        target: PoolAddress,
+                                navigation.navigateStaking({
+                                        target: target,
                                         comment: 'Withdraw',
                                         amount: member.withdraw,
                                         lockAmount: true,
                                         lockAddress: true,
                                         lockComment: true,
-                                        payload: createWithdrawStakeCell(member.withdraw),
                                         action: 'withdraw_ready' as TransferAction,
-                                    }
-                                )
-
+                                    });
                             }}
                         >
                             <View style={{ height: 48, paddingLeft: 0, paddingRight: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', flexGrow: 1, flexBasis: 0 }}>

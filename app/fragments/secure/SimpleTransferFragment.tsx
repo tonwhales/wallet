@@ -30,6 +30,7 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
+import { warn } from '../../utils/log';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -62,7 +63,21 @@ export const SimpleTransferFragment = fragment(() => {
     const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
     const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
-    const balance = jettonWallet ? jettonWallet.balance : account.balance;
+    const balance = React.useMemo(() => {
+        let value;
+        if (jettonWallet) {
+            value = jettonWallet.balance;
+            try {
+                const decimals = jettonMaster?.decimals ? jettonMaster.decimals : undefined;
+                value = toNano(parseFloat(fromNano(value)).toFixed(decimals));
+            } catch (e) {
+                warn(e);
+            }
+        } else {
+            value = account.balance;
+        }
+        return value;
+    }, [jettonWallet, jettonMaster, account.balance]);
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
     // Auto-cancel job

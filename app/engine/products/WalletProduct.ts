@@ -28,7 +28,8 @@ export type JettonsState = {
         name: string,
         symbol: string,
         description: string,
-        icon: string | null
+        icon: string | null,
+        decimals: number | null
     }[]
 }
 
@@ -91,7 +92,8 @@ export class WalletProduct {
                     name: string,
                     symbol: string,
                     description: string,
-                    icon: string | null
+                    icon: string | null,
+                    decimals: number | null
                 }[] = [];
                 for (let w of jettonWallets) {
                     let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
@@ -122,6 +124,7 @@ export class WalletProduct {
                             symbol: jm.symbol,
                             description: jm.description,
                             icon,
+                            decimals: jm.decimals
                         });
                     }
                 }

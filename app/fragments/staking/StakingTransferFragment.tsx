@@ -28,6 +28,8 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
+import { KnownPools } from '../../utils/KnownPools';
+import { LocalizedResources } from '../../i18n/schema';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -97,6 +99,23 @@ export const StakingTransferFragment = fragment(() => {
         }, []);
 
     const doContinue = React.useCallback(async () => {
+        async function confirm(title: LocalizedResources, message: LocalizedResources) {
+            return await new Promise<boolean>(resolve => {
+                Alert.alert(t(title), t(message), [{
+                    text: t('common.yes'),
+                    style: 'destructive',
+                    onPress: () => {
+                        resolve(true)
+                    }
+                }, {
+                    text: t('common.no'),
+                    onPress: () => {
+                        resolve(false);
+                    }
+                }])
+            });
+        }
+
         let value: BN;
         let minAmount = pool?.params.minStake
             ? pool.params.minStake
@@ -169,6 +188,13 @@ export const StakingTransferFragment = fragment(() => {
         // Dismiss keyboard for iOS
         if (Platform.OS === 'ios') {
             Keyboard.dismiss();
+        }
+
+        if (KnownPools[params.target.toFriendly({ testOnly: AppConfig.isTestnet })]?.restricted) {
+            let cont = await confirm('products.staking.transfer.restrictedTitle', 'products.staking.transfer.restrictedMessage');
+            if (!cont) {
+                return;
+            }
         }
 
         // Navigate to TransferFragment

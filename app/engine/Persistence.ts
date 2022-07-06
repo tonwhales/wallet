@@ -40,6 +40,7 @@ export class Persistence {
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
     readonly knownJettons: PersistedCollection<void, Address[]>;
     readonly knownAccountJettons: PersistedCollection<Address, Address[]>;
+    readonly disabledJettons: PersistedCollection<Address, Address[]>;
 
     readonly downloads: PersistedCollection<string, string>;
     readonly hintState: PersistedCollection<Address, HintProcessingState>;
@@ -83,6 +84,7 @@ export class Persistence {
         this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec, engine });
         this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec, engine });
         this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
+        this.disabledJettons = new PersistedCollection({ storage, namespace: 'disabledJettons', key: addressKey, codec: t.array(c.address), engine });
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
 
         // Configs

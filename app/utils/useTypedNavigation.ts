@@ -4,6 +4,7 @@ import { Address, Cell } from 'ton';
 import BN from 'bn.js';
 import { Order } from '../fragments/secure/ops/Order';
 import { getConnectionReferences } from '../storage/appState';
+import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -63,6 +64,10 @@ export class TypedNavigation {
         back?: number
     }) {
         this.navigate('Transfer', tx);
+    }
+
+    navigateStaking(params: StakingTransferParams) {
+        this.navigate('StakingTransfer', params);
     }
 
     navigateSimpleTransfer(tx: {

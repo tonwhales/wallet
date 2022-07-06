@@ -192,6 +192,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке',
                 confirmWithdraw: 'Запросить вывод',
                 confirmWithdrawReady: 'Вывести сейчас',
+                restrictedTitle: 'Этот Стейкинг Пул ограничен',
+                restrictedMessage: 'Перед отправкой убедитесь, что у вас есть пропуск в данный пул, иначе ваши средства могут не участвовать в стейке и ожидать обратного вывода.',
             },
             nextCycle: 'След. цикл',
             cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',
@@ -377,6 +379,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     connections: {
         extensions: 'Расширения',
         connections: 'Внешние приложения'
+    },
+    accounts: {
+        active: 'Активные',
+        disabled: 'Неактивные',
+        alertActive: 'Активировать {{symbol}}?',
+        alertDisabled: 'Сделать {{symbol}} неактивным?'
     }
 };
 

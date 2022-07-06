@@ -49,6 +49,7 @@ import { AppConfig } from './AppConfig';
 import { ResolvedUrl } from './utils/resolveUrl';
 import BN from 'bn.js';
 import { mixpanel } from './analytics/mixpanel';
+import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
 
 const Stack = createNativeStackNavigator();

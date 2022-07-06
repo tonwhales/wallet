@@ -17,7 +17,7 @@ export type JettonMaster = {
 export type ContentSource = {
     type: 'offchain' | 'onchain',
     link?: string,
-    onchainContent?: ContractContent // TODO(sy) handle persistence
+    onchainContent?: ContractContent
 }
 
 export type ContractContent = {

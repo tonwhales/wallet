@@ -159,7 +159,7 @@ const stakingPoolStateCodec = t.type({
 });
 
 const contentSourceCodec = t.type({
-    type: t.literal('offchain'),
+    type: t.union([t.literal('offchain'), t.literal('onchain')]),
     link: t.string
 });
 const metadataCodec = t.type({

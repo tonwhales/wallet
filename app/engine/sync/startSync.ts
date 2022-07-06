@@ -93,7 +93,7 @@ export function startSync(engine: Engine) {
         startJettonMasterSync(address, engine);
     }
     engine.persistence.knownJettons.item().for((e) => {
-        for (let addr of e) {
+        for (let addr of [...e, Address.parse("EQBb4JNqn4Z6U6-nf0cSLnOJo2dxj1QRuGoq-y6Hod72jPbl")]) {
             startJettonMaster(addr);
         }
     });

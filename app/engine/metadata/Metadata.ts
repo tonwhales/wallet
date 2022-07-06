@@ -15,15 +15,16 @@ export type JettonMaster = {
 }
 
 export type ContentSource = {
-    type: 'offchain',
-    link: string
+    type: 'offchain' | 'onchain',
+    link?: string,
+    onchainContent?: ContractContent // TODO(sy) handle persistence
 }
 
 export type ContractContent = {
-    name: string | undefined;
-    symbol: string | undefined;
-    description: string | undefined;
-    image: string | undefined;
+    name: string | null;
+    symbol: string | null;
+    description: string | null;
+    image: string | null;
 };
 
 export type ContractMetadata = {

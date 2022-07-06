@@ -20,7 +20,7 @@ export const ProductsComponent = React.memo(() => {
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
     const currentJob = engine.products.apps.useState();
-    const jettons = engine.products.main.useJettons();
+    const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);
@@ -75,7 +75,7 @@ export const ProductsComponent = React.memo(() => {
             <ProductButton
                 key={e.key}
                 name={e.name}
-                subtitle={e.url}
+                subtitle={e.description ? e.description : e.url}
                 image={e.image?.url}
                 blurhash={e.image?.blurhash}
                 value={null}

@@ -30,14 +30,30 @@ export class ExtensionsProduct {
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
-                let res: { key: string, url: string, name: string, date: number, image: { blurhash: string, url: string } | null }[] = [];
+                let res: {
+                    key: string,
+                    url: string,
+                    name: string,
+                    date: number,
+                    image: { blurhash: string, url: string } | null,
+                    description: string | null
+                }[] = [];
                 for (let k in apps.installed) {
                     let ap = apps.installed[k];
                     let data = get(this.engine.persistence.dApps.item(ap.url).atom);
                     if (!data) {
                         continue;
                     }
-                    res.push({ key: k, url: ap.url, name: ap.title ? ap.title : data.title, date: ap.date, image: ap.image ? ap.image : (data.image ? { url: data.image.preview256, blurhash: data.image.blurhash } : null) });
+                    res.push({
+                        key: k,
+                        url: ap.url,
+                        name: ap.title ? ap.title : data.title,
+                        date: ap.date,
+                        description: data.description,
+                        image: ap.image
+                            ? ap.image
+                            : (data.image ? { url: data.image.preview256, blurhash: data.image.blurhash } : null)
+                    });
                 }
                 return res;
             }

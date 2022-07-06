@@ -379,6 +379,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     connections: {
         extensions: 'Extensions',
         connections: 'External apps'
+    },
+    accounts: {
+        active: 'Active',
+        disabled: 'Hidden',
+        alertActive: 'Mark {{symbol}} active?',
+        alertDisabled: 'Mark {{symbol}} hidden?'
     }
 };
 

@@ -19,7 +19,7 @@ import { t } from "../../i18n/t";
 import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
-// import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -31,7 +31,6 @@ export const TransactionPreviewFragment = fragment(() => {
     let operation = transaction.operation;
     let avatarId = transaction.operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress);
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
@@ -55,12 +54,18 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     // Resolve built-in known wallets
-    // let known: KnownWallet | undefined = undefined;
-    // if (KnownWallets[friendlyAddress]) {
-    //     known = KnownWallets[friendlyAddress];
-    // } else if (operation.title) {
-    //     known = { name: operation.title };
-    // }
+    let known: KnownWallet | undefined = undefined;
+    if (KnownWallets[friendlyAddress]) {
+        known = KnownWallets[friendlyAddress];
+    } else if (operation.title) {
+        known = { name: operation.title };
+    }
+
+    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+        || (
+            Math.abs(parseFloat(fromNano(transaction.base.amount))) < 0.05
+            && transaction.base.body?.type === 'comment'
+        );
 
     return (
         <View style={{
@@ -144,7 +149,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 justifyContent: 'center',
                 width: '100%'
             }}>
-                {operation.comment && (
+                {operation.comment && !spam && (
                     <>
                         <ActionsMenuView content={operation.comment}>
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>

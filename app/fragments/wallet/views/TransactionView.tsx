@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Text, useWindowDimensions, View } from 'react-native';
-import { Address } from 'ton';
+import { Address, fromNano, toNano } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
@@ -30,7 +30,6 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     // Operation
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress);
     let item = operation.items[0];
     let op: string;
     if (operation.op) {
@@ -60,6 +59,12 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     } else if (operation.title) {
         known = { name: operation.title };
     }
+
+    let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+        || (
+            Math.abs(parseFloat(fromNano(parsed.amount))) < 0.05
+            && tx.base.body?.type === 'comment'
+        );
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>

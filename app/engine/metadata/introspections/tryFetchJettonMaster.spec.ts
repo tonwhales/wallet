@@ -12,6 +12,7 @@ describe('tryFetchJettonMaster', () => {
         expect(res.content).not.toBeNull();
         expect(res.content!.type).toEqual('offchain');
         expect(res.content!.link).toEqual('https://kotecoin.com/kote.json');
+        expect(res.content!.onchainContent).toBeUndefined();
     });
 
     it('should not fetch KOTE wallet for old block', async () => {
@@ -26,7 +27,7 @@ describe('tryFetchJettonMaster', () => {
         expect(res.owner.equals(Address.parse('EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c'))).toBe(true);
         expect(res.content).not.toBeNull();
         expect(res.content!.type).toEqual('onchain');
-        // expect(res.content!.onchainContent).toEqual('onchain'); // TODO
-        // expect(res.content!.link).toEqual('https://kotecoin.com/kote.json');
+        expect(res.content!.onchainContent).toEqual({"description": "Low fee peer-to-peer electronic cash alternative to Bitcoin", "image": "https://bitcoincash-example.github.io/website/logo.png", "name": "Bitcoin Cash", "symbol": "BCH"}); // TODO
+        expect(res.content!.link).toBeUndefined();
     });
 });

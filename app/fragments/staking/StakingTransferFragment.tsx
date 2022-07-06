@@ -45,7 +45,6 @@ export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready
 
 export type StakingTransferParams = {
     target?: Address,
-    comment?: string | null,
     amount?: BN | null,
     lockAmount?: boolean,
     lockComment?: boolean,

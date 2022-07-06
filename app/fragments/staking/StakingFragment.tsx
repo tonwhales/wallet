@@ -112,7 +112,6 @@ export const StakingFragment = fragment(() => {
     const onTopUp = useCallback(() => {
         navigation.navigateStaking({
             target: target,
-            comment: 'Deposit',
             amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
             lockAddress: true,
             lockComment: true,
@@ -123,7 +122,6 @@ export const StakingFragment = fragment(() => {
     const onUnstake = useCallback(() => {
         navigation.navigateStaking({
             target: target,
-            comment: 'Withdraw',
             lockAddress: true,
             lockComment: true,
             action: 'withdraw' as TransferAction,

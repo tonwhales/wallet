@@ -17,7 +17,8 @@ export const JettonProdcut = React.memo((props: {
         symbol: string;
         balance: BN;
         icon: string | null;
-    }
+    },
+    onLongPress?: () => void
 }) => {
     return (
         <ProductButton
@@ -29,6 +30,7 @@ export const JettonProdcut = React.memo((props: {
             value={props.jetton.balance}
             symbol={props.jetton.symbol}
             onPress={() => props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })}
+            onLongPress={props.onLongPress}
             style={{ marginVertical: 4 }}
         />
     );

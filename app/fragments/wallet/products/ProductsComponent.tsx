@@ -21,7 +21,7 @@ export const ProductsComponent = React.memo(() => {
     const oldWalletsBalance = engine.products.legacy.useState();
     const pool = engine.products.whalesStakingPool.useState();
     const currentJob = engine.products.apps.useState();
-    const jettons = engine.products.main.useJettons();
+    const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);

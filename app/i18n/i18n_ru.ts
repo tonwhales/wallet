@@ -377,6 +377,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     connections: {
         extensions: 'Расширения',
         connections: 'Внешние приложения'
+    },
+    accounts: {
+        active: 'Активные',
+        disabled: 'Неактивные',
+        alertActive: 'Активировать {{symbol}}?',
+        alertDisabled: 'Сделать {{symbol}} неактивным?'
     }
 };
 

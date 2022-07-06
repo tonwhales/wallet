@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { toNano } from "ton";
+import { Address, toNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -28,13 +28,14 @@ import { t } from "../../i18n/t";
 
 export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
-    const params = useParams<{ backToHome?: boolean }>();
+    const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const pool = engine.products.whalesStakingPool.useState()!;
-    const poolParams = pool.params;
-    const member = pool.member;
+    const target = Address.parse(params.pool);
+    const pool = engine.products.whalesStakingPools.usePool(target);
+    const poolParams = pool?.params;
+    const member = pool?.member;
     const window = useWindowDimensions();
 
     // Animating wallet card
@@ -109,31 +110,23 @@ export const StakingFragment = fragment(() => {
     }, []);
 
     const onTopUp = useCallback(() => {
-        navigation.navigate(
-            'StakingTransfer',
-            {
-                target: PoolAddress,
-                comment: 'Deposit',
-                amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
-                lockAddress: true,
-                lockComment: true,
-                action: 'top_up' as TransferAction,
-            }
-        );
-    }, []);
+        navigation.navigateStaking({
+            target: target,
+            amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
+            lockAddress: true,
+            lockComment: true,
+            action: 'top_up' as TransferAction,
+        });
+    }, [target, pool]);
 
     const onUnstake = useCallback(() => {
-        navigation.navigate(
-            'StakingTransfer',
-            {
-                target: PoolAddress,
-                comment: 'Withdraw',
-                lockAddress: true,
-                lockComment: true,
-                action: 'withdraw' as TransferAction,
-            }
-        );
-    }, []);
+        navigation.navigateStaking({
+            target: target,
+            lockAddress: true,
+            lockComment: true,
+            action: 'withdraw' as TransferAction,
+        });
+    }, [target]);
 
     const openMoreInfo = useCallback(
         () => {
@@ -196,11 +189,11 @@ export const StakingFragment = fragment(() => {
                     <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
                         address={
-                            address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 10)
+                            target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 6)
                             + '...'
-                            + address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
+                            + target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 8)
                         }
                         style={{
                             marginLeft: 22,
@@ -215,7 +208,12 @@ export const StakingFragment = fragment(() => {
                         }}
                     />
                 </Animated.View>
-                <StakingPendingComponent style={{ marginHorizontal: 16 }} params={poolParams} member={member} />
+                <StakingPendingComponent
+                    target={target}
+                    style={{ marginHorizontal: 16 }}
+                    params={poolParams}
+                    member={member}
+                />
                 {pool && (
                     <StakingCycle
                         stakeUntil={pool.params.stakeUntil}
@@ -320,7 +318,7 @@ export const StakingFragment = fragment(() => {
 
                                         </View>
                                         <Text style={{ color: 'white', marginLeft: 22, marginBottom: 16, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
-                                            <AddressComponent address={address} />
+                                            <AddressComponent address={target} />
                                         </Text>
                                     </View>
                                 </Animated.View>
@@ -452,7 +450,7 @@ export const StakingFragment = fragment(() => {
                                         style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }}
                                         numberOfLines={1}
                                     >
-                                        <AddressComponent address={address} />
+                                        <AddressComponent address={target} />
                                     </Text>
                                 </View>
                             </Animated.View>

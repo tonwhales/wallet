@@ -32,7 +32,15 @@ export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, 
 export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
     ? {
         [Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs').toFriendly({ testOnly: AppConfig.isTestnet })]: {
-            name: 'Whales Staking Pool',
+            name: 'Nominators #1',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Whales
+        },
+        [Address.parse('kQDsPXQhe6Jg5hZYATRfYwne0o_RbReMG2P3zHfcFUwHALeS').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+            name: 'Nominators #2',
             colors: {
                 primary: '#65C6FF',
                 secondary: '#DEEFFC'
@@ -113,7 +121,31 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             ic: Img_Whales
         },
         [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toFriendly()]: {
-            name: 'Whales Staking Pool',
+            name: 'Whales Nominators #1',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Whales
+        },
+        [Address.parse('EQCY4M6TZYnOMnGBQlqi_nyeaIB1LeBFfGgP4uXQ1VWhales').toFriendly()]: {
+            name: 'Whales Nominators #2',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Whales
+        },
+        [Address.parse('EQCOj4wEjXUR59Kq0KeXUJouY5iAcujkmwJGsYX7qPnITEAM').toFriendly()]: {
+            name: 'Whales Team #1',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Whales
+        },
+        [Address.parse('EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM').toFriendly()]: {
+            name: 'Whales Team #2',
             colors: {
                 primary: '#65C6FF',
                 secondary: '#DEEFFC'

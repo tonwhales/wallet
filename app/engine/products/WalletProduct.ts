@@ -93,6 +93,7 @@ export class WalletProduct {
                     description: string,
                     icon: string | null
                 }[] = [];
+                // throw new Error(JSON.stringify(jettonWallets.map(e => e.wallet.toFriendly())))
                 for (let w of jettonWallets) {
                     let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
 

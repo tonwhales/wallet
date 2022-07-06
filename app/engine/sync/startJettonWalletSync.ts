@@ -16,6 +16,11 @@ export function startJettonWalletSync(address: Address, engine: Engine) {
     let lite = engine.persistence.liteAccounts.item(address);
     let jettonWallet = engine.persistence.jettonWallets.item(address);
 
+    // MY JWALLET EQDspMqNaN4YMYTVXdkqlF2S6fLUqIbX8w0rHlvd6QXhwSaV
+    // JETTON EQBb4JNqn4Z6U6-nf0cSLnOJo2dxj1QRuGoq-y6Hod72jPbl
+
+    
+
     startDependentSync(key, lite, engine, async (acc) => {
 
         // Last state

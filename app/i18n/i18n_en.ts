@@ -191,7 +191,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 topUpConfirmTitle: 'Confirm Top Up',
                 notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked',
                 confirmWithdraw: 'Request Withdrawal',
-                confirmWithdrawReady: 'Withdraw now'
+                confirmWithdrawReady: 'Withdraw now',
+                restrictedTitle: 'This Staking Pool is restricted',
+                restrictedMessage: 'Before sending, make sure you have a pass to this pool, otherwise your funds may not participate in the stake and wait for the withdrawal',
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
@@ -377,6 +379,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     connections: {
         extensions: 'Extensions',
         connections: 'External apps'
+    },
+    accounts: {
+        active: 'Active',
+        disabled: 'Hidden',
+        alertActive: 'Mark {{symbol}} active?',
+        alertDisabled: 'Mark {{symbol}} hidden?'
     }
 };
 

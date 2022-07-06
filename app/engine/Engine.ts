@@ -1,12 +1,10 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
-import { Address, TonClient4 } from "ton";
+import { Address, TonClient, TonClient4 } from "ton";
 import { Connector } from "./api/Connector";
 import { LegacyProduct } from './products/LegacyProduct';
 import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
-import { StakingPoolProduct } from './products/StakingProduct';
-import { KnownPools } from '../utils/KnownPools';
 import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { Persistence } from './Persistence';
 import { Transactions } from './transactions/Transactions';
@@ -18,6 +16,8 @@ import { ConfigProduct } from './products/ConfigProduct';
 import { ServerConfigProduct } from './products/ServerConfigProduct';
 import { ExtensionsProduct } from './products/ExtensionsProduct';
 import { Cloud } from './cloud/Cloud';
+import { AppConfig } from '../AppConfig';
+import { StakingPoolsProduct } from './products/StakingProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -44,7 +44,7 @@ export class Engine {
         legacy: LegacyProduct,
         price: PriceProduct,
         apps: AppProduct,
-        whalesStakingPool: StakingPoolProduct,
+        whalesStakingPools: StakingPoolsProduct,
         config: ConfigProduct,
         serverConfig: ServerConfigProduct,
         extensions: ExtensionsProduct
@@ -90,7 +90,7 @@ export class Engine {
             legacy: new LegacyProduct(this),
             price: new PriceProduct(this),
             apps: new AppProduct(this),
-            whalesStakingPool: new StakingPoolProduct(this, KnownPools[0].address),
+            whalesStakingPools: new StakingPoolsProduct(this),
             config: new ConfigProduct(this),
             serverConfig: new ServerConfigProduct(this),
             extensions: new ExtensionsProduct(this)

@@ -104,7 +104,7 @@ export const AccountsFragment = fragment(() => {
                                 jetton={j}
                                 navigation={navigation}
                                 engine={engine}
-                                onLongPress={() => promptDisable(j.master, j.symbol)}
+                                onPress={() => promptDisable(j.master, j.symbol)}
                             />
                         );
                     })}
@@ -126,7 +126,7 @@ export const AccountsFragment = fragment(() => {
                                 jetton={j}
                                 navigation={navigation}
                                 engine={engine}
-                                onLongPress={() => promptActive(j.master, j.symbol)}
+                                onPress={() => promptActive(j.master, j.symbol)}
                             />
                         );
                     })}

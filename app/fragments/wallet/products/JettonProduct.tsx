@@ -4,7 +4,6 @@ import { Address } from 'ton';
 import { Engine } from '../../../engine/Engine';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { ProductButton } from './ProductButton';
-import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 
 export const JettonProdcut = React.memo((props: {
     navigation: TypedNavigation,
@@ -18,6 +17,7 @@ export const JettonProdcut = React.memo((props: {
         balance: BN;
         icon: string | null;
     },
+    onPress?: () => void
     onLongPress?: () => void
 }) => {
     return (
@@ -29,7 +29,13 @@ export const JettonProdcut = React.memo((props: {
             image={props.jetton.icon ? props.jetton.icon : undefined}
             value={props.jetton.balance}
             symbol={props.jetton.symbol}
-            onPress={() => props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })}
+            onPress={() => {
+                if (props.onPress) {
+                    props.onPress();
+                    return;
+                }
+                props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })
+            }}
             onLongPress={props.onLongPress}
             style={{ marginVertical: 4 }}
         />

@@ -379,6 +379,12 @@ export type LocalizationSchema = {
     connections: {
         extensions: string,
         connections: string
+    },
+    accounts: {
+        active: string,
+        disabled: string,
+        alertActive: string,
+        alertDisabled: string
     }
 };
 

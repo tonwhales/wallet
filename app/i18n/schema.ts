@@ -384,6 +384,7 @@ export type LocalizationSchema = {
     },
     accounts: {
         active: string,
+        noActive: string,
         disabled: string,
         alertActive: string,
         alertDisabled: string

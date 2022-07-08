@@ -91,10 +91,11 @@ export const AccountsFragment = fragment(() => {
                             fontSize: 18,
                             fontWeight: '700',
                             marginHorizontal: 16,
-                            marginVertical: 8
+                            marginVertical: 8,
+                            color: active.length > 0 ? Theme.textColor : Theme.textSecondary
                         }}
                         >
-                            {t('accounts.active')}
+                            {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
                         </Text>
                     </View>
                     {active.map((j) => {
@@ -108,17 +109,19 @@ export const AccountsFragment = fragment(() => {
                             />
                         );
                     })}
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{
-                            fontSize: 18,
-                            fontWeight: '700',
-                            marginHorizontal: 16,
-                            marginVertical: 8
-                        }}
-                        >
-                            {t('accounts.disabled')}
-                        </Text>
-                    </View>
+                    {disabled.length > 0 && (
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <Text style={{
+                                fontSize: 18,
+                                fontWeight: '700',
+                                marginHorizontal: 16,
+                                marginVertical: 8
+                            }}
+                            >
+                                {t('accounts.disabled')}
+                            </Text>
+                        </View>
+                    )}
                     {disabled.map((j) => {
                         return (
                             <JettonProdcut

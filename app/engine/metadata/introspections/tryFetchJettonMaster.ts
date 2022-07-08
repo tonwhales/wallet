@@ -38,20 +38,20 @@ async function parseJettonOnchainMetadata(
     const dict = contentSlice.readDict(KEYLEN, (s) => {
       let buffer = Buffer.from("");
   
-      const sliceToVal = (s: Slice, v: Buffer) => {
+      const sliceToVal = (s: Slice, v: Buffer, isFirst: boolean) => {
         s.toCell().beginParse();
-        if (s.readUint(8).toNumber() !== SNAKE_PREFIX)
+        if (isFirst && s.readUint(8).toNumber() !== SNAKE_PREFIX)
           throw new Error("Only snake format is supported");
   
         v = Buffer.concat([v, s.readRemainingBytes()]);
         if (s.remainingRefs === 1) {
-          v = sliceToVal(s.readRef(), v);
+          v = sliceToVal(s.readRef(), v, false);
         }
   
         return v;
       };
   
-      return sliceToVal(s.readRef(), buffer);
+      return sliceToVal(s.readRef(), buffer, true);
     });
   
     const res:ContractContent = {

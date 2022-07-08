@@ -42,7 +42,7 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
         }
         let block = await engine.client4.getLastBlock();
         let masterInfo = await tryFetchJettonMaster(engine.client4, block.last.seqno, address);
-        if (masterInfo && masterInfo.content && masterInfo.content.type === 'offchain') {
+        if (masterInfo && masterInfo.content && masterInfo.content.type === 'offchain' && masterInfo.content.link) {
             // Resolve link
             let link: string | null = resolveLink(masterInfo.content.link);
 
@@ -61,6 +61,8 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
                     res.image = safeTrim(response.data.image, 128);
                 }
             }
+        } else if (masterInfo && masterInfo.content && masterInfo.content.type === 'onchain' && masterInfo.content.onchainContent) {
+            res = {...res, ...masterInfo.content.onchainContent};
         }
 
         // Persist

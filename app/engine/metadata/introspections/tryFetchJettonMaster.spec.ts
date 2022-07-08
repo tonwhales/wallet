@@ -12,10 +12,22 @@ describe('tryFetchJettonMaster', () => {
         expect(res.content).not.toBeNull();
         expect(res.content!.type).toEqual('offchain');
         expect(res.content!.link).toEqual('https://kotecoin.com/kote.json');
+        expect(res.content!.onchainContent).toBeUndefined();
     });
 
     it('should not fetch KOTE wallet for old block', async () => {
         let res = (await tryFetchJettonMaster(client, 10290830, Address.parse('EQBlU_tKISgpepeMFT9t3xTDeiVmo25dW_4vUOl6jId_BNIj')));
         expect(res).toBeNull();
+    });
+
+    it('should fetch BCH-example onchain wallet', async () => {
+        let res = (await tryFetchJettonMaster(client, 21862782, Address.parse('EQBb4JNqn4Z6U6-nf0cSLnOJo2dxj1QRuGoq-y6Hod72jPbl')))!;
+        expect(res.mintalbe).toBe(true);
+        expect(res.totalSupply.toString(10)).toEqual('20999999000000000');
+        expect(res.owner.equals(Address.parse('EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c'))).toBe(true);
+        expect(res.content).not.toBeNull();
+        expect(res.content!.type).toEqual('onchain');
+        expect(res.content!.onchainContent).toEqual({"description": "Low fee peer-to-peer electronic cash alternative to Bitcoin", "image": "https://bitcoincash-example.github.io/website/logo.png", "name": "Bitcoin Cash", "symbol": "BCH"});
+        expect(res.content!.link).toBeUndefined();
     });
 });

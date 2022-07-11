@@ -29,6 +29,7 @@ export type JettonsState = {
         symbol: string,
         description: string,
         icon: string | null,
+        decimals: number | null,
         disabled?: boolean
     }[]
 }
@@ -96,6 +97,7 @@ export class WalletProduct {
                     symbol: string,
                     description: string,
                     icon: string | null,
+                    decimals: number | null,
                     disabled?: boolean
                 }[] = [];
                 for (let w of jettonWallets) {
@@ -129,6 +131,7 @@ export class WalletProduct {
                             symbol: jm.symbol,
                             description: jm.description,
                             icon,
+                            decimals: jm.decimals,
                             disabled
                         });
                     }

@@ -2,6 +2,7 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { Address, fromNano, toNano } from 'ton';
 import { Engine } from '../../../engine/Engine';
+import { warn } from '../../../utils/log';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { ProductButton } from './ProductButton';
 
@@ -16,6 +17,7 @@ export const JettonProdcut = React.memo((props: {
         symbol: string;
         balance: BN;
         icon: string | null;
+        decimals: number | null;
     },
     onPress?: () => void
     onLongPress?: () => void

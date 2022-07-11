@@ -29,7 +29,7 @@ export function toNanoWithDecimals(value: BN, decimals?: number | null) {
 
 export function toBNWithDecimals(value: number | string | BN, decimals?: number | null) {
     let ether = numberToString(value);
-    let baseString = `1${'0'.repeat(decimals || 9)}`;
+    let baseString = `1${'0'.repeat(decimals ? decimals : 9)}`;
     let base = new BN(baseString, 10);
     let baseLength = baseString.length - 1 || 1;
 
@@ -80,7 +80,7 @@ export function toBNWithDecimals(value: number | string | BN, decimals?: number 
 export function fromBNWithDecimals(input: BN, decimals?: number | null) {
     var wei = numberToBN(input);
     var negative = wei.lt(zero);
-    let baseString = `1${'0'.repeat(decimals || 9)}`;
+    let baseString = `1${'0'.repeat(decimals ? decimals : 9)}`;
     let base = new BN(baseString, 10);
     let baseLength = baseString.length - 1 || 1;
 

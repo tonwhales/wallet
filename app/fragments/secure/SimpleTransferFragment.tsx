@@ -31,6 +31,7 @@ import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
 import { warn } from '../../utils/log';
+import { fromBNWithDecimals, toBNWithDecimals, toNanoWithDecimals } from '../../utils/withDecimals';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -67,12 +68,6 @@ export const SimpleTransferFragment = fragment(() => {
         let value;
         if (jettonWallet) {
             value = jettonWallet.balance;
-            try {
-                const decimals = jettonMaster?.decimals ? jettonMaster.decimals : undefined;
-                value = toNano(parseFloat(fromNano(value)).toFixed(decimals));
-            } catch (e) {
-                warn(e);
-            }
         } else {
             value = account.balance;
         }
@@ -100,6 +95,10 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
+            // Manage jettons with decimals
+            if (jettonWallet) {
+                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            }
         } catch (e) {
             return null;
         }
@@ -157,6 +156,10 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
+            // Manage jettons with decimals
+            if (jettonWallet) {
+                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            }
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
@@ -199,7 +202,7 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, comment, account.seqno, stateInit, order, callback]);
+    }, [amount, target, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
     const config = engine.products.config.useConfig();
@@ -424,7 +427,7 @@ export const SimpleTransferFragment = fragment(() => {
                             color: '#6D6D71',
                             marginBottom: 5
                         }}>
-                            {fromNano(balance)} {symbol}
+                            {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

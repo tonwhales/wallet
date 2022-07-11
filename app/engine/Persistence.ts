@@ -212,7 +212,7 @@ const jettonMasterCodec = t.type({
     description: t.union([t.null, t.string]),
     symbol: t.union([t.null, t.string]),
     decimals: t.union([t.number, t.null]),
-    originalImage: t.union([t.string, t.null]),
+    originalImage: t.union([t.string, t.null, t.undefined]),
     image: t.union([imagePreview, t.null])
 });
 

@@ -11,7 +11,7 @@ const contentCodec = t.type({
     description: t.union([t.string, t.null]),
     symbol: t.union([t.string, t.null]),
     decimals: t.union([t.number, t.null]),
-    originalImage: t.union([t.string, t.null]),
+    originalImage: t.union([t.string, t.null, t.undefined]),
     image: t.union([imagePreview, t.null])
 });
 
@@ -23,7 +23,6 @@ export async function fetchJettonMasterContent(address: Address) {
 
     if (res.status === 200) {
         const parsed = contentCodec.decode(res.data);
-        console.log({ parsed });
         if (isLeft(parsed)) {
             return null;
         }

@@ -19,7 +19,7 @@ export type JettonMasterState = {
     symbol: string | null;
     image: ImagePreview | null;
     description: string | null;
-    originalImage: string | null;
+    originalImage: string | null | undefined;
     decimals: number | null;
 }
 

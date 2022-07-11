@@ -62,7 +62,8 @@ export function resolveOperation(args: {
                 address = parsedBody.data['destination'] as Address;
                 let amount = parsedBody.data['amount'] as BN;
                 let symbol = args.jettonMaster.symbol;
-                items.unshift({ kind: 'token', amount, symbol });
+                let decimals = args.jettonMaster.decimals;
+                items.unshift({ kind: 'token', amount, symbol, decimals });
                 let body = parseBody(parsedBody.data['payload'] as Cell);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
@@ -72,7 +73,8 @@ export function resolveOperation(args: {
                 address = parsedBody.data['sender'] as Address;
                 let amount = parsedBody.data['amount'] as BN;
                 let symbol = args.jettonMaster.symbol;
-                items.unshift({ kind: 'token', amount, symbol });
+                let decimals = args.jettonMaster.decimals;
+                items.unshift({ kind: 'token', amount, symbol, decimals });
                 let body = parseBody(parsedBody.data['payload'] as Cell);
                 if (body && body.type === 'comment') {
                     comment = body.comment;

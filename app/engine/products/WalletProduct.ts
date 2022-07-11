@@ -29,7 +29,7 @@ export type JettonsState = {
         symbol: string,
         description: string,
         icon: string | null,
-        decimals: number | null
+        disabled?: boolean
     }[]
 }
 
@@ -75,6 +75,9 @@ export class WalletProduct {
                 // Load known jettons
                 let knownJettons = get(engine.persistence.knownAccountJettons.item(engine.address).atom) || [];
 
+                // Load disabled jeetons
+                let disabledJettons = get(engine.persistence.disabledJettons.item(engine.address).atom) || [];
+
                 // Load wallets
                 let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
                 for (let w of knownJettons) {
@@ -93,7 +96,7 @@ export class WalletProduct {
                     symbol: string,
                     description: string,
                     icon: string | null,
-                    decimals: number | null
+                    disabled?: boolean
                 }[] = [];
                 for (let w of jettonWallets) {
                     let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
@@ -118,13 +121,15 @@ export class WalletProduct {
                             }
                         }
 
+                        const disabled = !!disabledJettons.find((m) => m.equals(w.master));
+
                         jettonWalletsWithMasters.push({
                             ...w,
                             name: jm.name,
                             symbol: jm.symbol,
                             description: jm.description,
                             icon,
-                            decimals: jm.decimals
+                            disabled
                         });
                     }
                 }

@@ -12,6 +12,20 @@ function addToSetArray(src: Address[] | null, value: Address) {
     }
 }
 
+function removeFromSetArray(src: Address[] | null, value: Address) {
+    if (!src) {
+        return [];
+    }
+    const index = src.findIndex((v) => v.equals(value));
+    if (index !== -1) {
+        const res = src;
+        res.splice(index, 1);
+        return res;
+    } else {
+        return src;
+    }
+}
+
 function mergeSetArrays(src: Address[] | null, dst: Address[]) {
 
     // Return destination if no source
@@ -49,6 +63,16 @@ export function registerKnownJettonMaster(engine: Engine, master: Address) {
 export function registerKnownJettonWallet(engine: Engine, owner: Address, wallet: Address) {
     let itm = engine.persistence.knownAccountJettons.item(owner);
     itm.update((src) => addToSetArray(src, wallet));
+}
+
+export function markJettonDisabled(engine: Engine, owner: Address, master: Address) {
+    let itm = engine.persistence.disabledJettons.item(owner);
+    itm.update((src) => addToSetArray(src, master));
+}
+
+export function markJettonActive(engine: Engine, owner: Address, master: Address) {
+    let itm = engine.persistence.disabledJettons.item(owner);
+    itm.update((src) => removeFromSetArray(src, master));
 }
 
 export function requestHintsIfNeeded(address: Address, seqno: number | null, engine: Engine) {

@@ -204,6 +204,8 @@ export type LocalizationSchema = {
                 notEnoughStaked: string,
                 confirmWithdraw: string,
                 confirmWithdrawReady: string,
+                restrictedTitle: string,
+                restrictedMessage: string,
             },
             join: {
                 title: string,
@@ -379,6 +381,12 @@ export type LocalizationSchema = {
     connections: {
         extensions: string,
         connections: string
+    },
+    accounts: {
+        active: string,
+        disabled: string,
+        alertActive: string,
+        alertDisabled: string
     }
 };
 

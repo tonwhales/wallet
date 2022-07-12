@@ -79,30 +79,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Test pool"} onPress={async () => {
-                            const res = await engine.client4.runMethod(0, Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales'), 'get_params')
-                            let paramsParser = new TupleSlice4(res.result);
-                            let params: {
-                                enabled: boolean,
-                                udpatesEnabled: boolean,
-                                minStake: BN,
-                                depositFee: BN,
-                                withdrawFee: BN,
-                                poolFee: BN,
-                                receiptPrice: BN
-                            } = {
-                                enabled: paramsParser.readBoolean(),
-                                udpatesEnabled: paramsParser.readBoolean(),
-                                minStake: paramsParser.readBigNumber(),
-                                depositFee: paramsParser.readBigNumber(),
-                                withdrawFee: paramsParser.readBigNumber(),
-                                poolFee: paramsParser.readBigNumber(),
-                                receiptPrice: paramsParser.readBigNumber()
-                            };
-                            console.log({ params });
-                        }} />
-                    </View>
                 </View>
             </View>
         </View>

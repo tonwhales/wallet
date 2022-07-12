@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react"
 import { View, Text } from "react-native"
-import { fromNano } from "ton";
+import { fromNano, toNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
 import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
@@ -11,6 +11,7 @@ import { PriceComponent } from "../PriceComponent";
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: BN | null }) => {
     if (!pool) return null;
     const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
+    const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
 
     return (
         <View style={{
@@ -21,7 +22,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
             paddingLeft: 16,
             marginTop: 20
         }}>
-            {!AppConfig.isTestnet && (
+            {/* {!AppConfig.isTestnet && (
                 <>
                     <View style={{
                         flexDirection: 'row', width: '100%',
@@ -45,7 +46,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     </View>
                     <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
                 </>
-            )}
+            )} */}
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
@@ -91,7 +92,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     ) + ' TON'}
                 </Text>
             </View>
-            {!AppConfig.isTestnet && (
+            {!AppConfig.isTestnet && !!poolFee && (
                 <>
                     <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
                     <View style={{
@@ -111,7 +112,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                             fontSize: 16,
                             color: Theme.textColor
                         }}>
-                            {t('products.staking.info.poolFee')}
+                            {`${poolFee}%`}
                         </Text>
                     </View>
                 </>
@@ -150,7 +151,6 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
             </View>
             {!!fee && (
                 <>
-
                     <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
                     <View style={{
                         flexDirection: 'row', width: '100%',

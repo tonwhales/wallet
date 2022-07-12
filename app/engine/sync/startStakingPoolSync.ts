@@ -11,7 +11,8 @@ export type StakingPoolState = {
         depositFee: BN,
         withdrawFee: BN,
         stakeUntil: number,
-        receiptPrice: BN
+        receiptPrice: BN,
+        poolFee: BN,
     },
     member: {
         balance: BN,
@@ -109,7 +110,8 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
                 depositFee: params.depositFee,
                 withdrawFee: params.withdrawFee,
                 stakeUntil: status.proxyStakeUntil,
-                receiptPrice: params.receiptPrice
+                receiptPrice: params.receiptPrice,
+                poolFee: params.poolFee
             }
         };
         item.update(() => newState);

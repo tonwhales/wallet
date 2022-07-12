@@ -70,7 +70,15 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={tx.icon ? tx.icon : undefined} spam={spam} />)}
+                    {parsed.status !== 'pending' && (
+                        <Avatar
+                            address={friendlyAddress}
+                            id={avatarId}
+                            size={42}
+                            image={tx.icon ? tx.icon : undefined}
+                            spam={spam}
+                        />
+                    )}
                     {parsed.status === 'pending' && (
                         <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
                     )}

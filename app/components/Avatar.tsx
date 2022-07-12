@@ -276,15 +276,16 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
     let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
     let img: any;
-    if (props.image) {
-        img = <Image source={{ uri: props.image }} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
-    } else if (!known || (!known.ic)) {
-        img = <Img width={size} height={size} color="white" />;
-    } else {
-        img = <KnownAvatar size={props.size} wallet={known} />;
-    }
 
-    if (props.spam) {
+    if (!props.spam) {
+        if (props.image) {
+            img = <Image source={{ uri: props.image }} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
+        } else if (!known || (!known.ic)) {
+            img = <Img width={size} height={size} color="white" />;
+        } else {
+            img = <KnownAvatar size={props.size} wallet={known} />;
+        }
+    } else { // Mark avatar as spam
         img = <SpamIcon width={props.size} height={props.size} />
     }
 

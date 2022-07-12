@@ -23,7 +23,7 @@ function numberToString(arg: any) {
     throw new Error('while converting number to string, invalid number value \'' + arg + '\' type ' + typeof arg + '.');
 }
 
-export function toNanoWithDecimals(value: BN, decimals?: number | null) {
+export function toNanoWithDecimals(value: BN | number | string, decimals?: number | null) {
     return toNano(fromBNWithDecimals(value, decimals));
 }
 
@@ -77,7 +77,7 @@ export function toBNWithDecimals(value: number | string | BN, decimals?: number 
     return new BN(wei.toString(10), 10);
 }
 
-export function fromBNWithDecimals(input: BN, decimals?: number | null) {
+export function fromBNWithDecimals(input: BN | number | string, decimals?: number | null) {
     var wei = numberToBN(input);
     var negative = wei.lt(zero);
     let baseString = `1${'0'.repeat(decimals ? decimals : 9)}`;

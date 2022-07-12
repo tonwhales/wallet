@@ -9,6 +9,8 @@ const Img_FTX = require('../../assets/known/ftx.png');
 const Img_Disintar = require('../../assets/known/disintar_logo.png');
 const Img_Neocrypto = require('../../assets/known/neocrypto.png');
 
+const Img_TonTake = require('../../assets/known/Img_TonTake.jpg');
+
 // Tegro
 const Img_Tegro_Money_bot = require('../../assets/known/Tegro_Money_bot.png');
 const Img_Tegro_TON_bot = require('../../assets/known/Tegro_TON_bot.png');
@@ -304,4 +306,15 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_TON_DUCKS
         },
+
+        [Address.parse('EQAZc8Jh25nuOH0Dx4ZvRKQ7I7ayltKj6_K2iRNodXSrL9-3').toFriendly()]: {
+            name: 'TonTake',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_TonTake
+        },
+
+
     }

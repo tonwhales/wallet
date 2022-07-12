@@ -12,9 +12,6 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { KnownPools } from '../../utils/KnownPools';
-import { Address, TupleSlice4 } from 'ton';
-import BN from 'bn.js';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();

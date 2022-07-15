@@ -77,7 +77,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             invalidAmount: 'Неверное количество',
             sendingToYourself: 'Вы не можете отправлять монеты сами себе',
             zeroCoins: 'К сожалению, вы не можете отправить ноль монет',
-            notEnoughCoins: 'К сожалению, на кошельке не достаточно монет для совершения транзакции',
+            notEnoughCoins: 'К сожалению, на кошельке недостаточно монет для совершения транзакции',
             addressIsForTestnet: 'Этот адрес для тестовой сети',
             addressCantReceive: 'Этот адрес не может принимать монеты',
             addressIsNotActive: 'Этот кошелёк никогда не использовался'

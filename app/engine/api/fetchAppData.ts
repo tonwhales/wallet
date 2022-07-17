@@ -4,17 +4,22 @@ import * as t from 'io-ts';
 import { warn } from "../../utils/log";
 import qs from 'qs';
 
-export type AppDataIcon = {
+export type ImagePreview = {
     blurhash: string,
     preview256: string
 }
+
+export const imagePreview = t.type({
+    blurhash: t.string,
+    preview256: t.string,
+});
 
 export type AppData = {
     title: string,
     url: string,
     color: string | null,
     description: string | null,
-    image: AppDataIcon | null,
+    image: ImagePreview | null,
     originalImage: string | null
 }
 

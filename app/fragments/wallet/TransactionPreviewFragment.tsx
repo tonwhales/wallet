@@ -20,6 +20,7 @@ import { ActionsMenuView } from "../../components/ActionsMenuView";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { toNanoWithDecimals } from "../../utils/withDecimals";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -65,6 +66,8 @@ export const TransactionPreviewFragment = fragment(() => {
         || (
             Math.abs(parseFloat(fromNano(transaction.base.amount))) < 0.05
             && transaction.base.body?.type === 'comment'
+            && !KnownWallets[friendlyAddress]
+            && !AppConfig.isTestnet
         );
 
     return (
@@ -105,7 +108,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                 ) : (
                     <Text style={{ color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
-                        <ValueComponent value={item.amount} centFontStyle={{ fontSize: 30, fontWeight: '400' }} />
+                        <ValueComponent value={item.kind === 'token' ? toNanoWithDecimals(item.amount, item.decimals) : item.amount} centFontStyle={{ fontSize: 30, fontWeight: '400' }} />
                         {item.kind === 'token' ? ' ' + item.symbol : ''}
                     </Text>
                 )}

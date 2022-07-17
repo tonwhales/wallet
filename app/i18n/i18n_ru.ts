@@ -382,6 +382,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     accounts: {
         active: 'Активные',
+        noActive: 'Нет активных аккаунтов',
         disabled: 'Неактивные',
         alertActive: 'Активировать {{symbol}}?',
         alertDisabled: 'Сделать {{symbol}} неактивным?'

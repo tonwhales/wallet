@@ -26,7 +26,6 @@ export class StakingPoolsProduct {
                             address: p,
                             balance: state.member.balance
                                 .add(state.member.pendingDeposit)
-                                .add(state.member.pendingWithdraw)
                                 .add(state.member.withdraw)
                         }
                         total = total.add(pool.balance);

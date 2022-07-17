@@ -14,6 +14,7 @@ import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import { Engine } from '../../../engine/Engine';
+import { toNanoWithDecimals } from '../../../utils/withDecimals';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -31,6 +32,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = operation.items[0];
+    let amount = item.amount;
     let op: string;
     if (operation.op) {
         op = operation.op;
@@ -64,13 +66,23 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         || (
             Math.abs(parseFloat(fromNano(parsed.amount))) < 0.05
             && tx.base.body?.type === 'comment'
+            && !KnownWallets[friendlyAddress]
+            && !AppConfig.isTestnet
         );
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={tx.icon ? tx.icon : undefined} spam={spam} />)}
+                    {parsed.status !== 'pending' && (
+                        <Avatar
+                            address={friendlyAddress}
+                            id={avatarId}
+                            size={42}
+                            image={tx.icon ? tx.icon : undefined}
+                            spam={spam}
+                        />
+                    )}
                     {parsed.status === 'pending' && (
                         <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
                     )}
@@ -106,7 +118,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                                     fontSize: 16,
                                     marginRight: 2
                                 }}>
-                                <ValueComponent value={item.amount} />
+                                <ValueComponent value={item.kind === 'token' ? toNanoWithDecimals(item.amount, item.decimals) : item.amount} />
                                 {item.kind === 'token' ? ' ' + item.symbol : ''}
                             </Text>
                         )}

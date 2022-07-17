@@ -382,6 +382,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     accounts: {
         active: 'Active',
+        noActive: 'No active accounts',
         disabled: 'Hidden',
         alertActive: 'Mark {{symbol}} active?',
         alertDisabled: 'Mark {{symbol}} hidden?'

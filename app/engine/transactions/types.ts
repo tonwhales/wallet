@@ -20,5 +20,6 @@ export type OperationItem = {
 } | {
     kind: 'token',
     amount: BN;
-    symbol: string
+    symbol: string,
+    decimals: number | null
 };

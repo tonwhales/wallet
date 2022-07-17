@@ -9,6 +9,8 @@ const Img_FTX = require('../../assets/known/ftx.png');
 const Img_Disintar = require('../../assets/known/disintar_logo.png');
 const Img_Neocrypto = require('../../assets/known/neocrypto.png');
 
+const Img_TonTake = require('../../assets/known/Img_TonTake.jpg');
+
 // Tegro
 const Img_Tegro_Money_bot = require('../../assets/known/Tegro_Money_bot.png');
 const Img_Tegro_TON_bot = require('../../assets/known/Tegro_TON_bot.png');
@@ -26,6 +28,8 @@ const Img_TONLab_Pro_Inc = require('../../assets/known/TONLab_Pro_Inc.png');
 const Img_TON_Chuwee_Boys = require('../../assets/known/TON_Chuwee_Boys.png');
 
 const Img_TON_DUCKS = require('../../assets/known/TON_DUCKS.jpeg')
+
+const Img_venera = require('../../assets/known/Img_venera.jpeg');
 
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
@@ -208,7 +212,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Neocrypto
         },
-        
+
         // Tegro
         [Address.parse('EQC5VTeQo1K7T0fWJvdiymrjJTUAXVhk3RsZoxzehh0qU4Yo').toFriendly()]: {
             name: 'Tegro Money bot',
@@ -303,5 +307,23 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 secondary: '#7f88b5'
             },
             ic: Img_TON_DUCKS
+        },
+
+        [Address.parse('EQAZc8Jh25nuOH0Dx4ZvRKQ7I7ayltKj6_K2iRNodXSrL9-3').toFriendly()]: {
+            name: 'TonTake',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_TonTake
+        },
+        
+        [Address.parse('EQCOGv_9I544WnSLvuepzG8WetJek-ebNBwQ3-jfjTQYj5UY').toFriendly()]: {
+            name: 'VENERA Exchange',
+            colors: {
+                primary: '#8c5bd8',
+                secondary: '#20d7e0'
+            },
+            ic: Img_venera
         },
     }

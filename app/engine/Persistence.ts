@@ -18,7 +18,7 @@ import { HintProcessingState } from "./sync/startHintSync";
 import { TxHints } from "./sync/startHintsTxSync";
 import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
-import { AppData, appDataCodec } from "./api/fetchAppData";
+import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 
 export class Persistence {
@@ -210,8 +210,10 @@ const jettonMasterCodec = t.type({
     version: t.number,
     name: t.union([t.null, t.string]),
     description: t.union([t.null, t.string]),
-    image: t.union([t.null, t.string]),
-    symbol: t.union([t.null, t.string])
+    symbol: t.union([t.null, t.string]),
+    decimals: t.union([t.number, t.null]),
+    originalImage: t.union([t.string, t.null, t.undefined]),
+    image: t.union([imagePreview, t.null])
 });
 
 const hintProcessingState = t.type({

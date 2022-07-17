@@ -30,6 +30,8 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
+import { warn } from '../../utils/log';
+import { fromBNWithDecimals, toBNWithDecimals, toNanoWithDecimals } from '../../utils/withDecimals';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -62,7 +64,15 @@ export const SimpleTransferFragment = fragment(() => {
     const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
     const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
-    const balance = jettonWallet ? jettonWallet.balance : account.balance;
+    const balance = React.useMemo(() => {
+        let value;
+        if (jettonWallet) {
+            value = jettonWallet.balance;
+        } else {
+            value = account.balance;
+        }
+        return value;
+    }, [jettonWallet, jettonMaster, account.balance]);
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
     // Auto-cancel job
@@ -85,6 +95,10 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
+            // Manage jettons with decimals
+            if (jettonWallet) {
+                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            }
         } catch (e) {
             return null;
         }
@@ -142,6 +156,10 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
+            // Manage jettons with decimals
+            if (jettonWallet) {
+                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            }
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
@@ -184,7 +202,7 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, comment, account.seqno, stateInit, order, callback]);
+    }, [amount, target, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
     const config = engine.products.config.useConfig();
@@ -409,7 +427,7 @@ export const SimpleTransferFragment = fragment(() => {
                             color: '#6D6D71',
                             marginBottom: 5
                         }}>
-                            {fromNano(balance)} {symbol}
+                            {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

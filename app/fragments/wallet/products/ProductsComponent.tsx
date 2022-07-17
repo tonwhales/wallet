@@ -50,10 +50,16 @@ export const ProductsComponent = React.memo(() => {
             />
         );
     }
+
     for (let j of jettons) {
         if (j.balance.gt(new BN(0))) {
             accounts.push(
-                <JettonProdcut key={'jt' + j.wallet.toFriendly()} jetton={j} navigation={navigation} engine={engine} />
+                <JettonProdcut
+                    key={'jt' + j.wallet.toFriendly()}
+                    jetton={j}
+                    navigation={navigation}
+                    engine={engine}
+                />
             );
         }
     }
@@ -87,7 +93,7 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
-    apps.push(<StakingProductComponent key={'pool'}/>);
+    apps.push(<StakingProductComponent key={'pool'} />);
 
     return (
         <View style={{ paddingTop: 8 }}>

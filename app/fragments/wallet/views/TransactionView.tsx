@@ -14,6 +14,7 @@ import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import { Engine } from '../../../engine/Engine';
+import { toNanoWithDecimals } from '../../../utils/withDecimals';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -31,6 +32,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = operation.items[0];
+    let amount = item.amount;
     let op: string;
     if (operation.op) {
         op = operation.op;
@@ -106,7 +108,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                                     fontSize: 16,
                                     marginRight: 2
                                 }}>
-                                <ValueComponent value={item.amount} />
+                                <ValueComponent value={item.kind === 'token' ? toNanoWithDecimals(item.amount, item.decimals) : item.amount} />
                                 {item.kind === 'token' ? ' ' + item.symbol : ''}
                             </Text>
                         )}

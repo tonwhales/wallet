@@ -29,6 +29,8 @@ const Img_TON_Chuwee_Boys = require('../../assets/known/TON_Chuwee_Boys.png');
 
 const Img_TON_DUCKS = require('../../assets/known/TON_DUCKS.jpeg')
 
+const Img_venera = require('../../assets/known/Img_venera.jpeg');
+
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
 export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
@@ -210,7 +212,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Neocrypto
         },
-        
+
         // Tegro
         [Address.parse('EQC5VTeQo1K7T0fWJvdiymrjJTUAXVhk3RsZoxzehh0qU4Yo').toFriendly()]: {
             name: 'Tegro Money bot',
@@ -315,6 +317,13 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_TonTake
         },
-
-
+        
+        [Address.parse('EQCOGv_9I544WnSLvuepzG8WetJek-ebNBwQ3-jfjTQYj5UY').toFriendly()]: {
+            name: 'VENERA Exchange',
+            colors: {
+                primary: '#8c5bd8',
+                secondary: '#20d7e0'
+            },
+            ic: Img_venera
+        },
     }

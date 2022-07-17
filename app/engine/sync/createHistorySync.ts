@@ -36,7 +36,6 @@ export function createHistorySync(address: Address, engine: Engine) {
         //
         // Loading transactions
         //
-
         logger.log('Loading older transactions from ' + cursor.lt);
         let loadedTransactions = await backoff('account-history', async () => {
             return await engine.connector.fetchTransactions(address, cursor);

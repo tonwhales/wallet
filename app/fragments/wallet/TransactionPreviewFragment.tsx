@@ -66,6 +66,8 @@ export const TransactionPreviewFragment = fragment(() => {
         || (
             Math.abs(parseFloat(fromNano(transaction.base.amount))) < 0.05
             && transaction.base.body?.type === 'comment'
+            && !KnownWallets[friendlyAddress]
+            && !AppConfig.isTestnet
         );
 
     return (

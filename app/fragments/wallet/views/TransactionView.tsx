@@ -66,6 +66,8 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         || (
             Math.abs(parseFloat(fromNano(parsed.amount))) < 0.05
             && tx.base.body?.type === 'comment'
+            && !KnownWallets[friendlyAddress]
+            && !AppConfig.isTestnet
         );
 
     return (

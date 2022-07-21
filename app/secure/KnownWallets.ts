@@ -196,6 +196,14 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Whales
         },
+        [Address.parse('EQDirOvbb6HvbE2TYwfyNtMwkxj97_Onmt32JUZpdrId0JFi').toFriendly()]: {
+            name: 'Infinity Mining Pool',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Whales
+        },
         [Address.parse('EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA').toFriendly()]: {
             name: 'Disintar.io',
             colors: {

@@ -87,8 +87,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidAddress: 'Invalid address',
             invalidAmount: 'Invalid amount',
             sendingToYourself: 'You can\'t send coins to yourself',
-            zeroCoins: 'Unfortunatelly you can\'t send zero coins',
-            notEnoughCoins: 'Unfortunatelly you don\'t have enougth coins for this transaction',
+            zeroCoins: 'unfortunately you can\'t send zero coins',
+            notEnoughCoins: 'unfortunately you don\'t have enougth coins for this transaction',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
             addressIsNotActive: 'This wallet has never been used'
@@ -189,7 +189,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawStakeConfirmTitle: 'Confirm Withdrawal',
                 topUpTitle: 'Top Up',
                 topUpConfirmTitle: 'Confirm Top Up',
-                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked',
+                notEnoughStaked: 'unfortunately you don\'t have enougth coins staked',
                 confirmWithdraw: 'Request Withdrawal',
                 confirmWithdrawReady: 'Withdraw now',
                 restrictedTitle: 'This Staking Pool is restricted',
@@ -336,7 +336,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         secureStorageError: {
             title: 'Secure storage error',
-            message: 'Unfortunatelly we are unable to save data. Please, restart your phone.'
+            message: 'unfortunately we are unable to save data. Please, restart your phone.'
         }
     },
     confirm: {

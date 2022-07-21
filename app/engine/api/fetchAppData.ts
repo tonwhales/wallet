@@ -20,7 +20,8 @@ export type AppData = {
     color: string | null,
     description: string | null,
     image: ImagePreview | null,
-    originalImage: string | null
+    originalImage: string | null,
+    extension: string | null | undefined
 }
 
 export const appDataCodec = t.type({
@@ -35,7 +36,8 @@ export const appDataCodec = t.type({
             preview256: t.string,
         })
     ]),
-    originalImage: t.union([t.null, t.string])
+    originalImage: t.union([t.null, t.string]),
+    extension: t.union([t.null, t.string, t.undefined])
 });
 
 export async function fetchAppData(link: string) {
@@ -47,8 +49,11 @@ export async function fetchAppData(link: string) {
         return null;
     }
 
+    console.log('fectching: ', url.toString());
+
     const reqUrl = `https://connect.tonhubapi.com/apps/metadata?${qs.stringify({ url: url.toString() })}`;
     const res = await axios.get(reqUrl);
+    console.log('fectched data: ', res.data);
 
     if (res.status === 200) {
         const parsed = appDataCodec.decode(res.data);

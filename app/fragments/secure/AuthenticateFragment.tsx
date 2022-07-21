@@ -243,6 +243,8 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         );
     }
 
+    console.log('[AuthFragment]', { state });
+
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
             <View style={{ flexGrow: 1 }} />

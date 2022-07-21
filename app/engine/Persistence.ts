@@ -150,7 +150,8 @@ const stakingPoolStateCodec = t.type({
         depositFee: c.bignum,
         withdrawFee: c.bignum,
         stakeUntil: t.number,
-        receiptPrice: c.bignum
+        receiptPrice: c.bignum,
+        poolFee: c.bignum
     }),
     member: t.type({
         balance: c.bignum,

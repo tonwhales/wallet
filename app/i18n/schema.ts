@@ -131,7 +131,8 @@ export type LocalizationSchema = {
             delete: {
                 title: string,
                 message: string
-            }
+            },
+            installExtension: string
         }
     },
     install: {

@@ -141,6 +141,10 @@ export const SettingsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_accounts.png')} title={t('products.accounts')} onPress={() => navigation.navigate('Accounts')} />
                     </View>
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../assets/ic_filter.png')} title={t('settings.spamFilter')} onPress={() => navigation.navigate('SpamFilter')} />
+                    </View>
                 </View>
 
                 <View style={{

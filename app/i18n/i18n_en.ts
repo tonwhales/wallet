@@ -29,7 +29,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         in: 'in',
         max: 'Max',
         close: 'Close',
-        delete: 'Delete'
+        delete: 'Delete',
+        apply: 'Apply'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -46,7 +47,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         migrateOldWallets: 'Migrate old wallets',
         termsOfService: 'Terms of Service',
         privacyPolicy: 'Privacy policy',
-        developerTools: 'Developer Tools'
+        developerTools: 'Developer Tools',
+        spamFilter: 'SPAM filter'
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -386,6 +388,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         disabled: 'Hidden',
         alertActive: 'Mark {{symbol}} active?',
         alertDisabled: 'Mark {{symbol}} hidden?'
+    },
+    spamFilter: {
+        minAmount: 'Min TON amount',
+        dontShowComments: 'Don\'t show comments on SPAM transactions',
+        minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
+        applyConfig: 'Apply selected SPAM filter settings'
     }
 };
 

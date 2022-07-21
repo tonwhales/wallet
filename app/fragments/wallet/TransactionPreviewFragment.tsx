@@ -154,7 +154,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 justifyContent: 'center',
                 width: '100%'
             }}>
-                {operation.comment && !spam && spamFilterConfig.dontShowComments && (
+                {operation.comment && !(spam && !spamFilterConfig.dontShowComments) && (
                     <>
                         <ActionsMenuView content={operation.comment}>
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>

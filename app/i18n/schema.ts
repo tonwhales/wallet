@@ -31,7 +31,8 @@ export type LocalizationSchema = {
         in: string,
         max: string,
         close: string,
-        delete: string
+        delete: string,
+        apply: string
     },
     syncStatus: {
         connecting: string,
@@ -48,7 +49,8 @@ export type LocalizationSchema = {
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,
-        developerTools: string
+        developerTools: string,
+        spamFilter: string
     },
     wallet: {
         sync: string,
@@ -388,6 +390,12 @@ export type LocalizationSchema = {
         disabled: string,
         alertActive: string,
         alertDisabled: string
+    },
+    spamFilter: {
+        minAmount: string,
+        dontShowComments: string,
+        minAmountDescription: string,
+        applyConfig: string
     }
 };
 

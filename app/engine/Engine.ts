@@ -18,6 +18,7 @@ import { ExtensionsProduct } from './products/ExtensionsProduct';
 import { Cloud } from './cloud/Cloud';
 import { AppConfig } from '../AppConfig';
 import { StakingPoolsProduct } from './products/StakingProduct';
+import { SettingsProduct } from './products/SettingsProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -47,7 +48,8 @@ export class Engine {
         whalesStakingPools: StakingPoolsProduct,
         config: ConfigProduct,
         serverConfig: ServerConfigProduct,
-        extensions: ExtensionsProduct
+        extensions: ExtensionsProduct,
+        settings: SettingsProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -93,7 +95,8 @@ export class Engine {
             whalesStakingPools: new StakingPoolsProduct(this),
             config: new ConfigProduct(this),
             serverConfig: new ServerConfigProduct(this),
-            extensions: new ExtensionsProduct(this)
+            extensions: new ExtensionsProduct(this),
+            settings: new SettingsProduct(this)
         };
 
         //

@@ -29,7 +29,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         in: 'через',
         max: 'Макс.',
         close: 'Закрыть',
-        delete: 'Удалить'
+        delete: 'Удалить',
+        apply: 'Применить'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -46,7 +47,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         migrateOldWallets: 'Перенос старых кошельков',
         termsOfService: 'Условия использования',
         privacyPolicy: 'Политика конфиденциальности',
-        developerTools: 'Инструменты разработчика'
+        developerTools: 'Инструменты разработчика',
+        spamFilter: 'SPAM фильтр'
     },
     wallet: {
         sync: 'Синхронизация кошелька',
@@ -386,6 +388,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         disabled: 'Неактивные',
         alertActive: 'Активировать {{symbol}}?',
         alertDisabled: 'Сделать {{symbol}} неактивным?'
+    },
+    spamFilter: {
+        minAmount: 'Минимальная сумма TON',
+        dontShowComments: 'Не показывать комментарии на SPAM транзакциях',
+        minAmountDescription: 'Транзакции с количеством TON меньшим чем {{amount}} будут автоматически помечаться как SPAM',
+        applyConfig: 'Установить выбраные настройки SPAM фильтра'
     }
 };
 

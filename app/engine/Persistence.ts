@@ -20,6 +20,7 @@ import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
 import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
+import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 
 export class Persistence {
 
@@ -55,6 +56,8 @@ export class Persistence {
     readonly domainKeys: PersistedCollection<string, DomainSubkey>;
 
     readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
+
+    readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -97,6 +100,9 @@ export class Persistence {
 
         // Cloud
         this.cloud = new PersistedCollection({ storage, namespace: 'cloud', key: keyedAddressKey, codec: t.string, engine });
+
+        // SpamFilter
+        this.spamFilterConfig = new PersistedCollection({storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
     }
 }
 
@@ -256,4 +262,9 @@ const domainKeyCodec = t.type({
     time: t.number,
     signature: c.buffer,
     secret: c.buffer
+});
+
+const spamFilterCodec = t.type({
+    minAmount: t.union([c.bignum, t.null]),
+    dontShowComments: t.union([t.boolean, t.null])
 });

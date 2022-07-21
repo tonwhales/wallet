@@ -13,7 +13,7 @@ import { PendingTransactionAvatar } from '../../../components/PendingTransaction
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
-import { Engine } from '../../../engine/Engine';
+import { Engine, useEngine } from '../../../engine/Engine';
 import { toNanoWithDecimals } from '../../../utils/withDecimals';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
@@ -62,9 +62,11 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         known = { name: operation.title };
     }
 
+    const spamFilterConfig = props.engine.products.settings.useSpamfilter();
+
     let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
         || (
-            Math.abs(parseFloat(fromNano(parsed.amount))) < 0.05
+            parsed.amount.lt(spamFilterConfig.minAmount)
             && tx.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet

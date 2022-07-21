@@ -77,11 +77,9 @@ export const SpamFilterFragment = fragment(() => {
     && minValue === fromNano(spamConfig.minAmount);
     
     useEffect(() => {
-        console.log({ spamConfig });
         setDontShowComments(spamConfig.dontShowComments);
         setMinValue(fromNano(spamConfig.minAmount));
     }, [spamConfig.dontShowComments, spamConfig.minAmount]);
-
 
     return (
         <View style={{

@@ -49,11 +49,8 @@ export async function fetchAppData(link: string) {
         return null;
     }
 
-    console.log('fectching: ', url.toString());
-
     const reqUrl = `https://connect.tonhubapi.com/apps/metadata?${qs.stringify({ url: url.toString() })}`;
     const res = await axios.get(reqUrl);
-    console.log('fectched data: ', res.data);
 
     if (res.status === 200) {
         const parsed = appDataCodec.decode(res.data);

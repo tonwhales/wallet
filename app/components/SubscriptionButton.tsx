@@ -1,0 +1,260 @@
+import React, { useCallback } from "react"
+import { View, Text, Pressable, Alert } from "react-native";
+import { AddressComponent } from "./AddressComponent";
+import { Theme } from "../Theme";
+import { ValueComponent } from "./ValueComponent";
+import { PriceComponent } from "./PriceComponent";
+import { t } from "../i18n/t";
+import { formatDate } from "../utils/dates";
+import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { getCurrentAddress } from "../storage/appState";
+import { useItem } from "../engine/persistence/PersistedItem";
+import { PluginState } from "../engine/sync/startPluginSync";
+import { useEngine } from "../engine/Engine";
+import { Address } from "ton";
+import BN from "bn.js";
+
+export const SubscriptionButton = React.memo((
+    {
+        address,
+        subscription
+    }: {
+        address: string
+        subscription: PluginState
+    }
+) => {
+    const navigation = useTypedNavigation();
+    const acc = React.useMemo(() => getCurrentAddress(), []);
+    const engine = useEngine();
+    const account = useItem(engine.model.wallet(engine.address));
+
+    const onCancelSub = useCallback(
+        async () => {
+            await new Promise<boolean>(resolve => {
+                Alert.alert(
+                    t('products.plugins.subscription.cancel'),
+                    t('products.plugins.subscription.cancelConfirm'),
+                    [{
+                        text: t('common.yes'),
+                        style: 'destructive',
+                        onPress: async () => {
+                            navigation.navigate('PluginTransfer', {
+                                address: Address.parse(address),
+                                operation: 'remove',
+                                amount: new BN(0)
+                            });
+                            resolve(true);
+                        }
+                    }, {
+                        text: t('common.no'),
+                        onPress: () => {
+                            resolve(false);
+                        }
+                    }]);
+            });
+        },
+        [subscription, account, acc, engine],
+    );
+
+    if (subscription.type === 'unknown') {
+        return (
+            <View style={{
+                minHeight: 62, borderRadius: 14,
+                backgroundColor: 'white', flexDirection: 'row',
+                padding: 10, flex: 1
+            }}>
+                <View
+                    style={{
+                        height: 42, width: 42,
+                        backgroundColor: 'white',
+                        borderRadius: 26,
+                        overflow: 'hidden',
+                        marginRight: 10
+                    }}
+                >
+                    <View style={{
+                        position: 'absolute',
+                        top: 0, bottom: 0,
+                        left: 0, right: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{
+                            fontWeight: '800',
+                            fontSize: 18,
+                        }}>
+                            {'U'}
+                        </Text>
+                    </View>
+                    {/* {!!subscription.icon && (
+                        <Image
+                        source={subscription.icon}
+                        style={{
+                            height: 42, width: 42, borderRadius: 10,
+                            overflow: 'hidden'
+                        }} />
+                    )} */}
+                    <View style={{
+                        borderRadius: 26,
+                        borderWidth: 0.5,
+                        borderColor: 'black',
+                        backgroundColor: 'transparent',
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        opacity: 0.06
+                    }} />
+                </View>
+                <View
+                    style={{
+                        flexDirection: 'column',
+                        flex: 1,
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text style={{
+                        fontSize: 16,
+                        color: Theme.textColor,
+                        fontWeight: '600',
+                        flex: 1,
+                        marginBottom: 3
+                    }}
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                    >
+                        {'Unknown contract'}
+                    </Text>
+                </View>
+                <Pressable style={
+                    ({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.3 : 1
+                        }
+                    }
+                }
+                    onPress={onCancelSub}
+                >
+                    <Text>
+                        {t('common.cancel')}
+                    </Text>
+                </Pressable>
+            </View>
+        );
+    }
+
+    const periodFullDays = Math.floor(subscription.state.period / (60 * 60 * 24));
+    const nextBilling = subscription.state.lastPayment + subscription.state.period;
+    let period = '';
+    if (periodFullDays === 30) {
+        period = t('products.plugins.monthly');
+    } else if (periodFullDays > 30) {
+        period = t('products.plugins.inDays', { count: periodFullDays });
+    } else {
+        period = t('products.plugins.inHours', { count: Math.floor(subscription.state.period / (60 * 60)) });
+    }
+
+    return (
+        <Pressable
+            style={({ pressed }) => {
+                return {
+                    opacity: pressed ? 0.3 : 1,
+                    marginBottom: 8
+                }
+            }}
+            onPress={() => { navigation.navigate('Subscription', { address: Address.parse(address), subscription: subscription.state }); }}
+        >
+            <View style={{
+                minHeight: 62, borderRadius: 14,
+                backgroundColor: 'white', flexDirection: 'row',
+                padding: 10, flex: 1
+            }}>
+                <View
+                    style={{
+                        height: 42, width: 42,
+                        backgroundColor: 'white',
+                        borderRadius: 26,
+                        overflow: 'hidden',
+                        marginRight: 10
+                    }}
+                >
+                    <View style={{
+                        position: 'absolute',
+                        top: 0, bottom: 0,
+                        left: 0, right: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{
+                            fontWeight: '800',
+                            fontSize: 18,
+                        }}>
+                            {'Sub'}
+                        </Text>
+                    </View>
+                    {/* {!!subscription.icon && (
+                    <Image
+                    source={subscription.icon}
+                    style={{
+                        height: 42, width: 42, borderRadius: 10,
+                        overflow: 'hidden'
+                    }} />
+                )} */}
+                    <View style={{
+                        borderRadius: 26,
+                        borderWidth: 0.5,
+                        borderColor: 'black',
+                        backgroundColor: 'transparent',
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        opacity: 0.06
+                    }} />
+                </View>
+                <View
+                    style={{
+                        flexDirection: 'column',
+                        flex: 1,
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text style={{
+                        fontSize: 16,
+                        color: Theme.textColor,
+                        fontWeight: '600',
+                        flex: 1,
+                        marginBottom: 3
+                    }}
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                    >
+                        <AddressComponent address={Address.parse(address)} />
+                    </Text>
+                    {period!! && period.length > 0 && (
+                        <Text style={{
+                            fontSize: 13, fontWeight: '400',
+                            maxWidth: 150, color: '#787F83'
+                        }}>
+                            {period}
+                        </Text>
+                    )}
+                    <Text style={{
+                        fontSize: 13, fontWeight: '400',
+                        maxWidth: 160, color: '#787F83'
+                    }}>
+                        {t('products.plugins.nextBilling') + ': ' + formatDate(nextBilling)}
+                    </Text>
+                </View>
+                <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
+                    <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginBottom: 5 }}>
+                        <ValueComponent value={subscription.state.amount} /> {' TON'}
+                    </Text>
+                    <PriceComponent
+                        amount={subscription.state.amount}
+                        style={{
+                            backgroundColor: 'transparent',
+                            paddingHorizontal: 0, paddingVertical: 0,
+                            alignSelf: 'flex-end', height: 14
+                        }}
+                        textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
+                    />
+                </View>
+            </View>
+        </Pressable>
+    )
+})

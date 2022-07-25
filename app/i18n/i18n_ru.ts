@@ -280,6 +280,31 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: "Уверены, что хотите вывести?"
             }
         },
+        plugins: {
+            title: 'Мои подписки',
+            productTitle: 'Подписки',
+            noActive: 'У вас нет активных подписок',
+            cancelAll: 'Отменить все',
+            description: 'Здесь вы можете управлять своими подписками. Вы можете просмотреть и отменить их',
+            productDescription: '{{count}} активных',
+            nextBilling: 'Дата следующего списания',
+            monthly: 'Ежемесячно',
+            inDays: 'Каждые {{count}}д',
+            inHours: 'Каждые {{count}}ч',
+            subscription: {
+                title: 'Подписка',
+                link: 'Ссылка',
+                charge: 'Стоимость',
+                startDate: 'Дата создания',
+                cancel: 'Отменить подписку',
+                cancelConfirm: 'Вы уверены, что хотите отменить эту подписку?'
+            },
+            operation: {
+                install: 'Установить плагин',
+                remove: 'Удалить плагин',
+                deploy_install: 'Опубликовать и установить плагин'
+            }
+        }
     },
     welcome: {
         title: 'Tonhub',

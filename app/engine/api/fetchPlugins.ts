@@ -1,4 +1,5 @@
 import { Address, TonClient4 } from "ton";
+import { AppConfig } from "../../AppConfig";
 
 export async function fetchPlugins(client: TonClient4, block: number, address: Address) {
     let seqnoRes = await client.runMethod(block, address, 'get_plugin_list');

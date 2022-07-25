@@ -280,6 +280,31 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Are you sure about the unstaking?'
             }
         },
+        plugins: {
+            title: 'My subscriptions',
+            productTitle: 'Subscriptions',
+            noActive: 'You have no active subscriptions',
+            cancelAll: 'Cancel all',
+            description: 'Here you can manage your subscriptions. You can view and cancel them',
+            productDescription: '{{count}} active',
+            nextBilling: 'Next billing date',
+            monthly: 'Monthly',
+            inDays: 'Every {{count}}d',
+            inHours: 'Every {{count}}h',
+            subscription: {
+                title: 'Subscription',
+                link: 'Link',
+                charge: 'Charge',
+                startDate: 'Created on',
+                cancel: 'Cancel subscription',
+                cancelConfirm: 'Are you sure you want to cancel this subscription?'
+            },
+            operation: {
+                install: 'Install plugin',
+                remove: 'Uninstall plugin', 
+                deploy_install: 'Deploy & Install plugin'
+            }
+        }
     },
     welcome: {
         title: 'Tonhub',

@@ -282,6 +282,31 @@ export type LocalizationSchema = {
                 message: string
             }
         },
+        plugins: {
+            title: string,
+            productTitle: string,
+            noActive: string,
+            cancelAll: string,
+            description: string,
+            productDescription: string,
+            nextBilling: string,
+            monthly: string,
+            inDays: string,
+            inHours: string,
+            subscription: {
+                title: string,
+                link: string,
+                charge: string,
+                startDate: string,
+                cancel: string,
+                cancelConfirm: string
+            },
+            operation: {
+                install: string,
+                remove: string, 
+                deploy_install: string
+            }
+        }
     }
     welcome: {
         title: string,

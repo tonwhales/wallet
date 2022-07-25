@@ -8,6 +8,7 @@ export type Order = {
     amountAll: boolean;
     payload: Cell | null;
     stateInit: Cell | null;
+    transferCell?: boolean
 };
 
 export function createOrder(args: {

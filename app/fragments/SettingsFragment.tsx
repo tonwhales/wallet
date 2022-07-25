@@ -18,6 +18,7 @@ import { mixpanel, MixpanelEvent, trackEvent } from '../analytics/mixpanel';
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const plugins = engine.products.main.usePlugins().plugins;
     const reboot = useReboot();
     const engine = useEngine();
 
@@ -154,6 +155,14 @@ export const SettingsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t('auth.name')} onPress={() => navigation.navigate('Connections')} />
                     </View>
+                    {plugins!! && Object.keys(plugins).length > 0 && (
+                        <>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton leftIcon={require('../../assets/ic_subscriptions.png')} title={t('products.plugins.productTitle')} onPress={() => navigation.navigate('Subscriptions')} />
+                            </View>
+                        </>
+                    )}
                 </View>
 
                 <View style={{

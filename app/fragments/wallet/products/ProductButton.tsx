@@ -20,6 +20,7 @@ export function ProductButton(props: {
     onPress: () => void,
     onLongPress?: () => void
     style?: StyleProp<ViewStyle>,
+    iconBackgroundTint?: string
 }) {
     const Icon = props.icon;
     const dimentions = useWindowDimensions();

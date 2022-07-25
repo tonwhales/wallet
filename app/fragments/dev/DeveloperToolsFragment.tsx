@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
-import { Theme } from "../../Theme";
 import { Item } from '../../components/Item';
 import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
@@ -77,6 +76,18 @@ export const DeveloperToolsFragment = fragment(() => {
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                     </View>
                 </View>
+                {AppConfig.isTestnet && (
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Deploy and install plugin"} onPress={() => {
+                            const acc = getCurrentAddress();
+                            navigation.navigate('PluginTransfer', {
+                                address: acc.address,
+                                operation: 'deploy_install',
+                                amount: new BN(100000000)
+                            });
+                        }} />
+                    </View>
+                )}
             </View>
         </View>
     );

@@ -11,14 +11,16 @@ import { BlurView } from 'expo-blur';
 import { useReboot } from '../utils/RebootContext';
 import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
+import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
+import { mixpanel, MixpanelEvent, trackEvent } from '../analytics/mixpanel';
 
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const plugins = engine.products.main.usePlugins().plugins;
     const reboot = useReboot();
+    const engine = useEngine();
 
     const doSignout = React.useCallback(() => {
         Alert.alert(
@@ -27,6 +29,9 @@ export const SettingsFragment = fragment(() => {
             [{
                 text: t('common.logout'), style: 'destructive', onPress: () => {
                     storage.clearAll();
+                    mixpanel.reset(); // Clear super properties and generates a new random distinctId
+                    trackEvent(MixpanelEvent.Reset);
+                    mixpanel.flush();
                     reboot();
                 }
             }, { text: t('common.cancel') }])
@@ -107,7 +112,7 @@ export const SettingsFragment = fragment(() => {
                 </View>
             )}
             <ScrollView
-                contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom + 52 }}
+                contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingTop: 8, paddingBottom: safeArea.bottom + 52 }}
                 style={{
                     flexGrow: 1,
                     flexBasis: 0,
@@ -115,6 +120,9 @@ export const SettingsFragment = fragment(() => {
                     paddingHorizontal: 16,
                 }}
             >
+                {__DEV__ && (
+                    <ProfileComponent address={engine.address} />
+                )}
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: "white",
@@ -124,16 +132,20 @@ export const SettingsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup')} />
+                        <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
                     </View>
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../assets/ic_accounts.png')} title={t('products.accounts')} onPress={() => navigation.navigate('Accounts')} />
+                    </View>
                 </View>
 
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginBottom: 16, marginTop: 16,
                     backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
@@ -154,7 +166,7 @@ export const SettingsFragment = fragment(() => {
                 </View>
 
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginBottom: 16, marginTop: 16,
                     backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
@@ -170,8 +182,23 @@ export const SettingsFragment = fragment(() => {
                     </View>
                 </View>
 
+                {__DEV__ && (
+                    <View style={{
+                        marginBottom: 16, marginTop: 16,
+                        backgroundColor: "white",
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title='Dev Tools' onPress={() => navigation.navigate('DeveloperTools')} />
+                        </View>
+                    </View>
+                )}
+
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginBottom: 16, marginTop: 16,
                     backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
@@ -212,4 +239,4 @@ export const SettingsFragment = fragment(() => {
             </Pressable>
         </View>
     );
-});
+}, true);

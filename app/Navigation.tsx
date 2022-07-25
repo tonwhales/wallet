@@ -22,6 +22,10 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme, Theme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
+<<<<<<< HEAD
+=======
+import { EngineContext, useEngine } from './engine/Engine';
+>>>>>>> origin-master
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { backoff } from './utils/time';
@@ -43,6 +47,17 @@ import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFr
 import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
 import { EngineContext } from './engine/Engine';
 import { PluginTransferFragment } from './fragments/subscriptions/PluginTransferFragment';
+import { AppFragment } from './fragments/apps/AppFragment';
+import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
+import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
+import { InstallFragment } from './fragments/secure/InstallFragment';
+import { useTypedNavigation } from './utils/useTypedNavigation';
+import { AppConfig } from './AppConfig';
+import { ResolvedUrl } from './utils/resolveUrl';
+import BN from 'bn.js';
+import { mixpanel } from './analytics/mixpanel';
+import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
+import { AccountsFragment } from './fragments/AccountsFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -124,6 +139,7 @@ const navigation = [
     genericScreen('WalletCreated', WalletCreatedFragment),
     genericScreen('WalletBackupInit', WalletBackupFragment),
     genericScreen('WalletBackup', WalletBackupFragment),
+    genericScreen('WalletUpgrade', WalletUpgradeFragment),
     genericScreen('Settings', SettingsFragment),
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
@@ -133,16 +149,26 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
+    modalScreen('Install', InstallFragment),
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment),
-    modalScreen('Buy', NeocryptoFragment),
+    genericScreen('DeveloperToolsStorage', DevStorageFragment),
+    lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
+    fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Subscriptions', SubscriptionsFragment),
     modalScreen('Subscription', SubscriptionFragment),
     modalScreen('PluginTransfer', PluginTransferFragment),
+    modalScreen('Accounts', AccountsFragment),
+    <Stack.Screen
+        key={`genericScreen-App`}
+        name={'App'}
+        component={AppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />
 ];
 
 export const Navigation = React.memo(() => {
@@ -154,7 +180,12 @@ export const Navigation = React.memo(() => {
         let state = getAppState();
         if (0 <= state.selected && state.selected < state.addresses.length) {
             const ex = state.addresses[state.selected];
-            return createEngine({ address: ex.address, publicKey: ex.publicKey, recoilUpdater });
+
+            // Identify user profile by address
+            mixpanel.identify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            mixpanel.flush();
+
+            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater });
         } else {
             return null;
         }
@@ -169,6 +200,7 @@ export const Navigation = React.memo(() => {
 
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine);
+
         if (onboarding === 'backup') {
             return 'WalletCreated';
         } else if (onboarding === 'home') {
@@ -177,6 +209,8 @@ export const Navigation = React.memo(() => {
             return 'Sync';
         } else if (onboarding === 'welcome') {
             return 'Welcome';
+        } else if (onboarding === 'upgrade-store') {
+            return 'WalletUpgrade';
         } else {
             throw Error('Invalid onboarding state');
         }
@@ -308,3 +342,51 @@ export const Navigation = React.memo(() => {
         </EngineContext.Provider>
     );
 });
+
+export function useLinkNavigator() {
+    const navigation = useTypedNavigation();
+
+    const handler = React.useCallback((resolved: ResolvedUrl) => {
+        if (resolved.type === 'transaction') {
+            if (resolved.payload) {
+                navigation.navigateTransfer({
+                    order: {
+                        target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        amount: resolved.amount || new BN(0),
+                        amountAll: false,
+                        stateInit: resolved.stateInit,
+                        payload: resolved.payload,
+                    },
+                    text: resolved.comment,
+                    job: null,
+                    callback: null
+                });
+            } else {
+                navigation.navigateSimpleTransfer({
+                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    comment: resolved.comment,
+                    amount: resolved.amount,
+                    stateInit: resolved.stateInit,
+                    job: null,
+                    jetton: null,
+                    callback: null
+                });
+            }
+        }
+        if (resolved.type === 'connect') {
+            navigation.navigate('Authenticate', {
+                session: resolved.session,
+                endpoint: resolved.endpoint
+            });
+        }
+        if (resolved.type === 'install') {
+            navigation.navigate('Install', {
+                url: resolved.url,
+                title: resolved.customTitle,
+                image: resolved.customImage
+            });
+        }
+    }, []);
+
+    return handler;
+}

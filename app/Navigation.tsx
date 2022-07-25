@@ -40,6 +40,9 @@ import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './engine/createEngine';
 import { useRecoilCallback } from 'recoil';
+import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
+import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
+import { PluginTransferFragment } from './fragments/subscriptions/PluginTransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -152,6 +155,9 @@ const navigation = [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
+    modalScreen('Subscriptions', SubscriptionsFragment),
+    modalScreen('Subscription', SubscriptionFragment),
+    modalScreen('PluginTransfer', PluginTransferFragment),
     modalScreen('Accounts', AccountsFragment),
     <Stack.Screen
         key={`genericScreen-App`}

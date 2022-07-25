@@ -22,6 +22,7 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme, Theme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
+import { EngineContext, useEngine } from './engine/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { backoff } from './utils/time';
@@ -39,10 +40,6 @@ import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { createEngine } from './engine/createEngine';
 import { useRecoilCallback } from 'recoil';
-import { SubscriptionsFragment } from './fragments/subscriptions/SubscriptionsFragment';
-import { SubscriptionFragment } from './fragments/subscriptions/SubscriptionFragment';
-import { EngineContext } from './engine/Engine';
-import { PluginTransferFragment } from './fragments/subscriptions/PluginTransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -155,9 +152,6 @@ const navigation = [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
-    modalScreen('Subscriptions', SubscriptionsFragment),
-    modalScreen('Subscription', SubscriptionFragment),
-    modalScreen('PluginTransfer', PluginTransferFragment),
     modalScreen('Accounts', AccountsFragment),
     <Stack.Screen
         key={`genericScreen-App`}

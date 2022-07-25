@@ -206,6 +206,8 @@ export type LocalizationSchema = {
                 confirmWithdrawReady: string,
                 restrictedTitle: string,
                 restrictedMessage: string,
+                notEnoughCoinsFee: string,
+                notEnoughCoins: string,
             },
             join: {
                 title: string,

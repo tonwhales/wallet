@@ -11,6 +11,8 @@ import { createHistorySync } from "../sync/createHistorySync";
 import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { PluginState } from "../sync/startPluginSync";
+import { t } from "../../i18n/t";
+import { findLtIndex } from "../../utils/findLtIndex";
 
 export type WalletState = {
     balance: BN;
@@ -27,7 +29,9 @@ export type JettonsState = {
         name: string,
         symbol: string,
         description: string,
-        icon: string | null
+        icon: string | null,
+        decimals: number | null,
+        disabled?: boolean
     }[]
 }
 
@@ -73,6 +77,9 @@ export class WalletProduct {
                 // Load known jettons
                 let knownJettons = get(engine.persistence.knownAccountJettons.item(engine.address).atom) || [];
 
+                // Load disabled jeetons
+                let disabledJettons = get(engine.persistence.disabledJettons.item(engine.address).atom) || [];
+
                 // Load wallets
                 let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
                 for (let w of knownJettons) {
@@ -90,20 +97,34 @@ export class WalletProduct {
                     name: string,
                     symbol: string,
                     description: string,
-                    icon: string | null
+                    icon: string | null,
+                    decimals: number | null,
+                    disabled?: boolean
                 }[] = [];
                 for (let w of jettonWallets) {
                     let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
+
+                    if (jm && !jm.description) {
+                        jm.description = `$${jm.symbol} ${t('jetton.token')}`;
+                    }
+
                     if (jm && jm.name && jm.symbol && jm.description) {
 
                         // Image path
                         let icon: string | null = null;
                         if (jm.image) {
-                            let downloaded = get(engine.persistence.downloads.item(jm.image).atom);
+                            let downloaded;
+                            if (typeof jm.image === 'string') {
+                                downloaded = get(engine.persistence.downloads.item(jm.image).atom);
+                            } else {
+                                downloaded = get(engine.persistence.downloads.item(jm.image.preview256).atom);
+                            }
                             if (downloaded) {
                                 icon = FileSystem.cacheDirectory + downloaded;
                             }
                         }
+
+                        const disabled = !!disabledJettons.find((m) => m.equals(w.master));
 
                         jettonWalletsWithMasters.push({
                             ...w,
@@ -111,6 +132,8 @@ export class WalletProduct {
                             symbol: jm.symbol,
                             description: jm.description,
                             icon,
+                            decimals: jm.decimals,
+                            disabled
                         });
                     }
                 }
@@ -175,8 +198,14 @@ export class WalletProduct {
 
             // Resolve hasMore flag
             let next: { lt: string, hash: string } | null = null;
+            let nextIndex: number | undefined;
             if (state.transactions.length > 0) {
-                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[state.transactions.length - 1]);
+                if (state.transactions.length >= 40) {
+                    nextIndex = 40 - 1;
+                } else {
+                    nextIndex = state.transactions.length - 1
+                }
+                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[nextIndex]);
                 if (tx.prev) {
                     next = { lt: tx.prev.lt, hash: tx.prev.hash };
                 }
@@ -188,7 +217,7 @@ export class WalletProduct {
                 seqno: state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.map((v) => {
+                    ...state.transactions.slice(undefined, nextIndex ? nextIndex + 1 : undefined).map((v) => {
                         let tx = this.engine.transactions.getWalletTransaction(this.address, v);
                         return { id: tx.id, time: tx.time };
                     })
@@ -237,7 +266,58 @@ export class WalletProduct {
     }
 
     loadMore = (lt: string, hash: string) => {
-        this.#history.loadMore(lt, hash);
+        this.engine.persistence.wallets.item(this.engine.address).for((state) => {
+            let ltIndex = findLtIndex(state.transactions, lt, 0, state.transactions.length - 1);
+            // If not cached load more from server
+            if (ltIndex === state.transactions.length - 1) {
+                this.#history.loadMore(lt, hash);
+            }
+
+            // Update pending
+            this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
+
+            // Resolve hasMore in cache flag
+            let next: { lt: string, hash: string } | null = null;
+            let nextIndex: number | undefined;
+            if (state.transactions.length > 0) {
+                if (ltIndex != -1 && (state.transactions.length - 1 - ltIndex) >= 40) {
+                    // Load next 40
+                    nextIndex = ltIndex - 1 + 40;
+                } else {
+                    // Load rest
+                    nextIndex = state.transactions.length - 1
+                }
+                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[nextIndex]);
+                if (tx.prev) {
+                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                }
+            }
+
+            // Resolve updated state
+            this.#state = {
+                balance: state.balance,
+                seqno: state.seqno,
+                transactions: [
+                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
+                    ...state.transactions.slice(undefined, nextIndex ? nextIndex + 1 : undefined).map((v) => {
+                        let tx = this.engine.transactions.getWalletTransaction(this.address, v);
+                        return { id: tx.id, time: tx.time };
+                    })
+                ],
+                next
+            };
+
+            // Update transactions
+            for (let t of state.transactions) {
+                if (!this.#txs.has(t)) {
+                    let tx = this.engine.transactions.getWalletTransaction(this.address, t);
+                    this.#txs.set(tx.id, tx);
+                }
+            }
+
+            // Notify
+            this.engine.recoil.updater(this.#atom, this.#state);
+        });
     }
 
     registerPending(src: Transaction) {

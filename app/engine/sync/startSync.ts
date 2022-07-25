@@ -14,6 +14,9 @@ import { startHintSync } from "./startHintSync";
 import { startFileSync } from "./startFileSync";
 import { requestHintsIfNeeded } from "./ops";
 import { startConfigSync } from "./startConfigSync";
+import { startServerConfigSync } from "./startServerConfigSync";
+import { resolveLink } from "../../utils/resolveLink";
+import { startAppMetadataSync } from "./startAppMetadataSync";
 
 export function startSync(engine: Engine) {
 
@@ -149,5 +152,19 @@ export function startSync(engine: Engine) {
 
     engine.persistence.metadata.each((address) => {
         requestHintsIfNeeded(address, null, engine);
-    })
+    });
+
+    // 
+    // Server config for restrict_send and spam wallets
+    // 
+
+    startServerConfigSync(engine);
+
+    //
+    // App Metadata
+    //
+
+    engine.persistence.dApps.each((url) => {
+        startAppMetadataSync(url, engine);
+    });
 }

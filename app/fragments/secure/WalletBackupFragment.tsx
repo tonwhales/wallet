@@ -7,18 +7,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { loadWalletKeys } from '../../storage/walletKeys';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import { EngineContext } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
+import { useRoute } from '@react-navigation/native';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();
+    const route = useRoute();
+    const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
-    const address = React.useMemo(() => getCurrentAddress(), []);
+    const address = React.useMemo(() => getBackup(), []);
     const engine = React.useContext(EngineContext)!
     const onComplete = React.useCallback(() => {
         let state = getAppState();
@@ -26,10 +29,14 @@ export const WalletBackupFragment = systemFragment(() => {
             throw Error('Invalid state');
         }
         markAddressSecured(address.address);
-        if (engine && !engine.ready) {
-            navigation.navigateAndReplaceAll('Sync');
+        if (back) {
+            navigation.goBack();
         } else {
-            navigation.navigateAndReplaceAll('Home');
+            if (engine && !engine.ready) {
+                navigation.navigateAndReplaceAll('Sync');
+            } else {
+                navigation.navigateAndReplaceAll('Home');
+            }
         }
     }, []);
     React.useEffect(() => {
@@ -108,7 +115,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 <View style={{ height: 64 + 16 + safeArea.bottom }} />
             </ScrollView>
             <View style={{ height: 64, marginTop: 33, alignSelf: 'stretch', position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
-                <RoundButton title={t('common.continue')} onPress={onComplete} />
+                <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />
             </View>
         </Animated.View>
     );

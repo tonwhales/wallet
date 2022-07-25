@@ -5,12 +5,13 @@ import { log } from "../utils/log";
 import { createSimpleConnector } from "./api/Connector";
 import { Engine } from "./Engine";
 
-export function createEngine(args: { address: Address, publicKey: Buffer, recoilUpdater: (node: any, value: any) => void }) {
+export function createEngine(args: { address: Address, publicKey: Buffer, utilityKey: Buffer, recoilUpdater: (node: any, value: any) => void }) {
     let start = Date.now();
     log('Starting engine...');
     let res = new Engine(
         args.address,
         args.publicKey,
+        args.utilityKey,
         storagePersistence,
         AppConfig.isTestnet ? 'sandbox-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com',
         createSimpleConnector(!AppConfig.isTestnet ? {

@@ -1,5 +1,4 @@
 import { Cell, safeSignVerify, Slice } from "ton";
-import { signVerify } from "ton-crypto";
 import { Job } from "./Job";
 
 function parseString(slice: Slice) {

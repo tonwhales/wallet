@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react"
 import { View, Text } from "react-native";
-import { fromNano } from "ton";
+import { fromNano, toNano } from "ton";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { bnIsLess } from "../../utils/bnComparison";
@@ -25,6 +25,7 @@ export const StakingCalcComponent = React.memo((
         } | null
     }) => {
     if (topUp && member) {
+
         const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * 0.1);
         const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * 0.1));
         return (
@@ -94,23 +95,49 @@ export const StakingCalcComponent = React.memo((
                             {t('products.staking.calc.yearlyTopUp')}
                         </Text>
                         <View>
-                            <Text style={{
-                                fontWeight: '600',
-                                fontSize: 16,
-                                color: '#4FAE42'
-                            }}>
-                                <ValueComponent precision={2} value={yearlyPlus} />
-                                {' TON'}
-                            </Text>
-                            <PriceComponent
-                                amount={yearlyPlus}
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    paddingHorizontal: 0, paddingVertical: 2,
-                                    alignSelf: 'flex-end'
-                                }}
-                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
-                            />
+                            {(yearlyPlus.eq(new BN(0)) || yearlyPlus.gt(toNano('100000000000000'))) && (
+                                <>
+                                    <Text style={{
+                                        fontWeight: '600',
+                                        fontSize: 16,
+                                        color: '#4FAE42'
+                                    }}>
+                                        {'...'}
+                                    </Text>
+                                    <Text style={{
+                                        color: '#6D6D71',
+                                        fontWeight: '400',
+                                        fontSize: 14,
+                                        paddingHorizontal: 0,
+                                        paddingVertical: 2,
+                                        alignSelf: 'flex-end'
+                                    }}>
+                                        {'...'}
+                                    </Text>
+                                </>
+                            )}
+                            {!yearlyPlus.eq(new BN(0)) && yearlyPlus.lt(toNano('100000000000000')) && (
+                                <>
+                                    <Text style={{
+                                        fontWeight: '600',
+                                        fontSize: 16,
+                                        color: '#4FAE42'
+                                    }}>
+                                        <ValueComponent precision={2} value={yearlyPlus} />
+                                        {' TON'}
+                                    </Text>
+                                    <PriceComponent
+                                        amount={yearlyPlus}
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            paddingHorizontal: 0, paddingVertical: 2,
+                                            alignSelf: 'flex-end'
+                                        }}
+                                        textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                    />
+                                </>
+                            )
+                            }
                         </View>
                     </View>
                 </View>

@@ -62,7 +62,8 @@ export function resolveOperation(args: {
                 address = parsedBody.data['destination'] as Address;
                 let amount = parsedBody.data['amount'] as BN;
                 let symbol = args.jettonMaster.symbol;
-                items.unshift({ kind: 'token', amount, symbol });
+                let decimals = args.jettonMaster.decimals;
+                items.unshift({ kind: 'token', amount, symbol, decimals });
                 let body = parseBody(parsedBody.data['payload'] as Cell);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
@@ -72,19 +73,20 @@ export function resolveOperation(args: {
                 address = parsedBody.data['sender'] as Address;
                 let amount = parsedBody.data['amount'] as BN;
                 let symbol = args.jettonMaster.symbol;
-                items.unshift({ kind: 'token', amount, symbol });
+                let decimals = args.jettonMaster.decimals;
+                items.unshift({ kind: 'token', amount, symbol, decimals });
                 let body = parseBody(parsedBody.data['payload'] as Cell);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
             } else {
                 if (args.jettonMaster && args.jettonMaster.image) {
-                    image = args.jettonMaster.image;
+                    image = args.jettonMaster.image.preview256;
                 }
             }
         } else {
             if (args.jettonMaster && args.jettonMaster.image) {
-                image = args.jettonMaster.image;
+                image = args.jettonMaster.image.preview256;
             }
         }
     }
@@ -93,7 +95,7 @@ export function resolveOperation(args: {
     if (args.metadata && args.metadata.jettonMaster && args.jettonMaster && args.jettonMaster.name) {
         title = args.jettonMaster.name;
         if (args.jettonMaster.image) {
-            image = args.jettonMaster.image;
+            image = args.jettonMaster.image.preview256;
         }
     }
 

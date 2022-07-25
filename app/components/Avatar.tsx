@@ -124,6 +124,7 @@ import Img_wolf from '../../assets/images/img_wolf.svg';
 import Img_wombat from '../../assets/images/img_wombat.svg';
 import Img_yak from '../../assets/images/img_yak.svg';
 import Img_zebra from '../../assets/images/img_zebra.svg';
+import SpamIcon from '../../assets/known/spam_icon.svg';
 
 import Verified from '../../assets/ic_verified.svg';
 import { KnownWallets } from '../secure/KnownWallets';
@@ -266,7 +267,7 @@ export const avatarColors = [
     '#d1b04d'
 ];
 
-export const Avatar = React.memo((props: { size: number, id: string, address?: string, image?: string }) => {
+export const Avatar = React.memo((props: { size: number, id: string, address?: string, image?: string, spam?: boolean }) => {
 
     let known = props.address ? KnownWallets[props.address] : undefined;
     let size = Math.floor(props.size * 0.6);
@@ -275,12 +276,17 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
     let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
     let img: any;
-    if (props.image) {
-        img = <Image source={{ uri: props.image }} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
-    } else if (!known || (!known.ic)) {
-        img = <Img width={size} height={size} color="white" />;
-    } else {
-        img = <KnownAvatar size={props.size} wallet={known} />;
+
+    if (!props.spam) {
+        if (props.image) {
+            img = <Image source={{ uri: props.image }} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
+        } else if (!known || (!known.ic)) {
+            img = <Img width={size} height={size} color="white" />;
+        } else {
+            img = <KnownAvatar size={props.size} wallet={known} />;
+        }
+    } else { // Mark avatar as spam
+        img = <SpamIcon width={props.size} height={props.size} />
     }
 
     return (

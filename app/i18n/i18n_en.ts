@@ -27,7 +27,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         confirm: 'Confirm',
         soon: 'soon',
         in: 'in',
-        max: 'Max'
+        max: 'Max',
+        close: 'Close',
+        delete: 'Delete'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -51,7 +53,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         balanceTitle: 'Ton balance',
         actions: {
             receive: 'Receive',
-            send: 'Send'
+            send: 'Send',
+            buy: 'Buy'
         },
         empty: {
             message: 'You have no transactions',
@@ -84,8 +87,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidAddress: 'Invalid address',
             invalidAmount: 'Invalid amount',
             sendingToYourself: 'You can\'t send coins to yourself',
-            zeroCoins: 'Unfortunatelly you can\'t send zero coins',
-            notEnoughCoins: 'Unfortunatelly you don\'t have enougth coins for this transaction',
+            zeroCoins: 'unfortunately you can\'t send zero coins',
+            notEnoughCoins: 'unfortunately you don\'t have enougth coins for this transaction',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
             addressIsNotActive: 'This wallet has never been used'
@@ -94,31 +97,45 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         scanQR: 'scan qr code',
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',
-        feeTitle: 'Blocchain fees',
+        feeTitle: 'Blockchain fees',
         purpose: 'Purpose of transaction',
         comment: 'Optional message',
         commentRequired: 'Сomment required',
         commentLabel: 'Message',
         checkComment: 'Check before sending',
-        confirmTitle: 'Confirm transaction'
+        confirmTitle: 'Confirm transaction',
+        unknown: 'Unknown operation',
     },
     auth: {
-        title: 'Authentication',
-        message: 'Allow <strong>{{name}}</strong> to know your wallet addres',
+        title: 'Connection Request',
+        message: '<strong>{{name}}</strong> wants to connect to your account',
         hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
         action: 'Allow',
         expired: 'This authentication request already expired',
+        failed: 'Invalid URL',
         completed: 'This authentication request already completed',
+        authorized: 'Authorization request approved',
+        authorizedDescription: 'Now you can get back the the app.',
         noApps: 'No connected apps',
         name: 'Connected apps',
+        yourWallet: 'Your wallet',
         revoke: {
             title: 'Are you sure want to revoke this app?',
             message: 'This will destroy link between your wallet and app, but you can always try to connect again.',
             action: 'Revoke'
         },
         apps: {
-            title: 'Trusted Apps'
+            title: 'Trusted Apps',
+            delete: {
+                title: 'Delete this extension?',
+                message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
+            }
         }
+    },
+    install: {
+        title: 'Install Extension',
+        message: '<strong>{{name}}</strong> wants to connect to your account',
+        action: 'Install'
     },
     sign: {
         title: 'Signature request',
@@ -140,6 +157,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         requestPermission: 'Open settings',
     },
     products: {
+        accounts: 'Accounts',
+        services: 'Extensions',
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
@@ -170,9 +189,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawStakeConfirmTitle: 'Confirm Withdrawal',
                 topUpTitle: 'Top Up',
                 topUpConfirmTitle: 'Confirm Top Up',
-                notEnoughStaked: 'Unfortunatelly you don\'t have enougth coins staked',
+                notEnoughStaked: 'unfortunately you don\'t have enougth coins staked',
                 confirmWithdraw: 'Request Withdrawal',
-                confirmWithdrawReady: 'Withdraw now'
+                confirmWithdrawReady: 'Withdraw now',
+                restrictedTitle: 'This Staking Pool is restricted',
+                restrictedMessage: 'Before sending, make sure you have a pass to this pool, otherwise your funds may not participate in the stake and wait for the withdrawal',
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
@@ -316,7 +337,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         protectFaceID: 'Protect with Face ID',
         protectTouchID: 'Protect with Touch ID',
         protectBiometrics: 'Protect with biometrics',
-        protectPasscode: 'Protect with Passcode'
+        protectPasscode: 'Protect with Passcode',
+        upgradeTitle: 'Upgrade needed',
+        upgradeMessage: 'Please, allow the app access to wallet keys for an upgrade. No funds would be transferred during this upgrade. Please, make sure that you backed up your keys.',
+        allowUpgrade: 'Allow upgrade',
+        backup: 'Backup secret words'
     },
     backup: {
         title: 'Your recovery phrase',
@@ -336,7 +361,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         secureStorageError: {
             title: 'Secure storage error',
-            message: 'Unfortunatelly we are unable to save data. Please, restart your phone.'
+            message: 'unfortunately we are unable to save data. Please, restart your phone.'
         }
     },
     confirm: {
@@ -355,6 +380,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service. ',
         doNotShow: 'Do not show it again for Neocrypto',
         termsAndPrivacy: 'I have read and agree to the ',
+        confirm: {
+            title: 'Are you sure want to close this form?',
+            message: 'This will discard all of you changes'
+        },
     },
     known: {
         deposit: 'Deposit',
@@ -368,6 +397,20 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         cashback: 'Cashback',
         tokenSent: 'Token sent',
         tokenReceived: 'Token received'
+    },
+    jetton: {
+        token: 'token'
+    },
+    connections: {
+        extensions: 'Extensions',
+        connections: 'External apps'
+    },
+    accounts: {
+        active: 'Active',
+        noActive: 'No active accounts',
+        disabled: 'Hidden',
+        alertActive: 'Mark {{symbol}} active?',
+        alertDisabled: 'Mark {{symbol}} hidden?'
     }
 };
 

@@ -25,7 +25,6 @@ function WordComponent(props: { text: string | null, highlight?: boolean, onSele
                     flexGrow: 1,
                     flexBasis: 0,
                     backgroundColor: props.text && props.highlight ? Theme.divider : undefined
-                    // backgroundColor: 'red'
                 }}>
                     <Text style={{ fontSize: 16 }}>
                         {props.text}

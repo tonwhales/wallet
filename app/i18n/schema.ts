@@ -29,7 +29,9 @@ export type LocalizationSchema = {
         confirm: string,
         soon: string,
         in: string,
-        max: string
+        max: string,
+        close: string,
+        delete: string
     },
     syncStatus: {
         connecting: string,
@@ -53,7 +55,8 @@ export type LocalizationSchema = {
         balanceTitle: string,
         actions: {
             receive: string,
-            send: string
+            send: string,
+            buy: string
         },
         empty: {
             message: string,
@@ -102,7 +105,8 @@ export type LocalizationSchema = {
         commentRequired: string,
         commentLabel: string,
         checkComment: string,
-        confirmTitle: string
+        confirmTitle: string,
+        unknown: string
     },
     auth: {
         title: string,
@@ -110,17 +114,30 @@ export type LocalizationSchema = {
         hint: string,
         action: string,
         expired: string,
+        failed: string,
         completed: string,
+        authorized: string,
+        authorizedDescription: string,
         noApps: string,
         name: string,
+        yourWallet: string,
         revoke: {
             title: string,
             message: string,
             action: string
         },
         apps: {
-            title: string
+            title: string,
+            delete: {
+                title: string,
+                message: string
+            }
         }
+    },
+    install: {
+        title: string,
+        message: string,
+        action: string
     },
     sign: {
         title: string,
@@ -142,6 +159,8 @@ export type LocalizationSchema = {
         requestPermission: string
     },
     products: {
+        accounts: string,
+        services: string,
         oldWallets: {
             title: string,
             subtitle: string
@@ -185,6 +204,8 @@ export type LocalizationSchema = {
                 notEnoughStaked: string,
                 confirmWithdraw: string,
                 confirmWithdrawReady: string,
+                restrictedTitle: string,
+                restrictedMessage: string,
             },
             join: {
                 title: string,
@@ -318,7 +339,11 @@ export type LocalizationSchema = {
         protectFaceID: string,
         protectTouchID: string,
         protectBiometrics: string,
-        protectPasscode: string
+        protectPasscode: string,
+        upgradeTitle: string,
+        upgradeMessage: string,
+        allowUpgrade: string,
+        backup: string
     },
     backup: {
         title: string,
@@ -357,6 +382,10 @@ export type LocalizationSchema = {
         description: string,
         doNotShow: string,
         termsAndPrivacy: string,
+        confirm: {
+            title: string,
+            message: string
+        },
     },
     known: {
         deposit: string,
@@ -370,6 +399,20 @@ export type LocalizationSchema = {
         cashback: string,
         tokenSent: string,
         tokenReceived: string
+    },
+    jetton: {
+        token: string
+    },
+    connections: {
+        extensions: string,
+        connections: string
+    },
+    accounts: {
+        active: string,
+        noActive: string,
+        disabled: string,
+        alertActive: string,
+        alertDisabled: string
     }
 };
 

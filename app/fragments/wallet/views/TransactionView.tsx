@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, Text, View } from 'react-native';
-import { Address } from 'ton';
+import { Image, Text, useWindowDimensions, View } from 'react-native';
+import { Address, fromNano, toNano } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
@@ -10,16 +10,20 @@ import { TouchableHighlight } from 'react-native';
 import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { Engine } from '../../../engine/Engine';
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
+import { Engine } from '../../../engine/Engine';
+import { toNanoWithDecimals } from '../../../utils/withDecimals';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
 }
 
 export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
+    const dimentions = useWindowDimensions();
+    const fontScaleNormal = dimentions.fontScale <= 1;
+
     const tx = props.engine.products.main.useTransaction(props.tx);
     let parsed = tx.base;
     let operation = tx.operation;
@@ -28,6 +32,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = operation.items[0];
+    let amount = item.amount;
     let op: string;
     if (operation.op) {
         op = operation.op;
@@ -57,34 +62,68 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         known = { name: operation.title };
     }
 
+    let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+        || (
+            Math.abs(parseFloat(fromNano(parsed.amount))) < 0.05
+            && tx.base.body?.type === 'comment'
+            && !KnownWallets[friendlyAddress]
+            && !AppConfig.isTestnet
+        );
+
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
+            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {parsed.status !== 'pending' && (<Avatar address={friendlyAddress} id={avatarId} size={42} image={tx.icon ? tx.icon : undefined} />)}
+                    {parsed.status !== 'pending' && (
+                        <Avatar
+                            address={friendlyAddress}
+                            id={avatarId}
+                            size={42}
+                            image={tx.icon ? tx.icon : undefined}
+                            spam={spam}
+                        />
+                    )}
                     {parsed.status === 'pending' && (
                         <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
                     )}
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, flexGrow: 1, flexBasis: 0, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
+                        <View style={{
+                            flexDirection: 'row',
+                            flexGrow: 1, flexBasis: 0, marginRight: 16,
+                        }}>
+                            <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
+                            {spam && (
+                                <View style={{
+                                    borderColor: '#ADB6BE',
+                                    borderWidth: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 4,
+                                    marginLeft: 6,
+                                    paddingHorizontal: 4
+                                }}>
+                                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
+                                </View>
+                            )}
+                        </View>
                         {parsed.status === 'failed' ? (
                             <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
                         ) : (
                             <Text
                                 style={{
-                                    color: item.amount.gte(new BN(0)) ? '#4FAE42' : '#FF0000',
+                                    color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
                                     fontWeight: '400',
                                     fontSize: 16,
                                     marginRight: 2
                                 }}>
-                                <ValueComponent value={item.amount} />
+                                <ValueComponent value={item.kind === 'token' ? toNanoWithDecimals(item.amount, item.decimals) : item.amount} />
                                 {item.kind === 'token' ? ' ' + item.symbol : ''}
                             </Text>
                         )}
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
                         <Text
                             style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
                             ellipsizeMode="middle"

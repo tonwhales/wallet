@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, SupportedMessage } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
@@ -19,8 +19,6 @@ import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
 import { KnownWallets } from '../../secure/KnownWallets';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
-import { formatSupportedBody } from '../../engine/transactions/formatSupportedBody';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -35,8 +33,9 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { useRecoilValue } from 'recoil';
 import { estimateFees } from '../../engine/estimate/estimateFees';
+import { warn } from '../../utils/log';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -62,6 +61,8 @@ type ConfirmLoadedProps = {
     metadata: ContractMetadata,
     restricted: boolean,
     jettonMaster: JettonMasterState | null
+    callback: ((ok: boolean, result: Cell | null) => void) | null
+    back?: number
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -76,12 +77,22 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         job,
         fees,
         metadata,
-        jettonMaster
+        jettonMaster,
+        callback,
+        back
     } = props;
 
     // Resolve operation
     let body = order.payload ? parseBody(order.payload) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+
+    // Tracking
+    const success = React.useRef(false);
+    React.useEffect(() => {
+        if (!success.current) {
+            trackEvent(MixpanelEvent.TransferCancel, { target: order.target, amount: order.amount.toString(10) });
+        }
+    }, []);
 
     // Verified wallets
     const known = KnownWallets[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
@@ -200,6 +211,20 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             await engine.products.apps.commitCommand(true, job, transfer);
         }
 
+        // Notify callback
+        if (callback) {
+            try {
+                callback(true, transfer);
+            } catch (e) {
+                warn(e);
+                // Ignore on error
+            }
+        }
+
+        // Track
+        success.current = true;
+        trackEvent(MixpanelEvent.Transfer, { target: order.target, amount: order.amount.toString(10) });
+
         // Register pending
         engine.products.main.registerPending({
             id: 'pending-' + account.seqno,
@@ -217,7 +242,13 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         });
 
         // Reset stack to root
-        navigation.popToTop();
+        if (props.back && props.back > 0) {
+            for (let i = 0; i < props.back; i++) {
+                navigation.goBack();
+            }
+        } else {
+            navigation.popToTop();
+        }
     }, []);
 
     return (
@@ -279,6 +310,18 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <ItemLarge title={t('transfer.comment')} text={operation.comment} />
                             </>
                         )}
+                        {!operation.comment && !operation.op && !!text && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.purpose')} text={text} />
+                            </>
+                        )}
+                        {!operation.comment && !operation.op && order.payload && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.unknown')} text={order.payload.hash().toString('base64')} />
+                            </>
+                        )}
                         <ItemDivider />
                         <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
                     </ItemGroup>
@@ -299,6 +342,8 @@ export const TransferFragment = fragment(() => {
         text: string | null,
         order: Order,
         job: string | null,
+        callback?: ((ok: boolean, result: Cell | null) => void) | null,
+        back?: number
     } = useRoute().params! as any;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -311,6 +356,7 @@ export const TransferFragment = fragment(() => {
     const text = React.useMemo(() => params.text, []);
     const order = React.useMemo(() => params.order, []);
     const job = React.useMemo(() => params.job, []);
+    const callback = React.useMemo(() => params.callback, []);
 
     // Auto-cancel job on unmount
     React.useEffect(() => {
@@ -336,10 +382,7 @@ export const TransferFragment = fragment(() => {
         backoff('transfer', async () => {
 
             // Get contract
-            const contract = await contractFromPublicKey(from.publicKey);
-            if (exited) {
-                return;
-            }
+            const contract = contractFromPublicKey(from.publicKey);
 
             // Create transfer
             let intMessage = new InternalMessage({
@@ -419,7 +462,9 @@ export const TransferFragment = fragment(() => {
                 job,
                 fees,
                 metadata,
-                jettonMaster
+                jettonMaster,
+                callback: callback ? callback : null,
+                back: params.back
             });
         });
 

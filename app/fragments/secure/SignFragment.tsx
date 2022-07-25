@@ -8,12 +8,12 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
-import { getConnectionReferences, getCurrentAddress } from '../../storage/appState';
+import { getCurrentAddress } from '../../storage/appState';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useEngine } from '../../engine/Engine';
-import { parseJob } from '../../engine/apps/parseJob';
 import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { CloseButton } from '../../components/CloseButton';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -24,20 +24,23 @@ const labelStyle: StyleProp<TextStyle> = {
 export const SignFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: {
-        job: string
+        textCell: Cell,
+        payloadCell: Cell,
+        text: string,
+        job: string | null,
+        callback: ((ok: boolean, result: Cell | null) => void) | null,
+        name: string
     } = useRoute().params as any;
     const engine = useEngine();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const safeArea = useSafeAreaInsets();
-    const job = parseJob(Cell.fromBoc(Buffer.from(params.job, 'base64'))[0].beginParse());
-    if (!job || job.job.type !== 'sign') {
-        throw Error('Internal error');
-    }
-    const jobBody = job.job;
     React.useEffect(() => {
         return () => {
             if (params && params.job) {
                 engine.products.apps.commitCommand(false, params.job, new Cell());
+            }
+            if (params && params.callback) {
+                params.callback(false, null);
             }
         }
     }, []);
@@ -54,22 +57,24 @@ export const SignFragment = fragment(() => {
 
         // Signing
         const data = beginCell()
-            .storeRef(jobBody.textCell)
-            .storeRef(jobBody.payloadCell)
+            .storeRef(params.textCell)
+            .storeRef(params.payloadCell)
             .endCell();
         const signed = safeSign(data, walletKeys.keyPair.secretKey);
 
         // Commit
-        await engine.products.apps.commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());
+        if (params.job) {
+            await engine.products.apps.commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());
+        }
 
-        // Go backj
+        // Callback
+        if (params.callback) {
+            params.callback(true, beginCell().storeBuffer(signed).endCell());
+        }
+
+        // Go back
         navigation.goBack();
     }, []);
-    const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(job.key));
-    if (!connection) {
-        return null; // Just in case
-    }
-    let name = connection ? connection.name : 'Unknown';
 
     return (
         <>
@@ -85,13 +90,21 @@ export const SignFragment = fragment(() => {
             )}
 
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 8, fontWeight: '500' }}>{name}</Text>
+                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 8, fontWeight: '500' }}>{params.name}</Text>
                 <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('sign.message')}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{jobBody.text}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{params.text}</Text>
                 <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textSecondary, marginBottom: 32 }}>{t('sign.hint')}</Text>
                 <RoundButton title={t('sign.action')} action={approve} size="large" style={{ width: 200 }} />
             </View>
             {/* <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} /> */}
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+            )}
         </>
     );
 });

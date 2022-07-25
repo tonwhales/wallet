@@ -13,24 +13,22 @@ import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { Engine, useEngine } from '../../engine/Engine';
-import { Transaction } from '../../engine/Transaction';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
-import { storage } from '../../storage/storage';
-import { skipLegalNeocrypto } from '../integrations/NeocryptoFragment';
 import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
-import { openWithInApp } from '../../utils/openWithInApp';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { WalletState } from '../../engine/products/WalletProduct';
 import { log } from '../../utils/log';
+import { Engine, useEngine } from '../../engine/Engine';
+import { WalletState } from '../../engine/products/WalletProduct';
+import { useLinkNavigator } from '../../Navigation';
+import { ExchangeRate } from '../../components/ExchangeRate';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -159,7 +157,7 @@ function WalletComponent(props: { wallet: WalletState }) {
         // Bottom reached
         if (event.contentSize.height > 0) {
             let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
-            if (bottomOffset < 300) {
+            if (bottomOffset < 2000) {
                 runOnJS(onReachedEnd)();
             }
         }
@@ -214,44 +212,14 @@ function WalletComponent(props: { wallet: WalletState }) {
             }),
         };
     }, []);
+    const linkNavigator = useLinkNavigator();
 
     const onQRCodeRead = (src: string) => {
         try {
-            let res = resolveUrl(src);
-            if (res && res.type === 'transaction') {
-                // if QR is valid navigate to transfer fragment
-
-                if (!res.payload) {
-                    navigation.navigateSimpleTransfer({
-                        target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                        comment: res.comment,
-                        amount: res.amount,
-                        stateInit: res.stateInit,
-                        job: null,
-                        jetton: null
-                    });
-                } else {
-                    navigation.navigateTransfer({
-                        order: {
-                            target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            amount: res.amount || new BN(0),
-                            amountAll: false,
-                            stateInit: res.stateInit,
-                            payload: res.payload,
-                        },
-                        text: res.comment,
-                        job: null
-                    });
-                }
+            let res = resolveUrl(src, AppConfig.isTestnet);
+            if (res) {
+                linkNavigator(res);
             }
-            if (res && res.type === 'connect') {
-                // if QR is valid navigate to sign fragment
-                navigation.navigate('Authenticate', {
-                    session: res.session,
-                    endpoint: res.endpoint
-                });
-            }
-
         } catch (error) {
             // Ignore
         }
@@ -259,23 +227,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     const onOpenBuy = React.useCallback(
         () => {
-            if (storage.getBoolean(skipLegalNeocrypto)) {
-                // storage.set(skipLegalNeocrypto, false);
-                const queryParams = new URLSearchParams({
-                    partner: 'tonhub',
-                    address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    cur_from: 'USD',
-                    cur_to: 'TON',
-                    fix_cur_to: 'true',
-                    fix_address: 'true',
-                });
-
-                const main = `https://neocrypto.net/buywhite.html?${queryParams.toString()}`;
-
-                openWithInApp(main);
-            } else {
-                navigation.navigate('Buy')
-            }
+            navigation.navigate('Buy');
         },
         [],
     );
@@ -293,6 +245,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
+                removeClippedSubviews={true}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
                 <Animated.View
@@ -363,7 +316,10 @@ function WalletComponent(props: { wallet: WalletState }) {
                     <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
                         <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                     </Text>
-                    <PriceComponent amount={account.balance} style={{ marginHorizontal: 22, marginTop: 6 }} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
+                        <PriceComponent amount={account.balance} />
+                        <ExchangeRate style={{ marginLeft: 8 }} />
+                    </View>
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
@@ -387,7 +343,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 </Animated.View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
-                    {/* {
+                    {
                         !AppConfig.isTestnet && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                                 <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
@@ -400,7 +356,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 </TouchableHighlight>
                             </View>
                         )
-                    } */}
+                    }
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
@@ -412,7 +368,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_send.png')} />
@@ -656,4 +612,4 @@ export const WalletFragment = fragment(() => {
     } else {
         return <WalletComponent wallet={account} />
     }
-});
+}, true);

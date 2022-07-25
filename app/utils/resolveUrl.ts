@@ -2,8 +2,10 @@ import BN from "bn.js";
 import { Address, Cell } from "ton";
 import Url from 'url-parse';
 import { warn } from "./log";
+import { SupportedDomains } from "./SupportedDomains";
+import isValid from 'is-valid-domain';
 
-type ResolvedUrl = {
+export type ResolvedUrl = {
     type: 'transaction',
     address: Address,
     comment: string | null,
@@ -14,9 +16,14 @@ type ResolvedUrl = {
     type: 'connect',
     session: string,
     endpoint: string | null
-} | null;
+} | {
+    type: 'install',
+    url: string,
+    customTitle: string | null,
+    customImage: { url: string, blurhash: string } | null
+}
 
-export function resolveUrl(src: string): ResolvedUrl {
+export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
 
     // Try address parsing
@@ -91,7 +98,42 @@ export function resolveUrl(src: string): ResolvedUrl {
 
         // HTTP(s) url
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com' || url.host.toLowerCase() === 'test.tonhub.com')
+            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
+            && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
+            let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
+            let comment: string | null = null;
+            let amount: BN | null = null;
+            let payload: Cell | null = null;
+            let stateInit: Cell | null = null;
+            if (url.query) {
+                for (let key in url.query) {
+                    if (key.toLowerCase() === 'text') {
+                        comment = url.query[key]!;
+                    }
+                    if (key.toLowerCase() === 'amount') {
+                        amount = new BN(url.query[key]!, 10);
+                    }
+                    if (key.toLowerCase() === 'bin') {
+                        payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                    }
+                    if (key.toLowerCase() === 'init') {
+                        stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                    }
+                }
+            }
+            return {
+                type: 'transaction',
+                address,
+                comment,
+                amount,
+                payload,
+                stateInit
+            }
+        }
+
+        // Tokeeper url support for QR
+        if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
+            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
             let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
             let comment: string | null = null;
@@ -126,7 +168,7 @@ export function resolveUrl(src: string): ResolvedUrl {
 
         // HTTP(s) Sign Url
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (url.host.toLowerCase() === 'tonhub.com' || url.host.toLowerCase() === 'www.tonhub.com' || url.host.toLowerCase() === 'test.tonhub.com')
+            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/connect/'))) {
             let session = url.pathname.slice('/connect/'.length);
             let endpoint: string | null = null;
@@ -148,6 +190,67 @@ export function resolveUrl(src: string): ResolvedUrl {
         // Ignore
         warn(e);
     }
+
+    // Parse apps
+    try {
+        const url = new Url(src, true);
+        if ((url.protocol.toLowerCase() === 'https:')
+            && ((testOnly ? 'test.tonhub.com' : 'tonhub.com') === url.host.toLowerCase())
+            && (url.pathname.toLowerCase().startsWith('/app/'))) {
+            let id = url.pathname.slice('/app/'.length);
+            let slice = Cell.fromBoc(Buffer.from(id, 'base64'))[0].beginParse();
+            let endpoint = slice.readRef().readRemainingBytes().toString();
+            let extras = slice.readBit(); // For future compatibility
+            let customTitle: string | null = null;
+            let customImage: { url: string, blurhash: string } | null = null;
+            if (!extras) {
+                if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                    throw Error('Invalid endpoint');
+                }
+            } else {
+                if (slice.readBit()) {
+                    customTitle = slice.readRef().readRemainingBytes().toString()
+                    if (customTitle.trim().length === 0) {
+                        customTitle = null;
+                    }
+                }
+                if (slice.readBit()) {
+                    let imageUrl = slice.readRef().readRemainingBytes().toString();
+                    let imageBlurhash = slice.readRef().readRemainingBytes().toString();
+                    new Url(imageUrl, true); // Check url
+                    customImage = { url: imageUrl, blurhash: imageBlurhash };
+                }
+
+                // Future compatibility
+                extras = slice.readBit(); // For future compatibility
+                if (!extras) {
+                    if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                        throw Error('Invalid endpoint');
+                    }
+                }
+            }
+
+            // Validate endpoint
+            let parsedEndpoint = new Url(endpoint, true);
+            if (parsedEndpoint.protocol !== 'https:') {
+                throw Error('Invalid endpoint');
+            }
+            if (!isValid(parsedEndpoint.hostname)) {
+                throw Error('Invalid endpoint');
+            }
+
+            return {
+                type: 'install',
+                url: endpoint,
+                customTitle,
+                customImage
+            };
+        }
+    } catch (e) {
+        // Ignore
+        warn(e);
+    }
+
 
     return null;
 }

@@ -3,6 +3,8 @@ import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@rea
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
 import { Order } from '../fragments/secure/ops/Order';
+import { getConnectionReferences } from '../storage/appState';
+import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -57,9 +59,15 @@ export class TypedNavigation {
     navigateTransfer(tx: {
         order: Order,
         text: string | null,
-        job: string | null
+        job: string | null,
+        callback: ((ok: boolean, result: Cell | null) => void) | null,
+        back?: number
     }) {
         this.navigate('Transfer', tx);
+    }
+
+    navigateStaking(params: StakingTransferParams) {
+        this.navigate('StakingTransfer', params);
     }
 
     navigateSimpleTransfer(tx: {
@@ -68,9 +76,22 @@ export class TypedNavigation {
         amount: BN | null,
         stateInit: Cell | null,
         job: string | null,
-        jetton: Address | null
+        jetton: Address | null,
+        callback: ((ok: boolean, result: Cell | null) => void) | null,
+        back?: number
     }) {
         this.navigate('SimpleTransfer', tx);
+    }
+
+    navigateSign(tx: {
+        textCell: Cell,
+        payloadCell: Cell,
+        text: string,
+        job: string | null,
+        name: string,
+        callback: ((ok: boolean, result: Cell | null) => void) | null,
+    }) {
+        this.navigate('Sign', tx);
     }
 }
 

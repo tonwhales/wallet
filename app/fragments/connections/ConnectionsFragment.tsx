@@ -7,46 +7,84 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { CloseButton } from '../../components/CloseButton';
 import { ConnectedAppButton } from '../../components/ConnectedAppButton';
-import { ItemButton } from '../../components/ItemButton';
+import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
 import { Theme } from '../../Theme';
-import { formatDate } from '../../utils/dates';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+
+type Item = {
+    key: string;
+    name: string;
+    url: string;
+    date: number;
+}
+
+type GroupedItems = {
+    name: string;
+    url: string;
+    items: Item[];
+};
+
+function groupItems(items: Item[]): GroupedItems[] {
+    let sorted = [...items].sort((a, b) => b.date - a.date);
+    let groups: GroupedItems[] = [];
+    for (let s of sorted) {
+        let g = groups.find((v) => v.url.toLowerCase() === s.url.toLowerCase());
+        if (g) {
+            g.items.push(s);
+        } else {
+            groups.push({
+                name: s.name, url: s.url,
+                items: [s]
+            });
+        }
+    }
+    return groups;
+}
 
 export const ConnectionsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    let [apps, setApps] = React.useState(getConnectionReferences());
-    let disconnectApp = React.useCallback((src: string) => {
+    const engine = useEngine();
+    const extensions = engine.products.extensions.useExtensions();
+    let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
+    let disconnectApp = React.useCallback((url: string) => {
 
         let refs = getConnectionReferences();
-        let ex = refs.find((v) => v.key === src);
-        if (!ex) {
+        let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
+        if (toRemove.length === 0) {
             return;
         }
 
-        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [
-            {
-                text: t('common.cancel')
-            },
-            {
-                text: t('auth.revoke.action'), style: 'destructive', onPress: () => {
-                    addPendingRevoke(src);
-                    removeConnectionReference(src);
-                    setApps((a) => a.filter((v) => v.key !== src));
+        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
+            text: t('auth.revoke.action'),
+            style: 'destructive',
+            onPress: () => {
+                for (let s of toRemove) {
+                    addPendingRevoke(s.key);
+                    removeConnectionReference(s.key);
                     backoff('revoke', async () => {
-                        await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: src }, { timeout: 5000 });
-                        removePendingRevoke(src);
+                        await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: s.key }, { timeout: 5000 });
+                        removePendingRevoke(s.key);
                     });
                 }
+                setApps(groupItems(getConnectionReferences()));
             }
-        ]);
-
+        }]);
     }, []);
-    if (apps.length === 0) {
+    let removeExtension = React.useCallback((key: string) => {
+        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
+            text: t('auth.revoke.action'),
+            style: 'destructive',
+            onPress: () => {
+                engine.products.extensions.removeExtension(key);
+            }
+        }]);
+    }, []);
+    if (apps.length === 0 && extensions.length === 0) {
         return (
             <View style={{
                 flexGrow: 1, flexBasis: 0,
@@ -100,27 +138,43 @@ export const ConnectionsFragment = fragment(() => {
                         fontWeight: '600',
                         marginLeft: 17,
                         fontSize: 17
-                    }, { textAlign: 'center' }]}>{t('auth.apps.title')}</Text>
+                    }, { textAlign: 'center' }]}>{t('auth.name')}</Text>
                 </View>
             )}
             <ScrollView>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     marginHorizontal: 16,
-                    backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
-                    {apps.map((app) => (
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                    {extensions.length > 0 && (
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.extensions')}</Text>
+                        </View>
+                    )}
+                    {extensions.map((app) => (
+                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                             <ConnectedAppButton
-                                onPress={() => disconnectApp(app.key)}
+                                onRevoke={() => removeExtension(app.key)}
                                 url={app.url}
                                 name={app.name}
-                                key={app.key}
-                                date={app.date}
+                            />
+                        </View>
+                    ))}
+                    {apps.length > 0 && (
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.connections')}</Text>
+                        </View>
+                    )}
+                    {apps.map((app) => (
+                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                            <ConnectedAppButton
+                                onRevoke={() => disconnectApp(app.url)}
+                                url={app.url}
+                                name={app.name}
                             />
                         </View>
                     ))}

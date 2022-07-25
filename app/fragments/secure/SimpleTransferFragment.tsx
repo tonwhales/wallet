@@ -28,8 +28,10 @@ import { fragment } from '../../fragment';
 import { createJettonOrder, createSimpleOrder } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
-import { log } from '../../utils/log';
 import { useRecoilValue } from 'recoil';
+import { useLinkNavigator } from '../../Navigation';
+import { warn } from '../../utils/log';
+import { fromBNWithDecimals, toBNWithDecimals, toNanoWithDecimals } from '../../utils/withDecimals';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -46,6 +48,8 @@ export const SimpleTransferFragment = fragment(() => {
         stateInit?: Cell | null,
         job?: string | null,
         jetton?: Address | null,
+        callback?: ((ok: boolean, result: Cell | null) => void) | null,
+        back?: number
     } | undefined = useRoute().params;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -60,13 +64,25 @@ export const SimpleTransferFragment = fragment(() => {
     const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
     const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
-    const balance = jettonWallet ? jettonWallet.balance : account.balance;
+    const balance = React.useMemo(() => {
+        let value;
+        if (jettonWallet) {
+            value = jettonWallet.balance;
+        } else {
+            value = account.balance;
+        }
+        return value;
+    }, [jettonWallet, jettonMaster, account.balance]);
+    const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
     // Auto-cancel job
     React.useEffect(() => {
         return () => {
             if (params && params.job) {
                 engine.products.apps.commitCommand(false, params.job, new Cell());
+            }
+            if (params && params.callback) {
+                params.callback(false, null);
             }
         }
     }, []);
@@ -79,6 +95,10 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
+            // Manage jettons with decimals
+            if (jettonWallet) {
+                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            }
         } catch (e) {
             return null;
         }
@@ -136,6 +156,10 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
+            // Manage jettons with decimals
+            if (jettonWallet) {
+                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            }
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
@@ -175,8 +199,10 @@ export const SimpleTransferFragment = fragment(() => {
             text: comment,
             order,
             job: params && params.job ? params.job : null,
+            callback,
+            back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, comment, account.seqno, stateInit, order]);
+    }, [amount, target, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
     const config = engine.products.config.useConfig();
@@ -260,14 +286,13 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [order, account.seqno, config, accountState, comment]);
 
+    const linkNavigator = useLinkNavigator();
     const onQRCodeRead = React.useCallback((src: string) => {
-        let res = resolveUrl(src);
+        let res = resolveUrl(src, AppConfig.isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
-                navigation.dismiss();
-                navigation.navigate('Confirm', {
-
-                })
+                navigation.goBack();
+                linkNavigator(res);
             } else {
                 setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
                 if (res.amount) {
@@ -402,7 +427,7 @@ export const SimpleTransferFragment = fragment(() => {
                             color: '#6D6D71',
                             marginBottom: 5
                         }}>
-                            {fromNano(balance)} {symbol}
+                            {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

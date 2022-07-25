@@ -17,6 +17,9 @@ import { Engine } from "./Engine";
 import { HintProcessingState } from "./sync/startHintSync";
 import { TxHints } from "./sync/startHintsTxSync";
 import { ConfigState } from "./sync/startConfigSync";
+import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
+import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
+import { DomainSubkey } from "./products/ExtensionsProduct";
 
 export class Persistence {
 
@@ -37,6 +40,7 @@ export class Persistence {
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
     readonly knownJettons: PersistedCollection<void, Address[]>;
     readonly knownAccountJettons: PersistedCollection<Address, Address[]>;
+    readonly disabledJettons: PersistedCollection<Address, Address[]>;
 
     readonly downloads: PersistedCollection<string, string>;
     readonly hintState: PersistedCollection<Address, HintProcessingState>;
@@ -44,7 +48,13 @@ export class Persistence {
     readonly accountHints: PersistedCollection<Address, Address[]>;
     readonly scannerState: PersistedCollection<Address, TxHints>;
 
+    readonly serverConfig: PersistedCollection<void, ServerConfig>
     readonly config: PersistedCollection<void, ConfigState>;
+
+    readonly dApps: PersistedCollection<string, AppData>;
+    readonly domainKeys: PersistedCollection<string, DomainSubkey>;
+
+    readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -74,9 +84,19 @@ export class Persistence {
         this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec, engine });
         this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec, engine });
         this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
+        this.disabledJettons = new PersistedCollection({ storage, namespace: 'disabledJettons', key: addressKey, codec: t.array(c.address), engine });
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
 
+        // Configs
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
+        this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
+
+        // dApps
+        this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
+        this.domainKeys = new PersistedCollection({ storage, namespace: 'domainKeys', key: stringKey, codec: domainKeyCodec, engine });
+
+        // Cloud
+        this.cloud = new PersistedCollection({ storage, namespace: 'cloud', key: keyedAddressKey, codec: t.string, engine });
     }
 }
 
@@ -130,7 +150,8 @@ const stakingPoolStateCodec = t.type({
         depositFee: c.bignum,
         withdrawFee: c.bignum,
         stakeUntil: t.number,
-        receiptPrice: c.bignum
+        receiptPrice: c.bignum,
+        poolFee: c.bignum
     }),
     member: t.type({
         balance: c.bignum,
@@ -190,8 +211,10 @@ const jettonMasterCodec = t.type({
     version: t.number,
     name: t.union([t.null, t.string]),
     description: t.union([t.null, t.string]),
-    image: t.union([t.null, t.string]),
-    symbol: t.union([t.null, t.string])
+    symbol: t.union([t.null, t.string]),
+    decimals: t.union([t.number, t.null]),
+    originalImage: t.union([t.string, t.null, t.undefined]),
+    image: t.union([imagePreview, t.null])
 });
 
 const hintProcessingState = t.type({
@@ -227,4 +250,10 @@ const configCodec = t.type({
     })),
     workchain: chainConfigCodec,
     masterchain: chainConfigCodec
+});
+
+const domainKeyCodec = t.type({
+    time: t.number,
+    signature: c.buffer,
+    secret: c.buffer
 });

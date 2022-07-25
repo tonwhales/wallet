@@ -16,7 +16,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
-import BN from 'bn.js';
+import { useLinkNavigator } from '../Navigation';
+import { getConnectionReferences } from '../storage/appState';
+import { useTrackScreen } from '../analytics/mixpanel';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -24,6 +26,7 @@ export const HomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const engine = useEngine();
+    const linkNavigator = useLinkNavigator();
 
     // Subscribe for links
     React.useEffect(() => {
@@ -50,7 +53,8 @@ export const HomeFragment = fragment(() => {
                                             stateInit: existing.job.job.stateInit,
                                         },
                                         text: existing.job.job.text,
-                                        job: existing.raw
+                                        job: existing.raw,
+                                        callback: null
                                     });
                                 } else {
                                     navigation.navigateSimpleTransfer({
@@ -59,13 +63,23 @@ export const HomeFragment = fragment(() => {
                                         amount: existing.job.job.amount,
                                         stateInit: existing.job.job.stateInit,
                                         job: existing.raw,
-                                        jetton: null
+                                        jetton: null,
+                                        callback: null
                                     })
                                 }
                             }
                             if (existing.job.job.type === 'sign') {
-                                navigation.navigate('Sign', {
-                                    job: existing.raw
+                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(existing!.job.key));
+                                if (!connection) {
+                                    return; // Just in case
+                                }
+                                navigation.navigateSign({
+                                    text: existing.job.job.text,
+                                    textCell: existing.job.job.textCell,
+                                    payloadCell: existing.job.job.payloadCell,
+                                    job: existing.raw,
+                                    callback: null,
+                                    name: connection.name
                                 });
                             }
                         });
@@ -74,42 +88,24 @@ export const HomeFragment = fragment(() => {
                     }
                 })()
             } else {
-                let resolved = resolveUrl(link);
-                if (resolved && resolved.type === 'transaction') {
-                    SplashScreen.hideAsync();
-                    if (resolved.payload) {
-                        navigation.navigateTransfer({
-                            order: {
-                                target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                amount: resolved.amount || new BN(0),
-                                amountAll: false,
-                                stateInit: resolved.stateInit,
-                                payload: resolved.payload,
-                            },
-                            text: resolved.comment,
-                            job: null
-                        });
-                    } else {
-                        navigation.navigateSimpleTransfer({
-                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            comment: resolved.comment,
-                            amount: resolved.amount,
-                            stateInit: resolved.stateInit,
-                            job: null,
-                            jetton: null
-                        });
+                let resolved = resolveUrl(link, AppConfig.isTestnet);
+                if (resolved) {
+                    try {
+                        SplashScreen.hideAsync();
+                    } catch (e) {
+                        // Ignore
                     }
-                }
-                if (resolved && resolved.type === 'connect') {
-                    SplashScreen.hideAsync();
-                    navigation.navigate('Authenticate', {
-                        session: resolved.session,
-                        endpoint: resolved.endpoint
-                    });
+                    linkNavigator(resolved);
                 }
             }
         });
     }, []);
+
+    if (tab === 0) {
+        useTrackScreen('Wallet');
+    } else if (tab === 1) {
+        useTrackScreen('Settings');
+    }
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -203,4 +199,4 @@ export const HomeFragment = fragment(() => {
             </View>
         </View>
     );
-});
+}, true);

@@ -98,6 +98,12 @@ PODS:
   - lottie-react-native (5.0.1):
     - lottie-ios (~> 3.2.3)
     - React-Core
+  - Mixpanel-swift (3.2.6):
+    - Mixpanel-swift/Complete (= 3.2.6)
+  - Mixpanel-swift/Complete (3.2.6)
+  - MixpanelReactNative (1.4.2):
+    - Mixpanel-swift (= 3.2.6)
+    - React
   - MLImage (1.0.0-beta2)
   - MLKitBarcodeScanning (2.0.0):
     - MLKitCommon (~> 6.0)
@@ -352,6 +358,8 @@ PODS:
   - React-jsinspector (0.68.2)
   - React-logger (0.68.2):
     - glog
+  - react-native-blurhash (1.1.10):
+    - React-Core
   - react-native-fast-animations (0.0.4):
     - React
     - SwiftyJSON
@@ -529,6 +537,7 @@ DEPENDENCIES:
   - hermes-engine (~> 0.11.0)
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -545,6 +554,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-blurhash (from `../node_modules/react-native-blurhash`)
   - react-native-fast-animations (from `../node_modules/react-native-fast-animations`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
@@ -589,6 +599,7 @@ SPEC REPOS:
     - libevent
     - libwebp
     - lottie-ios
+    - Mixpanel-swift
     - MLImage
     - MLKitBarcodeScanning
     - MLKitCommon
@@ -652,6 +663,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
+  MixpanelReactNative:
+    :path: "../node_modules/mixpanel-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -680,6 +693,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-blurhash:
+    :path: "../node_modules/react-native-blurhash"
   react-native-fast-animations:
     :path: "../node_modules/react-native-fast-animations"
   react-native-fast-pbkdf2:
@@ -777,6 +792,8 @@ SPEC CHECKSUMS:
   libwebp: 98a37e597e40bfdb4c911fc98f2c53d0b12d05fc
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
   lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
+  Mixpanel-swift: ce120e0d51dcb0d0bf5a25e1ee232fe89ad1136b
+  MixpanelReactNative: 1226c336e93b87feb3ae1f50009e2780e7e635a4
   MLImage: a454f9f8ecfd537783a12f9488f5be1a68820829
   MLKitBarcodeScanning: 05aaf6edc24417fa195a4e5d5dcb11550e80fb92
   MLKitCommon: 534d2b24c1f8676db247bd7ee5733eca1b52968b
@@ -800,6 +817,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
+  react-native-blurhash: add4df9a937b4e021a24bc67a0714f13e0bd40b7
   react-native-fast-animations: 23e8aa365e97ef3013bf0ac5219701cefb6578ff
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-menu: 52089949cbe30b035c51e54f92a7d99136c2fed4

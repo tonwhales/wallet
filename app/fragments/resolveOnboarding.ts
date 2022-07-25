@@ -1,7 +1,7 @@
-import { getAppState, getCurrentAddress, isAddressSecured } from "../storage/appState";
+import { canUpgradeAppState, getAppState, getCurrentAddress, isAddressSecured } from "../storage/appState";
 import { Engine } from "../engine/Engine";
 
-export function resolveOnboarding(engine: Engine | null): 'backup' | 'sync' | 'home' | 'welcome' {
+export function resolveOnboarding(engine: Engine | null): 'backup' | 'sync' | 'home' | 'welcome' | 'upgrade-store' {
     const state = getAppState();
     if (state.selected >= 0) {
         const address = getCurrentAddress();
@@ -14,6 +14,8 @@ export function resolveOnboarding(engine: Engine | null): 'backup' | 'sync' | 'h
         } else {
             return 'backup';
         }
+    } else if (canUpgradeAppState()) {
+        return 'upgrade-store';
     } else {
         return 'welcome';
     }

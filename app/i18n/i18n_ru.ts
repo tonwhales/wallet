@@ -27,7 +27,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         confirm: 'Подтвердить',
         soon: 'скоро',
         in: 'через',
-        max: 'Макс.'
+        max: 'Макс.',
+        close: 'Закрыть',
+        delete: 'Удалить'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -51,7 +53,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         balanceTitle: 'Баланс Ton',
         actions: {
             receive: 'Получить',
-            send: 'Отправить'
+            send: 'Отправить',
+            buy: 'Купить'
         },
         empty: {
             message: 'У вас нет транзакций',
@@ -74,7 +77,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             invalidAmount: 'Неверное количество',
             sendingToYourself: 'Вы не можете отправлять монеты сами себе',
             zeroCoins: 'К сожалению, вы не можете отправить ноль монет',
-            notEnoughCoins: 'К сожалению, на кошельке не достаточно монет для совершения транзакции',
+            notEnoughCoins: 'К сожалению, на кошельке недостаточно монет для совершения транзакции',
             addressIsForTestnet: 'Этот адрес для тестовой сети',
             addressCantReceive: 'Этот адрес не может принимать монеты',
             addressIsNotActive: 'Этот кошелёк никогда не использовался'
@@ -89,25 +92,39 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         commentRequired: 'Обязательный комментарий',
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',
-        confirmTitle: 'Подтверждение транзакции'
+        confirmTitle: 'Подтверждение транзакции',
+        unknown: 'Неизвестная операция'
     },
     auth: {
-        title: 'Авторизация',
-        message: 'Разрешите <strong>{{name}}</strong> знать ваш адрес кошелька',
+        title: 'Запрос на подключение',
+        message: '<strong>{{name}}</strong> хочет подключиться к вашему аккаунту',
         hint: 'Никакие средства не будут переведены и приложение не сможет получить доступ к вашим монетам.',
         action: 'Разрешить',
         expired: 'Этот запрос на авторизацию уже истек',
+        failed: 'Неправильная ссылка',
         completed: 'Этот запрос на авторизацию уже подтвержден',
+        authorizedDescription: 'Теперь вы можете вернуться в приложение.',
+        authorized: 'Запрос на авторизацию подтвержден',
         noApps: 'Нет связанных приложений',
         name: 'Приложения',
+        yourWallet: 'Ваш кошелёк',
         revoke: {
             title: 'Вы уверены что хотите удалить это приложение?',
             message: 'Это удалит связь между кошельком и приложением, но вы всегда сможете восстановить эту связь обратно.',
             action: 'Удалить'
         },
         apps: {
-            title: 'Доверенные приложения'
+            title: 'Доверенные приложения',
+            delete: {
+                title: 'Удалить это расширение?',
+                message: 'Это удалит связь между вашим кошельком и расширением, но вы всегда можете попытаться подключиться снова.',
+            }
         }
+    },
+    install: {
+        title: 'Установить дополнение',
+        message: '<strong>{{name}}</strong> хочет подключиться к вашему аккаунту',
+        action: 'Установить'
     },
     sign: {
         title: 'Запрос подписи',
@@ -140,6 +157,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         requestPermission: 'Открыть настройки',
     },
     products: {
+        accounts: 'Счета',
+        services: 'Расширения',
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'
@@ -173,6 +192,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 notEnoughStaked: 'К сожалению, у вас недостаточно монет на стейке',
                 confirmWithdraw: 'Запросить вывод',
                 confirmWithdrawReady: 'Вывести сейчас',
+                restrictedTitle: 'Этот Стейкинг Пул ограничен',
+                restrictedMessage: 'Перед отправкой убедитесь, что у вас есть пропуск в данный пул, иначе ваши средства могут не участвовать в стейке и ожидать обратного вывода.',
             },
             nextCycle: 'След. цикл',
             cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',
@@ -316,7 +337,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         protectFaceID: 'Защитить с Face ID',
         protectTouchID: 'Защитить с Touch ID',
         protectBiometrics: 'Защитить с биометрией',
-        protectPasscode: 'Защитить паролем'
+        protectPasscode: 'Защитить паролем',
+        upgradeTitle: 'Требуется обновление',
+        upgradeMessage: 'Пожалуйста, разрешите приложению доступ к ключам для обновления. Никакие средства не будут переведены во время обновления. Пожалуйста, убедитесь что ваши секретные слова надежно сохранены.',
+        allowUpgrade: 'Разрешить обновление',
+        backup: 'Сохранить секретные слова'
     },
     backup: {
         title: 'Фраза восстановления',
@@ -355,6 +380,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         description: 'Вы попадёте в Neocrypto. Услуги, связанные с платежами, предоставляются Neocrypto, отдельной платформой, принадлежащей третьей стороне.\n\nПожалуйста, прочитайте и согласитесь с Условиями обслуживания Neocrypto, прежде чем использовать их сервис.',
         doNotShow: 'Больше не показывать для Neocrypto',
         termsAndPrivacy: 'Я прочитал и согласен с ',
+        confirm: {
+            title: 'Вы уверены, что хотите закрыть эту форму?',
+            message: 'Это отменит все ваши изменения'
+        }
     },
     known: {
         deposit: 'Депозит',
@@ -368,6 +397,20 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         cashback: 'Кэшбек',
         tokenSent: 'Токен отправлен',
         tokenReceived: 'Токен получен'
+    },
+    jetton: {
+        token: 'токен'
+    },
+    connections: {
+        extensions: 'Расширения',
+        connections: 'Внешние приложения'
+    },
+    accounts: {
+        active: 'Активные',
+        noActive: 'Нет активных аккаунтов',
+        disabled: 'Неактивные',
+        alertActive: 'Активировать {{symbol}}?',
+        alertDisabled: 'Сделать {{symbol}} неактивным?'
     }
 };
 

@@ -21,6 +21,15 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ModalProvider } from './app/components/FastModal/ModalProvider';
 import { Root } from './app/Root';
+import { changeNavBarColor } from './app/components/modules/NavBar';
+import { mixpanel } from './app/analytics/mixpanel';
+
+changeNavBarColor('white');
+
+mixpanel.init();
+if (__DEV__) {
+  mixpanel.setLoggingEnabled(true);
+}
 
 function Boot() {
   return (

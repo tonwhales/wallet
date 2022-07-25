@@ -30,6 +30,19 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  
+  // Disable iCloud backup
+  NSArray *urlArray = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask];
+  NSURL *documentsUrl = [urlArray firstObject];
+  NSError *error = nil;
+  BOOL success = [documentsUrl setResourceValue: [NSNumber numberWithBool: YES]
+                                         forKey: NSURLIsExcludedFromBackupKey error: &error];
+  if(!success) {
+    NSLog(@"Error in disabling %@ from backup %@", [documentsUrl lastPathComponent], error);
+  } else {
+    NSLog(@"Documents directory backup disabled");
+  }
+  
   RCTAppSetupPrepareApp(application);
   
   RCTBridge *bridge = [self.reactDelegate createBridgeWithDelegate:self launchOptions:launchOptions];

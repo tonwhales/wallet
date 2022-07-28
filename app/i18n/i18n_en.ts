@@ -386,6 +386,18 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         disabled: 'Hidden',
         alertActive: 'Mark {{symbol}} active?',
         alertDisabled: 'Mark {{symbol}} hidden?'
+    },
+    report: {
+        title: 'Report',
+        scam: 'scam',
+        bug: 'bug',
+        offense: 'offensive content'
+    },
+    review: {
+        title: 'Review',
+        rating: 'rating',
+        review: 'Review (optional)',
+        heading: 'Title'
     }
 };
 

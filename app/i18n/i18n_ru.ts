@@ -386,6 +386,18 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         disabled: 'Неактивные',
         alertActive: 'Активировать {{symbol}}?',
         alertDisabled: 'Сделать {{symbol}} неактивным?'
+    },
+    report: {
+        title: 'Сообщить о проблеме',
+        scam: 'мошенничество',
+        bug: 'ошибка',
+        offense: 'оскорбительный контент'
+    },
+    review: {
+        title: 'Отзыв',
+        rating: 'рейтинг',
+        review: 'Отзыв (по желанию)',
+        heading: 'Заголовок'
     }
 };
 

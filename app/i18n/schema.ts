@@ -388,6 +388,18 @@ export type LocalizationSchema = {
         disabled: string,
         alertActive: string,
         alertDisabled: string
+    },
+    report: {
+        title: string,
+        scam: string,
+        bug: string,
+        offense: string
+    },
+    review: {
+        title: string,
+        rating: string,
+        review: string,
+        heading: string
     }
 };
 

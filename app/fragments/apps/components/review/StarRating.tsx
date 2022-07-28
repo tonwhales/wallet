@@ -4,16 +4,14 @@ import FilledStar from '../../../../../assets/ic_star_filled.svg';
 import Star from '../../../../../assets/ic_star_outline.svg';
 import { Theme } from "../../../../Theme";
 
-export type Rating = 0 | 1 | 2 | 3 | 4 | 5;
-
 const StarView = React.memo(({
     rate,
     rating,
     setRating
 }: {
-    rate: Rating,
-    rating: Rating,
-    setRating: (value: Rating) => void
+    rate: number,
+    rating: number,
+    setRating: (value: number) => void
 }) => {
     return (
         <Pressable
@@ -41,14 +39,14 @@ export const StarRating = React.memo(({
     onSet,
     style
 }: {
-    initial?: Rating,
-    onSet: (rating: 0| 1 | 2 | 3 | 4 | 5) => void,
+    initial?: number,
+    onSet: (rating: number) => void,
     style?: StyleProp<ViewStyle>
 }) => {
-    const [rating, setRating] = useState<Rating>(initial || 0);
+    const [rating, setRating] = useState<number>(initial || 0);
 
     const set = useCallback(
-        (value: Rating) => {
+        (value: number) => {
             if (value !== rating) {
                 setRating(value);
             }

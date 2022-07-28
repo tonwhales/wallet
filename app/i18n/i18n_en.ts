@@ -391,13 +391,20 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         title: 'Report',
         scam: 'scam',
         bug: 'bug',
-        offense: 'offensive content'
+        spam: 'spam',
+        offense: 'offensive content',
+        posted: 'Your report is sent',
+        error: 'Error sending report',
+        message: 'Message (required)',
+        reason: 'Report reason'
     },
     review: {
-        title: 'Review',
+        title: 'Review extension',
         rating: 'rating',
         review: 'Review (optional)',
-        heading: 'Title'
+        heading: 'Title',
+        error: 'Error posing review',
+        posted: 'Your review is sent'
     }
 };
 

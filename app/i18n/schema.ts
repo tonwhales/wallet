@@ -393,13 +393,20 @@ export type LocalizationSchema = {
         title: string,
         scam: string,
         bug: string,
-        offense: string
+        spam: string,
+        offense: string,
+        posted: string,
+        error: string,
+        message: string,
+        reason: string
     },
     review: {
         title: string,
         rating: string,
         review: string,
-        heading: string
+        heading: string,
+        posted: string,
+        error: string
     }
 };
 

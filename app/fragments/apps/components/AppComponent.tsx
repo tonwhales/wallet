@@ -64,6 +64,20 @@ export const AppComponent = React.memo((props: {
         [props],
     );
 
+    const onReview = React.useCallback(
+        () => {
+            navigation.navigateReview({type: 'review', url: props.endpoint});
+        },
+        [props],
+    );
+
+    const onReport = React.useCallback(
+        () => {
+            navigation.navigateReview({type: 'report', url: props.endpoint});
+        },
+        [props],
+    );
+
     //
     // View
     //
@@ -237,8 +251,12 @@ export const AppComponent = React.memo((props: {
                     }}
                     onPressAction={({ nativeEvent }) => {
                         if (nativeEvent.event === 'share') onShare();
+                        if (nativeEvent.event === 'review') onReview();
+                        if (nativeEvent.event === 'report') onReport();
                     }}
                     actions={[
+                        { title: t('report.title'), id: 'report', image: Platform.OS === 'ios' ? 'exclamationmark.triangle' : undefined, attributes: { destructive: true } },
+                        { title: t('review.title'), id: 'review', image: Platform.OS === 'ios' ? 'star' : undefined },
                         { title: t('common.share'), id: 'share', image: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
                     ]}
                 >

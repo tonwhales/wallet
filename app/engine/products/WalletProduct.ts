@@ -198,14 +198,15 @@ export class WalletProduct {
 
             // Resolve hasMore flag
             let next: { lt: string, hash: string } | null = null;
-            let nextIndex: number | undefined;
+            let lastindex: number | undefined;
             if (state.transactions.length > 0) {
                 if (state.transactions.length >= 40) {
-                    nextIndex = 40 - 1;
+                    lastindex = 40 - 1;
                 } else {
-                    nextIndex = state.transactions.length - 1
+                    lastindex = state.transactions.length - 1
                 }
-                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[nextIndex]);
+
+                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[lastindex]);
                 if (tx.prev) {
                     next = { lt: tx.prev.lt, hash: tx.prev.hash };
                 }
@@ -217,7 +218,7 @@ export class WalletProduct {
                 seqno: state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.slice(undefined, nextIndex ? nextIndex + 1 : undefined).map((v) => {
+                    ...state.transactions.slice(undefined, lastindex ? lastindex + 1 : undefined).map((v) => {
                         let tx = this.engine.transactions.getWalletTransaction(this.address, v);
                         return { id: tx.id, time: tx.time };
                     })
@@ -269,7 +270,7 @@ export class WalletProduct {
         this.engine.persistence.wallets.item(this.engine.address).for((state) => {
             let ltIndex = findLtIndex(state.transactions, lt, 0, state.transactions.length - 1);
             // If not cached load more from server
-            if (ltIndex === state.transactions.length - 1) {
+            if (ltIndex === state.transactions.length - 1 || ltIndex === -1) {
                 this.#history.loadMore(lt, hash);
             }
 
@@ -278,16 +279,16 @@ export class WalletProduct {
 
             // Resolve hasMore in cache flag
             let next: { lt: string, hash: string } | null = null;
-            let nextIndex: number | undefined;
+            let lastIndex: number | undefined;
             if (state.transactions.length > 0) {
                 if (ltIndex != -1 && (state.transactions.length - 1 - ltIndex) >= 40) {
                     // Load next 40
-                    nextIndex = ltIndex - 1 + 40;
+                    lastIndex = ltIndex - 1 + 40;
                 } else {
                     // Load rest
-                    nextIndex = state.transactions.length - 1
+                    lastIndex = state.transactions.length - 1
                 }
-                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[nextIndex]);
+                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[lastIndex]);
                 if (tx.prev) {
                     next = { lt: tx.prev.lt, hash: tx.prev.hash };
                 }
@@ -299,7 +300,7 @@ export class WalletProduct {
                 seqno: state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.slice(undefined, nextIndex ? nextIndex + 1 : undefined).map((v) => {
+                    ...state.transactions.slice(undefined, lastIndex ? lastIndex + 1 : undefined).map((v) => {
                         let tx = this.engine.transactions.getWalletTransaction(this.address, v);
                         return { id: tx.id, time: tx.time };
                     })

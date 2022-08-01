@@ -210,22 +210,20 @@ export class WalletProduct {
                 seqno: state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.map((v) => {
-                        let tx = this.engine.transactions.getWalletTransaction(this.address, v);
+                    ...state.transactions.map((t) => {
+                        let tx = this.engine.transactions.getWalletTransaction(this.address, t);
+
+                        // Update transactions
+                        if (!this.#txs.has(t)) {
+                            this.#txs.set(tx.id, tx);
+                        }
+
                         return { id: tx.id, time: tx.time };
                     })
                 ],
                 next
             };
-
-            // Update transactions
-            for (let t of state.transactions) {
-                if (!this.#txs.has(t)) {
-                    let tx = this.engine.transactions.getWalletTransaction(this.address, t);
-                    this.#txs.set(tx.id, tx);
-                }
-            }
-
+            
             // Notify
             engine.recoil.updater(this.#atom, this.#state);
         });

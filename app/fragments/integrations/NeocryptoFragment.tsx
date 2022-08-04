@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, Image, Platform, Pressable, Alert } from "react-native";
+import { View, Text, Image, Platform, Pressable, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { AppConfig } from "../../AppConfig";
@@ -59,76 +59,80 @@ export const ConfirmLegal = React.memo((
     }, [accepted, doNotShow]);
 
     return (
-        <View style={{
-            justifyContent: 'center', alignItems: 'center',
-            paddingHorizontal: 16,
-            flex: 1
-        }}>
-            <View style={{ flexGrow: 1 }} />
-            <Image
-                style={{
-                    width: 100,
-                    height: 100,
-                    overflow: 'hidden'
-                }}
-                source={Logo}
-            />
-            <Text style={{
-                fontWeight: '800',
-                fontSize: 24,
-                textAlign: 'center',
-                color: Theme.textColor,
-                marginTop: 16,
-                marginHorizontal: 24
-            }}>
-                {t('neocrypto.title')}
-            </Text>
-            <Text style={{
-                fontWeight: '400',
-                fontSize: 16,
-                marginTop: 24,
-            }}>
-                {t('neocrypto.description')}
-            </Text>
-            <View style={{ flexGrow: 1 }} />
-            <View style={{
-                paddingRight: 62,
-                marginBottom: 24,
-                width: '100%'
-            }}>
-                <CheckBox
-                    checked={accepted}
-                    onToggle={(newVal) => setAccepted(newVal)}
-                    text={
-                        <Text>
-                            {t('neocrypto.termsAndPrivacy')}
+        <View style={{ flex: 1 }}>
+            <ScrollView
+                style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
+                alwaysBounceVertical={false}
+            >
+                <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ flexGrow: 1 }} />
+                    <Image
+                        style={{
+                            width: 100,
+                            height: 100,
+                            overflow: 'hidden'
+                        }}
+                        source={Logo}
+                    />
+                    <Text style={{
+                        fontWeight: '800',
+                        fontSize: 24,
+                        textAlign: 'center',
+                        color: Theme.textColor,
+                        marginTop: 16,
+                        marginHorizontal: 24
+                    }}>
+                        {t('neocrypto.title')}
+                    </Text>
+                    <Text style={{
+                        fontWeight: '400',
+                        fontSize: 16,
+                        marginTop: 24,
+                    }}>
+                        {t('neocrypto.description')}
+                    </Text>
+                    <View style={{ flexGrow: 1 }} />
+                    <View style={{
+                        paddingRight: 62,
+                        marginBottom: 24,
+                        width: '100%'
+                    }}>
+                        <CheckBox
+                            checked={accepted}
+                            onToggle={(newVal) => setAccepted(newVal)}
+                            text={
+                                <Text>
+                                    {t('neocrypto.termsAndPrivacy')}
 
-                            <Text
-                                style={{ color: '#42A3EB' }}
-                                onPress={openTerms}
-                            >
-                                {t('legal.termsOfService')}
-                            </Text>
-                            {' ' + t('common.and') + ' '}
-                            <Text
-                                style={{ color: '#42A3EB' }}
-                                onPress={openPrivacy}
-                            >
-                                {t('legal.privacyPolicy')}
-                            </Text>
-                        </Text>
-                    }
-                />
-                <CheckBox
-                    checked={doNotShow}
-                    onToggle={onDoNotShowToggle}
-                    text={t('neocrypto.doNotShow')}
-                    style={{
-                        marginTop: 16
-                    }}
-                />
-            </View>
-            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                                    <Text
+                                        style={{ color: '#42A3EB' }}
+                                        onPress={openTerms}
+                                    >
+                                        {t('legal.termsOfService')}
+                                    </Text>
+                                    {' ' + t('common.and') + ' '}
+                                    <Text
+                                        style={{ color: '#42A3EB' }}
+                                        onPress={openPrivacy}
+                                    >
+                                        {t('legal.privacyPolicy')}
+                                    </Text>
+                                </Text>
+                            }
+                        />
+                        <CheckBox
+                            checked={doNotShow}
+                            onToggle={onDoNotShowToggle}
+                            text={t('neocrypto.doNotShow')}
+                            style={{
+                                marginTop: 16
+                            }}
+                        />
+                    </View>
+                </View>
+            </ScrollView>
+            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
                 <RoundButton
                     disabled={!accepted}
                     title={t('common.continue')}

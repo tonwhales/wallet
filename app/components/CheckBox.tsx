@@ -38,12 +38,12 @@ export const CheckBox = React.memo((
             style={({ pressed }) => {
                 return [{
                     opacity: pressed ? 0.3 : 1
-                }]
+                }, style]
             }}
         >
             <View style={[{
                 flexDirection: 'row',
-            }, style]}>
+            }]}>
                 <View style={{
                     justifyContent: 'center',
                     alignItems: 'center',

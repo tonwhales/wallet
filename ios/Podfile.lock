@@ -53,15 +53,15 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.68.2)
   - fmt (6.2.1)
   - glog (0.3.5)
-  - GoogleDataTransport (9.1.4):
+  - GoogleDataTransport (9.2.0):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleMLKit/BarcodeScanning (3.0.0):
+  - GoogleMLKit/BarcodeScanning (3.1.0):
     - GoogleMLKit/MLKitCore
-    - MLKitBarcodeScanning (~> 2.0.0)
-  - GoogleMLKit/MLKitCore (3.0.0):
-    - MLKitCommon (~> 6.0.0)
+    - MLKitBarcodeScanning (~> 2.1.0)
+  - GoogleMLKit/MLKitCore (3.1.0):
+    - MLKitCommon (~> 7.0.0)
   - GoogleToolboxForMac/DebugUtils (2.3.2):
     - GoogleToolboxForMac/Defines (= 2.3.2)
   - GoogleToolboxForMac/Defines (2.3.2)
@@ -104,11 +104,11 @@ PODS:
   - MixpanelReactNative (1.4.2):
     - Mixpanel-swift (= 3.2.6)
     - React
-  - MLImage (1.0.0-beta2)
-  - MLKitBarcodeScanning (2.0.0):
-    - MLKitCommon (~> 6.0)
-    - MLKitVision (~> 4.0)
-  - MLKitCommon (6.0.0):
+  - MLImage (1.0.0-beta3)
+  - MLKitBarcodeScanning (2.1.0):
+    - MLKitCommon (~> 7.0)
+    - MLKitVision (~> 4.1)
+  - MLKitCommon (7.0.0):
     - GoogleDataTransport (~> 9.0)
     - GoogleToolboxForMac/Logger (~> 2.1)
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
@@ -117,12 +117,12 @@ PODS:
     - GoogleUtilitiesComponents (~> 1.0)
     - GTMSessionFetcher/Core (~> 1.1)
     - Protobuf (~> 3.12)
-  - MLKitVision (4.0.0):
+  - MLKitVision (4.1.0):
     - GoogleToolboxForMac/Logger (~> 2.1)
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - GTMSessionFetcher/Core (~> 1.1)
-    - MLImage (= 1.0.0-beta2)
-    - MLKitCommon (~> 6.0)
+    - MLImage (= 1.0.0-beta3)
+    - MLKitCommon (~> 7.0)
     - Protobuf (~> 3.12)
   - MMKV (1.2.13):
     - MMKVCore (~> 1.2.13)
@@ -132,8 +132,8 @@ PODS:
     - nanopb/encode (= 2.30909.0)
   - nanopb/decode (2.30909.0)
   - nanopb/encode (2.30909.0)
-  - PromisesObjC (2.1.0)
-  - Protobuf (3.20.1)
+  - PromisesObjC (2.1.1)
+  - Protobuf (3.21.4)
   - RCT-Folly (2021.06.28.00-v2):
     - boost
     - DoubleConversion
@@ -445,6 +445,8 @@ PODS:
     - React-perflogger (= 0.68.2)
   - RNCClipboard (1.8.5):
     - React-Core
+  - RNCPicker (2.4.2):
+    - React-Core
   - RNFastImage (8.5.11):
     - React-Core
     - SDWebImage (~> 5.11.1)
@@ -492,7 +494,7 @@ PODS:
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
-  - SDWebImageWebPCoder (0.8.4):
+  - SDWebImageWebPCoder (0.8.5):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
   - SwiftyJSON (5.0.1)
@@ -574,6 +576,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
+  - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
@@ -733,6 +736,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
+  RNCPicker:
+    :path: "../node_modules/@react-native-picker/picker"
   RNFastImage:
     :path: "../node_modules/react-native-fast-image"
   RNGestureHandler:
@@ -781,8 +786,8 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: 81ce99032d5b586fddd6a38d450f8595f7e04be4
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 476ee3e89abb49e07f822b48323c51c57124b572
-  GoogleDataTransport: 5fffe35792f8b96ec8d6775f5eccd83c998d5a3b
-  GoogleMLKit: 69ae034947ca5220c842a3096d574765c9b6b8b8
+  GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
+  GoogleMLKit: 9d072522949ff0ef4dae5359feaf3db2ef2fa658
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
   GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
   GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
@@ -794,15 +799,15 @@ SPEC CHECKSUMS:
   lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
   Mixpanel-swift: ce120e0d51dcb0d0bf5a25e1ee232fe89ad1136b
   MixpanelReactNative: 1226c336e93b87feb3ae1f50009e2780e7e635a4
-  MLImage: a454f9f8ecfd537783a12f9488f5be1a68820829
-  MLKitBarcodeScanning: 05aaf6edc24417fa195a4e5d5dcb11550e80fb92
-  MLKitCommon: 534d2b24c1f8676db247bd7ee5733eca1b52968b
-  MLKitVision: 5e393f4d8a28be57b6384a3665f5f041deff9c2e
+  MLImage: 489dfec109f21da8621b28d476401aaf7a0d4ff4
+  MLKitBarcodeScanning: 74f43c38f3f85b3f3f332006b20a1a22f404256c
+  MLKitCommon: 20f4aca0ec2bb37cef2b9c211b50586817bac5d3
+  MLKitVision: 639a171d937241f3fcf92bc1b3ef8f179f49916c
   MMKV: aac95d817a100479445633f2b3ed8961b4ac5043
   MMKVCore: 3388952ded307e41b3ed8a05892736a236ed1b8e
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
-  PromisesObjC: 99b6f43f9e1044bd87a95a60beff28c2c44ddb72
-  Protobuf: b60ec2f51ad74765f44d0c09d2e0579d7de21745
+  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  Protobuf: 85a48c73d708782e2869564c0438e211aae98e7a
   RCT-Folly: 4d8508a426467c48885f1151029bc15fa5d7b3b8
   RCTRequired: 3e917ea5377751094f38145fdece525aa90545a0
   RCTTypeSafety: c43c072a4bd60feb49a9570b0517892b4305c45e
@@ -837,6 +842,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: b960b687d2dfef0d3761fbb187e01812ebab8b23
   ReactCommon: 095366164a276d91ea704ce53cb03825c487a3f2
   RNCClipboard: cc054ad1e8a33d2a74cd13e565588b4ca928d8fd
+  RNCPicker: 0250e95ad170569a96f5b0555cdd5e65b9084dca
   RNFastImage: 1f2cab428712a4baaf78d6169eaec7f622556dd7
   RNGestureHandler: 1dc1ea9d4b64f999042afafbaccf5b143f0b2fa2
   RNInAppBrowser: 3ff3a3b8f458aaf25aaee879d057352862edf357
@@ -846,7 +852,7 @@ SPEC CHECKSUMS:
   RNScreens: 4d83613b50b74ed277026375dc0810893b0c347f
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
-  SDWebImageWebPCoder: f93010f3f6c031e2f8fb3081ca4ee6966c539815
+  SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   vision-camera-code-scanner: 75a4ac3c9ce9b4605f5d87cc0f0001bb64bfb4de
   VisionCamera: c1c171fcdbf18c438987847f785829c5638f3a4c

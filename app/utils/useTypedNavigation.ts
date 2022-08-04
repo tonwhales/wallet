@@ -93,6 +93,13 @@ export class TypedNavigation {
     }) {
         this.navigate('Sign', tx);
     }
+
+    navigateReview(params: {
+        type: 'review' | 'report',
+        url: string
+    }) {
+        this.navigate('Review', params);
+    }
 }
 
 export function useTypedNavigation() {

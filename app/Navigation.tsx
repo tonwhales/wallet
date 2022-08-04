@@ -51,7 +51,7 @@ import BN from 'bn.js';
 import { mixpanel } from './analytics/mixpanel';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
-import { SpamFilterFragment } from './fragments/SpamFilterFragment';
+import { ReviewFragment } from './fragments/apps/ReviewFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -154,7 +154,7 @@ const navigation = [
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Accounts', AccountsFragment),
-    modalScreen('SpamFilter', SpamFilterFragment),
+    modalScreen('Review', ReviewFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

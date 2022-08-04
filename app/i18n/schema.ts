@@ -133,7 +133,8 @@ export type LocalizationSchema = {
             delete: {
                 title: string,
                 message: string
-            }
+            },
+            installExtension: string
         }
     },
     install: {
@@ -208,6 +209,8 @@ export type LocalizationSchema = {
                 confirmWithdrawReady: string,
                 restrictedTitle: string,
                 restrictedMessage: string,
+                notEnoughCoinsFee: string,
+                notEnoughCoins: string,
             },
             join: {
                 title: string,
@@ -391,11 +394,24 @@ export type LocalizationSchema = {
         alertActive: string,
         alertDisabled: string
     },
-    spamFilter: {
-        minAmount: string,
-        dontShowComments: string,
-        minAmountDescription: string,
-        applyConfig: string
+    report: {
+        title: string,
+        scam: string,
+        bug: string,
+        spam: string,
+        offense: string,
+        posted: string,
+        error: string,
+        message: string,
+        reason: string
+    },
+    review: {
+        title: string,
+        rating: string,
+        review: string,
+        heading: string,
+        posted: string,
+        error: string
     }
 };
 

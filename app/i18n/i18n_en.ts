@@ -131,7 +131,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             delete: {
                 title: 'Delete this extension?',
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
-            }
+            },
+            installExtension: 'Install and open extension for this application'
         }
     },
     install: {
@@ -195,7 +196,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 confirmWithdraw: 'Request Withdrawal',
                 confirmWithdrawReady: 'Withdraw now',
                 restrictedTitle: 'This Staking Pool is restricted',
-                restrictedMessage: 'Before sending, make sure you have a pass to this pool, otherwise your funds may not participate in the stake and wait for the withdrawal',
+                restrictedMessage: 'Your funds will not participate in staking if your wallet address is not on the permit list, but will be on the pool balance and awaiting a withdrawal',
+                notEnoughCoinsFee: 'There are not enough funds on your wallet balance to pay the fee. Please note that the {{amount}} TON commission amount must be on the main balance, not on the staking balance',
+                notEnoughCoins: 'There are not enough funds on your wallet balance to top up the staking balance',
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
@@ -389,11 +392,24 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alertActive: 'Mark {{symbol}} active?',
         alertDisabled: 'Mark {{symbol}} hidden?'
     },
-    spamFilter: {
-        minAmount: 'Min TON amount',
-        dontShowComments: 'Don\'t show comments on SPAM transactions',
-        minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
-        applyConfig: 'Apply selected SPAM filter settings'
+    report: {
+        title: 'Report',
+        scam: 'scam',
+        bug: 'bug',
+        spam: 'spam',
+        offense: 'offensive content',
+        posted: 'Your report is sent',
+        error: 'Error sending report',
+        message: 'Message (required)',
+        reason: 'Report reason'
+    },
+    review: {
+        title: 'Review extension',
+        rating: 'rating',
+        review: 'Review (optional)',
+        heading: 'Title',
+        error: 'Error posing review',
+        posted: 'Your review is sent'
     }
 };
 

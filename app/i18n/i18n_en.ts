@@ -387,6 +387,25 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         disabled: 'Hidden',
         alertActive: 'Mark {{symbol}} active?',
         alertDisabled: 'Mark {{symbol}} hidden?'
+    },
+    report: {
+        title: 'Report',
+        scam: 'scam',
+        bug: 'bug',
+        spam: 'spam',
+        offense: 'offensive content',
+        posted: 'Your report is sent',
+        error: 'Error sending report',
+        message: 'Message (required)',
+        reason: 'Report reason'
+    },
+    review: {
+        title: 'Review extension',
+        rating: 'rating',
+        review: 'Review (optional)',
+        heading: 'Title',
+        error: 'Error posing review',
+        posted: 'Your review is sent'
     }
 };
 

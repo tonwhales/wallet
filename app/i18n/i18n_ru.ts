@@ -387,6 +387,25 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         disabled: 'Неактивные',
         alertActive: 'Активировать {{symbol}}?',
         alertDisabled: 'Сделать {{symbol}} неактивным?'
+    },
+    report: {
+        title: 'Сообщить о проблеме',
+        scam: 'мошенничество',
+        bug: 'ошибка',
+        spam: 'спам',
+        offense: 'оскорбительный контент',
+        posted: 'Ваша жалоба отправлена',
+        error: 'Ошибка при отправке жалобы',
+        message: 'Сообщение (обязательно)',
+        reason: 'Причина обращения'
+    },
+    review: {
+        title: 'Отзыв на расширение',
+        rating: 'рейтинг',
+        review: 'Отзыв (по желанию)',
+        heading: 'Заголовок',
+        posted: 'Отзыв отправлен',
+        error: 'Ошибка при отправке отзыва'
     }
 };
 

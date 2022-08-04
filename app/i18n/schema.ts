@@ -394,6 +394,12 @@ export type LocalizationSchema = {
         alertActive: string,
         alertDisabled: string
     },
+    spamFilter: {
+        minAmount: string,
+        dontShowComments: string,
+        minAmountDescription: string,
+        applyConfig: string
+    },
     report: {
         title: string,
         scam: string,

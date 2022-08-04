@@ -392,6 +392,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alertActive: 'Mark {{symbol}} active?',
         alertDisabled: 'Mark {{symbol}} hidden?'
     },
+    spamFilter: {
+        minAmount: 'Min TON amount',
+        dontShowComments: 'Don\'t show comments on SPAM transactions',
+        minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
+        applyConfig: 'Apply selected SPAM filter settings'
+    },
     report: {
         title: 'Report',
         scam: 'scam',

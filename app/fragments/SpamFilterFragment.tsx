@@ -49,6 +49,7 @@ export const SpamFilterFragment = fragment(() => {
 
     const onApply = useCallback(
         async () => {
+            console.log('onApply')
             const confirmed = await confirm('spamFilter.applyConfig');
             if (confirmed) {
                 let value: BN
@@ -64,6 +65,8 @@ export const SpamFilterFragment = fragment(() => {
                     dontShowComments: dontShowComments
                 });
 
+                setDontShowComments(dontShowComments);
+                setMinValue(fromNano(value));
                 return;
             }
 
@@ -74,12 +77,7 @@ export const SpamFilterFragment = fragment(() => {
     );
 
     const disabled = dontShowComments === spamConfig.dontShowComments
-    && minValue === fromNano(spamConfig.minAmount);
-    
-    useEffect(() => {
-        setDontShowComments(spamConfig.dontShowComments);
-        setMinValue(fromNano(spamConfig.minAmount));
-    }, [spamConfig.dontShowComments, spamConfig.minAmount]);
+        && minValue === fromNano(spamConfig.minAmount);
 
     return (
         <View style={{
@@ -163,7 +161,10 @@ export const SpamFilterFragment = fragment(() => {
                         <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                         <CheckBox
                             checked={!dontShowComments}
-                            onToggle={() => setDontShowComments(!dontShowComments)}
+                            onToggle={() => {
+                                console.log('set' + !dontShowComments);
+                                setDontShowComments(!dontShowComments);
+                            }}
                             text={t('spamFilter.dontShowComments')}
                             style={{ marginHorizontal: 16 }}
                         />

@@ -1,23 +1,4 @@
-import { fromBNWithDecimals, toBNWithDecimals, toNanoWithDecimals } from "./withDecimals";
-
-describe('toNanoWithDecimals', () => {
-    it('should convert BN to a nano BN with given decimals', () => {
-        let res = toNanoWithDecimals('0f3a70', 3)!;
-        expect(res).not.toBeNull();
-        expect(res).not.toBeUndefined();
-        expect(res.toNumber() === 998000000000).toBe(true);
-
-        res = toNanoWithDecimals('26a0', 1)!;
-        expect(res).not.toBeNull();
-        expect(res).not.toBeUndefined();
-        expect(res.toNumber() === 988800000000).toBe(true);
-
-        res = toNanoWithDecimals('174876e800', 8)!;
-        expect(res).not.toBeNull();
-        expect(res).not.toBeUndefined();
-        expect(res.toNumber() === 1000000000000).toBe(true);
-    });
-});
+import { fromBNWithDecimals, toBNWithDecimals } from "./withDecimals";
 
 describe('toBNWithDecimals', () => {
     it('should convert to BN given decimals', () => {

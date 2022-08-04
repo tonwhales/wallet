@@ -15,6 +15,7 @@ export function ProductButton(props: {
     image?: string,
     blurhash?: string,
     value: BN | null,
+    decimals?: number | null,
     symbol?: string,
     extension?: boolean,
     onPress: () => void,
@@ -63,7 +64,7 @@ export function ProductButton(props: {
                         </Text>
                         {props.value && (
                             <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
-                                <ValueComponent value={props.value} />{props.symbol ? (' ' + props.symbol) : ''}
+                                <ValueComponent value={props.value} decimals={props.decimals} />{props.symbol ? (' ' + props.symbol) : ''}
                             </Text>
                         )}
                     </View>

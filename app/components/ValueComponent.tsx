@@ -1,9 +1,15 @@
 import BN from "bn.js";
 import { StyleProp, Text, TextStyle } from "react-native";
 import { fromNano } from "ton";
+import { fromBNWithDecimals } from "../utils/withDecimals";
 
-export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle>, precision?: number }) {
-    let t = fromNano(props.value);
+export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle>, precision?: number, decimals?: number | null }) {
+    let t: string;
+    if (!!props.decimals) {
+        t = fromBNWithDecimals(props.value, props.decimals);
+    } else {
+        t = fromNano(props.value);
+    }
 
     let parts: string[] = [];
 
@@ -38,15 +44,19 @@ export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<Tex
     }
     r = parts.join(' ');
 
+    const precision = !!props.decimals
+        ? props.decimals
+        : props.precision
+            ? props.precision
+            : r.length > 2 ? 2 : p[1].length
+
     return (
         <Text>
             <Text>{r}</Text>
             <Text style={[props.centFontStyle]}>
                 .{p[1].substring(
                     0,
-                    props.precision
-                        ? props.precision
-                        : r.length > 2 ? 2 : p[1].length // Show only the last two decimal places
+                    precision // Show only the last two decimal places
                 )}
             </Text>
         </Text>

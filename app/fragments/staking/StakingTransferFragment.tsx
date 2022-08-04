@@ -175,7 +175,11 @@ export const StakingTransferFragment = fragment(() => {
 
         // Check amount
         if ((transferAmount.eq(account.balance) || account.balance.lt(transferAmount))) {
-            setMinAmountWarn(t('transfer.error.notEnoughCoins'));
+            setMinAmountWarn(
+                (params.action === 'withdraw' || params.action === 'withdraw_ready')
+                    ? t('products.staking.transfer.notEnoughCoins', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
+                    : t('transfer.error.notEnoughCoins')
+            );
             return;
         }
 
@@ -190,7 +194,21 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         if (KnownPools[params.target.toFriendly({ testOnly: AppConfig.isTestnet })]?.restricted) {
-            let cont = await confirm('products.staking.transfer.restrictedTitle', 'products.staking.transfer.restrictedMessage');
+            let cont = await new Promise<boolean>(resolve => {
+                Alert.alert(t('products.staking.transfer.restrictedTitle'), t('products.staking.transfer.restrictedMessage'), [{
+                    text: t('common.continueAnyway'),
+                    style: 'destructive',
+                    onPress: () => {
+                        resolve(true)
+                    }
+                }, {
+                    text: t('common.cancel'),
+                    onPress: () => {
+                        resolve(false);
+                    }
+                }])
+            });
+
             if (!cont) {
                 return;
             }

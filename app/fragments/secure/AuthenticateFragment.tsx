@@ -13,7 +13,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
-import { beginCell, safeSign } from 'ton';
+import { beginCell, Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
@@ -26,6 +26,11 @@ import { AppData } from '../../engine/api/fetchAppData';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { CheckBox } from '../../components/CheckBox';
+import { extractDomain } from '../../engine/utils/extractDomain';
+import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
+import Url from 'url-parse';
+import isValid from 'is-valid-domain';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -44,6 +49,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
+    const [addExtension, setAddExtension] = React.useState(false);
     const engine = useEngine();
     React.useEffect(() => {
         let ended = false;
@@ -100,6 +106,11 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         let endpoint = 'https://connect.tonhubapi.com/connect/command';
         let name = state.name;
         let url = state.url;
+        let title = state.app ? state.app.title : name;
+        let image = state.app?.image ? {
+            blurhash: state.app.image.blurhash,
+            url: state.app.image.preview256
+        } : null;
 
         // Sign
         let walletKeys: WalletKeys;
@@ -159,7 +170,89 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
 
             setState({ type: 'authorized' });
         });
-    }, [state]);
+
+        // Add extension if AppData has extension field
+        // and option is checked
+        if (addExtension && state.app?.extension) {
+            // Read cell from extension field
+            let slice = Cell.fromBoc(Buffer.from(state.app?.extension, 'base64'))[0].beginParse();
+            let endpoint = slice.readRef().readRemainingBytes().toString();
+            let extras = slice.readBit();
+            let customTitle: string | null = null;
+            let customImage: { url: string, blurhash: string } | null = null;
+            if (!extras) {
+                if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                    warn('Invalid endpoint');
+                    return;
+                }
+            } else {
+                // Read custom title
+                if (slice.readBit()) {
+                    customTitle = slice.readRef().readRemainingBytes().toString()
+                    if (customTitle.trim().length === 0) {
+                        customTitle = null;
+                    }
+                }
+                // Read custom image
+                if (slice.readBit()) {
+                    let imageUrl = slice.readRef().readRemainingBytes().toString();
+                    let imageBlurhash = slice.readRef().readRemainingBytes().toString();
+                    new Url(imageUrl, true);
+                    customImage = { url: imageUrl, blurhash: imageBlurhash };
+                }
+
+                // Future compatibility
+                extras = slice.readBit();
+                if (!extras) {
+                    if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                        warn('Invalid endpoint');
+                        return;
+                    }
+                }
+            }
+
+            // Validate endpoint
+            let parsedEndpoint = new Url(endpoint, true);
+            if (parsedEndpoint.protocol !== 'https:') {
+                warn('Invalid endpoint');
+                return;
+            }
+            if (!isValid(parsedEndpoint.hostname)) {
+                warn('Invalid endpoint');
+                return;
+            }
+
+            let domain = extractDomain(endpoint);
+            let time = Math.floor(Date.now() / 1000);
+
+            let secret = await getSecureRandomBytes(32);
+            let subkey = keyPairFromSeed(secret);
+            let toSign = beginCell()
+                .storeCoins(1)
+                .storeBuffer(subkey.publicKey)
+                .storeUint(time, 32)
+                .storeAddress(contract.address)
+                .storeRef(beginCell().storeBuffer(Buffer.from(domain)).endCell())
+                .endCell();
+            let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
+            // Persist key
+            engine.persistence.domainKeys.setValue(domain, { time, signature, secret });
+
+            // Add extension
+            engine.products.extensions.addExtension(
+                endpoint,
+                customTitle ? customTitle : title,
+                customImage ? customImage : image
+            );
+
+            // Track installation
+            trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain });
+
+            // Navigate
+            navigation.goBack();
+            navigation.navigate('App', { url });
+        }
+    }, [state, addExtension]);
 
     // When loading
     if (state.type === 'loading') {
@@ -242,6 +335,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             </View>
         );
     }
+
 
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
@@ -393,13 +487,25 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                         fontSize: 14,
                         fontWeight: '400',
                         color: Theme.textColor,
-                        marginBottom: 32,
+                        marginBottom: state.app?.extension ? 16 : 32,
                         opacity: 0.6
                     }}
                 >{
                         t('auth.hint')}
                 </Text>
             </View>
+            {!!state.app?.extension && (
+                <CheckBox
+                    checked={addExtension}
+                    onToggle={setAddExtension}
+                    text={t('auth.apps.installExtension')}
+                    style={{
+                        paddingHorizontal: 24,
+                        marginBottom: 32,
+                        width: '100%'
+                    }}
+                />
+            )}
             <View style={{
                 height: 64,
                 marginBottom: safeArea.bottom + 16,

@@ -129,7 +129,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             delete: {
                 title: 'Delete this extension?',
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
-            }
+            },
+            installExtension: 'Install and open extension for this application'
         }
     },
     install: {

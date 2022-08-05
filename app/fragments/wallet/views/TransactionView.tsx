@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Text, useWindowDimensions, View } from 'react-native';
-import { Address, fromNano, toNano } from 'ton';
+import { Address, fromNano } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
@@ -13,8 +13,7 @@ import { PendingTransactionAvatar } from '../../../components/PendingTransaction
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
-import { Engine, useEngine } from '../../../engine/Engine';
-import { toNanoWithDecimals } from '../../../utils/withDecimals';
+import { Engine } from '../../../engine/Engine';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -120,7 +119,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                                     fontSize: 16,
                                     marginRight: 2
                                 }}>
-                                <ValueComponent value={item.kind === 'token' ? toNanoWithDecimals(item.amount, item.decimals) : item.amount} />
+                                <ValueComponent value={item.amount} decimals={item.kind === 'token' ? item.decimals : undefined} />
                                 {item.kind === 'token' ? ' ' + item.symbol : ''}
                             </Text>
                         )}

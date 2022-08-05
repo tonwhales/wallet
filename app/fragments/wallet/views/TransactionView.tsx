@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Text, useWindowDimensions, View } from 'react-native';
-import { Address, fromNano } from 'ton';
+import { Address } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';

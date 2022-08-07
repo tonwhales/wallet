@@ -182,6 +182,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 apy: '~13.3% годовых от вклада',
                 devPromo: 'Приумножайте тестовые монеты'
             },
+            pools: {
+                active: 'Активные пулы',
+                best: 'Наилучший пул',
+                alternatives: 'Альтернативы',
+                private: 'Приватные пулы',
+            },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
                 depositStakeTitle: 'Стейкинг',

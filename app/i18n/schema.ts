@@ -194,6 +194,12 @@ export type LocalizationSchema = {
                 deposit: string,
                 withdraw: string,
             },
+            pools: {
+                active: string,
+                best: string,
+                alternatives: string,
+                private: string
+            },
             transfer: {
                 stakingWarning: string,
                 depositStakeTitle: string,

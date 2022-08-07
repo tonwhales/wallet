@@ -182,6 +182,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 apy: '~13.3 APY of the contribution',
                 devPromo: 'Multiply your test coins'
             },
+            pools: {
+                active: 'Active',
+                best: 'Best pool',
+                alternatives: 'Alternative',
+                private: 'Private pools',
+            },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
                 depositStakeTitle: 'Staking',

@@ -17,6 +17,7 @@ import { startConfigSync } from "./startConfigSync";
 import { startServerConfigSync } from "./startServerConfigSync";
 import { resolveLink } from "../../utils/resolveLink";
 import { startAppMetadataSync } from "./startAppMetadataSync";
+import { startWalletConfigSync } from "./startWalletConfigSync";
 
 export function startSync(engine: Engine) {
 
@@ -159,6 +160,12 @@ export function startSync(engine: Engine) {
     // 
 
     startServerConfigSync(engine);
+
+    //
+    // Wallet Config
+    //
+    
+    startWalletConfigSync(engine);
 
     //
     // App Metadata

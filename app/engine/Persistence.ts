@@ -20,6 +20,7 @@ import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
 import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
+import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 
 export class Persistence {

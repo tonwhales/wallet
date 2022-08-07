@@ -1,6 +1,5 @@
 import BN from "bn.js";
-import { toNano } from "ton";
-var numberToBN = require('number-to-bn');
+const numberToBN = require('number-to-bn');
 
 var zero = new BN(0);
 var negative1 = new BN(-1);
@@ -21,10 +20,6 @@ function numberToString(arg: any) {
         }
     }
     throw new Error('while converting number to string, invalid number value \'' + arg + '\' type ' + typeof arg + '.');
-}
-
-export function toNanoWithDecimals(value: BN | number | string, decimals?: number | null) {
-    return toNano(fromBNWithDecimals(value, decimals));
 }
 
 export function toBNWithDecimals(value: number | string | BN, decimals?: number | null) {
@@ -82,21 +77,23 @@ export function fromBNWithDecimals(input: BN | number | string, decimals?: numbe
     var negative = wei.lt(zero);
     let baseString = `1${'0'.repeat(decimals ? decimals : 9)}`;
     let base = new BN(baseString, 10);
-    let baseLength = baseString.length - 1 || 1;
+    let baseLength = decimals || 1;
 
     if (negative) {
         wei = wei.mul(negative1);
     }
 
-    var fraction = wei.mod(base).toString(10);
+    var fraction = wei.mod(base).toString(10); // eslint-disable-line
 
     while (fraction.length < baseLength) {
         fraction = '0' + fraction;
     }
 
-    var whole = wei.div(base).toString(10);
+    fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
 
-    var value = '' + whole + (fraction == '0' ? '' : '.' + fraction);
+    var whole = wei.div(base).toString(10); // eslint-disable-line
+
+    var value = '' + whole + (fraction == '0' ? '' : '.' + fraction); // eslint-disable-line
 
     if (negative) {
         value = '-' + value;

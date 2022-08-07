@@ -30,8 +30,7 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
-import { warn } from '../../utils/log';
-import { fromBNWithDecimals, toBNWithDecimals, toNanoWithDecimals } from '../../utils/withDecimals';
+import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -311,8 +310,8 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        setAmount(fromNano(balance));
-    }, [balance]);
+        setAmount(jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
+    }, [balance, jettonWallet, jettonMaster]);
 
     //
     // Scroll state tracking

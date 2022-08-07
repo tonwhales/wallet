@@ -10,7 +10,6 @@ import { useEngine } from "../../../../engine/Engine";
 import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
 import { Theme } from "../../../../Theme";
-import { backoff } from "../../../../utils/time";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { StarRating } from "./StarRating";
 
@@ -23,7 +22,6 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [rating, setRating] = useState<number>(0);
-    const [id, setId] = useState<string>();
     const [review, setReview] = useState<string>('');
 
     const opacity = useSharedValue(1);
@@ -46,7 +44,6 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
             setSending(true);
             try {
                 await postExtensionReview(url, {
-                    id,
                     rating,
                     address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     comment: review.length > 0 ? {
@@ -75,18 +72,15 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                 const reviewRes = await fetchExtensionReview(engine.address, url);
                 if (reviewRes) {
                     setRating(reviewRes.rating);
-                    setId(reviewRes.id);
                     if (reviewRes.comment) setReview(reviewRes.comment.text);
                 }
             } catch (error) {
-                console.log(error);
             }
             setLoading(false);
         })();
     }, []);
 
     useEffect(() => {
-        console.log({ loading });
         if (loading) {
             opacity.value = 1;
             return;

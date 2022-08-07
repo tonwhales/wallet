@@ -20,7 +20,7 @@ import { ConfigState } from "./sync/startConfigSync";
 import { ServerConfig, serverConfigCodec } from "./api/fetchConfig";
 import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
-import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
+import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 
 export class Persistence {
 
@@ -49,6 +49,7 @@ export class Persistence {
     readonly accountHints: PersistedCollection<Address, Address[]>;
     readonly scannerState: PersistedCollection<Address, TxHints>;
 
+    readonly walletConfig: PersistedCollection<Address, WalletConfig>
     readonly serverConfig: PersistedCollection<void, ServerConfig>
     readonly config: PersistedCollection<void, ConfigState>;
 
@@ -93,6 +94,7 @@ export class Persistence {
         // Configs
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
         this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
+        this.walletConfig = new PersistedCollection({ storage, namespace: 'walletConfig', key: addressKey, codec: walletConfigCodec, engine });
 
         // dApps
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });

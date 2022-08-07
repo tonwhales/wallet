@@ -26,4 +26,12 @@ export const KnownPools: { [key: string]: StakingPool } = AppConfig.isTestnet
             name: 'Whales Team #2',
             restricted: true
         },
+        [Address.parse('EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+            name: 'Whales Club #1',
+            restricted: true
+        },
+        [Address.parse('EQA_cc5tIQ4haNbMVFUD1d0bNRt17S7wgWEqfP_xEaTACLUB').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+            name: 'Whales Club #2',
+            restricted: true
+        },
     }

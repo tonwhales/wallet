@@ -1,6 +1,6 @@
 import { Engine } from "../Engine";
 import { Address } from "ton";
-import { useItem, useOptItem } from "../persistence/PersistedItem";
+import { useOptItem } from "../persistence/PersistedItem";
 import { KnownPools } from "../../utils/KnownPools";
 import { selector, useRecoilValue } from "recoil";
 import { AppConfig } from "../../AppConfig";
@@ -37,9 +37,11 @@ export class StakingPoolsProduct {
                         });
                     }
                 }
+                let config = get(this.engine.persistence.walletConfig.item(this.engine.address).atom);
                 return {
                     pools,
-                    total
+                    total,
+                    config
                 };
             },
             dangerouslyAllowMutability: true

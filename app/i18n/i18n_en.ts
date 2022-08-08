@@ -9,7 +9,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         continue: 'Continue',
         continueAnyway: 'Continue anyway',
         back: 'Back',
-        logout: 'Logout',
+        logout: 'Log Out',
         cancel: 'Cancel',
         balance: 'Balance',
         walletAddress: 'Wallet address',
@@ -46,7 +46,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         migrateOldWallets: 'Migrate old wallets',
         termsOfService: 'Terms of Service',
         privacyPolicy: 'Privacy policy',
-        developerTools: 'Developer Tools'
+        developerTools: 'Developer Tools',
+        logoutDescription: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.'
     },
     wallet: {
         sync: 'Downloading wallet data',

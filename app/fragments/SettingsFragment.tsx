@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, View, Text, Platform, Pressable } from 'react-native';
+import { Alert, View, Text, Platform, Pressable, ActionSheetIOS } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
@@ -22,18 +22,39 @@ export const SettingsFragment = fragment(() => {
     const engine = useEngine();
 
     const doSignout = React.useCallback(() => {
-        Alert.alert(
-            t('confirm.logout.title'),
-            t('confirm.logout.message'),
-            [{
-                text: t('common.logout'), style: 'destructive', onPress: () => {
-                    storage.clearAll();
-                    mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                    trackEvent(MixpanelEvent.Reset);
-                    mixpanel.flush();
-                    reboot();
+        if (Platform.OS === 'ios') {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    title: t('confirm.logout.title'),
+                    message: t('settings.logoutDescription'),
+                    options: [t('common.cancel'), t('common.logout')],
+                    destructiveButtonIndex: 1,
+                    cancelButtonIndex: 0
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 1) {
+                        storage.clearAll();
+                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
+                        trackEvent(MixpanelEvent.Reset);
+                        mixpanel.flush();
+                        reboot();
+                    }
                 }
-            }, { text: t('common.cancel') }])
+            );
+        } else {
+            Alert.alert(
+                t('confirm.logout.title'),
+                t('settings.logoutDescription'),
+                [{
+                    text: t('common.logout'), style: 'destructive', onPress: () => {
+                        storage.clearAll();
+                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
+                        trackEvent(MixpanelEvent.Reset);
+                        mixpanel.flush();
+                        reboot();
+                    }
+                }, { text: t('common.cancel') }])
+        }
     }, []);
 
     const onVersionTap = React.useMemo(() => {
@@ -57,9 +78,7 @@ export const SettingsFragment = fragment(() => {
     }, []);
 
     return (
-        <View style={{
-            flexGrow: 1,
-        }}>
+        <View style={{ flexGrow: 1 }}>
             {Platform.OS === 'ios' && (
                 <BlurView style={{
                     height: safeArea.top + 44,
@@ -111,12 +130,13 @@ export const SettingsFragment = fragment(() => {
                 </View>
             )}
             <ScrollView
-                contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingTop: 8, paddingBottom: safeArea.bottom + 52 }}
+                contentContainerStyle={{ flexGrow: 1 }}
                 style={{
                     flexGrow: 1,
-                    flexBasis: 0,
                     backgroundColor: Theme.background,
                     paddingHorizontal: 16,
+                    flexBasis: 0,
+                    marginBottom: 52 + safeArea.bottom
                 }}
             >
                 {__DEV__ && (
@@ -128,7 +148,6 @@ export const SettingsFragment = fragment(() => {
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
@@ -149,7 +168,6 @@ export const SettingsFragment = fragment(() => {
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t('auth.name')} onPress={() => navigation.navigate('Connections')} />
@@ -162,7 +180,6 @@ export const SettingsFragment = fragment(() => {
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t('settings.termsOfService')} onPress={() => navigation.navigate('Terms')} />
@@ -180,7 +197,6 @@ export const SettingsFragment = fragment(() => {
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        flexShrink: 1,
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title='Dev Tools' onPress={() => navigation.navigate('DeveloperTools')} />
@@ -189,23 +205,28 @@ export const SettingsFragment = fragment(() => {
                 )}
 
                 <View style={{
-                    marginBottom: 16, marginTop: 16,
+                    marginBottom: 4, marginTop: 16,
                     backgroundColor: "white",
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={doSignout} />
                     </View>
                 </View>
+                <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
+                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>
+                        {t('settings.logoutDescription')}
+                    </Text>
+                </View>
+                <View style={{ height: 52 + 8 + safeArea.bottom }} />
             </ScrollView>
             <Pressable
                 onPress={onVersionTap}
                 style={{
                     position: 'absolute',
-                    bottom: 56 + 14 + safeArea.bottom,
+                    bottom: 52 + 14 + safeArea.bottom,
                     flexShrink: 1,
                     alignSelf: 'center',
                     borderRadius: 20,

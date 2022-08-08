@@ -17,7 +17,6 @@ export const ProfileComponent = React.memo((props: { address: Address }) => {
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
-            flexShrink: 1,
         }}>
             <View style={{ paddingHorizontal: 16, paddingVertical: 16, width: '100%', flexDirection: 'row' }}>
                 <Avatar size={64} id={props.address.toFriendly({ testOnly: AppConfig.isTestnet })} />

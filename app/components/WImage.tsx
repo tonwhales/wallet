@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { Image, StyleProp, View, ViewStyle } from 'react-native';
+import { Image, ImageRequireSource, StyleProp, View, ViewStyle } from 'react-native';
 import { resolveLink } from '../utils/resolveLink';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Blurhash } from 'react-native-blurhash';
 
 export const WImage = React.memo((props: {
     src?: string | null | undefined,
+    requireSource?: ImageRequireSource,
     blurhash?: string | null | undefined,
     heigh: number,
     width: number,
@@ -93,6 +94,31 @@ export const WImage = React.memo((props: {
                         />
                     </Animated.View>
                 )}
+                <View style={{
+                    borderWidth: 0.5,
+                    borderColor: 'black',
+                    backgroundColor: 'transparent',
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    opacity: 0.06,
+                    borderRadius: props.borderRadius
+                }} />
+            </View>
+        );
+    }
+
+    if (props.requireSource) {
+        return (
+            <View style={[{
+                width: props.heigh, height: props.heigh,
+                overflow: 'hidden',
+                backgroundColor: 'white',
+                borderRadius: props.borderRadius
+            }, props.style]}>
+                <Image
+                    source={props.requireSource}
+                    style={{ width: props.width, height: props.heigh }}
+                    resizeMode={'cover'}
+                />
                 <View style={{
                     borderWidth: 0.5,
                     borderColor: 'black',

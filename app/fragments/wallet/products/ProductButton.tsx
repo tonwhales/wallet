@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
+import { Image, ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
@@ -13,6 +13,7 @@ export function ProductButton(props: {
     subtitle: string,
     icon?: React.FC<SvgProps>,
     image?: string,
+    requireSource?: ImageRequireSource,
     blurhash?: string,
     value: BN | null,
     decimals?: number | null,
@@ -47,9 +48,10 @@ export function ProductButton(props: {
                             <Icon width={42} height={42} color={'white'} />
                         </View>
                     )}
-                    {(props.image || !Icon) && (
+                    {(props.image || !Icon || props.requireSource) && (
                         <WImage
                             src={props.image}
+                            requireSource={props.requireSource}
                             blurhash={props.blurhash}
                             width={42}
                             heigh={42}

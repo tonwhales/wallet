@@ -198,7 +198,10 @@ export type LocalizationSchema = {
                 active: string,
                 best: string,
                 alternatives: string,
-                private: string
+                private: string,
+                restrictedTitle: string,
+                restrictedMessage: string,
+                viewClub: string,
             },
             transfer: {
                 stakingWarning: string,

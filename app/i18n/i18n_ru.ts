@@ -187,6 +187,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 best: 'Наилучший пул',
                 alternatives: 'Альтернативы',
                 private: 'Приватные пулы',
+                restrictedTitle: 'Стейкинг Пул ограничен',
+                restrictedMessage: 'Этот Стейкинг Пул доступен только для членов Whales Club',
+                viewClub: 'Больше о Whales Club',
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',

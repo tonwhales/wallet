@@ -187,6 +187,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 best: 'Best pool',
                 alternatives: 'Alternative',
                 private: 'Private pools',
+                restrictedTitle: 'Pool is restricted',
+                restrictedMessage: 'This staking pool is available only for the Whales Club members',
+                viewClub: 'View Whales Club',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

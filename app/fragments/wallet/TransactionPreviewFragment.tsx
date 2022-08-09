@@ -61,9 +61,11 @@ export const TransactionPreviewFragment = fragment(() => {
         known = { name: operation.title };
     }
 
+    const spamFilterConfig = engine.products.settings.useSpamfilter();
+
     let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
         || (
-            Math.abs(parseFloat(fromNano(transaction.base.amount))) < 0.05
+            transaction.base.amount.neg().lt(spamFilterConfig.minAmount)
             && transaction.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet
@@ -151,7 +153,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 justifyContent: 'center',
                 width: '100%'
             }}>
-                {operation.comment && !spam && (
+                {operation.comment && !(spam && !spamFilterConfig.dontShowComments) && (
                     <>
                         <ActionsMenuView content={operation.comment}>
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>

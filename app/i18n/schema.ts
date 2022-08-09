@@ -31,7 +31,8 @@ export type LocalizationSchema = {
         in: string,
         max: string,
         close: string,
-        delete: string
+        delete: string,
+        apply: string
     },
     syncStatus: {
         connecting: string,
@@ -49,6 +50,7 @@ export type LocalizationSchema = {
         termsOfService: string,
         privacyPolicy: string,
         developerTools: string,
+        spamFilter: string,
         logoutDescription: string
     },
     wallet: {
@@ -401,6 +403,12 @@ export type LocalizationSchema = {
         disabled: string,
         alertActive: string,
         alertDisabled: string
+    },
+    spamFilter: {
+        minAmount: string,
+        dontShowComments: string,
+        minAmountDescription: string,
+        applyConfig: string
     },
     report: {
         title: string,

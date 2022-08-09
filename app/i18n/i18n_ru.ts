@@ -29,7 +29,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         in: 'через',
         max: 'Макс.',
         close: 'Закрыть',
-        delete: 'Удалить'
+        delete: 'Удалить',
+        apply: 'Применить'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -47,6 +48,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Условия использования',
         privacyPolicy: 'Политика конфиденциальности',
         developerTools: 'Инструменты разработчика',
+        spamFilter: 'SPAM фильтр',
         logoutDescription: 'Выход отключит кошелек от этого приложения. Вы сможете восстановить свой кошелек, используя 24 секретных слова, или импортировать другой кошелек.\n\nКошельки TON расположены в децентрализованной блокчейн сети TON. Если вы хотите, чтобы кошелек был удален, просто переведите из него все TON и оставьте его пустым.'
     },
     wallet: {
@@ -399,6 +401,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         disabled: 'Неактивные',
         alertActive: 'Активировать {{symbol}}?',
         alertDisabled: 'Сделать {{symbol}} неактивным?'
+    },
+    spamFilter: {
+        minAmount: 'Минимальная сумма TON',
+        dontShowComments: 'Не показывать комментарии на SPAM транзакциях',
+        minAmountDescription: 'Транзакции с количеством TON меньшим чем {{amount}} будут автоматически помечаться как SPAM',
+        applyConfig: 'Установить выбраные настройки SPAM фильтра'
     },
     report: {
         title: 'Сообщить о проблеме',

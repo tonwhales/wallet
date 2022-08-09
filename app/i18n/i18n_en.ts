@@ -29,7 +29,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         in: 'in',
         max: 'Max',
         close: 'Close',
-        delete: 'Delete'
+        delete: 'Delete',
+        apply: 'Apply'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -47,6 +48,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms of Service',
         privacyPolicy: 'Privacy policy',
         developerTools: 'Developer Tools',
+        spamFilter: 'SPAM filter',
         logoutDescription: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.'
     },
     wallet: {
@@ -399,6 +401,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         disabled: 'Hidden',
         alertActive: 'Mark {{symbol}} active?',
         alertDisabled: 'Mark {{symbol}} hidden?'
+    },
+    spamFilter: {
+        minAmount: 'Min TON amount',
+        dontShowComments: 'Don\'t show comments on SPAM transactions',
+        minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
+        applyConfig: 'Apply selected SPAM filter settings'
     },
     report: {
         title: 'Report',

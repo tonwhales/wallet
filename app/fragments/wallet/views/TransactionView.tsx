@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, Text, useWindowDimensions, View } from 'react-native';
-import { Address, fromNano } from 'ton';
+import { Address } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
@@ -61,9 +61,11 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         known = { name: operation.title };
     }
 
+    const spamFilterConfig = props.engine.products.settings.useSpamfilter();
+
     let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
         || (
-            Math.abs(parseFloat(fromNano(parsed.amount))) < 0.05
+            parsed.amount.neg().lt(spamFilterConfig.minAmount)
             && tx.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet

@@ -50,6 +50,7 @@ export type LocalizationSchema = {
         termsOfService: string,
         privacyPolicy: string,
         developerTools: string,
+        spamFilter: string,
         logoutDescription: string
     },
     wallet: {

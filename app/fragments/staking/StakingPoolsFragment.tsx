@@ -1,5 +1,5 @@
 import React from "react";
-import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator } from "react-native";
+import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, ImageRequireSource, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppConfig } from "../../AppConfig";
 import { useEngine } from "../../engine/Engine";
@@ -7,7 +7,7 @@ import { fragment } from "../../fragment";
 import { KnownPools } from "../../utils/KnownPools";
 import { ProductButton } from "../wallet/products/ProductButton";
 import StakingIcon from '../../../assets/ic_staking.svg';
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from "expo-blur";
 import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
@@ -16,20 +16,58 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { Address } from "ton";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
+import { openWithInApp } from "../../utils/openWithInApp";
+
+function clubAlert(navigation: TypedNavigation, pool: string) {
+    Alert.alert(
+        t('products.staking.pools.restrictedTitle'),
+        t('products.staking.pools.restrictedMessage'),
+        [
+            {
+                text: t('common.continue'),
+                onPress: () => { navigation.navigate('Staking', { backToHome: true, pool }); }
+            },
+            {
+                text: t('products.staking.pools.viewClub'),
+                onPress: () => { openWithInApp('https://tonwhales.com/club'); },
+            },
+            { text: t('common.cancel'), onPress: () => { }, style: "cancel" }
+        ]
+    );
+}
 
 function PoolComponent(props: { address: Address, balance: BN }) {
     const navigation = useTypedNavigation();
     const addr = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    const name = KnownPools[addr].name
-    const sub = addr.slice(0, 10) + '...' + addr.slice(addr.length - 6)
+    const name = KnownPools[addr].name;
+    const sub = addr.slice(0, 10) + '...' + addr.slice(addr.length - 6);
+
+    let requireSource: ImageRequireSource | undefined;
+    let club: boolean | undefined;
+    if (addr === 'EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB') {
+        requireSource = require('../../../assets/ic_club_cosmos.png');
+        club = true;
+    }
+    if (addr === 'EQA_cc5tIQ4haNbMVFUD1d0bNRt17S7wgWEqfP_xEaTACLUB') {
+        requireSource = require('../../../assets/ic_club_robot.png');
+        club = true;
+    }
+
     return (
         <ProductButton
             key={props.address.toFriendly({ testOnly: AppConfig.isTestnet })}
             name={name}
             subtitle={sub}
-            icon={StakingIcon}
+            icon={requireSource ? undefined : StakingIcon}
+            requireSource={requireSource}
             value={props.balance}
-            onPress={() => navigation.navigate('Staking', { backToHome: true, pool: addr })}
+            onPress={() => {
+                if (club) {
+                    clubAlert(navigation, addr);
+                    return;
+                }
+                navigation.navigate('Staking', { backToHome: true, pool: addr })
+            }}
             style={{ marginVertical: 4 }}
         />
     );

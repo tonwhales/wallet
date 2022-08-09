@@ -9,7 +9,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         continue: 'Continue',
         continueAnyway: 'Continue anyway',
         back: 'Back',
-        logout: 'Logout',
+        logout: 'Log Out',
         cancel: 'Cancel',
         balance: 'Balance',
         walletAddress: 'Wallet address',
@@ -48,7 +48,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms of Service',
         privacyPolicy: 'Privacy policy',
         developerTools: 'Developer Tools',
-        spamFilter: 'SPAM filter'
+        logoutDescription: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.'
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -189,6 +189,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 best: 'Best pool',
                 alternatives: 'Alternative',
                 private: 'Private pools',
+                restrictedTitle: 'Pool is restricted',
+                restrictedMessage: 'This staking pool is available only for the Whales Club members',
+                viewClub: 'View Whales Club',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

@@ -48,7 +48,8 @@ export type LocalizationSchema = {
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,
-        developerTools: string
+        developerTools: string,
+        logoutDescription: string
     },
     wallet: {
         sync: string,

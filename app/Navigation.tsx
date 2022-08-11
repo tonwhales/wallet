@@ -53,6 +53,7 @@ import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
+import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -157,6 +158,7 @@ const navigation = [
     modalScreen('Accounts', AccountsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),
     modalScreen('Review', ReviewFragment),
+    modalScreen('DeleteAccount', DeleteAccountFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

@@ -49,7 +49,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy policy',
         developerTools: 'Developer Tools',
         spamFilter: 'SPAM filter',
-        logoutDescription: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.'
+        logoutDescription: 'This action will disconnect the wallet from this app and delete all of your data from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.'
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -356,8 +356,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     confirm: {
         logout: {
-            title: 'Are you sure want to log out?',
-            message: 'This will disconnect the wallet from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.'
+            title: 'Are you sure you want to disconnect your wallet from this app and delete all your data from the app?',
+            message: 'This action will result in deleting all accounts from this device. Make sure you have backed up your 24 secret words before proceeding.'
         }
     },
     neocrypto: {
@@ -426,6 +426,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         heading: 'Title',
         error: 'Error posing review',
         posted: 'Your review is sent'
+    },
+    deleteAccount: {
+        title: 'Delete account',
+        action: 'Delete account and all data',
+        logOutAndDelete: 'Log Out and Delete all data'
     }
 };
 

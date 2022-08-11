@@ -18,7 +18,8 @@ export const Theme = {
     selector: 'rgba(179, 179, 193, 0.3)',
     secondaryButton: '#E5E5E7',
     secondaryButtonText: '#798287',
-    success: '#4DC47D'
+    success: '#4DC47D',
+    dangerZone: '#FF0000'
 };
 
 export const NavigationTheme: ThemeType = {

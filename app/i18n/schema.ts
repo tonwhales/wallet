@@ -428,6 +428,11 @@ export type LocalizationSchema = {
         heading: string,
         posted: string,
         error: string
+    },
+    deleteAccount: {
+        title: string,
+        action: string,
+        logOutAndDelete: string
     }
 };
 

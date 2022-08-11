@@ -18,44 +18,7 @@ import { mixpanel, MixpanelEvent, trackEvent } from '../analytics/mixpanel';
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const reboot = useReboot();
     const engine = useEngine();
-
-    const doSignout = React.useCallback(() => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    title: t('confirm.logout.title'),
-                    message: t('settings.logoutDescription'),
-                    options: [t('common.cancel'), t('common.logout')],
-                    destructiveButtonIndex: 1,
-                    cancelButtonIndex: 0
-                },
-                (buttonIndex) => {
-                    if (buttonIndex === 1) {
-                        storage.clearAll();
-                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset);
-                        mixpanel.flush();
-                        reboot();
-                    }
-                }
-            );
-        } else {
-            Alert.alert(
-                t('confirm.logout.title'),
-                t('settings.logoutDescription'),
-                [{
-                    text: t('common.logout'), style: 'destructive', onPress: () => {
-                        storage.clearAll();
-                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset);
-                        mixpanel.flush();
-                        reboot();
-                    }
-                }, { text: t('common.cancel') }])
-        }
-    }, []);
 
     const onVersionTap = React.useMemo(() => {
         let count = 0;
@@ -216,13 +179,8 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={doSignout} />
+                        <ItemButton leftIcon={require('../../assets/ic_delete.png')} dangerZone title={t('deleteAccount.title')} onPress={() => navigation.navigate('DeleteAccount')} />
                     </View>
-                </View>
-                <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>
-                        {t('settings.logoutDescription')}
-                    </Text>
                 </View>
                 <View style={{ height: 52 + 8 + safeArea.bottom }} />
             </ScrollView>

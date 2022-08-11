@@ -351,7 +351,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                         <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                             <Image source={require('../../../assets/ic_buy.png')} />
                                         </View>
-                                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{'Buy'}</Text>
+                                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('wallet.actions.buy')}</Text>
                                     </View>
                                 </TouchableHighlight>
                             </View>

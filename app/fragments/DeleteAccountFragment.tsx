@@ -102,6 +102,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             const targetParsed = Address.parseFriendly(targetAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
 
+            // Check target
             const targetState = await backoff('transfer', async () => {
                 let block = await backoff('transfer', () => engine.client4.getLastBlock());
                 return backoff('transfer', () => engine.client4.getAccount(block.last.seqno, targetParsed.address))
@@ -149,6 +150,7 @@ export const DeleteAccountFragment = fragment(() => {
                 return;
             }
 
+            // Check if has at least 0.1 TON 
             if (account.balance.gt(toNano('0.1'))) {
                 const contract = await contractFromPublicKey(addr.publicKey);
 
@@ -164,7 +166,7 @@ export const DeleteAccountFragment = fragment(() => {
                     seqno: account.seqno,
                     walletId: contract.source.walletId,
                     secretKey: key.keyPair.secretKey,
-                    sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO,
+                    sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
                     order: new InternalMessage({
                         to: tresuresAddress,
                         value: new BN(0),

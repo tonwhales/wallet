@@ -184,8 +184,7 @@ export const DeleteAccountFragment = fragment(() => {
                 extMessage.writeTo(msg);
 
                 // Sending transaction
-                // TODO
-                // await backoff('delete_account', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                await backoff('delete_account', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
 
                 while (!ended) {
                     let s = await backoff('seqno', () => contract.getSeqNo(engine.connector.client));

@@ -118,6 +118,8 @@ export const DeleteAccountFragment = fragment(() => {
             if (!AppConfig.isTestnet && target.isTestOnly) {
                 let cont = await confirm('transfer.error.addressIsForTestnet');
                 if (!cont) {
+                    ended = true;
+                    setStatus(undefined);
                     return;
                 }
             }
@@ -126,6 +128,8 @@ export const DeleteAccountFragment = fragment(() => {
             if (target.balance.lte(new BN(0))) {
                 let cont = await confirm('transfer.error.addressIsNotActive');
                 if (!cont) {
+                    ended = true;
+                    setStatus(undefined);
                     return;
                 }
             }

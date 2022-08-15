@@ -49,7 +49,6 @@ export const SpamFilterFragment = fragment(() => {
 
     const onApply = useCallback(
         async () => {
-            console.log('onApply')
             const confirmed = await confirm('spamFilter.applyConfig');
             if (confirmed) {
                 let value: BN
@@ -162,7 +161,6 @@ export const SpamFilterFragment = fragment(() => {
                         <CheckBox
                             checked={!dontShowComments}
                             onToggle={() => {
-                                console.log('set' + !dontShowComments);
                                 setDontShowComments(!dontShowComments);
                             }}
                             text={t('spamFilter.dontShowComments')}

@@ -54,6 +54,7 @@ import { AccountsFragment } from './fragments/AccountsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
+import { LogoutFragment } from './fragments/LogoutFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -159,6 +160,7 @@ const navigation = [
     modalScreen('SpamFilter', SpamFilterFragment),
     modalScreen('Review', ReviewFragment),
     modalScreen('DeleteAccount', DeleteAccountFragment),
+    modalScreen('Logout', LogoutFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

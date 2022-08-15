@@ -1,60 +1,243 @@
+import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { mixpanel, MixpanelEvent, trackEvent } from "../analytics/mixpanel";
+import { AppConfig } from "../AppConfig";
 import { AndroidToolbar } from "../components/AndroidToolbar";
+import { ATextInput } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 import { RoundButton } from "../components/RoundButton";
+import { contractFromPublicKey } from "../engine/contractFromPublicKey";
 import { useEngine } from "../engine/Engine";
+import { useItem } from "../engine/persistence/PersistedItem";
 import { fragment } from "../fragment";
+import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
+import { KnownWallets } from "../secure/KnownWallets";
+import { getCurrentAddress } from "../storage/appState";
 import { storage } from "../storage/storage";
+import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
 import { Theme } from "../Theme";
 import { useReboot } from "../utils/RebootContext";
+import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
+import VerifiedIcon from '../../assets/ic_verified.svg';
+import { fetchNfts } from "../engine/api/fetchNfts";
+
+const tresuresAddress = Address.parse(
+    AppConfig.isTestnet
+        ? 'kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1'
+        : 'EQCt2mgAsbnGFKRhlLjiJvScCYbe4lqEHRMvIs-IR7T-1J6p'
+);
 
 export const DeleteAccountFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
     const engine = useEngine();
+    const account = useItem(engine.model.wallet(engine.address));
+    const addr = useMemo(() => getCurrentAddress(), []);
+    const [status, setStatus] = useState<'loading' | 'deleted'>();
+    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+    const isKnown: boolean = !!KnownWallets[targetAddressInput];
 
     const onDeletetAccount = React.useCallback(() => {
+        let ended = false;
+
+        async function confirm(title: LocalizedResources) {
+            return await new Promise<boolean>(resolve => {
+                Alert.alert(t(title), t('transfer.confirm'), [{
+                    text: t('common.yes'),
+                    style: 'destructive',
+                    onPress: () => {
+                        resolve(true)
+                    }
+                }, {
+                    text: t('common.no'),
+                    onPress: () => {
+                        resolve(false);
+                    }
+                }])
+            });
+        }
+
+        backoff('delete_account', async () => {
+            if (ended) {
+                return;
+            }
+
+            setStatus('loading');
+
+            // Check if has nfts
+            try {
+                const nftsConnection = await fetchNfts(addr.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                if (nftsConnection.items && nftsConnection.items.length > 0) {
+                    Alert.alert(t('deleteAccount.error.hasNfts'));
+                    ended = true;
+                    setStatus(undefined);
+                    return;
+                }
+            } catch (error) {
+                Alert.alert(t('deleteAccount.error.fetchingNfts'));
+                ended = true;
+                setStatus(undefined);
+                return;
+            }
+
+
+            let targetAddress: Address;
+            try {
+                targetAddress = Address.parse(targetAddressInput);
+            } catch (error) {
+                Alert.alert(t('transfer.error.invalidAddress'));
+                ended = true;
+                setStatus(undefined);
+                return;
+            }
+
+            const targetParsed = Address.parseFriendly(targetAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+
+            // Check target
+            const targetState = await backoff('transfer', async () => {
+                let block = await backoff('transfer', () => engine.client4.getLastBlock());
+                return backoff('transfer', () => engine.client4.getAccount(block.last.seqno, targetParsed.address))
+            });
+
+            const target = {
+                isTestOnly: targetParsed.isTestOnly,
+                address: targetParsed.address,
+                balance: new BN(targetState.account.balance.coins, 10),
+                active: targetState.account.state.type === 'active'
+            };
+
+            // Check if trying to send to testnet
+            if (!AppConfig.isTestnet && target.isTestOnly) {
+                let cont = await confirm('transfer.error.addressIsForTestnet');
+                if (!cont) {
+                    ended = true;
+                    setStatus(undefined);
+                    return;
+                }
+            }
+
+            // Check if target is not active
+            if (target.balance.lte(new BN(0))) {
+                let cont = await confirm('transfer.error.addressIsNotActive');
+                if (!cont) {
+                    ended = true;
+                    setStatus(undefined);
+                    return;
+                }
+            }
+
+            // Read key
+            let key: WalletKeys
+            try {
+                key = await loadWalletKeys(addr.secretKeyEnc);
+            } catch (e) {
+                setStatus(undefined);
+                navigation.goBack();
+                return;
+            }
+
+            if (ended) {
+                setStatus(undefined);
+                return;
+            }
+
+            // Check if has at least 0.1 TON 
+            if (account.balance.gt(toNano('0.1'))) {
+                const contract = await contractFromPublicKey(addr.publicKey);
+
+                // Check if same address
+                if (target.address.equals(contract.address)) {
+                    Alert.alert(t('transfer.error.sendingToYourself'));
+                    setStatus(undefined);
+                    return;
+                }
+
+                // Create transfer all & dstr transfer
+                let transfer = await contract.createTransfer({
+                    seqno: account.seqno,
+                    walletId: contract.source.walletId,
+                    secretKey: key.keyPair.secretKey,
+                    sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
+                    order: new InternalMessage({
+                        to: tresuresAddress,
+                        value: new BN(0),
+                        bounce: false,
+                        body: new CommonMessageInfo({
+                            stateInit: null,
+                            body: null
+                        })
+                    })
+                });
+
+                // Create external message
+                let extMessage = new ExternalMessage({
+                    to: contract.address,
+                    body: new CommonMessageInfo({
+                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                        body: new CellMessage(transfer)
+                    })
+                });
+                let msg = new Cell();
+                extMessage.writeTo(msg);
+
+                // Sending transaction
+                await backoff('delete_account', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+
+                while (!ended) {
+                    let s = await backoff('seqno', () => contract.getSeqNo(engine.connector.client));
+                    // Check if wallet has been cleared
+                    if (s === 0) {
+                        setStatus('deleted');
+                        ended = true;
+                        setTimeout(() => {
+                            storage.clearAll();
+                            mixpanel.reset(); // Clear super properties and generates a new random distinctId
+                            trackEvent(MixpanelEvent.Reset);
+                            mixpanel.flush();
+                            reboot();
+                        }, 2000);
+                        break;
+                    }
+                }
+            } else {
+                Alert.alert(t('transfer.error.notEnoughCoins'));
+                ended = true;
+                setStatus(undefined);
+                return;
+            }
+        });
+    }, [targetAddressInput]);
+
+    const onContinue = React.useCallback(() => {
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
-                    title: t('confirm.logout.title'),
-                    message: t('confirm.logout.message'),
-                    options: [t('common.cancel'), t('deleteAccount.logOutAndDelete')],
+                    title: t('deleteAccount.confirm.title'),
+                    message: t('deleteAccount.confirm.message'),
+                    options: [t('common.cancel'), t('deleteAccount.action')],
                     destructiveButtonIndex: 1,
                     cancelButtonIndex: 0
                 },
-                (buttonIndex) => {
-                    if (buttonIndex === 1) {
-                        storage.clearAll();
-                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset);
-                        mixpanel.flush();
-                        reboot();
-                    }
-                }
+                (buttonIndex) => { if (buttonIndex === 1) onDeletetAccount(); }
             );
         } else {
             Alert.alert(
-                t('confirm.logout.title'),
-                t('confirm.logout.message'),
+                t('deleteAccount.confirm.title'),
+                t('deleteAccount.confirm.message'),
                 [{
-                    text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
-                        storage.clearAll();
-                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset);
-                        mixpanel.flush();
-                        reboot();
-                    }
+                    text: t('deleteAccount.action'), style: 'destructive', onPress: () => { onDeletetAccount() }
                 }, { text: t('common.cancel') }])
         }
-    }, []);
+    }, [onDeletetAccount]);
 
     return (
         <View style={{
@@ -85,19 +268,85 @@ export const DeleteAccountFragment = fragment(() => {
                 }}>
                     <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
                         <Text style={{ color: Theme.textColor, fontSize: 14 }}>
-                            {t('settings.logoutDescription')}
+                            {t('deleteAccount.description', { amount: '0.1' })}
                         </Text>
+                    </View>
+
+                    <View style={{
+                        marginBottom: 16, marginTop: 17,
+                        backgroundColor: "white",
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <ATextInput
+                            value={targetAddressInput}
+                            onValueChange={setTansferAddressInput}
+                            placeholder={t('common.walletAddress')}
+                            keyboardType="ascii-capable"
+                            preventDefaultHeight
+                            label={
+                                <View style={{
+                                    flexDirection: 'row',
+                                    width: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    overflow: 'hidden',
+                                }}>
+                                    <Text style={{
+                                        fontWeight: '500',
+                                        fontSize: 12,
+                                        color: '#7D858A',
+                                        alignSelf: 'flex-start',
+                                    }}>
+                                        {t('transfer.sendTo')}
+                                    </Text>
+                                    {isKnown && (
+                                        <Animated.View
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            entering={FadeIn.duration(150)}
+                                            exiting={FadeOut.duration(150)}
+                                        >
+                                            <VerifiedIcon
+                                                width={14}
+                                                height={14}
+                                                style={{ alignSelf: 'center', marginRight: 4 }}
+                                            />
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 12,
+                                                color: '#858B93',
+                                                alignSelf: 'flex-start',
+                                            }}>
+                                                {KnownWallets[targetAddressInput].name}
+                                            </Text>
+                                        </Animated.View>
+                                    )}
+                                </View>
+                            }
+                            multiline
+                            autoCorrect={false}
+                            autoComplete={'off'}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0,
+                                marginHorizontal: 16,
+                            }}
+                            returnKeyType="next"
+                            blurOnSubmit={false}
+                        />
                     </View>
                 </View>
             </ScrollView>
             <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
                 <RoundButton
                     title={t('deleteAccount.action')}
-                    onPress={onDeletetAccount}
-                    style={{
-                        backgroundColor: Theme.dangerZone,
-                        borderColor: Theme.dangerZone
-                    }}
+                    onPress={onContinue}
+                    display={'danger_zone'}
                 />
             </View>
             {Platform.OS === 'ios' && (
@@ -107,6 +356,18 @@ export const DeleteAccountFragment = fragment(() => {
                         navigation.goBack();
                     }}
                 />
+            )}
+            {!!status && (status === 'deleted' || status === 'loading') && (
+                <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                    <View style={{ backgroundColor: Theme.item, padding: 16, borderRadius: 16 }}>
+                        <LoadingIndicator simple />
+                        {status === 'deleted' && (
+                            <Text style={{ color: Theme.textColor }}>
+                                {t('deleteAccount.complete')}
+                            </Text>
+                        )}
+                    </View>
+                </View>
             )}
         </View>
     );

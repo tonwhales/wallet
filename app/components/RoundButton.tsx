@@ -10,7 +10,7 @@ const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hit
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
 
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'disabled';
+export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'disabled' | 'danger_zone';
 const displays: { [key in RoundButtonDisplay]: {
     textColor: string,
     textPressed: string,
@@ -90,7 +90,16 @@ const displays: { [key in RoundButtonDisplay]: {
         backgroundPressedColor: Theme.divider,
         borderPressedColor: Theme.divider,
         textPressed: Theme.accent,
-    }
+    },
+    danger_zone: {
+        backgroundColor: 'white',
+        borderColor: 'white',
+        textColor: Theme.dangerZone,
+
+        backgroundPressedColor: Theme.divider,
+        borderPressedColor: Theme.divider,
+        textPressed: Theme.accent,
+    },
 }
 
 export const RoundButton = React.memo((props: {

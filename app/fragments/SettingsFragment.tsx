@@ -13,7 +13,6 @@ import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
 import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
-import { mixpanel, MixpanelEvent, trackEvent } from '../analytics/mixpanel';
 
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -170,14 +169,17 @@ export const SettingsFragment = fragment(() => {
                         </View>
                     </View>
                 )}
-
                 <View style={{
-                    marginBottom: 4, marginTop: 16,
-                    backgroundColor: "white",
+                    marginBottom: 4, marginTop: 8,
+                    backgroundColor: 'white',
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={() => navigation.navigate('Logout')} />
+                    </View>
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_delete.png')} dangerZone title={t('deleteAccount.title')} onPress={() => navigation.navigate('DeleteAccount')} />
                     </View>

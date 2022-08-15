@@ -430,7 +430,17 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     deleteAccount: {
         title: 'Delete account',
         action: 'Delete account and all data',
-        logOutAndDelete: 'Log Out and Delete all data'
+        logOutAndDelete: 'Log Out and Delete all data',
+        description: 'To remove your account from the TON blockchain, you need to transfer all your TON coins to another wallet by sending a special transaction. This action will remove all accounts from that device and your blockchain account.\n\nTo complete this transaction, make sure you have more than {{amount}} of TON coins in your account before proceeding.',
+        complete: 'Account deletion completed',
+        error: {
+            hasNfts: 'You have NFTs in your wallet, in order to delete the account, please send them to another wallet.',
+            fetchingNfts: 'Could not find out if there are NFTs on the wallet. In order to delete the account, please make sure there are no NFTs on it.'
+        },
+        confirm: {
+            title: 'Are you sure you want to delete your account and all data from this application?',
+            message: 'This action will delete your account and all data from this application.'
+        }
     }
 };
 

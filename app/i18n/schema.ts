@@ -432,7 +432,17 @@ export type LocalizationSchema = {
     deleteAccount: {
         title: string,
         action: string,
-        logOutAndDelete: string
+        logOutAndDelete: string,
+        description: string,
+        complete: string,
+        error: {
+            hasNfts: string,
+            fetchingNfts: string
+        },
+        confirm: {
+            title: string,
+            message: string
+        }
     }
 };
 

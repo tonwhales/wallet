@@ -122,7 +122,7 @@ export async function fetchNfts(address: string, first = 10, after?: string) {
     if (AppConfig.isTestnet) {
         return { items: [], cursor: undefined };
     }
-    const res = await axios.get(`https://apps.tonhub.com/api/nfts/?owner=${address}&first=${first}${after ? `&after=${after}` : ''}`);
+    const res = await axios.get(`https://connect.tonhubapi.com/nfts/${address}?first=${first}${after ? `&after=${after}` : ''}`);
 
     if (res.status === 200) {
         const parsed = nftItemConnectionCodec.decode(res.data.data);

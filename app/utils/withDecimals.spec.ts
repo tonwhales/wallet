@@ -1,3 +1,5 @@
+import BN from "bn.js";
+import { fromNano } from "ton";
 import { fromBNWithDecimals, toBNWithDecimals } from "./withDecimals";
 
 describe('toBNWithDecimals', () => {
@@ -11,14 +13,14 @@ describe('toBNWithDecimals', () => {
             toBNWithDecimals('0.01', 1)
             expect(true).toBe(false);
         } catch (e: any) {
-            expect(e.message).toBe("while converting number 0.01 to wei, too many decimal places");
+            expect(e.message).toBe("while converting number 0.01 to wei, fraction.length > baseLength");
         }
 
         try {
             toBNWithDecimals('0.00000000001', 10)
             expect(true).toBe(false);
         } catch (e: any) {
-            expect(e.message).toBe("while converting number 0.00000000001 to wei, too many decimal places");
+            expect(e.message).toBe("while converting number 0.00000000001 to wei, fraction.length > baseLength");
         }
     });
 });
@@ -28,7 +30,7 @@ describe('fromBNWithDecimals', () => {
         let res = fromBNWithDecimals('0f3a70', 3)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
-        expect(res === '998.000').toBe(true);
+        expect(res === '998').toBe(true);
 
         res = fromBNWithDecimals('26a0', 1)!;
         expect(res).not.toBeNull();

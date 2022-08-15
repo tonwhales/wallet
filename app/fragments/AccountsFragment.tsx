@@ -11,7 +11,7 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { JettonProdcut } from "./wallet/products/JettonProduct";
+import { JettonProduct } from "./wallet/products/JettonProduct";
 
 async function confirm(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -100,7 +100,7 @@ export const AccountsFragment = fragment(() => {
                     </View>
                     {active.map((j) => {
                         return (
-                            <JettonProdcut
+                            <JettonProduct
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}
@@ -124,7 +124,7 @@ export const AccountsFragment = fragment(() => {
                     )}
                     {disabled.map((j) => {
                         return (
-                            <JettonProdcut
+                            <JettonProduct
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}

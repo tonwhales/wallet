@@ -5,7 +5,7 @@ import { Engine } from '../../../engine/Engine';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { ProductButton } from './ProductButton';
 
-export const JettonProdcut = React.memo((props: {
+export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
     engine: Engine,
     jetton: {

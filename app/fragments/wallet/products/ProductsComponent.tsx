@@ -10,7 +10,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
-import { JettonProdcut } from "./JettonProduct"
+import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
@@ -54,7 +54,7 @@ export const ProductsComponent = React.memo(() => {
     for (let j of jettons) {
         if (j.balance.gt(new BN(0))) {
             accounts.push(
-                <JettonProdcut
+                <JettonProduct
                     key={'jt' + j.wallet.toFriendly()}
                     jetton={j}
                     navigation={navigation}

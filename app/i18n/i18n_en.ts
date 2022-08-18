@@ -30,7 +30,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         max: 'Max',
         close: 'Close',
         delete: 'Delete',
-        apply: 'Apply'
+        apply: 'Apply',
+        domainOrAddress: 'Wallet address or domain'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -89,6 +90,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         error: {
             invalidAddress: 'Invalid address',
             invalidAmount: 'Invalid amount',
+            invalidDomain: 'Invalid domain',
             sendingToYourself: 'You can\'t send coins to yourself',
             zeroCoins: 'unfortunately you can\'t send zero coins',
             notEnoughCoins: 'unfortunately you don\'t have enougth coins for this transaction',

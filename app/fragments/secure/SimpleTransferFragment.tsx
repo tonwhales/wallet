@@ -31,6 +31,7 @@ import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
+import { AddressDomainInput } from '../../components/AddressDomainInput';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -478,6 +479,19 @@ export const SimpleTransferFragment = fragment(() => {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
+                        <AddressDomainInput
+                            target={target}
+                            index={1}
+                            ref={refs[1]}
+                            onFocus={onFocus}
+                            onValueChange={setTarget}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0,
+                                marginHorizontal: 16,
+                            }}
+                            onSubmit={onSubmit}
+                        />
                         <ATextInput
                             value={target}
                             index={1}

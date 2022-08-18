@@ -31,7 +31,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         max: 'Макс.',
         close: 'Закрыть',
         delete: 'Удалить',
-        apply: 'Применить'
+        apply: 'Применить',
+        domainOrAddress: 'Адрес кошелька или Домен'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -78,6 +79,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         confirm: 'Вы уверены что хотите продолжить?',
         error: {
             invalidAddress: 'Неверный адрес',
+            invalidDomain: 'Неверный домен',
             invalidAmount: 'Неверное количество',
             sendingToYourself: 'Вы не можете отправлять монеты сами себе',
             zeroCoins: 'К сожалению, вы не можете отправить ноль монет',

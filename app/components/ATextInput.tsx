@@ -105,7 +105,7 @@ export interface ATextInputProps {
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
     index?: number,
-    label?: any,
+    label?: any
 }
 
 export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {

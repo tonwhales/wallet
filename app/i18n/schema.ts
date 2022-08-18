@@ -32,7 +32,8 @@ export type LocalizationSchema = {
         max: string,
         close: string,
         delete: string,
-        apply: string
+        apply: string,
+        domainOrAddress: string
     },
     syncStatus: {
         connecting: string,
@@ -91,6 +92,7 @@ export type LocalizationSchema = {
         error: {
             invalidAddress: string,
             invalidAmount: string,
+            invalidDomain: string,
             sendingToYourself: string,
             zeroCoins: string,
             notEnoughCoins: string,

@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import { Address, Cell, StackItem, TonClient4 } from "ton";
+import { sha256 } from "ton-crypto";
 import { bytesToHex } from "./bytesToHex";
-import { sha256 } from "./sha256";
 
 export const DNS_CATEGORY_NEXT_RESOLVER = 'dns_next_resolver'; // Smart Contract address
 export const DNS_CATEGORY_WALLET = 'wallet'; // Smart Contract address
@@ -12,7 +12,7 @@ export const tonDnsRootAddress = Address.parse('EQC3dNlesgVD8YbAazcauIrXBPfiVhMM
 export async function categoryToBN(category: string | undefined) {
     if (!category) return new BN(0); // all categories
     const categoryBytes = new TextEncoder().encode(category);
-    const categoryHash = new Uint8Array(await sha256(categoryBytes));
+    const categoryHash = new Uint8Array(await sha256(Buffer.from(category, 'utf8')));
     return new BN(bytesToHex(categoryHash), 16);
 }
 
@@ -266,5 +266,6 @@ async function dnsResolve(tonClient4: TonClient4, seqno: number, rootDnsAddress:
 
 export async function resolveDomain(tonClient4: TonClient4, rootDnsAddress: Address, domain: string, category?: string, oneStep?: boolean) {
     const seqno = (await tonClient4.getLastBlock()).last.seqno;
+
     return dnsResolve(tonClient4, seqno, rootDnsAddress, domain, category, oneStep);
 }

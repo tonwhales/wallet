@@ -5,11 +5,7 @@ import { fromBNWithDecimals } from "../utils/withDecimals";
 
 export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle>, precision?: number, decimals?: number | null }) {
     let t: string;
-    if (!!props.decimals) {
-        t = fromBNWithDecimals(props.value, props.decimals);
-    } else {
-        t = fromNano(props.value);
-    }
+    t = fromBNWithDecimals(props.value, props.decimals);
 
     let parts: string[] = [];
 

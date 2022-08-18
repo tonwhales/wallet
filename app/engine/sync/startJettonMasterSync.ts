@@ -35,7 +35,12 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
     let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/jetton/master`;
     let master = engine.persistence.jettonMasters.item(address);
     let sync = createEngineSync(key, engine, async () => {
-        if (master.value && master.value.version === CURRENT_VERSION) {
+        // Check if has value and is lates version
+        if (
+            master.value
+            && (!!master.value.name && !!master.value.symbol && !!master.value.description)
+            && master.value.version === CURRENT_VERSION
+        ) {
             return;
         }
 

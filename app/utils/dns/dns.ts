@@ -11,8 +11,7 @@ export const tonDnsRootAddress = Address.parse('EQC3dNlesgVD8YbAazcauIrXBPfiVhMM
 
 export async function categoryToBN(category: string | undefined) {
     if (!category) return new BN(0); // all categories
-    const categoryBytes = new TextEncoder().encode(category);
-    const categoryHash = new Uint8Array(await sha256(Buffer.from(category, 'utf8')));
+    const categoryHash = await sha256(Buffer.from(category, 'utf8'));
     return new BN(bytesToHex(categoryHash), 16);
 }
 
@@ -74,8 +73,8 @@ function parseStackItemAddress(item: StackItem) {
 }
 
 export type AuctionInfo = {
-    maxBidAddress: Address | null, 
-    maxBidAmount: BN, 
+    maxBidAddress: Address | null,
+    maxBidAmount: BN,
     auctionEndTime: number
 }
 
@@ -187,8 +186,6 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
     const categoryBN = await categoryToBN(category);
     const result = (await tonClient4.runMethod(seqno, dnsAddress, 'dnsresolve', [{ type: 'slice', cell: domainCell }, { type: 'int', value: categoryBN }])).result;
 
-    console.log({ result })
-
     if (result.length !== 2) {
         throw new Error('Invalid dnsresolve response');
     }
@@ -260,12 +257,10 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
 
 async function dnsResolve(tonClient4: TonClient4, seqno: number, rootDnsAddress: Address, domain: string, category?: string, oneStep?: boolean) {
     const rawDomainBytes = domainToBytes(domain);
-
     return dnsResolveImpl(tonClient4, seqno, rootDnsAddress, rawDomainBytes, category, oneStep);
 }
 
 export async function resolveDomain(tonClient4: TonClient4, rootDnsAddress: Address, domain: string, category?: string, oneStep?: boolean) {
     const seqno = (await tonClient4.getLastBlock()).last.seqno;
-
     return dnsResolve(tonClient4, seqno, rootDnsAddress, domain, category, oneStep);
 }

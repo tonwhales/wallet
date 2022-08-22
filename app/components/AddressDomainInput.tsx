@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { View, Text, ViewStyle, StyleProp, TextStyle, Pressable, Alert } from "react-native"
+import { View, Text, ViewStyle, StyleProp, Alert } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
 import { ATextInput, ATextInputRef } from "./ATextInput"
@@ -8,7 +8,6 @@ import { KnownWallets } from "../secure/KnownWallets"
 import { Address } from "ton"
 import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
-import { Theme } from "../Theme"
 import CircularProgress from "./CircularProgress/CircularProgress"
 import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from "../utils/dns/dns"
 import { useEngine } from "../engine/Engine"
@@ -41,26 +40,22 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
 
     const onResolveDomain = useCallback(
         async () => {
-            console.log({ domain })
             if (!domain) {
-                Alert.alert(t('transfer.error.invalidDomain'));
                 return;
             }
 
             setResolving(true);
             try {
-                const resolved = await resolveDomain(engine.client4, tonDnsRootAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
-                console.log({ resolved, domain })
-                if (!resolved) {
-                    throw Error('Error resolving domain');
+                const resolvedDomainAddress = await resolveDomain(engine.client4, tonDnsRootAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
+                if (!resolvedDomainAddress) {
+                    throw Error('Error resolving domain address');
                 }
-                const resolvedAddress = Address.parseRaw(resolved.toString());
-                console.log(resolvedAddress.toFriendly());
-                const resolveDomainWallet = await resolveDomain(engine.client4, resolvedAddress, '.', DNS_CATEGORY_WALLET);
-                if (!resolveDomainWallet) {
-                    throw Error('Error resolving domain');
+                const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
+                const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
+                if (!resolvedDomainWallet) {
+                    throw Error('Error resolving domain wallet');
                 }
-                const resolvedWalletAddress = Address.parseRaw(resolveDomain.toString());
+                const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
                 setResolvedAddress(resolvedWalletAddress);
                 if (onValueChange) onValueChange(resolvedWalletAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
             } catch (e) {
@@ -79,10 +74,11 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         // min domain length is 4, max 126 + '.ton'
         if (value.length > 7 && value.length < 126 + 4 && value.slice(value.length - 4, value.length) === '.ton') {
             setDomain(value.slice(0, value.length - 4));
+            onResolveDomain();
         } else {
             setDomain(undefined);
         }
-    }, [value, onValueChange]);
+    }, [onResolveDomain, onValueChange]);
 
 
     return (
@@ -136,24 +132,6 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             </Text>
                         </Animated.View>
                     )}
-                    {(domain && !resolvedAddress && !resolving && !AppConfig.isTestnet) && (
-                        <Animated.View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}
-                            entering={FadeIn.duration(150)}
-                            exiting={FadeOut.duration(150)}
-                        >
-                            <Pressable onPress={onResolveDomain}>
-                                <Text style={{ color: Theme.accentDark }}>
-                                    {'Resolve domain'}
-                                </Text>
-                            </Pressable>
-                        </Animated.View>
-                    )}
-
                     {(domain && resolvedAddress && !resolving && !AppConfig.isTestnet) && (
                         <Animated.View
                             style={{
@@ -164,10 +142,16 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             entering={FadeIn.duration(150)}
                             exiting={FadeOut.duration(150)}
                         >
-                            <AddressComponent address={resolvedAddress} />
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 12,
+                                color: '#858B93',
+                                alignSelf: 'flex-start',
+                            }}>
+                                <AddressComponent address={resolvedAddress} />
+                            </Text>
                         </Animated.View>
                     )}
-
                     {(domain && resolving && !AppConfig.isTestnet) && (
                         <Animated.View
                             style={{

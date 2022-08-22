@@ -94,10 +94,11 @@ export const SimpleTransferFragment = fragment(() => {
         let value: BN;
         try {
             const validAmount = amount.replace(',', '.');
-            value = toNano(validAmount);
             // Manage jettons with decimals
             if (jettonWallet) {
                 value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            } else {
+                value = toNano(validAmount);
             }
         } catch (e) {
             return null;
@@ -155,12 +156,14 @@ export const SimpleTransferFragment = fragment(() => {
 
         try {
             const validAmount = amount.replace(',', '.');
-            value = toNano(validAmount);
             // Manage jettons with decimals
             if (jettonWallet) {
                 value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+            } else {
+                value = toNano(validAmount);
             }
         } catch (e) {
+            console.warn(e);
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
         }

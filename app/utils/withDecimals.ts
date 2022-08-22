@@ -1,4 +1,5 @@
 import BN from "bn.js";
+import { fromNano, toNano } from "ton";
 const numberToBN = require('number-to-bn');
 
 var zero = new BN(0);
@@ -22,29 +23,36 @@ function numberToString(arg: any) {
     throw new Error('while converting number to string, invalid number value \'' + arg + '\' type ' + typeof arg + '.');
 }
 
-export function toBNWithDecimals(value: number | string | BN, decimals?: number | null) {
-    let ether = numberToString(value);
-    let baseString = `1${'0'.repeat(decimals ? decimals : 9)}`;
-    let base = new BN(baseString, 10);
-    let baseLength = baseString.length - 1 || 1;
+export function toBNWithDecimals(input: string, decimals?: number | null) {
+    if (decimals === null || decimals === undefined) {
+        return toNano(input);
+    }
+    var ether = numberToString(input);
+    const numBase = String(Math.pow(10, decimals));
+    const base = new BN(numBase, 10);
+    const baseLength = numBase.length - 1 || 1;
 
     // Is it negative?
-    let negative = ether.substring(0, 1) === '-';
+    var negative = ether.substring(0, 1) === '-';
     if (negative) {
         ether = ether.substring(1);
     }
 
     if (ether === '.') {
-        throw new Error('while converting number ' + value + ' to wei, invalid value');
+        throw new Error('while converting number ' + input + ' to wei, invalid value');
     }
 
+    
     // Split it into a whole and fractional part
-    let comps = ether.split('.');
+    var comps = ether.split('.');
+    if (decimals === 0 && comps.length > 1) {
+        throw new Error('while converting number ' + input + ' to wei,  to many decimal places');
+    }
     if (comps.length > 2) {
-        throw new Error('while converting number ' + value + ' to wei,  too many decimal points');
+        throw new Error('while converting number ' + input + ' to wei,  comps.length > 2');
     }
 
-    let whole = comps[0],
+    var whole = comps[0],
         fraction = comps[1];
 
     if (!whole) {
@@ -54,7 +62,7 @@ export function toBNWithDecimals(value: number | string | BN, decimals?: number 
         fraction = '0';
     }
     if (fraction.length > baseLength) {
-        throw new Error('while converting number ' + value + ' to wei, too many decimal places');
+        throw new Error('while converting number ' + input + ' to wei, fraction.length > baseLength');
     }
 
     while (fraction.length < baseLength) {
@@ -63,7 +71,7 @@ export function toBNWithDecimals(value: number | string | BN, decimals?: number 
 
     whole = new BN(whole);
     fraction = new BN(fraction);
-    let wei = whole.mul(base).add(fraction);
+    var wei = whole.mul(base).add(fraction);
 
     if (negative) {
         wei = wei.mul(negative1);
@@ -73,27 +81,37 @@ export function toBNWithDecimals(value: number | string | BN, decimals?: number 
 }
 
 export function fromBNWithDecimals(input: BN | number | string, decimals?: number | null) {
+    if (decimals === null || decimals === undefined) {
+        return fromNano(input);
+    }
     var wei = numberToBN(input);
     var negative = wei.lt(zero);
-    let baseString = `1${'0'.repeat(decimals ? decimals : 9)}`;
-    let base = new BN(baseString, 10);
-    let baseLength = decimals || 1;
+    const numBase = String(Math.pow(10, decimals));
+    const base = new BN(numBase, 10);
+    var baseLength = numBase.toString().length - 1 || 1;
+    var options: any = {};
 
     if (negative) {
         wei = wei.mul(negative1);
     }
 
-    var fraction = wei.mod(base).toString(10); // eslint-disable-line
+    var fraction = wei.mod(base).toString(10);
 
     while (fraction.length < baseLength) {
         fraction = '0' + fraction;
     }
 
-    fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
+    if (!options.pad) {
+        fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
+    }
 
-    var whole = wei.div(base).toString(10); // eslint-disable-line
+    var whole = wei.div(base).toString(10);
 
-    var value = '' + whole + (fraction == '0' ? '' : '.' + fraction); // eslint-disable-line
+    if (options.commify) {
+        whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    var value = '' + whole + (fraction == '0' ? '' : '.' + fraction);
 
     if (negative) {
         value = '-' + value;

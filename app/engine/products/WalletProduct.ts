@@ -12,6 +12,7 @@ import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { PluginState } from "../sync/startPluginSync";
 import { t } from "../../i18n/t";
+import { binarySearch } from "../utils/binarySearch";
 
 export type WalletState = {
     balance: BN;
@@ -228,48 +229,37 @@ export class WalletProduct {
                 ],
                 next
             };
-            
+
             // Notify
             engine.recoil.updater(this.#atom, this.#state);
         });
 
         // Subscribe for fullAccount sync
         engine.persistence.wallets.item(engine.address).for((state) => {
+            const item = engine.transactions.item(engine.address);
+            let transactions: string[] = [];
+            // Update transactions state
 
-            // Update pending
-            this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
-
-            // Resolve hasMore flag
-            let next: { lt: string, hash: string } | null = null;
-            if (state.transactions.length > 0) {
-                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[state.transactions.length - 1]);
-                if (tx.prev) {
-                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+            // last in updated was in prev state
+            const last = state.transactions[state.transactions.length - 1];
+            const lastIndex = binarySearch((item.value || []).map((s) => new BN(s, 10)), new BN(last, 10), (a, b) => {
+                if ((a as BN).lt(b as BN)) {
+                    return -1;
                 }
+                if ((a as BN).eq(b as BN)) {
+                    return 0;
+                }
+                return 1;
+            });
+
+            if (lastIndex > 0 && item.value && item.value.length > 1) {
+                transactions = [...state.transactions, ...item.value.slice(lastIndex + 1, item.value?.length)];
+            } else {
+                transactions = state.transactions;
             }
 
-            // Resolve updated state
-            this.#state = {
-                balance: state.balance,
-                seqno: state.seqno,
-                transactions: [
-                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.map((t) => {
-                        let tx = this.engine.transactions.getWalletTransaction(this.address, t);
-
-                        // Update transactions
-                        if (!this.#txs.has(t)) {
-                            this.#txs.set(tx.id, tx);
-                        }
-
-                        return { id: tx.id, time: tx.time };
-                    })
-                ],
-                next
-            };
-            
-            // Notify
-            engine.recoil.updater(this.#atom, this.#state);
+            // Notify for update
+            item.update(() => transactions);
         });
 
         // History

@@ -190,6 +190,50 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         })
 
+        engine.transactions.item(engine.address).for((transactions) => {
+            const state = engine.persistence.wallets.item(engine.address).value;
+
+            if (!state) {
+                return;
+            }
+
+            // Update pending
+            this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
+
+            // Resolve hasMore flag
+            let next: { lt: string, hash: string } | null = null;
+            if (transactions.length > 0) {
+                let tx = this.engine.transactions.getWalletTransaction(this.address, transactions[transactions.length - 1]);
+                if (tx.prev) {
+                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                }
+            }
+
+            // Resolve updated state
+            this.#state = {
+                balance: state.balance,
+                seqno: state.seqno,
+                transactions: [
+                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
+                    ...state.transactions.map((t) => {
+                        let tx = this.engine.transactions.getWalletTransaction(this.address, t);
+
+                        // Update transactions
+                        if (!this.#txs.has(t)) {
+                            this.#txs.set(tx.id, tx);
+                        }
+
+                        return { id: tx.id, time: tx.time };
+                    })
+                ],
+                next
+            };
+            
+            // Notify
+            engine.recoil.updater(this.#atom, this.#state);
+        });
+
+        // Subscribe for fullAccount sync
         engine.persistence.wallets.item(engine.address).for((state) => {
 
             // Update pending

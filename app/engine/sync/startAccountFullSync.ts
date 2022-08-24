@@ -50,6 +50,8 @@ export function startAccountFullSync(address: Address, engine: Engine) {
         let transactions: string[] = [];
         let transactionsCursor: { lt: BN, hash: string } | null = null;
 
+        let toSave: { lt: string, data: string }[] = []
+
         // Load transactions if needed
         if (!!liteAccount.last) {
 
@@ -60,7 +62,7 @@ export function startAccountFullSync(address: Address, engine: Engine) {
 
             // Persist transactions
             for (let l of loadedTransactions) {
-                engine.transactions.set(address, l.id.lt, l.data);
+                toSave.push({ lt: l.id.lt, data: l.data });
             }
 
             // Transaction ids
@@ -110,6 +112,17 @@ export function startAccountFullSync(address: Address, engine: Engine) {
                 transactions = combined;
             }
         }
+
+        let toDelete: string[] = [];
+        if (transactions.length > 20) {
+            toDelete = transactions.slice(20, transactions.length);
+        }
+
+        // Update persisted
+        engine.transactions.updatePersisted(address, toSave, toDelete);
+        
+        // Save last 20 txs
+        transactions = transactions.slice(0, 20);
 
         //
         // Persist

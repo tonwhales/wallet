@@ -28,6 +28,15 @@ export class Transactions {
         return parsed;
     }
 
+    updatePersisted(address: Address, toSet: { lt: string, data: string }[], toRemove: string[]) {
+        for (const t of toSet) {
+            this.engine.persistence.transactions.setValue({ address, lt: new BN(t.lt, 10) }, t.data);
+        }
+        for (const r of toRemove) {
+            this.engine.persistence.transactions.setValue({ address, lt: new BN(r, 10) }, null);
+        }
+    }
+
     set(address: Address, lt: string, data: string) {
         this.engine.persistence.transactions.setValue({ address, lt: new BN(lt, 10) }, data);
     }

@@ -3,11 +3,16 @@ import { Address, Cell, parseTransaction, RawTransaction } from "ton";
 import { Engine } from "../Engine";
 import { parseWalletTransaction } from "./parseWalletTransaction";
 import { Transaction } from "../Transaction";
+import { PersistedItem } from "../persistence/PersistedItem";
+import EventEmitter from "events";
+import { atom } from "recoil";
 
 export class Transactions {
     readonly engine: Engine;
+    #current: string[] = [];
     #raw = new Map<string, RawTransaction>();
     #wallet = new Map<string, Transaction>();
+    #items = new Map<string, { value: PersistedItem<string[]> }>();
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -38,7 +43,68 @@ export class Transactions {
     }
 
     set(address: Address, lt: string, data: string) {
-        this.engine.persistence.transactions.setValue({ address, lt: new BN(lt, 10) }, data);
+        let key = address.toFriendly() + '::' + lt;
+        let cell = Cell.fromBoc(Buffer.from(data, 'base64'))[0];
+        let parsed = parseTransaction(address.workChain, cell.beginParse());
+        this.#raw.set(key, parsed);
+    }
+
+    item(address: Address): PersistedItem<string[]> {
+        let id = address.toFriendly();
+        let ex = this.#items.get(id);
+        if (ex) {
+            return ex.value;
+        }
+        this.#current = this.engine.persistence.fullAccounts.item(address).value?.transactions || [];
+        let rc = atom<string[] | null>({
+            key: 'transactions/' + id,
+            default: this.#current,
+            dangerouslyAllowMutability: true
+        });
+        let events = new EventEmitter();
+        let t = this;
+        let pitm: PersistedItem<string[]> = {
+            atom: rc,
+            update(updater: (value: string[]) => string[]) {
+                let updated = updater(t.#current);
+                if (t.#current !== updated) {
+                    t.#current = updated;
+                    events.emit('updated', t.#current);
+                    t.engine.recoil.updater(rc, updated);
+                }
+            },
+            get value() {
+                return t.#current;
+            },
+            on(event: 'updated', callback: (value: string[]) => void) {
+                events.on(event, callback);
+            },
+            off(event: 'updated', callback: (value: string[]) => void) {
+                events.off(event, callback);
+            },
+            once(event: 'updated', callback: (value: string[]) => void) {
+                events.once(event, callback);
+            },
+            for(callback: (value: string[]) => void) {
+                if (t.#current) {
+                    callback(t.#current);
+                }
+                events.on('updated', (e) => {
+                    if (e) {
+                        callback(e);
+                    }
+                });
+            }
+        }
+        this.#items.set(id, { value: pitm });
+        return pitm;
+    }
+    setValue(address: Address, value: string[]) {
+        this.item(address).update(() => value);
+    }
+
+    getValue(address: Address) {
+        return this.item(address).value;
     }
 
 

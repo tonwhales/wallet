@@ -30,7 +30,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         max: 'Max',
         close: 'Close',
         delete: 'Delete',
-        apply: 'Apply'
+        apply: 'Apply',
+        docs: 'Documentation'
     },
     syncStatus: {
         connecting: 'Connecting',

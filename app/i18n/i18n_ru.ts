@@ -31,7 +31,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         max: 'Макс.',
         close: 'Закрыть',
         delete: 'Удалить',
-        apply: 'Применить'
+        apply: 'Применить',
+        docs: 'Документация'
     },
     syncStatus: {
         connecting: 'Идет подключение',

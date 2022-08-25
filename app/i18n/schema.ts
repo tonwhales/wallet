@@ -32,7 +32,8 @@ export type LocalizationSchema = {
         max: string,
         close: string,
         delete: string,
-        apply: string
+        apply: string,
+        docs: string,
     },
     syncStatus: {
         connecting: string,

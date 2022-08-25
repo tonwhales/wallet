@@ -78,6 +78,13 @@ export const AppComponent = React.memo((props: {
         [props],
     );
 
+    const onDocs = React.useCallback(
+        () => {
+            Linking.openURL('https://developers.tonhub.com/docs/overview');
+        },
+        [],
+    );
+
     //
     // View
     //
@@ -253,8 +260,10 @@ export const AppComponent = React.memo((props: {
                         if (nativeEvent.event === 'share') onShare();
                         if (nativeEvent.event === 'review') onReview();
                         if (nativeEvent.event === 'report') onReport();
+                        if (nativeEvent.event === 'docs') onDocs();
                     }}
                     actions={[
+                        { title: t('common.docs'), id: 'docs', image: Platform.OS === 'ios' ? 'doc' : undefined },
                         { title: t('report.title'), id: 'report', image: Platform.OS === 'ios' ? 'exclamationmark.triangle' : undefined, attributes: { destructive: true } },
                         { title: t('review.title'), id: 'review', image: Platform.OS === 'ios' ? 'star' : undefined },
                         { title: t('common.share'), id: 'share', image: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },

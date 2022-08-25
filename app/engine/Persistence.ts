@@ -25,7 +25,7 @@ import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 
 export class Persistence {
 
-    readonly version: number = 3;
+    readonly version: number = 4;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;

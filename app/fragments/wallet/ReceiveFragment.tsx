@@ -3,8 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import Clipboard from '@react-native-clipboard/clipboard';
-import { View, Platform, Share, Text } from "react-native";
-import QRCode from "react-native-qrcode-svg";
+import { View, Platform, Share, Text, Image } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { Theme } from "../../Theme";
@@ -14,6 +13,8 @@ import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
+import { QRCode } from "../../components/QRCode/QRcode";
+import { Suspense } from "../../Suspense";
 
 export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -59,16 +60,14 @@ export const ReceiveFragment = fragment(() => {
                 marginHorizontal: 45,
                 width: 300, height: 344
             }}>
-                <QRCode
-                    size={202}
-                    ecl="L"
-                    value={link}
-                    color={'#303757'}
-                    logo={require('../../../assets/ic_qr_logo.png')}
-                    logoMargin={4}
-                    logoSize={40}
-                    logoBackgroundColor='transparent'
-                />
+                <View style={{ flex: 1 }}>
+                    <Suspense>
+                        <QRCode data={link} size={202} />
+                    </Suspense>
+                    <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center' }}>
+                        <Image source={require('../../../assets/ic_qr_logo.png')} style={{ height: 30, width: 30, }} />
+                    </View>
+                </View>
                 <WalletAddress
                     address={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                     style={{ marginTop: 16 }}

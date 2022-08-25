@@ -1,16 +1,12 @@
-import BN from "bn.js";
 import { SyncValue } from "teslabot";
 import { Address, Cell, parseTransaction } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { createLogger } from "../../utils/log";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
-import { binarySearch } from "../utils/binarySearch";
-import { FullAccount } from "./startAccountFullSync";
 
 export function createHistorySync(address: Address, engine: Engine) {
 
-    const item = engine.persistence.fullAccounts.item(address);
     const transactionsItem = engine.transactions.item(address);
     const logger = createLogger('history');
 
@@ -56,6 +52,10 @@ export function createHistorySync(address: Address, engine: Engine) {
                     mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
                 }
             }
+        }
+
+        for (let l of loadedTransactions) {
+            engine.transactions.set(address, l.id.lt, l.data);
         }
 
         transactionsItem.update((prev) => {

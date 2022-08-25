@@ -191,9 +191,8 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         })
 
-        const walletItem = engine.persistence.wallets.item(engine.address);
-        engine.transactions.item(engine.address).for((state) => {
-            console.log('new transactions state' + JSON.stringify(state));
+        const walletItem = this.engine.persistence.wallets.item(engine.address);
+        this.engine.transactions.item(engine.address).for((state) => {
             const wallet = walletItem.value;
 
             if (!wallet) {
@@ -206,11 +205,22 @@ export class WalletProduct {
             // Resolve hasMore flag
             let next: { lt: string, hash: string } | null = null;
             if (state.length > 0) {
-                let tx = this.engine.transactions.getWalletTransaction(this.address, state[state.length - 1]);
+                const tx = this.engine.transactions.getWalletTransaction(this.address, state[state.length - 1]);
                 if (tx.prev) {
                     next = { lt: tx.prev.lt, hash: tx.prev.hash };
                 }
             }
+
+            const newState = state.map((t) => {
+                let tx = this.engine.transactions.getWalletTransaction(this.address, t);
+
+                // Update transactions
+                if (!this.#txs.has(t)) {
+                    this.#txs.set(tx.id, tx);
+                }
+
+                return { id: tx.id, time: tx.time };
+            });
 
             // Resolve updated state
             this.#state = {
@@ -218,16 +228,7 @@ export class WalletProduct {
                 seqno: wallet.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.map((t) => {
-                        let tx = this.engine.transactions.getWalletTransaction(this.address, t);
-
-                        // Update transactions
-                        if (!this.#txs.has(t)) {
-                            this.#txs.set(tx.id, tx);
-                        }
-
-                        return { id: tx.id, time: tx.time };
-                    })
+                    ...newState
                 ],
                 next
             };

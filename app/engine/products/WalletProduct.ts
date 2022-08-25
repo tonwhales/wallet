@@ -240,7 +240,6 @@ export class WalletProduct {
         // Subscribe for fullAccount sync
         const transactionsItem = engine.transactions.item(engine.address);
         engine.persistence.wallets.item(engine.address).for((state) => {
-            console.log('new wallet state' + JSON.stringify(state));
             const transactionsValue = transactionsItem.value;
             let transactions: string[] = [];
             // Update transactions state
@@ -248,7 +247,7 @@ export class WalletProduct {
             // last in updated was in prev state
             const last = state.transactions[state.transactions.length - 1];
             const lastIndex = binarySearch((transactionsValue || []).map((s) => new BN(s, 10)), new BN(last, 10), (a, b) => {
-                if ((a as BN).lt(b as BN)) {
+                if ((a as BN).gt(b as BN)) {
                     return -1;
                 }
                 if ((a as BN).eq(b as BN)) {

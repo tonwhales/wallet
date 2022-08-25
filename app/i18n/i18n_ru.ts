@@ -286,6 +286,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 poolFeeTitle: 'Комиссия пула',
                 depositFee: 'Комиссия за отправку',
                 withdrawFee: 'Комиссия за вывод',
+                withdrawRequestFee: 'Комиссия за запрос на вывод',
+                withdrawCompleteFee: 'Комиссия за запрос на завершение вывода',
                 blockchainFee: 'Комиссия сети',
             },
             minAmountWarning: 'Минимальное количество {{minAmount}} TON',

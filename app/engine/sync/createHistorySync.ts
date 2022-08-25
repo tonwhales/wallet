@@ -5,11 +5,13 @@ import { AppConfig } from "../../AppConfig";
 import { createLogger } from "../../utils/log";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
+import { binarySearch } from "../utils/binarySearch";
 import { FullAccount } from "./startAccountFullSync";
 
 export function createHistorySync(address: Address, engine: Engine) {
 
     const item = engine.persistence.fullAccounts.item(address);
+    const transactionsItem = engine.transactions.item(address);
     const logger = createLogger('history');
 
     const sync = new SyncValue<{ lt: string, hash: string } | null>(null, async (cursor) => {
@@ -21,11 +23,11 @@ export function createHistorySync(address: Address, engine: Engine) {
         if (!cursor) {
             return;
         }
-        let itm = item.value;
-        if (!itm) {
+        let transactionsValue = transactionsItem.value;
+        if (!transactionsValue) {
             return;
         }
-        let ex = engine.transactions.get(address, itm.transactions[itm.transactions.length - 1]);
+        let ex = engine.transactions.get(address, transactionsValue[transactionsValue.length - 1]);
         if (!ex || !ex.prevTransaction) {
             return;
         }
@@ -56,51 +58,16 @@ export function createHistorySync(address: Address, engine: Engine) {
             }
         }
 
-        // Persist transactions
-        for (let l of loadedTransactions) {
-            engine.transactions.set(address, l.id.lt, l.data);
-        }
-
-        // Read previous transaction
-        let nextCuror: { lt: BN, hash: string } | null = null;
-        if (loadedTransactions.length > 0) {
-            let txData = Buffer.from(loadedTransactions[loadedTransactions.length - 1].data, 'base64');
-            const lastTx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
-            if (!lastTx.prevTransaction.lt.eq(new BN(0))) {
-                nextCuror = { lt: lastTx.prevTransaction.lt, hash: lastTx.prevTransaction.hash.toString('base64') };
-            }
-        }
-
-        // Apply history
-        logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Apply history state`);
-        item.update((src) => {
-            if (!src) {
-                throw Error('Internal error');
-            }
-            if (!src.transactionsCursor || src.transactionsCursor.hash !== cursor.hash && cursor.lt !== src.transactionsCursor.lt.toString(10)) {
-                throw Error('Transactions cursor changed');
-            }
-
-            // Add transaction ids
-            let transactions: string[] = [...src.transactions];
-            for (let l of loadedTransactions) {
-                transactions.push(l.id.lt);
-            }
-
-            let newState: FullAccount = {
-                ...src,
-                transactions,
-                transactionsCursor: nextCuror
-            };
-            return newState;
+        transactionsItem.update((prev) => {
+            return [...(prev || []), ...loadedTransactions.map((l) => l.id.lt)]
         });
     });
 
     return {
         loadMore: (lt: string, hash: string) => {
-            let itm = item.value;
-            if (itm && itm.transactions.length > 0) {
-                let ex = engine.transactions.get(address, itm.transactions[itm.transactions.length - 1]);
+            let txsValue = transactionsItem.value;
+            if (txsValue && txsValue.length > 0) {
+                let ex = engine.transactions.get(address, txsValue[txsValue.length - 1]);
                 if (!ex || !ex.prevTransaction) {
                     logger.warn('Reached end');
                     return;

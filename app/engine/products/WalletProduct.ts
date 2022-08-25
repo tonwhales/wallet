@@ -191,20 +191,22 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         })
 
-        engine.transactions.item(engine.address).for((transactions) => {
-            const state = engine.persistence.wallets.item(engine.address).value;
+        const walletItem = engine.persistence.wallets.item(engine.address);
+        engine.transactions.item(engine.address).for((state) => {
+            console.log('new transactions state' + JSON.stringify(state));
+            const wallet = walletItem.value;
 
-            if (!state) {
+            if (!wallet) {
                 return;
             }
 
             // Update pending
-            this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
+            this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > wallet.seqno);
 
             // Resolve hasMore flag
             let next: { lt: string, hash: string } | null = null;
-            if (transactions.length > 0) {
-                let tx = this.engine.transactions.getWalletTransaction(this.address, transactions[transactions.length - 1]);
+            if (state.length > 0) {
+                let tx = this.engine.transactions.getWalletTransaction(this.address, state[state.length - 1]);
                 if (tx.prev) {
                     next = { lt: tx.prev.lt, hash: tx.prev.hash };
                 }
@@ -212,11 +214,11 @@ export class WalletProduct {
 
             // Resolve updated state
             this.#state = {
-                balance: state.balance,
-                seqno: state.seqno,
+                balance: wallet.balance,
+                seqno: wallet.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.map((t) => {
+                    ...state.map((t) => {
                         let tx = this.engine.transactions.getWalletTransaction(this.address, t);
 
                         // Update transactions
@@ -235,14 +237,16 @@ export class WalletProduct {
         });
 
         // Subscribe for fullAccount sync
+        const transactionsItem = engine.transactions.item(engine.address);
         engine.persistence.wallets.item(engine.address).for((state) => {
-            const item = engine.transactions.item(engine.address);
+            console.log('new wallet state' + JSON.stringify(state));
+            const transactionsValue = transactionsItem.value;
             let transactions: string[] = [];
             // Update transactions state
 
             // last in updated was in prev state
             const last = state.transactions[state.transactions.length - 1];
-            const lastIndex = binarySearch((item.value || []).map((s) => new BN(s, 10)), new BN(last, 10), (a, b) => {
+            const lastIndex = binarySearch((transactionsValue || []).map((s) => new BN(s, 10)), new BN(last, 10), (a, b) => {
                 if ((a as BN).lt(b as BN)) {
                     return -1;
                 }
@@ -252,14 +256,21 @@ export class WalletProduct {
                 return 1;
             });
 
-            if (lastIndex > 0 && item.value && item.value.length > 1) {
-                transactions = [...state.transactions, ...item.value.slice(lastIndex + 1, item.value?.length)];
-            } else {
+            if (!transactionsValue) {
                 transactions = state.transactions;
+                transactionsItem.update(() => transactions);
+                return;
+            }
+
+            // Merge persisted and with state
+            if (lastIndex > 0 && transactionsValue.length > 1) {
+                transactions = [...state.transactions, ...transactionsValue.slice(lastIndex + 1, transactionsValue.length)];
+            } else {
+                transactions = [...state.transactions, ...transactionsValue];
             }
 
             // Notify for update
-            item.update(() => transactions);
+            transactionsItem.update(() => transactions);
         });
 
         // History

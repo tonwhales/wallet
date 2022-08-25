@@ -55,7 +55,6 @@ export class Transactions {
         if (ex) {
             return ex.value;
         }
-        this.#current = this.engine.persistence.fullAccounts.item(address).value?.transactions || [];
         let rc = atom<string[] | null>({
             key: 'transactions/' + id,
             default: this.#current,

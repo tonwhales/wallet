@@ -164,12 +164,14 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                 paddingRight: 16,
                 minHeight: 55
             }}>
-                <Text style={{
-                    fontSize: 16,
-                    color: '#7D858A'
-                }}>
-                    {t('products.staking.info.withdrawCompleteFee')}
-                </Text>
+                <View style={{ flexDirection: 'row', flexShrink: 1, flexWrap: 'wrap' }}>
+                    <Text style={{
+                        fontSize: 16,
+                        color: '#7D858A',
+                    }}>
+                        {t('products.staking.info.withdrawCompleteFee')}
+                    </Text>
+                </View>
                 <View style={{ justifyContent: 'center' }}>
                     <Text style={{
                         fontWeight: '400',

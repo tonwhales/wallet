@@ -93,6 +93,7 @@ export type LocalizationSchema = {
             invalidAddress: string,
             invalidAmount: string,
             invalidDomain: string,
+            invalidDomainString: string,
             sendingToYourself: string,
             zeroCoins: string,
             notEnoughCoins: string,

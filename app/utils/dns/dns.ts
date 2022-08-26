@@ -264,3 +264,19 @@ export async function resolveDomain(tonClient4: TonClient4, rootDnsAddress: Addr
     const seqno = (await tonClient4.getLastBlock()).last.seqno;
     return dnsResolve(tonClient4, seqno, rootDnsAddress, domain, category, oneStep);
 }
+
+export function validateDomain(domain: string) {
+    if (domain.length < 4 || domain.length > 126) {
+        return false;
+    }
+    for (let i = 0; i < domain.length; i++) {
+        const char = domain.charCodeAt(i);
+        const isHyphen = (char === 45);
+        const isValidChar = (isHyphen && (i > 0) && (i < domain.length - 1)) || ((char >= 48) && (char <= 57)) || ((char >= 97) && (char <= 122)); // '-' or 0-9 or a-z ;  abcdefghijklmnopqrstuvwxyz-0123456789
+
+        if (!isValidChar) {
+            return false;
+        }
+    }
+    return true;
+}

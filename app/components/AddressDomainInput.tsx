@@ -9,7 +9,7 @@ import { Address } from "ton"
 import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from "../utils/dns/dns"
+import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from "../utils/dns/dns"
 import { useEngine } from "../engine/Engine"
 import { AppConfig } from "../AppConfig"
 
@@ -41,6 +41,13 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     const onResolveDomain = useCallback(
         async () => {
             if (!domain) {
+                return;
+            }
+
+            const valid  = validateDomain(domain);
+
+            if (!valid) {
+                Alert.alert(t('transfer.error.invalidDomainString'));
                 return;
             }
 

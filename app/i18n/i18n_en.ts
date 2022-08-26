@@ -91,6 +91,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidAddress: 'Invalid address',
             invalidAmount: 'Invalid amount',
             invalidDomain: 'Invalid domain',
+            invalidDomainString: 'Minimum 4 characters, maximum 126 characters. Latin letters (a-z), numbers (0-9) and a hyphen (-) are allowed. A hyphen cannot be at the beginning or end.',
             sendingToYourself: 'You can\'t send coins to yourself',
             zeroCoins: 'unfortunately you can\'t send zero coins',
             notEnoughCoins: 'unfortunately you don\'t have enougth coins for this transaction',

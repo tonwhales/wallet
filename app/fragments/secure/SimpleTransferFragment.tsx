@@ -43,13 +43,11 @@ async function confirmAmount(amount: BN) {
     const thousands = amount.div(new BN('1000', 10));
     const rounded = toNano(fromNano(thousands).split('.')[0] + '000');
     const words = numToWords(rounded) + ' TON';
-    console.log({ rounded: fromNano(rounded), words });
     return await new Promise<boolean>(resolve => {
         Alert.prompt(t('transfer.confirmAmount'), t('transfer.confirmAmountDescription', { words }), [{
             text: t('common.confirm'),
             style: 'destructive',
             onPress: (input) => {
-                console.log({ words, input });
                 if (words !== input) {
                     resolve(false);
                 }

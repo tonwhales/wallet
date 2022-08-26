@@ -76,6 +76,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         title: 'Отправить {{symbol}}',
         titleAction: 'Действие',
         confirm: 'Вы уверены что хотите продолжить?',
+        confirmAmount: 'Вы уверены, что хотите отправить данную сумму?',
+        confirmAmountDescription: 'Чтобы подтвердить отправку, введите сумму словами как: \"{{words}}\"',
         error: {
             invalidAddress: 'Неверный адрес',
             invalidAmount: 'Неверное количество',

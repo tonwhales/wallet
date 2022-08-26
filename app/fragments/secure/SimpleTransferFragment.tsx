@@ -31,12 +31,38 @@ import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
+import { numToWords } from '../../utils/numToWords';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
     marginLeft: 17,
     fontSize: 17
 };
+
+async function confirmAmount(amount: BN) {
+    const thousands = amount.div(new BN('1000', 10));
+    const rounded = toNano(fromNano(thousands).split('.')[0] + '000');
+    const words = numToWords(rounded) + ' TON';
+    console.log({ rounded: fromNano(rounded), words });
+    return await new Promise<boolean>(resolve => {
+        Alert.prompt(t('transfer.confirmAmount'), t('transfer.confirmAmountDescription', { words }), [{
+            text: t('common.confirm'),
+            style: 'destructive',
+            onPress: (input) => {
+                console.log({ words, input });
+                if (words !== input) {
+                    resolve(false);
+                }
+                resolve(true);
+            }
+        }, {
+            text: t('common.cancel'),
+            onPress: () => {
+                resolve(false);
+            }
+        }])
+    });
+}
 
 export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -189,6 +215,12 @@ export const SimpleTransferFragment = fragment(() => {
         if (value.eq(new BN(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
+        }
+
+        // Check large amount
+        if (value.gt(new BN('1000', 10))) {
+            const confirmed = await confirmAmount(value);
+            if (!confirmed) return;
         }
 
         // Dismiss keyboard for iOS

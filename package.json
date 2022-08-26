@@ -109,7 +109,8 @@
     "ton-crypto": "3.2.0",
     "url-parse": "^1.5.4",
     "uuid": "^8.3.2",
-    "vision-camera-code-scanner": "^0.1.6"
+    "vision-camera-code-scanner": "^0.1.6",
+    "written-number": "^0.11.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

@@ -86,6 +86,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         title: 'Send {{symbol}}',
         titleAction: 'Action',
         confirm: 'Are you sure want to proceed?',
+        confirmAmount: 'Are you sure you want to send this amount?',
+        confirmAmountDescription: 'To confirm sending, enter the amount in words like so: \"{{words}}\"',
         error: {
             invalidAddress: 'Invalid address',
             invalidAmount: 'Invalid amount',

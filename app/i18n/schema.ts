@@ -88,6 +88,8 @@ export type LocalizationSchema = {
         title: string,
         titleAction: string,
         confirm: string,
+        confirmAmount: string,
+        confirmAmountDescription: string,
         error: {
             invalidAddress: string,
             invalidAmount: string,

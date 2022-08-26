@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { View, Image } from 'react-native';
+import { Theme } from '../../Theme';
 import { createQRMatrix } from './QRMatrix';
 
 export const QRCode = React.memo((props: { data: string, size: number }) => {
@@ -33,7 +34,7 @@ export const QRCode = React.memo((props: { data: string, size: number }) => {
                 }
 
                 row.push(<View key={`${x}-${y}`} style={{
-                    width: dotSize, height: dotSize, backgroundColor: 'black',
+                    width: dotSize, height: dotSize, backgroundColor: Theme.qrCode,
                     borderTopLeftRadius,
                     borderTopRightRadius,
                     borderBottomLeftRadius,

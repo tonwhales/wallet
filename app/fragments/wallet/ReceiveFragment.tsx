@@ -13,7 +13,7 @@ import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
-import { QRCode } from "../../components/QRCode/QRcode";
+import { QRCode } from "../../components/QRCode/QRCode";
 import { Suspense } from "../../Suspense";
 
 export const ReceiveFragment = fragment(() => {
@@ -64,8 +64,10 @@ export const ReceiveFragment = fragment(() => {
                     <Suspense>
                         <QRCode data={link} size={202} />
                     </Suspense>
-                    <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center' }}>
-                        <Image source={require('../../../assets/ic_qr_logo.png')} style={{ height: 30, width: 30, }} />
+                    <View style={{ position: 'absolute', bottom: 0, left: 0, top: 0, right: 0, justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ padding: 2, backgroundColor: 'white', borderRadius: 8 }}>
+                            <Image source={require('../../../assets/ic_qr_logo.png')} style={{ height: 30, width: 30 }} />
+                        </View>
                     </View>
                 </View>
                 <WalletAddress

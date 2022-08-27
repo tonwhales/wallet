@@ -11,6 +11,7 @@ import { PriceComponent } from "../PriceComponent";
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: BN | null }) => {
     if (!pool) return null;
     const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
+    const withdrawFee = pool.params.withdrawFee.add(pool.params.receiptPrice);
     const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
 
     return (
@@ -22,31 +23,6 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
             paddingLeft: 16,
             marginTop: 20
         }}>
-            {/* {!AppConfig.isTestnet && (
-                <>
-                    <View style={{
-                        flexDirection: 'row', width: '100%',
-                        justifyContent: 'space-between', alignItems: 'center',
-                        paddingRight: 16,
-                        height: 50
-                    }}>
-                        <Text style={{
-                            fontSize: 16,
-                            color: '#7D858A'
-                        }}>
-                            {t('products.staking.info.rateTitle')}
-                        </Text>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 16,
-                            color: Theme.textColor
-                        }}>
-                            {t('products.staking.info.rate')}
-                        </Text>
-                    </View>
-                    <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
-                </>
-            )} */}
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
@@ -137,6 +113,72 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                         color: Theme.textColor,
                     }}>
                         {fromNano(depositFee) + ' ' + 'TON'}
+                    </Text>
+                    <PriceComponent
+                        amount={depositFee}
+                        style={{
+                            backgroundColor: 'transparent',
+                            paddingHorizontal: 0,
+                            alignSelf: 'flex-end',
+                        }}
+                        textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                    />
+                </View>
+            </View>
+            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            <View style={{
+                flexDirection: 'row', width: '100%',
+                justifyContent: 'space-between', alignItems: 'center',
+                paddingRight: 16,
+                height: 55
+            }}>
+                <Text style={{
+                    fontSize: 16,
+                    color: '#7D858A'
+                }}>
+                    {t('products.staking.info.withdrawRequestFee')}
+                </Text>
+                <View style={{ justifyContent: 'center' }}>
+                    <Text style={{
+                        fontWeight: '400',
+                        fontSize: 16,
+                        color: Theme.textColor,
+                    }}>
+                        {fromNano(withdrawFee) + ' ' + 'TON'}
+                    </Text>
+                    <PriceComponent
+                        amount={depositFee}
+                        style={{
+                            backgroundColor: 'transparent',
+                            paddingHorizontal: 0,
+                            alignSelf: 'flex-end',
+                        }}
+                        textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                    />
+                </View>
+            </View>
+            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            <View style={{
+                flexDirection: 'row', width: '100%',
+                justifyContent: 'space-between', alignItems: 'center',
+                paddingRight: 16,
+                minHeight: 55
+            }}>
+                <View style={{ flexDirection: 'row', flexShrink: 1, flexWrap: 'wrap' }}>
+                    <Text style={{
+                        fontSize: 16,
+                        color: '#7D858A',
+                    }}>
+                        {t('products.staking.info.withdrawCompleteFee')}
+                    </Text>
+                </View>
+                <View style={{ justifyContent: 'center' }}>
+                    <Text style={{
+                        fontWeight: '400',
+                        fontSize: 16,
+                        color: Theme.textColor,
+                    }}>
+                        {fromNano(withdrawFee) + ' ' + 'TON'}
                     </Text>
                     <PriceComponent
                         amount={depositFee}

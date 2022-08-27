@@ -287,6 +287,8 @@ export type LocalizationSchema = {
                 poolFeeTitle: string,
                 depositFee: string,
                 withdrawFee: string,
+                withdrawRequestFee: string,
+                withdrawCompleteFee: string,
                 blockchainFee: string,
             },
             minAmountWarning: string,

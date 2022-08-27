@@ -36,7 +36,25 @@ function clubAlert(navigation: TypedNavigation, pool: string) {
     );
 }
 
-function PoolComponent(props: { address: Address, balance: BN }) {
+function restrictedAlert(navigation: TypedNavigation, pool: string) {
+    Alert.alert(
+        t('products.staking.transfer.restrictedTitle'),
+        t('products.staking.transfer.restrictedMessage'),
+        [
+            {
+                text: t('common.continue'),
+                onPress: () => { navigation.navigate('Staking', { backToHome: true, pool }); }
+            },
+            {
+                text: t('products.staking.moreInfo'),
+                onPress: () => { openWithInApp('https://tonwhales.com/staking'); },
+            },
+            { text: t('common.cancel'), onPress: () => { }, style: "cancel" }
+        ]
+    );
+}
+
+function PoolComponent(props: { address: Address, balance: BN, restricted?: boolean }) {
     const navigation = useTypedNavigation();
     const addr = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
     const name = KnownPools[addr].name;
@@ -62,8 +80,11 @@ function PoolComponent(props: { address: Address, balance: BN }) {
             requireSource={requireSource}
             value={props.balance}
             onPress={() => {
-                if (club) {
+                if (club && props.restricted) {
                     clubAlert(navigation, addr);
+                    return;
+                } else if (props.restricted) {
+                    restrictedAlert(navigation, addr);
                     return;
                 }
                 navigation.navigate('Staking', { backToHome: true, pool: addr })
@@ -207,7 +228,7 @@ export const StakingPoolsFragment = fragment(() => {
         items.push(<Header key={'unavailable-header'} text={'🔐 ' + t('products.staking.pools.private')} />);
         for (let a of unavailable) {
             processed.add(a.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            items.push(<PoolComponent key={a.address.toFriendly({ testOnly: AppConfig.isTestnet })} address={a.address} balance={a.balance} />);
+            items.push(<PoolComponent key={a.address.toFriendly({ testOnly: AppConfig.isTestnet })} restricted address={a.address} balance={a.balance} />);
         }
     }
 

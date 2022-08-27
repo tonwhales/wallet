@@ -207,7 +207,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 confirmWithdrawReady: 'Withdraw now',
                 restrictedTitle: 'This Staking Pool is restricted',
                 restrictedMessage: 'Your funds will not participate in staking if your wallet address is not on the permit list, but will be on the pool balance and awaiting a withdrawal',
-                notEnoughCoinsFee: 'There is not enough TON on your wallet balance to pay the fee. Please note that the {{amount}} TON fee must be on the main balance, not on the staking balance',
+                notEnoughCoinsFee: 'There are not enough TON on your wallet balance to pay the fee. Please note that the {{amount}} TON fee must be on the main balance, not on the staking balance',
                 notEnoughCoins: 'There are not enough funds on your wallet balance to top up the staking balance',
             },
             nextCycle: 'Next cycle',

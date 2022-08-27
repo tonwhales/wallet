@@ -65,7 +65,7 @@ export const TransactionPreviewFragment = fragment(() => {
 
     let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
         || (
-            transaction.base.amount.neg().lt(spamFilterConfig.minAmount)
+            transaction.base.amount.abs().lt(spamFilterConfig.minAmount)
             && transaction.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet

@@ -30,7 +30,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         max: 'Max',
         close: 'Close',
         delete: 'Delete',
-        apply: 'Apply'
+        apply: 'Apply',
+        search: 'Search',
+        termsOfService: 'Terms\u00A0Of\u00A0Service',
+        privacyPolicy: 'Privacy\u00A0Policy'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -110,6 +113,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unknown: 'Unknown operation',
     },
     auth: {
+        phoneVerify: 'Verify phone',
+        phoneNumber: 'Phone number',
+        phoneTitle: 'Your number',
+        phoneSubtitle: 'We will send verification code to verify\nyour number.',
+        codeTitle: 'Enter code',
+        codeSubtitle: 'We sent verification code to ',
+        codeHint: 'Code',
         title: 'Connection Request',
         message: '<strong>{{name}}</strong> wants to connect to your account',
         hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
@@ -134,7 +144,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
             },
             installExtension: 'Install and open extension for this application'
-        }
+        },
+        consent: 'By clicking continue you accepting our',
     },
     install: {
         title: 'Install Extension',

@@ -32,7 +32,10 @@ export type LocalizationSchema = {
         max: string,
         close: string,
         delete: string,
-        apply: string
+        apply: string,
+        search: string,
+        termsOfService: string,
+        privacyPolicy: string
     },
     syncStatus: {
         connecting: string,
@@ -112,6 +115,13 @@ export type LocalizationSchema = {
         unknown: string
     },
     auth: {
+        phoneVerify: string,
+        phoneNumber: string,
+        phoneTitle: string
+        phoneSubtitle: string,
+        codeTitle: string,
+        codeSubtitle: string,
+        codeHint: string,
         title: string,
         message: string,
         hint: string,
@@ -136,7 +146,8 @@ export type LocalizationSchema = {
                 message: string
             },
             installExtension: string
-        }
+        },
+        consent: string,
     },
     install: {
         title: string,

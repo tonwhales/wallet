@@ -56,6 +56,8 @@ import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
 import { LogoutFragment } from './fragments/LogoutFragment';
 import { CardFragment } from './fragments/card/CardFragment';
+import { PickCountry } from './fragments/card/PickCountry';
+import { PhoneFragment } from './fragments/card/PhoneScreen';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -163,6 +165,8 @@ const navigation = [
     modalScreen('Review', ReviewFragment),
     modalScreen('DeleteAccount', DeleteAccountFragment),
     modalScreen('Logout', LogoutFragment),
+    modalScreen('Phone', PhoneFragment),
+    modalScreen('Country', PickCountry),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

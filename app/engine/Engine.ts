@@ -19,6 +19,7 @@ import { Cloud } from './cloud/Cloud';
 import { AppConfig } from '../AppConfig';
 import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
+import { KeysProduct } from './keys/KeysProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -49,7 +50,8 @@ export class Engine {
         config: ConfigProduct,
         serverConfig: ServerConfigProduct,
         extensions: ExtensionsProduct,
-        settings: SettingsProduct
+        settings: SettingsProduct,
+        keys: KeysProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -96,7 +98,8 @@ export class Engine {
             config: new ConfigProduct(this),
             serverConfig: new ServerConfigProduct(this),
             extensions: new ExtensionsProduct(this),
-            settings: new SettingsProduct(this)
+            settings: new SettingsProduct(this),
+            keys: new KeysProduct(this)
         };
 
         //

@@ -55,6 +55,7 @@ import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
 import { LogoutFragment } from './fragments/LogoutFragment';
+import { CardFragment } from './fragments/card/CardFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -155,6 +156,7 @@ const navigation = [
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
+    modalScreen('Card', CardFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Accounts', AccountsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),

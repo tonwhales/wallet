@@ -19,13 +19,9 @@ export const AppFragment = fragment(() => {
     const c = Color(color);
     const dark = c.isDark();
     const fontColor = dark ? '#fff' : '#000';
-    const key = engine.persistence.domainKeys.getValue(domain);
-
+    const key = engine.products.keys.getDomainKey(domain);
     if (!appData) {
         throw Error('No App Data');
-    }
-    if (!key) {
-        throw Error('No Domain Key');
     }
     return (
         <View style={{

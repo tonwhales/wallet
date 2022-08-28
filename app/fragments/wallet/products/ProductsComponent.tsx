@@ -95,6 +95,10 @@ export const ProductsComponent = React.memo(() => {
 
     apps.push(<StakingProductComponent key={'pool'} />);
 
+    if (__DEV__) {
+        apps.push(<ProductButton key={"card"} name="Card" subtitle="Begin enrollment" value={null} onPress={() => navigation.navigate('Card')} />)
+    }
+
     return (
         <View style={{ paddingTop: 8 }}>
             {currentJob && currentJob.job.type === 'transaction' && (

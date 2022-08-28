@@ -222,21 +222,10 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 return;
             }
 
-            let domain = extractDomain(endpoint);
-            let time = Math.floor(Date.now() / 1000);
 
-            let secret = await getSecureRandomBytes(32);
-            let subkey = keyPairFromSeed(secret);
-            let toSign = beginCell()
-                .storeCoins(1)
-                .storeBuffer(subkey.publicKey)
-                .storeUint(time, 32)
-                .storeAddress(contract.address)
-                .storeRef(beginCell().storeBuffer(Buffer.from(domain)).endCell())
-                .endCell();
-            let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
-            // Persist key
-            engine.persistence.domainKeys.setValue(domain, { time, signature, secret });
+            // Create domain key if needed
+            let domain = extractDomain(endpoint);
+            await engine.products.keys.createDomainKeyIfNeeded(domain, walletKeys); // Always succeeds
 
             // Add extension
             engine.products.extensions.addExtension(

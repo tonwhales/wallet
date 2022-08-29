@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address, fromNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
@@ -60,6 +60,7 @@ export class WalletProduct {
     #txsAtom: (lt: string) => RecoilState<TransactionDescription>;
     #history: { loadMore(lt: string, hash: string): void };
     #plugins: RecoilValueReadOnly<PluginsState>;
+    #initialLoad: boolean = true;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -190,18 +191,48 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         })
 
-        engine.persistence.wallets.item(engine.address).for((state) => {
 
+        // Initial load
+        engine.persistence.wallets.item(engine.address).for((state) => {
+            console.log('initial ' + this.#initialLoad);
             // Update pending
             this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
 
             // Resolve hasMore flag
             let next: { lt: string, hash: string } | null = null;
-            if (state.transactions.length > 0) {
-                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[state.transactions.length - 1]);
-                if (tx.prev) {
-                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+
+            const transactions: Transaction[] = [];
+            // Latest transaction
+            const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
+            if (last) {
+                let lastTx = this.engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
+                if (!!lastTx && lastTx.prev) {
+                    next = { lt: lastTx.prev.lt, hash: lastTx.prev.hash };
                 }
+                while ((this.#initialLoad ? transactions.length < 10 : true) && next) {
+                    let tx = this.engine.transactions.getWalletTransaction(engine.address, next.lt);
+                    // Stop tx not found
+                    if (!tx) {
+                        break;
+                    } else {
+                        transactions.push(tx);
+
+                        // Update
+                        if (!this.#txs.has(next.lt)) {
+                            this.#txs.set(tx.id, tx);
+                        }
+
+                        if (tx.prev) {
+                            next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                        }
+                    }
+                }
+            }
+
+            console.log('loaded new state ' + transactions.length);
+
+            if (this.#initialLoad) {
+                this.#initialLoad = false;
             }
 
             // Resolve updated state
@@ -210,20 +241,11 @@ export class WalletProduct {
                 seqno: state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.map((t) => {
-                        let tx = this.engine.transactions.getWalletTransaction(this.address, t);
-
-                        // Update transactions
-                        if (!this.#txs.has(t)) {
-                            this.#txs.set(tx.id, tx);
-                        }
-
-                        return { id: tx.id, time: tx.time };
-                    })
+                    ...transactions
                 ],
                 next
             };
-            
+
             // Notify
             engine.recoil.updater(this.#atom, this.#state);
         });
@@ -257,7 +279,44 @@ export class WalletProduct {
     }
 
     loadMore = (lt: string, hash: string) => {
-        this.#history.loadMore(lt, hash);
+        console.log('load more' + JSON.stringify({ lt, hash }));
+        let tx = this.engine.transactions.getWalletTransaction(this.engine.address, lt);
+        if (tx) {
+            console.log('is stored');
+            let next: { lt: string, hash: string } | null = null;
+            const transactions = this.#state?.transactions || [];
+            transactions.push(tx);
+
+            if (!this.#txs.has(lt)) {
+                this.#txs.set(tx.id, tx);
+            }
+
+            if (tx.prev) {
+                next = { lt: tx.prev.lt, hash: tx.prev.hash };
+            }
+
+            console.log('is stored ' + transactions.length);
+
+            // Resolve updated state
+            if (this.#state) {
+
+                this.#state = {
+                    balance: this.#state.balance,
+                    seqno: this.#state.seqno,
+                    transactions: [
+                        ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
+                        ...transactions
+                    ],
+                    next
+                };
+
+                // Notify
+                this.engine.recoil.updater(this.#atom, this.#state);
+            }
+        } else {
+            console.log('not stored, loadin more');
+            this.#history.loadMore(lt, hash);
+        }
     }
 
     registerPending(src: Transaction) {

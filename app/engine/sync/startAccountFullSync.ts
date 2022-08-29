@@ -54,18 +54,22 @@ export function startAccountFullSync(address: Address, engine: Engine) {
         if (!!liteAccount.last) {
 
             // Download transactions
-            let loadedTransactions = await backoff('account-full-sync', async () => {
-                return await engine.connector.fetchTransactions(address, { lt: liteAccount.last!.lt.toString(10), hash: liteAccount.last!.hash });
+            let fetched = await backoff('account-full-sync', async () => {
+                return await engine.client4.getAccountTransactions(address, liteAccount.last!.lt, Buffer.from(liteAccount.last!.hash, 'base64'));
             });
+
+            let loadedTransactions = fetched.map((t) => {
+                return {...parseTransaction(address.workChain, t.tx.beginParse()), data: t.tx.toBoc({ idx: false }).toString('base64')};
+            })
 
             // Persist transactions
             for (let l of loadedTransactions) {
-                engine.transactions.set(address, l.id.lt, l.data);
+                engine.transactions.set(address, l.lt.toString(10), l.data);
             }
 
             // Transaction ids
             for (let l of loadedTransactions) {
-                transactions.push(l.id.lt);
+                transactions.push(l.lt.toString(10));
             }
 
             // Read previous transaction

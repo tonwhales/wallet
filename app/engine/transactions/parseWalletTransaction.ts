@@ -73,7 +73,7 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
     let address: Address | null = null;
     if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
         for (let o of tx.outMessages) {
-            if (o.info.dest) {
+            if (o.info.dest && Address.isAddress(o.info.dest)) {
                 address = o.info.dest;
             }
         }
@@ -118,7 +118,7 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         const command = parse.readUintNumber(8);
         if (command === 0) {
             let message = parseMessage(parse.readRef());
-            if (message.info.dest) {
+            if (message.info.dest && Address.isAddress(message.info.dest)) {
                 address = message.info.dest;
             }
             body = parseBody(message.body);

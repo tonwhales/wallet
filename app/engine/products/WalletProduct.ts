@@ -194,7 +194,6 @@ export class WalletProduct {
 
         // Initial load
         engine.persistence.wallets.item(engine.address).for((state) => {
-            console.log('initial ' + this.#initialLoad);
             // Update pending
             this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
 
@@ -228,8 +227,6 @@ export class WalletProduct {
                     }
                 }
             }
-
-            console.log('loaded new state ' + transactions.length);
 
             if (this.#initialLoad) {
                 this.#initialLoad = false;
@@ -279,10 +276,8 @@ export class WalletProduct {
     }
 
     loadMore = (lt: string, hash: string) => {
-        console.log('load more' + JSON.stringify({ lt, hash }));
         let tx = this.engine.transactions.getWalletTransaction(this.engine.address, lt);
         if (tx) {
-            console.log('is stored');
             let next: { lt: string, hash: string } | null = null;
             const transactions = this.#state?.transactions || [];
             transactions.push(tx);
@@ -294,8 +289,6 @@ export class WalletProduct {
             if (tx.prev) {
                 next = { lt: tx.prev.lt, hash: tx.prev.hash };
             }
-
-            console.log('is stored ' + transactions.length);
 
             // Resolve updated state
             if (this.#state) {
@@ -313,8 +306,7 @@ export class WalletProduct {
                 // Notify
                 this.engine.recoil.updater(this.#atom, this.#state);
             }
-        } else {
-            console.log('not stored, loadin more');
+        } else { // Not found in storage
             this.#history.loadMore(lt, hash);
         }
     }

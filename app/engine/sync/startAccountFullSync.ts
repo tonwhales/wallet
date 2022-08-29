@@ -59,7 +59,7 @@ export function startAccountFullSync(address: Address, engine: Engine) {
             });
 
             let loadedTransactions = fetched.map((t) => {
-                return {...parseTransaction(address.workChain, t.tx.beginParse()), data: t.tx.toBoc({ idx: false, crc32: false }).toString('base64')};
+                return {...parseTransaction(address.workChain, t.tx.beginParse()), data: t.tx.toBoc({ idx: false }).toString('base64')};
             })
 
             // Persist transactions

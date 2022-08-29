@@ -112,18 +112,15 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [navigation]);
 
-    console.log({ next: account.next });
 
     const onReachedEnd = React.useMemo(() => {
         let prev = account.next;
         let called = false;
         return () => {
-            console.log({ called });
             if (called) {
                 return;
             }
             called = true;
-            console.log({ prev });
             if (prev) {
                 log('Reached end: ' + prev.lt);
                 engine.products.main.loadMore(prev.lt, prev.hash);

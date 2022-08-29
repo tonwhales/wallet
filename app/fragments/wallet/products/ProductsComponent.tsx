@@ -96,7 +96,7 @@ export const ProductsComponent = React.memo(() => {
     apps.push(<StakingProductComponent key={'pool'} />);
 
     if (__DEV__) {
-        apps.push(<ProductButton key={"card"} name="Card" subtitle="Begin enrollment" value={null} onPress={() => navigation.navigate('Card')} />)
+        apps.push(<ProductButton key={"card"} name="Card" subtitle="Begin enrollment" value={null} onPress={() => navigation.navigate('Corp')} />)
     }
 
     return (

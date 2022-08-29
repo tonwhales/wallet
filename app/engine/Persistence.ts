@@ -22,6 +22,7 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
+import { CorpStatus } from "./corp/CorpProduct";
 
 export class Persistence {
 
@@ -60,6 +61,8 @@ export class Persistence {
     readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
 
     readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
+
+    readonly corp: PersistedCollection<Address, CorpStatus>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -105,7 +108,10 @@ export class Persistence {
         this.cloud = new PersistedCollection({ storage, namespace: 'cloud', key: keyedAddressKey, codec: t.string, engine });
 
         // SpamFilter
-        this.spamFilterConfig = new PersistedCollection({storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
+        this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
+
+        // Corp
+        this.corp = new PersistedCollection({ storage, namespace: 'corp', key: addressKey, codec: corpCodec, engine });
     }
 }
 
@@ -271,3 +277,18 @@ const spamFilterCodec = t.type({
     minAmount: t.union([c.bignum, t.null]),
     dontShowComments: t.union([t.boolean, t.null])
 });
+
+const corpCodec = t.union([
+    t.type({
+        state: t.literal('need-enrolment'),
+    }),
+    t.type({
+        state: t.literal('need-phone'),
+        token: t.string
+    }),
+    t.type({
+        state: t.literal('need-kyc'),
+        token: t.string,
+        phone: t.string
+    })
+]);

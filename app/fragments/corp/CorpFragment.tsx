@@ -16,7 +16,7 @@ export const CorpFragment = fragment(() => {
     }, []);
 
     const phone = React.useCallback(() => {
-        navigation.navigate('Phone');
+        navigation.navigate('StartPhone');
     }, []);
 
     // React.useEffect(() => {

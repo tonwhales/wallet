@@ -367,7 +367,12 @@ export type LocalizationSchema = {
         secureStorageError: {
             title: string,
             message: string
-        }
+        },
+        title: string,
+        invalidNumber: string,
+        codeTooManyAttempts: string,
+        codeInvalid: string,
+        unknown: string,
     },
     confirm: {
         logout: {

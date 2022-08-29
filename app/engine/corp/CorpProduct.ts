@@ -1,7 +1,10 @@
 import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
+import { backoff } from "../../utils/time";
+import { fetchCardPhoneTicket } from "../api/fetchCardPhoneTicket";
 import { fetchCardToken } from "../api/fetchCardToken";
+import { fetchStartPhoneVerification } from "../api/fetchStartPhoneVerification";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 
@@ -95,6 +98,36 @@ export class CorpProduct {
         await this.doSync();
 
         return res;
+    }
+
+    async beginPhoneVerification(phoneNumber: string) {
+
+        // Fetch wallet token
+        let target = this.engine.persistence.corp.item(this.engine.address);
+        let status: CorpStatus | null = target.value;
+        if (!status || status.state !== 'need-phone') {
+            return { status: 'already-verified' as const };
+        }
+
+        // Fetch verification ticket
+        let res = await fetchCardPhoneTicket(status.token, phoneNumber);
+        if (res.status === 'already_verified') {
+            return { status: 'already-verified' as const };
+        }
+        if (res.status === 'invalid_number') {
+            return { status: 'invalid-number' as const };
+        }
+
+        // Request new authentication
+        let res2 = await fetchStartPhoneVerification(res.token, res.phoneNumber, res.signature, res.expires);
+        if (res2.state === 'invalid_number') {
+            return { status: 'invalid-number' as const };
+        }
+        if (res2.state === 'try_again_later') {
+            return { status: 'try-again-later' as const };
+        }
+
+        return { status: 'ok' as const, token: res2.id, phoneNumber: res.phoneNumber };
     }
 
     use() {

@@ -365,7 +365,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         secureStorageError: {
             title: 'Secure storage error',
             message: 'unfortunately we are unable to save data. Please, restart your phone.'
-        }
+        },
+        title: 'Ooops',
+        invalidNumber: 'Nope, this is not a real number. Please, check your input and try again.',
+        codeTooManyAttempts: 'You tried too much, please try again in 15 minutes.',
+        codeInvalid: 'Nope, entered code is invalid. Check code and try again.',
+        unknown: 'Woof, it is an unknown error. I literally have no idea what\'s going on. Can you try to turn it on and off?',
     },
     confirm: {
         logout: {

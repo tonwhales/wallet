@@ -18,6 +18,7 @@ import { startServerConfigSync } from "./startServerConfigSync";
 import { resolveLink } from "../../utils/resolveLink";
 import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
+import { startCorpSync } from "./startCorpSync";
 
 export function startSync(engine: Engine) {
 
@@ -164,7 +165,7 @@ export function startSync(engine: Engine) {
     //
     // Wallet Config
     //
-    
+
     startWalletConfigSync(engine);
 
     //
@@ -174,4 +175,10 @@ export function startSync(engine: Engine) {
     engine.persistence.dApps.each((url) => {
         startAppMetadataSync(url, engine);
     });
+
+    //
+    // Corp Sync
+    //
+
+    startCorpSync(engine);
 }

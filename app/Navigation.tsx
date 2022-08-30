@@ -55,9 +55,11 @@ import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
 import { LogoutFragment } from './fragments/LogoutFragment';
-import { CardFragment } from './fragments/card/CardFragment';
-import { PickCountry } from './fragments/card/PickCountry';
-import { PhoneFragment } from './fragments/card/PhoneScreen';
+import { CorpFragment } from './fragments/corp/CorpFragment';
+import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
+// import { PickCountry } from './fragments/corp/PickCountry';
+// import { PhoneFragment } from './fragments/corp/PhoneScreen';
+// import { CodeFragment } from './fragments/corp/phone/CodeFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -158,15 +160,17 @@ const navigation = [
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('Card', CardFragment),
+    modalScreen('Corp', CorpFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Accounts', AccountsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),
     modalScreen('Review', ReviewFragment),
     modalScreen('DeleteAccount', DeleteAccountFragment),
     modalScreen('Logout', LogoutFragment),
-    modalScreen('Phone', PhoneFragment),
-    modalScreen('Country', PickCountry),
+    modalScreen('StartPhone', PhoneVerificationStack),
+    // modalScreen('Phone', PhoneFragment),
+    // modalScreen('Country', PickCountry),
+    // genericScreen('Code', CodeFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

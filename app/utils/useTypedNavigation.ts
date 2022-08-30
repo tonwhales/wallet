@@ -49,7 +49,7 @@ export class TypedNavigation {
     }
 
     dismiss = () => {
-        this.base.dangerouslyGetParent()?.goBack();
+        this.base.getParent()?.goBack();
     }
 
     popToTop = () => {

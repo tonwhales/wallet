@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
-import { Address, TonClient, TonClient4 } from "ton";
+import { Address, TonClient4 } from "ton";
 import { Connector } from "./api/Connector";
 import { LegacyProduct } from './products/LegacyProduct';
 import { PriceProduct } from './products/PriceProduct';
@@ -16,10 +16,10 @@ import { ConfigProduct } from './products/ConfigProduct';
 import { ServerConfigProduct } from './products/ServerConfigProduct';
 import { ExtensionsProduct } from './products/ExtensionsProduct';
 import { Cloud } from './cloud/Cloud';
-import { AppConfig } from '../AppConfig';
 import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
 import { KeysProduct } from './keys/KeysProduct';
+import { CorpProduct } from './corp/CorpProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -51,7 +51,8 @@ export class Engine {
         serverConfig: ServerConfigProduct,
         extensions: ExtensionsProduct,
         settings: SettingsProduct,
-        keys: KeysProduct
+        keys: KeysProduct,
+        corp: CorpProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -99,7 +100,8 @@ export class Engine {
             serverConfig: new ServerConfigProduct(this),
             extensions: new ExtensionsProduct(this),
             settings: new SettingsProduct(this),
-            keys: new KeysProduct(this)
+            keys: new KeysProduct(this),
+            corp: new CorpProduct(this)
         };
 
         //

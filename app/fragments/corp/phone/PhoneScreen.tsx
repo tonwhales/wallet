@@ -1,23 +1,25 @@
 import * as React from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
-import { RoundButton } from '../../components/RoundButton';
-import { Theme } from '../../Theme';
-import { t } from '../../i18n/t';
+import { RoundButton } from '../../../components/RoundButton';
+import { Theme } from '../../../Theme';
+import { t } from '../../../i18n/t';
 // import { useDefaultCountry } from '../../utils/useDefaultCountry';
 // import { fragment } from '../fragment';
-import { ATextInput } from '../../components/ATextInput';
+import { ATextInput } from '../../../components/ATextInput';
 import * as WebBrowser from 'expo-web-browser';
-import { useNumericKeyboardHeight } from '../../utils/useNumericKeyboardHeight';
+import { useNumericKeyboardHeight } from '../../../utils/useNumericKeyboardHeight';
 import { parsePhoneNumber } from 'libphonenumber-js';
-import { countries } from '../../utils/countries';
-import { Country } from '../../utils/Country';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { countries } from '../../../utils/countries';
+import { Country } from '../../../utils/Country';
+import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 // import { authStart } from '../../modules/api/auth';
-import { fragment } from '../../fragment';
+import { fragment } from '../../../fragment';
+import { useEngine } from '../../../engine/Engine';
 
 export const PhoneFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const engine = useEngine();
     const defaultCountry: Country = { value: "+1", shortname: "US", label: "United States", emoji: '🇺🇸' };
     const [country, setCountry] = React.useState(defaultCountry);
     const [number, setNumberValue] = React.useState('');
@@ -51,39 +53,44 @@ export const PhoneFragment = fragment(() => {
     const [loading, setLoading] = React.useState(false);
     const keyboardHeight = useNumericKeyboardHeight();
     const sendCode = React.useCallback(async () => {
-        // let val = country.value + ' ' + number;
-        // setLoading(true);
-        // try {
-        //     let response = await authStart(val);
-        //     if (response.result === 'invalid_number') {
-        //         Alert.alert(t('error.title'), t('error.invalidNumber'));
-        //         setLoading(false);
-        //         return;
-        //     }
-        //     if (response.result === 'try_again_later') {
-        //         Alert.alert(t('error.title'), t('error.codeTooManyAttempts'));
-        //         setLoading(false);
-        //         return;
-        //     }
+        let val = country.value + ' ' + number;
+        setLoading(true);
+        try {
+            let response = await engine.products.corp.beginPhoneVerification(val);
+            //     let response = await authStart(val);
+            if (response.status === 'invalid-number') {
+                Alert.alert(t('errors.title'), t('errors.invalidNumber'));
+                setLoading(false);
+                return;
+            }
+            if (response.status === 'try-again-later') {
+                Alert.alert(t('errors.title'), t('errors.invalidNumber'));
+                setLoading(false);
+                return;
+            }
+            if (response.status === 'already-verified') {
+                navigation.goBack(); // Exit modal screen
+                return;
+            }
+            if (response.status !== 'ok') {
+                Alert.alert(t('errors.title'), t('errors.unknown'));
+                setLoading(false);
+                return;
+            }
 
-        //     if (response.result !== 'ok') {
-        //         Alert.alert(t('error.title'), t('error.unknown'));
-        //         setLoading(false);
-        //         return;
-        //     }
-
-        //     // Navigate to code validation
-        //     navigation.replace('Challenge', { number: response.number, token: response.token, seed: response.seed, difficulity: response.difficulity });
-        // } catch (e) {
-        //     Alert.alert(t('error.title'), t('error.unknown'));
-        //     setLoading(false);
-        // }
+            // Navigate to code validation
+            navigation.navigate('Code', { phoneNumber: response.phoneNumber, token: response.token, codeToken: response.codeToken });
+        } catch (e) {
+            console.warn(e);
+            Alert.alert(t('errors.title'), t('errors.unknown'));
+            setLoading(false);
+        }
     }, [country, number]);
     const openTermsOfService = React.useCallback(() => {
-        WebBrowser.openBrowserAsync('https://getavocado.org/legal/terms', { enableDefaultShareMenuItem: false, showInRecents: false });
+        WebBrowser.openBrowserAsync('https://tonhub.com/legal/terms', { enableDefaultShareMenuItem: false, showInRecents: false });
     }, []);
     const openPrivacyPolicy = React.useCallback(() => {
-        WebBrowser.openBrowserAsync('https://getavocado.org/legal/privacy', { enableDefaultShareMenuItem: false, showInRecents: false });
+        WebBrowser.openBrowserAsync('https://tonhub.com/legal/privacy', { enableDefaultShareMenuItem: false, showInRecents: false });
     }, []);
 
     return (

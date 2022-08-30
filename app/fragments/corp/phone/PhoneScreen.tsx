@@ -79,8 +79,7 @@ export const PhoneFragment = fragment(() => {
             }
 
             // Navigate to code validation
-            console.warn('navigate', { phoneNumber: response.phoneNumber, token: response.token });
-            navigation.navigate('Code', { phoneNumber: response.phoneNumber, token: response.token });
+            navigation.navigate('Code', { phoneNumber: response.phoneNumber, token: response.token, codeToken: response.codeToken });
         } catch (e) {
             console.warn(e);
             Alert.alert(t('errors.title'), t('errors.unknown'));

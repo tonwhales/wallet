@@ -9,41 +9,43 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { t } from '../../../i18n/t';
 import { fragment } from '../../../fragment';
 import { useRoute } from '@react-navigation/native';
+import { useEngine } from '../../../engine/Engine';
 
 export const CodeFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const params = useRoute().params as { phoneNumber: string, token: string };
+    const engine = useEngine();
+    const params = useRoute().params as { phoneNumber: string, codeToken: string, token: string };
     const [number, setNumber] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const keyboard = useNumericKeyboardHeight();
     const sendCode = React.useCallback(async () => {
         setLoading(true);
         try {
-            // let response = await authCode(params.token, number);
-            // if (response.result === 'invalid_solution') {
-            //     Alert.alert(t('error.title'), t('error.unknown'));
-            //     setLoading(false);
-            //     return;
-            // }
-            // if (response.result === 'invalid_code') {
-            //     Alert.alert(t('error.title'), t('error.codeInvalid'));
-            //     setLoading(false);
-            //     return;
-            // }
-            // if (response.result !== 'ok') {
-            //     Alert.alert(t('error.title'), t('error.unknown'));
-            //     setLoading(false);
-            //     return;
-            // }
+            let res = await engine.products.corp.completePhoneVerification(params.token, params.codeToken, params.phoneNumber, number);
 
-            // if (response.hasProfile) {
-            //     persistAppState({ type: 'ready', token: response.token });
-            //     let initState = await resolveInitState();
-            //     navigation.base.reset({ index: 0, routes: [{ name: 'RootApp', params: { token: response.token, initState } }] });
-            // } else {
-            //     persistAppState({ type: 'profile-needed', token: response.token });
-            //     navigation.navigateAndReplaceAll('Name', { token: response.token });
-            // }
+            // Expired state
+            if (res.status === 'expired') {
+                Alert.alert(t('errors.title'), t('errors.unknown'));
+                navigation.dismiss();
+                return;
+            }
+
+            // Invalid code
+            if (res.status === 'invalid-code') {
+                Alert.alert(t('errors.title'), t('errors.codeInvalid'));
+                setLoading(false);
+                return;
+            }
+
+            // Fallback
+            if (res.status !== 'ok') {
+                Alert.alert(t('errors.title'), t('errors.unknown'));
+                setLoading(false);
+                return;
+            }
+
+            // Dismiss verification page
+            navigation.dismiss();
         } catch (e) {
             console.warn(e);
             Alert.alert(t('errors.title'), t('errors.unknown'));

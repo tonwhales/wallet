@@ -2,8 +2,10 @@ import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
 import { backoff } from "../../utils/time";
+import { fetchCardPhoneComplete } from "../api/fetchCardPhoneComplete";
 import { fetchCardPhoneTicket } from "../api/fetchCardPhoneTicket";
 import { fetchCardToken } from "../api/fetchCardToken";
+import { fetchCompletePhoneVerification } from "../api/fetchCompletePhoneVerification";
 import { fetchStartPhoneVerification } from "../api/fetchStartPhoneVerification";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
@@ -127,7 +129,28 @@ export class CorpProduct {
             return { status: 'try-again-later' as const };
         }
 
-        return { status: 'ok' as const, token: res2.id, phoneNumber: res.phoneNumber };
+        return { status: 'ok' as const, token: res.token, codeToken: res2.id, phoneNumber: res.phoneNumber };
+    }
+
+    async completePhoneVerification(token: string, codeToken: string, phoneNumber: string, code: string) {
+
+        // Get verification
+        let res = await fetchCompletePhoneVerification(codeToken, code);
+        if (res.state === 'expired') {
+            return { status: 'expired' as const };
+        }
+        if (res.state === 'invalid_code') {
+            return { status: 'invalid-code' as const };
+        }
+
+        // Register phone
+        await fetchCardPhoneComplete(token, phoneNumber, res.signature);
+
+        // Reload
+        await this.doSync();
+
+        // Return result
+        return { status: 'ok' as const };
     }
 
     use() {

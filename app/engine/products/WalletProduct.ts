@@ -204,26 +204,43 @@ export class WalletProduct {
             // Latest transaction
             const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
             if (last) {
+
                 let lastTx = this.engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
-                if (!!lastTx && lastTx.prev) {
+
+                if (!lastTx) {
+                    return;
+                }
+
+                transactions.push(lastTx);
+
+                if (!this.#txs.has(lastTx.id)) {
+                    this.#txs.set(lastTx.id, lastTx);
+                }
+
+                if (lastTx.prev) {
                     next = { lt: lastTx.prev.lt, hash: lastTx.prev.hash };
                 }
-                while ((this.#initialLoad ? transactions.length < 10 : true) && next) {
+
+                for (let i = 0; i < 10; i++) {
+
+                    if (!next) {
+                        break;
+                    }
+
                     let tx = this.engine.transactions.getWalletTransaction(engine.address, next.lt);
-                    // Stop tx not found
+
                     if (!tx) {
                         break;
-                    } else {
-                        transactions.push(tx);
+                    }
 
-                        // Update
-                        if (!this.#txs.has(next.lt)) {
-                            this.#txs.set(tx.id, tx);
-                        }
+                    transactions.push(tx);
 
-                        if (tx.prev) {
-                            next = { lt: tx.prev.lt, hash: tx.prev.hash };
-                        }
+                    if (!this.#txs.has(tx.id)) {
+                        this.#txs.set(tx.id, tx);
+                    }
+
+                    if (tx.prev) {
+                        next = { lt: tx.prev.lt, hash: tx.prev.hash };
                     }
                 }
             }
@@ -276,6 +293,8 @@ export class WalletProduct {
     }
 
     loadMoreFromStorage(tx: Transaction) {
+        // Update pending
+        this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > (this.#state?.seqno || 0));
         let next: { lt: string, hash: string } | null = null;
         const transactions = this.#state?.transactions || [];
         transactions.push(tx);

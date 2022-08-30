@@ -288,7 +288,6 @@ const corpCodec = t.union([
     }),
     t.type({
         state: t.literal('need-kyc'),
-        token: t.string,
-        phone: t.string
+        token: t.string
     })
 ]);

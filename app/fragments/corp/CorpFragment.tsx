@@ -19,6 +19,10 @@ export const CorpFragment = fragment(() => {
         navigation.navigate('StartPhone');
     }, []);
 
+    const kyc = React.useCallback(() => {
+
+    }, []);
+
     // React.useEffect(() => {
 
     // }, []);
@@ -102,6 +106,26 @@ export const CorpFragment = fragment(() => {
                     <RoundButton
                         title={'Verify Phone'}
                         onPress={phone}
+                        style={{
+                            marginLeft: 7,
+                            height: 56,
+                            flexGrow: 1,
+                        }}
+                    />
+                </View>
+                <View style={{ flexGrow: 1 }} />
+            </View>
+        );
+    }
+    if (state.status === 'need-kyc') {
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ flexGrow: 1 }} />
+                <Text>Provide ID</Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <RoundButton
+                        title={'KYC'}
+                        onPress={kyc}
                         style={{
                             marginLeft: 7,
                             height: 56,

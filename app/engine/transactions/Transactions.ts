@@ -20,8 +20,6 @@ export class Transactions {
             return ex;
         }
 
-        console.log(lt);
-
         // Basic parsing
         let data = this.engine.persistence.transactions.getValue({ address, lt: new BN(lt, 10) })!;
 

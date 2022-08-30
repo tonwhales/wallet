@@ -275,40 +275,45 @@ export class WalletProduct {
         })
     }
 
+    loadMoreFromStorage(tx: Transaction) {
+        let next: { lt: string, hash: string } | null = null;
+        const transactions = this.#state?.transactions || [];
+        transactions.push(tx);
+
+        if (!this.#txs.has(tx.id)) {
+            this.#txs.set(tx.id, tx);
+        }
+
+        if (tx.prev) {
+            next = { lt: tx.prev.lt, hash: tx.prev.hash };
+        }
+
+        // Resolve updated state
+        if (this.#state) {
+
+            this.#state = {
+                balance: this.#state.balance,
+                seqno: this.#state.seqno,
+                transactions: [
+                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
+                    ...transactions
+                ],
+                next
+            };
+
+            // Notify
+            this.engine.recoil.updater(this.#atom, this.#state);
+        }
+    }
+
     loadMore = (lt: string, hash: string) => {
         let tx = this.engine.transactions.getWalletTransaction(this.engine.address, lt);
         if (tx) {
-            let next: { lt: string, hash: string } | null = null;
-            const transactions = this.#state?.transactions || [];
-            transactions.push(tx);
-
-            if (!this.#txs.has(lt)) {
-                this.#txs.set(tx.id, tx);
-            }
-
-            if (tx.prev) {
-                next = { lt: tx.prev.lt, hash: tx.prev.hash };
-            }
-
-            // Resolve updated state
-            if (this.#state) {
-
-                this.#state = {
-                    balance: this.#state.balance,
-                    seqno: this.#state.seqno,
-                    transactions: [
-                        ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                        ...transactions
-                    ],
-                    next
-                };
-
-                // Notify
-                this.engine.recoil.updater(this.#atom, this.#state);
-            }
-        } else { // Not found in storage
-            this.#history.loadMore(lt, hash);
+            this.loadMoreFromStorage(tx);
+            return;
         }
+        // Load more from server
+        this.#history.loadMore(lt, hash);
     }
 
     registerPending(src: Transaction) {

@@ -201,27 +201,28 @@ export class WalletProduct {
             let next: { lt: string, hash: string } | null = null;
 
             const transactions: Transaction[] = [];
+
             // Latest transaction
             const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
+
             if (last) {
+                let latest = this.engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
 
-                let lastTx = this.engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
-
-                if (!lastTx) {
+                if (!latest) {
                     return;
                 }
 
-                transactions.push(lastTx);
+                // Push latest
+                transactions.push(latest);
 
-                if (!this.#txs.has(lastTx.id)) {
-                    this.#txs.set(lastTx.id, lastTx);
+                // Set next
+                if (latest.prev) {
+                    next = { lt: latest.prev.lt, hash: latest.prev.hash };
                 }
 
-                if (lastTx.prev) {
-                    next = { lt: lastTx.prev.lt, hash: lastTx.prev.hash };
-                }
+                const toLoad = this.#initialLoad ? 10 : state.transactions.length;
 
-                for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < toLoad - 1; i++) {
 
                     if (!next) {
                         break;
@@ -235,16 +236,13 @@ export class WalletProduct {
 
                     transactions.push(tx);
 
-                    if (!this.#txs.has(tx.id)) {
-                        this.#txs.set(tx.id, tx);
-                    }
-
                     if (tx.prev) {
                         next = { lt: tx.prev.lt, hash: tx.prev.hash };
                     }
                 }
             }
 
+            // Set initial tag
             if (this.#initialLoad) {
                 this.#initialLoad = false;
             }
@@ -255,7 +253,15 @@ export class WalletProduct {
                 seqno: state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...transactions
+                    ...transactions.map((t) => {
+
+                        // Update
+                        if (!this.#txs.has(t.id)) {
+                            this.#txs.set(t.id, t);
+                        }
+
+                        return t;
+                    })
                 ],
                 next
             };
@@ -292,30 +298,62 @@ export class WalletProduct {
         })
     }
 
-    loadMoreFromStorage(tx: Transaction) {
+    loadMoreFromStorage(nextTx: Transaction) {
         // Update pending
         this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > (this.#state?.seqno || 0));
+
+        // Resolve hasMore flag
         let next: { lt: string, hash: string } | null = null;
-        const transactions = this.#state?.transactions || [];
-        transactions.push(tx);
 
-        if (!this.#txs.has(tx.id)) {
-            this.#txs.set(tx.id, tx);
-        }
+        const transactions: Transaction[] = [];
 
-        if (tx.prev) {
-            next = { lt: tx.prev.lt, hash: tx.prev.hash };
+        // Push next
+        transactions.push(nextTx);
+
+        if (nextTx.prev) {
+            next = { lt: nextTx.prev.lt, hash: nextTx.prev.hash };
         }
 
         // Resolve updated state
         if (this.#state) {
 
+            for (let i = 0; i < 10 - 1; i++) {
+
+                // Stop if no previous
+                if (!next) {
+                    break;
+                }
+
+                let tx = this.engine.transactions.getWalletTransaction(this.engine.address, next.lt);
+
+                // Stop if not found in storage
+                if (!tx) {
+                    break;
+                }
+
+                transactions.push(tx);
+
+                if (tx.prev) {
+                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                }
+            }
+
+            // Resolve updated state
             this.#state = {
                 balance: this.#state.balance,
                 seqno: this.#state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...transactions
+                    ...this.#state.transactions,
+                    ...transactions.map((t) => {
+
+                        // Update
+                        if (!this.#txs.has(t.id)) {
+                            this.#txs.set(t.id, t);
+                        }
+
+                        return { id: t.id, time: t.time };
+                    })
                 ],
                 next
             };
@@ -327,6 +365,7 @@ export class WalletProduct {
 
     loadMore = (lt: string, hash: string) => {
         let tx = this.engine.transactions.getWalletTransaction(this.engine.address, lt);
+        // If found in storage 
         if (tx) {
             this.loadMoreFromStorage(tx);
             return;

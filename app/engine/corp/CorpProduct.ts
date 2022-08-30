@@ -7,6 +7,7 @@ import { fetchCardPhoneTicket } from "../api/fetchCardPhoneTicket";
 import { fetchCardState } from "../api/fetchCardState";
 import { fetchCardToken } from "../api/fetchCardToken";
 import { fetchCompletePhoneVerification } from "../api/fetchCompletePhoneVerification";
+import { fetchIDStart } from "../api/fetchIDStart";
 import { fetchStartPhoneVerification } from "../api/fetchStartPhoneVerification";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
@@ -158,6 +159,19 @@ export class CorpProduct {
 
         // Return result
         return { status: 'ok' as const };
+    }
+
+    async beginIDVerification() {
+        // Fetch wallet token
+        let target = this.engine.persistence.corp.item(this.engine.address);
+        let status: CorpStatus | null = target.value;
+        if (!status || status.state === 'need-enrolment') {
+            throw Error('Invalid state');
+        }
+        let token = status.token;
+        let res = await fetchIDStart(token);
+        
+        return res.token;
     }
 
     use() {

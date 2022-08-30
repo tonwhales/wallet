@@ -38,6 +38,8 @@ PODS:
     - ReactCommon/turbomodule/core
   - ExpoRandom (12.2.0):
     - ExpoModulesCore
+  - ExpoWebBrowser (10.2.1):
+    - ExpoModulesCore
   - EXSecureStore (11.2.0):
     - ExpoModulesCore
   - EXSplashScreen (0.15.1):
@@ -57,11 +59,11 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleMLKit/BarcodeScanning (3.1.0):
+  - GoogleMLKit/BarcodeScanning (3.2.0):
     - GoogleMLKit/MLKitCore
-    - MLKitBarcodeScanning (~> 2.1.0)
-  - GoogleMLKit/MLKitCore (3.1.0):
-    - MLKitCommon (~> 7.0.0)
+    - MLKitBarcodeScanning (~> 2.2.0)
+  - GoogleMLKit/MLKitCore (3.2.0):
+    - MLKitCommon (~> 8.0.0)
   - GoogleToolboxForMac/DebugUtils (2.3.2):
     - GoogleToolboxForMac/Defines (= 2.3.2)
   - GoogleToolboxForMac/Defines (2.3.2)
@@ -84,16 +86,21 @@ PODS:
     - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (1.7.2)
   - hermes-engine (0.11.0)
+  - IdensicMobileSDK (1.19.7):
+    - IdensicMobileSDK/Default (= 1.19.7)
+  - IdensicMobileSDK/Core (1.19.7)
+  - IdensicMobileSDK/Default (1.19.7):
+    - IdensicMobileSDK/Core
   - libevent (2.1.12)
-  - libwebp (1.2.1):
-    - libwebp/demux (= 1.2.1)
-    - libwebp/mux (= 1.2.1)
-    - libwebp/webp (= 1.2.1)
-  - libwebp/demux (1.2.1):
+  - libwebp (1.2.3):
+    - libwebp/demux (= 1.2.3)
+    - libwebp/mux (= 1.2.3)
+    - libwebp/webp (= 1.2.3)
+  - libwebp/demux (1.2.3):
     - libwebp/webp
-  - libwebp/mux (1.2.1):
+  - libwebp/mux (1.2.3):
     - libwebp/demux
-  - libwebp/webp (1.2.1)
+  - libwebp/webp (1.2.3)
   - lottie-ios (3.2.3)
   - lottie-react-native (5.0.1):
     - lottie-ios (~> 3.2.3)
@@ -105,10 +112,10 @@ PODS:
     - Mixpanel-swift (= 3.2.6)
     - React
   - MLImage (1.0.0-beta3)
-  - MLKitBarcodeScanning (2.1.0):
-    - MLKitCommon (~> 7.0)
-    - MLKitVision (~> 4.1)
-  - MLKitCommon (7.0.0):
+  - MLKitBarcodeScanning (2.2.0):
+    - MLKitCommon (~> 8.0)
+    - MLKitVision (~> 4.2)
+  - MLKitCommon (8.0.0):
     - GoogleDataTransport (~> 9.0)
     - GoogleToolboxForMac/Logger (~> 2.1)
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
@@ -117,23 +124,23 @@ PODS:
     - GoogleUtilitiesComponents (~> 1.0)
     - GTMSessionFetcher/Core (~> 1.1)
     - Protobuf (~> 3.12)
-  - MLKitVision (4.1.0):
+  - MLKitVision (4.2.0):
     - GoogleToolboxForMac/Logger (~> 2.1)
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
     - GTMSessionFetcher/Core (~> 1.1)
     - MLImage (= 1.0.0-beta3)
-    - MLKitCommon (~> 7.0)
+    - MLKitCommon (~> 8.0)
     - Protobuf (~> 3.12)
-  - MMKV (1.2.13):
-    - MMKVCore (~> 1.2.13)
-  - MMKVCore (1.2.13)
+  - MMKV (1.2.14):
+    - MMKVCore (~> 1.2.14)
+  - MMKVCore (1.2.14)
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
     - nanopb/encode (= 2.30909.0)
   - nanopb/decode (2.30909.0)
   - nanopb/encode (2.30909.0)
   - PromisesObjC (2.1.1)
-  - Protobuf (3.21.4)
+  - Protobuf (3.21.5)
   - RCT-Folly (2021.06.28.00-v2):
     - boost
     - DoubleConversion
@@ -370,6 +377,9 @@ PODS:
   - react-native-mmkv (2.4.1):
     - MMKV (>= 1.2.13)
     - React-Core
+  - react-native-mobilesdk-module (1.19.7):
+    - IdensicMobileSDK (= 1.19.7)
+    - React
   - react-native-safe-area-context (4.2.5):
     - RCT-Folly
     - RCTRequired
@@ -531,6 +541,7 @@ DEPENDENCIES:
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - ExpoRandom (from `../node_modules/expo-random/ios`)
+  - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
   - EXSecureStore (from `../node_modules/expo-secure-store/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -561,6 +572,7 @@ DEPENDENCIES:
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - "react-native-mobilesdk-module (from `../node_modules/@sumsub/react-native-mobilesdk-module`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -590,6 +602,8 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
+  https://github.com/SumSubstance/Specs.git:
+    - IdensicMobileSDK
   trunk:
     - fmt
     - GoogleDataTransport
@@ -654,6 +668,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-modules-core/ios"
   ExpoRandom:
     :path: "../node_modules/expo-random/ios"
+  ExpoWebBrowser:
+    :path: "../node_modules/expo-web-browser/ios"
   EXSecureStore:
     :path: "../node_modules/expo-secure-store/ios"
   EXSplashScreen:
@@ -706,6 +722,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-menu/menu"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-mobilesdk-module:
+    :path: "../node_modules/@sumsub/react-native-mobilesdk-module"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-webview:
@@ -780,6 +798,7 @@ SPEC CHECKSUMS:
   ExpoKeepAwake: c0c494b442ecd8122974c13b93ccfb57bd408e88
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
   ExpoRandom: 14df0976aa363a71a730ceb7655250f3047c0e42
+  ExpoWebBrowser: 4b5f9633e5f169dc948587cb6d26d2d1d1406187
   EXSecureStore: aaae919d83aec2faf031e99398807edac0313285
   EXSplashScreen: 34f460788db8d682883871708dddbfac72095bb7
   FBLazyVector: a7a655862f6b09625d11c772296b01cd5164b648
@@ -787,27 +806,28 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 476ee3e89abb49e07f822b48323c51c57124b572
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
-  GoogleMLKit: 9d072522949ff0ef4dae5359feaf3db2ef2fa658
+  GoogleMLKit: 0017a6a8372e1a182139b9def4d89be5d87ca5a7
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
   GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
   GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
   GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
   hermes-engine: 84e3af1ea01dd7351ac5d8689cbbea1f9903ffc3
+  IdensicMobileSDK: 5b56aae41519bdb8fe287f135033b4399cc3f50e
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  libwebp: 98a37e597e40bfdb4c911fc98f2c53d0b12d05fc
+  libwebp: 60305b2e989864154bd9be3d772730f08fc6a59c
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
   lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
   Mixpanel-swift: ce120e0d51dcb0d0bf5a25e1ee232fe89ad1136b
   MixpanelReactNative: 1226c336e93b87feb3ae1f50009e2780e7e635a4
   MLImage: 489dfec109f21da8621b28d476401aaf7a0d4ff4
-  MLKitBarcodeScanning: 74f43c38f3f85b3f3f332006b20a1a22f404256c
-  MLKitCommon: 20f4aca0ec2bb37cef2b9c211b50586817bac5d3
-  MLKitVision: 639a171d937241f3fcf92bc1b3ef8f179f49916c
-  MMKV: aac95d817a100479445633f2b3ed8961b4ac5043
-  MMKVCore: 3388952ded307e41b3ed8a05892736a236ed1b8e
+  MLKitBarcodeScanning: d92fe1911001ec36870162c5a0eb206f612b7169
+  MLKitCommon: f6da6c5659618c070b50a80db01248ebe2964175
+  MLKitVision: 96c96571190b7f63eddf4a12068ce8a8689e0d2c
+  MMKV: 9c4663aa7ca255d478ff10f2f5cb7d17c1651ccd
+  MMKVCore: 89f5c8a66bba2dcd551779dea4d412eeec8ff5bb
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
-  Protobuf: 85a48c73d708782e2869564c0438e211aae98e7a
+  Protobuf: 7504b04fffcf6662ad629694db8231f5e744327f
   RCT-Folly: 4d8508a426467c48885f1151029bc15fa5d7b3b8
   RCTRequired: 3e917ea5377751094f38145fdece525aa90545a0
   RCTTypeSafety: c43c072a4bd60feb49a9570b0517892b4305c45e
@@ -827,6 +847,7 @@ SPEC CHECKSUMS:
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-menu: 52089949cbe30b035c51e54f92a7d99136c2fed4
   react-native-mmkv: b5c7f9bc369eef2b8a2aa36e8a15949989fa823f
+  react-native-mobilesdk-module: 36d58b0fe23e62992d63daf288808c9415c8bf44
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
   react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
@@ -859,6 +880,6 @@ SPEC CHECKSUMS:
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: 5beca10bcdb2e954d29b519068be73f7d039124a
+PODFILE CHECKSUM: dc9be593bc08e1cbdd9943dbc25c4260da558815
 
 COCOAPODS: 1.11.3

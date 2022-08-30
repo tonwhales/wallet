@@ -4,6 +4,7 @@ import { AppConfig } from "../../AppConfig";
 import { backoff } from "../../utils/time";
 import { fetchCardPhoneComplete } from "../api/fetchCardPhoneComplete";
 import { fetchCardPhoneTicket } from "../api/fetchCardPhoneTicket";
+import { fetchCardState } from "../api/fetchCardState";
 import { fetchCardToken } from "../api/fetchCardToken";
 import { fetchCompletePhoneVerification } from "../api/fetchCompletePhoneVerification";
 import { fetchStartPhoneVerification } from "../api/fetchStartPhoneVerification";
@@ -20,8 +21,7 @@ export type CorpStatus =
     }
     | {
         state: 'need-kyc'
-        token: string,
-        phone: string
+        token: string
     }
 
 export class CorpProduct {
@@ -31,7 +31,7 @@ export class CorpProduct {
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.#status = selector<{ status: 'need-enrolment' | 'need-phone' | 'ready' }>({
+        this.#status = selector<{ status: 'need-enrolment' | 'need-phone' | 'need-kyc' | 'ready' }>({
             key: 'corp/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/status',
             get: ({ get }) => {
 
@@ -50,6 +50,13 @@ export class CorpProduct {
                     return {
                         status: 'need-phone'
                     };
+                }
+
+                // Request KYC
+                if (status.state === 'need-kyc') {
+                    return {
+                        status: 'need-kyc'
+                    }
                 }
 
                 return {
@@ -186,7 +193,21 @@ export class CorpProduct {
 
             // Update state from server
             if (status.state !== 'need-enrolment') {
-                // TODO: Implement
+                const token = status.token;
+                let state = await fetchCardState(token);
+                target.update((src) => {
+                    if (state.state === 'need-phone') {
+                        if (src!.state !== 'need-phone') {
+                            return { state: 'need-phone', token: token };
+                        }
+                    }
+                    if (state.state === 'need-kyc') {
+                        if (src!.state !== 'need-kyc') {
+                            return { state: 'need-kyc', token: token };
+                        }
+                    }
+                    return null;
+                });
             }
         });
     }

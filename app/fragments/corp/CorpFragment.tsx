@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { RoundButton } from '../../components/RoundButton';
 import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
+import { startSumsubVerification } from '../../utils/startSumsubVerification';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const CorpFragment = fragment(() => {
@@ -19,8 +20,11 @@ export const CorpFragment = fragment(() => {
         navigation.navigate('StartPhone');
     }, []);
 
-    const kyc = React.useCallback(() => {
+    const kyc = React.useCallback(async () => {
+        let res = await engine.products.corp.beginIDVerification();
+        startSumsubVerification(res, () => {
 
+        });
     }, []);
 
     // React.useEffect(() => {
@@ -125,7 +129,7 @@ export const CorpFragment = fragment(() => {
                 <View style={{ flexDirection: 'row' }}>
                     <RoundButton
                         title={'KYC'}
-                        onPress={kyc}
+                        action={kyc}
                         style={{
                             marginLeft: 7,
                             height: 56,

@@ -335,6 +335,8 @@ export class WalletProduct {
 
                 if (tx.prev) {
                     next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                } else { // No next found
+                    next = null;
                 }
             }
 

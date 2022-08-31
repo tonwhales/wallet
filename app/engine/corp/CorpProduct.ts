@@ -7,6 +7,7 @@ import { fetchCardState } from "../api/fetchCardState";
 import { fetchCardToken } from "../api/fetchCardToken";
 import { fetchCompletePhoneVerification } from "../api/fetchCompletePhoneVerification";
 import { fetchIDStart } from "../api/fetchIDStart";
+import { fetchIDVerify } from "../api/fetchIDVerify";
 import { fetchStartPhoneVerification } from "../api/fetchStartPhoneVerification";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
@@ -21,6 +22,10 @@ export type CorpStatus =
     }
     | {
         state: 'need-kyc'
+        token: string
+    }
+    | {
+        state: 'ready'
         token: string
     }
 
@@ -173,6 +178,20 @@ export class CorpProduct {
         return res.token;
     }
 
+    async commitIDVerification() {
+        // Fetch wallet token
+        let target = this.engine.persistence.corp.item(this.engine.address);
+        let status: CorpStatus | null = target.value;
+        if (!status || status.state === 'need-enrolment') {
+            throw Error('Invalid state');
+        }
+        let token = status.token;
+        await fetchIDVerify(token);
+
+        // Resync
+        await this.doSync();
+    }
+
     use() {
         return useRecoilValue(this.#status);
     }
@@ -217,6 +236,11 @@ export class CorpProduct {
                     if (state.state === 'need-kyc') {
                         if (src!.state !== 'need-kyc') {
                             return { state: 'need-kyc', token: token };
+                        }
+                    }
+                    if (state.state === 'ok') {
+                        if (src!.state !== 'ready') {
+                            return { state: 'ready', token: token };
                         }
                     }
                     return src;

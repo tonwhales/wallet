@@ -289,5 +289,9 @@ const corpCodec = t.union([
     t.type({
         state: t.literal('need-kyc'),
         token: t.string
+    }),
+    t.type({
+        state: t.literal('ready'),
+        token: t.string
     })
 ]);

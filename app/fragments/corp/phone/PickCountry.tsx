@@ -77,7 +77,7 @@ export const PickCountry = fragment(() => {
     return (
         <KeyboardAvoidingView style={{ flexGrow: 1, flexBasis: 0 }}>
             <View style={{ paddingTop: Platform.OS === 'ios' ? 12 : 0, paddingBottom: 4, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center' }}>
-                <ATextInput placeholder={t('common.search')} value={search} onValueChange={setSearch} style={{ flexGrow: 1 }} autoFocus={Platform.OS === 'ios'} />
+                <ATextInput placeholder={t('common.search')} value={search} onValueChange={setSearch} autoFocus={Platform.OS === 'ios'} style={{ height: 48, flexGrow: 1 }} backgroundColor="rgba(0,0,0,0.05)" />
             </View>
             <View style={{ flexGrow: 1, flexBasis: 0, position: 'relative' }}>
                 <Deferred>

@@ -1,7 +1,6 @@
 import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
-import { backoff } from "../../utils/time";
 import { fetchCardPhoneComplete } from "../api/fetchCardPhoneComplete";
 import { fetchCardPhoneTicket } from "../api/fetchCardPhoneTicket";
 import { fetchCardState } from "../api/fetchCardState";
@@ -170,7 +169,7 @@ export class CorpProduct {
         }
         let token = status.token;
         let res = await fetchIDStart(token);
-        
+
         return res.token;
     }
 
@@ -191,14 +190,14 @@ export class CorpProduct {
                         if (!src || src.state === 'need-enrolment') {
                             return { state: 'need-phone', token: existing.toString() };
                         }
-                        return null;
+                        return src;
                     });
                 } else {
                     target.update((src) => {
                         if (!src) {
                             return { state: 'need-enrolment' };
                         }
-                        return null;
+                        return src;
                     });
                 }
 
@@ -220,7 +219,7 @@ export class CorpProduct {
                             return { state: 'need-kyc', token: token };
                         }
                     }
-                    return null;
+                    return src;
                 });
             }
         });

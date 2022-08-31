@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
+import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { RoundButton } from '../../components/RoundButton';
 import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
+import { Theme } from '../../Theme';
 import { startSumsubVerification } from '../../utils/startSumsubVerification';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
@@ -85,10 +87,15 @@ export const CorpFragment = fragment(() => {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ flexGrow: 1 }} />
-                <Text>Enroll to Whales Corp services</Text>
-                <View style={{ flexDirection: 'row' }}>
+                <FragmentMediaContent
+                    animation={require('../../../assets/animations/chicken.json')}
+                    title={'Whales Card'}
+                    text={'First debit card that connects directly to your wallet.'}
+                />
+                <View style={{ height: 64 }} />
+                <View style={{ flexDirection: 'row', marginHorizontal: 32 }}>
                     <RoundButton
-                        title={'Enroll'}
+                        title={'Start Application'}
                         action={enroll}
                         style={{
                             marginLeft: 7,
@@ -105,10 +112,21 @@ export const CorpFragment = fragment(() => {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ flexGrow: 1 }} />
-                <Text>Verify Phone</Text>
-                <View style={{ flexDirection: 'row' }}>
+                <Text style={{
+                    fontSize: 30, fontWeight: '700',
+                    textAlign: 'center',
+                    marginTop: 26,
+                    color: Theme.textColor
+                }}>Your phone number</Text>
+
+                <Text style={{ textAlign: 'center', marginHorizontal: 32, marginTop: 24 }}>
+                    We need to verify your phone number to complete your application.
+                </Text>
+
+                <View style={{ height: 64 }} />
+                <View style={{ flexDirection: 'row', marginHorizontal: 32 }}>
                     <RoundButton
-                        title={'Verify Phone'}
+                        title={'Start Verification'}
                         onPress={phone}
                         style={{
                             marginLeft: 7,
@@ -121,26 +139,26 @@ export const CorpFragment = fragment(() => {
             </View>
         );
     }
-    if (state.status === 'need-kyc') {
-        return (
-            <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <View style={{ flexGrow: 1 }} />
-                <Text>Provide ID</Text>
-                <View style={{ flexDirection: 'row' }}>
-                    <RoundButton
-                        title={'KYC'}
-                        action={kyc}
-                        style={{
-                            marginLeft: 7,
-                            height: 56,
-                            flexGrow: 1,
-                        }}
-                    />
-                </View>
-                <View style={{ flexGrow: 1 }} />
-            </View>
-        );
-    }
+    // if (state.status === 'need-kyc') {
+    //     return (
+    //         <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
+    //             <View style={{ flexGrow: 1 }} />
+    //             <Text>Provide ID</Text>
+    //             <View style={{ flexDirection: 'row' }}>
+    //                 <RoundButton
+    //                     title={'KYC'}
+    //                     action={kyc}
+    //                     style={{
+    //                         marginLeft: 7,
+    //                         height: 56,
+    //                         flexGrow: 1,
+    //                     }}
+    //                 />
+    //             </View>
+    //             <View style={{ flexGrow: 1 }} />
+    //         </View>
+    //     );
+    // }
 
     return null;
 });

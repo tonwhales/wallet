@@ -62,8 +62,10 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     }
 
     const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
+    const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
 
     let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+        || isSpam
         || (
             parsed.amount.abs().lt(spamMinAmount)
             && tx.base.body?.type === 'comment'

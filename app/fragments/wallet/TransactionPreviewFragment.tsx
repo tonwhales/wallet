@@ -63,8 +63,10 @@ export const TransactionPreviewFragment = fragment(() => {
 
     const spamMinAmount = engine.products.settings.useSpamMinAmount();
     const dontShowComments = engine.products.settings.useDontShowComments();
+    const isSpam = engine.products.settings.useDenyAddress(operation.address);
 
     let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+        || isSpam
         || (
             transaction.base.amount.abs().lt(spamMinAmount)
             && transaction.base.body?.type === 'comment'

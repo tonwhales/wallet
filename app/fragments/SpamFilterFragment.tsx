@@ -18,7 +18,8 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
-    dontShowComments: boolean | null
+    dontShowComments: boolean | null,
+    denyList: string[] | null,
 }
 
 async function confirm(title: LocalizedResources) {
@@ -43,9 +44,11 @@ export const SpamFilterFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const settings = engine.products.settings;
-    const spamConfig = settings.useSpamfilter();
-    const [dontShowComments, setDontShowComments] = useState<boolean>(spamConfig.dontShowComments);
-    const [minValue, setMinValue] = useState<string>(fromNano(spamConfig.minAmount));
+    const dontShow = settings.useDontShowComments();
+    const min = settings.useSpamMinAmount();
+    const denyList = settings.useDenyList();
+    const [dontShowComments, setDontShowComments] = useState<boolean>(dontShow);
+    const [minValue, setMinValue] = useState<string>(fromNano(min));
 
     const onApply = useCallback(
         async () => {
@@ -61,22 +64,25 @@ export const SpamFilterFragment = fragment(() => {
                 }
                 settings.setSpamFilter({
                     minAmount: value,
-                    dontShowComments: dontShowComments
+                    dontShowComments: dontShowComments,
+                    denyList: denyList
                 });
 
-                setDontShowComments(dontShowComments);
-                setMinValue(fromNano(value));
                 return;
             }
 
-            setDontShowComments(spamConfig.dontShowComments);
-            setMinValue(fromNano(spamConfig.minAmount));
+            setDontShowComments(dontShow);
+            setMinValue(fromNano(min));
         },
-        [dontShowComments, minValue, spamConfig],
+        [dontShowComments, minValue, min, denyList, dontShow],
     );
 
-    const disabled = dontShowComments === spamConfig.dontShowComments
-        && minValue === fromNano(spamConfig.minAmount);
+    useEffect(() => {
+        setDontShowComments(dontShow);
+        setMinValue(fromNano(min));
+    }, [min, dontShow]);
+
+    const disabled = dontShowComments === dontShow && minValue === fromNano(min);
 
     return (
         <View style={{
@@ -155,7 +161,7 @@ export const SpamFilterFragment = fragment(() => {
                             marginTop: 8,
                             marginHorizontal: 16
                         }}>
-                            {t('spamFilter.minAmountDescription', { amount: fromNano(spamConfig.minAmount) })}
+                            {t('spamFilter.minAmountDescription', { amount: fromNano(min) })}
                         </Text>
                         <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                         <CheckBox

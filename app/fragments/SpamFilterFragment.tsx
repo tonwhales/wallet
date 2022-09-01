@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fromNano, toNano } from "ton";
+import { Address, fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CheckBox } from "../components/CheckBox";
@@ -50,6 +50,21 @@ export const SpamFilterFragment = fragment(() => {
     const denyList = settings.useDenyList();
     const [dontShowComments, setDontShowComments] = useState<boolean>(dontShow);
     const [minValue, setMinValue] = useState<string>(fromNano(min));
+
+    const onUnblock = useCallback(
+        async (addr: string) => {
+            const confirmed = await confirm('spamFilter.unblockConfirm');
+            if (confirmed) {
+                try {
+                    let parsed = Address.parseFriendly(addr);
+                    settings.removeFromDenyList(parsed.address);
+                } catch (e) {
+                    Alert.alert(t('transfer.error.invalidAddress'));
+                    return;
+                }
+            }
+        }, [denyList]
+    );
 
     const onApply = useCallback(
         async () => {
@@ -192,9 +207,7 @@ export const SpamFilterFragment = fragment(() => {
                             subtitle={''}
                             image={undefined}
                             value={null}
-                            onPress={() => {
-                                // TODO remove from denyList
-                            }}
+                            onPress={() => onUnblock(d)}
                             style={{ marginVertical: 4 }}
                         />
                     })}

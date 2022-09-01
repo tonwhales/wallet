@@ -428,6 +428,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         applyConfig: 'Установить выбраные настройки SPAM фильтра',
         denyList: 'Заблокированные адреса',
         denyListEmpty: 'Нет заблокированных адресов',
+        unblockConfirm: 'Разблокировать адрес'
     },
     report: {
         title: 'Сообщить о проблеме',

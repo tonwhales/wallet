@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { selector, useRecoilValue } from "recoil";
+import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
@@ -35,6 +35,7 @@ export class SettingsProduct {
     readonly #minAmountSelector;
     readonly #dontShowCommentsSelector;
     readonly #denyListSelector;
+    readonly #denyAddressSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -74,6 +75,15 @@ export class SettingsProduct {
             },
             dangerouslyAllowMutability: true
         });
+
+        this.#denyAddressSelector = selectorFamily<boolean, string>({
+            key: 'settings/spam/deny-lsit',
+            get: (address) => ({ get }) => {
+                const list = get(this.#denyListSelector);
+                const res = list.findIndex((addr) => addr === address) !== -1;
+                return res;
+            }
+        });
     }
 
     useSpamMinAmount(): BN {
@@ -86,6 +96,10 @@ export class SettingsProduct {
 
     useDenyList(): string[] {
         return useRecoilValue(this.#denyListSelector);
+    }
+    
+    useDenyAddress(address: Address) {
+        return useRecoilValue(this.#denyAddressSelector(address.toFriendly({testOnly: AppConfig.isTestnet})));
     }
 
     useSpamfilter(): { minAmount: BN, dontShowComments: boolean, denyList: string[] } {

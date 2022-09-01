@@ -16,7 +16,7 @@ import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
-import { ActionsMenuView } from "../../components/ActionsMenuView";
+import { AddressMenuView } from "../../components/AddressMenuView";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
@@ -156,7 +156,7 @@ export const TransactionPreviewFragment = fragment(() => {
             }}>
                 {operation.comment && !(spam && !dontShowComments) && (
                     <>
-                        <ActionsMenuView content={operation.comment}>
+                        <AddressMenuView content={operation.comment}>
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text
                                     style={{
@@ -172,7 +172,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     {t('common.comment')}
                                 </Text>
                             </View>
-                        </ActionsMenuView>
+                        </AddressMenuView>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                     </>
                 )}

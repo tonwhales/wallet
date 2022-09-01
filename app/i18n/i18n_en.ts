@@ -427,7 +427,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         applyConfig: 'Apply selected SPAM filter settings',
         denyList: 'Blocked addresses',
         denyListEmpty: 'No blocked addresses',
-        unblockConfirm: 'Unblock the address'
+        unblockConfirm: 'Unblock address',
+        blockConfirm: 'Mark address as spam'
     },
     report: {
         title: 'Report',

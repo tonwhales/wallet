@@ -14,30 +14,15 @@ import { fragment } from "../fragment";
 import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
+import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { ProductButton } from "./wallet/products/ProductButton";
+import SpamIcon from '../../assets/known/spam_icon.svg';
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
     dontShowComments: boolean | null,
     denyList: string[] | null,
-}
-
-async function confirm(title: LocalizedResources) {
-    return await new Promise<boolean>(resolve => {
-        Alert.alert(t(title), t('transfer.confirm'), [{
-            text: t('common.yes'),
-            style: 'destructive',
-            onPress: () => {
-                resolve(true)
-            }
-        }, {
-            text: t('common.no'),
-            onPress: () => {
-                resolve(false);
-            }
-        }])
-    });
 }
 
 export const SpamFilterFragment = fragment(() => {
@@ -53,7 +38,7 @@ export const SpamFilterFragment = fragment(() => {
 
     const onUnblock = useCallback(
         async (addr: string) => {
-            const confirmed = await confirm('spamFilter.unblockConfirm');
+            const confirmed = await confirmAlert('spamFilter.unblockConfirm');
             if (confirmed) {
                 try {
                     let parsed = Address.parseFriendly(addr);
@@ -68,7 +53,7 @@ export const SpamFilterFragment = fragment(() => {
 
     const onApply = useCallback(
         async () => {
-            const confirmed = await confirm('spamFilter.applyConfig');
+            const confirmed = await confirmAlert('spamFilter.applyConfig');
             if (confirmed) {
                 let value: BN
                 try {
@@ -99,6 +84,8 @@ export const SpamFilterFragment = fragment(() => {
     }, [min, dontShow]);
 
     const disabled = dontShowComments === dontShow && minValue === fromNano(min);
+
+    console.log({ denyList });
 
     return (
         <View style={{
@@ -201,15 +188,17 @@ export const SpamFilterFragment = fragment(() => {
                         </Text>
                     </View>
                     {denyList.map((d) => {
-                        <ProductButton
-                            key={`blocked-${d}`}
-                            name={d}
-                            subtitle={''}
-                            image={undefined}
-                            value={null}
-                            onPress={() => onUnblock(d)}
-                            style={{ marginVertical: 4 }}
-                        />
+                        return (
+                            <ProductButton
+                                key={`blocked-${d}`}
+                                name={d.slice(0, 10) + '...' + d.slice(d.length - 6)}
+                                subtitle={''}
+                                icon={SpamIcon}
+                                value={null}
+                                onPress={() => onUnblock(d)}
+                                style={{ marginVertical: 4, marginHorizontal: 0 }}
+                            />
+                        );
                     })}
                 </View>
             </ScrollView>

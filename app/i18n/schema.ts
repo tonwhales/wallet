@@ -426,7 +426,9 @@ export type LocalizationSchema = {
         minAmount: string,
         dontShowComments: string,
         minAmountDescription: string,
-        applyConfig: string
+        applyConfig: string,
+        denyList: string,
+        denyListEmpty: string,
     },
     report: {
         title: string,

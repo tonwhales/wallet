@@ -424,7 +424,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         minAmount: 'Min TON amount',
         dontShowComments: 'Don\'t show comments on SPAM transactions',
         minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
-        applyConfig: 'Apply selected SPAM filter settings'
+        applyConfig: 'Apply selected SPAM filter settings',
+        denyList: 'Blocked addresses',
+        denyListEmpty: 'No blocked addresses',
     },
     report: {
         title: 'Report',

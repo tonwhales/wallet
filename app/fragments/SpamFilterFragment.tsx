@@ -15,6 +15,7 @@ import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { ProductButton } from "./wallet/products/ProductButton";
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
@@ -173,6 +174,30 @@ export const SpamFilterFragment = fragment(() => {
                             style={{ marginHorizontal: 16 }}
                         />
                     </View>
+                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <Text style={{
+                            fontSize: 18,
+                            fontWeight: '700',
+                            marginHorizontal: 16,
+                            marginVertical: 8,
+                            color: denyList.length > 0 ? Theme.textColor : Theme.textSecondary
+                        }}>
+                            {denyList.length > 0 ? t('spamFilter.denyList') : t('spamFilter.denyListEmpty')}
+                        </Text>
+                    </View>
+                    {denyList.map((d) => {
+                        <ProductButton
+                            key={`blocked-${d}`}
+                            name={d}
+                            subtitle={''}
+                            image={undefined}
+                            value={null}
+                            onPress={() => {
+                                // TODO remove from denyList
+                            }}
+                            style={{ marginVertical: 4 }}
+                        />
+                    })}
                 </View>
             </ScrollView>
             <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>

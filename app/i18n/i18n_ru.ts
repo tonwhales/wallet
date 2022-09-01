@@ -425,7 +425,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         minAmount: 'Минимальная сумма TON',
         dontShowComments: 'Не показывать комментарии на SPAM транзакциях',
         minAmountDescription: 'Транзакции с количеством TON меньшим чем {{amount}} будут автоматически помечаться как SPAM',
-        applyConfig: 'Установить выбраные настройки SPAM фильтра'
+        applyConfig: 'Установить выбраные настройки SPAM фильтра',
+        denyList: 'Заблокированные адреса',
+        denyListEmpty: 'Нет заблокированных адресов',
     },
     report: {
         title: 'Сообщить о проблеме',

@@ -57,6 +57,8 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
         if (kind === 1) {
             let res = parseString(cs);
             content = { type: 'offchain', link: res };
+        } else if (kind === 0) {
+            content = { type: 'onchain' };
         } else {
             throw Error('Unsupported');
         }

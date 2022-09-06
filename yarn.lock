@@ -10042,6 +10042,23 @@ ton@12.0.1:
     ton-crypto "2.1.0"
     tweetnacl "1.0.3"
 
+ton@12.1.0:
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-12.1.0.tgz#8607d0b393015f9c2511589469cea72ae14ccefa"
+  integrity sha512-xsAQyUxbTy3OAUZoXTBhghYjocR28XLQB+rDU/I33fq58YZH+ThA/lSK+M6Qa4WGDUMP9dFROV8ku/r95g/Q2Q==
+  dependencies:
+    axios "^0.25.0"
+    bn.js "5.2.0"
+    dataloader "^2.0.0"
+    ethjs-unit "0.1.6"
+    fp-ts "^2.11.1"
+    io-ts "^2.2.16"
+    io-ts-reporters "^2.0.0"
+    symbol.inspect "1.0.1"
+    teslabot "^1.3.0"
+    ton-crypto "2.1.0"
+    tweetnacl "1.0.3"
+
 tough-cookie@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-4.0.0.tgz#d822234eeca882f991f0f908824ad2622ddbece4"

@@ -31,6 +31,7 @@ export function AddressMenuView(props: { content: string, title?: string, childr
                 let parsed = Address.parseFriendly(props.content);
                 settings.addToDenyList(parsed.address);
             } catch (e) {
+                console.warn(e);
                 Alert.alert(t('transfer.error.invalidAddress'));
                 return;
             }

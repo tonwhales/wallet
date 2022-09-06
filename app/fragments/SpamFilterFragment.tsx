@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, fromNano, toNano } from "ton";
@@ -11,7 +11,6 @@ import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
-import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 import { confirmAlert } from "../utils/confirmAlert";
@@ -21,8 +20,7 @@ import SpamIcon from '../../assets/known/spam_icon.svg';
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
-    dontShowComments: boolean | null,
-    denyList: string[] | null,
+    dontShowComments: boolean | null
 }
 
 export const SpamFilterFragment = fragment(() => {
@@ -32,7 +30,10 @@ export const SpamFilterFragment = fragment(() => {
     const settings = engine.products.settings;
     const dontShow = settings.useDontShowComments();
     const min = settings.useSpamMinAmount();
-    const denyList = settings.useDenyList();
+    const denyMap = settings.useDenyList();
+    const denyList = React.useMemo(() => {
+        return Object.keys(denyMap);
+    }, [denyMap]);
     const [dontShowComments, setDontShowComments] = useState<boolean>(dontShow);
     const [minValue, setMinValue] = useState<string>(fromNano(min));
 
@@ -44,6 +45,7 @@ export const SpamFilterFragment = fragment(() => {
                     let parsed = Address.parseFriendly(addr);
                     settings.removeFromDenyList(parsed.address);
                 } catch (e) {
+                    console.warn(e);
                     Alert.alert(t('transfer.error.invalidAddress'));
                     return;
                 }
@@ -65,8 +67,7 @@ export const SpamFilterFragment = fragment(() => {
                 }
                 settings.setSpamFilter({
                     minAmount: value,
-                    dontShowComments: dontShowComments,
-                    denyList: denyList
+                    dontShowComments: dontShowComments
                 });
 
                 return;

@@ -280,8 +280,7 @@ const domainKeyCodec = t.type({
 
 const spamFilterCodec = t.type({
     minAmount: t.union([c.bignum, t.null]),
-    dontShowComments: t.union([t.boolean, t.null]),
-    denyList: t.union([t.array(t.string), t.null])
+    dontShowComments: t.union([t.boolean, t.null])
 });
 
 const corpCodec = t.union([

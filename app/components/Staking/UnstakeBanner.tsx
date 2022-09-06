@@ -38,7 +38,13 @@ export const UnstakeBanner = React.memo((
     }, []);
 
     const validAmount = amount?.replace(',', '.') || '0';
-    const value = toNano(validAmount);
+    const value = React.useMemo(() => {
+        try {
+            return toNano(validAmount);
+        } catch (error) {
+            return new BN(0);
+        }
+    }, [validAmount]);
     const estInc = parseFloat(fromNano(value)) * 0.1;
     const estIncPrice = estInc * price!.price.usd;
     const formattedInc = formatNum(estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2));

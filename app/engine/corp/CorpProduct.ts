@@ -1,13 +1,13 @@
 import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
-import { backoff } from "../../utils/time";
 import { fetchCardPhoneComplete } from "../api/fetchCardPhoneComplete";
 import { fetchCardPhoneTicket } from "../api/fetchCardPhoneTicket";
 import { fetchCardState } from "../api/fetchCardState";
 import { fetchCardToken } from "../api/fetchCardToken";
 import { fetchCompletePhoneVerification } from "../api/fetchCompletePhoneVerification";
 import { fetchIDStart } from "../api/fetchIDStart";
+import { fetchIDVerify } from "../api/fetchIDVerify";
 import { fetchStartPhoneVerification } from "../api/fetchStartPhoneVerification";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
@@ -22,6 +22,10 @@ export type CorpStatus =
     }
     | {
         state: 'need-kyc'
+        token: string
+    }
+    | {
+        state: 'ready'
         token: string
     }
 
@@ -170,8 +174,22 @@ export class CorpProduct {
         }
         let token = status.token;
         let res = await fetchIDStart(token);
-        
+
         return res.token;
+    }
+
+    async commitIDVerification() {
+        // Fetch wallet token
+        let target = this.engine.persistence.corp.item(this.engine.address);
+        let status: CorpStatus | null = target.value;
+        if (!status || status.state === 'need-enrolment') {
+            throw Error('Invalid state');
+        }
+        let token = status.token;
+        await fetchIDVerify(token);
+
+        // Resync
+        await this.doSync();
     }
 
     use() {
@@ -191,14 +209,14 @@ export class CorpProduct {
                         if (!src || src.state === 'need-enrolment') {
                             return { state: 'need-phone', token: existing.toString() };
                         }
-                        return null;
+                        return src;
                     });
                 } else {
                     target.update((src) => {
                         if (!src) {
                             return { state: 'need-enrolment' };
                         }
-                        return null;
+                        return src;
                     });
                 }
 
@@ -220,7 +238,12 @@ export class CorpProduct {
                             return { state: 'need-kyc', token: token };
                         }
                     }
-                    return null;
+                    if (state.state === 'ok') {
+                        if (src!.state !== 'ready') {
+                            return { state: 'ready', token: token };
+                        }
+                    }
+                    return src;
                 });
             }
         });

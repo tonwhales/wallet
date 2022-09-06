@@ -26,7 +26,7 @@ import { CorpStatus } from "./corp/CorpProduct";
 
 export class Persistence {
 
-    readonly version: number = 3;
+    readonly version: number = 4;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
@@ -176,10 +176,15 @@ const stakingPoolStateCodec = t.type({
     })
 });
 
-const contentSourceCodec = t.type({
-    type: t.literal('offchain'),
-    link: t.string
-});
+const contentSourceCodec = t.union([
+    t.type({
+        type: t.literal('offchain'),
+        link: t.string
+    }),
+    t.type({
+        type: t.literal('onchain'),
+    })
+]);
 const metadataCodec = t.type({
     seqno: t.number,
     interfaces: t.array(t.string),
@@ -289,6 +294,10 @@ const corpCodec = t.union([
     }),
     t.type({
         state: t.literal('need-kyc'),
+        token: t.string
+    }),
+    t.type({
+        state: t.literal('ready'),
         token: t.string
     })
 ]);

@@ -112,7 +112,7 @@ export const PhoneFragment = fragment(() => {
             <View style={{ flexDirection: 'row', marginHorizontal: 16 }}>
                 <Pressable style={(props) => ({ opacity: props.pressed ? 0.6 : 1 })} onPress={() => navigation.navigate('Country', { onPicked: setCountry })}>
                     <View style={{
-                        backgroundColor: '#F2F2F2',
+                        backgroundColor: 'rgba(0,0,0,0.05)',
                         height: 48,
                         borderRadius: 12,
                         padding: 16,
@@ -131,6 +131,7 @@ export const PhoneFragment = fragment(() => {
                     textContentType="telephoneNumber"
                     autoFocus={true}
                     onValueChange={setNumber}
+                    backgroundColor="rgba(0,0,0,0.05)"
                 />
             </View>
             <View style={{ flexGrow: 1 }} />

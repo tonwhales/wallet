@@ -64,7 +64,8 @@ export const CodeFragment = fragment(() => {
             </View>
             <ATextInput
                 style={{
-                    width: 240
+                    width: 240,
+                    height: 48
                 }}
                 placeholder={t('auth.codeHint')}
                 autoCapitalize="none"
@@ -74,6 +75,7 @@ export const CodeFragment = fragment(() => {
                 autoFocus={true}
                 value={number}
                 onValueChange={setNumber}
+                backgroundColor="rgba(0,0,0,0.05)"
             />
             <View style={{ flexGrow: 1 }} />
             <View style={{ height: 64, alignSelf: 'stretch', marginHorizontal: 16, marginTop: 64 }}>

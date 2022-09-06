@@ -17,7 +17,7 @@ export type JettonMaster = {
 export type ContentSource = {
     type: 'offchain',
     link: string
-}
+} | { type: 'onchain' }
 
 export type ContractContent = {
     name: string | undefined;

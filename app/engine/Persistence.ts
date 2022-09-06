@@ -176,10 +176,15 @@ const stakingPoolStateCodec = t.type({
     })
 });
 
-const contentSourceCodec = t.type({
-    type: t.literal('offchain'),
-    link: t.string
-});
+const contentSourceCodec = t.union([
+    t.type({
+        type: t.literal('offchain'),
+        link: t.string
+    }),
+    t.type({
+        type: t.literal('onchain'),
+    })
+]);
 const metadataCodec = t.type({
     seqno: t.number,
     interfaces: t.array(t.string),
@@ -288,6 +293,10 @@ const corpCodec = t.union([
     }),
     t.type({
         state: t.literal('need-kyc'),
+        token: t.string
+    }),
+    t.type({
+        state: t.literal('ready'),
         token: t.string
     })
 ]);

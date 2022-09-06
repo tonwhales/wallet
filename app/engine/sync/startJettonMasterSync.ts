@@ -59,7 +59,7 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
         }
         let block = await engine.client4.getLastBlock();
         let masterInfo = await tryFetchJettonMaster(engine.client4, block.last.seqno, address);
-        if (masterInfo && masterInfo.content && masterInfo.content.type === 'offchain') {
+        if (masterInfo && masterInfo.content) {
             // Fetch content
             const content = await fetchJettonMasterContent(address);
             if (content) {

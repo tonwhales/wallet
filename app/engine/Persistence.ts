@@ -26,7 +26,7 @@ import { CorpStatus } from "./corp/CorpProduct";
 
 export class Persistence {
 
-    readonly version: number = 4;
+    readonly version: number = 5;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;

@@ -1,5 +1,6 @@
 import { BN } from "bn.js";
 import { Address, Cell, parseMessage, RawTransaction } from "ton";
+import { parseMessageRelaxed } from "ton/dist/block/parse";
 import { Body, Transaction } from "../Transaction";
 
 export function parseBody(cell: Cell): Body | null {
@@ -117,7 +118,7 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         parse.skip(512 + 32 + 32 + 32); // Signature + wallet_id + timeout + seqno
         const command = parse.readUintNumber(8);
         if (command === 0) {
-            let message = parseMessage(parse.readRef());
+            let message = parseMessageRelaxed(parse.readRef());
             if (message.info.dest && Address.isAddress(message.info.dest)) {
                 address = message.info.dest;
             }

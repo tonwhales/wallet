@@ -6,12 +6,14 @@ import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
 
+export type AddressContact = { name: string, extras?: { [key: string]: string | null | undefined } | null };
 export class SettingsProduct {
     readonly engine: Engine;
     readonly #minAmountSelector;
     readonly #dontShowCommentsSelector;
-    readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: { name: string, extras?: { [key: string]: string } | null } } }>
+    readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact } }>
     readonly #denyAddressSelector;
+    readonly #contactSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -49,6 +51,14 @@ export class SettingsProduct {
                 return res;
             }
         });
+
+        this.#contactSelector = selectorFamily<AddressContact | undefined, string>({
+            key: 'settings/contacts',
+            get: (address) => ({ get }) => {
+                const list = get(this.addressBook.atom).contacts || {};
+                return list[address];
+            }
+        });
     }
 
     useSpamMinAmount(): BN {
@@ -79,6 +89,26 @@ export class SettingsProduct {
             minAmount: config.minAmount ? config.minAmount : toNano('0.05'),
             dontShowComments: config.dontShowComments !== null ? config.dontShowComments : true
         };
+    }
+
+    useContacts() {
+        return useRecoilValue(this.addressBook.atom).contacts;
+    }
+
+    useContact(address: Address) {
+        return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })))
+    }
+
+    setContact(address: Address, contact: AddressContact) {
+        this.addressBook.update((doc) => {
+            doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })] = contact;
+        });
+    }
+
+    removeContact(address: Address) {
+        this.addressBook.update((doc) => {
+            delete doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        });
     }
 
     addToDenyList(address: Address) {

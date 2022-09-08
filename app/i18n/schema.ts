@@ -465,6 +465,19 @@ export type LocalizationSchema = {
             title: string,
             message: string
         }
+    },
+    contacts: {
+        title: string,
+        name: string,
+        add: string,
+        edit: string,
+        notes: string,
+        alert: {
+            name: string,
+            nameDescription: string,
+            notes: string,
+            notesDescription: string
+        }
     }
 };
 

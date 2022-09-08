@@ -2,17 +2,23 @@ import React from "react";
 import { StyleProp, Text, TextProps, TextStyle, ViewStyle } from "react-native";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
-import { AddressMenuView } from "./AddressMenuView";
+import { MenuComponent } from "./MenuComponent";
 
 export const WalletAddress = React.memo((props: {
     address: string,
     value?: string,
     style?: StyleProp<ViewStyle>,
     textStyle?: StyleProp<TextStyle>,
-    textProps?: TextProps
+    textProps?: TextProps,
+    actions?: { title: string, id: string, image?: string, attributes?: { destructive: boolean }, onAction: (content?: string) => void }[]
 }) => {
     return (
-        <AddressMenuView title={t('common.walletAddress')} content={props.value ? props.value : props.address} style={props.style}>
+        <MenuComponent
+            title={t('common.walletAddress')}
+            content={props.value ? props.value : props.address}
+            style={props.style}
+            actions={props.actions}
+        >
             <Text
                 selectable={false}
                 numberOfLines={1}
@@ -31,6 +37,6 @@ export const WalletAddress = React.memo((props: {
                     {props.address}
                 </Text>
             </Text>
-        </AddressMenuView>
+        </MenuComponent>
     );
 })

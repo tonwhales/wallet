@@ -1,17 +1,21 @@
 import * as React from 'react';
-import { Pressable, StyleProp, ViewStyle, ToastAndroid, Platform, View, Share, Alert } from 'react-native';
+import { StyleProp, ViewStyle, ToastAndroid, Platform, Share } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { MenuView } from '@react-native-menu/menu';
+import { MenuAction, MenuView } from '@react-native-menu/menu';
 import * as Haptics from 'expo-haptics';
 import { t } from '../i18n/t';
 import { AppConfig } from '../AppConfig';
-import { useEngine } from '../engine/Engine';
-import { confirmAlert } from '../utils/confirmAlert';
-import { Address } from 'ton';
 
-export function AddressMenuView(props: { content: string, title?: string, children?: any, style?: StyleProp<ViewStyle> }) {
-    const engine = useEngine();
-    const settings = engine.products.settings;
+export function MenuComponent(props: {
+    content: string,
+    title?: string,
+    children?: any,
+    style?: StyleProp<ViewStyle>
+    actions?: { title: string, id: string, image?: string, attributes?: { destructive: boolean }, onAction: (content: string) => void }[]
+}) {
+    const actions: MenuAction[] = (props.actions || []).map((a) => {
+        return { title: a.title, id: a.id, image: a.image, attributes: a.attributes }
+    });
 
     const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
         + props.content;
@@ -24,19 +28,7 @@ export function AddressMenuView(props: { content: string, title?: string, childr
         }
     }, []);
 
-    const onMarkSpam = React.useCallback(async () => {
-        const confirmed = await confirmAlert('spamFilter.blockConfirm');
-        if (confirmed) {
-            try {
-                let parsed = Address.parseFriendly(props.content);
-                settings.addToDenyList(parsed.address);
-            } catch (e) {
-                console.warn(e);
-                Alert.alert(t('transfer.error.invalidAddress'));
-                return;
-            }
-        }
-    }, []);
+    
 
     return (
         <MenuView
@@ -51,18 +43,21 @@ export function AddressMenuView(props: { content: string, title?: string, childr
                         return;
                     }
                     Clipboard.setString(props.content);
+                    return;
                 }
                 if (nativeEvent.event === 'share') {
                     onShare();
+                    return;
                 }
-                if (nativeEvent.event === 'block') {
-                    onMarkSpam();
+                const action = props.actions?.find((a) => a.id === nativeEvent.event);
+                if (!!action) {
+                    action.onAction(props.content)
                 }
             }}
             actions={[
                 { title: t('common.copy'), id: 'copy', image: Platform.OS === 'ios' ? 'doc.on.doc' : undefined },
                 { title: t('common.share'), id: 'share', image: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
-                { title: t('spamFilter.blockConfirm'), id: 'block', image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined, attributes: { destructive: true } },
+                ...actions
             ]}
             style={props.style}
             blurBackground

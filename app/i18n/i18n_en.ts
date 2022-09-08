@@ -463,6 +463,19 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure you want to delete your account and all data from this application?',
             message: 'This action will delete your account and all data from this application.'
         }
+    },
+    contacts: {
+        title: 'Contact',
+        name: 'Name',
+        add: 'Add Contact',
+        edit: 'Edit Contact',
+        notes: 'Notes',
+        alert: {
+            name: 'Incorrect name',
+            nameDescription: 'Contact name can\'t be empty or longer than 126 characters', 
+            notes: 'Incorrect notes',
+            notesDescription: 'Notes can\'t be longer than 280 characters', 
+        }
     }
 };
 

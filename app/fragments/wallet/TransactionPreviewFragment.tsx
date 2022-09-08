@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Platform, Text, Image, Pressable } from "react-native";
+import { View, Platform, Text, Image, Pressable, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -7,7 +7,7 @@ import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { fromNano } from "ton";
+import { Address, fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -16,10 +16,11 @@ import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
-import { AddressMenuView } from "../../components/AddressMenuView";
+import { MenuComponent } from "../../components/MenuComponent";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { confirmAlert } from "../../utils/confirmAlert";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -53,12 +54,16 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }
 
+    const contact = engine.products.settings.useContact(operation.address);
+
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets[friendlyAddress]) {
         known = KnownWallets[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
+    } else if (!!contact) { // Resolve contact known wallet
+        known = { name: contact.name }
     }
 
     const spamMinAmount = engine.products.settings.useSpamMinAmount();
@@ -73,6 +78,19 @@ export const TransactionPreviewFragment = fragment(() => {
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet
         );
+
+
+    const settings = engine.products.settings;
+    const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
+        const confirmed = await confirmAlert('spamFilter.blockConfirm');
+        if (confirmed) {
+            settings.addToDenyList(addr);
+        }
+    }, []);
+
+    const onAddressContact = React.useCallback((addr: Address) => {
+        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
+    }, []);
 
     return (
         <View style={{
@@ -139,14 +157,6 @@ export const TransactionPreviewFragment = fragment(() => {
                         </View>
                         <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('txPreview.sendAgain')}</Text>
                     </Pressable>
-                    // TODO: add transaction to favorites
-                    // {/* <Pressable
-                    //     style={(p) => ({ flexGrow: 1, flexBasis: 0, marginLeft: 7, justifyContent: 'center', alignItems: 'center', height: 66, backgroundColor: p.pressed ? Theme.selector : 'white', borderRadius: 14 })}
-                    //     onPress={() => addToFav()}
-                    // >
-                    //     <Image source={require('../../../assets/send.png')} />
-                    //     <Text style={{ fontSize: 13, color: '#1C8FE3', marginTop: 4 }}>{t("add to favorites")}</Text>
-                    // </Pressable> */}
                 )}
             </View>
             <View style={{
@@ -158,7 +168,7 @@ export const TransactionPreviewFragment = fragment(() => {
             }}>
                 {operation.comment && !(spam && !dontShowComments) && (
                     <>
-                        <AddressMenuView content={operation.comment}>
+                        <MenuComponent content={operation.comment}>
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text
                                     style={{
@@ -174,7 +184,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     {t('common.comment')}
                                 </Text>
                             </View>
-                        </AddressMenuView>
+                        </MenuComponent>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                     </>
                 )}
@@ -192,6 +202,21 @@ export const TransactionPreviewFragment = fragment(() => {
                             width: undefined,
                             marginTop: undefined
                         }}
+                        actions={[
+                            {
+                                title: t('contacts.title'),
+                                id: 'contact',
+                                image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
+                                onAction: () => onAddressContact(operation.address || address)
+                            },
+                            {
+                                title: t('spamFilter.blockConfirm'),
+                                id: 'block',
+                                image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
+                                attributes: { destructive: true },
+                                onAction: () => onMarkAddressSpam(operation.address || address)
+                            },
+                        ]}
                     />
                     <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
                         {t('common.walletAddress')}

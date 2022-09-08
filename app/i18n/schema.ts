@@ -468,6 +468,7 @@ export type LocalizationSchema = {
     },
     contacts: {
         title: string,
+        contact: string,
         name: string,
         add: string,
         edit: string,
@@ -477,7 +478,9 @@ export type LocalizationSchema = {
             nameDescription: string,
             notes: string,
             notesDescription: string
-        }
+        },
+        delete: string,
+        empty: string
     }
 };
 

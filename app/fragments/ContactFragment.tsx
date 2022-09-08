@@ -48,7 +48,7 @@ export const ContactFragment = fragment(() => {
                 Alert.alert(t('contacts.alert.notes'), t('contacts.alert.notesDescription'))
                 return;
             }
-            settings.setContact(address, { name, extras: { notes } })
+            settings.setContact(address, { name, extras: { notes } });
         },
         [notes, name, address],
     );
@@ -60,7 +60,7 @@ export const ContactFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('contacts.title')} />
+            <AndroidToolbar pageTitle={t('contacts.contact')} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     marginTop: 12,
@@ -71,7 +71,7 @@ export const ContactFragment = fragment(() => {
                         marginLeft: 17,
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
-                        {t('contacts.title')}
+                        {t('contacts.contact')}
                     </Text>
                 </View>
             )}
@@ -103,11 +103,9 @@ export const ContactFragment = fragment(() => {
                             value={name}
                             onValueChange={setName}
                             placeholder={t('contacts.name')}
-                            keyboardType="ascii-capable"
+                            keyboardType={'default'}
                             preventDefaultHeight
                             multiline
-                            autoCorrect={false}
-                            autoComplete={'off'}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0,
@@ -138,11 +136,9 @@ export const ContactFragment = fragment(() => {
                             value={notes}
                             onValueChange={setNotes}
                             placeholder={t('contacts.notes')}
-                            keyboardType="ascii-capable"
+                            keyboardType={'default'}
                             preventDefaultHeight
                             multiline
-                            autoCorrect={false}
-                            autoComplete={'off'}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0,

@@ -21,6 +21,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { confirmAlert } from "../../utils/confirmAlert";
+import VerifiedIcon from '../../../assets/ic_verified.svg';
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -204,7 +205,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         }}
                         actions={[
                             {
-                                title: t('contacts.title'),
+                                title: t('contacts.contact'),
                                 id: 'contact',
                                 image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
                                 onAction: () => onAddressContact(operation.address || address)
@@ -218,9 +219,40 @@ export const TransactionPreviewFragment = fragment(() => {
                             },
                         ]}
                     />
-                    <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
-                        {t('common.walletAddress')}
-                    </Text>
+                    <View style={{
+                        flexDirection: 'row',
+                        width: '100%',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        overflow: 'hidden',
+                    }}>
+                        <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
+                            {t('common.walletAddress')}
+                        </Text>
+                        {!!known && (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <VerifiedIcon
+                                    width={14}
+                                    height={14}
+                                    style={{ alignSelf: 'center', marginRight: 4 }}
+                                />
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 12,
+                                    color: '#858B93',
+                                    alignSelf: 'flex-start',
+                                }}>
+                                    {known.name}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
                 </View>
                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                 <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 16, paddingHorizontal: 16 }}>

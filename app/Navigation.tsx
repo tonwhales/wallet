@@ -58,6 +58,7 @@ import { LogoutFragment } from './fragments/LogoutFragment';
 import { CorpFragment } from './fragments/corp/CorpFragment';
 import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
+import { ContactsFragment } from './fragments/ContactsFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -170,6 +171,7 @@ const navigation = [
     modalScreen('Logout', LogoutFragment),
     modalScreen('StartPhone', PhoneVerificationStack),
     modalScreen('Contact', ContactFragment),
+    modalScreen('Contacts', ContactsFragment),
     // modalScreen('Phone', PhoneFragment),
     // modalScreen('Country', PickCountry),
     // genericScreen('Code', CodeFragment),

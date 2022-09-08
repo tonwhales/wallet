@@ -465,7 +465,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     contacts: {
-        title: 'Contact',
+        title: 'Contacts',
+        contact: 'Contact',
         name: 'Name',
         add: 'Add Contact',
         edit: 'Edit Contact',
@@ -474,8 +475,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             name: 'Incorrect name',
             nameDescription: 'Contact name can\'t be empty or longer than 126 characters', 
             notes: 'Incorrect notes',
-            notesDescription: 'Notes can\'t be longer than 280 characters', 
-        }
+            notesDescription: 'Notes can\'t be longer than 280 characters',
+        },
+        delete: 'Delete contact',
+        empty: 'No contacts'
     }
 };
 

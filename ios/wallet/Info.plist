@@ -59,9 +59,9 @@
 		</dict>
 	</dict>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow microphone access for uploading videos</string>
+	<string>Allow microphone access for uploading videos to continue the verification process</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow photo library access for uploading images</string>
+	<string>Allow photo library access for uploading images to continue the verification process</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to the camera to be able to scan QR Code</string>
 	<key>NSFaceIDUsageDescription</key>

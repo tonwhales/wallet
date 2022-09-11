@@ -33,7 +33,6 @@ export type LocalizationSchema = {
         close: string,
         delete: string,
         apply: string,
-        domainOrAddress: string,
         search: string,
         termsOfService: string,
         privacyPolicy: string

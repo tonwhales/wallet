@@ -53,19 +53,25 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         }
     }
 
+    const contact = props.engine.products.settings.useContact(operation.address);
+
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets[friendlyAddress]) {
         known = KnownWallets[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
+    } else if (!!contact) { // Resolve contact known wallet
+        known = { name: contact.name }
     }
 
-    const spamFilterConfig = props.engine.products.settings.useSpamfilter();
+    const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
+    const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
 
     let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+        || isSpam
         || (
-            parsed.amount.neg().lt(spamFilterConfig.minAmount)
+            parsed.amount.abs().lt(spamMinAmount)
             && tx.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet

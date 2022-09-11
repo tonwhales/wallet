@@ -16,11 +16,6 @@ import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { warn } from '../../utils/log';
-import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { beginCell, safeSign } from 'ton';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
@@ -48,32 +43,12 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
     }, []);
     const approve = React.useCallback(async () => {
 
-        // Load data
-        const contract = contractFromPublicKey(acc.publicKey);
+        // Create Domain Key if Needed
         let domain = extractDomain(props.url);
-        let time = Math.floor(Date.now() / 1000);
-
-        // Create signing key
-        let walletKeys: WalletKeys;
-        try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-        } catch (e) {
-            warn(e);
+        let created = await engine.products.keys.createDomainKeyIfNeeded(domain);
+        if (!created) {
             return;
         }
-        let secret = await getSecureRandomBytes(32);
-        let subkey = keyPairFromSeed(secret);
-        let toSign = beginCell()
-            .storeCoins(1)
-            .storeBuffer(subkey.publicKey)
-            .storeUint(time, 32)
-            .storeAddress(contract.address)
-            .storeRef(beginCell().storeBuffer(Buffer.from(domain)).endCell())
-            .endCell();
-        let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
-
-        // Persist key
-        engine.persistence.domainKeys.setValue(domain, { time, signature, secret });
 
         // Add extension
         engine.products.extensions.addExtension(props.url, props.title, props.image);

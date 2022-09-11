@@ -4,7 +4,7 @@ import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DomainSubkey } from '../../../engine/products/ExtensionsProduct';
-import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNativeEvent } from 'react-native-webview/lib/WebViewTypes';
+import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from '../../../Navigation';
@@ -13,9 +13,7 @@ import { createInjectSource, dispatchResponse } from './inject/createInjectSourc
 import { useInjectEngine } from './inject/useInjectEngine';
 import { AppConfig } from '../../../AppConfig';
 import { useEngine } from '../../../engine/Engine';
-import { keyPairFromSeed } from 'ton-crypto';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
-import { beginCell, safeSign } from 'ton';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
@@ -66,14 +64,14 @@ export const AppComponent = React.memo((props: {
 
     const onReview = React.useCallback(
         () => {
-            navigation.navigateReview({type: 'review', url: props.endpoint});
+            navigation.navigateReview({ type: 'review', url: props.endpoint });
         },
         [props],
     );
 
     const onReport = React.useCallback(
         () => {
-            navigation.navigateReview({type: 'report', url: props.endpoint});
+            navigation.navigateReview({ type: 'report', url: props.endpoint });
         },
         [props],
     );
@@ -134,22 +132,12 @@ export const AppComponent = React.memo((props: {
 
     const engine = useEngine();
     const injectSource = React.useMemo(() => {
-        const subkey = keyPairFromSeed(props.domainKey.secret);
         const contract = contractFromPublicKey(engine.publicKey);
         const walletConfig = contract.source.backup();
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);
 
-        const time = Math.floor((Date.now() / 1000));
-        const toSign = beginCell()
-            .storeCoins(1)
-            .storeAddress(contract.address)
-            .storeUint(time, 32)
-            .storeRef(beginCell()
-                .storeBuffer(Buffer.from(domain))
-                .endCell())
-            .endCell();
-        const signature = safeSign(toSign, subkey.secretKey);
+        let domainSign = engine.products.keys.createDomainSignature(domain);
 
         return createInjectSource({
             version: 1,
@@ -160,13 +148,13 @@ export const AppComponent = React.memo((props: {
             publicKey: engine.publicKey.toString('base64'),
             walletConfig,
             walletType,
-            signature: signature.toString('base64'),
-            time,
+            signature: domainSign.signature,
+            time: domainSign.time,
             subkey: {
-                domain: domain,
-                publicKey: subkey.publicKey.toString('base64'),
-                time: props.domainKey.time,
-                signature: props.domainKey.signature.toString('base64')
+                domain: domainSign.subkey.domain,
+                publicKey: domainSign.subkey.publicKey,
+                time: domainSign.subkey.time,
+                signature: domainSign.subkey.signature
             }
         });
     }, []);

@@ -177,7 +177,7 @@ export const StakingTransferFragment = fragment(() => {
         if ((transferAmount.eq(account.balance) || account.balance.lt(transferAmount))) {
             setMinAmountWarn(
                 (params.action === 'withdraw' || params.action === 'withdraw_ready')
-                    ? t('products.staking.transfer.notEnoughCoins', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
+                    ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
                     : t('transfer.error.notEnoughCoins')
             );
             return;

@@ -1,9 +1,9 @@
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fromNano, toNano } from "ton";
+import { Address, fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CheckBox } from "../components/CheckBox";
@@ -11,31 +11,16 @@ import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
-import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
+import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { ProductButton } from "./wallet/products/ProductButton";
+import SpamIcon from '../../assets/known/spam_icon.svg';
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
     dontShowComments: boolean | null
-}
-
-async function confirm(title: LocalizedResources) {
-    return await new Promise<boolean>(resolve => {
-        Alert.alert(t(title), t('transfer.confirm'), [{
-            text: t('common.yes'),
-            style: 'destructive',
-            onPress: () => {
-                resolve(true)
-            }
-        }, {
-            text: t('common.no'),
-            onPress: () => {
-                resolve(false);
-            }
-        }])
-    });
 }
 
 export const SpamFilterFragment = fragment(() => {
@@ -43,13 +28,34 @@ export const SpamFilterFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const settings = engine.products.settings;
-    const spamConfig = settings.useSpamfilter();
-    const [dontShowComments, setDontShowComments] = useState<boolean>(spamConfig.dontShowComments);
-    const [minValue, setMinValue] = useState<string>(fromNano(spamConfig.minAmount));
+    const dontShow = settings.useDontShowComments();
+    const min = settings.useSpamMinAmount();
+    const denyMap = settings.useDenyList();
+    const denyList = React.useMemo(() => {
+        return Object.keys(denyMap);
+    }, [denyMap]);
+    const [dontShowComments, setDontShowComments] = useState<boolean>(dontShow);
+    const [minValue, setMinValue] = useState<string>(fromNano(min));
+
+    const onUnblock = useCallback(
+        async (addr: string) => {
+            const confirmed = await confirmAlert('spamFilter.unblockConfirm');
+            if (confirmed) {
+                try {
+                    let parsed = Address.parseFriendly(addr);
+                    settings.removeFromDenyList(parsed.address);
+                } catch (e) {
+                    console.warn(e);
+                    Alert.alert(t('transfer.error.invalidAddress'));
+                    return;
+                }
+            }
+        }, [denyList]
+    );
 
     const onApply = useCallback(
         async () => {
-            const confirmed = await confirm('spamFilter.applyConfig');
+            const confirmed = await confirmAlert('spamFilter.applyConfig');
             if (confirmed) {
                 let value: BN
                 try {
@@ -64,19 +70,23 @@ export const SpamFilterFragment = fragment(() => {
                     dontShowComments: dontShowComments
                 });
 
-                setDontShowComments(dontShowComments);
-                setMinValue(fromNano(value));
                 return;
             }
 
-            setDontShowComments(spamConfig.dontShowComments);
-            setMinValue(fromNano(spamConfig.minAmount));
+            setDontShowComments(dontShow);
+            setMinValue(fromNano(min));
         },
-        [dontShowComments, minValue, spamConfig],
+        [dontShowComments, minValue, min, denyList, dontShow],
     );
 
-    const disabled = dontShowComments === spamConfig.dontShowComments
-        && minValue === fromNano(spamConfig.minAmount);
+    useEffect(() => {
+        setDontShowComments(dontShow);
+        setMinValue(fromNano(min));
+    }, [min, dontShow]);
+
+    const disabled = dontShowComments === dontShow && minValue === fromNano(min);
+
+    console.log({ denyList });
 
     return (
         <View style={{
@@ -155,7 +165,7 @@ export const SpamFilterFragment = fragment(() => {
                             marginTop: 8,
                             marginHorizontal: 16
                         }}>
-                            {t('spamFilter.minAmountDescription', { amount: fromNano(spamConfig.minAmount) })}
+                            {t('spamFilter.minAmountDescription', { amount: fromNano(min) })}
                         </Text>
                         <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                         <CheckBox
@@ -167,6 +177,30 @@ export const SpamFilterFragment = fragment(() => {
                             style={{ marginHorizontal: 16 }}
                         />
                     </View>
+                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <Text style={{
+                            fontSize: 18,
+                            fontWeight: '700',
+                            marginHorizontal: 16,
+                            marginVertical: 8,
+                            color: denyList.length > 0 ? Theme.textColor : Theme.textSecondary
+                        }}>
+                            {denyList.length > 0 ? t('spamFilter.denyList') : t('spamFilter.denyListEmpty')}
+                        </Text>
+                    </View>
+                    {denyList.map((d) => {
+                        return (
+                            <ProductButton
+                                key={`blocked-${d}`}
+                                name={d.slice(0, 10) + '...' + d.slice(d.length - 6)}
+                                subtitle={''}
+                                icon={SpamIcon}
+                                value={null}
+                                onPress={() => onUnblock(d)}
+                                style={{ marginVertical: 4, marginHorizontal: 0 }}
+                            />
+                        );
+                    })}
                 </View>
             </ScrollView>
             <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>

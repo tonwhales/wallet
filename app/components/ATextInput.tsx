@@ -105,7 +105,8 @@ export interface ATextInputProps {
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
     index?: number,
-    label?: any
+    label?: any,
+    backgroundColor?: string
 }
 
 export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {
@@ -142,8 +143,8 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
     if (props.label) paddingTop = 6;
 
     return (
-        <Animated.View style={[{
-            backgroundColor: '#F2F2F2',
+        <View style={[{
+            backgroundColor: props.backgroundColor || '#F2F2F2',
             borderRadius: 12,
             paddingHorizontal: 16,
             flexDirection: 'row'
@@ -215,6 +216,6 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                     )}
                 </View>
             </View>
-        </Animated.View>
+        </View>
     )
 }));

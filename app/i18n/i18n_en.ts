@@ -31,7 +31,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         close: 'Close',
         delete: 'Delete',
         apply: 'Apply',
-        domainOrAddress: 'Wallet address or domain'
+        domainOrAddress: 'Wallet address or domain',
+        search: 'Search',
+        termsOfService: 'Terms\u00A0Of\u00A0Service',
+        privacyPolicy: 'Privacy\u00A0Policy'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -113,6 +116,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unknown: 'Unknown operation',
     },
     auth: {
+        phoneVerify: 'Verify phone',
+        phoneNumber: 'Phone number',
+        phoneTitle: 'Your number',
+        phoneSubtitle: 'We will send verification code to verify\nyour number.',
+        codeTitle: 'Enter code',
+        codeSubtitle: 'We sent verification code to ',
+        codeHint: 'Code',
         title: 'Connection Request',
         message: '<strong>{{name}}</strong> wants to connect to your account',
         hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
@@ -137,7 +147,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
             },
             installExtension: 'Install and open extension for this application'
-        }
+        },
+        consent: 'By clicking continue you accepting our',
     },
     install: {
         title: 'Install Extension',
@@ -210,7 +221,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 confirmWithdrawReady: 'Withdraw now',
                 restrictedTitle: 'This Staking Pool is restricted',
                 restrictedMessage: 'Your funds will not participate in staking if your wallet address is not on the permit list, but will be on the pool balance and awaiting a withdrawal',
-                notEnoughCoinsFee: 'There are not enough funds on your wallet balance to pay the fee. Please note that the {{amount}} TON commission amount must be on the main balance, not on the staking balance',
+                notEnoughCoinsFee: 'There are not enough TON on your wallet balance to pay the fee. Please note that the {{amount}} TON fee must be on the main balance, not on the staking balance',
                 notEnoughCoins: 'There are not enough funds on your wallet balance to top up the staking balance',
             },
             nextCycle: 'Next cycle',
@@ -288,6 +299,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 poolFeeTitle: 'Pool Fee',
                 depositFee: 'Deposit Fee',
                 withdrawFee: 'Withdraw Fee',
+                withdrawRequestFee: 'Withdraw request Fee',
+                withdrawCompleteFee: 'Withdrawal completion request Fee',
                 blockchainFee: 'Blockhain fee',
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
@@ -355,7 +368,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         secureStorageError: {
             title: 'Secure storage error',
             message: 'unfortunately we are unable to save data. Please, restart your phone.'
-        }
+        },
+        title: 'Ooops',
+        invalidNumber: 'Nope, this is not a real number. Please, check your input and try again.',
+        codeTooManyAttempts: 'You tried too much, please try again in 15 minutes.',
+        codeInvalid: 'Nope, entered code is invalid. Check code and try again.',
+        unknown: 'Woof, it is an unknown error. I literally have no idea what\'s going on. Can you try to turn it on and off?',
     },
     confirm: {
         logout: {
@@ -409,7 +427,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         minAmount: 'Min TON amount',
         dontShowComments: 'Don\'t show comments on SPAM transactions',
         minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
-        applyConfig: 'Apply selected SPAM filter settings'
+        applyConfig: 'Apply selected SPAM filter settings',
+        denyList: 'Blocked addresses',
+        denyListEmpty: 'No blocked addresses',
+        unblockConfirm: 'Unblock address',
+        blockConfirm: 'Mark address as spam'
     },
     report: {
         title: 'Report',
@@ -444,6 +466,22 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure you want to delete your account and all data from this application?',
             message: 'This action will delete your account and all data from this application.'
         }
+    },
+    contacts: {
+        title: 'Contacts',
+        contact: 'Contact',
+        name: 'Name',
+        add: 'Add Contact',
+        edit: 'Edit Contact',
+        notes: 'Notes',
+        alert: {
+            name: 'Incorrect name',
+            nameDescription: 'Contact name can\'t be empty or longer than 126 characters', 
+            notes: 'Incorrect notes',
+            notesDescription: 'Notes can\'t be longer than 280 characters',
+        },
+        delete: 'Delete contact',
+        empty: 'No contacts'
     }
 };
 

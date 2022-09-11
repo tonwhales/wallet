@@ -33,7 +33,10 @@ export type LocalizationSchema = {
         close: string,
         delete: string,
         apply: string,
-        domainOrAddress: string
+        domainOrAddress: string,
+        search: string,
+        termsOfService: string,
+        privacyPolicy: string
     },
     syncStatus: {
         connecting: string,
@@ -115,6 +118,13 @@ export type LocalizationSchema = {
         unknown: string
     },
     auth: {
+        phoneVerify: string,
+        phoneNumber: string,
+        phoneTitle: string
+        phoneSubtitle: string,
+        codeTitle: string,
+        codeSubtitle: string,
+        codeHint: string,
         title: string,
         message: string,
         hint: string,
@@ -139,7 +149,8 @@ export type LocalizationSchema = {
                 message: string
             },
             installExtension: string
-        }
+        },
+        consent: string,
     },
     install: {
         title: string,
@@ -290,6 +301,8 @@ export type LocalizationSchema = {
                 poolFeeTitle: string,
                 depositFee: string,
                 withdrawFee: string,
+                withdrawRequestFee: string,
+                withdrawCompleteFee: string,
                 blockchainFee: string,
             },
             minAmountWarning: string,
@@ -357,7 +370,12 @@ export type LocalizationSchema = {
         secureStorageError: {
             title: string,
             message: string
-        }
+        },
+        title: string,
+        invalidNumber: string,
+        codeTooManyAttempts: string,
+        codeInvalid: string,
+        unknown: string,
     },
     confirm: {
         logout: {
@@ -411,7 +429,11 @@ export type LocalizationSchema = {
         minAmount: string,
         dontShowComments: string,
         minAmountDescription: string,
-        applyConfig: string
+        applyConfig: string,
+        denyList: string,
+        denyListEmpty: string,
+        unblockConfirm: string,
+        blockConfirm: string
     },
     report: {
         title: string,
@@ -446,6 +468,22 @@ export type LocalizationSchema = {
             title: string,
             message: string
         }
+    },
+    contacts: {
+        title: string,
+        contact: string,
+        name: string,
+        add: string,
+        edit: string,
+        notes: string,
+        alert: {
+            name: string,
+            nameDescription: string,
+            notes: string,
+            notesDescription: string
+        },
+        delete: string,
+        empty: string
     }
 };
 

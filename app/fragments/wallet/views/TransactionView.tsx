@@ -28,8 +28,8 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     let operation = tx.operation;
 
     // Operation
-    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let friendlyAddress = operation.address?.toFriendly({ testOnly: AppConfig.isTestnet });
+    let avatarId = operation.address?.toFriendly({ testOnly: AppConfig.isTestnet }) || '';
     let item = operation.items[0];
     let amount = item.amount;
     let op: string;
@@ -53,11 +53,15 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         }
     }
 
+    if (!operation.address) {
+        op = t('tx.airdrop');
+    }
+
     const contact = props.engine.products.settings.useContact(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyAddress]) {
+    if (!!friendlyAddress && KnownWallets[friendlyAddress]) {
         known = KnownWallets[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
@@ -73,7 +77,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         || (
             parsed.amount.abs().lt(spamMinAmount)
             && tx.base.body?.type === 'comment'
-            && !KnownWallets[friendlyAddress]
+            && !(!!friendlyAddress && KnownWallets[friendlyAddress])
             && !AppConfig.isTestnet
         );
 
@@ -136,7 +140,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
-                            {known ? knownAddressLabel(known, friendlyAddress) : <AddressComponent address={operation.address} />}
+                            {known ? knownAddressLabel(known, friendlyAddress) : !!operation.address && <AddressComponent address={operation.address} />}
                         </Text>
                         {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                         <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>

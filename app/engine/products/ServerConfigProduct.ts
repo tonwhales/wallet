@@ -24,7 +24,10 @@ export class ServerConfigProduct {
         return useRecoilValue(this.engine.persistence.serverConfig.item().atom);
     }
 
-    useIsSpamWallet(address: string) {
+    useIsSpamWallet(address: string | null | undefined) {
+        if (!address) {
+            return null;
+        }
         return useRecoilValue(this.selector(address));
     }
 }

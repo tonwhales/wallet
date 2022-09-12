@@ -31,7 +31,8 @@ export const TransactionPreviewFragment = fragment(() => {
     const engine = useEngine();
     let transaction = engine.products.main.useTransaction(params.transaction);
     let operation = transaction.operation;
-    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let friendlyAddress = operation.address?.toFriendly({ testOnly: AppConfig.isTestnet });
+    let avatarId = operation.address?.toFriendly({ testOnly: AppConfig.isTestnet }) || '';
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
@@ -53,12 +54,15 @@ export const TransactionPreviewFragment = fragment(() => {
             throw Error('Unknown kind');
         }
     }
+    if (!operation.address) {
+        op = t('tx.airdrop');
+    }
 
     const contact = engine.products.settings.useContact(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyAddress]) {
+    if (!!friendlyAddress && KnownWallets[friendlyAddress]) {
         known = KnownWallets[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
@@ -75,7 +79,7 @@ export const TransactionPreviewFragment = fragment(() => {
         || (
             transaction.base.amount.abs().lt(spamMinAmount)
             && transaction.base.body?.type === 'comment'
-            && !KnownWallets[friendlyAddress]
+            && !(!!friendlyAddress && KnownWallets[friendlyAddress])
             && !AppConfig.isTestnet
         );
 
@@ -110,7 +114,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
             </View>
             <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, marginTop: 24, backgroundColor: '#5fbed5', alignItems: 'center', justifyContent: 'center' }}>
-                <Avatar address={friendlyAddress} id={friendlyAddress} size={84} image={transaction.icon ? transaction.icon : undefined} spam={spam} />
+                <Avatar address={friendlyAddress} id={avatarId} size={84} image={transaction.icon ? transaction.icon : undefined} spam={spam} />
             </View>
             {spam && (
                 <View style={{
@@ -188,72 +192,76 @@ export const TransactionPreviewFragment = fragment(() => {
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                     </>
                 )}
-                <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                    <WalletAddress
-                        address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        textProps={{ numberOfLines: undefined }}
-                        textStyle={{
-                            textAlign: 'left',
-                            fontWeight: '600',
-                            fontSize: 16,
-                            lineHeight: 20
-                        }}
-                        style={{
-                            width: undefined,
-                            marginTop: undefined
-                        }}
-                        actions={[
-                            {
-                                title: t('contacts.contact'),
-                                id: 'contact',
-                                image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
-                                onAction: () => onAddressContact(operation.address || address)
-                            },
-                            {
-                                title: t('spamFilter.blockConfirm'),
-                                id: 'block',
-                                image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
-                                attributes: { destructive: true },
-                                onAction: () => onMarkAddressSpam(operation.address || address)
-                            },
-                        ]}
-                    />
-                    <View style={{
-                        flexDirection: 'row',
-                        width: '100%',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        overflow: 'hidden',
-                    }}>
-                        <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
-                            {t('common.walletAddress')}
-                        </Text>
-                        {!!known && (
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
+                {!!operation.address && (
+                    <>
+                        <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+                            <WalletAddress
+                                address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                textProps={{ numberOfLines: undefined }}
+                                textStyle={{
+                                    textAlign: 'left',
+                                    fontWeight: '600',
+                                    fontSize: 16,
+                                    lineHeight: 20
                                 }}
-                            >
-                                <VerifiedIcon
-                                    width={14}
-                                    height={14}
-                                    style={{ alignSelf: 'center', marginRight: 4 }}
-                                />
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 12,
-                                    color: '#858B93',
-                                    alignSelf: 'flex-start',
-                                }}>
-                                    {known.name}
+                                style={{
+                                    width: undefined,
+                                    marginTop: undefined
+                                }}
+                                actions={[
+                                    {
+                                        title: t('contacts.contact'),
+                                        id: 'contact',
+                                        image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
+                                        onAction: () => onAddressContact(operation.address || address)
+                                    },
+                                    {
+                                        title: t('spamFilter.blockConfirm'),
+                                        id: 'block',
+                                        image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
+                                        attributes: { destructive: true },
+                                        onAction: () => onMarkAddressSpam(operation.address || address)
+                                    },
+                                ]}
+                            />
+                            <View style={{
+                                flexDirection: 'row',
+                                width: '100%',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                overflow: 'hidden',
+                            }}>
+                                <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
+                                    {t('common.walletAddress')}
                                 </Text>
+                                {!!known && (
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center'
+                                        }}
+                                    >
+                                        <VerifiedIcon
+                                            width={14}
+                                            height={14}
+                                            style={{ alignSelf: 'center', marginRight: 4 }}
+                                        />
+                                        <Text style={{
+                                            fontWeight: '400',
+                                            fontSize: 12,
+                                            color: '#858B93',
+                                            alignSelf: 'flex-start',
+                                        }}>
+                                            {known.name}
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
-                        )}
-                    </View>
-                </View>
-                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                        </View>
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                    </>
+                )}
                 <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 16, paddingHorizontal: 16 }}>
                     <Text style={{
                         fontWeight: '600',

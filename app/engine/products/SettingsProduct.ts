@@ -73,7 +73,10 @@ export class SettingsProduct {
         return useRecoilValue(this.addressBook.atom).denyList;
     }
 
-    useDenyAddress(address: Address) {
+    useDenyAddress(address: Address | null) {
+        if (!address) {
+            return null;
+        }
         return useRecoilValue(this.#denyAddressSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })));
     }
 
@@ -95,7 +98,10 @@ export class SettingsProduct {
         return useRecoilValue(this.addressBook.atom).contacts;
     }
 
-    useContact(address: Address) {
+    useContact(address: Address | null) {
+        if (!address) {
+            return null;
+        }
         return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })))
     }
 

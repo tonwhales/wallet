@@ -84,6 +84,10 @@ export function resolveOperation(args: {
                     image = args.jettonMaster.image.preview256;
                 }
             }
+            if (!address) {
+                address = args.account;
+                op = 'airdrop';
+            }
         } else {
             if (args.jettonMaster && args.jettonMaster.image) {
                 image = args.jettonMaster.image.preview256;
@@ -97,11 +101,6 @@ export function resolveOperation(args: {
         if (args.jettonMaster.image) {
             image = args.jettonMaster.image.preview256;
         }
-    }
-
-    if (!address) {
-        address = args.account;
-        op = 'airdrop';
     }
 
 

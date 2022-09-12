@@ -32,10 +32,14 @@ export const TransactionPreviewFragment = fragment(() => {
     let transaction = engine.products.main.useTransaction(params.transaction);
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
         op = operation.op;
+        if (op === 'airdrop') {
+            op = t('tx.airdrop');
+        }
     } else {
         if (transaction.base.kind === 'out') {
             if (transaction.base.status === 'pending') {
@@ -110,7 +114,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
             </View>
             <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, marginTop: 24, backgroundColor: '#5fbed5', alignItems: 'center', justifyContent: 'center' }}>
-                <Avatar address={friendlyAddress} id={friendlyAddress} size={84} image={transaction.icon ? transaction.icon : undefined} spam={spam} />
+                <Avatar address={friendlyAddress} id={avatarId} size={84} image={transaction.icon ? transaction.icon : undefined} spam={spam} />
             </View>
             {spam && (
                 <View style={{

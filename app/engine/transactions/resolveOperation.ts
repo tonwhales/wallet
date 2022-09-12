@@ -99,6 +99,11 @@ export function resolveOperation(args: {
         }
     }
 
+    if (!address) {
+        address = args.account;
+        op = 'airdrop';
+    }
+
 
     return {
         address,

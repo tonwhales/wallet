@@ -12,9 +12,9 @@ export class ServerConfigProduct {
                 const spamWallets = get(this.engine.persistence.serverConfig.item().atom)
                     ?.wallets
                     .spam;
-    
+
                 const res = spamWallets?.findIndex((addr) => addr === address) != -1;
-    
+
                 return res;
             }
         });
@@ -24,10 +24,7 @@ export class ServerConfigProduct {
         return useRecoilValue(this.engine.persistence.serverConfig.item().atom);
     }
 
-    useIsSpamWallet(address: string | null | undefined) {
-        if (!address) {
-            return null;
-        }
+    useIsSpamWallet(address: string) {
         return useRecoilValue(this.selector(address));
     }
 }

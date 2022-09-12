@@ -35,6 +35,9 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     let op: string;
     if (operation.op) {
         op = operation.op;
+        if (op === 'airdrop') {
+            op = t('tx.airdrop');
+        }
     } else {
         if (parsed.kind === 'out') {
             if (parsed.status === 'pending') {
@@ -51,10 +54,6 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         } else {
             throw Error('Unknown kind');
         }
-    }
-
-    if (!operation.address) {
-        op = t('tx.airdrop');
     }
 
     const contact = props.engine.products.settings.useContact(operation.address);

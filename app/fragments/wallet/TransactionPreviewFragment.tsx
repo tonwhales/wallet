@@ -37,6 +37,9 @@ export const TransactionPreviewFragment = fragment(() => {
     let op: string;
     if (operation.op) {
         op = operation.op;
+        if (op === 'airdrop') {
+            op = t('tx.airdrop');
+        }
     } else {
         if (transaction.base.kind === 'out') {
             if (transaction.base.status === 'pending') {
@@ -53,9 +56,6 @@ export const TransactionPreviewFragment = fragment(() => {
         } else {
             throw Error('Unknown kind');
         }
-    }
-    if (!operation.address) {
-        op = t('tx.airdrop');
     }
 
     const contact = engine.products.settings.useContact(operation.address);

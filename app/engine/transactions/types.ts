@@ -4,7 +4,7 @@ import { Address } from "ton";
 export type Operation = {
     
     // Operation
-    address: Address | null;
+    address: Address;
     op?: string;
     items: OperationItem[];
     

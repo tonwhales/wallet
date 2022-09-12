@@ -426,7 +426,11 @@ export type LocalizationSchema = {
         minAmount: string,
         dontShowComments: string,
         minAmountDescription: string,
-        applyConfig: string
+        applyConfig: string,
+        denyList: string,
+        denyListEmpty: string,
+        unblockConfirm: string,
+        blockConfirm: string
     },
     report: {
         title: string,
@@ -461,6 +465,22 @@ export type LocalizationSchema = {
             title: string,
             message: string
         }
+    },
+    contacts: {
+        title: string,
+        contact: string,
+        name: string,
+        add: string,
+        edit: string,
+        notes: string,
+        alert: {
+            name: string,
+            nameDescription: string,
+            notes: string,
+            notesDescription: string
+        },
+        delete: string,
+        empty: string
     }
 };
 

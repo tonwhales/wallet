@@ -424,7 +424,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         minAmount: 'Min TON amount',
         dontShowComments: 'Don\'t show comments on SPAM transactions',
         minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
-        applyConfig: 'Apply selected SPAM filter settings'
+        applyConfig: 'Apply selected SPAM filter settings',
+        denyList: 'Blocked addresses',
+        denyListEmpty: 'No blocked addresses',
+        unblockConfirm: 'Unblock address',
+        blockConfirm: 'Mark address as spam'
     },
     report: {
         title: 'Report',
@@ -459,6 +463,22 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure you want to delete your account and all data from this application?',
             message: 'This action will delete your account and all data from this application.'
         }
+    },
+    contacts: {
+        title: 'Contacts',
+        contact: 'Contact',
+        name: 'Name',
+        add: 'Add Contact',
+        edit: 'Edit Contact',
+        notes: 'Notes',
+        alert: {
+            name: 'Incorrect name',
+            nameDescription: 'Contact name can\'t be empty or longer than 126 characters', 
+            notes: 'Incorrect notes',
+            notesDescription: 'Notes can\'t be longer than 280 characters',
+        },
+        delete: 'Delete contact',
+        empty: 'No contacts'
     }
 };
 

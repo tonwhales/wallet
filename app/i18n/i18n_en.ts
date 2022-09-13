@@ -299,7 +299,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawRequestFee: 'Withdraw request Fee',
                 withdrawCompleteFee: 'Withdrawal completion request Fee',
                 blockchainFee: 'Blockhain fee',
-                cooldownTitle: 'Simplified Period',
+                cooldownTitle: 'Cooldown',
                 cooldownActive: 'Active for {{duration}}',
                 cooldownInactive: 'Inactive',
                 cooldownDescription: 'Two-hour period applied at the start of each staking cycle to improve the process of withdrawals and deposits between cycles',

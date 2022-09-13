@@ -300,7 +300,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 withdrawRequestFee: 'Комиссия за запрос на вывод',
                 withdrawCompleteFee: 'Комиссия за запрос на завершение вывода',
                 blockchainFee: 'Комиссия сети',
-                cooldownTitle: 'Упрощенный период',
+                cooldownTitle: 'Ожидание',
                 cooldownActive: 'Активный в течение {{duration}}',
                 cooldownInactive: 'Неактивный',
                 cooldownDescription: 'Двухчасовой период, применяемый в начале каждого стейкинг цикла для улучшения процесса снятия и внесения средств между циклами',

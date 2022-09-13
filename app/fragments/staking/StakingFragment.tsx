@@ -216,7 +216,6 @@ export const StakingFragment = fragment(() => {
                 />
                 {pool && (
                     <StakingCycle
-                        // stakeUntil={Date.now() / 1000 +  7.2 * 60 * 60}
                         stakeUntil={pool.params.stakeUntil}
                         style={{
                             marginHorizontal: 16,

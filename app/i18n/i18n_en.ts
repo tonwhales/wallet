@@ -299,7 +299,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawRequestFee: 'Withdraw request Fee',
                 withdrawCompleteFee: 'Withdrawal completion request Fee',
                 blockchainFee: 'Blockhain fee',
-                cooldownTitle: 'Cooldown',
+                cooldownTitle: 'Cooldown period',
                 cooldownActive: 'Active for {{duration}}',
                 cooldownInactive: 'Inactive',
                 cooldownDescription: 'Two-hour period applied at the start of each staking cycle to improve the process of withdrawals and deposits between cycles',
@@ -477,7 +477,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notes: 'Notes',
         alert: {
             name: 'Incorrect name',
-            nameDescription: 'Contact name can\'t be empty or longer than 126 characters', 
+            nameDescription: 'Contact name can\'t be empty or longer than 126 characters',
             notes: 'Incorrect notes',
             notesDescription: 'Notes can\'t be longer than 280 characters',
         },

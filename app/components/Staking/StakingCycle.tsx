@@ -78,6 +78,7 @@ export const StakingCycle = React.memo((
                             color: Theme.textSecondary,
                             fontWeight: '400',
                             fontSize: 13,
+                            marginTop: 8
                         }}>
                             {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
                         </Text>
@@ -119,6 +120,7 @@ export const StakingCycle = React.memo((
                             color: Theme.textSecondary,
                             fontWeight: '400',
                             fontSize: 13,
+                            marginTop: 8
                         }}>
                             {t('products.staking.info.cooldownDescription')}
                         </Text>

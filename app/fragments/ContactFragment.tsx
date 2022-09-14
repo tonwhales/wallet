@@ -16,6 +16,7 @@ import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
+import { confirmAlert } from "../utils/confirmAlert";
 import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
@@ -88,9 +89,12 @@ export const ContactFragment = fragment(() => {
     );
 
     const onDelete = useCallback(
-        () => {
-            // TODO add alert
-            settings.removeContact(address);
+        async () => {
+            const confirmed = await confirmAlert('contacts.delete');
+            if (confirmed) {
+                settings.removeContact(address);
+                navigation.goBack();
+            }
         },
         [address],
     );

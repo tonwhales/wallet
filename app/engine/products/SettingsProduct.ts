@@ -22,15 +22,6 @@ export class SettingsProduct {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
 
-        if (storagePersistence.getNumber('addressbook-version') !== version) {
-            this.addressBook.update((doc) => {
-                doc.denyList = {};
-                doc.contacts = {};
-                doc.fields = {};
-            })
-            storagePersistence.set('storage-version', version);
-        }
-
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',
             get: ({ get }) => {
@@ -143,18 +134,18 @@ export class SettingsProduct {
 
             doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].name = contact.name;
 
+            if (!doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields) {
+                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = [];
+            }
+
             if (!!contact.fields) {
                 for (let i = 0; i < contact.fields.length; i++) {
-                    const index = doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields?.findIndex((f) => f.key === contact.fields![i].key)
-                    if (index && index !== -1) {
-                        doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields![index] = contact.fields![i];
-                    } else {
-                        doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields?.push(contact.fields![i]);
-                    }
+                    doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields![i] = contact.fields![i];
                 }
             } else {
                 doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = [];
             }
+            console.log({ field: doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields });
         });
     }
 

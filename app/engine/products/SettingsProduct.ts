@@ -11,13 +11,13 @@ export class SettingsProduct {
     readonly engine: Engine;
     readonly #minAmountSelector;
     readonly #dontShowCommentsSelector;
-    readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact } }>
+    readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact }, fields: { [key: string]: string } }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.addressBook = engine.cloud.get('addressbook', (src) => { src.denyList = {}; src.contacts = {} });
+        this.addressBook = engine.cloud.get('addressbook', (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
 
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',
@@ -93,6 +93,22 @@ export class SettingsProduct {
 
     useContacts() {
         return useRecoilValue(this.addressBook.atom).contacts;
+    }
+
+    useContactFields() {
+        return useRecoilValue(this.addressBook.atom).fields;
+    }
+
+    setContactField(key: string, label: string) {
+        this.addressBook.update((doc) => {
+            doc.fields[key] = label;
+        });
+    }
+
+    removeContactField(key: string) {
+        this.addressBook.update((doc) => {
+            delete doc.fields[key];
+        });
     }
 
     useContact(address: Address) {

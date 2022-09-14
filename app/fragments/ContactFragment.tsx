@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert, KeyboardAvoidingView, Keyboard } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,6 +9,7 @@ import { AndroidToolbar } from "../components/AndroidToolbar";
 import { ATextInput, ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
 import { CloseButton } from "../components/CloseButton";
+import { ContactField } from "../components/Contacts/ContactField";
 import { Item } from "../components/Item";
 import { ItemButton } from "../components/ItemButton";
 import { RoundButton } from "../components/RoundButton";
@@ -47,6 +48,7 @@ export const ContactFragment = fragment(() => {
     const [fields, setFields] = useState(contact?.fields || requiredFields);
 
     const hasChanges = useMemo(() => {
+        console.log('hasChanges');
         if (name !== contact?.name) {
             return true;
         }
@@ -57,6 +59,16 @@ export const ContactFragment = fragment(() => {
         }
         return false
     }, [fields, name, contact]);
+
+    console.log(fields);
+
+    useEffect(() => {
+        if (contact) {
+            setName(contact.name);
+            setFields(contact.fields || requiredFields);
+        }
+    }, [contact]);
+
 
     const onAction = useCallback(
         () => {
@@ -84,6 +96,7 @@ export const ContactFragment = fragment(() => {
             }
 
             settings.setContact(address, { name, fields });
+            setEditing(false);
         },
         [editing, fields, name, address],
     );
@@ -101,11 +114,10 @@ export const ContactFragment = fragment(() => {
 
     const onFieldChange = useCallback((index: number, value: string) => {
         setFields((prev) => {
-            if (prev[index].value !== value) {
-                prev[index] = { ...prev[index], value };
-            }
-            return prev;
-        })
+            const newVal = [...prev];
+            newVal[index] = { key: newVal[index].key, value };
+            return newVal;
+        });
     }, [fields, setFields]);
 
     // Scroll with Keyboard
@@ -261,57 +273,21 @@ export const ContactFragment = fragment(() => {
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
                         {fields.map((field, index) => {
-                            const [value, setValue] = useState(field.value || '');
                             return (
-                                <>
-                                    <ATextInput
-                                        key={`input-${index}`}
-                                        index={index + 1}
-                                        ref={refs[index + 1]}
-                                        onFocus={onFocus}
-                                        onSubmit={onSubmit}
-                                        returnKeyType={'next'}
-                                        blurOnSubmit={false}
-                                        value={value}
-                                        onValueChange={(value: string) => {
-                                            setValue(value);
-                                            onFieldChange(index, value);
-                                        }}
-                                        // placeholder={t('contacts.lastName')}
-                                        placeholder={field.key}
-                                        keyboardType="ascii-capable"
-                                        preventDefaultHeight
-                                        label={
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                width: '100%',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                overflow: 'hidden',
-                                            }}>
-                                                <Text style={{
-                                                    fontWeight: '500',
-                                                    fontSize: 12,
-                                                    color: '#7D858A',
-                                                    alignSelf: 'flex-start',
-                                                }}>
-                                                    {field.key}
-                                                </Text>
-                                            </View>
-                                        }
-                                        multiline
-                                        autoCorrect={false}
-                                        autoComplete={'off'}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0,
-                                            marginHorizontal: 16,
-                                        }}
-                                    />
-                                    {(index < fields.length - 1) && (
-                                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
-                                    )}
-                                </>
+                                <ContactField
+                                    fieldKey={field.key}
+                                    key={`input-${index}`}
+                                    index={index + 1}
+                                    refs={refs}
+                                    input={{
+                                        value: field.value || '',
+                                        onFocus: onFocus,
+                                        onSubmit: onSubmit,
+                                        editable: editing,
+                                        enabled: editing
+                                    }}
+                                    onFieldChange={onFieldChange}
+                                />
                             )
                         })}
 

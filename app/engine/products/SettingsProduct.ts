@@ -6,7 +6,7 @@ import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
 
-export type AddressContact = { name: string, extras?: { [key: string]: string | null | undefined } | null };
+export type AddressContact = { name: string, fields?: { key: string, value: string | null | undefined }[] | null };
 export class SettingsProduct {
     readonly engine: Engine;
     readonly #minAmountSelector;
@@ -101,7 +101,15 @@ export class SettingsProduct {
 
     setContact(address: Address, contact: AddressContact) {
         this.addressBook.update((doc) => {
-            doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })] = contact;
+            if (!doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })]) {
+                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })] = {
+                    name: contact.name,
+                    fields: contact.fields
+                }
+                return;
+            }
+            doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].name = contact.name;
+            doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = contact.fields;
         });
     }
 

@@ -29,30 +29,8 @@ export const ContactsFragment = fragment(() => {
         return Object.entries(contacts);
     }, [contacts]);
 
-    const onContact = useCallback((addr: string, contact: AddressContact) => {
-        Alert.alert(contact.name, undefined, [
-            {
-                text: t('contacts.delete'), style: 'destructive', onPress: async () => {
-                    const confirmed = await confirmAlert('contacts.delete');
-                    if (confirmed) {
-                        try {
-                            let parsed = Address.parse(addr);
-                            settings.removeContact(parsed);
-                        } catch (e) {
-                            console.warn(e);
-                            Alert.alert(t('transfer.error.invalidAddress'));
-                            return;
-                        }
-                    }
-                }
-            },
-            {
-                text: t('contacts.edit'), onPress: () => {
-                    navigation.navigate('Contact', { address: addr })
-                }
-            },
-            { text: t('common.cancel') }
-        ]);
+    const onContact = useCallback((addr: string) => {
+        navigation.navigate('Contact', { address: addr });
     }, []);
 
     return (
@@ -101,10 +79,10 @@ export const ContactsFragment = fragment(() => {
                             <ProductButton
                                 key={`contact-${d[0]}`}
                                 name={d[1].name}
-                                subtitle={(d[1].extras || {})['notes'] || ''}
+                                subtitle={d[0].slice(0, 6) + '...' + d[0].slice(d[0].length - 6)}
                                 value={null}
                                 icon={avatarImages[avatarHash(d[0], avatarImages.length)]}
-                                onPress={() => onContact(d[0], d[1])}
+                                onPress={() => onContact(d[0])}
                                 style={{ marginVertical: 4, marginHorizontal: 0 }}
                             />
                         );

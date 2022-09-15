@@ -192,7 +192,7 @@ export class WalletProduct {
         })
 
 
-        // Initial load
+        // Loading transactions
         engine.persistence.wallets.item(engine.address).for((state) => {
             // Update pending
             this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);

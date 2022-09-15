@@ -1,10 +1,11 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, View, Text, ScrollView, Alert, KeyboardAvoidingView, Keyboard } from "react-native";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { Platform, View, Text, Image, ScrollView, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
+import { AppConfig } from "../AppConfig";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { ATextInput, ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
@@ -66,6 +67,13 @@ export const ContactFragment = fragment(() => {
         }
     }, [contact]);
 
+
+    const onCancel = useCallback(
+        () => {
+            setEditing(false);
+        },
+        [],
+    );
 
     const onAction = useCallback(
         () => {
@@ -166,6 +174,11 @@ export const ContactFragment = fragment(() => {
     }, []);
 
 
+    useLayoutEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [editing]);
+
+
     return (
         <View style={{
             flex: 1,
@@ -219,6 +232,34 @@ export const ContactFragment = fragment(() => {
                                 {`${params.address.slice(0, 6) + '...' + params.address.slice(params.address.length - 6)}`}
                             </Text>
                         </View>
+                        {!editing && (
+                            <View style={{ flexDirection: 'row', marginTop: 17 }} collapsable={false}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
+                                    <TouchableHighlight
+                                        onPress={() => {
+                                            navigation.navigateSimpleTransfer({
+                                                amount: null,
+                                                target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                                stateInit: null,
+                                                job: null,
+                                                comment: null,
+                                                jetton: null,
+                                                callback: null
+                                            });
+                                        }}
+                                        underlayColor={Theme.selector}
+                                        style={{ borderRadius: 14 }}
+                                    >
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                            <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={require('../../assets/ic_send.png')} />
+                                            </View>
+                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                        </View>
+                                    </TouchableHighlight>
+                                </View>
+                            </View>
+                        )}
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
@@ -287,8 +328,6 @@ export const ContactFragment = fragment(() => {
                                 />
                             )
                         })}
-
-
                     </View>
                     {editing && !!contact && (
                         <Item
@@ -308,18 +347,30 @@ export const ContactFragment = fragment(() => {
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
-                <RoundButton
-                    title={t(
-                        !!contact
-                            ? !editing
-                                ? 'contacts.edit'
-                                : 'contacts.save'
-                            : 'contacts.add'
+                <View style={{ flexDirection: 'row', width: '100%' }}>
+                    {editing && (
+                        <RoundButton
+                            title={t('common.cancel')}
+                            disabled={!editing}
+                            onPress={onAction}
+                            display={'secondary'}
+                            style={{ flexGrow: 1, marginRight: 8 }}
+                        />
                     )}
-                    disabled={editing && !hasChanges}
-                    onPress={onAction}
-                    display={editing && !hasChanges ? 'secondary' : 'default'}
-                />
+                    <RoundButton
+                        title={t(
+                            !!contact
+                                ? !editing
+                                    ? 'contacts.edit'
+                                    : 'contacts.save'
+                                : 'contacts.add'
+                        )}
+                        style={{ flexGrow: 1 }}
+                        disabled={editing && !hasChanges}
+                        onPress={onAction}
+                        display={editing && !hasChanges ? 'secondary' : 'default'}
+                    />
+                </View>
 
             </KeyboardAvoidingView>
             {Platform.OS === 'ios' && (

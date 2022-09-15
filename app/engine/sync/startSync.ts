@@ -19,6 +19,7 @@ import { resolveLink } from "../../utils/resolveLink";
 import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
 import { startCorpSync } from "./startCorpSync";
+import { startApySync } from "./startApySync";
 
 export function startSync(engine: Engine) {
 
@@ -56,6 +57,9 @@ export function startSync(engine: Engine) {
     engine.persistence.staking.each((key) => {
         startStakingPoolSync(key.target, key.address, engine);
     });
+
+    // APY
+    startApySync(engine);
 
     //
     // Wallet Plugins

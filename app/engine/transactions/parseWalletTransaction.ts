@@ -1,6 +1,5 @@
 import { BN } from "bn.js";
-import { Address, Cell, parseMessage, RawTransaction } from "ton";
-import { parseMessageRelaxed } from "ton/dist/block/parse";
+import { Address, Cell, parseMessageRelaxed, RawTransaction } from "ton";
 import { Body, Transaction } from "../Transaction";
 
 export function parseBody(cell: Cell): Body | null {

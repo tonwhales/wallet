@@ -86,8 +86,6 @@ export const SpamFilterFragment = fragment(() => {
 
     const disabled = dontShowComments === dontShow && minValue === fromNano(min);
 
-    console.log({ denyList });
-
     return (
         <View style={{
             flex: 1,

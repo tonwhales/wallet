@@ -1,22 +1,15 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useMemo, useState } from "react";
-import { Platform, View, Text, ScrollView, Alert } from "react-native";
+import React, { useMemo } from "react";
+import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
 import { AndroidToolbar } from "../components/AndroidToolbar";
-import { ATextInput } from "../components/ATextInput";
-import { avatarImages } from "../components/Avatar";
 import { CloseButton } from "../components/CloseButton";
-import { RoundButton } from "../components/RoundButton";
+import { ContactItemView } from "../components/Contacts/ContactItemView";
 import { useEngine } from "../engine/Engine";
-import { AddressContact } from "../engine/products/SettingsProduct";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
-import { avatarHash } from "../utils/avatarHash";
-import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { ProductButton } from "./wallet/products/ProductButton";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -28,10 +21,6 @@ export const ContactsFragment = fragment(() => {
     const list = useMemo(() => {
         return Object.entries(contacts);
     }, [contacts]);
-
-    const onContact = useCallback((addr: string) => {
-        navigation.navigate('Contact', { address: addr });
-    }, []);
 
     return (
         <View style={{
@@ -76,14 +65,10 @@ export const ContactsFragment = fragment(() => {
                     )}
                     {list.map((d) => {
                         return (
-                            <ProductButton
+                            <ContactItemView
                                 key={`contact-${d[0]}`}
-                                name={d[1].name}
-                                subtitle={d[0].slice(0, 6) + '...' + d[0].slice(d[0].length - 6)}
-                                value={null}
-                                icon={avatarImages[avatarHash(d[0], avatarImages.length)]}
-                                onPress={() => onContact(d[0])}
-                                style={{ marginVertical: 4, marginHorizontal: 0 }}
+                                addr={d[0]}
+                                contact={d[1]}
                             />
                         );
                     })}

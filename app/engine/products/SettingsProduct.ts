@@ -145,7 +145,6 @@ export class SettingsProduct {
             } else {
                 doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = [];
             }
-            console.log({ field: doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields });
         });
     }
 

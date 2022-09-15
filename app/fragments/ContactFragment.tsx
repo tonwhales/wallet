@@ -48,7 +48,6 @@ export const ContactFragment = fragment(() => {
     const [fields, setFields] = useState(contact?.fields || requiredFields);
 
     const hasChanges = useMemo(() => {
-        console.log('hasChanges');
         if (name !== contact?.name) {
             return true;
         }
@@ -59,8 +58,6 @@ export const ContactFragment = fragment(() => {
         }
         return false
     }, [fields, name, contact]);
-
-    console.log(fields);
 
     useEffect(() => {
         if (contact) {

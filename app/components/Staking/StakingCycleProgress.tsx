@@ -4,7 +4,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "
 import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
 
-export const stakingCycle = AppConfig.isTestnet ? 7 * 60 * 60 + 30 * 60 : 36 * 60 * 60;
+export const stakingCycle = AppConfig.isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
 
 export const StakingCycleProgress = React.memo((
     {

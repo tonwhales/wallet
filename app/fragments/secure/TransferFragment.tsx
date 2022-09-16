@@ -52,7 +52,8 @@ type ConfirmLoadedProps = {
         isTestOnly: boolean;
         address: Address;
         balance: BN,
-        active: boolean
+        active: boolean,
+        domain?: string
     },
     text: string | null,
     order: Order,
@@ -298,6 +299,12 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             verified={!!known}
                             secondary={known ? known.name : undefined}
                         />
+                        {!!props.order.domain && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('common.domain')} text={props.order.domain} />
+                            </>
+                        )}
                         {!!operation.op && (
                             <>
                                 <ItemDivider />
@@ -455,7 +462,8 @@ export const TransferFragment = fragment(() => {
                     isTestOnly: target.isTestOnly,
                     address: target.address,
                     balance: new BN(state.account.balance.coins, 10),
-                    active: state.account.state.type === 'active'
+                    active: state.account.state.type === 'active',
+                    domain: order.domain
                 },
                 order,
                 text,
@@ -472,6 +480,9 @@ export const TransferFragment = fragment(() => {
             exited = true;
         };
     }, [netConfig]);
+
+
+    console.log({ domain: order.domain, loadedDomain: loadedProps?.order.domain });
 
     return (
         <>

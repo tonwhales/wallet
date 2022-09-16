@@ -56,6 +56,7 @@ export const SimpleTransferFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
+    const [domain, setDomain] = React.useState<string>();
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
@@ -118,6 +119,7 @@ export const SimpleTransferFragment = fragment(() => {
             return createJettonOrder({
                 wallet: params!.jetton!,
                 target: target,
+                domain: domain,
                 responseTarget: acc.address,
                 text: comment,
                 amount: value,
@@ -130,6 +132,7 @@ export const SimpleTransferFragment = fragment(() => {
         // Resolve order
         return createSimpleOrder({
             target: target,
+            domain: domain,
             text: comment,
             payload: null,
             amount: value.eq(account.balance) ? toNano('0') : value,
@@ -137,7 +140,7 @@ export const SimpleTransferFragment = fragment(() => {
             stateInit
         });
 
-    }, [amount, target, comment, stateInit, jettonWallet, jettonMaster]);
+    }, [amount, target, domain, comment, stateInit, jettonWallet, jettonMaster]);
 
     const doSend = React.useCallback(async () => {
 
@@ -205,7 +208,7 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
+    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
     const config = engine.products.config.useConfig();
@@ -371,6 +374,8 @@ export const SimpleTransferFragment = fragment(() => {
 
     const isKnown: boolean = !!KnownWallets[target];
 
+    console.log({ domain });
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.title', { symbol })} />
@@ -487,12 +492,14 @@ export const SimpleTransferFragment = fragment(() => {
                             index={1}
                             ref={refs[1]}
                             onFocus={onFocus}
-                            onValueChange={setTarget}
+                            onTargetChange={setTarget}
+                            onDomainChange={setDomain}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
+                            isKnown={isKnown}
                             onSubmit={onSubmit}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />

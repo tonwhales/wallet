@@ -19,7 +19,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onBlur,
     onSubmit,
     target,
-    onValueChange,
+    onDomainChange,
+    onTargetChange,
     isKnown,
     index
 }: {
@@ -28,23 +29,26 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
     target?: string;
-    onValueChange?: (value: string) => void;
+    onTargetChange: (value: string) => void;
+    onDomainChange: (domain: string | undefined) => void;
     isKnown?: boolean,
     index: number
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const [value, setValue] = useState('');
     const engine = useEngine();
-    const [domain, setDomain] = useState<string>();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
 
     const onResolveDomain = useCallback(
-        async () => {
-            if (!domain) {
+        async (toResolve?: string) => {
+            if (!toResolve) {
                 return;
             }
 
-            const valid  = validateDomain(domain);
+            // Clear prev resolved address
+            setResolvedAddress(undefined);
+
+            const valid = validateDomain(toResolve);
 
             if (!valid) {
                 Alert.alert(t('transfer.error.invalidDomainString'));
@@ -53,7 +57,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
 
             setResolving(true);
             try {
-                const resolvedDomainAddress = await resolveDomain(engine.client4, tonDnsRootAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
+                const resolvedDomainAddress = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_NEXT_RESOLVER, true);
                 if (!resolvedDomainAddress) {
                     throw Error('Error resolving domain address');
                 }
@@ -64,29 +68,27 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 }
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
                 setResolvedAddress(resolvedWalletAddress);
-                if (onValueChange) onValueChange(resolvedWalletAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+                onTargetChange(resolvedWalletAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+                onDomainChange(toResolve);
             } catch (e) {
                 Alert.alert(t('transfer.error.invalidDomain'));
                 warn(e);
             }
             setResolving(false);
         },
-        [value, domain, onValueChange],
+        [],
     );
 
     useEffect(() => {
-        if (onValueChange) onValueChange(value);
+        onDomainChange(undefined);
+        onTargetChange(value);
 
         // Check for domain 
         // min domain length is 4, max 126 + '.ton'
         if (value.length > 7 && value.length < 126 + 4 && value.slice(value.length - 4, value.length) === '.ton') {
-            setDomain(value.slice(0, value.length - 4));
-            onResolveDomain();
-        } else {
-            setDomain(undefined);
+            onResolveDomain(value.slice(0, value.length - 4));
         }
-    }, [onResolveDomain, onValueChange]);
-
+    }, [value, onResolveDomain, onTargetChange]);
 
     return (
         <ATextInput
@@ -96,7 +98,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             onFocus={onFocus}
             onValueChange={setValue}
             placeholder={AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
-            keyboardType="ascii-capable"
+            keyboardType={'ascii-capable'}
+            autoCapitalize={'none'}
             preventDefaultHeight
             label={
                 <View style={{
@@ -114,7 +117,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                     }}>
                         {t('transfer.sendTo')}
                     </Text>
-                    {(isKnown && target && !domain) && (
+                    {(isKnown && target && !resolvedAddress && !resolving) && (
                         <Animated.View
                             style={{
                                 flexDirection: 'row',
@@ -139,7 +142,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             </Text>
                         </Animated.View>
                     )}
-                    {(domain && resolvedAddress && !resolving && !AppConfig.isTestnet) && (
+                    {(resolvedAddress && !resolving && !AppConfig.isTestnet) && (
                         <Animated.View
                             style={{
                                 flexDirection: 'row',
@@ -159,7 +162,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             </Text>
                         </Animated.View>
                     )}
-                    {(domain && resolving && !AppConfig.isTestnet) && (
+                    {(resolving && !AppConfig.isTestnet) && (
                         <Animated.View
                             style={{
                                 flexDirection: 'row',

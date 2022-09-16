@@ -4,6 +4,7 @@ import { AppConfig } from "../../../AppConfig";
 
 export type Order = {
     target: string;
+    domain?: string;
     amount: BN;
     amountAll: boolean;
     payload: Cell | null;
@@ -12,6 +13,7 @@ export type Order = {
 
 export function createOrder(args: {
     target: string,
+    domain?: string,
     amount: BN,
     amountAll: boolean,
     payload: Cell | null,
@@ -20,6 +22,7 @@ export function createOrder(args: {
     return {
         type: 'final',
         target: args.target,
+        domain: args.domain,
         amount: args.amount,
         amountAll: args.amountAll,
         payload: args.payload,
@@ -29,12 +32,14 @@ export function createOrder(args: {
 
 export function createSimpleOrder(args: {
     target: string,
+    domain?: string,
     text: string | null,
     amount: BN,
     amountAll: boolean,
     payload: Cell | null,
     stateInit: Cell | null
 }): Order {
+    console.log({ orderDomain: args.domain });
 
     // Resolve payload
     let payload: Cell | null = null;
@@ -48,6 +53,7 @@ export function createSimpleOrder(args: {
 
     return createOrder({
         target: args.target,
+        domain: args.domain,
         payload,
         amount: args.amount,
         amountAll: args.amountAll,
@@ -58,6 +64,7 @@ export function createSimpleOrder(args: {
 export function createJettonOrder(args: {
     wallet: Address,
     target: string,
+    domain?: string,
     responseTarget: Address,
     text: string | null,
     amount: BN,
@@ -95,6 +102,7 @@ export function createJettonOrder(args: {
 
     return createOrder({
         target: args.wallet.toFriendly({ testOnly: AppConfig.isTestnet }),
+        domain: args.domain,
         payload: msg,
         amount: args.txAmount,
         amountAll: false,

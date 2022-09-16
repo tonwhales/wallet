@@ -17,10 +17,9 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
     const engine = useEngine();
     const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
-        if (!apy || !poolFee) {
-            return '...';
+        if (!!apy && !!poolFee) {
+            return (apy - apy * (poolFee / 100)).toFixed(3)
         }
-        return (apy - apy * (poolFee / 100)).toFixed(3)
     }, [apy, poolFee]);
 
 
@@ -33,27 +32,31 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
             paddingLeft: 16,
             marginTop: 20
         }}>
-            <View style={{
-                flexDirection: 'row', width: '100%',
-                justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
-                height: 50
-            }}>
-                <Text style={{
-                    fontSize: 16,
-                    color: '#7D858A'
-                }}>
-                    {t('products.staking.info.rateTitle')}
-                </Text>
-                <Text style={{
-                    fontWeight: '400',
-                    fontSize: 16,
-                    color: Theme.textColor
-                }}>
-                    {`${apyWithFee}%`}
-                </Text>
-            </View>
-            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            {!!apyWithFee && (
+                <>
+                    <View style={{
+                        flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingRight: 16,
+                        height: 50
+                    }}>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#7D858A'
+                        }}>
+                            {t('products.staking.info.rateTitle')}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            color: Theme.textColor
+                        }}>
+                            {`${apyWithFee}%`}
+                        </Text>
+                    </View>
+                    <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                </>
+            )}
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',

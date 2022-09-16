@@ -302,7 +302,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                         {!!props.order.domain && (
                             <>
                                 <ItemDivider />
-                                <ItemLarge title={t('common.domain')} text={props.order.domain} />
+                                <ItemLarge title={t('common.domain')} text={`${props.order.domain}.ton`} />
                             </>
                         )}
                         {!!operation.op && (
@@ -480,9 +480,6 @@ export const TransferFragment = fragment(() => {
             exited = true;
         };
     }, [netConfig]);
-
-
-    console.log({ domain: order.domain, loadedDomain: loadedProps?.order.domain });
 
     return (
         <>

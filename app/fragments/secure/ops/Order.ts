@@ -39,7 +39,6 @@ export function createSimpleOrder(args: {
     payload: Cell | null,
     stateInit: Cell | null
 }): Order {
-    console.log({ orderDomain: args.domain });
 
     // Resolve payload
     let payload: Cell | null = null;

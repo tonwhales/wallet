@@ -374,8 +374,6 @@ export const SimpleTransferFragment = fragment(() => {
 
     const isKnown: boolean = !!KnownWallets[target];
 
-    console.log({ domain });
-
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.title', { symbol })} />

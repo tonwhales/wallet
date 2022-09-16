@@ -486,6 +486,7 @@ export const StakingTransferFragment = fragment(() => {
                                 {!!pool && params.action !== 'withdraw_ready' && (
                                     <StakingCycle
                                         stakeUntil={pool.params.stakeUntil}
+                                        locked={pool.params.locked}
                                         style={{
                                             marginBottom: 15,
                                             marginHorizontal: 0

@@ -1,35 +1,25 @@
-import { formatDuration } from "date-fns"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { View, Text, StyleProp, ViewStyle } from "react-native"
 import { AppConfig } from "../../AppConfig"
 import { t } from "../../i18n/t"
 import { Theme } from "../../Theme"
-import { Countdown, getDuration, shortLocale } from "../Countdown"
-import { stakingCycle, StakingCycleProgress } from "./StakingCycleProgress"
-
-const cooldownPeriod = AppConfig.isTestnet ? 30 * 60 : 2 * 60 * 60;
+import { Countdown } from "../Countdown"
+import { StakingCycleProgress } from "./StakingCycleProgress"
 
 export const StakingCycle = React.memo((
     {
         stakeUntil,
         style,
-        withdraw
+        withdraw,
+        locked
     }: {
         stakeUntil: number,
         style?: StyleProp<ViewStyle>,
-        withdraw?: boolean
+        withdraw?: boolean,
+        locked: boolean
     }
 ) => {
     const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
-
-    const cooldownActive = useMemo(() => left > stakingCycle - cooldownPeriod, [left]);
-    const cooldownDuration = useMemo(() => {
-        const duration = left - (stakingCycle - cooldownPeriod);
-        if (duration <= 0) {
-            return '';
-        }
-        return formatDuration(getDuration(duration), { locale: shortLocale(t('lang') as 'ru' | 'en'), delimiter: ':', zero: true });
-    }, [left, cooldownActive]);
 
     useEffect(() => {
         const timerId = setInterval(() => {
@@ -48,7 +38,7 @@ export const StakingCycle = React.memo((
             marginHorizontal: 16,
             overflow: 'hidden',
         }, style]}>
-            {!cooldownActive && (
+            {locked && (
                 <>
                     <StakingCycleProgress left={left} />
                     <View style={{
@@ -85,12 +75,8 @@ export const StakingCycle = React.memo((
                     </View>
                 </>
             )}
-            {cooldownActive && (
+            {!locked && (
                 <>
-                    <StakingCycleProgress
-                        left={left - (stakingCycle - cooldownPeriod)}
-                        full={cooldownPeriod}
-                    />
                     <View style={{
                         flex: 1,
                         paddingHorizontal: 16,
@@ -113,7 +99,7 @@ export const StakingCycle = React.memo((
                                 ellipsizeMode="tail"
                                 numberOfLines={1}
                             >
-                                {t('products.staking.info.cooldownActive', { duration: cooldownDuration })}
+                                {t('products.staking.info.cooldownActive')}
                             </Text>
                         </View>
                         <Text style={{

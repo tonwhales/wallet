@@ -26,7 +26,7 @@ import { CorpStatus } from "./corp/CorpProduct";
 
 export class Persistence {
 
-    readonly version: number = 4;
+    readonly version: number = 6;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
@@ -166,7 +166,8 @@ const stakingPoolStateCodec = t.type({
         withdrawFee: c.bignum,
         stakeUntil: t.number,
         receiptPrice: c.bignum,
-        poolFee: c.bignum
+        poolFee: c.bignum,
+        locked: t.boolean
     }),
     member: t.type({
         balance: c.bignum,

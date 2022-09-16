@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.20.0</string>
+	<string>1.20.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -40,7 +40,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>149</string>
+	<string>150</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -62,6 +62,10 @@
 	<string>Allow access to the camera to be able to scan QR Code</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow microphone access for uploading videos to continue the verification process</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow photo library access for uploading images to continue the verification process</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

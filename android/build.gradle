@@ -35,10 +35,6 @@ allprojects {
             url(new File(["node", "--print", "require.resolve('jsc-android/package.json')"].execute(null, rootDir).text.trim(), "../dist"))
         }
 
-        maven {
-            // Sumsub repo
-            url "https://maven.sumsub.com/repository/maven-public/"
-        }
 
         google()
         maven { url 'https://www.jitpack.io' }

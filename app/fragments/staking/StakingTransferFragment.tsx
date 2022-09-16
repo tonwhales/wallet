@@ -431,10 +431,11 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
                             <>
                                 {!AppConfig.isTestnet && (
-                                    < StakingCalcComponent
+                                    <StakingCalcComponent
                                         amount={amount}
                                         topUp={params?.action === 'top_up'}
                                         member={member}
+                                        pool={pool}
                                     />
                                 )}
                                 <PoolTransactionInfo pool={pool} />

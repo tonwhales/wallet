@@ -33,6 +33,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         delete: 'Удалить',
         apply: 'Применить',
         domainOrAddress: 'Адрес кошелька или Домен',
+        domain: 'Домен',
         search: 'Поиск',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',

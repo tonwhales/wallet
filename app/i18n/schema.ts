@@ -34,6 +34,7 @@ export type LocalizationSchema = {
         delete: string,
         apply: string,
         domainOrAddress: string,
+        domain: string,
         search: string,
         termsOfService: string,
         privacyPolicy: string

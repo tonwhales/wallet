@@ -36,6 +36,9 @@ export const TransactionPreviewFragment = fragment(() => {
     let op: string;
     if (operation.op) {
         op = operation.op;
+        if (op === 'airdrop') {
+            op = t('tx.airdrop');
+        }
     } else {
         if (transaction.base.kind === 'out') {
             if (transaction.base.status === 'pending') {

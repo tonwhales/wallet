@@ -35,6 +35,9 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     let op: string;
     if (operation.op) {
         op = operation.op;
+        if (op === 'airdrop') {
+            op = t('tx.airdrop');
+        }
     } else {
         if (parsed.kind === 'out') {
             if (parsed.status === 'pending') {

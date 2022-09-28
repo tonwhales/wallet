@@ -70,7 +70,12 @@ export function resolveOperation(args: {
                 }
                 op = t('tx.tokenTransfer');
             } else if (parsedBody.type === 'jetton::transfer_notification') {
-                address = parsedBody.data['sender'] as Address;
+                if (parsedBody.data['sender']) {
+                    address = parsedBody.data['sender'] as Address;
+                } else {
+                    op = 'airdrop';
+                    address = args.metadata.jettonWallet.master;
+                }
                 let amount = parsedBody.data['amount'] as BN;
                 let symbol = args.jettonMaster.symbol;
                 let decimals = args.jettonMaster.decimals;

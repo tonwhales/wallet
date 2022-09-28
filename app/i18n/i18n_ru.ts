@@ -160,7 +160,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sent: 'Отправлено',
         received: 'Получено',
         bounced: 'Возвращено',
-        tokenTransfer: 'Трансфер токенов'
+        tokenTransfer: 'Трансфер токенов',
+        airdrop: 'Airdrop'
     },
     txPreview: {
         sendAgain: 'повторить',

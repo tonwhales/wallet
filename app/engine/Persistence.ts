@@ -23,10 +23,11 @@ import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 import { CorpStatus } from "./corp/CorpProduct";
+import { StakingAPY } from "./api/fetchApy";
 
 export class Persistence {
 
-    readonly version: number = 5;
+    readonly version: number = 6;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
@@ -35,6 +36,7 @@ export class Persistence {
     readonly prices: PersistedCollection<void, { price: { usd: number } }>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
+    readonly stakingApy: PersistedCollection<void, StakingAPY>;
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
     readonly plugins: PersistedCollection<Address, PluginState>;
@@ -77,6 +79,7 @@ export class Persistence {
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
+        this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });
         this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec, engine });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata, engine });
         this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec, engine });
@@ -166,7 +169,8 @@ const stakingPoolStateCodec = t.type({
         withdrawFee: c.bignum,
         stakeUntil: t.number,
         receiptPrice: c.bignum,
-        poolFee: c.bignum
+        poolFee: c.bignum,
+        locked: t.boolean
     }),
     member: t.type({
         balance: c.bignum,
@@ -300,3 +304,7 @@ const corpCodec = t.union([
         token: t.string
     })
 ]);
+
+const apyCodec = t.type({
+    apy: t.number
+});

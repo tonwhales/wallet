@@ -22,6 +22,11 @@ export class Transactions {
 
         // Basic parsing
         let data = this.engine.persistence.transactions.getValue({ address, lt: new BN(lt, 10) })!;
+
+        if (!data) {
+            return null;
+        }
+
         let cell = Cell.fromBoc(Buffer.from(data, 'base64'))[0];
         let parsed = parseTransaction(address.workChain, cell.beginParse());
         this.#raw.set(key, parsed);
@@ -44,6 +49,9 @@ export class Transactions {
         }
 
         let t = this.get(address, lt);
+        if (!t) {
+            return null;
+        }
         let parsed = parseWalletTransaction(t);
         this.#wallet.set(key, parsed);
         return parsed;

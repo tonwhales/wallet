@@ -112,6 +112,7 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [navigation]);
 
+
     const onReachedEnd = React.useMemo(() => {
         let prev = account.next;
         let called = false;

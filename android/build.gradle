@@ -39,6 +39,7 @@ allprojects {
             url "https://maven.sumsub.com/repository/maven-public/"
         }
 
+
         google()
         maven { url 'https://www.jitpack.io' }
         mavenCentral {

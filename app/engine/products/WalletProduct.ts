@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address, fromNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
@@ -60,6 +60,7 @@ export class WalletProduct {
     #txsAtom: (lt: string) => RecoilState<TransactionDescription>;
     #history: { loadMore(lt: string, hash: string): void };
     #plugins: RecoilValueReadOnly<PluginsState>;
+    #initialLoad: boolean = true;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -190,18 +191,60 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         })
 
-        engine.persistence.wallets.item(engine.address).for((state) => {
 
+        // Loading transactions
+        engine.persistence.wallets.item(engine.address).for((state) => {
             // Update pending
             this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > state.seqno);
 
             // Resolve hasMore flag
             let next: { lt: string, hash: string } | null = null;
-            if (state.transactions.length > 0) {
-                let tx = this.engine.transactions.getWalletTransaction(this.address, state.transactions[state.transactions.length - 1]);
-                if (tx.prev) {
-                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+
+            const transactions: Transaction[] = [];
+
+            // Latest transaction
+            const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
+
+            if (last) {
+                let latest = this.engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
+
+                if (!latest) {
+                    return;
                 }
+
+                // Push latest
+                transactions.push(latest);
+
+                // Set next
+                if (latest.prev) {
+                    next = { lt: latest.prev.lt, hash: latest.prev.hash };
+                }
+
+                const toLoad = this.#initialLoad ? 10 : state.transactions.length;
+
+                for (let i = 0; i < toLoad - 1; i++) {
+
+                    if (!next) {
+                        break;
+                    }
+
+                    let tx = this.engine.transactions.getWalletTransaction(engine.address, next.lt);
+
+                    if (!tx) {
+                        break;
+                    }
+
+                    transactions.push(tx);
+
+                    if (tx.prev) {
+                        next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                    }
+                }
+            }
+
+            // Set initial tag
+            if (this.#initialLoad) {
+                this.#initialLoad = false;
             }
 
             // Resolve updated state
@@ -210,20 +253,19 @@ export class WalletProduct {
                 seqno: state.seqno,
                 transactions: [
                     ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
-                    ...state.transactions.map((t) => {
-                        let tx = this.engine.transactions.getWalletTransaction(this.address, t);
+                    ...transactions.map((t) => {
 
-                        // Update transactions
-                        if (!this.#txs.has(t)) {
-                            this.#txs.set(tx.id, tx);
+                        // Update
+                        if (!this.#txs.has(t.id)) {
+                            this.#txs.set(t.id, t);
                         }
 
-                        return { id: tx.id, time: tx.time };
+                        return t;
                     })
                 ],
                 next
             };
-            
+
             // Notify
             engine.recoil.updater(this.#atom, this.#state);
         });
@@ -256,7 +298,81 @@ export class WalletProduct {
         })
     }
 
+    loadMoreFromStorage(nextTx: Transaction) {
+        // Update pending
+        this.#pending = this.#pending.filter((v) => v.seqno && v.seqno > (this.#state?.seqno || 0));
+
+        // Resolve hasMore flag
+        let next: { lt: string, hash: string } | null = null;
+
+        const transactions: Transaction[] = [];
+
+        // Push next
+        transactions.push(nextTx);
+
+        if (nextTx.prev) {
+            next = { lt: nextTx.prev.lt, hash: nextTx.prev.hash };
+        }
+
+        // Resolve updated state
+        if (this.#state) {
+
+            for (let i = 0; i < 10 - 1; i++) {
+
+                // Stop if no previous
+                if (!next) {
+                    break;
+                }
+
+                let tx = this.engine.transactions.getWalletTransaction(this.engine.address, next.lt);
+
+                // Stop if not found in storage
+                if (!tx) {
+                    break;
+                }
+
+                transactions.push(tx);
+
+                if (tx.prev) {
+                    next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                } else { // No next found
+                    next = null;
+                }
+            }
+
+            // Resolve updated state
+            this.#state = {
+                balance: this.#state.balance,
+                seqno: this.#state.seqno,
+                transactions: [
+                    ...this.#pending.map((v) => ({ id: v.id, time: v.time })),
+                    ...this.#state.transactions,
+                    ...transactions.map((t) => {
+
+                        // Update
+                        if (!this.#txs.has(t.id)) {
+                            this.#txs.set(t.id, t);
+                        }
+
+                        return { id: t.id, time: t.time };
+                    })
+                ],
+                next
+            };
+
+            // Notify
+            this.engine.recoil.updater(this.#atom, this.#state);
+        }
+    }
+
     loadMore = (lt: string, hash: string) => {
+        let tx = this.engine.transactions.getWalletTransaction(this.engine.address, lt);
+        // If found in storage 
+        if (tx) {
+            this.loadMoreFromStorage(tx);
+            return;
+        }
+        // Load more from server
         this.#history.loadMore(lt, hash);
     }
 

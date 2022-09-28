@@ -37,28 +37,31 @@ export function createHistorySync(address: Address, engine: Engine) {
         // Loading transactions
         //
         logger.log('Loading older transactions from ' + cursor.lt);
-        let loadedTransactions = await backoff('account-history', async () => {
-            return await engine.connector.fetchTransactions(address, cursor);
+        let fetched = await backoff('account-history', async () => {
+            return await engine.client4.getAccountTransactions(address, new BN(cursor.lt, 10), Buffer.from(cursor.hash, 'base64'));
         });
 
         // Download introspection
         let mentioned = new Set<string>();
-        for (let t of loadedTransactions) {
-            let txData = Buffer.from(t.data, 'base64');
-            let tx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
-            if (tx.inMessage && tx.inMessage.info.src) {
+        for (let t of fetched) {
+            let tx = parseTransaction(0, t.tx.beginParse());
+            if (tx.inMessage && tx.inMessage.info.src && Address.isAddress(tx.inMessage.info.src)) {
                 mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
             }
             for (let out of tx.outMessages) {
-                if (out.info.dest) {
+                if (out.info.dest && Address.isAddress(out.info.dest)) {
                     mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
                 }
             }
         }
 
+        let loadedTransactions = fetched.map((t) => {
+            return {...parseTransaction(address.workChain, t.tx.beginParse()), data: t.tx.toBoc({ idx: false }).toString('base64')};
+        })
+
         // Persist transactions
         for (let l of loadedTransactions) {
-            engine.transactions.set(address, l.id.lt, l.data);
+            engine.transactions.set(address, l.lt.toString(10), l.data);
         }
 
         // Read previous transaction
@@ -84,7 +87,7 @@ export function createHistorySync(address: Address, engine: Engine) {
             // Add transaction ids
             let transactions: string[] = [...src.transactions];
             for (let l of loadedTransactions) {
-                transactions.push(l.id.lt);
+                transactions.push(l.lt.toString(10));
             }
 
             let newState: FullAccount = {

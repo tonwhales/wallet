@@ -36,6 +36,7 @@ import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { warn } from '../../utils/log';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from '../../utils/dns/dns';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -387,6 +388,33 @@ export const TransferFragment = fragment(() => {
         let exited = false;
 
         backoff('transfer', async () => {
+
+            // Confirm domain-resolved wallet address
+            if (order.domain) {
+                try {
+                    const resolvedDomainAddress = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_NEXT_RESOLVER, true);
+
+                    if (!resolvedDomainAddress || !Address.isAddress(resolvedDomainAddress)) {
+                        throw Error('Error resolving domain address');
+                    }
+
+                    const resolvedDomainWallet = await resolveDomain(engine.client4, resolvedDomainAddress, '.', DNS_CATEGORY_WALLET);
+
+                    if (
+                        !resolvedDomainWallet
+                        || !Address.isAddress(resolvedDomainWallet)
+                        || !resolvedDomainWallet.equals(target.address)
+                    ) {
+                        throw Error('Error resolving wallet address');
+                    }
+                } catch (e) {
+                    Alert.alert(t('transfer.error.invalidDomain'), undefined, [{
+                        text: t('common.close'),
+                        onPress: () => navigation.goBack()
+                    }]);
+                    return;
+                }
+            }
 
             // Get contract
             const contract = contractFromPublicKey(from.publicKey);

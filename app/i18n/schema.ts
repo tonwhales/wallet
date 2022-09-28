@@ -74,7 +74,8 @@ export type LocalizationSchema = {
         sent: string,
         received: string,
         bounced: string,
-        tokenTransfer: string
+        tokenTransfer: string,
+        airdrop: string
     },
     txPreview: {
         sendAgain: string,
@@ -301,6 +302,10 @@ export type LocalizationSchema = {
                 withdrawRequestFee: string,
                 withdrawCompleteFee: string,
                 blockchainFee: string,
+                cooldownTitle: string,
+                cooldownActive: string,
+                cooldownInactive: string,
+                cooldownDescription: string,
             },
             minAmountWarning: string,
             tryAgainLater: string,

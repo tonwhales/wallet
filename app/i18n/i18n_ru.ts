@@ -160,7 +160,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         sent: 'Отправлено',
         received: 'Получено',
         bounced: 'Возвращено',
-        tokenTransfer: 'Трансфер токенов'
+        tokenTransfer: 'Трансфер токенов',
+        airdrop: 'Airdrop'
     },
     txPreview: {
         sendAgain: 'повторить',
@@ -300,6 +301,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 withdrawRequestFee: 'Комиссия за запрос на вывод',
                 withdrawCompleteFee: 'Комиссия за запрос на завершение вывода',
                 blockchainFee: 'Комиссия сети',
+                cooldownTitle: 'Период ожидания',
+                cooldownActive: 'Активнен',
+                cooldownInactive: 'Неактивный',
+                cooldownDescription: 'Двухчасовой период, применяемый в начале каждого стейкинг цикла для улучшения процесса снятия и внесения средств между циклами',
             },
             minAmountWarning: 'Минимальное количество {{minAmount}} TON',
             tryAgainLater: 'Пожалуйста, повторите попытку позже',

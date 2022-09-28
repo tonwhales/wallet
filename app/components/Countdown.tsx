@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import { StyleProp, Text, TextStyle } from "react-native"
 import { t } from "../i18n/t";
 
-function getDuration(seconds: number) {
+export function getDuration(seconds: number) {
     let left = seconds;
     const hours = Math.floor(left / (60 * 60));
     left = left - hours * 60 * 60
@@ -34,7 +34,7 @@ const formatDurationLocales = {
     }
 }
 
-function shortLocale(code: 'ru' | 'en') {
+export function shortLocale(code: 'ru' | 'en') {
     const formatDistance = (key: DurationKey, count: number) => {
         return formatDurationLocales[code][key].replace('{{count}}', String(count || '').padStart(2, '0'))
     }
@@ -51,17 +51,12 @@ function format(duration: number) {
         );
 }
 
-export const Countdown = React.memo(({ until, textStyle }: { until: number, textStyle?: StyleProp<TextStyle> }) => {
-    const [text, setText] = useState(format(Math.floor((until || 0) - (Date.now() / 1000))));
+export const Countdown = React.memo(({ left, textStyle }: { left: number, textStyle?: StyleProp<TextStyle> }) => {
+    const [text, setText] = useState(format(left));
 
     useEffect(() => {
-        const timerId = setInterval(() => {
-            setText(format(Math.floor((until || 0) - (Date.now() / 1000))));
-        }, 1000);
-        return () => {
-            clearInterval(timerId);
-        };
-    }, [until]);
+        setText(format(left));
+    }, [left]);
 
     return (
         <Text style={[{

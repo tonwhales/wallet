@@ -20,7 +20,8 @@ export const Theme = {
     secondaryButtonText: '#798287',
     success: '#4DC47D',
     dangerZone: '#FF0000',
-    qrCode: '#303757'
+    qrCode: '#303757',
+    cardBackground: '#353C5E'
 };
 
 export const NavigationTheme: ThemeType = {

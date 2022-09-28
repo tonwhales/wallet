@@ -1,7 +1,9 @@
 import BN from "bn.js";
-import React from "react"
+import React, { useMemo } from "react"
 import { View, Text } from "react-native";
 import { fromNano, toNano } from "ton";
+import { useEngine } from "../../engine/Engine";
+import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { bnIsLess } from "../../utils/bnComparison";
@@ -13,7 +15,8 @@ export const StakingCalcComponent = React.memo((
     {
         amount,
         topUp,
-        member
+        member,
+        pool
     }: {
         amount: string,
         topUp?: boolean,
@@ -22,12 +25,22 @@ export const StakingCalcComponent = React.memo((
             pendingDeposit: BN,
             pendingWithdraw: BN,
             withdraw: BN
-        } | null
+        } | null,
+        pool: StakingPoolState
     }) => {
+    const engine = useEngine();
+    const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
+    const apyWithFee = useMemo(() => {
+        if (!!apy && !!poolFee) {
+            return (apy - apy * (poolFee / 100)) / 100;
+        }
+    }, [apy, poolFee]);
+
     if (topUp && member) {
 
-        const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * 0.1);
-        const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * 0.1));
+        const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * (apyWithFee ? apyWithFee : 0.1));
+        const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1)));
         return (
             <>
                 <Text style={{
@@ -64,6 +77,7 @@ export const StakingCalcComponent = React.memo((
                                 fontSize: 16,
                                 color: Theme.textColor
                             }}>
+                                {'~'}
                                 <ValueComponent precision={2} value={yearly} />
                                 {' TON'}
                             </Text>
@@ -123,6 +137,7 @@ export const StakingCalcComponent = React.memo((
                                         fontSize: 16,
                                         color: '#4FAE42'
                                     }}>
+                                        {'~'}
                                         <ValueComponent precision={2} value={yearlyPlus} />
                                         {' TON'}
                                     </Text>

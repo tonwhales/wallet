@@ -10,6 +10,7 @@ export class StakingPoolsProduct {
     readonly engine: Engine;
     readonly pools: Address[] = [];
     readonly full;
+    readonly apyAtom;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -46,10 +47,15 @@ export class StakingPoolsProduct {
             },
             dangerouslyAllowMutability: true
         });
+        this.apyAtom = this.engine.persistence.stakingApy.item().atom;
     }
 
     useStaking() {
         return useRecoilValue(this.full);
+    }
+
+    useStakingApy() {
+        return useRecoilValue(this.apyAtom);
     }
 
     usePool(pool?: Address) {

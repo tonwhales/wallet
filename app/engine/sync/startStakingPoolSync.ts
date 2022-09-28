@@ -1,6 +1,7 @@
 import BN from "bn.js";
-import { Address, beginCell, TupleSlice4 } from "ton";
+import { Address, beginCell, Cell, Slice, TupleSlice4 } from "ton";
 import { AppConfig } from "../../AppConfig";
+import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { startDependentSync } from "./utils/startDependentSync";
 
@@ -13,6 +14,7 @@ export type StakingPoolState = {
         stakeUntil: number,
         receiptPrice: BN,
         poolFee: BN,
+        locked: boolean
     },
     member: {
         balance: BN,
@@ -21,6 +23,21 @@ export type StakingPoolState = {
         withdraw: BN
     }
 };
+
+export async function downloadStateDirectly(engine: Engine, address: Address) {
+    let last = await engine.client4.getLastBlock();
+    let data = await engine.client4.getAccount(last.last.seqno, address);
+
+    if (data.account.state.type !== 'active') {
+        throw Error('Invalid state');
+    }
+    return Cell.fromBoc(Buffer.from(data.account.state.data!, 'base64'))[0];
+}
+
+function parseLocked(src: Slice) {
+    let locked = src.readBit();
+    return locked;
+}
 
 export function startStakingPoolSync(member: Address, pool: Address, engine: Engine) {
     let key = `${member.toFriendly({ testOnly: AppConfig.isTestnet })}/staking/${pool.toFriendly({ testOnly: AppConfig.isTestnet })}`;
@@ -43,11 +60,14 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         }
 
         // Fetch fresh state
-        const [statusResponse, paramsResponse, memberResponse] = await Promise.all([
+        const [statusResponse, paramsResponse, memberResponse, rawState] = await Promise.all([
             engine.client4.runMethod(parent.block, pool, 'get_staking_status'),
             engine.client4.runMethod(parent.block, pool, 'get_params'),
-            engine.client4.runMethod(parent.block, pool, 'get_member', [{ type: 'slice', cell: beginCell().storeAddress(member).endCell() }])
+            engine.client4.runMethod(parent.block, pool, 'get_member', [{ type: 'slice', cell: beginCell().storeAddress(member).endCell() }]),
+            backoff('raw_state', () => downloadStateDirectly(engine, pool)),
         ]);
+
+        let locked = parseLocked(rawState.beginParse());
 
         // Parse state
         let statusParser = new TupleSlice4(statusResponse.result);
@@ -111,7 +131,8 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
                 withdrawFee: params.withdrawFee,
                 stakeUntil: status.proxyStakeUntil,
                 receiptPrice: params.receiptPrice,
-                poolFee: params.poolFee
+                poolFee: params.poolFee,
+                locked: locked
             }
         };
         item.update(() => newState);

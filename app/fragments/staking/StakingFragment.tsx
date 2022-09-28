@@ -217,6 +217,7 @@ export const StakingFragment = fragment(() => {
                 {pool && (
                     <StakingCycle
                         stakeUntil={pool.params.stakeUntil}
+                        locked={pool.params.locked}
                         style={{
                             marginHorizontal: 16,
                             marginBottom: 15

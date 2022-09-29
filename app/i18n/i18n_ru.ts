@@ -32,6 +32,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         close: 'Закрыть',
         delete: 'Удалить',
         apply: 'Применить',
+        domainOrAddress: 'Адрес кошелька или Домен',
+        domain: 'Домен',
         search: 'Поиск',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
@@ -81,6 +83,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         confirm: 'Вы уверены что хотите продолжить?',
         error: {
             invalidAddress: 'Неверный адрес',
+            invalidDomain: 'Неверный домен',
+            invalidDomainString: 'Минимум 4 символа, максимум 126 символов. Допустимы латинские буквы (a-z), цифры (0-9) и дефис (-). Дефис не может находиться в начале и конце.',
             invalidAmount: 'Неверное количество',
             sendingToYourself: 'Вы не можете отправлять монеты сами себе',
             zeroCoins: 'К сожалению, вы не можете отправить ноль монет',

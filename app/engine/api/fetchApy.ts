@@ -12,7 +12,6 @@ export type StakingAPY = {
 
 export async function fetchApy() {
     const res = ((await axios.get(`https://connect.tonhubapi.com/net/${AppConfig.isTestnet ? 'testnet' : 'mainnet'}/elections/latest/apy`, { method: 'GET' })).data);
-    console.log(res);
     if (!apyCodec.is(res)) {
         throw Error('Invalid apy');
     }

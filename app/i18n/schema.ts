@@ -33,6 +33,8 @@ export type LocalizationSchema = {
         close: string,
         delete: string,
         apply: string,
+        domainOrAddress: string,
+        domain: string,
         search: string,
         termsOfService: string,
         privacyPolicy: string
@@ -95,6 +97,8 @@ export type LocalizationSchema = {
         error: {
             invalidAddress: string,
             invalidAmount: string,
+            invalidDomain: string,
+            invalidDomainString: string,
             sendingToYourself: string,
             zeroCoins: string,
             notEnoughCoins: string,

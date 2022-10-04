@@ -18,6 +18,8 @@ export const TonBrowserFragment = systemFragment(() => {
 
     useEffect(() => {
         (async () => {
+            const res = await axios.get('http://in1.ton.org:8080/', { headers: { Host: "foundation.ton" } });
+            console.log({ res });
         })()
     }, []);
 

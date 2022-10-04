@@ -59,6 +59,7 @@ import { CorpFragment } from './fragments/corp/CorpFragment';
 import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
+import { TonBrowserFragment } from './fragments/utils/TonBrowserFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -172,6 +173,7 @@ const navigation = [
     modalScreen('StartPhone', PhoneVerificationStack),
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
+    modalScreen('Browser', TonBrowserFragment),
     // modalScreen('Phone', PhoneFragment),
     // modalScreen('Country', PickCountry),
     // genericScreen('Code', CodeFragment),

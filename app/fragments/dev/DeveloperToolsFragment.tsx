@@ -76,6 +76,13 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                     </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={"Test ton sites"}
+                            hint={'foundation.ton'}
+                            onPress={() => navigation.navigate('Browser')}
+                        />
+                    </View>
                 </View>
             </View>
         </View>

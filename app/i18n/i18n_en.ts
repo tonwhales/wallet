@@ -486,8 +486,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alert: {
             name: 'Incorrect name',
             nameDescription: 'Contact name can\'t be empty or longer than 126 characters',
-            notes: 'Incorrect notes',
-            notesDescription: 'Notes can\'t be longer than 280 characters',
+            notes: 'Incorrect field',
+            notesDescription: 'Contact fields can\'t be longer than 280 characters',
         },
         delete: 'Delete contact',
         empty: 'No contacts'

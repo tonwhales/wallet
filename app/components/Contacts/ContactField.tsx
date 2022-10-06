@@ -35,19 +35,19 @@ export const ContactField = React.memo((props: {
         <>
             <ATextInput
                 key={`input-${props.index}`}
-                index={props.index + 1}
-                ref={props.refs[props.index + 1]}
+                index={props.index}
+                ref={props.refs[props.index]}
                 onFocus={props.input.onFocus}
                 onSubmit={props.input.onSubmit}
-                returnKeyType={'next'}
                 blurOnSubmit={false}
+                returnKeyType={props.refs.length - 1 === props.index ? 'done' : 'next'}
                 value={value}
                 onValueChange={(newValue: string) => {
                     setValue(newValue);
                     props.onFieldChange(props.index - 1, newValue);
                 }}
                 placeholder={label}
-                keyboardType="ascii-capable"
+                keyboardType={'default'}
                 preventDefaultHeight
                 editable={props.input.editable}
                 enabled={props.input.enabled}
@@ -78,7 +78,7 @@ export const ContactField = React.memo((props: {
                     marginHorizontal: 16,
                 }}
             />
-            {(props.index < props.refs.length) && (
+            {(props.index + 1 < props.refs.length) && (
                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
             )}
         </>

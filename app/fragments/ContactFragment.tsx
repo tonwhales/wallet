@@ -130,6 +130,7 @@ export const ContactFragment = fragment(() => {
 
     const refs = React.useMemo(() => {
         let r: React.RefObject<ATextInputRef>[] = [];
+        r.push(React.createRef()); // name input ref
         for (let i = 0; i < fields.length; i++) {
             r.push(React.createRef());
         }
@@ -162,17 +163,18 @@ export const ContactFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
+        console.log({ selected: index });
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
     const onSubmit = React.useCallback((index: number) => {
-        let next = refs[index + 1].current;
+        console.log({ index });
+        let next = refs[index + 1]?.current;
         if (next) {
             next.focus();
         }
-    }, []);
-
+    }, [refs]);
 
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -273,8 +275,9 @@ export const ContactFragment = fragment(() => {
                             ref={refs[0]}
                             onFocus={onFocus}
                             value={name}
-                            onSubmit={onSubmit}
-                            returnKeyType={'next'}
+                            onSubmit={() => {
+                                onSubmit(0)
+                            }}
                             blurOnSubmit={false}
                             onValueChange={setName}
                             placeholder={t('contacts.name')}

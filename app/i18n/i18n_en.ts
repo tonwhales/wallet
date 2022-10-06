@@ -31,6 +31,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         close: 'Close',
         delete: 'Delete',
         apply: 'Apply',
+        domainOrAddress: 'Wallet address or domain',
+        domain: 'Domain',
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy'
@@ -72,7 +74,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         sent: 'Sent',
         received: 'Received',
         bounced: 'Bounced',
-        tokenTransfer: 'Token transfer'
+        tokenTransfer: 'Token transfer',
+        airdrop: 'Airdrop'
     },
     txPreview: {
         sendAgain: 'send again',
@@ -92,6 +95,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         error: {
             invalidAddress: 'Invalid address',
             invalidAmount: 'Invalid amount',
+            invalidDomain: 'Invalid domain',
+            invalidDomainString: 'Minimum 4 characters, maximum 126 characters. Latin letters (a-z), numbers (0-9) and a hyphen (-) are allowed. A hyphen cannot be at the beginning or end.',
             sendingToYourself: 'You can\'t send coins to yourself',
             zeroCoins: 'unfortunately you can\'t send zero coins',
             notEnoughCoins: 'unfortunately you don\'t have enougth coins for this transaction',
@@ -299,6 +304,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawRequestFee: 'Withdraw request Fee',
                 withdrawCompleteFee: 'Withdrawal completion request Fee',
                 blockchainFee: 'Blockhain fee',
+                cooldownTitle: 'Cooldown period',
+                cooldownActive: 'Active',
+                cooldownInactive: 'Inactive',
+                cooldownDescription: 'Two-hour period applied at the start of each staking cycle to improve the process of withdrawals and deposits between cycles',
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
             tryAgainLater: 'Please, try again later',
@@ -477,8 +486,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alert: {
             name: 'Incorrect name',
             nameDescription: 'Contact name can\'t be empty or longer than 126 characters',
-            notes: 'Incorrect field',
-            notesDescription: 'Contact fields can\'t be longer than 280 characters',
+            notes: 'Incorrect notes',
+            notesDescription: 'Notes can\'t be longer than 280 characters',
         },
         delete: 'Delete contact',
         empty: 'No contacts'

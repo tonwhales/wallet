@@ -90,6 +90,12 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         }
     }, [value, onResolveDomain, onTargetChange]);
 
+    useEffect(() => {
+        if (target && target !== value) {
+            setValue(target);
+        }
+    }, [target]);
+
     return (
         <ATextInput
             value={value}

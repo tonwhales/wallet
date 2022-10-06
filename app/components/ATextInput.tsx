@@ -4,7 +4,6 @@ import { TextInput } from 'react-native-gesture-handler';
 
 export type ATextInputRef = {
     focus: () => void;
-    setValue?: (value: string) => void
 }
 
 export interface ATextInputProps {

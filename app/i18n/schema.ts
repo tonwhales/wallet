@@ -33,6 +33,8 @@ export type LocalizationSchema = {
         close: string,
         delete: string,
         apply: string,
+        domainOrAddress: string,
+        domain: string,
         search: string,
         termsOfService: string,
         privacyPolicy: string
@@ -74,7 +76,8 @@ export type LocalizationSchema = {
         sent: string,
         received: string,
         bounced: string,
-        tokenTransfer: string
+        tokenTransfer: string,
+        airdrop: string
     },
     txPreview: {
         sendAgain: string,
@@ -94,6 +97,8 @@ export type LocalizationSchema = {
         error: {
             invalidAddress: string,
             invalidAmount: string,
+            invalidDomain: string,
+            invalidDomainString: string,
             sendingToYourself: string,
             zeroCoins: string,
             notEnoughCoins: string,
@@ -301,6 +306,10 @@ export type LocalizationSchema = {
                 withdrawRequestFee: string,
                 withdrawCompleteFee: string,
                 blockchainFee: string,
+                cooldownTitle: string,
+                cooldownActive: string,
+                cooldownInactive: string,
+                cooldownDescription: string,
             },
             minAmountWarning: string,
             tryAgainLater: string,

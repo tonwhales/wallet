@@ -1,0 +1,207 @@
+import React, { useCallback, useEffect, useState } from "react"
+import { View, Text, ViewStyle, StyleProp, Alert } from "react-native"
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
+import { t } from "../i18n/t"
+import { ATextInput, ATextInputRef } from "./ATextInput"
+import VerifiedIcon from '../../assets/ic_verified.svg';
+import { KnownWallets } from "../secure/KnownWallets"
+import { Address } from "ton"
+import { warn } from "../utils/log"
+import { AddressComponent } from "./AddressComponent"
+import CircularProgress from "./CircularProgress/CircularProgress"
+import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from "../utils/dns/dns"
+import { useEngine } from "../engine/Engine"
+import { AppConfig } from "../AppConfig"
+
+export const AddressDomainInput = React.memo(React.forwardRef(({
+    style,
+    onFocus,
+    onBlur,
+    onSubmit,
+    target,
+    onDomainChange,
+    onTargetChange,
+    isKnown,
+    index
+}: {
+    style?: StyleProp<ViewStyle>;
+    onFocus?: (index: number) => void,
+    onBlur?: (index: number) => void,
+    onSubmit?: (index: number) => void,
+    target?: string;
+    onTargetChange: (value: string) => void;
+    onDomainChange: (domain: string | undefined) => void;
+    isKnown?: boolean,
+    index: number
+}, ref: React.ForwardedRef<ATextInputRef>) => {
+    const [value, setValue] = useState(target || '');
+    const engine = useEngine();
+    const [resolving, setResolving] = useState<boolean>();
+    const [resolvedAddress, setResolvedAddress] = useState<Address>();
+
+    const onResolveDomain = useCallback(
+        async (toResolve?: string) => {
+            if (!toResolve) {
+                return;
+            }
+
+            // Clear prev resolved address
+            setResolvedAddress(undefined);
+
+            const valid = validateDomain(toResolve);
+
+            if (!valid) {
+                Alert.alert(t('transfer.error.invalidDomainString'));
+                return;
+            }
+
+            setResolving(true);
+            try {
+                const resolvedDomainAddress = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_NEXT_RESOLVER, true);
+                if (!resolvedDomainAddress) {
+                    throw Error('Error resolving domain address');
+                }
+                const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
+                const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
+                if (!resolvedDomainWallet) {
+                    throw Error('Error resolving domain wallet');
+                }
+                const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
+                setResolvedAddress(resolvedWalletAddress);
+                onTargetChange(resolvedWalletAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+                onDomainChange(toResolve);
+            } catch (e) {
+                Alert.alert(t('transfer.error.invalidDomain'));
+                warn(e);
+            }
+            setResolving(false);
+        },
+        [],
+    );
+
+    useEffect(() => {
+        onDomainChange(undefined);
+        onTargetChange(value);
+
+        // Check for domain 
+        // min domain length is 4, max 126 + '.ton'
+        if (value.length > 7 && value.length < 126 + 4 && value.slice(value.length - 4, value.length) === '.ton') {
+            onResolveDomain(value.slice(0, value.length - 4));
+        }
+    }, [value, onResolveDomain, onTargetChange]);
+
+    return (
+        <ATextInput
+            value={value}
+            index={index}
+            ref={ref}
+            onFocus={onFocus}
+            onValueChange={setValue}
+            placeholder={AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
+            keyboardType={'ascii-capable'}
+            autoCapitalize={'none'}
+            preventDefaultHeight
+            label={
+                <View style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    overflow: 'hidden',
+                }}>
+                    <Text style={{
+                        fontWeight: '500',
+                        fontSize: 12,
+                        color: '#7D858A',
+                        alignSelf: 'flex-start',
+                    }}>
+                        {t('transfer.sendTo')}
+                    </Text>
+                    {(isKnown && target && !resolvedAddress && !resolving) && (
+                        <Animated.View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                            entering={FadeIn.duration(150)}
+                            exiting={FadeOut.duration(150)}
+                        >
+                            <VerifiedIcon
+                                width={14}
+                                height={14}
+                                style={{ alignSelf: 'center', marginRight: 4 }}
+                            />
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 12,
+                                color: '#858B93',
+                                alignSelf: 'flex-start',
+                            }}>
+                                {KnownWallets[target].name}
+                            </Text>
+                        </Animated.View>
+                    )}
+                    {(resolvedAddress && !resolving && !AppConfig.isTestnet) && (
+                        <Animated.View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                            entering={FadeIn.duration(150)}
+                            exiting={FadeOut.duration(150)}
+                        >
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 12,
+                                color: '#858B93',
+                                alignSelf: 'flex-start',
+                            }}>
+                                <AddressComponent address={resolvedAddress} />
+                            </Text>
+                        </Animated.View>
+                    )}
+                    {(resolving && !AppConfig.isTestnet) && (
+                        <Animated.View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                            entering={FadeIn.duration(150)}
+                            exiting={FadeOut.duration(150)}
+                        >
+                            <CircularProgress
+                                style={{
+                                    transform: [{ rotate: '-90deg' }],
+                                    marginRight: 4
+                                }}
+                                progress={100}
+                                animateFromValue={0}
+                                duration={6000}
+                                size={12}
+                                width={2}
+                                color={'#FFFFFF'}
+                                backgroundColor={'#596080'}
+                                fullColor={null}
+                                loop={true}
+                                containerColor={'transparent'}
+                            />
+                        </Animated.View>
+                    )}
+                </View>
+            }
+            multiline
+            autoCorrect={false}
+            autoComplete={'off'}
+            style={style}
+            onBlur={onBlur}
+            onSubmit={onSubmit}
+            returnKeyType="next"
+            blurOnSubmit={false}
+            editable={!resolving}
+            enabled={!resolving}
+        />
+    )
+}));

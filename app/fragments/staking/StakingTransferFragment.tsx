@@ -431,10 +431,11 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
                             <>
                                 {!AppConfig.isTestnet && (
-                                    < StakingCalcComponent
+                                    <StakingCalcComponent
                                         amount={amount}
                                         topUp={params?.action === 'top_up'}
                                         member={member}
+                                        pool={pool}
                                     />
                                 )}
                                 <PoolTransactionInfo pool={pool} />
@@ -486,6 +487,7 @@ export const StakingTransferFragment = fragment(() => {
                                 {!!pool && params.action !== 'withdraw_ready' && (
                                     <StakingCycle
                                         stakeUntil={pool.params.stakeUntil}
+                                        locked={pool.params.locked}
                                         style={{
                                             marginBottom: 15,
                                             marginHorizontal: 0

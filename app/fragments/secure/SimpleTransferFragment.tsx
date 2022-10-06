@@ -31,6 +31,7 @@ import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from '../../Navigation';
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
+import { AddressDomainInput } from '../../components/AddressDomainInput';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -55,6 +56,7 @@ export const SimpleTransferFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
+    const [domain, setDomain] = React.useState<string>();
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
@@ -117,6 +119,7 @@ export const SimpleTransferFragment = fragment(() => {
             return createJettonOrder({
                 wallet: params!.jetton!,
                 target: target,
+                domain: domain,
                 responseTarget: acc.address,
                 text: comment,
                 amount: value,
@@ -129,6 +132,7 @@ export const SimpleTransferFragment = fragment(() => {
         // Resolve order
         return createSimpleOrder({
             target: target,
+            domain: domain,
             text: comment,
             payload: null,
             amount: value.eq(account.balance) ? toNano('0') : value,
@@ -136,7 +140,7 @@ export const SimpleTransferFragment = fragment(() => {
             stateInit
         });
 
-    }, [amount, target, comment, stateInit, jettonWallet, jettonMaster]);
+    }, [amount, target, domain, comment, stateInit, jettonWallet, jettonMaster]);
 
     const doSend = React.useCallback(async () => {
 
@@ -204,7 +208,7 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
+    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
     const config = engine.products.config.useConfig();
@@ -481,69 +485,20 @@ export const SimpleTransferFragment = fragment(() => {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        <ATextInput
-                            value={target}
+                        <AddressDomainInput
+                            target={target}
                             index={1}
                             ref={refs[1]}
                             onFocus={onFocus}
-                            onValueChange={setTarget}
-                            placeholder={t('common.walletAddress')}
-                            keyboardType="ascii-capable"
-                            preventDefaultHeight
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: '#7D858A',
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('transfer.sendTo')}
-                                    </Text>
-                                    {isKnown && (
-                                        <Animated.View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}
-                                            entering={FadeIn.duration(150)}
-                                            exiting={FadeOut.duration(150)}
-                                        >
-                                            <VerifiedIcon
-                                                width={14}
-                                                height={14}
-                                                style={{ alignSelf: 'center', marginRight: 4 }}
-                                            />
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 12,
-                                                color: '#858B93',
-                                                alignSelf: 'flex-start',
-                                            }}>
-                                                {KnownWallets[target].name}
-                                            </Text>
-                                        </Animated.View>
-                                    )}
-                                </View>
-                            }
-                            multiline
-                            autoCorrect={false}
-                            autoComplete={'off'}
+                            onTargetChange={setTarget}
+                            onDomainChange={setDomain}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
+                            isKnown={isKnown}
                             onSubmit={onSubmit}
-                            returnKeyType="next"
-                            blurOnSubmit={false}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
                         <ATextInput

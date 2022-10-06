@@ -164,15 +164,6 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [cardHeight, onReachedEnd]);
 
-    const cardOpacityStyle = useAnimatedStyle(() => {
-        return {
-            opacity: withTiming(cardOpacity.value, {
-                duration: 300,
-                easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-            }),
-        };
-    }, []);
-
     const smallCardStyle = useAnimatedStyle(() => {
         return {
             opacity: withTiming(smallCardOpacity.value, {
@@ -249,9 +240,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                 removeClippedSubviews={true}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-                <Animated.View
+                <View
                     style={[
-                        { ...cardOpacityStyle },
                         {
                             marginHorizontal: 16, marginVertical: 16,
                             height: cardHeight,
@@ -341,7 +331,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             fontFamily: undefined
                         }}
                     />
-                </Animated.View>
+                </View>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     {

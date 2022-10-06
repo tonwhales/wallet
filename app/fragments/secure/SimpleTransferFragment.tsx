@@ -292,6 +292,24 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [order, account.seqno, config, accountState, comment]);
 
+    const onAddAll = React.useCallback(() => {
+        setAmount(jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
+    }, [balance, jettonWallet, jettonMaster]);
+
+    const [selectedInput, setSelectedInput] = React.useState(0);
+
+    const refs = React.useMemo(() => {
+        let r: React.RefObject<ATextInputRef>[] = [];
+        for (let i = 0; i < 3; i++) {
+            r.push(React.createRef());
+        }
+        return r;
+    }, []);
+
+    // 
+    // QR code reader
+    // 
+
     const linkNavigator = useLinkNavigator();
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src, AppConfig.isTestnet);
@@ -301,6 +319,9 @@ export const SimpleTransferFragment = fragment(() => {
                 linkNavigator(res);
             } else {
                 setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                if (refs[1].current?.setValue) {
+                    refs[1].current?.setValue(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                }
                 if (res.amount) {
                     setAmount(fromNano(res.amount));
                 }
@@ -316,23 +337,9 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, []);
 
-    const onAddAll = React.useCallback(() => {
-        setAmount(jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
-    }, [balance, jettonWallet, jettonMaster]);
-
     //
     // Scroll state tracking
     //
-
-    const [selectedInput, setSelectedInput] = React.useState(0);
-
-    const refs = React.useMemo(() => {
-        let r: React.RefObject<ATextInputRef>[] = [];
-        for (let i = 0; i < 3; i++) {
-            r.push(React.createRef());
-        }
-        return r;
-    }, []);
 
     const keyboard = useKeyboard();
     const scrollRef = useAnimatedRef<Animated.ScrollView>();

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { View, Text, ViewStyle, StyleProp, Alert } from "react-native"
+import { View, Text, ViewStyle, StyleProp, Alert, TextInput } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
 import { ATextInput, ATextInputRef } from "./ATextInput"
@@ -38,6 +38,16 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     const engine = useEngine();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
+
+    const tref = React.useRef<TextInput>(null);
+    React.useImperativeHandle(ref, () => ({
+        focus: () => {
+            tref.current!.focus();
+        },
+        setValue: (value) => {
+            setValue(value);
+        }
+    }));
 
     const onResolveDomain = useCallback(
         async (toResolve?: string) => {
@@ -90,17 +100,11 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         }
     }, [value, onResolveDomain, onTargetChange]);
 
-    useEffect(() => {
-        if (target && target !== value) {
-            setValue(target);
-        }
-    }, [target]);
-
     return (
         <ATextInput
             value={value}
             index={index}
-            ref={ref}
+            ref={tref}
             onFocus={onFocus}
             onValueChange={setValue}
             placeholder={AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}

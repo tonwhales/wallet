@@ -34,7 +34,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     isKnown?: boolean,
     index: number
 }, ref: React.ForwardedRef<ATextInputRef>) => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState(target || '');
     const engine = useEngine();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();

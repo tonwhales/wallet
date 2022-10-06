@@ -19,22 +19,25 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onBlur,
     onSubmit,
     target,
+    input,
+    onInputChange,
     onDomainChange,
     onTargetChange,
     isKnown,
     index
 }: {
-    style?: StyleProp<ViewStyle>;
+    style?: StyleProp<ViewStyle>,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
-    target?: string;
-    onTargetChange: (value: string) => void;
-    onDomainChange: (domain: string | undefined) => void;
+    target?: string,
+    input: string,
+    onInputChange: (value: string) => void,
+    onTargetChange: (value: string) => void,
+    onDomainChange: (domain: string | undefined) => void,
     isKnown?: boolean,
     index: number
 }, ref: React.ForwardedRef<ATextInputRef>) => {
-    const [value, setValue] = useState(target || '');
     const engine = useEngine();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
@@ -44,9 +47,6 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         focus: () => {
             tref.current!.focus();
         },
-        setValue: (value) => {
-            setValue(value);
-        }
     }));
 
     const onResolveDomain = useCallback(
@@ -91,22 +91,22 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
 
     useEffect(() => {
         onDomainChange(undefined);
-        onTargetChange(value);
+        onTargetChange(input);
 
         // Check for domain 
         // min domain length is 4, max 126 + '.ton'
-        if (value.length > 7 && value.length < 126 + 4 && value.slice(value.length - 4, value.length) === '.ton') {
-            onResolveDomain(value.slice(0, value.length - 4));
+        if (input.length > 7 && input.length < 126 + 4 && input.slice(input.length - 4, input.length) === '.ton') {
+            onResolveDomain(input.slice(0, input.length - 4));
         }
-    }, [value, onResolveDomain, onTargetChange]);
+    }, [input, onResolveDomain, onTargetChange]);
 
     return (
         <ATextInput
-            value={value}
+            value={input}
             index={index}
             ref={tref}
             onFocus={onFocus}
-            onValueChange={setValue}
+            onValueChange={onInputChange}
             placeholder={AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
             keyboardType={'ascii-capable'}
             autoCapitalize={'none'}

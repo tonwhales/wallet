@@ -231,7 +231,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             marginTop: 5,
                             fontWeight: '400',
                             color: '#8E979D',
-                            marginRight: 16
+                            marginRight: 16, flexGrow: 1
                         }}>
                             {t('common.walletAddress')}
                         </Text>
@@ -239,7 +239,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <View
                                 style={{
                                     flexDirection: 'row',
-                                    justifyContent: 'center',
+                                    justifyContent: 'flex-end',
                                     alignItems: 'center',
                                     marginTop: 5,
                                     flex: 1

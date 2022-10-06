@@ -127,6 +127,7 @@ import Img_zebra from '../../assets/images/img_zebra.svg';
 import SpamIcon from '../../assets/known/spam_icon.svg';
 
 import Verified from '../../assets/ic_verified.svg';
+import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
 
@@ -267,7 +268,14 @@ export const avatarColors = [
     '#d1b04d'
 ];
 
-export const Avatar = React.memo((props: { size: number, id: string, address?: string, image?: string, spam?: boolean }) => {
+export const Avatar = React.memo((props: {
+    size: number,
+    id: string,
+    address?: string,
+    image?: string,
+    spam?: boolean,
+    markContact?: boolean
+}) => {
 
     let known = props.address ? KnownWallets[props.address] : undefined;
     let size = Math.floor(props.size * 0.6);
@@ -300,8 +308,17 @@ export const Avatar = React.memo((props: { size: number, id: string, address?: s
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                 opacity: 0.06
             }} />
-            {!!known && (
+            {!!known && !props.markContact && (
                 <Verified
+                    style={{
+                        position: 'absolute', top: -1, right: -4
+                    }}
+                    height={verifiedSize}
+                    width={verifiedSize}
+                />
+            )}
+            {props.markContact && (
+                <ContactIcon
                     style={{
                         position: 'absolute', top: -1, right: -4
                     }}

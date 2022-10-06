@@ -22,6 +22,7 @@ import { useEngine } from "../../engine/Engine";
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { confirmAlert } from "../../utils/confirmAlert";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
+import ContactIcon from '../../../assets/ic_contacts.svg';
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -225,10 +226,13 @@ export const TransactionPreviewFragment = fragment(() => {
                         flexDirection: 'row',
                         width: '100%',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
-                        overflow: 'hidden',
                     }}>
-                        <Text style={{ marginTop: 5, fontWeight: '400', color: '#8E979D' }}>
+                        <Text style={{
+                            marginTop: 5,
+                            fontWeight: '400',
+                            color: '#8E979D',
+                            marginRight: 16
+                        }}>
                             {t('common.walletAddress')}
                         </Text>
                         {!!known && (
@@ -236,20 +240,35 @@ export const TransactionPreviewFragment = fragment(() => {
                                 style={{
                                     flexDirection: 'row',
                                     justifyContent: 'center',
-                                    alignItems: 'center'
+                                    alignItems: 'center',
+                                    marginTop: 5,
+                                    flex: 1
                                 }}
                             >
-                                <VerifiedIcon
-                                    width={14}
-                                    height={14}
-                                    style={{ alignSelf: 'center', marginRight: 4 }}
-                                />
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 12,
-                                    color: '#858B93',
-                                    alignSelf: 'flex-start',
-                                }}>
+                                {!contact && (
+                                    <VerifiedIcon
+                                        width={14}
+                                        height={14}
+                                        style={{ alignSelf: 'center', marginRight: 4 }}
+                                    />
+                                )}
+                                {!!contact && (
+                                    <ContactIcon
+                                        width={14}
+                                        height={14}
+                                        style={{ alignSelf: 'center', marginRight: 4 }}
+                                    />
+                                )}
+                                <Text
+                                    style={{
+                                        fontWeight: '400',
+                                        fontSize: 12,
+                                        color: '#858B93',
+                                        alignSelf: 'flex-start',
+                                    }}
+                                    numberOfLines={1}
+                                    ellipsizeMode={'tail'}
+                                >
                                     {known.name}
                                 </Text>
                             </View>

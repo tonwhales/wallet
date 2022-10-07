@@ -3,21 +3,24 @@ import { selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
+import { storagePersistence } from "../../storage/storage";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
 
-export type AddressContact = { name: string, extras?: { [key: string]: string | null | undefined } | null };
+const version = 1;
+
+export type AddressContact = { name: string, fields?: { key: string, value: string | null | undefined }[] | null };
 export class SettingsProduct {
     readonly engine: Engine;
     readonly #minAmountSelector;
     readonly #dontShowCommentsSelector;
-    readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact } }>
+    readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact }, fields: { [key: string]: string } }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.addressBook = engine.cloud.get('addressbook', (src) => { src.denyList = {}; src.contacts = {} });
+        this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
 
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',
@@ -95,13 +98,53 @@ export class SettingsProduct {
         return useRecoilValue(this.addressBook.atom).contacts;
     }
 
+    useContactFields() {
+        return useRecoilValue(this.addressBook.atom).fields;
+    }
+
+    useContactField(key: string) {
+        return useRecoilValue(this.addressBook.atom).fields[key];
+    }
+
+    setContactField(key: string, label: string) {
+        this.addressBook.update((doc) => {
+            doc.fields[key] = label;
+        });
+    }
+
+    removeContactField(key: string) {
+        this.addressBook.update((doc) => {
+            delete doc.fields[key];
+        });
+    }
+
     useContact(address: Address) {
         return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })))
     }
 
     setContact(address: Address, contact: AddressContact) {
         this.addressBook.update((doc) => {
-            doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })] = contact;
+            if (!doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })]) {
+                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })] = {
+                    name: contact.name,
+                    fields: contact.fields
+                }
+                return;
+            }
+
+            doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].name = contact.name;
+
+            if (!doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields) {
+                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = [];
+            }
+
+            if (!!contact.fields) {
+                for (let i = 0; i < contact.fields.length; i++) {
+                    doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields![i] = contact.fields![i];
+                }
+            } else {
+                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = [];
+            }
         });
     }
 

@@ -91,6 +91,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                             size={42}
                             image={tx.icon ? tx.icon : undefined}
                             spam={spam}
+                            markContact={!!contact}
                         />
                     )}
                     {parsed.status === 'pending' && (

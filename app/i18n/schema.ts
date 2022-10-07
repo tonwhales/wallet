@@ -479,8 +479,11 @@ export type LocalizationSchema = {
         title: string,
         contact: string,
         name: string,
+        lastName: string,
+        company: string,
         add: string,
         edit: string,
+        save: string,
         notes: string,
         alert: {
             name: string,

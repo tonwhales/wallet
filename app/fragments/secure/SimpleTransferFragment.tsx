@@ -56,6 +56,7 @@ export const SimpleTransferFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
+    const [addressDomainInput, setAddressDomainInput] = React.useState(target);
     const [domain, setDomain] = React.useState<string>();
     const [comment, setComment] = React.useState(params?.comment || '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
@@ -300,7 +301,7 @@ export const SimpleTransferFragment = fragment(() => {
                 navigation.goBack();
                 linkNavigator(res);
             } else {
-                setTarget(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                setAddressDomainInput(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
                 if (res.amount) {
                     setAmount(fromNano(res.amount));
                 }
@@ -486,6 +487,8 @@ export const SimpleTransferFragment = fragment(() => {
                         alignItems: 'center',
                     }}>
                         <AddressDomainInput
+                            input={addressDomainInput}
+                            onInputChange={setAddressDomainInput}
                             target={target}
                             index={1}
                             ref={refs[1]}

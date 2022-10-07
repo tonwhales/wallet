@@ -426,8 +426,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         active: 'Active',
         noActive: 'No active accounts',
         disabled: 'Hidden',
-        alertActive: 'Mark {{symbol}} active?',
-        alertDisabled: 'Mark {{symbol}} hidden?'
+        alertActive: 'Mark {{symbol}} active',
+        alertDisabled: 'Mark {{symbol}} hidden'
     },
     spamFilter: {
         minAmount: 'Min TON amount',

@@ -2,7 +2,9 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { Address } from 'ton';
 import { Engine } from '../../../engine/Engine';
+import { markJettonDisabled } from '../../../engine/sync/ops';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
+import { confirmJettonAction } from '../../AccountsFragment';
 import { ProductButton } from './ProductButton';
 
 export const JettonProduct = React.memo((props: {
@@ -23,6 +25,14 @@ export const JettonProduct = React.memo((props: {
 }) => {
     let balance = props.jetton.balance;
 
+    const promptDisable = React.useCallback(
+        async () => {
+            const c = await confirmJettonAction(true, props.jetton.symbol);
+            if (c) markJettonDisabled(props.engine, props.engine.address, props.jetton.master);
+        },
+        [],
+    );
+
     return (
         <ProductButton
             key={props.jetton.master.toFriendly()}
@@ -39,7 +49,7 @@ export const JettonProduct = React.memo((props: {
                 }
                 props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })
             }}
-            onLongPress={props.onLongPress}
+            onLongPress={props.onLongPress? props.onLongPress: promptDisable}
             style={{ marginVertical: 4 }}
         />
     );

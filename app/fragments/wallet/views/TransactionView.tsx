@@ -56,7 +56,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         }
     }
 
-    const contact = props.engine.products.settings.useContact(operation.address);
+    const contact = props.engine.products.settings.useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

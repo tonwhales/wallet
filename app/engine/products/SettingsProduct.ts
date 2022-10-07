@@ -118,8 +118,12 @@ export class SettingsProduct {
         });
     }
 
-    useContact(address: Address) {
-        return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })))
+    useContactAddress(address: Address) {
+        return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })));
+    }
+
+    useContact(address: string) {
+        return useRecoilValue(this.#contactSelector(address));
     }
 
     setContact(address: Address, contact: AddressContact) {

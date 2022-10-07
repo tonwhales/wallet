@@ -58,7 +58,7 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }
 
-    const contact = engine.products.settings.useContact(operation.address);
+    const contact = engine.products.settings.useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -236,42 +236,53 @@ export const TransactionPreviewFragment = fragment(() => {
                             {t('common.walletAddress')}
                         </Text>
                         {!!known && (
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'flex-end',
-                                    alignItems: 'center',
-                                    marginTop: 5,
-                                    flex: 1
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return [{
+                                        opacity: pressed && contact ? 0.3 : 1,
+                                    }]
+                                }}
+                                onPress={() => {
+                                    navigation.navigate('Contact', { address: operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) });
                                 }}
                             >
-                                {!contact && (
-                                    <VerifiedIcon
-                                        width={14}
-                                        height={14}
-                                        style={{ alignSelf: 'center', marginRight: 4 }}
-                                    />
-                                )}
-                                {!!contact && (
-                                    <ContactIcon
-                                        width={14}
-                                        height={14}
-                                        style={{ alignSelf: 'center', marginRight: 4 }}
-                                    />
-                                )}
-                                <Text
+                                <View
                                     style={{
-                                        fontWeight: '400',
-                                        fontSize: 12,
-                                        color: '#858B93',
-                                        alignSelf: 'flex-start',
+                                        flexDirection: 'row',
+                                        justifyContent: 'flex-end',
+                                        alignItems: 'center',
+                                        marginTop: 5,
+                                        flex: 1
                                     }}
-                                    numberOfLines={1}
-                                    ellipsizeMode={'tail'}
                                 >
-                                    {known.name}
-                                </Text>
-                            </View>
+                                    {!contact && (
+                                        <VerifiedIcon
+                                            width={14}
+                                            height={14}
+                                            style={{ alignSelf: 'center', marginRight: 4 }}
+                                        />
+                                    )}
+                                    {!!contact && (
+                                        <ContactIcon
+                                            width={14}
+                                            height={14}
+                                            style={{ alignSelf: 'center', marginRight: 4 }}
+                                        />
+                                    )}
+                                    <Text
+                                        style={{
+                                            fontWeight: '400',
+                                            fontSize: 12,
+                                            color: '#858B93',
+                                            alignSelf: 'flex-start',
+                                        }}
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                    >
+                                        {known.name}
+                                    </Text>
+                                </View>
+                            </Pressable>
                         )}
                     </View>
                 </View>

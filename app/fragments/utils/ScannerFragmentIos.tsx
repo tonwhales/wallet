@@ -13,7 +13,7 @@ import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { RoundButton } from '../../components/RoundButton';
 
-export const ScannerFragment = systemFragment(() => {
+export const ScannerFragmentIos = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
     const navigation = useNavigation();
@@ -23,7 +23,7 @@ export const ScannerFragment = systemFragment(() => {
     const [flashOn, setFlashOn] = useState(false);
 
     const isFocused = useIsFocused();
-    const devices = useCameraDevices();
+    const devices = useCameraDevices('wide-angle-camera');
     const device = devices.back;
 
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);

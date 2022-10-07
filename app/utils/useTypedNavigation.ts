@@ -5,6 +5,7 @@ import BN from 'bn.js';
 import { Order } from '../fragments/secure/ops/Order';
 import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import { Platform } from 'react-native';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -99,6 +100,16 @@ export class TypedNavigation {
         url: string
     }) {
         this.navigate('Review', params);
+    }
+
+    navigateScanner(params: {
+        callback: (src: string) => void
+    }) {
+        if (Platform.OS === 'ios') {
+            this.navigate('ScannerIos', params);
+        } else {
+            this.navigate('Scanner', params);
+        }
     }
 }
 

@@ -486,7 +486,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                         position: 'absolute',
                                         right: 13,
                                     }}
-                                    onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                    onPress={() => navigation.navigateScanner({ callback: onQRCodeRead })}
                                 >
                                     <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
                                 </Pressable>
@@ -571,7 +571,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                     position: 'absolute',
                                     right: 13,
                                 }}
-                                onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                onPress={() => navigation.navigateScanner({ callback: onQRCodeRead })}
                             >
                                 <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
                             </Pressable>

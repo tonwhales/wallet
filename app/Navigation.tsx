@@ -10,7 +10,7 @@ import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { SimpleTransferFragment } from './fragments/secure/SimpleTransferFragment';
 import { SettingsFragment } from './fragments/SettingsFragment';
-import { ScannerFragment } from './fragments/utils/ScannerFragment';
+import { ScannerFragmentIos } from './fragments/utils/ScannerFragmentIos';
 import { MigrationFragment } from './fragments/secure/MigrationFragment';
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 import { TransactionPreviewFragment } from './fragments/wallet/TransactionPreviewFragment';
@@ -59,6 +59,7 @@ import { CorpFragment } from './fragments/corp/CorpFragment';
 import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
+import { ScannerFragment } from './fragments/utils/ScannerFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -156,6 +157,9 @@ const navigation = [
     modalScreen('Install', InstallFragment),
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),
+    // Splitting scanner modals for iOS optimization 
+    // with useCameraDevices('wide-angle-camera')
+    lockedModalScreen('ScannerIos', ScannerFragmentIos),
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment),
     genericScreen('DeveloperToolsStorage', DevStorageFragment),

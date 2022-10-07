@@ -460,7 +460,7 @@ export const SimpleTransferFragment = fragment(() => {
                         </View>
                         <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
                             <Pressable
-                                onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                onPress={() => navigation.navigateScanner({ callback: onQRCodeRead })}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed

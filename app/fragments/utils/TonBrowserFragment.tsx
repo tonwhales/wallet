@@ -12,14 +12,18 @@ import axios from "axios";
 
 export const TonBrowserFragment = systemFragment(() => {
     const params: { url?: string } = useRoute().params! as any;
+    const [loading, setLoading] = useState<boolean>();
     const [source, setSource] = useState<string>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
     useEffect(() => {
         (async () => {
+            setLoading(true);
             const res = await axios.get('http://in1.ton.org:8080/', { headers: { Host: "foundation.ton" } });
             console.log({ res });
+            setSource(res.data)
+            setLoading(false);
         })()
     }, []);
 

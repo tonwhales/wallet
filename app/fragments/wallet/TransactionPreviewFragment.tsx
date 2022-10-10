@@ -30,6 +30,8 @@ import { PriceComponent } from "../../components/PriceComponent";
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
+import { parseBody } from "../../engine/transactions/parseWalletTransaction";
+import { Body } from "../../engine/Transaction";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -64,6 +66,11 @@ export const TransactionPreviewFragment = fragment(() => {
         } else {
             throw Error('Unknown kind');
         }
+    }
+
+    let body: Body | null = null;
+    if (transaction.base.body?.type === 'payload') {
+        body = parseBody(transaction.base.body.cell);
     }
 
     const txId = useMemo(() => {
@@ -221,7 +228,35 @@ export const TransactionPreviewFragment = fragment(() => {
                         </>
                     )}
                 </View>
-                {operation.comment && !(spam && !dontShowComments) && (
+                {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
+                    <View style={{
+                        marginTop: 14,
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        width: '100%'
+                    }}>
+                        <MenuComponent content={body.comment}>
+                            <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                    {t('common.comment')}
+                                </Text>
+                                <Text
+                                    style={{
+                                        marginTop: 5,
+                                        textAlign: 'left',
+                                        fontWeight: '600',
+                                        fontSize: 16,
+                                        lineHeight: 20
+                                    }}
+                                >
+                                    {body.comment}
+                                </Text>
+                            </View>
+                        </MenuComponent>
+                    </View>
+                )}
+                {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
                         backgroundColor: Theme.item,

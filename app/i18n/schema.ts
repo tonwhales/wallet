@@ -37,7 +37,8 @@ export type LocalizationSchema = {
         domain: string,
         search: string,
         termsOfService: string,
-        privacyPolicy: string
+        privacyPolicy: string,
+        tx: string
     },
     syncStatus: {
         connecting: string,

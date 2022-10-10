@@ -186,9 +186,8 @@ export const TransactionPreviewFragment = fragment(() => {
                     width: '100%'
                 }}>
                     <View style={{
-                        width: 56, height: 56,
-                        borderRadius: 42, borderWidth: 0,
-                        backgroundColor: '#5fbed5',
+                        width: 60, height: 60,
+                        borderRadius: 56, borderWidth: 4, borderColor: Theme.item,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>

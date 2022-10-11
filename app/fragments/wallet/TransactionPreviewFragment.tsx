@@ -68,37 +68,7 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }
 
-    let body: Body | null = null;
-    if (transaction.base.body?.type === 'payload') {
-        body = parseBody(transaction.base.body.cell);
-    }
-
-    const txId = useMemo(() => {
-        if (!transaction.base.lt) {
-            return null;
-        }
-        if (!transactionHash) {
-            return null;
-        }
-        return transaction.base.lt +
-            '_' +
-            transactionHash.toString('hex')
-    }, [transaction, transactionHash]);
-
-    const explorerLink = useMemo(() => {
-        if (!transaction.base.lt) {
-            return null;
-        }
-        if (!transactionHash) {
-            return null;
-        }
-        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
-            + '/explorer/address/' +
-            address.toFriendly() +
-            '/' + txId
-    }, [txId]);
-
-    const contact = engine.products.settings.useContact(operation.address);
+    const contact = engine.products.settings.useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -136,16 +106,30 @@ export const TransactionPreviewFragment = fragment(() => {
         navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
     }, []);
 
-    const onCopy = React.useCallback((body: string) => {
-        if (Platform.OS === 'android') {
-            Clipboard.setString(body);
-            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            return;
-        }
-        Clipboard.setString(body);
-        return;
-    }, []);
+
+    // 
+    // Address actions
+    // 
+    const addressActions = [];
+
+    if (!spam) {
+        addressActions.push({
+            title: t('spamFilter.blockConfirm'),
+            id: 'block',
+            image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
+            attributes: { destructive: true },
+            onAction: () => onMarkAddressSpam(operation.address || address)
+        });
+    }
+
+    if (!known) {
+        addressActions.push({
+            title: t('contacts.contact'),
+            id: 'contact',
+            image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
+            onAction: () => onAddressContact(operation.address || address)
+        });
+    }
 
     return (
         <View style={{
@@ -284,30 +268,65 @@ export const TransactionPreviewFragment = fragment(() => {
                         </MenuComponent>
                     </View>
                 )}
-                <View style={{
-                    marginBottom: 16, marginTop: 14,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    width: '100%'
-                }}>
-                    <View style={{ marginTop: 10, marginBottom: 13, paddingHorizontal: 16 }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            width: '100%',
-                            alignItems: 'center',
-                            marginBottom: 6
+                <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
+                    <WalletAddress
+                        address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        textProps={{ numberOfLines: undefined }}
+                        textStyle={{
+                            textAlign: 'left',
+                            fontWeight: '600',
+                            fontSize: 16,
+                            lineHeight: 20
+                        }}
+                        style={{
+                            width: undefined,
+                            marginTop: undefined
+                        }}
+                        actions={addressActions}
+                    />
+                    <View style={{
+                        flexDirection: 'row',
+                        width: '100%',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{
+                            marginTop: 5,
+                            fontWeight: '400',
+                            color: '#8E979D',
+                            marginRight: 16, flexGrow: 1
                         }}>
-                            <Text style={{
-                                marginTop: 5,
-                                fontWeight: '400',
-                                color: Theme.textSubtitle,
-                                marginRight: 16, flexGrow: 1,
-                                fontSize: 12
-                            }}>
-                                {t('common.walletAddress')}
-                            </Text>
-                            {!!known && (
+                            {t('common.walletAddress')}
+                        </Text>
+                        {!!known && (
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return [{
+                                        opacity: pressed && contact ? 0.3 : 1,
+                                    }]
+                                }}
+                                onPress={() => {
+                                    navigation.navigate('Contact', { address: operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) });
+                                }}
+                                actions={[
+                                    {
+                                        title: t('contacts.contact'),
+                                        id: 'contact',
+                                        image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
+                                        onAction: () => onAddressContact(operation.address || address)
+                                    },
+                                    {
+                                        title: t('spamFilter.blockConfirm'),
+                                        id: 'block',
+                                        image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
+                                        attributes: { destructive: true },
+                                        onAction: () => onMarkAddressSpam(operation.address || address)
+                                    },
+                                ]}
+                            />
+                            <Pressable
+                                style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
+                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
+                            >
                                 <View
                                     style={{
                                         flexDirection: 'row',
@@ -335,7 +354,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         style={{
                                             fontWeight: '400',
                                             fontSize: 12,
-                                            color: Theme.textSubtitle,
+                                            color: '#858B93',
                                             alignSelf: 'flex-start',
                                         }}
                                         numberOfLines={1}
@@ -344,139 +363,8 @@ export const TransactionPreviewFragment = fragment(() => {
                                         {known.name}
                                     </Text>
                                 </View>
-                            )}
-                        </View>
-                        <View style={{ flexDirection: 'row', paddingRight: 16, alignItems: 'center' }}>
-                            <WalletAddress
-                                address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                textProps={{ numberOfLines: undefined }}
-                                textStyle={{
-                                    textAlign: 'left',
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    lineHeight: 20
-                                }}
-                                style={{
-                                    width: undefined,
-                                    marginTop: undefined,
-                                    paddingRight: 40
-                                }}
-                                actions={[
-                                    {
-                                        title: t('contacts.contact'),
-                                        id: 'contact',
-                                        image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
-                                        onAction: () => onAddressContact(operation.address || address)
-                                    },
-                                    {
-                                        title: t('spamFilter.blockConfirm'),
-                                        id: 'block',
-                                        image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
-                                        attributes: { destructive: true },
-                                        onAction: () => onMarkAddressSpam(operation.address || address)
-                                    },
-                                ]}
-                            />
-                            <Pressable
-                                style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
-                            >
-                                <CopyIcon />
                             </Pressable>
-                        </View>
-                    </View>
-                    {txId && explorerLink && (
-                        <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
-                            <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 16 }}>
-                                <View>
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 12,
-                                        lineHeight: 14,
-                                        color: Theme.textSubtitle
-                                    }}>
-                                        {t('common.tx')}
-                                    </Text>
-                                    <Text style={{
-                                        fontWeight: '600',
-                                        fontSize: 16,
-                                        lineHeight: 20,
-                                        marginTop: 6,
-                                        color: Theme.textColor,
-                                        justifyContent: 'center',
-                                        alignItems: 'center'
-                                    }}>
-                                        {txId.slice(0, 10) + '...' + txId.slice(txId.length - 6)}
-                                    </Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                                    <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                        onPress={() => openWithInApp(explorerLink)}
-                                    >
-                                        <ExplorerIcon />
-                                    </Pressable>
-                                    <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1, marginLeft: 24 }; }}
-                                        onPress={() => onCopy(explorerLink)}
-                                    >
-                                        <CopyIcon />
-                                    </Pressable>
-                                </View>
-                            </View>
-                        </>
-                    )}
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
-                    <View style={{ width: '100%', paddingVertical: 10, paddingHorizontal: 16 }}>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 12,
-                            lineHeight: 14,
-                            color: Theme.textSubtitle
-                        }}>
-                            {t('txPreview.blockchainFee')}
-                        </Text>
-                        <View style={{
-                            flexDirection: 'row',
-                            marginTop: 6,
-                            alignItems: 'center'
-                        }}>
-                            <Text style={{
-                                fontWeight: '600',
-                                fontSize: 16,
-                                lineHeight: 20,
-                                color: Theme.textColor,
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                                {fromNano(transaction.base.fees)}
-                                {!AppConfig.isTestnet && (' TON (')}
-                            </Text>
-                            <PriceComponent
-                                amount={transaction.base.fees}
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    paddingHorizontal: 0,
-                                    paddingVertical: 0,
-                                    justifyContent: 'center',
-                                    height: undefined
-                                }}
-                                textStyle={{ color: Theme.textColor, fontSize: 16, lineHeight: 20 }}
-                            />
-                            {!AppConfig.isTestnet && (
-                                <Text style={{
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    lineHeight: 20,
-                                    color: Theme.textColor,
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
-                                    {')'}
-                                </Text>
-                            )}
-                        </View>
+                        )}
                     </View>
                 </View>
             </ScrollView>

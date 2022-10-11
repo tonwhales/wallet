@@ -4,6 +4,7 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
 import { ATextInput, ATextInputRef } from "./ATextInput"
 import VerifiedIcon from '../../assets/ic_verified.svg';
+import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from "../secure/KnownWallets"
 import { Address } from "ton"
 import { warn } from "../utils/log"
@@ -12,6 +13,7 @@ import CircularProgress from "./CircularProgress/CircularProgress"
 import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from "../utils/dns/dns"
 import { useEngine } from "../engine/Engine"
 import { AppConfig } from "../AppConfig"
+import { AddressContact } from "../engine/products/SettingsProduct"
 
 export const AddressDomainInput = React.memo(React.forwardRef(({
     style,
@@ -24,7 +26,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onDomainChange,
     onTargetChange,
     isKnown,
-    index
+    index,
+    contact
 }: {
     style?: StyleProp<ViewStyle>,
     onFocus?: (index: number) => void,
@@ -36,7 +39,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onTargetChange: (value: string) => void,
     onDomainChange: (domain: string | undefined) => void,
     isKnown?: boolean,
-    index: number
+    index: number,
+    contact?: AddressContact
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
     const [resolving, setResolving] = useState<boolean>();
@@ -149,6 +153,31 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 alignSelf: 'flex-start',
                             }}>
                                 {KnownWallets[target].name}
+                            </Text>
+                        </Animated.View>
+                    )}
+                    {(!isKnown && contact && !resolvedAddress && !resolving) && (
+                        <Animated.View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                            entering={FadeIn.duration(150)}
+                            exiting={FadeOut.duration(150)}
+                        >
+                            <ContactIcon
+                                width={14}
+                                height={14}
+                                style={{ alignSelf: 'center', marginRight: 4 }}
+                            />
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 12,
+                                color: '#858B93',
+                                alignSelf: 'flex-start',
+                            }}>
+                                {contact.name}
                             </Text>
                         </Animated.View>
                     )}

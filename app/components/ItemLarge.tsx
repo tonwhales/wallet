@@ -2,14 +2,23 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { Theme } from '../Theme';
 import VerifiedIcon from '../../assets/ic_verified.svg';
+import ContactIcon from '../../assets/ic_contacts.svg';
 
-export const ItemLarge = React.memo((props: { title: string, text?: string, secondary?: string, verified?: boolean, children?: any }) => {
+export const ItemLarge = React.memo((props: {
+    title: string,
+    text?: string,
+    secondary?: string,
+    verified?: boolean,
+    contact?: boolean,
+    children?: any
+}) => {
     return (
         <View style={{ flexDirection: 'column', paddingHorizontal: 16, alignItems: 'flex-start' }}>
             <View style={{ height: 30, flexDirection: 'row' }}>
                 <Text style={{ fontSize: 14, fontWeight: '500', color: Theme.textSecondary, alignSelf: 'center', flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
                 <View style={{ alignItems: 'center', height: 30, flexDirection: 'row' }}>
-                    {props.verified && (<VerifiedIcon />)}
+                    {props.verified && !props.contact && (<VerifiedIcon />)}
+                    {!props.verified && props.contact && (<ContactIcon />)}
                     {props.secondary && (<Text style={{ fontSize: 14, color: Theme.textSecondary }}>{props.secondary}</Text>)}
                 </View>
             </View>

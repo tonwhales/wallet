@@ -374,6 +374,7 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const isKnown: boolean = !!KnownWallets[target];
+    const contact = engine.products.settings.useContact(target);
 
     return (
         <>
@@ -502,6 +503,7 @@ export const SimpleTransferFragment = fragment(() => {
                             }}
                             isKnown={isKnown}
                             onSubmit={onSubmit}
+                            contact={contact}
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
                         <ATextInput

@@ -42,7 +42,7 @@ export const ContactFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const settings = engine.products.settings;
-    const contact = settings.useContact(Address.parse(params.address));
+    const contact = settings.useContactAddress(Address.parse(params.address));
 
     const [editing, setEditing] = useState(!contact);
     const [name, setName] = useState(contact?.name);

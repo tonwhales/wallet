@@ -98,6 +98,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     // Verified wallets
     const known = KnownWallets[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+    // Contact wallets
+    const contact = engine.products.settings.useContactAddress(operation.address);
 
     // Confirmation
     const doSend = React.useCallback(async () => {
@@ -298,7 +300,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             title={t('common.walletAddress')}
                             text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                             verified={!!known}
-                            secondary={known ? known.name : undefined}
+                            contact={!!contact}
+                            secondary={known ? known.name : contact?.name ?? undefined}
                         />
                         {!!props.order.domain && (
                             <>

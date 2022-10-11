@@ -13,7 +13,7 @@ import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { JettonProduct } from "./wallet/products/JettonProduct";
 
-async function confirm(disable: boolean, symbol: string) {
+export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
         Alert.alert(
             disable
@@ -46,14 +46,14 @@ export const AccountsFragment = fragment(() => {
 
     const promptDisable = useCallback(
         async (master: Address, symbol: string) => {
-            const c = await confirm(true, symbol);
+            const c = await confirmJettonAction(true, symbol);
             if (c) markJettonDisabled(engine, engine.address, master);
         },
         [],
     );
     const promptActive = useCallback(
         async (master: Address, symbol: string) => {
-            const c = await confirm(false, symbol);
+            const c = await confirmJettonAction(false, symbol);
             if (c) markJettonActive(engine, engine.address, master);
         },
         [],

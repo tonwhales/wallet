@@ -13,11 +13,13 @@ import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
 import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
+import BN from 'bn.js';
 
 export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
+    const oldWalletsBalance = engine.products.legacy.useState();
 
     const onVersionTap = React.useMemo(() => {
         let count = 0;
@@ -115,10 +117,14 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                    {oldWalletsBalance.gt(new BN(0)) && (
+                        <>
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton leftIcon={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
+                            </View>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                        </>
+                    )}
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../assets/ic_accounts.png')} title={t('products.accounts')} onPress={() => navigation.navigate('Accounts')} />
                     </View>

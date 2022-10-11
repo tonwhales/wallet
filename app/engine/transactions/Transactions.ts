@@ -33,6 +33,22 @@ export class Transactions {
         return parsed;
     }
 
+    getHash(address: Address, lt: string | null) {
+        if (!lt) {
+            return null;
+        }
+
+        let data = this.engine.persistence.transactions.getValue({ address, lt: new BN(lt, 10) })!;
+
+        if (!data) {
+            return null;
+        }
+
+        let cell = Cell.fromBoc(Buffer.from(data, 'base64'))[0];
+
+        return cell.hash();
+    }
+
     set(address: Address, lt: string, data: string) {
         this.engine.persistence.transactions.setValue({ address, lt: new BN(lt, 10) }, data);
     }

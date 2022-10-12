@@ -59,6 +59,7 @@ import { CorpFragment } from './fragments/corp/CorpFragment';
 import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
+import { CurrencyFragment } from './fragments/CurrencyFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -166,6 +167,7 @@ const navigation = [
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Accounts', AccountsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),
+    modalScreen('Currency', CurrencyFragment),
     modalScreen('Review', ReviewFragment),
     modalScreen('DeleteAccount', DeleteAccountFragment),
     modalScreen('Logout', LogoutFragment),

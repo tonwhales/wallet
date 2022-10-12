@@ -24,16 +24,18 @@ import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 import { CorpStatus } from "./corp/CorpProduct";
 import { StakingAPY } from "./api/fetchApy";
+import { PriceState, PrimaryCurrency } from "./products/PriceProduct";
 
 export class Persistence {
 
-    readonly version: number = 6;
+    readonly version: number = 7;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
-    readonly prices: PersistedCollection<void, { price: { usd: number } }>;
+    readonly prices: PersistedCollection<void, PriceState>;
+    readonly primaryCurrency: PersistedCollection<void, string>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
     readonly stakingApy: PersistedCollection<void, StakingAPY>;
@@ -77,6 +79,7 @@ export class Persistence {
         this.transactions = new PersistedCollection({ storage, namespace: 'transactions', key: transactionKey, codec: t.string, engine });
         this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
+        this.primaryCurrency = new PersistedCollection({ storage, namespace: 'primaryCurrency', key: voidKey, codec: t.string, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
         this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });
@@ -158,7 +161,8 @@ const walletCodec = t.type({
 });
 const priceCodec = t.type({
     price: t.type({
-        usd: t.number
+        usd: t.number,
+        rates: t.record(t.string, t.number)
     })
 });
 const stakingPoolStateCodec = t.type({

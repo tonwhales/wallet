@@ -5,9 +5,10 @@ import { fromNano } from "ton"
 import { AppConfig } from "../AppConfig"
 import { usePrice } from "../engine/PriceContext"
 import { Theme } from "../Theme"
+import { formatCurrency } from "../utils/formatCurrency"
 
 export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount: BN, style?: StyleProp<ViewStyle>, textStyle?: StyleProp<TextStyle> }) => {
-    const price = usePrice();
+    const [price, currency] = usePrice();
 
     if (!price || AppConfig.isTestnet) {
         return <></>;
@@ -29,10 +30,7 @@ export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount
                 textAlign: "center",
                 lineHeight: 16
             }, textStyle]}>
-                {`$${(parseFloat(fromNano(amount)) * price.price.usd)
-                    .toFixed(2)
-                    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`
-                }
+                {`${formatCurrency((parseFloat(fromNano(amount)) * price.price.usd * price.price.rates[currency]).toFixed(2), currency)}`}
             </Text>
         </View>
     )

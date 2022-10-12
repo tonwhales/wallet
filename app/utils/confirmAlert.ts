@@ -18,3 +18,20 @@ export async function confirmAlert(title: LocalizedResources) {
         }])
     });
 }
+
+export async function confirmAlertWithTitle(title: string) {
+    return await new Promise<boolean>(resolve => {
+        Alert.alert(title, t('transfer.confirm'), [{
+            text: t('common.yes'),
+            style: 'destructive',
+            onPress: () => {
+                resolve(true)
+            }
+        }, {
+            text: t('common.no'),
+            onPress: () => {
+                resolve(false);
+            }
+        }])
+    });
+}

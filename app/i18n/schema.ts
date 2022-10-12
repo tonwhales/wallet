@@ -37,8 +37,7 @@ export type LocalizationSchema = {
         domain: string,
         search: string,
         termsOfService: string,
-        privacyPolicy: string,
-        tx: string
+        privacyPolicy: string
     },
     syncStatus: {
         connecting: string,
@@ -494,6 +493,14 @@ export type LocalizationSchema = {
         },
         delete: string,
         empty: string
+    },
+    txActions: {
+        addressShare: string,
+        addressContact: string,
+        addressContactEdit: string,
+        addressMarkSpam: string
+        txShare: string,
+        txRepeat: string,
     }
 };
 

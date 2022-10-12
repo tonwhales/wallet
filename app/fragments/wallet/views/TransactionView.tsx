@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, Platform, Share, Text, ToastAndroid, useWindowDimensions, View } from 'react-native';
+import { Image, NativeSyntheticEvent, Platform, Share, Text, ToastAndroid, useWindowDimensions, View } from 'react-native';
 import { Address } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
@@ -14,11 +14,9 @@ import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import { Engine } from '../../../engine/Engine';
-import ContextMenu, { ContextMenuAction } from "react-native-context-menu-view";
+import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import Clipboard from '@react-native-clipboard/clipboard';
-import * as Haptics from 'expo-haptics';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -87,7 +85,6 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
             && !AppConfig.isTestnet
         );
 
-
     // 
     // Address actions
     // 
@@ -95,6 +92,28 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
 
     const addressLink = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
         + operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+
+    const txId = React.useMemo(() => {
+        if (!tx.base.lt) {
+            return null;
+        }
+        if (!transactionHash) {
+            return null;
+        }
+        return tx.base.lt +
+            '_' +
+            transactionHash.toString('hex')
+    }, [tx, transactionHash]);
+
+    const explorerTxLink = React.useMemo(() => {
+        if (!txId) {
+            return null;
+        }
+        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
+            + '/explorer/address/' +
+            operation.address.toFriendly() +
+            '/' + txId
+    }, [txId]);
 
     const onShare = React.useCallback((link: string) => {
         if (Platform.OS === 'ios') {
@@ -115,17 +134,6 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
     }, []);
 
-    const onCopy = React.useCallback((body: string) => {
-        if (Platform.OS === 'android') {
-            Clipboard.setString(body);
-            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            return;
-        }
-        Clipboard.setString(body);
-        return;
-    }, []);
-
     const onRepeatTx = React.useCallback(() => {
         navigation.navigateSimpleTransfer({
             target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
@@ -136,117 +144,56 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
             jetton: null,
             callback: null
         })
-    }, [tx]);
+    }, [tx, operation]);
 
-    const addressActions: ContextMenuAction[] = Platform.OS === 'ios' ? [
-        {
-            title: t('common.walletAddress'), actions: [
-                { title: t('common.copy'), systemIcon: 'doc.on.doc' },
-                { title: t('common.share'), systemIcon: 'square.and.arrow.up' },
-                { title: t('contacts.contact'), systemIcon: 'person.crop.circle' }
-            ]
-        },
-        // TODO: Add after New txs preview ui merge
-        // {
-        //     title: t('common.tx'), actions: [
-        //         { title: t('common.share'), systemIcon: 'square.and.arrow.up' }, 
-        //     ]
-        // },
-    ] : [
-        { title: t('common.walletAddress') + ': ' + t('common.copy') },
-        { title: t('common.walletAddress') + ': ' + t('common.share') },
-        { title: t('common.walletAddress') + ': ' + t('contacts.contact') }
+    const addressActions: ContextMenuAction[] = [
+        { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+        { title: !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'), systemIcon: Platform.OS === 'ios' ? 'person.crop.circle' : undefined },
+        ...(spam ? [{ title: t('txActions.addressMarkSpam'), destructive: true, systemIcon: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined }] : []),
+        { title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined },
+        { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
     ];
 
-    if (!spam) {
-        if (Platform.OS !== 'ios') {
-            addressActions.push({
-                title: t('common.walletAddress') + ': ' + t('spamFilter.blockConfirm'),
-                destructive: true
-            });
-        } else {
-            addressActions[0].actions?.push({
-                title: t('spamFilter.blockConfirm'),
-                destructive: true,
-                systemIcon: 'exclamationmark.octagon'
-            });
-        }
-    }
-
-    if (Platform.OS !== 'ios') {
-        addressActions.push(...[
-            // { title: t('common.tx') + ': ' + t('common.share') }, 
-            // TODO: Add after New txs preview ui merge
-        ])
-        if (tx.base.kind === 'out' && (tx.base.body === null || tx.base.body.type !== 'payload')) {
-            addressActions.push({ title: t('common.tx') + ': ' + t('txPreview.sendAgain') })
-        }
-    } else {
-        if (tx.base.kind === 'out' && (tx.base.body === null || tx.base.body.type !== 'payload')) {
-            addressActions.push({
-                title: t('common.tx'),
-                actions: [
-                    { title: t('txPreview.sendAgain'), systemIcon: 'repeat' }
-                ]
-            });
-        }
-    }
+    const handleAction = React.useCallback(
+        (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+            switch (e.nativeEvent.name) {
+                case t('txActions.addressShare'): {
+                    onShare(addressLink);
+                    break;
+                }
+                case t('txActions.addressContact'): {
+                    onAddressContact(operation.address);
+                    break;
+                }
+                case t('txActions.addressContactEdit'): {
+                    onAddressContact(operation.address);
+                    break;
+                }
+                case t('txActions.addressMarkSpam'): {
+                    onMarkAddressSpam(operation.address);
+                    break;
+                }
+                case t('txActions.txRepeat'): {
+                    onRepeatTx();
+                    break;
+                }
+                case t('txActions.txShare'): {
+                    if (explorerTxLink) {
+                        onShare(explorerTxLink);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        },
+        [addressLink, explorerTxLink],
+    );
 
     return (
         <ContextMenu
             actions={addressActions}
-            onPress={(e) => {
-                if (Platform.OS !== 'ios') {
-                    switch (e.nativeEvent.name) {
-                        case t('common.walletAddress') + ': ' + t('common.copy'): {
-                            onCopy(operation.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                            break;
-                        }
-                        case t('common.walletAddress') + ': ' + t('common.share'): {
-                            onShare(addressLink);
-                            break;
-                        }
-                        case t('common.walletAddress') + ': ' + t('contacts.contact'): {
-                            onAddressContact(operation.address);
-                            break;
-                        }
-                        case t('common.walletAddress') + ': ' + t('spamFilter.blockConfirm'): {
-                            onMarkAddressSpam(operation.address);
-                            break;
-                        }
-                        case t('common.tx') + ': ' + t('txPreview.sendAgain'): {
-                            onRepeatTx();
-                            break;
-                        }
-                        // TODO: Add after New txs preview ui merge
-                        // case t('common.tx') + ': ' + t('common.share'): {
-                        //     onShare(txLink); 
-                        //     break;
-                        // }
-                        default:
-                            break;
-                    }
-                } else { // iOS handling
-                    if (e.nativeEvent.index === 0 && e.nativeEvent.name === t('common.copy')) {
-                        onCopy(operation.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                    }
-                    if (e.nativeEvent.index === 0 && e.nativeEvent.name === t('common.share')) {
-                        onShare(operation.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                    }
-                    if (e.nativeEvent.index === 0 && e.nativeEvent.name === t('contacts.contact')) {
-                        onAddressContact(operation.address);
-                    }
-                    if (e.nativeEvent.index === 0 && e.nativeEvent.name === t('spamFilter.blockConfirm')) {
-                        onMarkAddressSpam(operation.address);
-                    }
-                    if (e.nativeEvent.index === 1 && e.nativeEvent.name === t('txPreview.sendAgain')) {
-                        onRepeatTx();
-                    }
-                }
-                console.warn(
-                    `Pressed ${e.nativeEvent.name} at index ${e.nativeEvent.index}`
-                );
-            }}>
+            onPress={handleAction}>
             <TouchableHighlight
                 onPress={() => props.onPress(props.tx)}
                 underlayColor={Theme.selector}

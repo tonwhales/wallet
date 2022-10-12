@@ -36,8 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         domain: 'Домен',
         search: 'Поиск',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
-        privacyPolicy: 'Privacy\u00A0Policy',
-        tx: 'Транзакция'
+        privacyPolicy: 'Privacy\u00A0Policy'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -493,6 +492,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         delete: 'Удалить контакт',
         empty: 'Нет контактов'
+    },
+    txActions: {
+        addressShare: 'Поделиться адресом',
+        addressContact: 'Добавить адрес в контакты',
+        addressContactEdit: 'Редактировать контакт адреса',
+        addressMarkSpam: 'Пометить адрес как спам',
+        txShare: 'Поделиться транзакцией',
+        txRepeat: 'Повторить транзакцию',
     }
 };
 

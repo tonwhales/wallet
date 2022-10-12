@@ -35,8 +35,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         domain: 'Domain',
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
-        privacyPolicy: 'Privacy\u00A0Policy',
-        tx: 'Transaction'
+        privacyPolicy: 'Privacy\u00A0Policy'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -492,6 +491,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         delete: 'Delete contact',
         empty: 'No contacts'
+    },
+    txActions: {
+        addressShare: 'Share address',
+        addressContact: 'Add address to contacts',
+        addressContactEdit: 'Edit address contact',
+        addressMarkSpam: 'Mark address as spam',
+        txShare: 'Share transaction',
+        txRepeat: 'Repeat transaction',
     }
 };
 

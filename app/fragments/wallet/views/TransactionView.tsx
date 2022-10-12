@@ -146,13 +146,13 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         })
     }, [tx, operation]);
 
-    const addressActions: ContextMenuAction[] = [
+    const addressActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
         { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
         { title: !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'), systemIcon: Platform.OS === 'ios' ? 'person.crop.circle' : undefined },
         ...(!spam ? [{ title: t('txActions.addressMarkSpam'), destructive: true, systemIcon: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined }] : []),
         { title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined },
         { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
-    ];
+    ] : [];
 
     const handleAction = React.useCallback(
         (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {

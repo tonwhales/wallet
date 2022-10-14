@@ -101,7 +101,7 @@ function PoolComponent(props: {
                         restrictedAlert(navigation, addr);
                         return;
                     }
-                    navigation.navigate('Staking', { backToHome: true, pool: addr })
+                    navigation.navigate('Staking', { backToHome: false, pool: addr })
                 }}
                 style={{ marginVertical: 4 }}
             />

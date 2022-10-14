@@ -229,7 +229,13 @@ export type LocalizationSchema = {
                 team: string,
                 teamDescription: string,
                 joinClub: string,
-                joinTeam: string
+                joinTeam: string,
+                clubBanner: string,
+                clubBannerLearnMore: string,
+                clubBannerDescription: string,
+                teamBanner: string,
+                teamBannerLearnMore: string,
+                teamBannerDescription: string,
             },
             transfer: {
                 stakingWarning: string,

@@ -1,6 +1,6 @@
 import { HeaderBackButton } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
@@ -21,10 +21,11 @@ import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
-import { PoolAddress } from "../../utils/PoolAddress";
 import { TransferAction } from "./StakingTransferFragment";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
+import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
+import { KnownPools } from "../../utils/KnownPools";
 
 export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -36,6 +37,22 @@ export const StakingFragment = fragment(() => {
     const pool = engine.products.whalesStakingPools.usePool(target);
     const poolParams = pool?.params;
     const member = pool?.member;
+    const staking = engine.products.whalesStakingPools.useStaking();
+
+    let type: 'club' | 'team' | 'nominators' = useMemo(() => {
+        if (KnownPools[params.pool].name.toLowerCase().includes('club')) {
+            return 'club';
+        }
+        if (KnownPools[params.pool].name.toLowerCase().includes('team')) {
+            return 'team';
+        }
+        return 'nominators'
+    }, [staking]);
+
+    let available = useMemo(() => {
+        return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
+    }, [staking, target]);
+
     const window = useWindowDimensions();
 
     // Animating wallet card
@@ -220,9 +237,12 @@ export const StakingFragment = fragment(() => {
                         locked={pool.params.locked}
                         style={{
                             marginHorizontal: 16,
-                            marginBottom: 15
+                            marginBottom: 24
                         }}
                     />
+                )}
+                {type !== 'nominators' && !available && (
+                    <RestrictedPoolBanner type={type} />
                 )}
             </Animated.ScrollView >
             {/* iOS Toolbar */}
@@ -503,6 +523,7 @@ export const StakingFragment = fragment(() => {
                 <RoundButton
                     title={t('products.staking.actions.top_up')}
                     onPress={onTopUp}
+                    disabled={!available}
                     style={{
                         marginLeft: 7,
                         height: 56,

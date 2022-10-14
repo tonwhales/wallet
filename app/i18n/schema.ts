@@ -37,7 +37,8 @@ export type LocalizationSchema = {
         domain: string,
         search: string,
         termsOfService: string,
-        privacyPolicy: string
+        privacyPolicy: string,
+        apy: string
     },
     syncStatus: {
         connecting: string,
@@ -221,6 +222,14 @@ export type LocalizationSchema = {
                 restrictedTitle: string,
                 restrictedMessage: string,
                 viewClub: string,
+                nominators: string,
+                nominatorsDescription: string,
+                club: string,
+                clubDescription: string,
+                team: string,
+                teamDescription: string,
+                joinClub: string,
+                joinTeam: string
             },
             transfer: {
                 stakingWarning: string,

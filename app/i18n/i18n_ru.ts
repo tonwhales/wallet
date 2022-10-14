@@ -37,6 +37,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         search: 'Поиск',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
+        apy: 'APY'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -210,6 +211,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 restrictedTitle: 'Стейкинг Пул ограничен',
                 restrictedMessage: 'Этот Стейкинг Пул доступен только для членов Whales Club',
                 viewClub: 'Больше о Whales Club',
+                nominators: 'Номинаторы',
+                nominatorsDescription: 'Открыто для всех',
+                club: 'Клубные',
+                clubDescription: 'Только для владельцев Tonwhales NFT',
+                team: 'Командные',
+                teamDescription: 'Только для членов команды Tonwhales и топ 15 членов клуба Whales',
+                joinClub: "Вступить в наш клуб",
+                joinTeam: "Присоединиться к нашей команде"
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',

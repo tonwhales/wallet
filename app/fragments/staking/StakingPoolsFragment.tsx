@@ -1,8 +1,8 @@
-import React from "react";
-import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, ImageRequireSource, Alert } from "react-native";
+import React, { useCallback, useMemo } from "react";
+import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, ImageRequireSource, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppConfig } from "../../AppConfig";
-import { useEngine } from "../../engine/Engine";
+import { Engine, useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { KnownPools } from "../../utils/KnownPools";
 import { ProductButton } from "../wallet/products/ProductButton";
@@ -13,7 +13,7 @@ import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { Ionicons } from '@expo/vector-icons';
 import { HeaderBackButton } from "@react-navigation/elements";
-import { Address } from "ton";
+import { Address, fromNano, toNano } from "ton";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -54,11 +54,24 @@ function restrictedAlert(navigation: TypedNavigation, pool: string) {
     );
 }
 
-function PoolComponent(props: { address: Address, balance: BN, restricted?: boolean }) {
+function PoolComponent(props: {
+    address: Address,
+    balance: BN,
+    restricted?: boolean,
+    engine: Engine
+}) {
     const navigation = useTypedNavigation();
     const addr = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const pool = props.engine.products.whalesStakingPools.usePool(props.address);
+    const poolFee = pool?.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
     const name = KnownPools[addr].name;
-    const sub = addr.slice(0, 10) + '...' + addr.slice(addr.length - 6);
+    const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : addr.slice(0, 10) + '...' + addr.slice(addr.length - 6);
+    const apy = props.engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const apyWithFee = useMemo(() => {
+        if (!!apy && !!poolFee) {
+            return `${t('common.apy')} ~${(apy - apy * (poolFee / 100)).toFixed(2)}%`
+        }
+    }, [apy, poolFee]);
 
     let requireSource: ImageRequireSource | undefined;
     let club: boolean | undefined;
@@ -72,30 +85,72 @@ function PoolComponent(props: { address: Address, balance: BN, restricted?: bool
     }
 
     return (
-        <ProductButton
-            key={props.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-            name={name}
-            subtitle={sub}
-            icon={requireSource ? undefined : StakingIcon}
-            requireSource={requireSource}
-            value={props.balance}
-            onPress={() => {
-                if (club && props.restricted) {
-                    clubAlert(navigation, addr);
-                    return;
-                } else if (props.restricted) {
-                    restrictedAlert(navigation, addr);
-                    return;
-                }
-                navigation.navigate('Staking', { backToHome: true, pool: addr })
-            }}
-            style={{ marginVertical: 4 }}
-        />
+        <>
+            <ProductButton
+                key={props.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                name={name}
+                subtitle={apyWithFee ?? sub}
+                icon={requireSource ? undefined : StakingIcon}
+                requireSource={requireSource}
+                value={props.balance.gt(new BN(0)) ? props.balance : ''}
+                onPress={() => {
+                    if (club && props.restricted) {
+                        clubAlert(navigation, addr);
+                        return;
+                    } else if (props.restricted) {
+                        restrictedAlert(navigation, addr);
+                        return;
+                    }
+                    navigation.navigate('Staking', { backToHome: true, pool: addr })
+                }}
+                style={{ marginVertical: 4 }}
+            />
+        </>
     );
 }
 
-function Header(props: { text: string }) {
-    return <ItemHeader title={props.text} />
+function Header(props: {
+    text: string,
+    description?: string,
+    action?: { title: string, onAction: () => void }
+}) {
+    return (
+        <View style={{ marginBottom: 10 }}>
+            <ItemHeader title={props.text} style={{ paddingVertical: undefined, marginTop: 11, height: undefined }} />
+            {(props.description || props.action) && (
+                <View style={{
+                    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+                    paddingHorizontal: 16
+                }}>
+                    {!!props.description && (
+                        <Text style={{
+                            maxWidth: '70%',
+                            fontSize: 14, color: Theme.textSecondary
+                        }}>
+                            {props.description}
+                        </Text>
+                    )}
+                    {!!props.action && (
+                        <Pressable style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.3 : 1,
+                                alignSelf: 'flex-end'
+                            }
+                        }}
+                            onPress={props.action.onAction}
+                        >
+                            <Text style={{
+                                fontSize: 14, color: Theme.textColor,
+                                textDecorationLine: 'underline'
+                            }}>
+                                {props.action.title}
+                            </Text>
+                        </Pressable>
+                    )}
+                </View>
+            )}
+        </View>
+    )
 }
 
 export const StakingPoolsFragment = fragment(() => {
@@ -107,6 +162,21 @@ export const StakingPoolsFragment = fragment(() => {
     const poolsWithStake = pools.filter((v) => v.balance.gtn(0));
     const items: React.ReactElement[] = [];
     const processed = new Set<string>();
+
+    const onJoinClub = useCallback(
+        () => {
+            openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club');
+        },
+        [],
+    );
+
+    const onJoinTeam = useCallback(
+        () => {
+            openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
+        },
+        [],
+    );
+
 
     // Await config
     if (!staking.config) {
@@ -197,43 +267,123 @@ export const StakingPoolsFragment = fragment(() => {
     }
 
     if (poolsWithStake.length > 0) {
-        items.push(<Header key={'active-header'} text={'🚀 ' + t('products.staking.pools.active')} />);
+        items.push(
+            <Header
+                key={'active-header'}
+                text={t('products.staking.pools.active')}
+            />
+        );
         for (let p of poolsWithStake) {
-            items.push(<PoolComponent key={p.address.toFriendly({ testOnly: AppConfig.isTestnet })} address={p.address} balance={p.balance} />);
+            items.push(
+                <PoolComponent
+                    key={`active-${p.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={p.address}
+                    balance={p.balance}
+                    engine={engine}
+                />
+            );
             processed.add(p.address.toFriendly({ testOnly: AppConfig.isTestnet }));
         }
     }
 
     // Recommended
     let recommended = pools.find((v) => v.address.equals(Address.parse(staking.config!.recommended)));
-    if (recommended && poolsWithStake.length === 0) {
-        processed.add(recommended.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-        items.push(<Header key={'active-header'} text={'💎 ' + t('products.staking.pools.best')} />);
-        items.push(<PoolComponent key={recommended.address.toFriendly({ testOnly: AppConfig.isTestnet })} address={recommended.address} balance={recommended.balance} />);
+
+    if (recommended && !processed.has(recommended.address.toFriendly({ testOnly: AppConfig.isTestnet }))) {
+        items.push(
+            <Header
+                key={'best-header'}
+                text={t('products.staking.pools.best')}
+            />
+        );
+        items.push(
+            <PoolComponent
+                key={`best-${recommended.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                address={recommended.address}
+                balance={recommended.balance}
+                engine={engine}
+            />
+        );
     }
 
-    // Available
-    let available = pools.filter((v) => !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })) && !!staking.config!.pools.find((v2) => Address.parse(v2).equals(v.address)));
-    if (available.length > 0) {
-        items.push(<Header key={'available-header'} text={'🤝 ' + t('products.staking.pools.alternatives')} />);
-        for (let a of available) {
-            processed.add(a.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            items.push(<PoolComponent key={a.address.toFriendly({ testOnly: AppConfig.isTestnet })} address={a.address} balance={a.balance} />);
+    let available = useMemo(() => {
+        return pools.filter((v) => !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })) && !!staking.config!.pools.find((v2) => Address.parse(v2).equals(v.address)))
+    }, [processed]);
+
+    let club = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('club') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+    let team = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('team') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+    let nominators = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('nominators') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+
+    if (nominators.length > 0) {
+        items.push(
+            <Header
+                key={'nomanators-header'}
+                text={t('products.staking.pools.nominators')}
+                description={t('products.staking.pools.nominatorsDescription')}
+            />
+        );
+        for (let pool of nominators) {
+            items.push(
+                <PoolComponent
+                    key={`nominators-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={pool.address}
+                    balance={pool.balance}
+                    engine={engine}
+                />
+            );
         }
     }
 
-    // Unavailable
-    let unavailable = pools.filter((v) => !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
-    if (unavailable.length > 0) {
-        items.push(<Header key={'unavailable-header'} text={'🔐 ' + t('products.staking.pools.private')} />);
-        for (let a of unavailable) {
-            processed.add(a.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            items.push(<PoolComponent key={a.address.toFriendly({ testOnly: AppConfig.isTestnet })} restricted address={a.address} balance={a.balance} />);
+    if (club.length > 0) {
+        items.push(
+            <Header
+                key={'club-header'}
+                text={t('products.staking.pools.club')}
+                description={t('products.staking.pools.clubDescription')}
+                action={{
+                    title: t('products.staking.pools.joinClub'),
+                    onAction: onJoinClub
+                }}
+            />
+        );
+        for (let pool of club) {
+            items.push(
+                <PoolComponent
+                    key={`club-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={pool.address}
+                    balance={pool.balance}
+                    engine={engine}
+                />
+            );
+        }
+    }
+
+    if (team.length > 0) {
+        items.push(
+            <Header
+                key={'team-header'}
+                text={t('products.staking.pools.team')}
+                description={t('products.staking.pools.teamDescription')}
+                action={{
+                    title: t('products.staking.pools.joinTeam'),
+                    onAction: onJoinTeam
+                }}
+            />
+        );
+        for (let pool of team) {
+            items.push(
+                <PoolComponent
+                    key={`team-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={pool.address}
+                    balance={pool.balance}
+                    engine={engine}
+                />
+            );
         }
     }
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+        <View style={{ flexGrow: 1, flex: 1 }}>
             {Platform.OS === 'ios' && (
                 <BlurView style={{
                     height: safeArea.top + 44,
@@ -313,31 +463,22 @@ export const StakingPoolsFragment = fragment(() => {
             )}
             <ScrollView
                 alwaysBounceVertical={false}
-                contentContainerStyle={{ flexGrow: 1, flexBasis: 0, paddingTop: 8, paddingBottom: safeArea.bottom + 52 }}
                 style={{
+                    flexShrink: 1,
                     flexGrow: 1,
-                    flexBasis: 0,
                     backgroundColor: Theme.background,
                 }}
+                contentContainerStyle={{
+                    paddingTop: 8
+                }}
             >
-                {/* {pools.map((p) => {
-                    const addr = p.address.toFriendly({ testOnly: AppConfig.isTestnet });
-                    const name = KnownPools[addr].name
-                    const sub = addr.slice(0, 10) + '...' + addr.slice(addr.length - 6)
-                    return (
-                        <ProductButton
-                            key={p.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            name={name}
-                            subtitle={sub}
-                            icon={StakingIcon}
-                            value={p.balance}
-                            onPress={() => navigation.navigate('Staking', { backToHome: true, pool: addr })}
-                            style={{ marginVertical: 4 }}
-                        />
-                    );
-                })} */}
-                {items}
+                <View style={{ flexGrow: 1 }}>
+
+                    {items}
+                    <View style={{ height: 24 }} />
+                </View>
             </ScrollView>
+            <View style={{ height: safeArea.bottom }} />
         </View>
     );
 });

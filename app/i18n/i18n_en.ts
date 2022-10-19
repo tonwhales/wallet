@@ -36,6 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
+        apy: 'APY',
         tx: 'Transaction'
     },
     syncStatus: {
@@ -210,6 +211,20 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 restrictedTitle: 'Pool is restricted',
                 restrictedMessage: 'This staking pool is available only for the Whales Club members',
                 viewClub: 'View Whales Club',
+                nominators: 'Nominators',
+                nominatorsDescription: 'Open for everyone',
+                club: 'Club',
+                clubDescription: 'Only for Tonwhales NFT owners',
+                team: 'Team',
+                teamDescription: 'Only for Tonwhales Team members and top 15 Whales Club members',
+                joinClub: 'Join our club',
+                joinTeam: 'Join our team',
+                clubBanner: 'Become our Club Member',
+                clubBannerLearnMore: 'Learn about our club',
+                clubBannerDescription: 'If you are not participating in our Club membership your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
+                teamBanner: 'Become our Team Member',
+                teamBannerLearnMore: 'Learn about our team',
+                teamBannerDescription: 'If you are not a part of our team or one of top 15 Club members your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

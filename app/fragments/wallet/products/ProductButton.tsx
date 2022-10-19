@@ -15,7 +15,7 @@ export function ProductButton(props: {
     image?: string,
     requireSource?: ImageRequireSource,
     blurhash?: string,
-    value: BN | null,
+    value: BN | string | null,
     decimals?: number | null,
     symbol?: string,
     extension?: boolean,
@@ -64,15 +64,20 @@ export function ProductButton(props: {
                         <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
                             {props.name}
                         </Text>
-                        {props.value && (
+                        {(!!props.value && typeof props.value !== 'string') && (
                             <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                 <ValueComponent value={props.value} decimals={props.decimals} />{props.symbol ? (' ' + props.symbol) : ''}
+                            </Text>
+                        )}
+                        {(!!props.value && typeof props.value === 'string') && (
+                            <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                                {props.value}
                             </Text>
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: 10 }}>
                         <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
-                        {!!props.value && !props.symbol &&
+                        {(!!props.value && typeof props.value !== 'string' && !props.symbol) &&
                             (
                                 <PriceComponent
                                     amount={props.value}

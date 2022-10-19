@@ -512,6 +512,18 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         empty: 'No contacts yet',
         description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.'
     },
+    currency: {
+        USD: "United States dollar",
+        EUR: "Euro",
+        RUB: "Russian ruble",
+        GBP: "British Pounds",
+        CHF: "Swiss franc",
+        CNY: "Chinese yuan",
+        KRW: "South Korean won",
+        IDR: "Indonesian rupiah",
+        INR: "Indian rupee",
+        JPY: "Japanese yen",
+    },
     txActions: {
         addressShare: 'Share address',
         addressContact: 'Add address to contacts',

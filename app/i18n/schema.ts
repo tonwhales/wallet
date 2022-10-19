@@ -514,6 +514,18 @@ export type LocalizationSchema = {
         empty: string,
         description: string
     },
+    currency: {
+        USD: string,
+        EUR: string,
+        RUB: string,
+        GBP: string,
+        CHF: string,
+        CNY: string,
+        KRW: string,
+        IDR: string,
+        INR: string,
+        JPY: string,
+    },
     txActions: {
         addressShare: string,
         addressContact: string,

@@ -440,7 +440,8 @@ export type LocalizationSchema = {
         denyList: string,
         denyListEmpty: string,
         unblockConfirm: string,
-        blockConfirm: string
+        blockConfirm: string,
+        description: string
     },
     report: {
         title: string,

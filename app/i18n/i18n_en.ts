@@ -35,7 +35,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         domain: 'Domain',
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
-        privacyPolicy: 'Privacy\u00A0Policy'
+        privacyPolicy: 'Privacy\u00A0Policy',
+        apy: 'APY',
+        tx: 'Transaction'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -79,7 +81,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         airdrop: 'Airdrop'
     },
     txPreview: {
-        sendAgain: 'send again',
+        sendAgain: 'Send again',
         blockchainFee: 'Blockchain fee'
     },
     receive: {
@@ -210,6 +212,20 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 restrictedTitle: 'Pool is restricted',
                 restrictedMessage: 'This staking pool is available only for the Whales Club members',
                 viewClub: 'View Whales Club',
+                nominators: 'Nominators',
+                nominatorsDescription: 'Open for everyone',
+                club: 'Club',
+                clubDescription: 'Only for Tonwhales NFT owners',
+                team: 'Team',
+                teamDescription: 'Only for Tonwhales Team members and top 15 Whales Club members',
+                joinClub: 'Join our club',
+                joinTeam: 'Join our team',
+                clubBanner: 'Become our Club Member',
+                clubBannerLearnMore: 'Learn about our club',
+                clubBannerDescription: 'If you are not participating in our Club membership your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
+                teamBanner: 'Become our Team Member',
+                teamBannerLearnMore: 'Learn about our team',
+                teamBannerDescription: 'If you are not a part of our team or one of top 15 Club members your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
@@ -436,10 +452,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         dontShowComments: 'Don\'t show comments on SPAM transactions',
         minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
         applyConfig: 'Apply selected SPAM filter settings',
-        denyList: 'Blocked addresses',
-        denyListEmpty: 'No blocked addresses',
+        denyList: 'Manual spam filter',
+        denyListEmpty: 'No blocked addresses yet',
         unblockConfirm: 'Unblock address',
-        blockConfirm: 'Mark address as spam'
+        blockConfirm: 'Mark address as spam',
+        description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu.'
     },
     report: {
         title: 'Report',
@@ -492,19 +509,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notesDescription: 'Contact fields can\'t be longer than 280 characters',
         },
         delete: 'Delete contact',
-        empty: 'No contacts'
+        empty: 'No contacts yet',
+        description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.'
     },
-    currency: {
-        USD: "United States dollar",
-        EUR: "Euro",
-        RUB: "Russian ruble",
-        GBP: "British Pounds",
-        CHF: "Swiss franc",
-        CNY: "Chinese yuan",
-        KRW: "South Korean won",
-        IDR: "Indonesian rupiah",
-        INR: "Indian rupee",
-        JPY: "Japanese yen",
+    txActions: {
+        addressShare: 'Share address',
+        addressContact: 'Add address to contacts',
+        addressContactEdit: 'Edit address contact',
+        addressMarkSpam: 'Mark address as spam',
+        txShare: 'Share transaction',
+        txRepeat: 'Repeat transaction',
     }
 };
 

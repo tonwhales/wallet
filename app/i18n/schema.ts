@@ -37,7 +37,9 @@ export type LocalizationSchema = {
         domain: string,
         search: string,
         termsOfService: string,
-        privacyPolicy: string
+        privacyPolicy: string,
+        apy: string,
+        tx: string
     },
     syncStatus: {
         connecting: string,
@@ -222,6 +224,20 @@ export type LocalizationSchema = {
                 restrictedTitle: string,
                 restrictedMessage: string,
                 viewClub: string,
+                nominators: string,
+                nominatorsDescription: string,
+                club: string,
+                clubDescription: string,
+                team: string,
+                teamDescription: string,
+                joinClub: string,
+                joinTeam: string,
+                clubBanner: string,
+                clubBannerLearnMore: string,
+                clubBannerDescription: string,
+                teamBanner: string,
+                teamBannerLearnMore: string,
+                teamBannerDescription: string,
             },
             transfer: {
                 stakingWarning: string,
@@ -441,7 +457,8 @@ export type LocalizationSchema = {
         denyList: string,
         denyListEmpty: string,
         unblockConfirm: string,
-        blockConfirm: string
+        blockConfirm: string,
+        description: string
     },
     report: {
         title: string,
@@ -494,19 +511,16 @@ export type LocalizationSchema = {
             notesDescription: string
         },
         delete: string,
-        empty: string
+        empty: string,
+        description: string
     },
-    currency: {
-        USD: string,
-        EUR: string,
-        RUB: string,
-        GBP: string,
-        CHF: string,
-        CNY: string,
-        KRW: string,
-        IDR: string,
-        INR: string,
-        JPY: string,
+    txActions: {
+        addressShare: string,
+        addressContact: string,
+        addressContactEdit: string,
+        addressMarkSpam: string
+        txShare: string,
+        txRepeat: string,
     }
 };
 

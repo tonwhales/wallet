@@ -38,6 +38,7 @@ export type LocalizationSchema = {
         search: string,
         termsOfService: string,
         privacyPolicy: string,
+        apy: string,
         tx: string
     },
     syncStatus: {

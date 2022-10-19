@@ -36,6 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
+        apy: 'APY',
         tx: 'Transaction'
     },
     syncStatus: {

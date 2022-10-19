@@ -36,7 +36,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         domain: 'Домен',
         search: 'Поиск',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
-        privacyPolicy: 'Privacy\u00A0Policy'
+        privacyPolicy: 'Privacy\u00A0Policy',
+        tx: 'Транзакция'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -168,7 +169,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         airdrop: 'Airdrop'
     },
     txPreview: {
-        sendAgain: 'повторить',
+        sendAgain: 'Повторить',
         blockchainFee: 'Комиссия сети'
     },
     qr: {

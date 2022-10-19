@@ -37,7 +37,7 @@ export class Transactions {
         if (!lt) {
             return null;
         }
-
+        
         let data = this.engine.persistence.transactions.getValue({ address, lt: new BN(lt, 10) })!;
 
         if (!data) {

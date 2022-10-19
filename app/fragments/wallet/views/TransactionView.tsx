@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, Text, useWindowDimensions, View } from 'react-native';
+import { Image, NativeSyntheticEvent, Platform, Share, Text, ToastAndroid, useWindowDimensions, View } from 'react-native';
 import { Address } from 'ton';
 import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
@@ -14,16 +14,21 @@ import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import { Engine } from '../../../engine/Engine';
+import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
+import { confirmAlert } from '../../../utils/confirmAlert';
+import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
 }
 
 export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
+    const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
     const tx = props.engine.products.main.useTransaction(props.tx);
+    let transactionHash = props.engine.transactions.getHash(props.engine.address, tx.base.lt);
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -78,78 +83,192 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
             && tx.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet
-        );
+        ) && tx.base.kind !== 'out';
+
+    // 
+    // Address actions
+    // 
+    const settings = props.engine.products.settings;
+
+    const addressLink = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
+        + operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+
+    const txId = React.useMemo(() => {
+        if (!tx.base.lt) {
+            return null;
+        }
+        if (!transactionHash) {
+            return null;
+        }
+        return tx.base.lt +
+            '_' +
+            transactionHash.toString('hex')
+    }, [tx, transactionHash]);
+
+    const explorerTxLink = React.useMemo(() => {
+        if (!txId) {
+            return null;
+        }
+        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
+            + '/explorer/address/' +
+            operation.address.toFriendly() +
+            '/' + txId
+    }, [txId]);
+
+    const onShare = React.useCallback((link: string) => {
+        if (Platform.OS === 'ios') {
+            Share.share({ title: t('receive.share.title'), url: link });
+        } else {
+            Share.share({ title: t('receive.share.title'), message: link });
+        }
+    }, []);
+
+    const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
+        const confirmed = await confirmAlert('spamFilter.blockConfirm');
+        if (confirmed) {
+            settings.addToDenyList(addr);
+        }
+    }, []);
+
+    const onAddressContact = React.useCallback((addr: Address) => {
+        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
+    }, []);
+
+    const onRepeatTx = React.useCallback(() => {
+        navigation.navigateSimpleTransfer({
+            target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
+            comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
+            amount: tx.base.amount.neg(),
+            job: null,
+            stateInit: null,
+            jetton: null,
+            callback: null
+        })
+    }, [tx, operation]);
+
+    const addressActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
+        { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+        { title: !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'), systemIcon: Platform.OS === 'ios' ? 'person.crop.circle' : undefined },
+        ...(!spam ? [{ title: t('txActions.addressMarkSpam'), destructive: true, systemIcon: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined }] : []),
+        { title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined },
+        { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
+    ] : [];
+
+    const handleAction = React.useCallback(
+        (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+            switch (e.nativeEvent.name) {
+                case t('txActions.addressShare'): {
+                    onShare(addressLink);
+                    break;
+                }
+                case t('txActions.addressContact'): {
+                    onAddressContact(operation.address);
+                    break;
+                }
+                case t('txActions.addressContactEdit'): {
+                    onAddressContact(operation.address);
+                    break;
+                }
+                case t('txActions.addressMarkSpam'): {
+                    onMarkAddressSpam(operation.address);
+                    break;
+                }
+                case t('txActions.txRepeat'): {
+                    onRepeatTx();
+                    break;
+                }
+                case t('txActions.txShare'): {
+                    if (explorerTxLink) {
+                        onShare(explorerTxLink);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        },
+        [addressLink, explorerTxLink],
+    );
 
     return (
-        <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
-                <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {parsed.status !== 'pending' && (
-                        <Avatar
-                            address={friendlyAddress}
-                            id={avatarId}
-                            size={42}
-                            image={tx.icon ? tx.icon : undefined}
-                            spam={spam}
-                            markContact={!!contact}
-                        />
-                    )}
-                    {parsed.status === 'pending' && (
-                        <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
-                    )}
-                </View>
-                <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            flexGrow: 1, flexBasis: 0, marginRight: 16,
-                        }}>
-                            <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
-                            {spam && (
-                                <View style={{
-                                    borderColor: '#ADB6BE',
-                                    borderWidth: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: 4,
-                                    marginLeft: 6,
-                                    paddingHorizontal: 4
-                                }}>
-                                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
-                                </View>
-                            )}
-                        </View>
-                        {parsed.status === 'failed' ? (
-                            <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
-                        ) : (
-                            <Text
-                                style={{
-                                    color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
-                                    fontWeight: '400',
-                                    fontSize: 16,
-                                    marginRight: 2
-                                }}>
-                                <ValueComponent value={item.amount} decimals={item.kind === 'token' ? item.decimals : undefined} />
-                                {item.kind === 'token' ? ' ' + item.symbol : ''}
-                            </Text>
+        <ContextMenu
+            actions={addressActions}
+            onPress={handleAction}>
+            <TouchableHighlight
+                onPress={() => props.onPress(props.tx)}
+                underlayColor={Theme.selector}
+                style={{ backgroundColor: Theme.item }}
+                onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
+            >
+                <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
+                    <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+                        {parsed.status !== 'pending' && (
+                            <Avatar
+                                address={friendlyAddress}
+                                id={avatarId}
+                                size={42}
+                                image={tx.icon ? tx.icon : undefined}
+                                spam={spam}
+                                markContact={!!contact}
+                            />
+                        )}
+                        {parsed.status === 'pending' && (
+                            <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
                         )}
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
-                        <Text
-                            style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
-                            ellipsizeMode="middle"
-                            numberOfLines={1}
-                        >
-                            {known ? knownAddressLabel(known, friendlyAddress) : <AddressComponent address={operation.address} />}
-                        </Text>
-                        {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
-                        <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
+                    <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
+                            <View style={{
+                                flexDirection: 'row',
+                                flexGrow: 1, flexBasis: 0, marginRight: 16,
+                            }}>
+                                <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
+                                {spam && (
+                                    <View style={{
+                                        borderColor: '#ADB6BE',
+                                        borderWidth: 1,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        borderRadius: 4,
+                                        marginLeft: 6,
+                                        paddingHorizontal: 4
+                                    }}>
+                                        <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
+                                    </View>
+                                )}
+                            </View>
+                            {parsed.status === 'failed' ? (
+                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
+                            ) : (
+                                <Text
+                                    style={{
+                                        color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
+                                        fontWeight: '400',
+                                        fontSize: 16,
+                                        marginRight: 2
+                                    }}>
+                                    <ValueComponent value={item.amount} decimals={item.kind === 'token' ? item.decimals : undefined} />
+                                    {item.kind === 'token' ? ' ' + item.symbol : ''}
+                                </Text>
+                            )}
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
+                            <Text
+                                style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
+                                ellipsizeMode="middle"
+                                numberOfLines={1}
+                            >
+                                {known ? knownAddressLabel(known, friendlyAddress) : <AddressComponent address={operation.address} />}
+                            </Text>
+                            {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
+                            <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
+                        </View>
+                        <View style={{ flexGrow: 1 }} />
+                        {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
                     </View>
-                    <View style={{ flexGrow: 1 }} />
-                    {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
                 </View>
-            </View>
-        </TouchableHighlight>
+            </TouchableHighlight>
+        </ContextMenu>
     );
 }
 TransactionView.displayName = 'TransactionView';

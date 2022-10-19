@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { NativeSyntheticEvent, Platform, Share, StyleProp, Text, TextProps, TextStyle, ToastAndroid, ViewStyle } from "react-native";
+import { NativeSyntheticEvent, Platform, Share, StyleProp, Text, TextProps, TextStyle, ToastAndroid, View, ViewStyle } from "react-native";
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { AppConfig } from "../AppConfig";
 import { t } from "../i18n/t";
@@ -31,6 +31,7 @@ export const WalletAddress = React.memo((props: {
     const engine = useEngine();
     const navigation = useTypedNavigation();
     const settings = engine.products.settings;
+    const friendlyAddress = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
 
     const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
@@ -120,31 +121,69 @@ export const WalletAddress = React.memo((props: {
             onPress={handleAction}
             style={props.style}
         >
-            <Text
-                selectable={false}
-                numberOfLines={1}
-                ellipsizeMode={'middle'}
-                {...props.textProps}
-            >
-                <Text
-                    style={[
-                        {
-                            fontSize: 16,
-                            fontWeight: '700',
-                            textAlign: 'center',
-                            color: Theme.textColor,
-                            fontVariant: ['tabular-nums']
-                        },
-                        props.textStyle
-                    ]}
-                    numberOfLines={2}
-                >
-                    {props.elipsise
-                        ? ellipsiseAddress(props.address.toFriendly({ testOnly: AppConfig.isTestnet }))
-                        : props.address.toFriendly({ testOnly: AppConfig.isTestnet })
-                    }
-                </Text>
-            </Text>
+            <View>
+                {props.elipsise && (
+                    <Text
+                        style={[
+                            {
+                                fontSize: 16,
+                                fontWeight: '700',
+                                textAlign: 'center',
+                                color: Theme.textColor,
+                                fontVariant: ['tabular-nums'],
+                            },
+                            props.textStyle
+                        ]}
+                        selectable={false}
+                        ellipsizeMode={'middle'}
+                        {...props.textProps}
+                    >
+                        {ellipsiseAddress(friendlyAddress)}
+                    </Text>
+                )}
+                {!props.elipsise && (
+                    <>
+                        <Text
+                            style={[
+                                {
+                                    fontSize: 16,
+                                    fontWeight: '700',
+                                    textAlign: 'center',
+                                    color: Theme.textColor,
+                                    fontVariant: ['tabular-nums'],
+                                    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'
+                                },
+                                props.textStyle
+                            ]}
+                            selectable={false}
+                            ellipsizeMode={'middle'}
+                            {...props.textProps}
+                            numberOfLines={1}
+                        >
+                            {friendlyAddress.slice(0, friendlyAddress.length / 2)}
+                        </Text>
+                        <Text
+                            style={[
+                                {
+                                    fontSize: 16,
+                                    fontWeight: '700',
+                                    textAlign: 'center',
+                                    color: Theme.textColor,
+                                    fontVariant: ['tabular-nums'],
+                                    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'
+                                },
+                                props.textStyle
+                            ]}
+                            selectable={false}
+                            ellipsizeMode={'middle'}
+                            {...props.textProps}
+                            numberOfLines={1}
+                        >
+                            {friendlyAddress.slice(friendlyAddress.length / 2, friendlyAddress.length)}
+                        </Text>
+                    </>
+                )}
+            </View>
         </ContextMenu>
     );
 })

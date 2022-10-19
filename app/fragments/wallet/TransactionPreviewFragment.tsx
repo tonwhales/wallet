@@ -150,7 +150,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: 6 }}>
+            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32 }}>
                 {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             {spam && (
@@ -349,7 +349,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 </Pressable>
                             )}
                         </View>
-                        <View style={{ flexDirection: 'row', paddingRight: 16, alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <WalletAddress
                                 address={operation.address || address}
                                 textProps={{ numberOfLines: undefined }}
@@ -364,9 +364,9 @@ export const TransactionPreviewFragment = fragment(() => {
                                 style={{
                                     width: undefined,
                                     marginTop: undefined,
-                                    paddingRight: 40
                                 }}
                             />
+                            <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
                                 onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}

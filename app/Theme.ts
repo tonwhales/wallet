@@ -4,6 +4,7 @@ import { AppConfig } from "./AppConfig";
 export const Theme = {
     textColor: '#000',
     textSecondary: '#8E8E92',
+    textSubtitle: '#8E979D',
     loader: '#367CDE',
     background: '#F2F2F6',
     item: 'white',
@@ -20,7 +21,8 @@ export const Theme = {
     secondaryButtonText: '#798287',
     success: '#4DC47D',
     dangerZone: '#FF0000',
-    qrCode: '#303757'
+    qrCode: '#303757',
+    price: '#787F83'
 };
 
 export const NavigationTheme: ThemeType = {

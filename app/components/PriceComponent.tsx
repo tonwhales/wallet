@@ -29,7 +29,8 @@ export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount
                 textAlign: "center",
                 lineHeight: 16
             }, textStyle]}>
-                {`$${(parseFloat(fromNano(amount)) * price.price.usd)
+                {amount.isNeg() ? '-' : ''}
+                {`$${(parseFloat(fromNano(amount.abs())) * price.price.usd)
                     .toFixed(2)
                     .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`
                 }

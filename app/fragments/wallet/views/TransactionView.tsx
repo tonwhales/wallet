@@ -83,7 +83,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
             && tx.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet
-        );
+        ) && tx.base.kind !== 'out';
 
     // 
     // Address actions

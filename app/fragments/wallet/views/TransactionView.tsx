@@ -78,7 +78,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
             && tx.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet
-        );
+        ) && tx.base.kind !== 'out';
 
     return (
         <TouchableHighlight onPress={() => props.onPress(props.tx)} underlayColor={Theme.selector} style={{ backgroundColor: Theme.item }}>

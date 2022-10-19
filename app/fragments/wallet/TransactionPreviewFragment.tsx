@@ -81,7 +81,7 @@ export const TransactionPreviewFragment = fragment(() => {
             && transaction.base.body?.type === 'comment'
             && !KnownWallets[friendlyAddress]
             && !AppConfig.isTestnet
-        );
+        ) && transaction.base.kind !== 'out';
 
 
     const settings = engine.products.settings;

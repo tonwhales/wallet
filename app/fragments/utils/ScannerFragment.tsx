@@ -12,6 +12,7 @@ import { CloseButton } from '../../components/CloseButton';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { RoundButton } from '../../components/RoundButton';
+import { CameraComponent } from '../../components/CameraComponent';
 
 export const ScannerFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -23,8 +24,6 @@ export const ScannerFragment = systemFragment(() => {
     const [flashOn, setFlashOn] = useState(false);
 
     const isFocused = useIsFocused();
-    const devices = useCameraDevices('wide-angle-camera');
-    const device = devices.back;
 
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
 
@@ -147,19 +146,12 @@ export const ScannerFragment = systemFragment(() => {
     return (
         <View style={styles.container}>
             <StatusBar style='light' />
-            {(!device || !isActive) && (
-                <ActivityIndicator color={'white'} />
-            )}
-            {device && isActive && (
-                <Camera
-                    style={StyleSheet.absoluteFill}
-                    device={device}
-                    isActive={isActive && isFocused}
-                    frameProcessor={frameProcessor}
-                    frameProcessorFps={2}
-                    torch={flashOn ? 'on' : 'off'}
-                />
-            )}
+            <CameraComponent
+                isActive={isActive && isFocused}
+                frameProcessor={frameProcessor}
+                frameProcessorFps={2}
+                torch={flashOn}
+            />
             <View style={{ flexDirection: 'column', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <View style={{ alignSelf: 'stretch', flexGrow: 1 }} />
                 <View style={{ flexDirection: 'row', alignSelf: 'stretch' }}>

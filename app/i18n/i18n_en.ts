@@ -36,7 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
-        apy: 'APY'
+        tx: 'Transaction'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -79,7 +79,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         airdrop: 'Airdrop'
     },
     txPreview: {
-        sendAgain: 'send again',
+        sendAgain: 'Send again',
         blockchainFee: 'Blockchain fee'
     },
     receive: {
@@ -449,10 +449,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         dontShowComments: 'Don\'t show comments on SPAM transactions',
         minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
         applyConfig: 'Apply selected SPAM filter settings',
-        denyList: 'Blocked addresses',
-        denyListEmpty: 'No blocked addresses',
+        denyList: 'Manual spam filter',
+        denyListEmpty: 'No blocked addresses yet',
         unblockConfirm: 'Unblock address',
-        blockConfirm: 'Mark address as spam'
+        blockConfirm: 'Mark address as spam',
+        description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu.'
     },
     report: {
         title: 'Report',
@@ -505,7 +506,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notesDescription: 'Contact fields can\'t be longer than 280 characters',
         },
         delete: 'Delete contact',
-        empty: 'No contacts'
+        empty: 'No contacts yet',
+        description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.'
+    },
+    txActions: {
+        addressShare: 'Share address',
+        addressContact: 'Add address to contacts',
+        addressContactEdit: 'Edit address contact',
+        addressMarkSpam: 'Mark address as spam',
+        txShare: 'Share transaction',
+        txRepeat: 'Repeat transaction',
     }
 };
 

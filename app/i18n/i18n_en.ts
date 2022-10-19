@@ -492,7 +492,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notesDescription: 'Contact fields can\'t be longer than 280 characters',
         },
         delete: 'Delete contact',
-        empty: 'No contacts'
+        empty: 'No contacts yet',
+        description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.'
     },
     txActions: {
         addressShare: 'Share address',

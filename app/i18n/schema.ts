@@ -494,8 +494,7 @@ export type LocalizationSchema = {
             notesDescription: string
         },
         delete: string,
-        empty: string,
-        description: string,
+        empty: string
     },
     txActions: {
         addressShare: string,

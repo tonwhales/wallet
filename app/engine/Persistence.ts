@@ -35,7 +35,6 @@ export class Persistence {
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, PriceState>;
-    readonly primaryCurrency: PersistedCollection<void, string>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
     readonly stakingApy: PersistedCollection<void, StakingAPY>;
@@ -79,7 +78,6 @@ export class Persistence {
         this.transactions = new PersistedCollection({ storage, namespace: 'transactions', key: transactionKey, codec: t.string, engine });
         this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
-        this.primaryCurrency = new PersistedCollection({ storage, namespace: 'primaryCurrency', key: voidKey, codec: t.string, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
         this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });

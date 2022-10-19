@@ -6,6 +6,7 @@ import { fetchPrice } from "../api/fetchPrice";
 import { watchPrice } from "../api/watchPrice";
 import { selector, useRecoilValue } from "recoil";
 import { AppConfig } from "../../AppConfig";
+import { CloudValue } from "../cloud/CloudValue";
 
 export const PrimaryCurrency: { [key: string]: string } = {
     Usd: 'USD',
@@ -40,31 +41,22 @@ export type PriceState = {
     }
 }
 
+const version = 1;
+
 export class PriceProduct {
     readonly engine: Engine;
     private _state: PriceState | null = null;
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _destroyed: boolean;
     private _watched: (() => void) | null = null;
-    #currencySelector
+    readonly primaryCurrency: CloudValue<{ currency: string }>
 
     constructor(engine: Engine) {
         this.engine = engine;
+        this.primaryCurrency = this.engine.cloud.get(`primaryCurrency-v${version}`, (src) => { src.currency = PrimaryCurrency.Usd });
         this._state = engine.persistence.prices.getValue();
         this._destroyed = false;
         this._start();
-        this.#currencySelector = selector({
-            key: 'settings/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/currency',
-            get: ({ get }) => {
-                let currency = get(this.engine.persistence.primaryCurrency.item().atom);
-
-                if (!currency) {
-                    return PrimaryCurrency.Usd;
-                }
-
-                return currency;
-            }
-        });
     }
 
     get ready() {
@@ -79,11 +71,13 @@ export class PriceProduct {
     }
 
     usePrimaryCurrency() {
-        return useRecoilValue(this.#currencySelector);
+        return useRecoilValue(this.primaryCurrency.atom).currency;
     }
 
     setPrimaryCurrency(code: string) {
-        this.engine.persistence.primaryCurrency.item().update((src) => code);
+        this.primaryCurrency.update((src) => {
+            src.currency = code;
+        });
     }
 
     useState() {

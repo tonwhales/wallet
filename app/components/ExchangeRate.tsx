@@ -3,9 +3,10 @@ import { StyleProp, View, Text, ViewStyle } from "react-native"
 import { usePrice } from "../engine/PriceContext";
 import TonIcon from '../../assets/ton_icon.svg';
 import { AppConfig } from "../AppConfig";
+import { formatCurrency } from "../utils/formatCurrency";
 
 export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle> }) => {
-    const price = usePrice();
+    const [price, currency] = usePrice();
 
     if (!price || AppConfig.isTestnet) {
         return <></>;
@@ -37,10 +38,7 @@ export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle
                 lineHeight: 16,
                 marginLeft: 6
             }]}>
-                {`$${(price.price.usd)
-                    .toFixed(2)
-                    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}`
-                }
+                {`${formatCurrency((price.price.usd * price.price.rates[currency]).toFixed(2), currency)}`}
             </Text>
         </View>
     )

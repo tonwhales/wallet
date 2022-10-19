@@ -108,7 +108,7 @@ export const SettingsFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: "white",
+                    backgroundColor: Theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -138,9 +138,22 @@ export const SettingsFragment = fragment(() => {
                     </View>
                 </View>
 
+                {!AppConfig.isTestnet && (
+                    <View style={{
+                        marginBottom: 16, marginTop: 16,
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton leftIcon={require('../../assets/ic_ton_symbol.png')} title={t('settings.primaryCurrency')} onPress={() => navigation.navigate('Currency')} />
+                        </View>
+                    </View>
+                )}
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: "white",
+                    backgroundColor: Theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -152,7 +165,7 @@ export const SettingsFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: "white",
+                    backgroundColor: Theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -169,7 +182,7 @@ export const SettingsFragment = fragment(() => {
                 {__DEV__ && (
                     <View style={{
                         marginBottom: 16, marginTop: 16,
-                        backgroundColor: "white",
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',

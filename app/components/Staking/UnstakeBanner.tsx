@@ -8,6 +8,7 @@ import { useEngine } from "../../engine/Engine";
 import { AppConfig } from "../../AppConfig";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 export const UnstakeBanner = React.memo((
     {
@@ -27,6 +28,7 @@ export const UnstakeBanner = React.memo((
 ) => {
     const engine = useEngine();
     const price = engine.products.price.useState();
+    const currency = engine.products.price.usePrimaryCurrency();
     const anim = useRef<LottieView>(null);
 
     useLayoutEffect(() => {
@@ -46,9 +48,9 @@ export const UnstakeBanner = React.memo((
         }
     }, [validAmount]);
     const estInc = parseFloat(fromNano(value)) * 0.1;
-    const estIncPrice = estInc * price!.price.usd;
+    const estIncPrice = estInc * (price?.price?.usd ?? 0) * (price?.price.rates[currency] ?? 0);
     const formattedInc = formatNum(estInc < 0.01 ? estInc.toFixed(6) : estInc.toFixed(2));
-    const formattedPrice = formatNum(estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2))
+    const formattedPrice = formatCurrency(estInc < 0.01 ? estIncPrice.toFixed(6) : estIncPrice.toFixed(2), currency)
 
     return (
         <View style={{

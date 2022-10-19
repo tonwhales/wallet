@@ -24,16 +24,17 @@ import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 import { CorpStatus } from "./corp/CorpProduct";
 import { StakingAPY } from "./api/fetchApy";
+import { PriceState, PrimaryCurrency } from "./products/PriceProduct";
 
 export class Persistence {
 
-    readonly version: number = 6;
+    readonly version: number = 7;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
-    readonly prices: PersistedCollection<void, { price: { usd: number } }>;
+    readonly prices: PersistedCollection<void, PriceState>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
     readonly stakingApy: PersistedCollection<void, StakingAPY>;
@@ -158,7 +159,8 @@ const walletCodec = t.type({
 });
 const priceCodec = t.type({
     price: t.type({
-        usd: t.number
+        usd: t.number,
+        rates: t.record(t.string, t.number)
     })
 });
 const stakingPoolStateCodec = t.type({

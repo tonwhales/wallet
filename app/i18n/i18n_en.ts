@@ -56,7 +56,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy policy',
         developerTools: 'Developer Tools',
         spamFilter: 'SPAM filter',
-        logoutDescription: 'This action will disconnect the wallet from this app and delete all of your data from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.'
+        logoutDescription: 'This action will disconnect the wallet from this app and delete all of your data from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.',
+        primaryCurrency: 'Primary currency'
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -328,7 +329,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
             tryAgainLater: 'Please, try again later',
             banner: {
-                estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0(${{price}})',
+                estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0({{price}})',
                 estimatedEarningsDev: 'Your estimated yearly earnings will decrease',
                 message: 'Are you sure about the unstaking?'
             }
@@ -401,7 +402,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         logout: {
             title: 'Are you sure you want to disconnect your wallet from this app and delete all your data from the app?',
             message: 'This action will result in deleting all accounts from this device. Make sure you have backed up your 24 secret words before proceeding.'
-        }
+        },
+        changeCurrency: 'Change primary currency to {{currency}}'
     },
     neocrypto: {
         buttonTitle: 'buy',
@@ -509,6 +511,18 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         delete: 'Delete contact',
         empty: 'No contacts yet',
         description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.'
+    },
+    currency: {
+        USD: "United States dollar",
+        EUR: "Euro",
+        RUB: "Russian ruble",
+        GBP: "British Pounds",
+        CHF: "Swiss franc",
+        CNY: "Chinese yuan",
+        KRW: "South Korean won",
+        IDR: "Indonesian rupiah",
+        INR: "Indian rupee",
+        JPY: "Japanese yen",
     },
     txActions: {
         addressShare: 'Share address',

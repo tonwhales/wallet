@@ -58,7 +58,8 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         developerTools: string,
         spamFilter: string,
-        logoutDescription: string
+        logoutDescription: string,
+        primaryCurrency: string
     },
     wallet: {
         sync: string,
@@ -403,7 +404,8 @@ export type LocalizationSchema = {
         logout: {
             title: string,
             message: string
-        }
+        },
+        changeCurrency: string
     },
     neocrypto: {
         buttonTitle: string,
@@ -511,6 +513,18 @@ export type LocalizationSchema = {
         delete: string,
         empty: string,
         description: string
+    },
+    currency: {
+        USD: string,
+        EUR: string,
+        RUB: string,
+        GBP: string,
+        CHF: string,
+        CNY: string,
+        KRW: string,
+        IDR: string,
+        INR: string,
+        JPY: string,
     },
     txActions: {
         addressShare: string,

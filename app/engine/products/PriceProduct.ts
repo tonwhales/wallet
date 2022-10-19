@@ -4,12 +4,44 @@ import { backoff } from "../../utils/time";
 import React from "react";
 import { fetchPrice } from "../api/fetchPrice";
 import { watchPrice } from "../api/watchPrice";
+import { selector, useRecoilValue } from "recoil";
+import { AppConfig } from "../../AppConfig";
+import { CloudValue } from "../cloud/CloudValue";
+
+export const PrimaryCurrency: { [key: string]: string } = {
+    Usd: 'USD',
+    Eur: 'EUR',
+    Rub: 'RUB',
+    Gbp: 'GBP',
+    Chf: 'CHF',
+    Cny: 'CNY',
+    Krw: 'KRW',
+    Idr: 'IDR',
+    Inr: 'INR',
+    Jpy: 'JPY',
+}
+
+export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean } } = {
+    [PrimaryCurrency.Usd]: { symbol: '$' },
+    [PrimaryCurrency.Eur]: { symbol: '€' },
+    [PrimaryCurrency.Rub]: { symbol: '₽', end: true },
+    [PrimaryCurrency.Gbp]: { symbol: '£' },
+    [PrimaryCurrency.Chf]: { symbol: '₣' },
+    [PrimaryCurrency.Cny]: { symbol: '¥' },
+    [PrimaryCurrency.Krw]: { symbol: '₩' },
+    [PrimaryCurrency.Idr]: { symbol: 'Rp', end: true },
+    [PrimaryCurrency.Inr]: { symbol: '₹' },
+    [PrimaryCurrency.Jpy]: { symbol: '¥' },
+};
 
 export type PriceState = {
     price: {
-        usd: number
+        usd: number,
+        rates: { [key: string]: number }
     }
 }
+
+const version = 1;
 
 export class PriceProduct {
     readonly engine: Engine;
@@ -17,9 +49,11 @@ export class PriceProduct {
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _destroyed: boolean;
     private _watched: (() => void) | null = null;
+    readonly primaryCurrency: CloudValue<{ currency: string }>
 
     constructor(engine: Engine) {
         this.engine = engine;
+        this.primaryCurrency = this.engine.cloud.get(`primaryCurrency-v${version}`, (src) => { src.currency = PrimaryCurrency.Usd });
         this._state = engine.persistence.prices.getValue();
         this._destroyed = false;
         this._start();
@@ -34,6 +68,16 @@ export class PriceProduct {
             throw Error('PriceProduct not ready');
         }
         return this._state;
+    }
+
+    usePrimaryCurrency() {
+        return useRecoilValue(this.primaryCurrency.atom).currency;
+    }
+
+    setPrimaryCurrency(code: string) {
+        this.primaryCurrency.update((src) => {
+            src.currency = code;
+        });
     }
 
     useState() {

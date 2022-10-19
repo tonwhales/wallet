@@ -494,6 +494,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         delete: 'Удалить контакт',
         empty: 'Нет контактов'
+    },
+    txActions: {
+        addressShare: 'Поделиться адресом',
+        addressContact: 'Добавить адрес в контакты',
+        addressContactEdit: 'Редактировать контакт адреса',
+        addressMarkSpam: 'Пометить адрес как спам',
+        txShare: 'Поделиться транзакцией',
+        txRepeat: 'Повторить транзакцию',
     }
 };
 

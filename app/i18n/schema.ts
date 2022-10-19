@@ -495,6 +495,14 @@ export type LocalizationSchema = {
         },
         delete: string,
         empty: string
+    },
+    txActions: {
+        addressShare: string,
+        addressContact: string,
+        addressContactEdit: string,
+        addressMarkSpam: string
+        txShare: string,
+        txRepeat: string,
     }
 };
 

@@ -493,6 +493,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         delete: 'Delete contact',
         empty: 'No contacts'
+    },
+    txActions: {
+        addressShare: 'Share address',
+        addressContact: 'Add address to contacts',
+        addressContactEdit: 'Edit address contact',
+        addressMarkSpam: 'Mark address as spam',
+        txShare: 'Share transaction',
+        txRepeat: 'Repeat transaction',
     }
 };
 

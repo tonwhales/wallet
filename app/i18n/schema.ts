@@ -37,7 +37,8 @@ export type LocalizationSchema = {
         domain: string,
         search: string,
         termsOfService: string,
-        privacyPolicy: string
+        privacyPolicy: string,
+        tx: string
     },
     syncStatus: {
         connecting: string,
@@ -439,7 +440,8 @@ export type LocalizationSchema = {
         denyList: string,
         denyListEmpty: string,
         unblockConfirm: string,
-        blockConfirm: string
+        blockConfirm: string,
+        description: string
     },
     report: {
         title: string,
@@ -492,8 +494,15 @@ export type LocalizationSchema = {
             notesDescription: string
         },
         delete: string,
-        empty: string,
-        description: string,
+        empty: string
+    },
+    txActions: {
+        addressShare: string,
+        addressContact: string,
+        addressContactEdit: string,
+        addressMarkSpam: string
+        txShare: string,
+        txRepeat: string,
     }
 };
 

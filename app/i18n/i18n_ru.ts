@@ -37,6 +37,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         search: 'Поиск',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
+        tx: 'Транзакция'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -168,7 +169,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         airdrop: 'Airdrop'
     },
     txPreview: {
-        sendAgain: 'повторить',
+        sendAgain: 'Повторить',
         blockchainFee: 'Комиссия сети'
     },
     qr: {
@@ -435,10 +436,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         dontShowComments: 'Не показывать комментарии на SPAM транзакциях',
         minAmountDescription: 'Транзакции с количеством TON меньшим чем {{amount}} будут автоматически помечаться как SPAM',
         applyConfig: 'Установить выбраные настройки SPAM фильтра',
-        denyList: 'Заблокированные адреса',
+        denyList: 'Ручной спам фильтр',
         denyListEmpty: 'Нет заблокированных адресов',
         unblockConfirm: 'Разблокировать адрес',
-        blockConfirm: 'Пометить адрес как спам'
+        blockConfirm: 'Пометить адрес как спам',
+        description: 'Вы можете очень легко добавить адрес в список заблокированных вручную, если зажмете любую транзакцию или адрес и во всплывшем меню выберете опцию \"Пометить адрес как спам\"'
     },
     report: {
         title: 'Сообщить о проблеме',
@@ -491,8 +493,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             notesDescription: 'Поля не могут быть длиннее 280 символов',
         },
         delete: 'Удалить контакт',
-        empty: 'У вас ещё нет контактов',
-        description: 'Вы можете очень легко добавить адрес в контакты, если зажмете любую транзакцию или адрес и во всплывшем меню выберете опцию \"Добавить адрес в контакты\"',
+        empty: 'Нет контактов'
+    },
+    txActions: {
+        addressShare: 'Поделиться адресом',
+        addressContact: 'Добавить адрес в контакты',
+        addressContactEdit: 'Редактировать контакт адреса',
+        addressMarkSpam: 'Пометить адрес как спам',
+        txShare: 'Поделиться транзакцией',
+        txRepeat: 'Повторить транзакцию',
     }
 };
 

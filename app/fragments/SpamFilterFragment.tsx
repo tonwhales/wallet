@@ -179,12 +179,31 @@ export const SpamFilterFragment = fragment(() => {
                         <Text style={{
                             fontSize: 18,
                             fontWeight: '700',
-                            marginHorizontal: 16,
                             marginVertical: 8,
-                            color: denyList.length > 0 ? Theme.textColor : Theme.textSecondary
+                            color: Theme.textColor
                         }}>
-                            {denyList.length > 0 ? t('spamFilter.denyList') : t('spamFilter.denyListEmpty')}
+                            {t('spamFilter.denyList')}
                         </Text>
+                        {denyList.length <= 0 && (
+                            <>
+                                <Text style={{
+                                    fontSize: 16,
+                                    fontWeight: '700',
+                                    marginVertical: 8,
+                                    color: Theme.textSecondary
+                                }}>
+                                    {t('spamFilter.denyListEmpty')}
+                                </Text>
+                                <Text style={{
+                                    fontSize: 16,
+                                    fontWeight: '700',
+                                    marginVertical: 8,
+                                    color: Theme.textColor
+                                }}>
+                                    {t('spamFilter.description')}
+                                </Text>
+                            </>
+                        )}
                     </View>
                     {denyList.map((d) => {
                         return (

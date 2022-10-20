@@ -26,6 +26,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
+import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 
 export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -237,10 +238,11 @@ export const StakingFragment = fragment(() => {
                         locked={pool.params.locked}
                         style={{
                             marginHorizontal: 16,
-                            marginBottom: 24
+                            marginBottom: 14
                         }}
                     />
                 )}
+                {!AppConfig.isTestnet && <CalculatorButton target={target} style={{ marginHorizontal: 16 }} />}
                 {type !== 'nominators' && !available && (
                     <RestrictedPoolBanner type={type} />
                 )}
@@ -502,14 +504,17 @@ export const StakingFragment = fragment(() => {
                     </View>
                 )
             }
-            <View style={{
-                height: 64,
-                position: 'absolute',
-                bottom: safeArea.bottom + 16,
-                left: 16, right: 16,
-                flexDirection: 'row',
-                justifyContent: 'space-evenly'
-            }}>
+            <BlurView
+                style={{
+                    height: 64,
+                    position: 'absolute',
+                    paddingBottom: safeArea.bottom + 64,
+                    paddingTop: 8,
+                    left: 16, right: 16, bottom: 0,
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly'
+                }}
+            >
                 <RoundButton
                     display={'secondary'}
                     title={t('products.staking.actions.withdraw')}
@@ -532,7 +537,7 @@ export const StakingFragment = fragment(() => {
                     }}
                     icon={<TopUpIcon />}
                 />
-            </View>
+            </BlurView>
         </View>
     );
 });

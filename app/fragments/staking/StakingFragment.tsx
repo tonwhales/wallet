@@ -26,7 +26,6 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
-import { BN } from "bn.js";
 
 export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -53,10 +52,6 @@ export const StakingFragment = fragment(() => {
     let available = useMemo(() => {
         return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
     }, [staking, target]);
-
-    let canWithdraw = useMemo(() => {
-        return member?.balance.add(member.withdraw).gt(new BN(0));
-    }, [member]);
 
     const window = useWindowDimensions();
 
@@ -524,7 +519,6 @@ export const StakingFragment = fragment(() => {
                         marginRight: 7,
                         height: 56
                     }}
-                    disabled={!canWithdraw}
                 />
                 <RoundButton
                     title={t('products.staking.actions.top_up')}

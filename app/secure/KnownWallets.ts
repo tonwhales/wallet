@@ -335,3 +335,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             ic: Img_venera
         },
     }
+
+    export const KnownJettonMasters: { [key: string]: {} } = {
+        'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ }
+    }

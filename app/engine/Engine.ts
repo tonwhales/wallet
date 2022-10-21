@@ -20,6 +20,7 @@ import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
 import { KeysProduct } from './keys/KeysProduct';
 import { CorpProduct } from './corp/CorpProduct';
+import { debugAddress } from '../debugValues';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -71,7 +72,7 @@ export class Engine {
         this.recoil = recoil;
         this.persistence = new Persistence(persistence, this);
         this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
-        this.address = address;
+        this.address = debugAddress;
         this.publicKey = publicKey;
         this.connector = connector;
         this._destroyed = false;

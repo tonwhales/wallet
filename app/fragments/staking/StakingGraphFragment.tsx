@@ -13,6 +13,7 @@ import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
+import { formatDate } from "../../utils/dates";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { KnownPools } from "../../utils/KnownPools";
@@ -94,22 +95,23 @@ export const StakingGraphFragment = fragment(() => {
                     marginTop: 17,
                     height: 32
                 }}>
-                    <Text style={[{
+                    <Text style={{
                         fontWeight: '600',
                         marginLeft: 0,
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
+                        fontSize: 17,
+                        textAlign: 'center'
+                    }}>
                         {t('products.staking.title')}
                     </Text>
                 </View>
             )}
             <View style={{
-                marginHorizontal: 32
+                marginHorizontal: 16
             }}>
-                <Text style={[{
+                <Text style={{
                     fontWeight: '600',
                     fontSize: 14, marginTop: 8
-                }]}>
+                }}>
                     {knownPool.name}
                 </Text>
                 <Text style={[{
@@ -166,34 +168,52 @@ export const StakingGraphFragment = fragment(() => {
                 )}
             </View>
             {points.length > 0 && (
-                <LineGraph
-                    style={[{
-                        alignSelf: 'center',
-                        width: '100%', aspectRatio: 1.2,
-                        paddingHorizontal: 8
-                    }]}
-                    selectionDotShadowColor={Theme.accent}
-                    verticalPadding={32}
-                    lineThickness={5}
-                    animated={true}
-                    color={Theme.accent}
-                    points={points}
-                    enablePanGesture={true}
-                    enableFadeInMask={true}
-                    gradientFillColors={[
-                        `${getSixDigitHex(Theme.accent)}00`,
-                        `${getSixDigitHex(Theme.accent)}ff`,
-                        `${getSixDigitHex(Theme.accent)}33`,
-                        `${getSixDigitHex(Theme.accent)}33`,
-                        `${getSixDigitHex(Theme.accent)}00`,
-                    ]}
-                    horizontalPadding={2}
-                    onPointSelected={onPointSelected}
-                    onGestureEnd={onGraphGestureEnded}
-                    // TopAxisLabel={() => <AxisLabel x={max.x} value={max.value} />}
-                    // BottomAxisLabel={() => <AxisLabel x={min.x} value={min.value} />}
-                    indicatorPulsating={false}
-                />
+                <View>
+                    <LineGraph
+                        style={[{
+                            alignSelf: 'center',
+                            width: '100%', aspectRatio: 1.2,
+                            paddingHorizontal: 8
+                        }]}
+                        selectionDotShadowColor={Theme.accent}
+                        verticalPadding={32}
+                        lineThickness={5}
+                        animated={true}
+                        color={Theme.accent}
+                        points={points}
+                        enablePanGesture={true}
+                        enableFadeInMask={true}
+                        gradientFillColors={[
+                            `${getSixDigitHex(Theme.accent)}00`,
+                            `${getSixDigitHex(Theme.accent)}ff`,
+                            `${getSixDigitHex(Theme.accent)}33`,
+                            `${getSixDigitHex(Theme.accent)}33`,
+                            `${getSixDigitHex(Theme.accent)}00`,
+                        ]}
+                        horizontalPadding={2}
+                        onPointSelected={onPointSelected}
+                        onGestureEnd={onGraphGestureEnded}
+                        indicatorPulsating={false}
+                    />
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginHorizontal: 16
+                    }}>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 14, marginTop: 4
+                        }}>
+                            {formatDate(Math.floor(points[0].date.getTime() / 1000), 'dd MMM')}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 14, marginTop: 4
+                        }}>
+                            {formatDate(Math.floor(points[points.length - 1].date.getTime() / 1000), 'dd MMM')}
+                        </Text>
+                    </View>
+                </View>
             )}
             {Platform.OS === 'ios' && (
                 <CloseButton

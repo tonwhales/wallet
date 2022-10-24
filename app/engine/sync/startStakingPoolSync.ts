@@ -24,8 +24,8 @@ export type StakingPoolState = {
     }
 };
 
-export type WeeklyStakingChart = {
-    weeklyChart: {
+export type StakingChart = {
+    chart: {
         balance: string;
         ts: number;
         diff: string;
@@ -33,8 +33,8 @@ export type WeeklyStakingChart = {
     lastUpdate: number;
 }
 
-async function syncStakingMemberWeeklyChart(client4: TonClient4, address: Address, pool: Address) {
-    let fromTs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+async function syncStakingMemberMonthlyChart(client4: TonClient4, address: Address, pool: Address) {
+    let fromTs = Date.now() - 60 * 24 * 60 * 60 * 1000;
     fromTs = Math.floor(fromTs / 1000);
 
     let tillTs = Math.floor(Date.now() / 1000) - 60;
@@ -57,11 +57,11 @@ async function syncStakingMemberWeeklyChart(client4: TonClient4, address: Addres
     let points = chaoticPoints.filter(a => a !== null) as { ts: number, balance: BN }[];
     points = points.sort((a, b) => a.ts - b.ts);
 
-    const weeklyChart: { balance: string, ts: number, diff: string }[] = []
+    const chart: { balance: string, ts: number, diff: string }[] = []
     let prevBalance = new BN(1);
 
     for (let point of points) {
-        weeklyChart.push({
+        chart.push({
             balance: point.balance.toString(10),
             ts: point.ts * 1000,
             diff: point.balance.sub(new BN(prevBalance)).toString(10)
@@ -72,7 +72,7 @@ async function syncStakingMemberWeeklyChart(client4: TonClient4, address: Addres
 
     const lastUpdate = Date.now();
 
-    return { weeklyChart, lastUpdate };
+    return { chart, lastUpdate };
 }
 
 export async function downloadStateDirectly(engine: Engine, address: Address) {
@@ -94,7 +94,7 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
     let key = `${member.toFriendly({ testOnly: AppConfig.isTestnet })}/staking/${pool.toFriendly({ testOnly: AppConfig.isTestnet })}`;
     let lite = engine.persistence.liteAccounts.item(pool);
     let item = engine.persistence.staking.item({ address: pool, target: member });
-    let chartItem = engine.persistence.stakingWeeklyChart.item({ address: pool, target: member });
+    let chartItem = engine.persistence.stakingChart.item({ address: pool, target: member });
 
     startDependentSync(key, lite, engine, async (parent) => {
 
@@ -189,11 +189,12 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         };
         item.update(() => newState);
 
-        if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
+        // if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
+        if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 1 * 1000) { // syncing every hour
             return;
         }
 
-        const newChartState = await syncStakingMemberWeeklyChart(engine.client4, member, pool);
+        const newChartState = await syncStakingMemberMonthlyChart(engine.client4, member, pool);
 
         if (newChartState) {
             chartItem.update(() => newChartState);

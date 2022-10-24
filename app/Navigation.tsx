@@ -60,6 +60,7 @@ import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
+import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -163,8 +164,9 @@ const navigation = [
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('Corp', CorpFragment),
+    modalScreen('StakingGraph', StakingGraphFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
+    modalScreen('Corp', CorpFragment),
     modalScreen('Accounts', AccountsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),
     modalScreen('Currency', CurrencyFragment),

@@ -12,7 +12,7 @@ import { FullAccount } from "./sync/startAccountFullSync";
 import { WalletV4State } from "./sync/startWalletV4Sync";
 import { JettonWalletState } from "./sync/startJettonWalletSync";
 import { JettonMasterState } from "./sync/startJettonMasterSync";
-import { StakingPoolState, WeeklyStakingChart } from "./sync/startStakingPoolSync";
+import { StakingPoolState, StakingChart } from "./sync/startStakingPoolSync";
 import { Engine } from "./Engine";
 import { HintProcessingState } from "./sync/startHintSync";
 import { TxHints } from "./sync/startHintsTxSync";
@@ -37,7 +37,7 @@ export class Persistence {
     readonly prices: PersistedCollection<void, PriceState>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
-    readonly stakingWeeklyChart: PersistedCollection<{ address: Address, target: Address }, WeeklyStakingChart>;
+    readonly stakingChart: PersistedCollection<{ address: Address, target: Address }, StakingChart>;
     readonly stakingApy: PersistedCollection<void, StakingAPY>;
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
@@ -81,7 +81,7 @@ export class Persistence {
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
-        this.stakingWeeklyChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
+        this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
         this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });
         this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec, engine });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata, engine });
@@ -314,7 +314,7 @@ const apyCodec = t.type({
 });
 
 const stakingWeeklyChartCodec = t.type({
-    weeklyChart: t.array(t.type({
+    chart: t.array(t.type({
         balance: t.string,
         ts: t.number,
         diff: t.string,

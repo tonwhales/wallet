@@ -220,7 +220,11 @@ export class WalletProduct {
                     next = { lt: latest.prev.lt, hash: latest.prev.hash };
                 }
 
-                const toLoad = this.#initialLoad ? 10 : state.transactions.length;
+                let toLoad = this.#initialLoad ? 10 : state.transactions.length;
+
+                if (state.transactions.length <= 10) {
+                    toLoad = state.transactions.length - 1; // first 10 txs except for the latest
+                }
 
                 for (let i = 0; i < toLoad - 1; i++) {
 

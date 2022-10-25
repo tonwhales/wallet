@@ -25,12 +25,14 @@ import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 import { CorpStatus } from "./corp/CorpProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState, PrimaryCurrency } from "./products/PriceProduct";
+import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
 
 export class Persistence {
 
     readonly version: number = 8;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
+    readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
@@ -81,7 +83,6 @@ export class Persistence {
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
-        this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
         this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });
         this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec, engine });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata, engine });
@@ -118,6 +119,10 @@ export class Persistence {
 
         // Corp
         this.corp = new PersistedCollection({ storage, namespace: 'corp', key: addressKey, codec: corpCodec, engine });
+
+        // Charts
+        this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
+        this.accountBalanceChart = new PersistedCollection({ storage, namespace: 'accountBalanceChart', key: addressKey, codec: accountBalanceChartCodec, engine });
     }
 }
 
@@ -320,4 +325,12 @@ const stakingWeeklyChartCodec = t.type({
         diff: t.string,
     })),
     lastUpdate: t.number
+});
+
+const accountBalanceChartCodec = t.type({
+    chart: t.array(t.type({
+        balance: t.string,
+        ts: t.number,
+        diff: t.string,
+    }))
 });

@@ -29,6 +29,7 @@ import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from '../../Navigation';
 import { ExchangeRate } from '../../components/ExchangeRate';
+import GraphIcon from '../../../assets/ic_graph.svg';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -224,6 +225,12 @@ function WalletComponent(props: { wallet: WalletState }) {
         [],
     );
 
+    const openGraph = React.useCallback(() => {
+        if (account?.balance.gt(new BN(0))) {
+            navigation.navigate('AccountBalanceGraph');
+        }
+    }, [account]);
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
@@ -304,9 +311,23 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </View>
 
                     <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
-                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
-                        <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed && account?.balance.gt(new BN(0)) ? 0.3 : 1,
+                                    marginLeft: 22,
+                                    flexDirection: 'row', alignItems: 'center'
+                                };
+                            }}
+                            onPress={openGraph}
+                        >
+                            <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
+                                <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
+                            </Text>
+                            {account?.balance.gt(new BN(0)) && <GraphIcon />}
+                        </Pressable>
+                    </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
                         <PriceComponent amount={account.balance} />
                         <ExchangeRate style={{ marginLeft: 8 }} />

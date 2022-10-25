@@ -33,8 +33,8 @@ export type StakingChart = {
     lastUpdate: number;
 }
 
-async function syncStakingMemberMonthlyChart(client4: TonClient4, address: Address, pool: Address) {
-    let fromTs = Date.now() - 60 * 24 * 60 * 60 * 1000;
+async function getStakingMemberMonthlyChart(client4: TonClient4, address: Address, pool: Address) {
+    let fromTs = Date.now() - 30 * 24 * 60 * 60 * 1000;
     fromTs = Math.floor(fromTs / 1000);
 
     let tillTs = Math.floor(Date.now() / 1000) - 60;
@@ -194,7 +194,7 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
             return;
         }
 
-        const newChartState = await syncStakingMemberMonthlyChart(engine.client4, member, pool);
+        const newChartState = await getStakingMemberMonthlyChart(engine.client4, member, pool);
 
         if (newChartState) {
             chartItem.update(() => newChartState);

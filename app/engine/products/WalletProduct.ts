@@ -414,4 +414,8 @@ export class WalletProduct {
     usePlugins() {
         return useRecoilValue(this.#plugins);
     }
+
+    useAccountBalanceChart() {
+        return useRecoilValue(this.engine.persistence.accountBalanceChart.item(this.address).atom);
+    }
 }

@@ -99,6 +99,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const syncState = engine.state.use();
+    const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
 
     //
@@ -226,7 +227,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     );
 
     const openGraph = React.useCallback(() => {
-        if (account?.balance.gt(new BN(0))) {
+        if (balanceChart && balanceChart.chart.length > 0) {
             navigation.navigate('AccountBalanceGraph');
         }
     }, [account]);
@@ -315,7 +316,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         <Pressable
                             style={({ pressed }) => {
                                 return {
-                                    opacity: pressed && account?.balance.gt(new BN(0)) ? 0.3 : 1,
+                                    opacity: (pressed && balanceChart && balanceChart.chart.length > 0) ? 0.3 : 1,
                                     marginLeft: 22,
                                     flexDirection: 'row', alignItems: 'center'
                                 };

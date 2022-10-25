@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { Platform, TextInput, View, Text, TextInputProps, ScrollView } from "react-native";
@@ -27,13 +28,29 @@ export const AccountBalanceGraphFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
     const balanceChart = engine.products.main.useAccountBalanceChart();
+    const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 
-    const points: GraphPoint[] = (balanceChart?.chart || []).map((p) => {
-        return {
-            value: parseFloat(fromNano(p.balance)),
-            date: new Date(p.ts)
+    const points: GraphPoint[] = useMemo(() => {
+        const temp = (balanceChart?.chart || []).map((p) => {
+            return {
+                value: parseFloat(fromNano(p.balance)),
+                date: new Date(p.ts)
+            }
+        });
+
+        if (account && last) {
+            const latest = engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
+
+            if (latest && (latest.time * 1000 > temp[temp.length - 1].date.getTime())) {
+                temp.push({
+                    value: parseFloat(fromNano(account.balance)),
+                    date: new Date(account.transactions[0].time * 1000)
+                });
+            }
         }
-    });
+
+        return temp;
+    }, [balanceChart, account]);
 
     const [price, currency] = usePrice();
 
@@ -46,6 +63,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
     }, [account]);
 
     const balanceShared = useSharedValue(balance);
+    const pointerDate = useSharedValue('');
     const priceShared = useSharedValue(`${formatCurrency((parseFloat(balance) * rate).toFixed(2), currency)}`);
 
     useEffect(() => {
@@ -57,6 +75,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
         (point: GraphPoint) => {
             balanceShared.value = point.value.toFixed(2);
             priceShared.value = `${formatCurrency((parseFloat(point.value.toFixed(2)) * rate).toFixed(2), currency)}`;
+            pointerDate.value = `${formatDate(Math.floor(point.date.getTime() / 1000), 'dd MMM')}`;
         },
         [rate],
     );
@@ -64,6 +83,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
     const onGraphGestureEnded = useCallback(() => {
         balanceShared.value = parseFloat(balance).toFixed(2);
         priceShared.value = `${formatCurrency((parseFloat(balance) * rate).toFixed(2), currency)}`;
+        pointerDate.value = ''
     }, [balance, rate]);
 
     const animatedTonProps = useAnimatedProps(() => {
@@ -75,6 +95,12 @@ export const AccountBalanceGraphFragment = fragment(() => {
     const animatedPriceProps = useAnimatedProps(() => {
         return {
             text: `${priceShared.value}`,
+        };
+    });
+
+    const animatedPointerProps = useAnimatedProps(() => {
+        return {
+            text: `${pointerDate.value}`,
         };
     });
 
@@ -176,6 +202,18 @@ export const AccountBalanceGraphFragment = fragment(() => {
                             onPointSelected={onPointSelected}
                             onGestureEnd={onGraphGestureEnded}
                             indicatorPulsating={false}
+                            TopAxisLabel={() => <AnimatedText
+                                animatedProps={animatedPointerProps as Partial<Animated.AnimateProps<TextInputProps>>}
+                                style={{
+                                    height: 40,
+                                    marginTop: 2,
+                                    color: Theme.textColor,
+                                    fontSize: 14,
+                                    fontWeight: '600',
+                                    textAlign: "center",
+                                    lineHeight: 16
+                                }}
+                            />}
                         />
                         <View style={{
                             flexDirection: 'row',

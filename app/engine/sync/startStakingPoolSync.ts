@@ -189,12 +189,11 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         };
         item.update(() => newState);
 
-        // if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
-        if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 1 * 1000) { // syncing every hour
+        if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
             return;
         }
 
-        const newChartState = await getStakingMemberMonthlyChart(engine.client4, member, pool);
+        const newChartState = await backoff('graph', () => getStakingMemberMonthlyChart(engine.client4, member, pool));
 
         if (newChartState) {
             chartItem.update(() => newChartState);

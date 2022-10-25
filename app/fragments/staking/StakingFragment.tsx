@@ -40,6 +40,7 @@ export const StakingFragment = fragment(() => {
     const poolParams = pool?.params;
     const member = pool?.member;
     const staking = engine.products.whalesStakingPools.useStaking();
+    const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
 
     let type: 'club' | 'team' | 'nominators' = useMemo(() => {
         if (KnownPools[params.pool].name.toLowerCase().includes('club')) {
@@ -155,7 +156,7 @@ export const StakingFragment = fragment(() => {
     );
 
     const openGraph = useCallback(() => {
-        if (member?.balance.gt(new BN(0))) {
+        if (!!stakingChart) {
             navigation.navigate('StakingGraph', { pool: target.toFriendly({ testOnly: AppConfig.isTestnet }) });
         }
     }, [member]);
@@ -209,7 +210,7 @@ export const StakingFragment = fragment(() => {
                         <Pressable
                             style={({ pressed }) => {
                                 return {
-                                    opacity: pressed && member?.balance.gt(new BN(0)) ? 0.3 : 1,
+                                    opacity: pressed && stakingChart ? 0.3 : 1,
                                     marginLeft: 22,
                                     flexDirection: 'row', alignItems: 'center'
                                 };
@@ -222,7 +223,7 @@ export const StakingFragment = fragment(() => {
                                     centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                                 />
                             </Text>
-                            {member?.balance.gt(new BN(0)) && <GraphIcon />}
+                            {!!stakingChart && <GraphIcon />}
                         </Pressable>
                     </View>
                     <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />

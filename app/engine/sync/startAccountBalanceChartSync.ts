@@ -13,10 +13,14 @@ export type AccountBalanceChart = {
 }
 
 async function getMonthlyAccountBalanceChart(client4: TonClient4, address: Address) {
-    let fromTs = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const zeroDate = new Date();
+    zeroDate.setHours(0);
+    zeroDate.setMinutes(0);
+    zeroDate.setSeconds(0);
+    let fromTs = zeroDate.getTime() - 30 * 24 * 60 * 60 * 1000;
     fromTs = Math.floor(fromTs / 1000);
 
-    let tillTs = Math.floor(Date.now() / 1000) - 60;
+    let tillTs = Math.floor(zeroDate.getTime() / 1000);
     let keyTimePoints: number[] = [];
     for (let ts = tillTs; ts > fromTs; ts -= 60 * 60 * 24) {
         keyTimePoints.push(ts);
@@ -24,7 +28,6 @@ async function getMonthlyAccountBalanceChart(client4: TonClient4, address: Addre
 
     let keyBlocks = await Promise.all(keyTimePoints.map(async (ts) => ({ block: await client4.getBlockByUtime(ts), ts })));
     let chaoticPoints = await Promise.all(keyBlocks.map(async block => {
-
         let result = await client4.getAccountLite(block.block.shards[0].seqno, address);
         if (result.account.balance.coins) {
             return { ts: block.ts, balance: new BN(result.account.balance.coins, 10) };

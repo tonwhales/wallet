@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, TextInput, View, Text, TextInputProps } from "react-native";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { Platform, TextInput, View, Text, TextInputProps, ScrollView } from "react-native";
 import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,6 +8,7 @@ import { fromNano, toNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
+import { RoundButton } from "../../components/RoundButton";
 import { useEngine } from "../../engine/Engine";
 import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
@@ -77,6 +78,8 @@ export const AccountBalanceGraphFragment = fragment(() => {
         };
     });
 
+    const close = useCallback(() => navigation.goBack(), []);
+
     return (
         <View style={{
             flex: 1,
@@ -99,106 +102,119 @@ export const AccountBalanceGraphFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <View style={{
-                marginHorizontal: 16
-            }}>
-                <Text style={[{
-                    fontWeight: '600',
-                    fontSize: 14, marginTop: 16
-                }]}>
-                    {t('common.balance')}
-                </Text>
-                <AnimatedText
-                    animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
-                    style={{
-                        fontSize: 30,
-                        color: Theme.textColor,
-                        marginRight: 8,
-                        fontWeight: '800',
-                        height: 40,
-                        marginTop: 2
-                    }}
-                />
-                {(price && !AppConfig.isTestnet) && (
-                    <View style={[{
-                        backgroundColor: Theme.accent,
-                        borderRadius: 9,
-                        height: 24,
-                        alignSelf: 'flex-start',
-                        justifyContent: 'center',
-                        alignItems: 'flex-start',
-                        paddingVertical: 4, paddingHorizontal: 8,
-                        marginTop: 6
+            <ScrollView>
+                <View style={{
+                    marginHorizontal: 16
+                }}>
+                    <Text style={[{
+                        fontWeight: '600',
+                        fontSize: 14, marginTop: 16
                     }]}>
-                        <AnimatedText
-                            animatedProps={animatedPriceProps as Partial<Animated.AnimateProps<TextInputProps>>}
-                            style={{
-                                height: 40,
-                                marginTop: 2,
-                                color: 'white',
-                                fontSize: 14,
-                                fontWeight: '600',
-                                textAlign: "center",
-                                lineHeight: 16
-                            }}
+                        {t('common.balance')}
+                    </Text>
+                    <AnimatedText
+                        animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
+                        style={{
+                            fontSize: 30,
+                            color: Theme.textColor,
+                            marginRight: 8,
+                            fontWeight: '800',
+                            height: 40,
+                            marginTop: 2
+                        }}
+                    />
+                    {(price && !AppConfig.isTestnet) && (
+                        <View style={[{
+                            backgroundColor: Theme.accent,
+                            borderRadius: 9,
+                            height: 24,
+                            alignSelf: 'flex-start',
+                            justifyContent: 'center',
+                            alignItems: 'flex-start',
+                            paddingVertical: 4, paddingHorizontal: 8,
+                            marginTop: 6
+                        }]}>
+                            <AnimatedText
+                                animatedProps={animatedPriceProps as Partial<Animated.AnimateProps<TextInputProps>>}
+                                style={{
+                                    height: 40,
+                                    marginTop: 2,
+                                    color: 'white',
+                                    fontSize: 14,
+                                    fontWeight: '600',
+                                    textAlign: "center",
+                                    lineHeight: 16
+                                }}
+                            />
+                        </View>
+                    )}
+                </View>
+                {points.length > 0 && (
+                    <View>
+                        <LineGraph
+                            style={[{
+                                alignSelf: 'center',
+                                width: '100%', aspectRatio: 1.2,
+                                paddingHorizontal: 8,
+                            }]}
+                            selectionDotShadowColor={Theme.accent}
+                            verticalPadding={32}
+                            lineThickness={5}
+                            animated={true}
+                            color={Theme.accent}
+                            points={points}
+                            enablePanGesture={true}
+                            enableFadeInMask={true}
+                            gradientFillColors={[
+                                `${getSixDigitHex(Theme.accent)}00`,
+                                `${getSixDigitHex(Theme.accent)}ff`,
+                                `${getSixDigitHex(Theme.accent)}33`,
+                                `${getSixDigitHex(Theme.accent)}33`,
+                                `${getSixDigitHex(Theme.accent)}00`,
+                            ]}
+                            horizontalPadding={2}
+                            onPointSelected={onPointSelected}
+                            onGestureEnd={onGraphGestureEnded}
+                            indicatorPulsating={false}
                         />
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginHorizontal: 16
+                        }}>
+                            <Text style={{
+                                fontWeight: '600',
+                                fontSize: 14, marginTop: 4
+                            }}>
+                                {formatDate(Math.floor(points[0].date.getTime() / 1000), 'dd MMM')}
+                            </Text>
+                            <Text style={{
+                                fontWeight: '600',
+                                fontSize: 14, marginTop: 4
+                            }}>
+                                {formatDate(Math.floor(points[points.length - 1].date.getTime() / 1000), 'dd MMM')}
+                            </Text>
+                        </View>
                     </View>
                 )}
+            </ScrollView>
+            <View style={{
+                flexDirection: 'row',
+                alignItems: 'center', justifyContent: 'center',
+                paddingBottom: safeArea.bottom, paddingHorizontal: 16
+            }}>
+                <RoundButton
+                    title={t('common.close')}
+                    display={"secondary"}
+                    size={"large"}
+                    style={{ width: '100%' }}
+                    onPress={close}
+                />
             </View>
-            {points.length > 0 && (
-                <View>
-                    <LineGraph
-                        style={[{
-                            alignSelf: 'center',
-                            width: '100%', aspectRatio: 1.2,
-                            paddingHorizontal: 8,
-                        }]}
-                        selectionDotShadowColor={Theme.accent}
-                        verticalPadding={32}
-                        lineThickness={5}
-                        animated={true}
-                        color={Theme.accent}
-                        points={points}
-                        enablePanGesture={true}
-                        enableFadeInMask={true}
-                        gradientFillColors={[
-                            `${getSixDigitHex(Theme.accent)}00`,
-                            `${getSixDigitHex(Theme.accent)}ff`,
-                            `${getSixDigitHex(Theme.accent)}33`,
-                            `${getSixDigitHex(Theme.accent)}33`,
-                            `${getSixDigitHex(Theme.accent)}00`,
-                        ]}
-                        horizontalPadding={2}
-                        onPointSelected={onPointSelected}
-                        onGestureEnd={onGraphGestureEnded}
-                        indicatorPulsating={false}
-                    />
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        marginHorizontal: 16
-                    }}>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 14, marginTop: 4
-                        }}>
-                            {formatDate(Math.floor(points[0].date.getTime() / 1000), 'dd MMM')}
-                        </Text>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 14, marginTop: 4
-                        }}>
-                            {formatDate(Math.floor(points[points.length - 1].date.getTime() / 1000), 'dd MMM')}
-                        </Text>
-                    </View>
-                </View>
-            )}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
+                    onPress={close}
                 />
             )}
         </View>

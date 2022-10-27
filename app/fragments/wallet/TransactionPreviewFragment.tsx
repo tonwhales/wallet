@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Platform, Text, Image, Pressable, Alert, ToastAndroid, ScrollView } from "react-native";
+import { View, Platform, Text, Image, Pressable, Alert, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -32,6 +32,7 @@ import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
+import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -123,19 +124,6 @@ export const TransactionPreviewFragment = fragment(() => {
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 
-
-    const settings = engine.products.settings;
-    const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
-        const confirmed = await confirmAlert('spamFilter.blockConfirm');
-        if (confirmed) {
-            settings.addToDenyList(addr);
-        }
-    }, []);
-
-    const onAddressContact = React.useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
-    }, []);
-
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
             Clipboard.setString(body);
@@ -146,6 +134,20 @@ export const TransactionPreviewFragment = fragment(() => {
         Clipboard.setString(body);
         return;
     }, []);
+
+    const handleCommentAction = React.useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+        if (e.nativeEvent.name === t('common.copy')) {
+            if (!operation.comment && body?.type === 'comment' && body.comment) {
+                onCopy(body.comment);
+                return;
+            }
+
+            if (!(body?.type === 'comment' && body.comment) && operation.comment) {
+                onCopy(operation.comment);
+                return;
+            }
+        }
+    }, [operation, body]);
 
     // 
     // Address actions
@@ -187,7 +189,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: 6 }}>
+            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32 }}>
                 {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             {spam && (
@@ -260,7 +262,10 @@ export const TransactionPreviewFragment = fragment(() => {
                         justifyContent: 'center',
                         width: '100%'
                     }}>
-                        <MenuComponent content={body.comment}>
+                        <ContextMenu
+                            actions={[{ title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined }]}
+                            onPress={handleCommentAction}
+                        >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
@@ -277,7 +282,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     {body.comment}
                                 </Text>
                             </View>
-                        </MenuComponent>
+                        </ContextMenu>
                     </View>
                 )}
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
@@ -288,7 +293,10 @@ export const TransactionPreviewFragment = fragment(() => {
                         justifyContent: 'center',
                         width: '100%'
                     }}>
-                        <MenuComponent content={operation.comment}>
+                        <ContextMenu
+                            actions={[{ title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined }]}
+                            onPress={handleCommentAction}
+                        >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
@@ -305,7 +313,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     {operation.comment}
                                 </Text>
                             </View>
-                        </MenuComponent>
+                        </ContextMenu>
                     </View>
                 )}
                 <View style={{
@@ -386,9 +394,9 @@ export const TransactionPreviewFragment = fragment(() => {
                                 </Pressable>
                             )}
                         </View>
-                        <View style={{ flexDirection: 'row', paddingRight: 16, alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <WalletAddress
-                                address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                address={operation.address || address}
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
@@ -396,13 +404,14 @@ export const TransactionPreviewFragment = fragment(() => {
                                     fontSize: 16,
                                     lineHeight: 20
                                 }}
+                                spam={spam}
+                                known={!!known}
                                 style={{
                                     width: undefined,
                                     marginTop: undefined,
-                                    paddingRight: 40
                                 }}
-                                actions={addressActions}
                             />
+                            <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
                                 onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}

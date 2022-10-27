@@ -27,6 +27,7 @@ import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
 import { CalculatorButton } from "../../components/Staking/CalculatorButton";
+import { BN } from "bn.js";
 
 export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -53,6 +54,10 @@ export const StakingFragment = fragment(() => {
     let available = useMemo(() => {
         return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
     }, [staking, target]);
+
+    let canWithdraw = useMemo(() => {
+        return member?.balance.add(member.withdraw).gt(new BN(0));
+    }, [member]);
 
     const window = useWindowDimensions();
 
@@ -208,11 +213,8 @@ export const StakingFragment = fragment(() => {
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={
-                            target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 6)
-                            + '...'
-                            + target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 8)
-                        }
+                        address={target}
+                        elipsise
                         style={{
                             marginLeft: 22,
                             marginBottom: 16,
@@ -524,6 +526,7 @@ export const StakingFragment = fragment(() => {
                         marginRight: 7,
                         height: 56
                     }}
+                    disabled={!canWithdraw}
                 />
                 <RoundButton
                     title={t('products.staking.actions.top_up')}

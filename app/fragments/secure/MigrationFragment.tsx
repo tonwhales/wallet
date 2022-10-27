@@ -214,7 +214,8 @@ export const MigrationFragment = systemFragment(() => {
                                         marginHorizontal: 8
                                     }}>
                                     <WalletAddress
-                                        address={ellipsiseAddress(v.address.toFriendly({ testOnly: AppConfig.isTestnet }))}
+                                        address={v.address}
+                                        elipsise
                                         value={v.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                         style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                     />

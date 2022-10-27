@@ -10,7 +10,7 @@ import { TouchableHighlight } from 'react-native';
 import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { KnownJettonMasters, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import { Engine } from '../../../engine/Engine';
@@ -72,6 +72,9 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
+
+    const verified = !!tx.verified
+        || !!KnownJettonMasters[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
     const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
@@ -210,6 +213,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                                 image={tx.icon ? tx.icon : undefined}
                                 spam={spam}
                                 markContact={!!contact}
+                                verified={verified}
                             />
                         )}
                         {parsed.status === 'pending' && (

@@ -207,11 +207,8 @@ export const StakingFragment = fragment(() => {
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={
-                            target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 6)
-                            + '...'
-                            + target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 8)
-                        }
+                        address={target}
+                        elipsise
                         style={{
                             marginLeft: 22,
                             marginBottom: 16,

@@ -71,7 +71,7 @@ export const ReceiveFragment = fragment(() => {
                     </View>
                 </View>
                 <WalletAddress
-                    address={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                    address={address}
                     style={{ marginTop: 16 }}
                 />
                 <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>

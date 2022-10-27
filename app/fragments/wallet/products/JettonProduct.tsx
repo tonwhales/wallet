@@ -1,8 +1,10 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Address } from 'ton';
+import { AppConfig } from '../../../AppConfig';
 import { Engine } from '../../../engine/Engine';
 import { markJettonDisabled } from '../../../engine/sync/ops';
+import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { confirmJettonAction } from '../../AccountsFragment';
 import { ProductButton } from './ProductButton';
@@ -24,6 +26,8 @@ export const JettonProduct = React.memo((props: {
     onLongPress?: () => void
 }) => {
     let balance = props.jetton.balance;
+
+    const isKnown = !!KnownJettonMasters[props.jetton.master.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     const promptDisable = React.useCallback(
         async () => {
@@ -51,6 +55,7 @@ export const JettonProduct = React.memo((props: {
             }}
             onLongPress={props.onLongPress? props.onLongPress: promptDisable}
             style={{ marginVertical: 4 }}
+            known={isKnown}
         />
     );
 });

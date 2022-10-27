@@ -336,11 +336,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={
-                            address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 10)
-                            + '...'
-                            + address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
-                        }
+                        address={address}
+                        elipsise
                         style={{
                             marginLeft: 22,
                             marginBottom: 24,

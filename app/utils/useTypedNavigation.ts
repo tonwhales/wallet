@@ -100,6 +100,10 @@ export class TypedNavigation {
     }) {
         this.navigate('Review', params);
     }
+
+    navigateStakingCalculator(params: { target: Address}) {
+        this.navigate('StakingCalculator', params);
+    }
 }
 
 export function useTypedNavigation() {

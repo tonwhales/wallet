@@ -27,6 +27,7 @@ import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
 import GraphIcon from '../../../assets/ic_graph.svg';
+import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
 
 export const StakingFragment = fragment(() => {
@@ -55,6 +56,10 @@ export const StakingFragment = fragment(() => {
     let available = useMemo(() => {
         return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
     }, [staking, target]);
+
+    let canWithdraw = useMemo(() => {
+        return member?.balance.add(member.withdraw).gt(new BN(0));
+    }, [member]);
 
     const window = useWindowDimensions();
 
@@ -230,11 +235,8 @@ export const StakingFragment = fragment(() => {
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={
-                            target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 6)
-                            + '...'
-                            + target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 8)
-                        }
+                        address={target}
+                        elipsise
                         style={{
                             marginLeft: 22,
                             marginBottom: 16,
@@ -260,10 +262,11 @@ export const StakingFragment = fragment(() => {
                         locked={pool.params.locked}
                         style={{
                             marginHorizontal: 16,
-                            marginBottom: 24
+                            marginBottom: 14
                         }}
                     />
                 )}
+                {!AppConfig.isTestnet && <CalculatorButton target={target} style={{ marginHorizontal: 16 }} />}
                 {type !== 'nominators' && !available && (
                     <RestrictedPoolBanner type={type} />
                 )}
@@ -525,14 +528,17 @@ export const StakingFragment = fragment(() => {
                     </View>
                 )
             }
-            <View style={{
-                height: 64,
-                position: 'absolute',
-                bottom: safeArea.bottom + 16,
-                left: 16, right: 16,
-                flexDirection: 'row',
-                justifyContent: 'space-evenly'
-            }}>
+            <BlurView
+                style={{
+                    height: 64,
+                    position: 'absolute',
+                    paddingBottom: safeArea.bottom + 64,
+                    paddingTop: 8,
+                    left: 16, right: 16, bottom: 0,
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly'
+                }}
+            >
                 <RoundButton
                     display={'secondary'}
                     title={t('products.staking.actions.withdraw')}
@@ -542,6 +548,7 @@ export const StakingFragment = fragment(() => {
                         marginRight: 7,
                         height: 56
                     }}
+                    disabled={!canWithdraw}
                 />
                 <RoundButton
                     title={t('products.staking.actions.top_up')}
@@ -555,7 +562,7 @@ export const StakingFragment = fragment(() => {
                     }}
                     icon={<TopUpIcon />}
                 />
-            </View>
+            </BlurView>
         </View>
     );
 });

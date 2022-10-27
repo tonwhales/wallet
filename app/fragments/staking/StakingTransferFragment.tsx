@@ -281,6 +281,8 @@ export const StakingTransferFragment = fragment(() => {
             addAmount = addAmount
                 .sub(pool?.params.withdrawFee || toNano('0.1'))
                 .sub(pool?.params.receiptPrice || toNano('0.1'))
+                .sub(pool?.params.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
+                .sub(pool?.params.receiptPrice || toNano('0.1'))
         }
         onSetAmount(fromNano(addAmount));
     }, [balance, params, pool]);

@@ -124,19 +124,6 @@ export const TransactionPreviewFragment = fragment(() => {
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 
-
-    const settings = engine.products.settings;
-    const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
-        const confirmed = await confirmAlert('spamFilter.blockConfirm');
-        if (confirmed) {
-            settings.addToDenyList(addr);
-        }
-    }, []);
-
-    const onAddressContact = React.useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
-    }, []);
-
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
             Clipboard.setString(body);
@@ -202,7 +189,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: 6 }}>
+            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32 }}>
                 {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             {spam && (
@@ -407,9 +394,9 @@ export const TransactionPreviewFragment = fragment(() => {
                                 </Pressable>
                             )}
                         </View>
-                        <View style={{ flexDirection: 'row', paddingRight: 16, alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <WalletAddress
-                                address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) || address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                address={operation.address || address}
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
@@ -417,13 +404,14 @@ export const TransactionPreviewFragment = fragment(() => {
                                     fontSize: 16,
                                     lineHeight: 20
                                 }}
+                                spam={spam}
+                                known={!!known}
                                 style={{
                                     width: undefined,
                                     marginTop: undefined,
-                                    paddingRight: 40
                                 }}
-                                actions={addressActions}
                             />
+                            <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
                                 onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}

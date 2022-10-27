@@ -146,6 +146,7 @@ export const StakingGraphFragment = fragment(() => {
                             height: 40,
                             marginTop: 2
                         }}
+                        editable={false}
                     />
                     {(price && !AppConfig.isTestnet) && (
                         <View style={[{
@@ -169,6 +170,7 @@ export const StakingGraphFragment = fragment(() => {
                                     textAlign: "center",
                                     lineHeight: 16
                                 }}
+                                editable={false}
                             />
                         </View>
                     )}

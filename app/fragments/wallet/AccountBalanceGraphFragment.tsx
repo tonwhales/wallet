@@ -148,6 +148,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                             height: 40,
                             marginTop: 2
                         }}
+                        editable={false}
                     />
                     {(price && !AppConfig.isTestnet) && (
                         <View style={[{
@@ -171,6 +172,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                                     textAlign: "center",
                                     lineHeight: 16
                                 }}
+                                editable={false}
                             />
                         </View>
                     )}

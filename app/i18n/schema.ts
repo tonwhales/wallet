@@ -533,6 +533,10 @@ export type LocalizationSchema = {
         addressMarkSpam: string
         txShare: string,
         txRepeat: string,
+        share: {
+            address: string,
+            transaction: string
+        }
     }
 };
 

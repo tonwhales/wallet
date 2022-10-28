@@ -116,12 +116,19 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     }, [txId]);
 
     const onShare = React.useCallback((link: string) => {
-        if (Platform.OS === 'ios') {
-            Share.share({ title: t('receive.share.title'), url: link });
-        } else {
-            Share.share({ title: t('receive.share.title'), message: link });
+        let title = t('receive.share.title');
+        if (link === explorerTxLink) {
+            title = t('txActions.share.transaction');
         }
-    }, []);
+        if (link === addressLink) {
+            title = t('txActions.share.address');
+        }
+        if (Platform.OS === 'ios') {
+            Share.share({ title: title, url: link });
+        } else {
+            Share.share({ title: title, message: link });
+        }
+    }, [explorerTxLink, addressLink]);
 
     const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
@@ -187,7 +194,7 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                     break;
             }
         },
-        [addressLink, explorerTxLink],
+        [addressLink, explorerTxLink, onShare],
     );
 
     return (

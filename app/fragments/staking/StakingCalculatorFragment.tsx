@@ -37,9 +37,19 @@ export const StakingCalculatorFragment = fragment(() => {
                 return;
             }
 
-            // 5 000 000 000
             if (amount.includes(',')) {
                 amount = amount.replace(',', '.');
+                const parts = amount.split('.');
+                if (parts.length === 2) {
+                    if (parts[0].length <= 10) {
+                        setAmount(amount);
+                    } else {
+                        setAmount((prev) => prev);
+                    }
+                }
+            }
+
+            if (amount.includes('.')) {
                 const parts = amount.split('.');
                 if (parts.length === 2) {
                     if (parts[0].length <= 10) {

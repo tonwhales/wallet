@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
@@ -28,6 +28,28 @@ export const StakingCalculatorFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
 
     const [amount, setAmount] = useState('');
+
+    const onChangeAmount = useCallback(
+        (value: string) => {
+            let amount = value;
+            if (amount.length <= 10) {
+                setAmount(amount);
+                return;
+            }
+
+            // 5 000 000 000
+            if (amount.includes(',')) {
+                amount = amount.replace(',', '.');
+                const parts = amount.split('.');
+                if (parts.length === 2) {
+                    if (parts[0].length <= 10) {
+                        setAmount(amount);
+                    } else {
+                        setAmount((prev) => prev);
+                    }
+                }
+            }
+        }, [setAmount]);
 
     return (
         <>
@@ -58,8 +80,6 @@ export const StakingCalculatorFragment = fragment(() => {
                 <View
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-
-
                     <View style={{
                         marginBottom: 0,
                         backgroundColor: Theme.item,
@@ -90,7 +110,7 @@ export const StakingCalculatorFragment = fragment(() => {
                                 <ATextInput
                                     index={0}
                                     value={amount}
-                                    onValueChange={setAmount}
+                                    onValueChange={onChangeAmount}
                                     placeholder={'0'}
                                     keyboardType={'numeric'}
                                     textAlign={'left'}

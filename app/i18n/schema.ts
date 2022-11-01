@@ -533,6 +533,16 @@ export type LocalizationSchema = {
         addressMarkSpam: string
         txShare: string,
         txRepeat: string,
+    },
+    hardwareWallet: {
+        title: string,
+        description: string,
+        actions: {
+            connect: string,
+            selectAccount: string,
+            account: string,
+            loadAddress: string,
+        }
     }
 };
 

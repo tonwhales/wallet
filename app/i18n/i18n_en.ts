@@ -531,6 +531,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressMarkSpam: 'Mark address as spam',
         txShare: 'Share transaction',
         txRepeat: 'Repeat transaction',
+    },
+    hardwareWallet: {
+        title: 'Hardware wallet',
+        description: 'Your hardware Ledger wallet',
+        actions: {
+            connect: 'Connect Ledger',
+            selectAccount: 'Select account',
+            account: 'Account #{{account}}',
+            loadAddress: 'Load address',
+        }
     }
 };
 

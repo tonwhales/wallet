@@ -14,6 +14,7 @@ import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
+import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -174,6 +175,19 @@ export const ProductsComponent = React.memo(() => {
                     <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
                         <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
                     </View>
+                    <ProductButton
+                        name={t('hardwareWallet.title')}
+                        subtitle={t('hardwareWallet.description')}
+                        icon={HardwareWalletIcon}
+                        iconProps={{ width: 32, height: 32, color: 'black' }}
+                        iconViewStyle={{
+                            backgroundColor: 'transparent'
+                        }}
+                        value={null}
+                        onPress={() => {
+                            navigation.navigate('HardwareWallet');
+                        }}
+                    />
                     {apps}
                 </>
             )}

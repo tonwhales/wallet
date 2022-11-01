@@ -532,6 +532,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         addressMarkSpam: 'Пометить адрес как спам',
         txShare: 'Поделиться транзакцией',
         txRepeat: 'Повторить транзакцию',
+    },
+    hardwareWallet: {
+        title: 'Аппаратный кошелёк',
+        description: 'Ваш аппаратный Ledger кошелёк',
+        actions: {
+            connect: 'Подключить Ledger',
+            selectAccount: 'Выбрать аккаунт',
+            account: 'Аккаунт #{{account}}',
+            loadAddress: 'Загрузить адрес',
+        }
     }
 };
 

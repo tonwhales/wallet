@@ -22,6 +22,8 @@ export function ProductButton(props: {
     onPress: () => void,
     onLongPress?: () => void
     style?: StyleProp<ViewStyle>,
+    iconViewStyle?: StyleProp<ViewStyle>,
+    iconProps?: SvgProps
 }) {
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
@@ -44,8 +46,11 @@ export function ProductButton(props: {
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     {Icon && !props.image && (
-                        <View style={{ backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
-                            <Icon width={42} height={42} color={'white'} />
+                        <View style={[
+                            { backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' },
+                            props.iconViewStyle
+                        ]}>
+                            <Icon width={props.iconProps?.width ?? 42} height={props.iconProps?.height ?? 42} color={props.iconProps?.color ?? 'white'} />
                         </View>
                     )}
                     {(props.image || !Icon || props.requireSource) && (

@@ -60,6 +60,7 @@ import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
+import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -174,6 +175,7 @@ const navigation = [
     modalScreen('StartPhone', PhoneVerificationStack),
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
+    modalScreen('HardwareWallet', HardwareWalletFragment),
     // modalScreen('Phone', PhoneFragment),
     // modalScreen('Country', PickCountry),
     // genericScreen('Code', CodeFragment),

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, Share, View } from 'react-native';
+import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,10 +18,10 @@ import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
 import MoreIcon from '../../../../assets/ic_more.svg';
-import { MenuView } from '@react-native-menu/menu';
 import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
+import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -191,6 +191,16 @@ export const AppComponent = React.memo((props: {
 
     }, []);
 
+    const handleAction = React.useCallback(
+        (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+            if (e.nativeEvent.name === t('common.share')) onShare();
+            if (e.nativeEvent.name === t('review.title')) onReview();
+            if (e.nativeEvent.name === t('report.title')) onReport();
+        },
+        [onShare, onReview, onReport],
+    );
+
+
     return (
         <>
             <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -231,25 +241,22 @@ export const AppComponent = React.memo((props: {
                     style={{ paddingHorizontal: 8 }}
                     onPress={close}
                 />
-                <MenuView
+                <ContextMenu
                     style={{
                         position: 'absolute',
                         top: 8, right: 16,
                         height: 32
                     }}
-                    onPressAction={({ nativeEvent }) => {
-                        if (nativeEvent.event === 'share') onShare();
-                        if (nativeEvent.event === 'review') onReview();
-                        if (nativeEvent.event === 'report') onReport();
-                    }}
+                    dropdownMenuMode
+                    onPress={handleAction}
                     actions={[
-                        { title: t('report.title'), id: 'report', image: Platform.OS === 'ios' ? 'exclamationmark.triangle' : undefined, attributes: { destructive: true } },
-                        { title: t('review.title'), id: 'review', image: Platform.OS === 'ios' ? 'star' : undefined },
-                        { title: t('common.share'), id: 'share', image: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+                        { title: t('report.title'), systemIcon: Platform.OS === 'ios' ? 'exclamationmark.triangle' : undefined, destructive: true },
+                        { title: t('review.title'), systemIcon: Platform.OS === 'ios' ? 'star' : undefined },
+                        { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
                     ]}
                 >
                     <MoreIcon color={'black'} height={30} width={30} />
-                </MenuView>
+                </ContextMenu>
                 <View style={{
                     position: 'absolute',
                     top: 0.5, left: 0, right: 0,

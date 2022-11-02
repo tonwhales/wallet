@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -25,6 +25,14 @@ export const HardwareWalletFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const [connection, setConnection] = useState<'hid' | 'bluetooth' | null>(Platform.OS === 'android' ? null : 'bluetooth');
+
+    const onReset = useCallback(
+        () => {
+            setConnection(null);
+        },
+        [],
+    );
+
 
     return (
         <View style={{
@@ -110,10 +118,10 @@ export const HardwareWalletFragment = fragment(() => {
                     </View>
                 )}
                 {connection === 'hid' && Platform.OS === 'android' && (
-                    <LedgerHIDComponent />
+                    <LedgerHIDComponent onReset={onReset} />
                 )}
                 {connection === 'bluetooth' && (
-                    <LedgerBluetoothComponent />
+                    <LedgerBluetoothComponent onReset={Platform.OS === 'android' ? onReset : undefined} />
                 )}
             </ScrollView>
             {Platform.OS === 'ios' && (

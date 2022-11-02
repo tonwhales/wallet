@@ -9,9 +9,11 @@ import { RoundButton } from "../../components/RoundButton";
 import { t } from "../../i18n/t";
 import { LedgerApp } from "./LedgerApp";
 import { Theme } from "../../Theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export const LedgerHIDComponent = React.memo(() => {
+export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void }) => {
     const engine = useEngine();
+    const safeArea = useSafeAreaInsets();
 
     const [started, setStarted] = React.useState(false);
     const [account, setAccount] = React.useState<number | null>(null);
@@ -75,7 +77,7 @@ export const LedgerHIDComponent = React.memo(() => {
     );
 
     return (
-        <>
+        <View style={{ flexGrow: 1 }}>
             {!device && (
                 <View style={{
                     marginHorizontal: 16,
@@ -218,6 +220,24 @@ export const LedgerHIDComponent = React.memo(() => {
                     tonClient4={engine.client4}
                 />
             )}
-        </>
+            <View style={{
+                flexDirection: 'row',
+                position: 'absolute',
+                bottom: safeArea.bottom ?? 16,
+                left: 0, right: 0,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingBottom: safeArea.bottom,
+                backgroundColor: Theme.background,
+            }}>
+                <RoundButton
+                    title={t('common.back')}
+                    display="secondary"
+                    size="normal"
+                    style={{ paddingHorizontal: 8 }}
+                    onPress={onReset}
+                />
+            </View>
+        </View>
     );
 });

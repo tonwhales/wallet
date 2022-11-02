@@ -215,29 +215,29 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
                 <LedgerApp
                     transport={device}
                     account={account}
-                    reset={reset}
                     address={address}
                     tonClient4={engine.client4}
                 />
             )}
-            <View style={{
-                flexDirection: 'row',
-                position: 'absolute',
-                bottom: safeArea.bottom ?? 16,
-                left: 0, right: 0,
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingBottom: safeArea.bottom,
-                backgroundColor: Theme.background,
-            }}>
-                <RoundButton
-                    title={t('common.back')}
-                    display="secondary"
-                    size="normal"
-                    style={{ paddingHorizontal: 8 }}
-                    onPress={onReset}
-                />
-            </View>
+            {(!device || account === null || address === null) && (
+                <View style={{
+                    flexDirection: 'row',
+                    position: 'absolute',
+                    bottom: safeArea.bottom ?? 16,
+                    left: 0, right: 0,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: Theme.background,
+                }}>
+                    <RoundButton
+                        title={t('common.back')}
+                        display="secondary"
+                        size="normal"
+                        style={{ paddingHorizontal: 8 }}
+                        onPress={onReset}
+                    />
+                </View>
+            )}
         </View>
     );
 });

@@ -7,16 +7,10 @@ import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { TonPayloadFormat, TonTransport } from 'ton-ledger';
-import TransportHID from "@ledgerhq/react-native-hid";
-import { AppConfig } from "../../AppConfig";
 import { useEngine } from "../../engine/Engine";
-import { ItemButton } from "../../components/ItemButton";
-import { LedgerApp } from "./LedgerApp";
 import { Theme } from "../../Theme";
 import { RoundButton } from "../../components/RoundButton";
 import LedgerIcon from '../../../assets/ic_ledger.svg';
-import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
 import { LedgerHIDComponent } from "./LedgerHIDComponent";
 import { LedgerBluetoothComponent } from "./LedgerBluetoothComponent";
 
@@ -32,7 +26,6 @@ export const HardwareWalletFragment = fragment(() => {
         },
         [],
     );
-
 
     return (
         <View style={{

@@ -109,6 +109,7 @@
     "react-native-webview": "11.23.1",
     "react-navigation": "^4.4.4",
     "recoil": "^0.5.2",
+    "rxjs": "^7.5.7",
     "teslabot": "^1.4.1",
     "text-encoding-polyfill": "^0.6.7",
     "ton": "12.1.3",

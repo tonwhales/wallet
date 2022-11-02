@@ -50,8 +50,6 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
         };
     }, [started]);
 
-    let [addr, setAddr] = React.useState<string | null>(null);
-
     const onLoadAccount = React.useCallback(
         (async () => {
             if (!device) {
@@ -65,7 +63,6 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
             try {
                 let address = await device.getAddress(path, { testOnly: AppConfig.isTestnet });
                 console.log({ address });
-                setAddr(address.address);
                 await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
                 setAddress(address);
             } catch (e) {

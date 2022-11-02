@@ -540,7 +540,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         connectionDescriptionIOS: 'Вы можете подключить ваш Ledger через Bluetooth (модель Nano X)',
         connectionHIDDescription: 'Подключите ваш Ledger через USB и нажмите \'Подключить Ledger\' в Tonhub',
         chooseAccountDescription: 'Выберите аккаунт, который вы хотите использовать',
+        bluetoothScanDescription: 'Для подключения к Ledger через Bluetooth просканируйте доступные устройства и выберите подходящий Ledger Nano X',
         openAppVerifyAddress: 'Откройте приложение TON на вашем Ledger, затем нажмите \'Загрузить адрес\' в Tonhub и подтвердите адрес,\ который вы выбрали в приложении TON на Ledger',
+        devices:'Устройства',
         actions: {
             connect: 'Подключить Ledger',
             selectAccount: 'Выбрать аккаунт',
@@ -548,6 +550,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             loadAddress: 'Загрузить адрес',
             connectHid: 'Подключить через USB',
             connectBluetooth: 'Подключить через Bluetooth',
+            scanBluetooth: 'Начать поиск',
         }
     }
 };

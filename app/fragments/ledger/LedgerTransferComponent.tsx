@@ -120,7 +120,7 @@ export const LedgerTransferComponent = fragment((
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
                 amount: value!,
                 seqno,
-                timeout: Math.floor(Date.now() / 1e3) + 60,
+                timeout: Math.floor(Date.now() / 1e3) + 60000,
                 bounce,
                 payload
             });

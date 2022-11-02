@@ -540,8 +540,10 @@ export type LocalizationSchema = {
         connectionDescriptionAndroid: string,
         connectionDescriptionIOS: string,
         connectionHIDDescription: string,
+        bluetoothScanDescription: string,
         chooseAccountDescription: string,
         openAppVerifyAddress: string,
+        devices: string,
         actions: {
             connect: string,
             selectAccount: string,
@@ -549,6 +551,7 @@ export type LocalizationSchema = {
             loadAddress: string,
             connectHid: string,
             connectBluetooth: string,
+            scanBluetooth: string,
         }
     }
 };

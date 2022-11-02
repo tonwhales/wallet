@@ -535,11 +535,18 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     hardwareWallet: {
         title: 'Hardware wallet',
         description: 'Your hardware Ledger wallet',
+        connectionDescriptionAndroid: 'You can connect your Ledger via USB or Bluetooth (Nano X model)',
+        connectionDescriptionIOS: 'You can connect your Ledger Bluetooth (Nano X model)',
+        connectionHIDDescription: 'Connect your Ledger via USB and press \'Connect Ledger\' in Tonhub',
+        chooseAccountDescription: 'Choose account you would like to connect to',
+        openAppVerifyAddress: 'Open TON app on your Ledger then press \'Load address\' in Tonhub and verify the address you\'ve selected in the Ledger TON app',
         actions: {
             connect: 'Connect Ledger',
             selectAccount: 'Select account',
             account: 'Account #{{account}}',
             loadAddress: 'Load address',
+            connectHid: 'Connect Ledger via USB',
+            connectBluetooth: 'Connect Ledger via Bluetooth',
         }
     }
 };

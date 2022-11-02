@@ -537,11 +537,18 @@ export type LocalizationSchema = {
     hardwareWallet: {
         title: string,
         description: string,
+        connectionDescriptionAndroid: string,
+        connectionDescriptionIOS: string,
+        connectionHIDDescription: string,
+        chooseAccountDescription: string,
+        openAppVerifyAddress: string,
         actions: {
             connect: string,
             selectAccount: string,
             account: string,
             loadAddress: string,
+            connectHid: string,
+            connectBluetooth: string,
         }
     }
 };

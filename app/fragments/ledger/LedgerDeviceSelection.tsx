@@ -20,6 +20,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice }: { onSelectD
         (async () => {
             let sub: Subscription;
             const scan = async () => {
+                console.log('Scanning...');
                 setScan({ type: 'ongoing' });
                 sub = new Observable(TransportBLE.listen).subscribe({
                     complete: () => {
@@ -39,14 +40,19 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice }: { onSelectD
                         // NB there is no "remove" case in BLE.
                     },
                     error: error => {
+                        console.log({ error });
                         setScan({ type: 'completed', success: false });
                     }
                 });
             }
-            if (Platform.OS === "android") {
-                await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
-                );
+            if (Platform.OS === "android" && Platform.Version >= 23) {
+                const enabled = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+                if (!enabled) {
+                    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+                    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                        return;
+                    }
+                }
             }
             let previousAvailable = false;
             new Observable(TransportBLE.observeState).subscribe((e: any) => {
@@ -84,7 +90,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice }: { onSelectD
             <ScrollView>
                 {devices.map((device: any) => {
                     return (
-                        <BleDeviceComponent device={device} onSelect={onDeviceSelect} />
+                        <BleDeviceComponent key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />
                     );
                 })}
             </ScrollView>

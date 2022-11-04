@@ -42,7 +42,7 @@ export const LedgerApp = React.memo((props: { transport: TonTransport, account: 
     }, []);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>{Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
+        <View style={{ flexGrow: 1 }}>
             {screen === 'account' && (
                 <>
                     <View

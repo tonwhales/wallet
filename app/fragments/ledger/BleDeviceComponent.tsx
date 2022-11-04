@@ -14,12 +14,12 @@ export const BleDeviceComponent = React.memo(({ onSelect, device }: { onSelect: 
 
     const onPress = useCallback(async() => {
         try {
+            setPending(true);
             await onSelect(device);
           } finally {
             setPending(false);
           }
     }, [onSelect]);
-
 
     return (
         <Pressable

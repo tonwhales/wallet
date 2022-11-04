@@ -15,8 +15,6 @@ import { AppConfig } from "../../AppConfig";
 import { LedgerApp } from "./LedgerApp";
 import { useEngine } from "../../engine/Engine";
 
-let sub: any = null;
-
 export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () => void }) => {
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
@@ -24,6 +22,7 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
 
     const [account, setAccount] = React.useState<number | null>(null);
     const [address, setAddress] = React.useState<{ address: string, publicKey: Buffer } | null>(null);
+    const [bluetoothDevice, setBluetoothDevice] = useState<LedgerDevice | null>(null);
     const [device, setDevice] = React.useState<TonTransport | null>(null);
 
     let reset = React.useCallback(() => {
@@ -65,42 +64,54 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
             // A better way is to pass in the device.id and handle the connection internally.
             console.log('onDisconeect');
             setDevice(null);
+            setBluetoothDevice(null);
         });
         const tonTransport = new TonTransport(transport);
         console.log({ tonTransport });
+        setBluetoothDevice(device);
         setDevice(tonTransport);
         setScreen('app');
     }, []);
 
+    useEffect(() => {
+        return () => {
+            if (bluetoothDevice) {
+                TransportBLE.disconnect(bluetoothDevice.id);
+            }
+        }
+    }, [bluetoothDevice]);
+
     return (
         <View style={{ flexGrow: 1 }}>
-            <View style={{
-                marginHorizontal: 16,
-                marginBottom: 16, marginTop: 17,
-                backgroundColor: Theme.item,
-                borderRadius: 14,
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: 16
-            }}>
-                <Text style={{
-                    color: Theme.textColor,
-                    fontWeight: '600',
-                    fontSize: 18,
-                    marginBottom: 12,
-                    textAlign: 'center'
+            {(screen !== 'scan' && !device) && (
+                <View style={{
+                    marginHorizontal: 16,
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: 16
                 }}>
-                    {t('hardwareWallet.bluetoothScanDescription')}
-                </Text>
-                <RoundButton
-                    title={t('hardwareWallet.actions.scanBluetooth')}
-                    onPress={() => setScreen('scan')}
-                    style={{
-                        width: '100%',
-                        margin: 4
-                    }}
-                />
-            </View>
+                    <Text style={{
+                        color: Theme.textColor,
+                        fontWeight: '600',
+                        fontSize: 18,
+                        marginBottom: 12,
+                        textAlign: 'center'
+                    }}>
+                        {t('hardwareWallet.bluetoothScanDescription')}
+                    </Text>
+                    <RoundButton
+                        title={t('hardwareWallet.actions.scanBluetooth')}
+                        onPress={() => setScreen('scan')}
+                        style={{
+                            width: '100%',
+                            margin: 4
+                        }}
+                    />
+                </View>
+            )}
 
             {screen === 'scan' && (
                 <LedgerDeviceSelection onSelectDevice={onSelectDevice} />
@@ -183,6 +194,7 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                     />
                 </View>
             )}
+
             {!!device && account !== null && address === null && (
                 <View style={{
                     marginHorizontal: 16,
@@ -211,6 +223,7 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                     />
                 </View>
             )}
+
             {device && account !== null && address !== null && (
                 <LedgerApp
                     transport={device}
@@ -219,11 +232,12 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                     tonClient4={engine.client4}
                 />
             )}
-            {(!device || account === null || address === null) && (
+
+            {(device || account || address) && !(device && account !== null && address !== null) && (
                 <View style={{
                     flexDirection: 'row',
                     position: 'absolute',
-                    bottom: safeArea.bottom ?? 16,
+                    bottom: 16,
                     left: 0, right: 0,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -234,7 +248,7 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                         display="secondary"
                         size="normal"
                         style={{ paddingHorizontal: 8 }}
-                        onPress={onReset}
+                        onPress={reset}
                     />
                 </View>
             )}
@@ -243,7 +257,7 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                 <View style={{
                     flexDirection: 'row',
                     position: 'absolute',
-                    bottom: safeArea.bottom ?? 16,
+                    bottom: 16,
                     left: 0, right: 0,
                     alignItems: 'center',
                     justifyContent: 'center',

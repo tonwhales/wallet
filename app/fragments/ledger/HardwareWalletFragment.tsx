@@ -54,7 +54,7 @@ export const HardwareWalletFragment = fragment(() => {
                     flexGrow: 1,
                     backgroundColor: Theme.background,
                     flexBasis: 0,
-                    marginBottom: 52 + safeArea.bottom
+                    marginBottom: safeArea.bottom
                 }}
             >
                 {!connection && (

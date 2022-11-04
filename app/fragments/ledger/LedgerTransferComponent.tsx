@@ -1,12 +1,12 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React from "react"
+import React, { useMemo } from "react"
 import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView } from "react-native"
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { delay } from "teslabot";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, SendMode, StateInit, toNano } from "ton";
+import { AsyncLock, delay } from "teslabot";
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { WalletV4Contract, WalletV4Source } from "ton-contracts";
 import { TonPayloadFormat, TonTransport } from "ton-ledger";
 import { AppConfig } from "../../AppConfig";
@@ -28,6 +28,9 @@ import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { fragment } from "../../fragment";
+import { fetchSeqno } from "../../engine/api/fetchSeqno";
+import { estimateFees } from "../../engine/estimate/estimateFees";
+import { createSimpleOrder } from "../secure/ops/Order";
 
 export const LedgerTransferComponent = fragment((
     {
@@ -47,6 +50,7 @@ export const LedgerTransferComponent = fragment((
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const config = engine.products.config.useConfig();
 
     let path = pathFromAccountNumber(account);
     const [target, setTarget] = React.useState('');
@@ -56,19 +60,21 @@ export const LedgerTransferComponent = fragment((
     const [amount, setAmount] = React.useState('');
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
-    // const valid = React.useMemo(() => {
-    //     if (addr && value) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }, [addr, value]);
-    const doSend = React.useCallback(async () => {
+
+
+    let source = useMemo(() => {
+        return WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey })
+    }, [addr]);
+    let contract = useMemo(() => {
+        return new WalletV4Contract(Address.parse(addr.address), source)
+    }, [addr, source]);
+
+    // Resolve order
+    const order = React.useMemo(() => {
         // Parse value
         let value: BN;
         try {
             const validAmount = amount.replace(',', '.');
-            // Manage jettons with decimals
             value = toNano(validAmount);
         } catch (e) {
             return null;
@@ -83,21 +89,45 @@ export const LedgerTransferComponent = fragment((
             return null;
         }
 
-        // Fetch seqno
+        // Resolve order
+        return createSimpleOrder({
+            target: target,
+            domain: domain,
+            text: comment,
+            payload: null,
+            amount: balance?.eq(value) ? toNano('0') : value,
+            amountAll: balance?.eq(value) ? true : false,
+            stateInit
+        });
+    }, [amount, target, domain, comment, stateInit]);
+
+    const doSend = React.useCallback(async () => {
+        // Parse value
+        let value: BN;
         try {
-            // Loading info
-            let source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
-            let contract = new WalletV4Contract(Address.parse(addr.address), source);
+            const validAmount = amount.replace(',', '.');
+            value = toNano(validAmount);
+        } catch (e) {
+            return null;
+        }
+
+        // Parse address
+        let address: Address;
+        try {
+            let parsed = Address.parseFriendly(target);
+            address = parsed.address;
+        } catch (e) {
+            return null;
+        }
+
+        try {
             // Fetch data
-            const [
-                config,
-                [seqno, account, metadata, state]
-            ] = await Promise.all([
-                backoff('transfer', () => fetchConfig()),
-                backoff('transfer', async () => {
+            const [[accountSeqno, account, metadata, targetState]] = await Promise.all([
+                backoff('transfer-fetch-data', async () => {
+                    let seqno = await backoff('contract-seqno', () => contract.getSeqNo(engine.connector.client));
                     let block = await backoff('transfer', () => engine.client4.getLastBlock());
                     return Promise.all([
-                        block.last.seqno,
+                        seqno,
                         backoff('transfer', () => engine.client4.getAccountLite(block.last.seqno, contract.address)),
                         backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, address)),
                         backoff('transfer', () => engine.client4.getAccount(block.last.seqno, address))
@@ -105,8 +135,7 @@ export const LedgerTransferComponent = fragment((
                 }),
             ]);
 
-            let bounce = state.account.state.type === 'active';
-
+            let bounce = targetState.account.state.type === 'active';
 
             // Signing
             let payload: TonPayloadFormat | undefined = undefined;
@@ -114,12 +143,11 @@ export const LedgerTransferComponent = fragment((
                 payload = { type: 'comment', text: comment.trim() };
             }
 
-
             let signed = await transport.signTransaction(path, {
                 to: address!,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
                 amount: value!,
-                seqno,
+                seqno: accountSeqno,
                 timeout: Math.floor(Date.now() / 1e3) + 60000,
                 bounce,
                 payload
@@ -129,7 +157,7 @@ export const LedgerTransferComponent = fragment((
             let extMessage = new ExternalMessage({
                 to: contract.address,
                 body: new CommonMessageInfo({
-                    stateInit: seqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
+                    stateInit: accountSeqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
                     body: new CellMessage(signed)
                 })
             });
@@ -153,7 +181,7 @@ export const LedgerTransferComponent = fragment((
                     if (!account.account.last) {
                         return;
                     }
-                    let changed = await engine.client4.isAccountChanged(seqno, contract.address, new BN(account.account.last.lt, 10));
+                    let changed = await engine.client4.isAccountChanged(accountSeqno, contract.address, new BN(account.account.last.lt, 10));
                     console.log({ changed });
                     if (!changed.changed) {
                         return;
@@ -166,6 +194,104 @@ export const LedgerTransferComponent = fragment((
         }
 
     }, [addr, target, amount, comment]);
+
+    // Estimate fees
+    const lock = React.useMemo(() => {
+        return new AsyncLock();
+    }, []);
+    React.useEffect(() => {
+        let ended = false;
+        lock.inLock(async () => {
+            await backoff('ledger-transfer', async () => {
+                console.log({ order });
+                if (ended) {
+                    return;
+                }
+
+                if (!order) {
+                    return;
+                }
+
+                // Parse value
+                let value: BN;
+                try {
+                    const validAmount = amount.replace(',', '.');
+                    value = toNano(validAmount);
+                } catch (e) {
+                    return null;
+                }
+
+                // Parse address
+                let address: Address;
+                try {
+                    let parsed = Address.parseFriendly(target);
+                    address = parsed.address;
+                } catch (e) {
+                    return null;
+                }
+
+                const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
+                const contract = new WalletV4Contract(Address.parse(addr.address), source);
+
+                // Fetch accounts seqno
+                const accountSeqno = await backoff('contract-seqno', () => contract.getSeqNo(engine.connector.client));
+                const seqno = (await engine.client4.getLastBlock()).last.seqno;
+                console.log({ accountSeqno });
+                // Fetch account light state
+                const accountState = (await backoff('account-state', () => engine.client4.getAccountLite(seqno, contract.address))).account;
+
+
+                // Parse order
+                let intMessage: InternalMessage;
+                let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
+
+                intMessage = new InternalMessage({
+                    to: address,
+                    value: value,
+                    bounce: false,
+                    body: new CommonMessageInfo({
+                        stateInit: accountSeqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
+                        body: order.payload ? new CellMessage(order.payload) : null
+                    })
+                });
+                if (order.amountAll) {
+                    sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
+                }
+
+                // Create transfer
+                let transfer = await contract.createTransfer({
+                    seqno: accountSeqno,
+                    walletId: contract.source.walletId,
+                    secretKey: null,
+                    sendMode,
+                    order: intMessage
+                });
+                if (ended) {
+                    return;
+                }
+
+                // Resolve fee
+                if (config) {
+                    let inMsg = new Cell();
+                    new ExternalMessage({
+                        to: contract.address,
+                        body: new CommonMessageInfo({
+                            stateInit: accountSeqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                            body: new CellMessage(transfer)
+                        })
+                    }).writeTo(inMsg);
+                    let outMsg = new Cell();
+                    intMessage.writeTo(outMsg);
+                    let local = estimateFees(config, inMsg, outMsg, accountState.storageStat);
+                    console.log({ local });
+                    setEstimation(local);
+                }
+            });
+        });
+        return () => {
+            ended = true;
+        }
+    }, [order, config, comment]);
 
     const linkNavigator = useLinkNavigator();
     const onQRCodeRead = React.useCallback((src: string) => {
@@ -447,31 +573,34 @@ export const LedgerTransferComponent = fragment((
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'position' : 'height'}
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 style={{
                     marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom ?? 16,
-                    flexDirection: 'row'
+                    marginBottom: safeArea.bottom ?? 16
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
-                <RoundButton
-                    title={t('common.back')}
-                    display={'secondary'}
-                    onPress={onBack}
-                    style={{
-                        flex: 1,
-                        marginRight: 4
-                    }}
-                />
-                <RoundButton
-                    title={t('common.send')}
-                    action={doSend}
-                    style={{
-                        flex: 1,
-                        marginLeft: 4
-                    }}
-                />
+                <View style={{
+                    flexDirection: 'row'
+                }}>
+                    <RoundButton
+                        title={t('common.back')}
+                        display={'secondary'}
+                        onPress={onBack}
+                        style={{
+                            flex: 1,
+                            marginRight: 4
+                        }}
+                    />
+                    <RoundButton
+                        title={t('common.send')}
+                        action={doSend}
+                        style={{
+                            flex: 1,
+                            marginLeft: 4
+                        }}
+                    />
+                </View>
             </KeyboardAvoidingView>
         </View>
     );

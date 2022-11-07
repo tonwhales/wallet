@@ -1,15 +1,12 @@
 import BN from "bn.js";
 import React, { useState } from "react";
-import { View, Text, Image, useWindowDimensions, ScrollView, Platform, TouchableHighlight } from "react-native";
-import Animated from "react-native-reanimated";
+import { View, Text, Image, useWindowDimensions, TouchableHighlight } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { delay } from "teslabot";
-import { Address, fromNano, toNano, TonClient4 } from "ton";
+import { Address, toNano, TonClient4 } from "ton";
 import { TonTransport } from "ton-ledger";
 import { AppConfig } from "../../AppConfig";
-import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
-import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";

@@ -15,11 +15,19 @@ import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { Suspense } from "../../Suspense";
+import { useParams } from "../../utils/useParams";
+import { Address } from "ton";
 
 export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const params = useParams<{ addr?: string }>();
+    const address = React.useMemo(() => {
+        if (params.addr) {
+            return Address.parse(params.addr);
+        }
+        return getCurrentAddress().address;
+    }, [params]);
     const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
 
     const onCopy = React.useCallback(() => {

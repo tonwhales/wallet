@@ -84,7 +84,9 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice }: { onSelectD
                     }}>
                         {t('hardwareWallet.devices')}
                     </Text>
-                    <LoadingIndicator simple />
+                    {scan.type === 'ongoing' && (
+                        <LoadingIndicator simple />
+                    )}
                 </View>
             )}
             <ScrollView>

@@ -539,8 +539,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         connectionDescriptionIOS: 'You can connect your Ledger Bluetooth (Nano X model)',
         connectionHIDDescription: 'Connect your Ledger via USB and press \'Connect Ledger\' in Tonhub',
         chooseAccountDescription: 'Choose account you would like to connect to',
-        bluetoothScanDescription: 'To connect to your Ledger via Bluetooth scan for available devices and select suitable Ledger Nano X',
-        openAppVerifyAddress: 'Open TON app on your Ledger then press \'Load address\' in Tonhub and verify the address you\'ve selected in the Ledger TON app',
+        bluetoothScanDescription: 'To connect to your Ledger via Bluetooth: Turn your ledger on and make sure that you have bluetooth enabled, then press \'Scan\' to search available devices and select suitable Ledger Nano X',
+        openAppVerifyAddress: 'Open your Ledger Ton App and then press \'Load address\' in Tonhub and verify the address you\'ve selected in the Ledger Ton App',
         devices: 'Devices',
         actions: {
             connect: 'Connect Ledger',

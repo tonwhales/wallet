@@ -15,9 +15,11 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { backoff } from "../../utils/time";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerTransferComponent } from "./LedgerTransferComponent";
 
 export const LedgerApp = React.memo((props: { transport: TonTransport, account: number, address: { address: string, publicKey: Buffer }, tonClient4: TonClient4 }) => {
+    const navigation = useTypedNavigation();
     const [screen, setScreen] = useState<'account' | 'transfer' | 'receive'>('account')
     const address = React.useMemo(() => Address.parse(props.address.address), [props.address.address]);
     const window = useWindowDimensions();
@@ -100,7 +102,11 @@ export const LedgerApp = React.memo((props: { transport: TonTransport, account: 
                     </View>
                     <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                         <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                            <TouchableHighlight onPress={() => setScreen('receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                            <TouchableHighlight
+                                onPress={() => { navigation.navigate('Receive', { addr: props.address.address }); }}
+                                underlayColor={Theme.selector}
+                                style={{ borderRadius: 14 }}
+                            >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                     <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image source={require('../../../assets/ic_receive.png')} />

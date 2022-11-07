@@ -551,6 +551,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             connectHid: 'Подключить через USB',
             connectBluetooth: 'Подключить через Bluetooth',
             scanBluetooth: 'Начать поиск',
+            confirmOnLedger: 'Подтвердить на Ledger',
         }
     }
 };

@@ -61,6 +61,7 @@ import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
+import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -176,6 +177,7 @@ const navigation = [
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
     modalScreen('HardwareWallet', HardwareWalletFragment),
+    modalScreen('LedgerTransfer', LedgerTransferFragment),
     // modalScreen('Phone', PhoneFragment),
     // modalScreen('Country', PickCountry),
     // genericScreen('Code', CodeFragment),

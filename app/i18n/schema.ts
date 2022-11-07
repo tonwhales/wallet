@@ -552,6 +552,7 @@ export type LocalizationSchema = {
             connectHid: string,
             connectBluetooth: string,
             scanBluetooth: string,
+            confirmOnLedger: string,
         }
     }
 };

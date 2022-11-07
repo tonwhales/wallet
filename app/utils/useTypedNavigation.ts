@@ -5,6 +5,7 @@ import BN from 'bn.js';
 import { Order } from '../fragments/secure/ops/Order';
 import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import { LedgerTransferParams } from '../fragments/ledger/LedgerTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -99,6 +100,10 @@ export class TypedNavigation {
         url: string
     }) {
         this.navigate('Review', params);
+    }
+
+    navigateLedgerTransfer(params: LedgerTransferParams) {
+        this.navigate('LedgerTransfer', params);
     }
 }
 

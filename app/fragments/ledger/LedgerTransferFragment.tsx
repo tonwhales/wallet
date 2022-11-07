@@ -2,7 +2,7 @@ import { useKeyboard } from "@react-native-community/hooks";
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import React, { useMemo } from "react"
-import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView } from "react-native"
+import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard } from "react-native"
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock, delay } from "teslabot";
@@ -31,22 +31,22 @@ import { fragment } from "../../fragment";
 import { fetchSeqno } from "../../engine/api/fetchSeqno";
 import { estimateFees } from "../../engine/estimate/estimateFees";
 import { createSimpleOrder } from "../secure/ops/Order";
+import { useParams } from "../../utils/useParams";
 
-export const LedgerTransferComponent = fragment((
-    {
+export type LedgerTransferParams = {
+    transport: TonTransport,
+    account: number,
+    addr: { address: string, publicKey: Buffer },
+    balance: BN | null,
+}
+
+export const LedgerTransferFragment = fragment(() => {
+    const {
         transport,
         account,
         addr,
         balance,
-        onBack
-    }: {
-        transport: TonTransport,
-        account: number,
-        addr: { address: string, publicKey: Buffer },
-        balance: BN | null,
-        onBack: () => void
-    }
-) => {
+    } = useParams<LedgerTransferParams>();
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -124,13 +124,13 @@ export const LedgerTransferComponent = fragment((
             // Fetch data
             const [[accountSeqno, account, metadata, targetState]] = await Promise.all([
                 backoff('transfer-fetch-data', async () => {
-                    let seqno = await backoff('contract-seqno', () => contract.getSeqNo(engine.connector.client));
-                    let block = await backoff('transfer', () => engine.client4.getLastBlock());
+                    let seqno = await backoff('ledger-contract-seqno', () => contract.getSeqNo(engine.connector.client));
+                    let block = await backoff('ledger-lastblock', () => engine.client4.getLastBlock());
                     return Promise.all([
                         seqno,
-                        backoff('transfer', () => engine.client4.getAccountLite(block.last.seqno, contract.address)),
-                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, address)),
-                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, address))
+                        backoff('ledger-lite', () => engine.client4.getAccountLite(block.last.seqno, contract.address)),
+                        backoff('ledger-meta', () => fetchMetadata(engine.client4, block.last.seqno, address)),
+                        backoff('ledger-account', () => engine.client4.getAccount(block.last.seqno, address))
                     ])
                 }),
             ]);
@@ -141,6 +141,11 @@ export const LedgerTransferComponent = fragment((
             let payload: TonPayloadFormat | undefined = undefined;
             if (comment.trim().length > 0) {
                 payload = { type: 'comment', text: comment.trim() };
+            }
+
+            // Dismiss keyboard for iOS
+            if (Platform.OS === 'ios') {
+                Keyboard.dismiss();
             }
 
             let signed = await transport.signTransaction(path, {
@@ -165,7 +170,7 @@ export const LedgerTransferComponent = fragment((
             extMessage.writeTo(msg);
 
             // Transfer
-            await backoff('transfer', async () => {
+            await backoff('ledger-transfer', async () => {
                 try {
                     console.log(msg.toBoc({ idx: false }).toString('base64'));
                     await engine.client4.sendMessage(msg.toBoc({ idx: false }));
@@ -177,15 +182,20 @@ export const LedgerTransferComponent = fragment((
             // Awaiting
             await backoff('tx-await', async () => {
                 while (true) {
-                    console.log({ account: account.account });
+                    console.log('tx-await', JSON.stringify(account.account));
                     if (!account.account.last) {
                         return;
                     }
-                    let changed = await engine.client4.isAccountChanged(accountSeqno, contract.address, new BN(account.account.last.lt, 10));
-                    console.log({ changed });
-                    if (!changed.changed) {
+                    const lastBlock = await engine.client4.getLastBlock();
+                    const lite = await engine.client4.getAccountLite(lastBlock.last.seqno, contract.address);
+
+                    console.log('tx-await', JSON.stringify({ lastBlock, lite }));
+
+                    if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt ?? '0', 10))) {
+                        navigation.goBack();
                         return;
                     }
+
                     await delay(1000);
                 }
             });
@@ -384,12 +394,11 @@ export const LedgerTransferComponent = fragment((
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{
-                paddingTop: 12,
+                paddingTop: 17,
                 paddingBottom: 17
             }}>
                 <Text style={{
                     fontWeight: '600',
-                    marginLeft: 17,
                     fontSize: 17,
                     textAlign: 'center'
                 }}>{t('transfer.title', { symbol: 'TON' })}</Text>
@@ -586,14 +595,14 @@ export const LedgerTransferComponent = fragment((
                     <RoundButton
                         title={t('common.back')}
                         display={'secondary'}
-                        onPress={onBack}
+                        onPress={navigation.goBack}
                         style={{
                             flex: 1,
                             marginRight: 4
                         }}
                     />
                     <RoundButton
-                        title={t('common.send')}
+                        title={t('hardwareWallet.actions.confirmOnLedger')}
                         action={doSend}
                         style={{
                             flex: 1,
@@ -602,6 +611,12 @@ export const LedgerTransferComponent = fragment((
                     />
                 </View>
             </KeyboardAvoidingView>
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={navigation.goBack}
+                />
+            )}
         </View>
     );
 });

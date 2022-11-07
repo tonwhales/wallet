@@ -98,7 +98,14 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                         fontWeight: '600',
                         fontSize: 18,
                         marginBottom: 12,
-                        textAlign: 'center'
+                    }}>
+                        {t('hardwareWallet.actions.connect')}
+                    </Text>
+                    <Text style={{
+                        color: Theme.textColor,
+                        fontWeight: '400',
+                        fontSize: 16,
+                        marginBottom: 12,
                     }}>
                         {t('hardwareWallet.bluetoothScanDescription')}
                     </Text>

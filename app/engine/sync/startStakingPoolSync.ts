@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, Slice, TupleSlice4 } from "ton";
+import { Address, beginCell, Cell, fromNano, Slice, TonClient4, TupleSlice4 } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
@@ -24,6 +24,57 @@ export type StakingPoolState = {
     }
 };
 
+export type StakingChart = {
+    chart: {
+        balance: string;
+        ts: number;
+        diff: string;
+    }[];
+    lastUpdate: number;
+}
+
+async function getStakingMemberMonthlyChart(client4: TonClient4, address: Address, pool: Address) {
+    let fromTs = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    fromTs = Math.floor(fromTs / 1000);
+
+    let tillTs = Math.floor(Date.now() / 1000) - 60;
+    let keyTimePoints: number[] = [];
+    for (let ts = tillTs; ts > fromTs; ts -= 60 * 60 * 36) {
+        keyTimePoints.push(ts);
+    }
+
+    let keyBlocks = await Promise.all(keyTimePoints.map(async (ts) => ({ block: await client4.getBlockByUtime(ts), ts })));
+    let chaoticPoints = await Promise.all(keyBlocks.map(async block => {
+        let result = await client4.runMethod(block.block.shards[0].seqno, pool, 'get_member', [{
+            type: 'slice',
+            cell: beginCell().storeAddress(address).endCell(),
+        }]);
+        if (result.result[0]?.type === 'int') {
+            return { ts: block.ts, balance: result.result[0].value };
+        }
+        return null;
+    }));
+    let points = chaoticPoints.filter(a => a !== null) as { ts: number, balance: BN }[];
+    points = points.sort((a, b) => a.ts - b.ts);
+
+    const chart: { balance: string, ts: number, diff: string }[] = []
+    let prevBalance = new BN(1);
+
+    for (let point of points) {
+        chart.push({
+            balance: point.balance.toString(10),
+            ts: point.ts * 1000,
+            diff: point.balance.sub(new BN(prevBalance)).toString(10)
+        });
+
+        prevBalance = point.balance;
+    }
+
+    const lastUpdate = Date.now();
+
+    return { chart, lastUpdate };
+}
+
 export async function downloadStateDirectly(engine: Engine, address: Address) {
     let last = await engine.client4.getLastBlock();
     let data = await engine.client4.getAccount(last.last.seqno, address);
@@ -43,6 +94,7 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
     let key = `${member.toFriendly({ testOnly: AppConfig.isTestnet })}/staking/${pool.toFriendly({ testOnly: AppConfig.isTestnet })}`;
     let lite = engine.persistence.liteAccounts.item(pool);
     let item = engine.persistence.staking.item({ address: pool, target: member });
+    let chartItem = engine.persistence.stakingChart.item({ address: pool, target: member });
 
     startDependentSync(key, lite, engine, async (parent) => {
 
@@ -136,5 +188,15 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
             }
         };
         item.update(() => newState);
+
+        if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
+            return;
+        }
+
+        const newChartState = await backoff('graph', () => getStakingMemberMonthlyChart(engine.client4, member, pool));
+
+        if (newChartState) {
+            chartItem.update(() => newChartState);
+        }
     });
 }

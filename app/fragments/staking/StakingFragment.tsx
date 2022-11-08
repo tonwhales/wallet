@@ -26,6 +26,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
+import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
 
@@ -40,6 +41,7 @@ export const StakingFragment = fragment(() => {
     const poolParams = pool?.params;
     const member = pool?.member;
     const staking = engine.products.whalesStakingPools.useStaking();
+    const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
 
     let type: 'club' | 'team' | 'nominators' = useMemo(() => {
         if (KnownPools[params.pool].name.toLowerCase().includes('club')) {
@@ -158,6 +160,12 @@ export const StakingFragment = fragment(() => {
         [],
     );
 
+    const openGraph = useCallback(() => {
+        if (!!stakingChart) {
+            navigation.navigate('StakingGraph', { pool: target.toFriendly({ testOnly: AppConfig.isTestnet }) });
+        }
+    }, [member]);
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
@@ -203,12 +211,26 @@ export const StakingFragment = fragment(() => {
                     >
                         {t('products.staking.balance')}
                     </Text>
-                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}>
-                        <ValueComponent
-                            value={member?.balance || toNano('0')}
-                            centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                        />
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed && stakingChart ? 0.3 : 1,
+                                    marginLeft: 22,
+                                    flexDirection: 'row', alignItems: 'center'
+                                };
+                            }}
+                            onPress={openGraph}
+                        >
+                            <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
+                                <ValueComponent
+                                    value={member?.balance || toNano('0')}
+                                    centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                />
+                            </Text>
+                            {!!stakingChart && <GraphIcon />}
+                        </Pressable>
+                    </View>
                     <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress

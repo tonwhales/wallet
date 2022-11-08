@@ -3,7 +3,7 @@ import { BN } from "bn.js";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Theme } from "../../Theme";
-import { TouchableHighlight, View, Text } from "react-native";
+import { TouchableHighlight, View, Text, useWindowDimensions } from "react-native";
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
@@ -15,6 +15,9 @@ export const StakingProductComponent = React.memo(() => {
     const engine = useEngine();
     const staking = engine.products.whalesStakingPools.useStaking();
     const showJoin = staking.total.eq(new BN(0));
+
+    const dimentions = useWindowDimensions();
+    const fontScaleNormal = dimentions.fontScale <= 1;
 
     if (!showJoin) return (
         <TouchableHighlight
@@ -74,7 +77,8 @@ export const StakingProductComponent = React.memo(() => {
                                     backgroundColor: 'transparent',
                                     paddingHorizontal: 0, paddingVertical: 0,
                                     alignSelf: 'flex-end',
-                                    marginTop: 2, height: 14
+                                    marginTop: 2, height: undefined,
+                                    minHeight: fontScaleNormal ? 14 : undefined
                                 }}
                                 textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
                             />

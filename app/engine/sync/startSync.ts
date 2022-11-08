@@ -188,5 +188,7 @@ export function startSync(engine: Engine) {
     // Corp Sync
     //
 
-    startCorpSync(engine);
+    if (!AppConfig.isTestnet) {
+        startCorpSync(engine);
+    }
 }

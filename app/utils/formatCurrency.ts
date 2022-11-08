@@ -10,14 +10,14 @@ function toLocaleNumber(value: string) {
     return value;
 }
 
-export function formatCurrency(amount: string, currency: string): string {
+export function formatCurrency(amount: string, currency: string, neg?: boolean): string {
     const symbols = CurrencySymbols[currency];
     if (!symbols) {
-        return `${toLocaleNumber(amount)} ${currency?.toUpperCase()}`;
+        return `${neg ? '-' : ''}${toLocaleNumber(amount)} ${currency?.toUpperCase()}`;
     }
 
     if (!symbols.end) {
-        return `${symbols.symbol}${toLocaleNumber(amount)}`;
+        return `${neg ? '-' : ''}${symbols.symbol}${toLocaleNumber(amount)}`;
     }
-    return `${toLocaleNumber(amount)}${symbols.symbol}`;
+    return `${neg ? '-' : ''}${toLocaleNumber(amount)}${symbols.symbol}`;
 }

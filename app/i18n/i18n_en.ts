@@ -531,6 +531,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressMarkSpam: 'Mark address as spam',
         txShare: 'Share transaction',
         txRepeat: 'Repeat transaction',
+        share: {
+            address: 'TON address',
+            transaction: 'TON transaction',
+        }
     }
 };
 

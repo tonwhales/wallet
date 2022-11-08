@@ -119,12 +119,19 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
     }, [txId]);
 
     const onShare = React.useCallback((link: string) => {
-        if (Platform.OS === 'ios') {
-            Share.share({ title: t('receive.share.title'), url: link });
-        } else {
-            Share.share({ title: t('receive.share.title'), message: link });
+        let title = t('receive.share.title');
+        if (link === explorerTxLink) {
+            title = t('txActions.share.transaction');
         }
-    }, []);
+        if (link === addressLink) {
+            title = t('txActions.share.address');
+        }
+        if (Platform.OS === 'ios') {
+            Share.share({ title: title, url: link });
+        } else {
+            Share.share({ title: title, message: link });
+        }
+    }, [explorerTxLink, addressLink]);
 
     const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
@@ -149,11 +156,11 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         })
     }, [tx, operation]);
 
-    const addressActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
+    const transactionActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
         { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
         { title: !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'), systemIcon: Platform.OS === 'ios' ? 'person.crop.circle' : undefined },
         ...(!spam ? [{ title: t('txActions.addressMarkSpam'), destructive: true, systemIcon: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined }] : []),
-        { title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined },
+        ...(tx.base.kind === 'out' ? [{ title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined }] : []),
         { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
     ] : [];
 
@@ -190,12 +197,12 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                     break;
             }
         },
-        [addressLink, explorerTxLink],
+        [addressLink, explorerTxLink, onShare],
     );
 
     return (
         <ContextMenu
-            actions={addressActions}
+            actions={transactionActions}
             onPress={handleAction}>
             <TouchableHighlight
                 onPress={() => props.onPress(props.tx)}

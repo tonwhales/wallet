@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Platform, Text, Image, Pressable, Alert, ToastAndroid, ScrollView } from "react-native";
+import { View, Platform, Text, Image, Pressable, Alert, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -32,6 +32,7 @@ import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
+import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -134,6 +135,44 @@ export const TransactionPreviewFragment = fragment(() => {
         return;
     }, []);
 
+    const handleCommentAction = React.useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+        if (e.nativeEvent.name === t('common.copy')) {
+            if (!operation.comment && body?.type === 'comment' && body.comment) {
+                onCopy(body.comment);
+                return;
+            }
+
+            if (!(body?.type === 'comment' && body.comment) && operation.comment) {
+                onCopy(operation.comment);
+                return;
+            }
+        }
+    }, [operation, body]);
+
+    // 
+    // Address actions
+    // 
+    const addressActions = [];
+
+    if (!spam) {
+        addressActions.push({
+            title: t('spamFilter.blockConfirm'),
+            id: 'block',
+            image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
+            attributes: { destructive: true },
+            onAction: () => onMarkAddressSpam(operation.address || address)
+        });
+    }
+
+    if (!known) {
+        addressActions.push({
+            title: t('contacts.contact'),
+            id: 'contact',
+            image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
+            onAction: () => onAddressContact(operation.address || address)
+        });
+    }
+
     return (
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
@@ -223,7 +262,10 @@ export const TransactionPreviewFragment = fragment(() => {
                         justifyContent: 'center',
                         width: '100%'
                     }}>
-                        <MenuComponent content={body.comment}>
+                        <ContextMenu
+                            actions={[{ title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined }]}
+                            onPress={handleCommentAction}
+                        >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
@@ -240,7 +282,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     {body.comment}
                                 </Text>
                             </View>
-                        </MenuComponent>
+                        </ContextMenu>
                     </View>
                 )}
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
@@ -251,7 +293,10 @@ export const TransactionPreviewFragment = fragment(() => {
                         justifyContent: 'center',
                         width: '100%'
                     }}>
-                        <MenuComponent content={operation.comment}>
+                        <ContextMenu
+                            actions={[{ title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined }]}
+                            onPress={handleCommentAction}
+                        >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
                                 <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
@@ -268,7 +313,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     {operation.comment}
                                 </Text>
                             </View>
-                        </MenuComponent>
+                        </ContextMenu>
                     </View>
                 )}
                 <View style={{

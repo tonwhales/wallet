@@ -553,6 +553,10 @@ export type LocalizationSchema = {
             connectBluetooth: string,
             scanBluetooth: string,
             confirmOnLedger: string,
+        },
+        errors: {
+            noDevice: string,
+            appNotOpen: string
         }
     }
 };

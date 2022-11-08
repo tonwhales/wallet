@@ -11,11 +11,9 @@ import { WalletV4Contract, WalletV4Source } from "ton-contracts";
 import { TonPayloadFormat, TonTransport } from "ton-ledger";
 import { AppConfig } from "../../AppConfig";
 import { AddressDomainInput } from "../../components/AddressDomainInput";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { fetchConfig } from "../../engine/api/fetchConfig";
 import { useEngine } from "../../engine/Engine";
 import { fetchMetadata } from "../../engine/metadata/fetchMetadata";
 import { t } from "../../i18n/t";
@@ -28,7 +26,6 @@ import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { fragment } from "../../fragment";
-import { fetchSeqno } from "../../engine/api/fetchSeqno";
 import { estimateFees } from "../../engine/estimate/estimateFees";
 import { createSimpleOrder } from "../secure/ops/Order";
 import { useParams } from "../../utils/useParams";
@@ -53,6 +50,7 @@ export const LedgerTransferFragment = fragment(() => {
     const config = engine.products.config.useConfig();
 
     let path = pathFromAccountNumber(account);
+
     const [target, setTarget] = React.useState('');
     const [addressDomainInput, setAddressDomainInput] = React.useState(target);
     const [domain, setDomain] = React.useState<string>();
@@ -60,7 +58,7 @@ export const LedgerTransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState('');
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
-
+    const [progress, setProgress] = React.useState<'confirming' | 'sending' | 'sent'>();
 
     let source = useMemo(() => {
         return WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey })
@@ -148,6 +146,8 @@ export const LedgerTransferFragment = fragment(() => {
                 Keyboard.dismiss();
             }
 
+            setProgress('confirming');
+
             let signed = await transport.signTransaction(path, {
                 to: address!,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
@@ -172,7 +172,7 @@ export const LedgerTransferFragment = fragment(() => {
             // Transfer
             await backoff('ledger-transfer', async () => {
                 try {
-                    console.log(msg.toBoc({ idx: false }).toString('base64'));
+                    setProgress('sending');
                     await engine.client4.sendMessage(msg.toBoc({ idx: false }));
                 } catch (error) {
                     console.warn(error);
@@ -189,9 +189,8 @@ export const LedgerTransferFragment = fragment(() => {
                     const lastBlock = await engine.client4.getLastBlock();
                     const lite = await engine.client4.getAccountLite(lastBlock.last.seqno, contract.address);
 
-                    console.log('tx-await', JSON.stringify({ lastBlock, lite }));
-
                     if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt ?? '0', 10))) {
+                        setProgress('sent');
                         navigation.goBack();
                         return;
                     }
@@ -201,6 +200,7 @@ export const LedgerTransferFragment = fragment(() => {
             });
         } catch (e) {
             console.warn(e);
+            setProgress(undefined);
         }
 
     }, [addr, target, amount, comment]);
@@ -246,7 +246,6 @@ export const LedgerTransferFragment = fragment(() => {
                 // Fetch accounts seqno
                 const accountSeqno = await backoff('contract-seqno', () => contract.getSeqNo(engine.connector.client));
                 const seqno = (await engine.client4.getLastBlock()).last.seqno;
-                console.log({ accountSeqno });
                 // Fetch account light state
                 const accountState = (await backoff('account-state', () => engine.client4.getAccountLite(seqno, contract.address))).account;
 
@@ -293,7 +292,6 @@ export const LedgerTransferFragment = fragment(() => {
                     let outMsg = new Cell();
                     intMessage.writeTo(outMsg);
                     let local = estimateFees(config, inMsg, outMsg, accountState.storageStat);
-                    console.log({ local });
                     setEstimation(local);
                 }
             });
@@ -589,6 +587,18 @@ export const LedgerTransferFragment = fragment(() => {
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
+                <Animated.View>
+                    <Text
+                        style={{
+                            fontWeight: '500',
+                            fontSize: 16,
+                            marginLeft: 16,
+                            marginTop: 16
+                        }}
+                    >
+                        {t('hardwareWallet.actions.confirmOnLedger')}
+                    </Text>
+                </Animated.View>
                 <View style={{
                     flexDirection: 'row'
                 }}>
@@ -602,7 +612,7 @@ export const LedgerTransferFragment = fragment(() => {
                         }}
                     />
                     <RoundButton
-                        title={t('hardwareWallet.actions.confirmOnLedger')}
+                        title={t('common.confirm')}
                         action={doSend}
                         style={{
                             flex: 1,

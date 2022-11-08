@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, Platform, PermissionsAndroid } from "react-native";
+import { View, Text, Platform, PermissionsAndroid, Alert } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { Observable } from "rxjs";
 import { ScrollView } from "react-native-gesture-handler";
@@ -35,13 +35,13 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
     const onLoadAccount = React.useCallback(
         (async () => {
             if (!device) {
+                Alert.alert(t('hardwareWallet.errors.noDevice'));
                 return;
             }
             if (account === null) {
                 return;
             }
             let path = pathFromAccountNumber(account);
-            console.log({ device, account, path });
             try {
                 let address = await device.getAddress(path, { testOnly: AppConfig.isTestnet });
                 console.log({ address });
@@ -62,7 +62,6 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
             // Intentionally for the sake of simplicity we use a transport local state
             // and remove it on disconnect.
             // A better way is to pass in the device.id and handle the connection internally.
-            console.log('onDisconeect');
             setDevice(null);
             setBluetoothDevice(null);
         });

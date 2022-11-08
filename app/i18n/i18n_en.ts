@@ -551,6 +551,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             connectBluetooth: 'Connect Ledger via Bluetooth',
             scanBluetooth: 'Scan',
             confirmOnLedger: 'Confirm via Ledger',
+        },
+        errors: {
+            noDevice: 'No device found',
+            appNotOpen: 'Ton app is not open on Ledger',
         }
     }
 };

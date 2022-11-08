@@ -7,7 +7,7 @@ import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
 import { Cell, Slice } from 'ton';
 
 const transCodec = t.type({
-    network: t.union([t.literal('sandbox'), t.literal('mainnet')]),
+    network: t.union([t.literal('testnet'), t.literal('mainnet')]),
     to: c.address,
     value: c.bignum,
     stateInit: t.union([c.cell, t.null, t.undefined]),
@@ -21,7 +21,7 @@ const transactionResponse = t.type({
 });
 
 const signCodec = t.type({
-    network: t.union([t.literal('sandbox'), t.literal('mainnet')]),
+    network: t.union([t.literal('testnet'), t.literal('mainnet')]),
     textCell: c.cell,
     payloadCell: c.cell
 });
@@ -48,7 +48,7 @@ export function useInjectEngine(name: string) {
         inj.registerMethod('tx', transCodec, transactionResponse, async (src) => {
 
             // Check network
-            if (AppConfig.isTestnet && src.network !== 'sandbox') {
+            if (AppConfig.isTestnet && src.network !== 'testnet') {
                 throw Error('Invalid network');
             }
             if (!AppConfig.isTestnet && src.network !== 'mainnet') {
@@ -96,7 +96,7 @@ export function useInjectEngine(name: string) {
         inj.registerMethod('sign', signCodec, signResponseCodec, async (src) => {
 
             // Check network
-            if (AppConfig.isTestnet && src.network !== 'sandbox') {
+            if (AppConfig.isTestnet && src.network !== 'testnet') {
                 throw Error('Invalid network');
             }
             if (!AppConfig.isTestnet && src.network !== 'mainnet') {

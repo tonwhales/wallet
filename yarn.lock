@@ -2566,6 +2566,14 @@
     component-type "^1.2.1"
     join-component "^1.1.0"
 
+"@shopify/react-native-skia@^0.1.156":
+  version "0.1.156"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.156.tgz#e298a2383f9bf94c94a69f0ceb1fde767d82edab"
+  integrity sha512-QrZdJN5aCnmU0CYLtXm+/x/JXSyh755ZX+YBr/prx+UWKfRpfC5XF9SLn/6TwSLAOyLHa7rrYy0NkHlrVF6gaQ==
+  dependencies:
+    canvaskit-wasm "0.36.1"
+    react-reconciler "0.26.2"
+
 "@sideway/address@^4.1.3":
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.3.tgz#d93cce5d45c5daec92ad76db492cc2ee3c64ab27"
@@ -3763,6 +3771,11 @@ caniuse-lite@^1.0.30001332:
   version "1.0.30001341"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001341.tgz#59590c8ffa8b5939cf4161f00827b8873ad72498"
   integrity sha512-2SodVrFFtvGENGCv0ChVJIDQ0KPaS1cg7/qtfMaICgeMolDdo/Z2OD32F0Aq9yl6F4YFwGPBS5AaPqNYiW4PoA==
+
+canvaskit-wasm@0.36.1:
+  version "0.36.1"
+  resolved "https://registry.yarnpkg.com/canvaskit-wasm/-/canvaskit-wasm-0.36.1.tgz#341df38ce7894a925064beaf9eeacbf7699c6633"
+  integrity sha512-6IHlBBc9zDQBTHiGuz4Rf0j/P/ulW24q/yW+QY517e7jwQoM0nJ1+L3h4wUpfC4eQrcpVPQY8ZFbqMbUCzDxTw==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -8641,10 +8654,10 @@ react-native-figma-squircle@^0.2.0:
   dependencies:
     figma-squircle "^0.2.0"
 
-react-native-gesture-handler@~2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.2.1.tgz#672258aa5a40c92a97c736bdde0a8bd6c8c6c692"
-  integrity sha512-P4kAPbSY8VFAjvFNzfePgFsbZEldfEnEfNqOJw6MlpcdXrPGwRbvMqWMVkA9lifdKTZ3XifvAgJ8+R+uEZN0zA==
+react-native-gesture-handler@2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.5.0.tgz#61385583570ed0a45a9ed142425e35f8fe8274fb"
+  integrity sha512-djZdcprFf08PZC332D+AeG5wcGeAPhzfCJtB3otUgOgTlvjVXmg/SLFdPJSpzLBqkRAmrC77tM79QgKbuLxkfw==
   dependencies:
     "@egjs/hammerjs" "^2.0.17"
     hoist-non-react-statics "^3.3.0"
@@ -8656,6 +8669,11 @@ react-native-gradle-plugin@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.6.tgz#b61a9234ad2f61430937911003cddd7e15c72b45"
   integrity sha512-eIlgtsmDp1jLC24dRn43hB3kEcZVqx6DUQbR0N1ABXGnMEafm9I3V3dUUeD1vh+Dy5WqijSoEwLNUPLgu5zDMg==
+
+react-native-graph@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-graph/-/react-native-graph-0.3.0.tgz#c5f86faab94a5f885057f5e0840999651eeb6305"
+  integrity sha512-JhLzhyPlKwB32H6RmrQNH2hwMK2w/jWRGtAC1+fdF6kaqg679dXKUB+L0a5c72TUc9YiFW0eRnl6rZaD8Y3CyA==
 
 react-native-inappbrowser-reborn@^3.6.3:
   version "3.6.3"
@@ -8854,6 +8872,15 @@ react-navigation@^4.4.4:
   dependencies:
     "@react-navigation/core" "^3.7.9"
     "@react-navigation/native" "^3.8.4"
+
+react-reconciler@0.26.2:
+  version "0.26.2"
+  resolved "https://registry.yarnpkg.com/react-reconciler/-/react-reconciler-0.26.2.tgz#bbad0e2d1309423f76cf3c3309ac6c96e05e9d91"
+  integrity sha512-nK6kgY28HwrMNwDnMui3dvm3rCFjZrcGiuwLc5COUipBK5hWHLOxMJhSnSomirqWwjPBJKV1QcbkI0VJr7Gl1Q==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    scheduler "^0.20.2"
 
 react-refresh@^0.4.0:
   version "0.4.3"

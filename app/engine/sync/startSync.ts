@@ -20,6 +20,7 @@ import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
 import { startCorpSync } from "./startCorpSync";
 import { startApySync } from "./startApySync";
+import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
 
 export function startSync(engine: Engine) {
 
@@ -60,6 +61,9 @@ export function startSync(engine: Engine) {
 
     // APY
     startApySync(engine);
+
+    // Account Balance
+    startAccountBalanceChartSync(engine);
 
     //
     // Wallet Plugins

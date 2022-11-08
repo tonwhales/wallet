@@ -169,9 +169,9 @@ export const StakingCalcComponent = React.memo((
     }
 
     const parsed = parseAmountToNumber(amount);
-    const yearly = toFixedBN(parsed * 0.1);
-    const monthly = toFixedBN(parsed * (Math.pow((1 + 0.1 / 366), 30)) - parsed);
-    const daily = toFixedBN(parsed * (1 + 0.1 / 366) - parsed)
+    const yearly = toFixedBN(parsed * (apyWithFee ? apyWithFee : 0.1));
+    const monthly = toFixedBN(parsed * (Math.pow((1 + (apyWithFee ? apyWithFee : 0.1) / 366), 30)) - parsed);
+    const daily = toFixedBN(parsed * (1 + (apyWithFee ? apyWithFee : 0.1) / 366) - parsed)
 
     return (
         <>

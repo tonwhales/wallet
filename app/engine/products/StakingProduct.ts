@@ -64,4 +64,11 @@ export class StakingPoolsProduct {
         }
         return useOptItem(this.engine.persistence.staking.item({ address: pool, target: this.engine.address }));
     }
+
+    useStakingChart(pool?: Address) {
+        if (!pool) {
+            return null;
+        }
+        return useOptItem(this.engine.persistence.stakingChart.item({ address: pool, target: this.engine.address }));
+    }
 }

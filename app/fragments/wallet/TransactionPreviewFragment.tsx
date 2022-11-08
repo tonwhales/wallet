@@ -19,7 +19,7 @@ import { t } from "../../i18n/t";
 import { MenuComponent } from "../../components/MenuComponent";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
-import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { confirmAlert } from "../../utils/confirmAlert";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import ContactIcon from '../../../assets/ic_contacts.svg';
@@ -68,6 +68,9 @@ export const TransactionPreviewFragment = fragment(() => {
             throw Error('Unknown kind');
         }
     }
+
+    const verified = !!transaction.verified
+        || !!KnownJettonMasters[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     let body: Body | null = null;
     if (transaction.base.body?.type === 'payload') {
@@ -224,7 +227,14 @@ export const TransactionPreviewFragment = fragment(() => {
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
-                        <Avatar address={friendlyAddress} id={friendlyAddress} size={56} image={transaction.icon ? transaction.icon : undefined} spam={spam} />
+                        <Avatar
+                            address={friendlyAddress}
+                            id={friendlyAddress}
+                            size={84}
+                            image={transaction.icon ? transaction.icon : undefined}
+                            spam={spam}
+                            verified={verified}
+                        />
                     </View>
                     {transaction.base.status === 'failed' ? (
                         <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>

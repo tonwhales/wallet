@@ -12,6 +12,7 @@ import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { PluginState } from "../sync/startPluginSync";
 import { t } from "../../i18n/t";
+import { KnownJettonMasters } from "../../secure/KnownWallets";
 
 export type WalletState = {
     balance: BN;
@@ -44,6 +45,7 @@ export type TransactionDescription = {
     masterMetadata: JettonMasterState | null;
     operation: Operation;
     icon: string | null;
+    verified: boolean | null;
 };
 
 export class WalletProduct {
@@ -178,12 +180,21 @@ export class WalletProduct {
                         }
                     }
 
+                    let verified: boolean | null = null;
+                    if (
+                        !!metadata?.jettonWallet
+                        && !!KnownJettonMasters[metadata.jettonWallet.master.toFriendly({ testOnly: AppConfig.isTestnet })]
+                    ) {
+                        verified = true;
+                    }
+
                     return {
                         base,
                         metadata,
                         masterMetadata,
                         operation,
-                        icon
+                        icon,
+                        verified
                     };
                 },
                 dangerouslyAllowMutability: true

@@ -7,6 +7,7 @@ import { Theme } from '../../../Theme';
 import { SvgProps } from 'react-native-svg';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { WImage } from '../../../components/WImage';
+import Verified from '../../../../assets/ic_verified.svg';
 
 export function ProductButton(props: {
     name: string,
@@ -22,6 +23,7 @@ export function ProductButton(props: {
     onPress: () => void,
     onLongPress?: () => void
     style?: StyleProp<ViewStyle>,
+    known?: boolean
 }) {
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
@@ -56,6 +58,15 @@ export function ProductButton(props: {
                             width={42}
                             heigh={42}
                             borderRadius={props.extension ? 8 : 21}
+                        />
+                    )}
+                    {!!props.known && (
+                        <Verified
+                            style={{
+                                position: 'absolute', top: -1, right: -4
+                            }}
+                            height={Math.floor(42 * 0.35)}
+                            width={Math.floor(42 * 0.35)}
                         />
                     )}
                 </View>

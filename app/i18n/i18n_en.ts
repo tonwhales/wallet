@@ -215,10 +215,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 nominators: 'Nominators',
                 nominatorsDescription: 'Open for everyone',
                 club: 'Club',
-                clubDescription: 'Only for Tonwhales NFT owners',
+                clubDescription: 'Only for the Whales Club members',
                 team: 'Team',
-                teamDescription: 'Only for Tonwhales Team members and top 15 Whales Club members',
-                joinClub: 'Join our club',
+                teamDescription: 'Only for Ton Whales teammates and TOP 15 the Whales Club members',
+                joinClub: 'Join the Club',
                 joinTeam: 'Join our team',
                 clubBanner: 'Become our Club Member',
                 clubBannerLearnMore: 'Learn about our club',
@@ -257,7 +257,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 title: 'Become a TON validator',
                 message: 'Staking is a public good for the TON ecosystem. You can help secure the network and earn rewards in the process',
                 buttonTitle: 'Start Earning',
-                moreAbout: 'More about Tonwhales Staking Pool',
+                moreAbout: 'More about Ton Whales Staking Pool',
                 earn: 'Earn up to',
                 onYourTons: 'on your TONs',
                 apy: '13.3%',
@@ -531,6 +531,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressMarkSpam: 'Mark address as spam',
         txShare: 'Share transaction',
         txRepeat: 'Repeat transaction',
+        share: {
+            address: 'TON address',
+            transaction: 'TON transaction',
+        }
     }
 };
 

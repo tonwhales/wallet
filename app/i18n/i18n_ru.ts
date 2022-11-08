@@ -216,10 +216,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 nominators: 'Номинаторы',
                 nominatorsDescription: 'Открыто для всех',
                 club: 'Клубные',
-                clubDescription: 'Только для владельцев Tonwhales NFT',
+                clubDescription: 'Только для членов клуба the Whales Club',
                 team: 'Командные',
-                teamDescription: 'Только для членов команды Tonwhales и топ 15 членов клуба Whales',
-                joinClub: "Вступить в наш клуб",
+                teamDescription: 'Только для членов команды Ton Whales и ТОП 15 членов клуба',
+                joinClub: "Вступить в клуб",
                 joinTeam: "Присоединиться к нашей команде",
                 clubBanner: 'Станьте членом нашего клуба',
                 clubBannerLearnMore: 'Узнайте о нашем клубе',
@@ -258,7 +258,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 title: 'Стань валидатором TON',
                 message: 'Стейкинг — это общественное благо для экосистемы TON. Вы можете помочь защитить сеть и получить вознаграждение в процессе',
                 buttonTitle: 'Начать зарабатывать',
-                moreAbout: 'Подробнее о Tonwhales Staking Pool',
+                moreAbout: 'Подробнее о Ton Whales Staking Pool',
                 earn: 'Получайте до',
                 onYourTons: 'дохода со стейкинга',
                 apy: '13.3%',
@@ -323,7 +323,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 withdrawCompleteFee: 'Комиссия за запрос на завершение вывода',
                 blockchainFee: 'Комиссия сети',
                 cooldownTitle: 'Период ожидания',
-                cooldownActive: 'Активнен',
+                cooldownActive: 'Активен',
                 cooldownInactive: 'Неактивный',
                 cooldownDescription: 'Двухчасовой период, применяемый в начале каждого стейкинг цикла для улучшения процесса снятия и внесения средств между циклами',
             },
@@ -532,6 +532,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         addressMarkSpam: 'Пометить адрес как спам',
         txShare: 'Поделиться транзакцией',
         txRepeat: 'Повторить транзакцию',
+        share: {
+            address: 'TON адрес',
+            transaction: 'TON транзакция',
+        }
     }
 };
 

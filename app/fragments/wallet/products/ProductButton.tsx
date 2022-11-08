@@ -7,6 +7,7 @@ import { Theme } from '../../../Theme';
 import { SvgProps } from 'react-native-svg';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { WImage } from '../../../components/WImage';
+import Verified from '../../../../assets/ic_verified.svg';
 
 export function ProductButton(props: {
     name: string,
@@ -22,6 +23,7 @@ export function ProductButton(props: {
     onPress: () => void,
     onLongPress?: () => void
     style?: StyleProp<ViewStyle>,
+    known?: boolean
 }) {
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
@@ -58,6 +60,15 @@ export function ProductButton(props: {
                             borderRadius={props.extension ? 8 : 21}
                         />
                     )}
+                    {!!props.known && (
+                        <Verified
+                            style={{
+                                position: 'absolute', top: -1, right: -4
+                            }}
+                            height={Math.floor(42 * 0.35)}
+                            width={Math.floor(42 * 0.35)}
+                        />
+                    )}
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
@@ -75,8 +86,16 @@ export function ProductButton(props: {
                             </Text>
                         )}
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: 10 }}>
-                        <Text style={{ color: '#8E979D', fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16, marginTop: 4 }} ellipsizeMode="tail" numberOfLines={1}>{props.subtitle}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
+                        <Text
+                            style={{ color: '#8E979D', fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            <Text style={{ flexShrink: 1 }}>
+                                {props.subtitle}
+                            </Text>
+                        </Text>
                         {(!!props.value && typeof props.value !== 'string' && !props.symbol) &&
                             (
                                 <PriceComponent

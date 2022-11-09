@@ -7,8 +7,11 @@ import { t } from "../../i18n/t";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { BleDeviceComponent, LedgerDevice } from "./BleDeviceComponent";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { RoundButton } from "../../components/RoundButton";
 
 export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { onSelectDevice: (device: any) => Promise<void>, onReset: () => void }) => {
+    const safeArea = useSafeAreaInsets();
     const [scan, setScan] = useState<{ type: 'ongoing' } | { type: 'completed', success: boolean }>();
     const [devices, setDevices] = useState([]);
 
@@ -101,7 +104,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
     }, []);
 
     return (
-        <View>
+        <View style={{flexGrow: 1}}>
             {!!scan && (scan.type === 'ongoing' || scan.type === 'completed') && (
                 <View style={{ marginTop: 8, backgroundColor: Theme.background, flexDirection: 'row' }} collapsable={false}>
                     <Text style={{
@@ -117,13 +120,33 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                     )}
                 </View>
             )}
-            <ScrollView>
+            <ScrollView style={{
+                flexGrow: 1
+            }}>
                 {devices.map((device: any) => {
                     return (
                         <BleDeviceComponent key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />
                     );
                 })}
             </ScrollView>
+            <View style={{
+                flexDirection: 'row',
+                position: 'absolute',
+                bottom: 16,
+                left: 0, right: 0,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingBottom: safeArea.bottom,
+                backgroundColor: Theme.background,
+            }}>
+                <RoundButton
+                    title={t('common.back')}
+                    display="secondary"
+                    size="normal"
+                    style={{ paddingHorizontal: 8 }}
+                    onPress={onReset}
+                />
+            </View>
         </View>
     )
 });

@@ -14,6 +14,11 @@ import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
 import { AppConfig } from "../../AppConfig";
 import { LedgerApp } from "./LedgerApp";
 import { useEngine } from "../../engine/Engine";
+import {
+    BleManager,
+} from "react-native-ble-plx";
+
+const bleManager = new BleManager();
 
 export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () => void }) => {
     const safeArea = useSafeAreaInsets();
@@ -44,7 +49,6 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
             let path = pathFromAccountNumber(account);
             try {
                 let address = await device.getAddress(path, { testOnly: AppConfig.isTestnet });
-                console.log({ address });
                 await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
                 setAddress(address);
             } catch (e) {
@@ -70,6 +74,15 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
         setBluetoothDevice(device);
         setDevice(tonTransport);
         setScreen('app');
+    }, []);
+
+    const onScan = useCallback(async () => {
+        const state = await bleManager.state();
+        if (state !== 'PoweredOn') {
+            Alert.alert(t('hardwareWallet.errors.turnOnBluetooth'));
+            return;
+        }
+        setScreen('scan');
     }, []);
 
     useEffect(() => {
@@ -115,7 +128,7 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                     </Text>
                     <RoundButton
                         title={t('hardwareWallet.actions.scanBluetooth')}
-                        onPress={() => setScreen('scan')}
+                        onPress={onScan}
                         style={{
                             width: '100%',
                             margin: 4

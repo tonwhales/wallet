@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "1.21.1",
+  "version": "1.21.3",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -23,6 +23,7 @@
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@react-navigation/stack": "^6.0.11",
+    "@shopify/react-native-skia": "^0.1.156",
     "@sumsub/react-native-mobilesdk-module": "^1.19.7",
     "@types/bn.js": "^5.1.0",
     "@types/color": "^3.0.3",
@@ -91,6 +92,7 @@
     "react-native-fast-pbkdf2": "^0.3.1",
     "react-native-figma-squircle": "^0.2.0",
     "react-native-gesture-handler": "2.5.0",
+    "react-native-graph": "^0.3.0",
     "react-native-inappbrowser-reborn": "^3.6.3",
     "react-native-keychain": "^8.0.0",
     "react-native-localize": "^2.1.7",

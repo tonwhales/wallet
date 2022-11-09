@@ -60,8 +60,9 @@ import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
-import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
-import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
+import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
+import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
+import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -165,8 +166,10 @@ const navigation = [
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('Corp', CorpFragment),
+    modalScreen('StakingGraph', StakingGraphFragment),
+    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
+    modalScreen('Corp', CorpFragment),
     modalScreen('Accounts', AccountsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),
     modalScreen('Currency', CurrencyFragment),
@@ -176,8 +179,7 @@ const navigation = [
     modalScreen('StartPhone', PhoneVerificationStack),
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
-    modalScreen('HardwareWallet', HardwareWalletFragment),
-    modalScreen('LedgerTransfer', LedgerTransferFragment),
+    modalScreen('StakingCalculator', StakingCalculatorFragment),
     // modalScreen('Phone', PhoneFragment),
     // modalScreen('Country', PickCountry),
     // genericScreen('Code', CodeFragment),

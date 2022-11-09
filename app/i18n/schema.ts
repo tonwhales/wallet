@@ -533,30 +533,9 @@ export type LocalizationSchema = {
         addressMarkSpam: string
         txShare: string,
         txRepeat: string,
-    },
-    hardwareWallet: {
-        title: string,
-        description: string,
-        connectionDescriptionAndroid: string,
-        connectionDescriptionIOS: string,
-        connectionHIDDescription: string,
-        bluetoothScanDescription: string,
-        chooseAccountDescription: string,
-        openAppVerifyAddress: string,
-        devices: string,
-        actions: {
-            connect: string,
-            selectAccount: string,
-            account: string,
-            loadAddress: string,
-            connectHid: string,
-            connectBluetooth: string,
-            scanBluetooth: string,
-            confirmOnLedger: string,
-        },
-        errors: {
-            noDevice: string,
-            appNotOpen: string
+        share: {
+            address: string,
+            transaction: string
         }
     }
 };

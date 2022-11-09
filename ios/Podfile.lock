@@ -389,9 +389,6 @@ PODS:
     - RCTTypeSafety
     - React
     - ReactCommon/turbomodule/core
-<<<<<<< HEAD
-  - react-native-webview (11.23.1):
-=======
   - react-native-skia (0.1.156):
     - React
     - React-callinvoker
@@ -422,7 +419,6 @@ PODS:
     - React-callinvoker
     - React-Core
   - react-native-webview (11.18.1):
->>>>>>> origin-master
     - React-Core
   - React-perflogger (0.68.2)
   - React-RCTActionSheet (0.68.2):
@@ -928,6 +924,10 @@ SPEC CHECKSUMS:
   VisionCamera: 1ae1415dd21fee97c9bbfc1504d87cd7daba8d9c
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
+
+PODFILE CHECKSUM: 1e065746e7644ce77ea280c1eeeb4f825116906c
+
+COCOAPODS: 1.11.3
 
 PODFILE CHECKSUM: 1e065746e7644ce77ea280c1eeeb4f825116906c
 

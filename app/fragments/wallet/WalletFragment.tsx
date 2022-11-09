@@ -349,6 +349,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             fontWeight: '500',
                             fontFamily: undefined
                         }}
+                        lockActions
                     />
                 </View>
 

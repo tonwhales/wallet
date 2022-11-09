@@ -26,7 +26,8 @@ export const WalletAddress = React.memo((props: {
     textProps?: TextProps,
     known?: boolean,
     spam?: boolean;
-    elipsise?: boolean
+    elipsise?: boolean,
+    lockActions?: boolean
 }) => {
     const engine = useEngine();
     const navigation = useTypedNavigation();
@@ -116,10 +117,11 @@ export const WalletAddress = React.memo((props: {
             actions={[
                 { title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined },
                 { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
-                ...actions
+                ...(props.lockActions ? [] : actions)
             ]}
             onPress={handleAction}
             style={props.style}
+            previewBackgroundColor={'transparent'}
         >
             <View>
                 {props.elipsise && (

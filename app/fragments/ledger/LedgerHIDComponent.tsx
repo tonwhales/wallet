@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import { TonTransport } from "ton-ledger";
 import { useEngine } from "../../engine/Engine";
 import TransportHID from "@ledgerhq/react-native-hid";
@@ -84,6 +84,11 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
                     alignItems: 'center',
                     padding: 16,
                 }}>
+                    <Image style={{
+                        width: 256, height: 256,
+                    }}
+                        source={require('../../../assets/ic_ledger_s.png')}
+                    />
                     <Text style={{
                         color: Theme.textColor,
                         fontWeight: '600',

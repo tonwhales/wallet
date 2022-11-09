@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { PermissionsAndroid, Platform, View, Text, ScrollView } from "react-native";
+import { PermissionsAndroid, Platform, View, Text, ScrollView, Alert } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { Observable, Subscription } from "rxjs";
 import { Theme } from "../../Theme";
@@ -8,7 +8,7 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { BleDeviceComponent, LedgerDevice } from "./BleDeviceComponent";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 
-export const LedgerDeviceSelection = React.memo(({ onSelectDevice }: { onSelectDevice: (device: any) => Promise<void> }) => {
+export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { onSelectDevice: (device: any) => Promise<void>, onReset: () => void }) => {
     const [scan, setScan] = useState<{ type: 'ongoing' } | { type: 'completed', success: boolean }>();
     const [devices, setDevices] = useState([]);
 
@@ -48,7 +48,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice }: { onSelectD
             }
             if (Platform.OS === "android" && Platform.Version >= 23) {
                 const checkCoarse = await checkMultiple([PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION]);
-                
+
                 if (checkCoarse[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== 'granted' || checkCoarse[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== 'granted') {
                     const requestLocation = await requestMultiple([PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION]);
                     console.log({ requestLocation });
@@ -78,6 +78,13 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice }: { onSelectD
             let previousAvailable = false;
             new Observable(TransportBLE.observeState).subscribe((e: any) => {
                 console.log(e);
+                if (e.type === 'PoweredOff') {
+                    Alert.alert(t('hardwareWallet.errors.turnOnBluetooth'));
+                    if (sub) sub.unsubscribe();
+                    setDevices([]);
+                    setScan(undefined);
+                    onReset();
+                }
                 if (e.available !== previousAvailable) {
                     previousAvailable = e.available;
                     if (e.available) {

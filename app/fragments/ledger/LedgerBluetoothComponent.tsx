@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, Platform, PermissionsAndroid, Alert } from "react-native";
+import { View, Text, Platform, PermissionsAndroid, Image, Alert } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { Observable } from "rxjs";
 import { ScrollView } from "react-native-gesture-handler";
@@ -92,6 +92,11 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
                     alignItems: 'center',
                     padding: 16
                 }}>
+                    <Image style={{
+                        width: 256, height: 256,
+                    }}
+                        source={require('../../../assets/ic_ledger_x.png')}
+                    />
                     <Text style={{
                         color: Theme.textColor,
                         fontWeight: '600',
@@ -120,7 +125,7 @@ export const LedgerBluetoothComponent = React.memo(({ onReset }: { onReset?: () 
             )}
 
             {screen === 'scan' && (
-                <LedgerDeviceSelection onSelectDevice={onSelectDevice} />
+                <LedgerDeviceSelection onReset={reset} onSelectDevice={onSelectDevice} />
             )}
 
             {!!device && account === null && (

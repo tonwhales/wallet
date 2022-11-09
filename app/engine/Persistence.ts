@@ -12,7 +12,7 @@ import { FullAccount } from "./sync/startAccountFullSync";
 import { WalletV4State } from "./sync/startWalletV4Sync";
 import { JettonWalletState } from "./sync/startJettonWalletSync";
 import { JettonMasterState } from "./sync/startJettonMasterSync";
-import { StakingPoolState } from "./sync/startStakingPoolSync";
+import { StakingPoolState, StakingChart } from "./sync/startStakingPoolSync";
 import { Engine } from "./Engine";
 import { HintProcessingState } from "./sync/startHintSync";
 import { TxHints } from "./sync/startHintsTxSync";
@@ -25,18 +25,21 @@ import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 import { CorpStatus } from "./corp/CorpProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState, PrimaryCurrency } from "./products/PriceProduct";
+import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
 
 export class Persistence {
 
-    readonly version: number = 7;
+    readonly version: number = 8;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
+    readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
     readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, PriceState>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
+    readonly stakingChart: PersistedCollection<{ address: Address, target: Address }, StakingChart>;
     readonly stakingApy: PersistedCollection<void, StakingAPY>;
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
     readonly metadataPending: PersistedCollection<void, { [key: string]: number }>;
@@ -116,6 +119,10 @@ export class Persistence {
 
         // Corp
         this.corp = new PersistedCollection({ storage, namespace: 'corp', key: addressKey, codec: corpCodec, engine });
+
+        // Charts
+        this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
+        this.accountBalanceChart = new PersistedCollection({ storage, namespace: 'accountBalanceChart', key: addressKey, codec: accountBalanceChartCodec, engine });
     }
 }
 
@@ -309,4 +316,21 @@ const corpCodec = t.union([
 
 const apyCodec = t.type({
     apy: t.number
+});
+
+const stakingWeeklyChartCodec = t.type({
+    chart: t.array(t.type({
+        balance: t.string,
+        ts: t.number,
+        diff: t.string,
+    })),
+    lastUpdate: t.number
+});
+
+const accountBalanceChartCodec = t.type({
+    chart: t.array(t.type({
+        balance: t.string,
+        ts: t.number,
+        diff: t.string,
+    }))
 });

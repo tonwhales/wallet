@@ -130,6 +130,7 @@ export const AccountsFragment = fragment(() => {
                                 navigation={navigation}
                                 engine={engine}
                                 onPress={() => promptActive(j.master, j.symbol)}
+                                onLongPress={() => {}}
                             />
                         );
                     })}

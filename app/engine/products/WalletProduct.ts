@@ -12,6 +12,7 @@ import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { PluginState } from "../sync/startPluginSync";
 import { t } from "../../i18n/t";
+import { KnownJettonMasters } from "../../secure/KnownWallets";
 
 export type WalletState = {
     balance: BN;
@@ -44,6 +45,7 @@ export type TransactionDescription = {
     masterMetadata: JettonMasterState | null;
     operation: Operation;
     icon: string | null;
+    verified: boolean | null;
 };
 
 export class WalletProduct {
@@ -178,12 +180,21 @@ export class WalletProduct {
                         }
                     }
 
+                    let verified: boolean | null = null;
+                    if (
+                        !!metadata?.jettonWallet
+                        && !!KnownJettonMasters[metadata.jettonWallet.master.toFriendly({ testOnly: AppConfig.isTestnet })]
+                    ) {
+                        verified = true;
+                    }
+
                     return {
                         base,
                         metadata,
                         masterMetadata,
                         operation,
-                        icon
+                        icon,
+                        verified
                     };
                 },
                 dangerouslyAllowMutability: true
@@ -220,7 +231,11 @@ export class WalletProduct {
                     next = { lt: latest.prev.lt, hash: latest.prev.hash };
                 }
 
-                const toLoad = this.#initialLoad ? 10 : state.transactions.length;
+                let toLoad = this.#initialLoad ? 10 : state.transactions.length;
+
+                if (state.transactions.length <= 10) {
+                    toLoad = state.transactions.length - 1; // first 10 txs except for the latest
+                }
 
                 for (let i = 0; i < toLoad - 1; i++) {
 
@@ -413,5 +428,9 @@ export class WalletProduct {
 
     usePlugins() {
         return useRecoilValue(this.#plugins);
+    }
+
+    useAccountBalanceChart() {
+        return useRecoilValue(this.engine.persistence.accountBalanceChart.item(this.address).atom);
     }
 }

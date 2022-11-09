@@ -31,6 +31,9 @@ const Img_TON_DUCKS = require('../../assets/known/TON_DUCKS.jpeg')
 
 const Img_venera = require('../../assets/known/Img_venera.jpeg');
 
+const Img_Team_1 = require('../../assets/known/ic_team_1.png');
+const Img_Team_2 = require('../../assets/known/ic_team_2.png');
+
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
 export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
@@ -146,7 +149,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 primary: '#65C6FF',
                 secondary: '#DEEFFC'
             },
-            ic: Img_Whales
+            ic: Img_Team_1
         },
         [Address.parse('EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM').toFriendly()]: {
             name: 'Whales Team #2',
@@ -154,7 +157,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 primary: '#65C6FF',
                 secondary: '#DEEFFC'
             },
-            ic: Img_Whales
+            ic: Img_Team_2
         },
         [Address.parse('EQBeNwQShukLyOWjKWZ0Oxoe5U3ET-ApQIWYeC4VLZ4tmeTm').toFriendly()]: {
             name: 'Whales Pool Withdraw 1',
@@ -334,4 +337,8 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_venera
         },
+    }
+
+    export const KnownJettonMasters: { [key: string]: {} } = {
+        'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ }
     }

@@ -27,9 +27,12 @@ export function parseAmountToValidBN(amount: string) {
 }
 
 export function toFixedBN(amount: number) {
-    try {
-        return toNano(parseFloat(amount.toFixed(8)))
-    } catch (e) {
-        return new BN(0);
+    if (amount > 0.000001) {
+        try {
+            return toNano(parseFloat(amount.toFixed(8)))
+        } catch (e) {
+            return new BN(0);
+        }
     }
+    return new BN(0);
 }

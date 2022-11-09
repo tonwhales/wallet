@@ -27,7 +27,8 @@ export const WalletAddress = React.memo((props: {
     known?: boolean,
     spam?: boolean;
     elipsise?: boolean,
-    lockActions?: boolean
+    lockActions?: boolean,
+    previewBackgroundColor?: string
 }) => {
     const engine = useEngine();
     const navigation = useTypedNavigation();
@@ -121,7 +122,7 @@ export const WalletAddress = React.memo((props: {
             ]}
             onPress={handleAction}
             style={props.style}
-            previewBackgroundColor={'transparent'}
+            previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : 'transparent'}
         >
             <View>
                 {props.elipsise && (

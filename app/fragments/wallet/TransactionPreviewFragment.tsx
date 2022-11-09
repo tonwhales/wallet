@@ -420,6 +420,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
+                                previewBackgroundColor={Theme.item}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable

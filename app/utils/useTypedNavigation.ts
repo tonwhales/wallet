@@ -102,6 +102,10 @@ export class TypedNavigation {
         this.navigate('Review', params);
     }
 
+    navigateLedgerTransfer(params: LedgerTransferParams) {
+        this.navigate('LedgerTransfer', params);
+    }
+    
     navigateStakingCalculator(params: { target: Address}) {
         this.navigate('StakingCalculator', params);
     }

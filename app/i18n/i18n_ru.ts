@@ -536,6 +536,31 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             address: 'TON адрес',
             transaction: 'TON транзакция',
         }
+    },
+    hardwareWallet: {
+        title: 'Аппаратный кошелёк',
+        description: 'Ваш аппаратный Ledger кошелёк',
+        connectionDescriptionAndroid: 'Вы можете подключить ваш Ledger через USB или Bluetooth (модель Nano X)',
+        connectionDescriptionIOS: 'Вы можете подключить ваш Ledger через Bluetooth (модель Nano X)',
+        connectionHIDDescription: 'Подключите ваш Ledger через USB и нажмите \'Подключить Ledger\' в Tonhub',
+        chooseAccountDescription: 'Выберите аккаунт, который вы хотите использовать',
+        bluetoothScanDescription: 'Чтобы подключиться к устройству Ledger через Bluetooth: Включите устройство и убедитесь, что у него включен bluetooth, затем нажмите \'Начать поиск\' для поиска доступных устройств и выберите подходящий Ledger Nano X.',
+        openAppVerifyAddress: 'Откройте приложение Ton App на вашем Ledger, затем нажмите \'Загрузить адрес\' в Tonhub и подтвердите адрес,\ который вы выбрали в приложении Ton App на Ledger',
+        devices: 'Устройства',
+        actions: {
+            connect: 'Подключить Ledger',
+            selectAccount: 'Выбрать аккаунт',
+            account: 'Аккаунт #{{account}}',
+            loadAddress: 'Загрузить адрес',
+            connectHid: 'Подключить через USB',
+            connectBluetooth: 'Подключить через Bluetooth',
+            scanBluetooth: 'Начать поиск',
+            confirmOnLedger: 'Подтвердить на Ledger',
+        },
+        errors: {
+            noDevice: 'Устройство не найдено',
+            appNotOpen: 'Приложение Ton App не открыто на вашем Ledger',
+        }
     }
 };
 

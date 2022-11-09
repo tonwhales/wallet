@@ -23,6 +23,8 @@ export function ProductButton(props: {
     onPress: () => void,
     onLongPress?: () => void
     style?: StyleProp<ViewStyle>,
+    iconViewStyle?: StyleProp<ViewStyle>,
+    iconProps?: SvgProps,
     known?: boolean
 }) {
     const Icon = props.icon;

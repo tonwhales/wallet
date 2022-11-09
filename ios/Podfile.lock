@@ -418,7 +418,7 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
-  - react-native-webview (11.18.1):
+  - react-native-webview (11.23.1):
     - React-Core
   - React-perflogger (0.68.2)
   - React-RCTActionSheet (0.68.2):
@@ -894,7 +894,7 @@ SPEC CHECKSUMS:
   react-native-mobilesdk-module: 5029cdea73e6d62cd53ecaedb74a14bfb3e556f1
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
   react-native-skia: 3947424d5927ad64eb7cb76a26399cd45bb6d9b0
-  react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1
+  react-native-webview: d33e2db8925d090871ffeb232dfa50cb3a727581
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
   React-RCTAnimation: bc9440a1c37b06ae9ebbb532d244f607805c6034
@@ -924,10 +924,6 @@ SPEC CHECKSUMS:
   VisionCamera: 1ae1415dd21fee97c9bbfc1504d87cd7daba8d9c
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
-
-PODFILE CHECKSUM: 1e065746e7644ce77ea280c1eeeb4f825116906c
-
-COCOAPODS: 1.11.3
 
 PODFILE CHECKSUM: 1e065746e7644ce77ea280c1eeeb4f825116906c
 

@@ -55,10 +55,6 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
 
     const onResolveDomain = useCallback(
         async (toResolve: string, zone: '.t.me' | '.ton') => {
-            if (!toResolve) {
-                return;
-            }
-
             // Clear prev resolved address
             setResolvedAddress(undefined);
 

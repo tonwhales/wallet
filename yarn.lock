@@ -2461,11 +2461,6 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/hooks/-/hooks-2.8.1.tgz#6e785431db49318048fdd14b601998437b6cc200"
   integrity sha512-DCmCIC0Gn9m6K0Mlg2MwNmTxMEpBu5lTLsI6b/XUAv/vLGa6o+X7RhCai4FWeqkjCU36+ZOwaLzDo4NBWMXaoQ==
 
-"@react-native-menu/menu@^0.5.2":
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/@react-native-menu/menu/-/menu-0.5.2.tgz#7b1ae8e41ee3b7306c4bf8b53b9e2cb78b4a829b"
-  integrity sha512-+ULWH3OXuirS4m03UhUkQj/G9q0wQo7LGDcxTyS12bVKQQ+yHwif4C3QcYy0zVIxwMPltCA7eOvsTThT0+B2xQ==
-
 "@react-native-picker/picker@^2.4.2":
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/@react-native-picker/picker/-/picker-2.4.2.tgz#2925eb8e76ff6b584c80529adc251df963be9141"
@@ -8630,13 +8625,6 @@ react-native-context-menu-view@^1.6.0:
   resolved "https://registry.yarnpkg.com/react-native-context-menu-view/-/react-native-context-menu-view-1.6.0.tgz#f850351a7b5697d8ba75df198bd671536a54cf33"
   integrity sha512-K3oSzBjzC5wetbOYiyMqZyLAMhAu7WBHghBl0utb2PL+66G/dI4vGgCvOFeHBxSv2IJQ4C7KBFCJQaXW8sakVQ==
 
-react-native-fast-animations@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/react-native-fast-animations/-/react-native-fast-animations-0.0.4.tgz#b02ab18ebdb338cb1f5934b533d087ece9c5ca5a"
-  integrity sha512-mh0BgE9KK9T/Seci5Nj71iR7jPvMFw7nu3xJHbsH1RSVUeshD20vdUziIwX1qeeAi19X5E7d7T+J2HKNYtGXPQ==
-  dependencies:
-    uuid "^3.4.0"
-
 react-native-fast-image@^8.5.11:
   version "8.5.11"
   resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.5.11.tgz#e3dc969d0e4e8df026646bf18194465aa55cbc2b"
@@ -8819,10 +8807,10 @@ react-native-web@0.17.7:
     normalize-css-color "^1.0.2"
     prop-types "^15.6.0"
 
-react-native-webview@11.18.1:
-  version "11.18.1"
-  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-11.18.1.tgz#0a1893abd391c8f0e7d4c5874bfa737ca6311225"
-  integrity sha512-1VoVmkbsHJ44WA+frMhNfua64t0u2jq80h25sUWrKJRiYrO0XIsKBnJcqrzuOH1ZAT/zDHTqBB5OU+bxEHLJmQ==
+react-native-webview@11.23.1:
+  version "11.23.1"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-11.23.1.tgz#6a4bf2620e491dd4fecf4e6dc079005117fae12c"
+  integrity sha512-bmqsdg4RYOUYD37R9XTrQALm7eD62KbLNPRfgvpLGd1SjaurvAjjsLrLN4mt6yOtKOMKeZvlcAl3x6De6cCQsA==
   dependencies:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
@@ -10055,23 +10043,6 @@ ton-crypto@3.2.0:
   dependencies:
     jssha "3.2.0"
     ton-crypto-primitives "2.0.0"
-    tweetnacl "1.0.3"
-
-ton@12.1.2:
-  version "12.1.2"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-12.1.2.tgz#498f93e514497ad5916072352deabbae30bb39b4"
-  integrity sha512-gH1SW42Zk28I0kgM+G246XJoz8r2iZrSLk5OxXOaOsSlRa6EoJ4Ec6h/t5WhGe01MTaF2bSFZpNHfcWf1kwrbQ==
-  dependencies:
-    axios "^0.25.0"
-    bn.js "5.2.0"
-    dataloader "^2.0.0"
-    ethjs-unit "0.1.6"
-    fp-ts "^2.11.1"
-    io-ts "^2.2.16"
-    io-ts-reporters "^2.0.0"
-    symbol.inspect "1.0.1"
-    teslabot "^1.3.0"
-    ton-crypto "2.1.0"
     tweetnacl "1.0.3"
 
 ton@12.1.3:

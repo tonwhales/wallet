@@ -369,13 +369,8 @@ PODS:
     - React-Core
   - react-native-context-menu-view (1.6.0):
     - React
-  - react-native-fast-animations (0.0.4):
-    - React
-    - SwiftyJSON
   - react-native-fast-pbkdf2 (0.3.1):
     - React-Core
-  - react-native-menu (0.5.2):
-    - React
   - react-native-mmkv (2.4.1):
     - MMKV (>= 1.2.13)
     - React-Core
@@ -417,7 +412,7 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
-  - react-native-webview (11.18.1):
+  - react-native-webview (11.23.1):
     - React-Core
   - React-perflogger (0.68.2)
   - React-RCTActionSheet (0.68.2):
@@ -538,7 +533,6 @@ PODS:
   - SDWebImageWebPCoder (0.8.5):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
-  - SwiftyJSON (5.0.1)
   - vision-camera-code-scanner (0.1.6):
     - GoogleMLKit/BarcodeScanning
     - React-Core
@@ -600,9 +594,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-blurhash (from `../node_modules/react-native-blurhash`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
-  - react-native-fast-animations (from `../node_modules/react-native-fast-animations`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
-  - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - "react-native-mobilesdk-module (from `../node_modules/@sumsub/react-native-mobilesdk-module`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -661,7 +653,6 @@ SPEC REPOS:
     - Protobuf
     - SDWebImage
     - SDWebImageWebPCoder
-    - SwiftyJSON
     - ZXingObjC
 
 EXTERNAL SOURCES:
@@ -749,12 +740,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blurhash"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
-  react-native-fast-animations:
-    :path: "../node_modules/react-native-fast-animations"
   react-native-fast-pbkdf2:
     :path: "../node_modules/react-native-fast-pbkdf2"
-  react-native-menu:
-    :path: "../node_modules/@react-native-menu/menu"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
   react-native-mobilesdk-module:
@@ -818,7 +805,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
+  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EXApplication: d6562af1204162e0ac46d341a7d4e5dc720b33de
   EXBarCodeScanner: b9e1b69371c233a80fc857edcf95843f14ae9e7b
   EXBlur: f594bc6b57fc241e906a29e00fb8e54b20c374a8
@@ -841,7 +828,7 @@ SPEC CHECKSUMS:
   FBLazyVector: a7a655862f6b09625d11c772296b01cd5164b648
   FBReactNativeSpec: 81ce99032d5b586fddd6a38d450f8595f7e04be4
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 476ee3e89abb49e07f822b48323c51c57124b572
+  glog: 3d02b25ca00c2d456734d0bcff864cbc62f6ae1a
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
   GoogleMLKit: 0017a6a8372e1a182139b9def4d89be5d87ca5a7
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
@@ -865,7 +852,7 @@ SPEC CHECKSUMS:
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   Protobuf: 7504b04fffcf6662ad629694db8231f5e744327f
-  RCT-Folly: 4d8508a426467c48885f1151029bc15fa5d7b3b8
+  RCT-Folly: b9d9fe1fc70114b751c076104e52f3b1b5e5a95a
   RCTRequired: 3e917ea5377751094f38145fdece525aa90545a0
   RCTTypeSafety: c43c072a4bd60feb49a9570b0517892b4305c45e
   React: 176dd882de001854ced260fad41bb68a31aa4bd0
@@ -881,14 +868,12 @@ SPEC CHECKSUMS:
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
   react-native-blurhash: add4df9a937b4e021a24bc67a0714f13e0bd40b7
   react-native-context-menu-view: d3b3e77985d5b05674a70f8e7eafe404dfa5bbcc
-  react-native-fast-animations: 23e8aa365e97ef3013bf0ac5219701cefb6578ff
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
-  react-native-menu: 52089949cbe30b035c51e54f92a7d99136c2fed4
   react-native-mmkv: b5c7f9bc369eef2b8a2aa36e8a15949989fa823f
-  react-native-mobilesdk-module: 36d58b0fe23e62992d63daf288808c9415c8bf44
+  react-native-mobilesdk-module: 5029cdea73e6d62cd53ecaedb74a14bfb3e556f1
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
   react-native-skia: 3947424d5927ad64eb7cb76a26399cd45bb6d9b0
-  react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1
+  react-native-webview: d33e2db8925d090871ffeb232dfa50cb3a727581
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
   React-RCTAnimation: bc9440a1c37b06ae9ebbb532d244f607805c6034
@@ -913,7 +898,6 @@ SPEC CHECKSUMS:
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
-  SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   vision-camera-code-scanner: 75a4ac3c9ce9b4605f5d87cc0f0001bb64bfb4de
   VisionCamera: 1ae1415dd21fee97c9bbfc1504d87cd7daba8d9c
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952

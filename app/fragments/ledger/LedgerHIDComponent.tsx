@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, ScrollView } from "react-native";
 import { TonTransport } from "ton-ledger";
 import { useEngine } from "../../engine/Engine";
 import TransportHID from "@ledgerhq/react-native-hid";
@@ -10,6 +10,7 @@ import { t } from "../../i18n/t";
 import { LedgerApp } from "./LedgerApp";
 import { Theme } from "../../Theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LedgerAccountLoader } from "../../engine/LedgerAccountContext";
 
 export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void }) => {
     const engine = useEngine();
@@ -74,153 +75,156 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
     );
 
     return (
+
         <View style={{ flexGrow: 1 }}>
-            {!device && (
-                <View style={{
-                    marginHorizontal: 16,
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    alignItems: 'center',
-                    padding: 16,
-                }}>
-                    <Image style={{
-                        width: 256, height: 256,
-                    }}
-                        source={require('../../../assets/ic_ledger_s.png')}
-                    />
-                    <Text style={{
-                        color: Theme.textColor,
-                        fontWeight: '600',
-                        fontSize: 18,
-                        marginBottom: 16,
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                style={{
+                    flexGrow: 1,
+                    backgroundColor: Theme.background,
+                    flexBasis: 0,
+                    marginBottom: safeArea.bottom
+                }}
+            >
+                {!device && (
+                    <View style={{
+                        marginHorizontal: 16,
+                        marginBottom: 16, marginTop: 17,
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        alignItems: 'center',
+                        padding: 16,
                     }}>
-                        {/* {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
+                        <Image style={{
+                            width: 256, height: 256,
+                        }}
+                            source={require('../../../assets/ic_ledger_s.png')}
+                        />
+                        <Text style={{
+                            color: Theme.textColor,
+                            fontWeight: '600',
+                            fontSize: 18,
+                            marginBottom: 16,
+                        }}>
+                            {/* {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
                         {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')} */}
-                        {t('hardwareWallet.connectionHIDDescription')}
-                    </Text>
-                    <RoundButton
-                        title={t('hardwareWallet.actions.connect')}
-                        onPress={doStart}
-                        style={{
-                            width: '100%',
-                        }}
-                    />
-                </View>
-            )}
-            {!!device && account === null && (
-                <View style={{
-                    marginHorizontal: 16,
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: 16
-                }}>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 18,
-                        color: Theme.textColor,
-                        marginBottom: 16,
-                        textAlign: 'center'
+                            {t('hardwareWallet.connectionHIDDescription')}
+                        </Text>
+                        <RoundButton
+                            title={t('hardwareWallet.actions.connect')}
+                            onPress={doStart}
+                            style={{
+                                width: '100%',
+                            }}
+                        />
+                    </View>
+                )}
+                {!!device && account === null && (
+                    <View style={{
+                        marginHorizontal: 16,
+                        marginBottom: 16, marginTop: 17,
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 16
                     }}>
-                        {t('hardwareWallet.chooseAccountDescription')}
-                    </Text>
-                    <RoundButton
-                        title={t('hardwareWallet.actions.account', { account: 0 })}
-                        onPress={() => setAccount(0)}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                    <RoundButton
-                        title={t('hardwareWallet.actions.account', { account: 1 })}
-                        onPress={() => setAccount(1)}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                    <RoundButton
-                        title={t('hardwareWallet.actions.account', { account: 2 })}
-                        onPress={() => setAccount(2)}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                    <RoundButton
-                        title={t('hardwareWallet.actions.account', { account: 3 })}
-                        onPress={() => setAccount(3)}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                    <RoundButton
-                        title={t('hardwareWallet.actions.account', { account: 4 })}
-                        onPress={() => setAccount(4)}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                    <RoundButton
-                        title={t('hardwareWallet.actions.account', { account: 5 })}
-                        onPress={() => setAccount(5)}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                    <RoundButton
-                        title={t('hardwareWallet.actions.account', { account: 6 })}
-                        onPress={() => setAccount(6)}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                </View>
-            )}
-            {!!device && account !== null && address === null && (
-                <View style={{
-                    marginHorizontal: 16,
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: 16
-                }}>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 18,
-                        color: Theme.textColor,
-                        marginBottom: 16
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 18,
+                            color: Theme.textColor,
+                            marginBottom: 16,
+                            textAlign: 'center'
+                        }}>
+                            {t('hardwareWallet.chooseAccountDescription')}
+                        </Text>
+                        <RoundButton
+                            title={t('hardwareWallet.actions.account', { account: 0 })}
+                            onPress={() => setAccount(0)}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                        <RoundButton
+                            title={t('hardwareWallet.actions.account', { account: 1 })}
+                            onPress={() => setAccount(1)}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                        <RoundButton
+                            title={t('hardwareWallet.actions.account', { account: 2 })}
+                            onPress={() => setAccount(2)}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                        <RoundButton
+                            title={t('hardwareWallet.actions.account', { account: 3 })}
+                            onPress={() => setAccount(3)}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                        <RoundButton
+                            title={t('hardwareWallet.actions.account', { account: 4 })}
+                            onPress={() => setAccount(4)}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                        <RoundButton
+                            title={t('hardwareWallet.actions.account', { account: 5 })}
+                            onPress={() => setAccount(5)}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                        <RoundButton
+                            title={t('hardwareWallet.actions.account', { account: 6 })}
+                            onPress={() => setAccount(6)}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                    </View>
+                )}
+                {!!device && account !== null && address === null && (
+                    <View style={{
+                        marginHorizontal: 16,
+                        marginBottom: 16, marginTop: 17,
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 16
                     }}>
-                        {t('hardwareWallet.openAppVerifyAddress')}
-                    </Text>
-                    <RoundButton
-                        title={t('hardwareWallet.actions.loadAddress')}
-                        action={onLoadAccount}
-                        style={{
-                            width: '100%',
-                            margin: 4
-                        }}
-                    />
-                </View>
-            )}
-            {device && account !== null && address !== null && (
-                <LedgerApp
-                    transport={device}
-                    account={account}
-                    address={address}
-                    tonClient4={engine.client4}
-                />
-            )}
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 18,
+                            color: Theme.textColor,
+                            marginBottom: 16
+                        }}>
+                            {t('hardwareWallet.openAppVerifyAddress')}
+                        </Text>
+                        <RoundButton
+                            title={t('hardwareWallet.actions.loadAddress')}
+                            action={onLoadAccount}
+                            style={{
+                                width: '100%',
+                                margin: 4
+                            }}
+                        />
+                    </View>
+                )}
+            </ScrollView>
             {(!device || account === null || address === null) && (
                 <View style={{
                     flexDirection: 'row',
@@ -239,6 +243,16 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
                         onPress={onReset}
                     />
                 </View>
+            )}
+            {device && account !== null && address !== null && (
+                <LedgerAccountLoader address={address.address}>
+                    <LedgerApp
+                        transport={device}
+                        account={account}
+                        address={address}
+                        tonClient4={engine.client4}
+                    />
+                </LedgerAccountLoader>
             )}
         </View>
     );

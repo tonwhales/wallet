@@ -226,7 +226,11 @@ export class CorpProduct {
             // Update state from server
             if (status.state !== 'need-enrolment') {
                 const token = status.token;
+
+
                 let state = await fetchCardState(token);
+                console.log('corp-sync', { state });
+
                 target.update((src) => {
                     if (state.state === 'need-phone') {
                         if (src!.state !== 'need-phone') {

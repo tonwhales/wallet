@@ -47,16 +47,16 @@ export const HardwareWalletFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <ScrollView
-                contentContainerStyle={{ flexGrow: 1 }}
-                style={{
-                    flexGrow: 1,
-                    backgroundColor: Theme.background,
-                    flexBasis: 0,
-                    marginBottom: safeArea.bottom
-                }}
-            >
-                {!connection && (
+            {!connection && (
+                <ScrollView
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    style={{
+                        flexGrow: 1,
+                        backgroundColor: Theme.background,
+                        flexBasis: 0,
+                        marginBottom: safeArea.bottom
+                    }}
+                >
                     <View style={{
                         marginHorizontal: 16,
                         marginBottom: 16, marginTop: 17,
@@ -108,14 +108,14 @@ export const HardwareWalletFragment = fragment(() => {
                             </>
                         )}
                     </View>
-                )}
-                {connection === 'hid' && Platform.OS === 'android' && (
-                    <LedgerHIDComponent onReset={onReset} />
-                )}
-                {connection === 'bluetooth' && (
-                    <LedgerBluetoothComponent onReset={Platform.OS === 'android' ? onReset : undefined} />
-                )}
-            </ScrollView>
+                </ScrollView>
+            )}
+            {connection === 'hid' && Platform.OS === 'android' && (
+                <LedgerHIDComponent onReset={onReset} />
+            )}
+            {connection === 'bluetooth' && (
+                <LedgerBluetoothComponent onReset={Platform.OS === 'android' ? onReset : undefined} />
+            )}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

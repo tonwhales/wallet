@@ -232,6 +232,10 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [account]);
 
+    const navigateToCurrencySettings = React.useCallback(() => {
+        navigation.navigate('Currency');
+    }, []);
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
@@ -330,8 +334,26 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </Pressable>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
-                        <PriceComponent amount={account.balance} />
-                        <ExchangeRate style={{ marginLeft: 8 }} />
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.3 : 1,
+                                }
+                            }}
+                            onPress={navigateToCurrencySettings}
+                        >
+                            <PriceComponent amount={account.balance} />
+                        </Pressable>
+                        <Pressable style={({ pressed }) => {
+                            return {
+                                marginLeft: 8,
+                                opacity: pressed ? 0.3 : 1
+                            }
+                        }}
+                            onPress={navigateToCurrencySettings}
+                        >
+                            <ExchangeRate/>
+                        </Pressable>
                     </View>
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress

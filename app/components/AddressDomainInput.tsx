@@ -120,14 +120,9 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         onDomainChange(undefined);
         onTargetChange(input);
 
-        // Check for domain 
-        // min domain length is 4, max 126 + '.ton'
-        if (input.length > 7 && input.length < 126 + 4 && input.slice(input.length - 4, input.length) === '.ton') {
+        if (input.endsWith('.ton')) {
             onResolveDomain(input, '.ton');
-        }
-
-        // min domain length is 4, max 126 + '.t.me'
-        if (input.length > 8 && input.length < 126 + 5 && input.slice(input.length - 5, input.length) === '.t.me') {
+        } else if (input.endsWith('.t.me')) {
             onResolveDomain(input, '.t.me');
         }
     }, [input, onResolveDomain, onTargetChange]);

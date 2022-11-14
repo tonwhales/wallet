@@ -54,33 +54,45 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     }));
 
     const onResolveDomain = useCallback(
-        async (toResolve?: string) => {
-            if (!toResolve) {
-                return;
-            }
-
+        async (toResolve: string, zone: '.t.me' | '.ton') => {
             // Clear prev resolved address
             setResolvedAddress(undefined);
 
-            const valid = validateDomain(toResolve);
+            let domain = zone === '.ton'
+                ? toResolve.slice(0, toResolve.length - 4)
+                : toResolve.slice(0, toResolve.length - 5);
+                
+            const valid = validateDomain(domain);
 
             if (!valid) {
                 Alert.alert(t('transfer.error.invalidDomainString'));
                 return;
             }
 
+            if (!domain) {
+                return;
+            }
+
             setResolving(true);
             try {
-                const resolvedDomainAddress = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_NEXT_RESOLVER, true);
+                const resolvedCollectionAddress = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_NEXT_RESOLVER, true);
+                if (!resolvedCollectionAddress) {
+                    throw Error('Error resolving collection address');
+                }
+                const collectionAddress = Address.parseRaw(resolvedCollectionAddress.toString());
+
+                const resolvedDomainAddress = await resolveDomain(engine.client4, collectionAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
                 if (!resolvedDomainAddress) {
                     throw Error('Error resolving domain address');
                 }
                 const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
+
                 const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
                 if (!resolvedDomainWallet) {
                     throw Error('Error resolving domain wallet');
                 }
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
+
                 setResolvedAddress(resolvedWalletAddress);
                 onTargetChange(resolvedWalletAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
                 onDomainChange(toResolve);
@@ -97,10 +109,10 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         onDomainChange(undefined);
         onTargetChange(input);
 
-        // Check for domain 
-        // min domain length is 4, max 126 + '.ton'
-        if (input.length > 7 && input.length < 126 + 4 && input.slice(input.length - 4, input.length) === '.ton') {
-            onResolveDomain(input.slice(0, input.length - 4));
+        if (input.endsWith('.ton')) {
+            onResolveDomain(input, '.ton');
+        } else if (input.endsWith('.t.me')) {
+            onResolveDomain(input, '.t.me');
         }
     }, [input, onResolveDomain, onTargetChange]);
 

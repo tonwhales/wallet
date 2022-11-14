@@ -58,26 +58,15 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             // Clear prev resolved address
             setResolvedAddress(undefined);
 
-            let domain;
+            let domain = zone === '.ton'
+                ? toResolve.slice(0, toResolve.length - 4)
+                : toResolve.slice(0, toResolve.length - 5);
+                
+            const valid = validateDomain(domain);
 
-            if (zone === '.ton') {
-                domain = toResolve.slice(0, toResolve.length - 4);
-                const valid = validateDomain(domain);
-
-                if (!valid) {
-                    Alert.alert(t('transfer.error.invalidDomainString'));
-                    return;
-                }
-            }
-
-            if (zone === '.t.me') {
-                domain = toResolve.slice(0, toResolve.length - 5);
-                const valid = validateDomain(domain);
-
-                if (!valid) {
-                    Alert.alert(t('transfer.error.invalidDomainString'));
-                    return;
-                }
+            if (!valid) {
+                Alert.alert(t('transfer.error.invalidDomainString'));
+                return;
             }
 
             if (!domain) {

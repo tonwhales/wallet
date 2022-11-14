@@ -3,10 +3,10 @@
 buildscript {
     ext {
         buildToolsVersion = "31.0.0"
-        minSdkVersion = 23
-        compileSdkVersion = 31
-        targetSdkVersion = 31
-        kotlinVersion = "1.6.10"
+        minSdkVersion = 24
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+        kotlinVersion = "1.6.21"
         ndkVersion = "24.0.8215888"
     }
     repositories {
@@ -23,6 +23,8 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
+
+def REACT_NATIVE_VERSION = new File(['node', '--print',"JSON.parse(require('fs').readFileSync(require.resolve('react-native/package.json'), 'utf-8')).version"].execute(null, rootDir).text.trim())
 
 allprojects {
     repositories {
@@ -50,5 +52,12 @@ allprojects {
             }
         }
         jcenter() // Some library in react-native-fast-animations
+
+        configurations.all {
+            resolutionStrategy {
+                // Remove this override in 0.66, as a proper fix is included in react-native itself.
+                force "com.facebook.react:react-native:" + REACT_NATIVE_VERSION
+            }
+        }
     }
 }

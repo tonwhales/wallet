@@ -4,7 +4,6 @@ import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "r
 import { AppConfig } from "../AppConfig";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
-import { MenuComponent } from "./MenuComponent";
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useEngine } from "../engine/Engine";

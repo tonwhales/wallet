@@ -187,8 +187,6 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
     const categoryBN = await categoryToBN(category);
     const result = (await tonClient4.runMethod(seqno, dnsAddress, 'dnsresolve', [{ type: 'slice', cell: domainCell }, { type: 'int', value: categoryBN }])).result;
 
-    console.log({ result });
-
     if (result.length !== 2) {
         throw new Error('Invalid dnsresolve response, res.length !== 2');
     }

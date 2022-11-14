@@ -143,14 +143,16 @@ function Header(props: {
                         <Pressable style={({ pressed }) => {
                             return {
                                 opacity: pressed ? 0.3 : 1,
-                                alignSelf: 'flex-end'
+                                alignSelf: 'flex-end',
+                                flexShrink: 1
                             }
                         }}
                             onPress={props.action.onAction}
                         >
                             <Text style={{
                                 fontSize: 14, color: Theme.textColor,
-                                textDecorationLine: 'underline'
+                                textDecorationLine: 'underline',
+                                textAlign: 'right'
                             }}>
                                 {props.action.title}
                             </Text>

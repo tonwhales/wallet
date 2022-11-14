@@ -29,7 +29,7 @@ import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
 
 export class Persistence {
 
-    readonly version: number = 8;
+    readonly version: number = 9;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;

@@ -5,12 +5,13 @@ export type StakingPool = { name: string, restricted?: boolean };
 
 export const KnownPools: { [key: string]: StakingPool } = AppConfig.isTestnet
     ? {
-        [Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs').toFriendly({ testOnly: AppConfig.isTestnet })]: {
-            name: 'Sandbox Nominators #1',
-        },
-        [Address.parse('kQDsPXQhe6Jg5hZYATRfYwne0o_RbReMG2P3zHfcFUwHALeS').toFriendly({ testOnly: AppConfig.isTestnet })]: {
-            name: 'Sandbox Nominators #2'
-        }
+        // TODO: swith to testnet pools 
+        // [Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+        //     name: 'Sandbox Nominators #1',
+        // },
+        // [Address.parse('kQDsPXQhe6Jg5hZYATRfYwne0o_RbReMG2P3zHfcFUwHALeS').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+        //     name: 'Sandbox Nominators #2'
+        // }
     } : {
         [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toFriendly({ testOnly: AppConfig.isTestnet })]: {
             name: 'Whales Nominators #1',

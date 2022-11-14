@@ -13,15 +13,15 @@ export function createEngine(args: { address: Address, publicKey: Buffer, utilit
         args.publicKey,
         args.utilityKey,
         storagePersistence,
-        AppConfig.isTestnet ? 'sandbox-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com',
+        AppConfig.isTestnet ? 'testnet-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com',
         createSimpleConnector(!AppConfig.isTestnet ? {
             main: 'https://mainnet.tonhubapi.com',
             estimate: 'https://connect.tonhubapi.com/net/mainnet/estimate',
             sender: 'https://connect.tonhubapi.com/net/mainnet/send',
         } : {
-            main: 'https://sandbox.tonhubapi.com',
-            estimate: 'https://connect.tonhubapi.com/net/sandbox/estimate',
-            sender: 'https://connect.tonhubapi.com/net/sandbox/send',
+            main: 'https://testnet.tonhubapi.com',
+            estimate: 'https://connect.tonhubapi.com/net/testnet/estimate',
+            sender: 'https://connect.tonhubapi.com/net/testnet/send',
         }),
         { updater: args.recoilUpdater }
     );

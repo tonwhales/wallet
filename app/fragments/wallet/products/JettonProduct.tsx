@@ -4,6 +4,7 @@ import { Address } from 'ton';
 import { AppConfig } from '../../../AppConfig';
 import { Engine } from '../../../engine/Engine';
 import { markJettonDisabled } from '../../../engine/sync/ops';
+import { JettonAmountStyle, JettonRenderType } from '../../../engine/sync/startJettonMasterSync';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { confirmJettonAction } from '../../AccountsFragment';
@@ -13,14 +14,16 @@ export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
     engine: Engine,
     jetton: {
-        master: Address;
-        wallet: Address;
-        name: string;
-        description: string;
-        symbol: string;
-        balance: BN;
-        icon: string | null;
-        decimals: number | null;
+        master: Address,
+        wallet: Address,
+        name: string,
+        description: string,
+        symbol: string,
+        balance: BN,
+        icon: string | null,
+        decimals: number | null,
+        amount_style: JettonAmountStyle,
+        render_type: JettonRenderType
     },
     onPress?: () => void
     onLongPress?: () => void
@@ -36,6 +39,8 @@ export const JettonProduct = React.memo((props: {
         },
         [],
     );
+
+    console.log({ jetton: props.jetton });
 
     return (
         <ProductButton
@@ -53,7 +58,7 @@ export const JettonProduct = React.memo((props: {
                 }
                 props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })
             }}
-            onLongPress={props.onLongPress? props.onLongPress: promptDisable}
+            onLongPress={props.onLongPress ? props.onLongPress : promptDisable}
             style={{ marginVertical: 4 }}
             known={isKnown}
         />

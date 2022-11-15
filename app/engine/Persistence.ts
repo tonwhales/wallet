@@ -247,7 +247,20 @@ const jettonMasterCodec = t.type({
     symbol: t.union([t.null, t.string]),
     decimals: t.union([t.number, t.null]),
     originalImage: t.union([t.string, t.null, t.undefined]),
-    image: t.union([imagePreview, t.null])
+    image: t.union([imagePreview, t.null]),
+    amount_style: t.union([
+        t.literal('n'),
+        t.literal('n-of-total'),
+        t.literal('%'),
+        t.null,
+        t.undefined
+    ]),
+    render_type: t.union([
+        t.literal('currency'),
+        t.literal('game'),
+        t.null,
+        t.undefined
+    ]),
 });
 
 const hintProcessingState = t.type({

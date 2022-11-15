@@ -11,7 +11,10 @@ import { ImagePreview } from "../api/fetchAppData";
 import { fetchJettonMasterContent } from "../metadata/fetchJettonMasterContent";
 
 // Update this version to re-index
-const CURRENT_VERSION = 2;
+const CURRENT_VERSION = 3;
+
+export type JettonAmountStyle = 'n' | 'n-of-total' | '%';
+export type JettonRenderType = 'currency' | 'game';
 
 export type JettonMasterState = {
     version: number;
@@ -21,6 +24,8 @@ export type JettonMasterState = {
     description: string | null;
     originalImage: string | null | undefined;
     decimals: number | null;
+    amount_style: JettonAmountStyle | null | undefined;
+    render_type: JettonRenderType | null | undefined;
 }
 
 function safeTrim(src: string, length: number) {
@@ -52,7 +57,9 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
             image: null,
             description: null,
             decimals: null,
-            originalImage: null
+            originalImage: null,
+            amount_style: null,
+            render_type: null
         };
         if (master.value) {
             res = { ...res, ...master.value, version: CURRENT_VERSION };

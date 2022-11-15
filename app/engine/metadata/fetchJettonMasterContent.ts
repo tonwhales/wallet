@@ -6,13 +6,26 @@ import { imagePreview } from "../api/fetchAppData";
 import { isLeft } from "fp-ts/lib/Either";
 import { JettonMasterState } from "../sync/startJettonMasterSync";
 
-const contentCodec = t.type({
+const masterContentCodec = t.type({
     name: t.union([t.string, t.null]),
     description: t.union([t.string, t.null]),
     symbol: t.union([t.string, t.null]),
     decimals: t.union([t.number, t.null]),
     originalImage: t.union([t.string, t.null, t.undefined]),
-    image: t.union([imagePreview, t.null])
+    image: t.union([imagePreview, t.null]),
+    amount_style: t.union([
+        t.literal('n'),
+        t.literal('n-of-total'),
+        t.literal('%'),
+        t.null,
+        t.undefined
+    ]),
+    render_type: t.union([
+        t.literal('currency'),
+        t.literal('game'),
+        t.null,
+        t.undefined
+    ]),
 });
 
 export async function fetchJettonMasterContent(address: Address) {
@@ -22,7 +35,7 @@ export async function fetchJettonMasterContent(address: Address) {
     );
 
     if (res.status === 200) {
-        const parsed = contentCodec.decode(res.data);
+        const parsed = masterContentCodec.decode(res.data);
         if (isLeft(parsed)) {
             return null;
         }

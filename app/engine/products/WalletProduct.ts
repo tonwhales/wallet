@@ -6,7 +6,7 @@ import { Transaction } from "../Transaction";
 import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoilValue, selectorFamily } from "recoil";
 import * as FileSystem from 'expo-file-system';
 import { ContractMetadata } from "../metadata/Metadata";
-import { JettonMasterState } from "../sync/startJettonMasterSync";
+import { JettonAmountStyle, JettonMasterState, JettonRenderType } from "../sync/startJettonMasterSync";
 import { createHistorySync } from "../sync/createHistorySync";
 import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
@@ -32,6 +32,8 @@ export type JettonsState = {
         icon: string | null,
         decimals: number | null,
         disabled?: boolean
+        amount_style: JettonAmountStyle;
+        render_type: JettonRenderType;
     }[]
 }
 
@@ -101,7 +103,9 @@ export class WalletProduct {
                     description: string,
                     icon: string | null,
                     decimals: number | null,
-                    disabled?: boolean
+                    disabled?: boolean,
+                    amount_style: JettonAmountStyle;
+                    render_type: JettonRenderType;
                 }[] = [];
                 for (let w of jettonWallets) {
                     let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
@@ -135,7 +139,9 @@ export class WalletProduct {
                             description: jm.description,
                             icon,
                             decimals: jm.decimals,
-                            disabled
+                            disabled,
+                            amount_style: jm.amount_style ?? 'n',
+                            render_type: jm.render_type ?? 'currency'
                         });
                     }
                 }

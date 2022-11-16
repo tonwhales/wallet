@@ -34,6 +34,8 @@ const Img_venera = require('../../assets/known/Img_venera.jpeg');
 const Img_Team_1 = require('../../assets/known/ic_team_1.png');
 const Img_Team_2 = require('../../assets/known/ic_team_2.png');
 
+const Img_MEXC = require('../../assets/known/ic_mexc.png');
+
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
 export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
@@ -336,6 +338,15 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 secondary: '#20d7e0'
             },
             ic: Img_venera
+        },
+
+        [Address.parse('EQBX63RAdgShn34EAFMV73Cut7Z15lUZd1hnVva68SEl7sxi').toFriendly()]: {
+            name: 'MEXC',
+            colors: {
+                primary: '#16b979',
+                secondary: '#259D68'
+            },
+            ic: Img_MEXC
         },
     }
 

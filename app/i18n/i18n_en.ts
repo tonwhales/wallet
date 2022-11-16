@@ -72,6 +72,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             receive: 'Receive TON'
         }
     },
+    transactions: {
+        title: 'Transactions',
+        history: 'History',
+    },
     tx: {
         sending: 'Sending',
         sent: 'Sent',

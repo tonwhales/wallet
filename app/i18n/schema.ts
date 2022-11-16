@@ -74,6 +74,10 @@ export type LocalizationSchema = {
             receive: string
         }
     },
+    transactions: {
+        title: string,
+        history: string,
+    },
     tx: {
         sending: string,
         sent: string,

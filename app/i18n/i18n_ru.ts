@@ -73,6 +73,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             receive: 'Получить TON'
         }
     },
+    transactions: {
+        title: 'Транзакции',
+        history: 'История',
+    },
     receive: {
         title: 'Получить Ton',
         subtitle: 'Поделитесь данной ссылкой, чтобы получить Ton',

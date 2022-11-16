@@ -352,7 +352,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         }}
                             onPress={navigateToCurrencySettings}
                         >
-                            <ExchangeRate/>
+                            <ExchangeRate />
                         </Pressable>
                     </View>
                     <View style={{ flexGrow: 1 }} />
@@ -414,45 +414,6 @@ function WalletComponent(props: { wallet: WalletState }) {
 
                 <ProductsComponent />
 
-                {
-                    account.transactions.length === 0 && (
-                        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                            <Pressable
-                                onPress={() => {
-                                    animRef.current?.play();
-                                }}>
-                                <LottieView
-                                    ref={animRef}
-                                    source={require('../../../assets/animations/duck.json')}
-                                    autoPlay={true}
-                                    loop={false}
-                                    progress={0.2}
-                                    style={{ width: 192, height: 192 }}
-                                />
-                            </Pressable>
-                            <Text style={{ fontSize: 16, color: '#7D858A' }}>
-                                {t('wallet.empty.message')}
-                            </Text>
-                            <RoundButton
-                                title={t('wallet.empty.receive')}
-                                size="normal"
-                                display="text"
-                                onPress={() => navigation.navigate('Receive')}
-                            />
-                        </View>
-                    )
-                }
-                {
-                    account.transactions.length > 0 && (
-                        <WalletTransactions
-                            txs={account.transactions}
-                            next={account.next}
-                            address={address}
-                            engine={engine}
-                            onPress={openTransactionFragment}
-                        />
-                    )
-                }
                 <View style={{ height: 56 + safeArea.bottom }} />
             </Animated.ScrollView>
             {/* iOS Toolbar */}

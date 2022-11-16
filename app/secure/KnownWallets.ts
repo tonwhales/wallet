@@ -328,7 +328,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_TonTake
         },
-        
+
         [Address.parse('EQCOGv_9I544WnSLvuepzG8WetJek-ebNBwQ3-jfjTQYj5UY').toFriendly()]: {
             name: 'VENERA Exchange',
             colors: {
@@ -339,6 +339,9 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
         },
     }
 
-    export const KnownJettonMasters: { [key: string]: {} } = {
-        'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ }
+export const KnownJettonMasters: { [key: string]: {} } = !AppConfig.isTestnet
+    ? {
+        'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ },
+        'EQB-ajMyi5-WKIgOHnbOGApfckUGbl6tDk3Qt8PKmb-xLAvp': {},
     }
+    : {};

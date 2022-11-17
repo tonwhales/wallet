@@ -167,7 +167,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32 }}>
+            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
                 {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             {spam && (
@@ -178,7 +178,8 @@ export const TransactionPreviewFragment = fragment(() => {
                     alignItems: 'center',
                     borderRadius: 4,
                     marginTop: 13,
-                    paddingHorizontal: 4
+                    paddingHorizontal: 4,
+                    marginBottom: 8
                 }}>
                     <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
                 </View>
@@ -189,7 +190,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 automaticallyAdjustContentInsets={false}
             >
                 <View style={{
-                    marginTop: 52,
+                    marginTop: 44,
                     backgroundColor: Theme.item,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
@@ -198,28 +199,41 @@ export const TransactionPreviewFragment = fragment(() => {
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 56, borderWidth: 4, borderColor: Theme.item,
+                        borderRadius: 60, borderWidth: 4, borderColor: Theme.item,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
                         <Avatar
                             address={friendlyAddress}
                             id={friendlyAddress}
-                            size={84}
+                            size={56}
                             image={transaction.icon ? transaction.icon : undefined}
                             spam={spam}
                             verified={verified}
                         />
                     </View>
                     {transaction.base.status === 'failed' ? (
-                        <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
+                        <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                            {'failed'}
+                        </Text>
                     ) : (
                         <>
-                            <Text style={{ color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#000000', fontWeight: '800', fontSize: 36, marginRight: 2 }} numberOfLines={1}>
+                            <Text
+                                style={{
+                                    color: item.amount.gte(new BN(0))
+                                        ? spam
+                                            ? Theme.textColor
+                                            : '#4FAE42'
+                                        : '#000000',
+                                    fontWeight: '800',
+                                    fontSize: 36,
+                                    marginRight: 2,
+                                }}
+                                numberOfLines={1}
+                            >
                                 <ValueComponent
                                     value={item.amount}
                                     decimals={item.kind === 'token' ? item.decimals : undefined}
-                                    centFontStyle={{ fontSize: 30, fontWeight: '400' }}
                                     precision={5}
                                 />
                                 {item.kind === 'token' ? ' ' + item.symbol : ''}
@@ -232,7 +246,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: Theme.price, fontWeight: '400' }}
+                                    textStyle={{ color: Theme.price, fontWeight: '400', fontSize: 16 }}
                                     amount={item.amount}
                                 />
                             )}
@@ -290,7 +304,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     style={{
                                         marginTop: 5,
                                         textAlign: 'left',
-                                        fontWeight: '600',
+                                        fontWeight: '400',
                                         fontSize: 16,
                                         lineHeight: 20
                                     }}
@@ -385,7 +399,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
-                                    fontWeight: '600',
+                                    fontWeight: '500',
                                     fontSize: 16,
                                     lineHeight: 20
                                 }}
@@ -420,7 +434,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         {t('common.tx')}
                                     </Text>
                                     <Text style={{
-                                        fontWeight: '600',
+                                        fontWeight: '400',
                                         fontSize: 16,
                                         lineHeight: 20,
                                         marginTop: 6,
@@ -464,7 +478,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             alignItems: 'center'
                         }}>
                             <Text style={{
-                                fontWeight: '600',
+                                fontWeight: '400',
                                 fontSize: 16,
                                 lineHeight: 20,
                                 color: Theme.textColor,
@@ -483,11 +497,11 @@ export const TransactionPreviewFragment = fragment(() => {
                                     justifyContent: 'center',
                                     height: undefined
                                 }}
-                                textStyle={{ color: Theme.textColor, fontSize: 16, lineHeight: 20 }}
+                                textStyle={{ color: Theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
                             />
                             {!AppConfig.isTestnet && (
                                 <Text style={{
-                                    fontWeight: '600',
+                                    fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20,
                                     color: Theme.textColor,

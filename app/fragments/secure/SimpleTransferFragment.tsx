@@ -172,6 +172,11 @@ export const SimpleTransferFragment = fragment(() => {
             return;
         }
 
+        if (value.isNeg()) {
+            Alert.alert(t('transfer.error.invalidAmount'));
+            return;
+        }
+
         // Might not happen
         if (!order) {
             return;

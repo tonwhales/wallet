@@ -151,30 +151,6 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }, [operation, body]);
 
-    // 
-    // Address actions
-    // 
-    const addressActions = [];
-
-    if (!spam) {
-        addressActions.push({
-            title: t('spamFilter.blockConfirm'),
-            id: 'block',
-            image: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
-            attributes: { destructive: true },
-            onAction: () => onMarkAddressSpam(operation.address || address)
-        });
-    }
-
-    if (!known) {
-        addressActions.push({
-            title: t('contacts.contact'),
-            id: 'contact',
-            image: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
-            onAction: () => onAddressContact(operation.address || address)
-        });
-    }
-
     return (
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,

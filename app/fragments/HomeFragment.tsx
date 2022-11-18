@@ -141,7 +141,7 @@ export const HomeFragment = fragment(() => {
                         />
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
-                                source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
+                                source={tab === 0 ? require('../../assets/ic_home_selected.png') : require('../../assets/ic_home.png')}
                                 style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
                             />
                             <Text
@@ -152,7 +152,7 @@ export const HomeFragment = fragment(() => {
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                             <Image
-                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
                                 style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
                             />
                             <Text

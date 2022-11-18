@@ -17,6 +17,8 @@ export enum MixpanelEvent {
     NotificationReceived = 'notification_received',
     AppOpen = 'app_open',
     AppClose = 'app_close',
+    ZenPay = 'zen_pay',
+    ZenPayClose = 'zen_pay_close',
     AppInstall = 'app_install',
     AppInstallCancel = 'app_install_cancel',
     AppUninstall = 'app_uninstall',

@@ -7,19 +7,20 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { Engine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine: Engine, cardNumber?: string }) => {
     const dimentions = useWindowDimensions();
+    const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
     const card = engine.products.zenPay.useCard(cardNumber);
 
     const onPress = useCallback(
         () => {
-
+            navigation.navigateZenPay(cardNumber? { type: 'card', cardNumber } : { type: 'account' });
         },
-        [],
+        [cardNumber],
     );
-
 
     return (
         <TouchableHighlight

@@ -104,6 +104,10 @@ export class TypedNavigation {
     navigateStakingCalculator(params: { target: Address}) {
         this.navigate('StakingCalculator', params);
     }
+
+    navigateZenPay(params: { cardNumber: string, type: 'card' } | { type: 'account' }) {
+        this.navigate('ZenPay', params);
+    }
 }
 
 export function useTypedNavigation() {

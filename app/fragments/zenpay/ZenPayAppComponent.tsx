@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View, Text } from 'react-native';
+import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View, Text, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,6 +22,7 @@ import { useInjectEngine } from '../apps/components/inject/useInjectEngine';
 import { warn } from '../../utils/log';
 import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
+import { AndroidToolbar } from '../../components/AndroidToolbar';
 
 export const ZenPayAppComponent = React.memo((props: { variant: { cardNumber: string, type: 'card' } | { type: 'account' } }) => {
 
@@ -156,6 +157,48 @@ export const ZenPayAppComponent = React.memo((props: { variant: { cardNumber: st
     return (
         <>
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+                <AndroidToolbar pageTitle={t('products.zenPay.title')} />
+                {Platform.OS === 'ios' && (
+                    <>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={{ height: 4, width: 35, borderRadius: 5, backgroundColor: '#CFCBCB', marginTop: 6 }} />
+                        </View>
+                        <View style={{
+                            width: '100%',
+                            flexDirection: 'row',
+                            marginTop: 14,
+                            paddingHorizontal: 15,
+                            justifyContent: 'center'
+                        }}>
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return ({
+                                        opacity: pressed ? 0.3 : 1,
+                                        position: 'absolute', top: 0, bottom: 0, left: 15
+                                    });
+                                }}
+                                onPress={() => {
+                                    navigation.goBack();
+                                }}
+                            >
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 17,
+                                    textAlign: 'center',
+                                }}>
+                                    {t('common.close')}
+                                </Text>
+                            </Pressable>
+                            <Text style={{
+                                fontWeight: '600',
+                                fontSize: 17,
+                                textAlign: 'center'
+                            }}>
+                                {t('products.zenPay.title')}
+                            </Text>
+                        </View>
+                    </>
+                )}
                 {/* <WebView
                     ref={webRef}
                     source={{ uri: props.endpoint }}
@@ -175,12 +218,20 @@ export const ZenPayAppComponent = React.memo((props: { variant: { cardNumber: st
                     onShouldStartLoadWithRequest={loadWithRequest}
                     onMessage={handleWebViewMessage}
                 /> */}
-                <Text style={{
-                    color: Theme.textColor,
-                    alignSelf: 'center'
-                }}>
-                    {'ZEN PAY GOES HERE'}
-                </Text>
+                <View
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexGrow: 1
+                    }}
+                >
+                    <Text style={{
+                        color: Theme.textColor,
+                        alignSelf: 'center'
+                    }}>
+                        {'ZEN PAY GOES HERE'}
+                    </Text>
+                </View>
 
                 {/* <Animated.View
                     style={animatedStyles}

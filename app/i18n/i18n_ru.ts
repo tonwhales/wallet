@@ -341,7 +341,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             }
         },
         zenPay: {
-            title: 'ZenPay',
+            title: 'ZenPay Card',
             card: {
                 defaultSubtitle: 'Только для EU',
                 defaultTitle: 'ZenPay Card',

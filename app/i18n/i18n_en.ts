@@ -340,7 +340,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             }
         },
         zenPay: {
-            title: 'ZenPay',
+            title: 'ZenPay Card',
             card: {
                 defaultSubtitle: 'Only for EU',
                 defaultTitle: 'ZenPay Card',

@@ -20,6 +20,7 @@ import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
 import { KeysProduct } from './keys/KeysProduct';
 import { CorpProduct } from './corp/CorpProduct';
+import { ZenPayProduct } from './products/ZenPayProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -52,7 +53,8 @@ export class Engine {
         extensions: ExtensionsProduct,
         settings: SettingsProduct,
         keys: KeysProduct,
-        corp: CorpProduct
+        corp: CorpProduct,
+        zenPay: ZenPayProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -101,7 +103,8 @@ export class Engine {
             extensions: new ExtensionsProduct(this),
             settings: new SettingsProduct(this),
             keys: new KeysProduct(this),
-            corp: new CorpProduct(this)
+            corp: new CorpProduct(this),
+            zenPay: new ZenPayProduct(this)
         };
 
         //

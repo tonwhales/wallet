@@ -37,7 +37,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
-        tx: 'Transaction'
+        tx: 'Transaction',
+        add: 'Add'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -338,6 +339,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Are you sure about the unstaking?'
             }
         },
+        zenPay: {
+            title: 'ZenPay',
+            card: {
+                defaultSubtitle: 'Only for EU',
+                defaultTitle: 'ZenPay Card',
+            }
+        }
     },
     welcome: {
         title: 'Tonhub',

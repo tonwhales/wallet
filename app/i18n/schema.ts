@@ -39,7 +39,8 @@ export type LocalizationSchema = {
         termsOfService: string,
         privacyPolicy: string,
         apy: string,
-        tx: string
+        tx: string,
+        add: string
     },
     syncStatus: {
         connecting: string,
@@ -340,6 +341,13 @@ export type LocalizationSchema = {
                 message: string
             }
         },
+        zenPay: {
+            title: string,
+            card: {
+                defaultSubtitle: string,
+                defaultTitle: string,
+            }
+        }
     }
     welcome: {
         title: string,

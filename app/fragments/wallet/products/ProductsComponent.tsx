@@ -14,6 +14,7 @@ import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
+import { ZenPayProductButton } from "../../zenpay/ZenPayProductButton"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -22,6 +23,7 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
+    const cards = engine.products.zenPay.useCards();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);
         if (!domain) {
@@ -94,31 +96,37 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
-    if (!AppConfig.isTestnet) {
-        apps.push(<StakingProductComponent key={'pool'} />);
-    }
+    // Resolve products
+    let products: React.ReactElement[] = [];
 
-    if (__DEV__) {
+    products.push(<StakingProductComponent key={'pool'} />);
 
-        console.log('sss', corpStatus);
+    cards.map((c) => {
+        products.push(<ZenPayProductButton engine={engine} cardNumber={c} />)
+    });
+    products.push(<ZenPayProductButton engine={engine} />)
 
-        let statusText = 'Begin enrollment';
-        if (corpStatus.status === 'need-kyc' || corpStatus.status === 'need-phone') {
-            statusText = 'Continue enrollment';
-        } else if (corpStatus.status === 'ready') {
-            statusText = 'Press to view your crypto card';
-        }
+    // if (__DEV__) {
 
-        apps.push(
-            <ProductButton
-                key={"card"}
-                name="Cryptocard"
-                subtitle={statusText}
-                value={null}
-                onPress={() => navigation.navigate('Corp')}
-            />
-        );
-    }
+    //     console.log('sss', corpStatus);
+
+    //     let statusText = 'Begin enrollment';
+    //     if (corpStatus.status === 'need-kyc' || corpStatus.status === 'need-phone') {
+    //         statusText = 'Continue enrollment';
+    //     } else if (corpStatus.status === 'ready') {
+    //         statusText = 'Press to view your crypto card';
+    //     }
+
+    //     apps.push(
+    //         <ProductButton
+    //             key={"card"}
+    //             name="Cryptocard"
+    //             subtitle={statusText}
+    //             value={null}
+    //             onPress={() => navigation.navigate('Corp')}
+    //         />
+    //     );
+    // }
 
     return (
         <View style={{ paddingTop: 8 }}>
@@ -169,6 +177,15 @@ export const ProductsComponent = React.memo(() => {
                         }
                     }}
                 />
+            )}
+
+            {products.length > 0 && (
+                <>
+                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('common.products')}</Text>
+                    </View>
+                    {products}
+                </>
             )}
 
             {apps.length > 0 && (

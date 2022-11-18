@@ -38,7 +38,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
-        tx: 'Транзакция'
+        tx: 'Транзакция',
+        add: 'Добавить',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -339,6 +340,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: "Уверены, что хотите вывести?"
             }
         },
+        zenPay: {
+            title: 'ZenPay',
+            card: {
+                defaultSubtitle: 'Только для EU',
+                defaultTitle: 'ZenPay Card',
+            }
+        }
     },
     welcome: {
         title: 'Tonhub',

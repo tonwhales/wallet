@@ -48,6 +48,12 @@ export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine:
                     {!card && (
                         <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
+                    {card && card.type === 'virtual' && (
+                        <Image source={require('../../../assets/ic_virtual_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                    )}
+                    {card && card.type === 'debit' && (
+                        <Image source={require('../../../assets/ic_visa_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                    )}
                 </View>
                 {!!card && (
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
@@ -67,9 +73,16 @@ export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine:
                                 ellipsizeMode="tail"
                                 numberOfLines={1}
                             >
-                                <Text style={{ flexShrink: 1 }}>
-                                    {card?.subtitle ?? t('products.zenPay.card.defaultSubtitle')}
-                                </Text>
+                                {!!card && (
+                                    <Text style={{ flexShrink: 1 }}>
+                                        {t(`products.zenPay.card.type.${card.type}`)}
+                                    </Text>
+                                )}
+                                {!card && (
+                                    <Text style={{ flexShrink: 1 }}>
+                                        {t('products.zenPay.card.defaultSubtitle')}
+                                    </Text>
+                                )}
                             </Text>
                             {!!card?.value &&
                                 (

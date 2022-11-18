@@ -23,13 +23,14 @@ const WalletTransactions = React.memo((props: {
     address: Address,
     engine: Engine,
     navigation: TypedNavigation,
-    onPress: (tx: string) => void,
-    safeArea: EdgeInsets
+    onTxPress: (tx: string) => void,
+    safeArea: EdgeInsets,
+    onLoadMore: () => void,
 }) => {
     const animRef = React.useRef<LottieView>(null);
 
     const transactionsSectioned = React.useMemo(() => {
-        let res: (string | { id: string, position?: 'first' | 'last' })[] = [];
+        let res: (string | { id: string, position?: 'first' | 'last' | 'single' })[] = [];
         let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
             let lastTime: string = getDateKey(props.txs[0].time);
@@ -51,11 +52,12 @@ const WalletTransactions = React.memo((props: {
         for (let s of sections) {
             res.push(s.title);
             res.push(...s.items.map((id, i) => {
-                const position: 'first' | 'last' | undefined = i === s.items.length - 1
-                    ? 'last'
-                    : i === 0
-                        ? 'first'
-                        : undefined
+                let position: 'first' | 'last' | 'single' | undefined;
+                if (s.items.length === 1) {
+                    position = 'single';
+                } else {
+                    position = i === 0 ? 'first' : i === s.items.length - 1 ? 'last' : undefined;
+                }
                 return ({ id, position });
             }));
         }
@@ -88,10 +90,10 @@ const WalletTransactions = React.memo((props: {
                         <View
                             key={'tx-' + item.id}
                             style={{
-                                borderTopRightRadius: item.position === 'first' ? 14 : undefined,
-                                borderTopLeftRadius: item.position === 'first' ? 14 : undefined,
-                                borderBottomLeftRadius: item.position === 'last' ? 14 : undefined,
-                                borderBottomRightRadius: item.position === 'last' ? 14 : undefined,
+                                borderTopRightRadius: (item.position === 'first' || item.position === 'single') ? 14 : undefined,
+                                borderTopLeftRadius: (item.position === 'first' || item.position === 'single') ? 14 : undefined,
+                                borderBottomLeftRadius: (item.position === 'last' || item.position === 'single') ? 14 : undefined,
+                                borderBottomRightRadius: (item.position === 'last' || item.position === 'single') ? 14 : undefined,
                                 backgroundColor: Theme.item,
                                 overflow: 'hidden'
                             }}
@@ -101,8 +103,8 @@ const WalletTransactions = React.memo((props: {
                                 own={props.address}
                                 engine={props.engine}
                                 tx={item.id}
-                                separator={item.position !== 'last'}
-                                onPress={props.onPress}
+                                separator={item.position !== 'last' && item.position !== 'single'}
+                                onPress={props.onTxPress}
                             />
                         </View>
                     );
@@ -113,30 +115,39 @@ const WalletTransactions = React.memo((props: {
                 return typeof item === "string" ? "sectionHeader" : "row";
             }}
             estimatedItemSize={62}
-            ListEmptyComponent={() => <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-            <Pressable
-                onPress={() => {
-                    animRef.current?.play();
-                }}>
-                <LottieView
-                    ref={animRef}
-                    source={require('../../../assets/animations/duck.json')}
-                    autoPlay={true}
-                    loop={false}
-                    progress={0.2}
-                    style={{ width: 192, height: 192 }}
-                />
-            </Pressable>
-            <Text style={{ fontSize: 16, color: '#7D858A' }}>
-                {t('wallet.empty.message')}
-            </Text>
-            <RoundButton
-                title={t('wallet.empty.receive')}
-                size="normal"
-                display="text"
-                onPress={() => props.navigation.navigate('Receive')}
-            />
-        </View>}
+            ListEmptyComponent={() => {
+                return (
+                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                        <Pressable
+                            onPress={() => {
+                                animRef.current?.play();
+                            }}>
+                            <LottieView
+                                ref={animRef}
+                                source={require('../../../assets/animations/duck.json')}
+                                autoPlay={true}
+                                loop={false}
+                                progress={0.2}
+                                style={{ width: 192, height: 192 }}
+                            />
+                        </Pressable>
+                        <Text style={{ fontSize: 16, color: '#7D858A' }}>
+                            {t('wallet.empty.message')}
+                        </Text>
+                        <RoundButton
+                            title={t('wallet.empty.receive')}
+                            size="normal"
+                            display="text"
+                            onPress={() => props.navigation.navigate('Receive')}
+                        />
+                    </View>
+                );
+            }}
+            onEndReached={() => {
+                console.log('onEndReached');
+                props.onLoadMore();
+            }}
+            onEndReachedThreshold={0.5}
         // ListFooterComponent={() => {
         //     if (props.next) {
         //         return (
@@ -162,7 +173,6 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const syncState = engine.state.use();
-    const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
 
     const openTransactionFragment = React.useCallback((transaction: string) => {
@@ -170,6 +180,20 @@ function TransactionsComponent(props: { wallet: WalletState }) {
             navigation.navigate('Transaction', { transaction: transaction });
         }
     }, [navigation]);
+
+    const onReachedEnd = React.useMemo(() => {
+        let prev = account.next;
+        let called = false;
+        return () => {
+            if (called) {
+                return;
+            }
+            called = true;
+            if (prev) {
+                engine.products.main.loadMore(prev.lt, prev.hash);
+            }
+        }
+    }, [account.next ? account.next.lt : null]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -180,9 +204,10 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         next={account.next}
                         address={address}
                         engine={engine}
-                        onPress={openTransactionFragment}
+                        onTxPress={openTransactionFragment}
                         navigation={navigation}
                         safeArea={safeArea}
+                        onLoadMore={onReachedEnd}
                     />
                 )
             }

@@ -346,6 +346,10 @@ export type LocalizationSchema = {
             card: {
                 defaultSubtitle: string,
                 defaultTitle: string,
+                type: {
+                    debit: string,
+                    virtual: string,
+                }
             }
         }
     }

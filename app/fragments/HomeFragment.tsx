@@ -204,7 +204,7 @@ export const HomeFragment = fragment(() => {
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
                             <Image
                                 source={tab === 2 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                                style={{ tintColor: tab === 2 ? Theme.accent : Theme.textSecondary }}
                             />
                             <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? Theme.accent : Theme.textSecondary }}>
                                 {t('home.settings')}

@@ -11,6 +11,7 @@ import { ZenPayAppComponent } from './ZenPayAppComponent';
 import { Theme } from '../../Theme';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
+import { ZenPayEnrolmentComponent } from './ZenPayEnrolmentComponent';
 
 export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -34,6 +35,9 @@ export const ZenPayAppFragment = fragment(() => {
                     token={status.token}
                     endpoint={'https://next.zenpay.org'}
                 />
+            )}
+            {status.state === 'need-enrolment' && (
+                <ZenPayEnrolmentComponent engine={engine} />
             )}
         </View>
     );

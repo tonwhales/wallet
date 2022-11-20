@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View, Text, Pressable, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { RoundButton } from "../../components/RoundButton";
+import { Engine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 
-export const ZenPayEnrolmentComponent = React.memo(() => {
+export const ZenPayEnrolmentComponent = React.memo(({ engine }: { engine: Engine }) => {
+    const safeArea = useSafeAreaInsets();
+    const onEnroll = useCallback(async () => {
+        // TODO: run in backoff
+        const res = await engine.products.zenPay.enroll();
+    }, []);
 
     return (
         <>
@@ -48,6 +56,25 @@ export const ZenPayEnrolmentComponent = React.memo(() => {
                         </View>
                     </>
                 )}
+                <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text>
+                        {'Needs enrollement'}
+                    </Text>
+
+                    <View
+                        style={{
+                            position: 'absolute', bottom: safeArea.bottom + 16, left: 0, right: 0, paddingHorizontal: 16
+                        }}
+                    >
+                        <RoundButton
+                            title={'Enroll'}
+                            action={onEnroll}
+                            style={{
+                                height: 56,
+                            }}
+                        />
+                    </View>
+                </View>
             </View>
         </>
     );

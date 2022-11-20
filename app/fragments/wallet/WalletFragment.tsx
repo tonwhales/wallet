@@ -31,63 +31,26 @@ import { useLinkNavigator } from '../../Navigation';
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
 
-const WalletTransactions = React.memo((props: {
+const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
     next: { lt: string, hash: string } | null,
     address: Address,
     engine: Engine,
     onPress: (tx: string) => void
 }) => {
-    const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: string[] }[] = [];
-        if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(props.txs[0].time);
-            sections.push({ title, items: lastSection });
-            for (let t of props.txs) {
-                let time = getDateKey(t.time);
-                if (lastTime !== time) {
-                    lastSection = [];
-                    lastTime = time;
-                    title = formatDate(t.time);
-                    sections.push({ title, items: lastSection });
-                }
-                lastSection.push(t.id);
-            }
-        }
-        return sections;
-    }, [props.txs]);
 
-    const components: any[] = [];
-    for (let s of transactionsSectioned) {
-        components.push(
-            <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
-            </View>
-        );
-        components.push(
-            < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
-            } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t} onPress={props.onPress} />)}
-            </View >
-        );
-    }
-
-    // Last
-    if (props.next) {
-        components.push(
-            <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
-                <LoadingIndicator simple={true} />
-            </View>
-        );
-    } else {
-        components.push(
-            <View key="footer" style={{ height: 64 }} />
-        );
-    }
-
-    return <>{components}</>;
+    return <>{props.txs.map((t, i) => {
+        return (
+            <TransactionView
+                key={'tx-' + t}
+                own={props.address}
+                engine={props.engine}
+                tx={t.id}
+                separator={i < props.txs.length - 1}
+                onPress={props.onPress}
+            />
+        )
+    })}</>;
 });
 
 function WalletComponent(props: { wallet: WalletState }) {
@@ -411,7 +374,17 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </TouchableHighlight>
                     </View>
                 </View>
-
+                {
+                    account.transactions.length > 0 && (
+                        <PendingTxs
+                            txs={account.pending}
+                            next={account.next}
+                            address={address}
+                            engine={engine}
+                            onPress={openTransactionFragment}
+                        />
+                    )
+                }
                 <ProductsComponent />
 
                 <View style={{ height: 56 + safeArea.bottom }} />

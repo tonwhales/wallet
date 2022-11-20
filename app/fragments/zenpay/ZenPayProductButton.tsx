@@ -126,7 +126,7 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
                         <View style={{
                             backgroundColor: Theme.accent,
                             borderRadius: 70,
-                            width: 50, height: 30,
+                            minWidth: 50, height: 30, paddingHorizontal: 8,
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}>

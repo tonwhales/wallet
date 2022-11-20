@@ -1,17 +1,15 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Image, LayoutAnimation, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
-import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from './views/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { ValueComponent } from '../../components/ValueComponent';
-import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import Animated, { Easing, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeInUp, FadeOutDown, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -211,6 +209,10 @@ function WalletComponent(props: { wallet: WalletState }) {
         navigation.navigate('Currency');
     }, []);
 
+    React.useLayoutEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [account.pending]);
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
@@ -387,8 +389,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </View>
                 </View>
 
-                {
-                    account.pending.length > 0 && (
+                {account.pending.length > 0 && Platform.OS === 'android' && (
+                    <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
                         <PendingTxs
                             txs={account.pending}
                             next={account.next}
@@ -396,8 +398,19 @@ function WalletComponent(props: { wallet: WalletState }) {
                             engine={engine}
                             onPress={openTransactionFragment}
                         />
-                    )
-                }
+                    </Animated.View>
+                )}
+
+                {account.pending.length > 0 && Platform.OS !== 'android' && (
+                    <PendingTxs
+                        txs={account.pending}
+                        next={account.next}
+                        address={address}
+                        engine={engine}
+                        onPress={openTransactionFragment}
+                    />
+                )}
+
                 <ProductsComponent />
 
                 <View style={{ height: 56 + safeArea.bottom }} />

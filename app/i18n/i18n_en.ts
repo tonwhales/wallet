@@ -71,7 +71,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         empty: {
             message: 'You have no transactions',
             receive: 'Receive TON'
-        }
+        },
+        pendingTransactions: 'Pending transactions',
     },
     transactions: {
         title: 'Transactions',

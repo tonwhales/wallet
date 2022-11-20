@@ -409,7 +409,11 @@ export class WalletProduct {
         }
 
         // Update
-        this.#state = { ...this.#state, transactions: [{ id: src.id, time: src.time }, ...this.#state.transactions] };
+        this.#state = {
+            ...this.#state,
+            transactions: [{ id: src.id, time: src.time }, ...this.#state.transactions],
+            pending: [{ id: src.id, time: src.time }, ...this.#state.pending],
+        };
         this.#pending.push(src);
         this.#txs.set(src.id, src);
 

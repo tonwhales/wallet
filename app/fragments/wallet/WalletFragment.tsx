@@ -38,19 +38,31 @@ const PendingTxs = React.memo((props: {
     engine: Engine,
     onPress: (tx: string) => void
 }) => {
-
-    return <>{props.txs.map((t, i) => {
-        return (
-            <TransactionView
-                key={'tx-' + t}
-                own={props.address}
-                engine={props.engine}
-                tx={t.id}
-                separator={i < props.txs.length - 1}
-                onPress={props.onPress}
-            />
-        )
-    })}</>;
+    return (
+        <>
+            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('wallet.pendingTransactions')}</Text>
+            </View>
+            {props.txs.map((t, i) => {
+                return (
+                    <View
+                        key={'tx-view' + t}
+                        style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }}
+                        collapsable={false}
+                    >
+                        <TransactionView
+                            key={'tx-' + t}
+                            own={props.address}
+                            engine={props.engine}
+                            tx={t.id}
+                            separator={i < props.txs.length - 1}
+                            onPress={props.onPress}
+                        />
+                    </View>
+                )
+            })}
+        </>
+    );
 });
 
 function WalletComponent(props: { wallet: WalletState }) {
@@ -374,8 +386,9 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </TouchableHighlight>
                     </View>
                 </View>
+
                 {
-                    account.transactions.length > 0 && (
+                    account.pending.length > 0 && (
                         <PendingTxs
                             txs={account.pending}
                             next={account.next}

@@ -18,7 +18,7 @@ import { startServerConfigSync } from "./startServerConfigSync";
 import { resolveLink } from "../../utils/resolveLink";
 import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
-import { startCorpSync } from "./startCorpSync";
+import { startZenPaySync } from "./startZenPaySync";
 import { startApySync } from "./startApySync";
 import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
 
@@ -185,10 +185,10 @@ export function startSync(engine: Engine) {
     });
 
     //
-    // Corp Sync
+    // ZenPay Sync
     //
 
     if (!AppConfig.isTestnet) {
-        startCorpSync(engine);
+        startZenPaySync(engine);
     }
 }

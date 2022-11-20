@@ -36,7 +36,6 @@ export const ProductsComponent = React.memo(() => {
             navigation.navigate('App', { url });
         }
     }, []);
-    const corpStatus = engine.products.corp.use();
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];
@@ -102,9 +101,9 @@ export const ProductsComponent = React.memo(() => {
     products.push(<StakingProductComponent key={'pool'} />);
 
     cards.map((c) => {
-        products.push(<ZenPayProductButton engine={engine} cardNumber={c} />)
+        products.push(<ZenPayProductButton card={c} />)
     });
-    products.push(<ZenPayProductButton engine={engine} />)
+    products.push(<ZenPayProductButton />)
 
     // if (__DEV__) {
 

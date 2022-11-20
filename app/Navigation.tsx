@@ -55,7 +55,6 @@ import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
 import { LogoutFragment } from './fragments/LogoutFragment';
-import { CorpFragment } from './fragments/corp/CorpFragment';
 import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
@@ -170,7 +169,6 @@ const navigation = [
     modalScreen('StakingGraph', StakingGraphFragment),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
-    modalScreen('Corp', CorpFragment),
     modalScreen('Accounts', AccountsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),
     modalScreen('Currency', CurrencyFragment),

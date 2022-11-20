@@ -10,15 +10,15 @@ import { useEngine } from '../../engine/Engine';
 import { ZenPayAppComponent } from './ZenPayAppComponent';
 import { Theme } from '../../Theme';
 import { useParams } from '../../utils/useParams';
+import { t } from '../../i18n/t';
+
+export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
 export const ZenPayAppFragment = fragment(() => {
     const engine = useEngine();
-    const params = useParams<{ cardNumber: string, type: 'card' } | { type: 'account' }>();
+    const params = useParams<ZenPayAppParams>();
     const safeArea = useSafeAreaInsets();
-    // const key = engine.products.keys.getDomainKey(domain);
-    // if (!appData) {
-    //     throw Error('No App Data');
-    // }
+    const status = engine.products.zenPay.useStatus();
     return (
         <View style={{
             flex: 1,
@@ -27,7 +27,14 @@ export const ZenPayAppFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 
-            <ZenPayAppComponent variant={params}/>
+            {status.state !== 'need-enrolment' && (
+                <ZenPayAppComponent
+                    title={t('products.zenPay.title')}
+                    variant={params}
+                    token={status.token}
+                    endpoint={'https://next.zenpay.org'}
+                />
+            )}
         </View>
     );
 });

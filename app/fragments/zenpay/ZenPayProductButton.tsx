@@ -4,22 +4,22 @@ import React, { useCallback } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
+import { ZenPayCard } from "../../engine/corp/ZenPayProduct";
 import { Engine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
-export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine: Engine, cardNumber?: string }) => {
+export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) => {
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
-    const card = engine.products.zenPay.useCard(cardNumber);
 
     const onPress = useCallback(
         () => {
-            navigation.navigateZenPay(cardNumber? { type: 'card', cardNumber } : { type: 'account' });
+            navigation.navigateZenPay(card ? { type: 'card', id: card.id } : { type: 'account' });
         },
-        [cardNumber],
+        [card],
     );
 
     return (
@@ -39,12 +39,12 @@ export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine:
                             <LinearGradient
                                 start={vec(0, 0)}
                                 end={vec(34, 46)}
-                                colors={card?.colors ?? ['#333A5A', "#A7AFD3"]}
+                                colors={card ? ['#EA7509', '#E9A904'] : ['#333A5A', "#A7AFD3"]}
                             />
                         </Rect>
                     </Canvas>
                     <Text style={{ color: 'white', fontSize: 10, marginHorizontal: 4, marginTop: 2 }} numberOfLines={2}>
-                        {cardNumber?.slice(cardNumber.length - 4, cardNumber.length) ?? 'Zen Pay'}
+                        {card?.id?.slice(card?.id.length - 4, card?.id.length) ?? 'Zen Pay'}
                     </Text>
                     {!card && (
                         <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
@@ -52,7 +52,7 @@ export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine:
                     {card && card.type === 'virtual' && (
                         <Image source={require('../../../assets/ic_virtual_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
-                    {card && card.type === 'debit' && (
+                    {card && card.type === 'physical' && (
                         <Image source={require('../../../assets/ic_visa_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                 </View>
@@ -60,11 +60,11 @@ export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine:
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
                             <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
-                                {card?.name ?? t('products.zenPay.card.defaultTitle')}
+                                {t('products.zenPay.card.defaultTitle')}
                             </Text>
-                            {!!card?.value && (
+                            {!!card && card.balance && (
                                 <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
-                                    <ValueComponent value={card.value} />{' TON'}
+                                    <ValueComponent value={card.balance} />{' TON'}
                                 </Text>
                             )}
                         </View>
@@ -85,10 +85,10 @@ export const ZenPayProductButton = React.memo(({ engine, cardNumber }: { engine:
                                     </Text>
                                 )}
                             </Text>
-                            {!!card?.value &&
+                            {!!card &&
                                 (
                                     <PriceComponent
-                                        amount={card.value}
+                                        amount={card.balance}
                                         style={{
                                             backgroundColor: 'transparent',
                                             paddingHorizontal: 0, paddingVertical: 0,

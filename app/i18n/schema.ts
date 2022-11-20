@@ -347,7 +347,7 @@ export type LocalizationSchema = {
                 defaultSubtitle: string,
                 defaultTitle: string,
                 type: {
-                    debit: string,
+                    physical: string,
                     virtual: string,
                 }
             }

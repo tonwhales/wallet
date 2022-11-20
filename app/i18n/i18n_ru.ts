@@ -346,7 +346,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 defaultSubtitle: 'Только для EU',
                 defaultTitle: 'ZenPay Card',
                 type: {
-                    debit: 'Дебетовая',
+                    physical: 'Дебетовая',
                     virtual: 'Виртуальная',
                 }
             }

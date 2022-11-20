@@ -12,6 +12,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
+import { SnackBar } from '../../components/SnackBar';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -76,6 +77,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                     </View>
+                    <SnackBar />
                 </View>
             </View>
         </View>

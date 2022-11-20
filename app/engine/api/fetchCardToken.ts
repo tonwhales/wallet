@@ -16,7 +16,7 @@ export async function fetchCardToken(config: {
 }): Promise<string> {
     let res = await axios.post('https://card.whales-api.com/account/connect', {
         stack: 'ton',
-        network: AppConfig.isTestnet ? 'ton-sandbox' : 'ton-mainnet',
+        network: AppConfig.isTestnet ? 'ton-testnet' : 'ton-mainnet',
         key: {
             kind: 'ton-x-lite',
             config

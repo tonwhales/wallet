@@ -5,6 +5,7 @@ import BN from 'bn.js';
 import { Order } from '../fragments/secure/ops/Order';
 import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import { ZenPayAppParams } from '../fragments/zenpay/ZenPayAppFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -105,7 +106,7 @@ export class TypedNavigation {
         this.navigate('StakingCalculator', params);
     }
 
-    navigateZenPay(params: { cardNumber: string, type: 'card' } | { type: 'account' }) {
+    navigateZenPay(params: ZenPayAppParams) {
         this.navigate('ZenPay', params);
     }
 }

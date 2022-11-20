@@ -143,6 +143,12 @@ const WalletTransactions = React.memo((props: {
                     </View>
                 );
             }}
+            ListFooterComponent={() => {
+                if (Platform.OS === 'ios') return null;
+                return (
+                    <View style={{ height: 32 }} />
+                )
+            }}
             onEndReached={() => {
                 console.log('onEndReached');
                 props.onLoadMore();

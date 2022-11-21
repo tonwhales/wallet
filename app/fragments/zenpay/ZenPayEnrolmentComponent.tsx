@@ -17,7 +17,6 @@ import { openWithInApp } from "../../utils/openWithInApp";
 export const ZenPayEnrolmentComponent = React.memo(({ engine, endpoint }: { engine: Engine, endpoint: string }) => {
     const safeArea = useSafeAreaInsets();
     const onEnroll = useCallback(async () => {
-        // TODO: run in backoff
         const domain = extractDomain(endpoint);
         const res = await engine.products.zenPay.enroll(domain);
         console.log({ res })

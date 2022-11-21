@@ -4,6 +4,7 @@ import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
 import { fetchAccountState } from "../api/fetchCardState";
 import { fetchAccountToken } from "../api/zenpay/fetchAccountToken";
+import { fetchCardList } from "../api/zenpay/fetchCardList";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 
@@ -121,22 +122,23 @@ export class ZenPayProduct {
 
     async doSync() {
         await this.#lock.inLock(async () => {
-            let target = this.engine.persistence.zenPayStatus.item(this.engine.address);
-            let status: ZenPayAccountStatus | null = target.value;
+            let targetStatus = this.engine.persistence.zenPayStatus.item(this.engine.address);
+            let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
+            let status: ZenPayAccountStatus | null = targetStatus.value;
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
                 const existing = await this.engine.cloud.readKey('zenpay-token');
                 console.log({ existing });
                 if (existing) {
-                    target.update((src) => {
+                    targetStatus.update((src) => {
                         if (!src || src.state === 'need-enrolment') {
                             return { state: 'need-phone', token: existing.toString() };
                         }
                         return src;
                     });
                 } else {
-                    target.update((src) => {
+                    targetStatus.update((src) => {
                         if (!src) {
                             return { state: 'need-enrolment' };
                         }
@@ -144,7 +146,7 @@ export class ZenPayProduct {
                     });
                 }
 
-                status = target.value!;
+                status = targetStatus.value!;
             }
 
             // Update state from server
@@ -153,7 +155,7 @@ export class ZenPayProduct {
                 console.log({ token });
                 let state = await fetchAccountState(token);
                 console.log({ state });
-                target.update((src) => {
+                targetStatus.update((src) => {
                     if (state.state === 'need-phone') {
                         if (src!.state !== 'need-phone') {
                             return { state: 'need-phone', token: token };
@@ -171,6 +173,29 @@ export class ZenPayProduct {
                     }
                     return src;
                 });
+            }
+
+            // Update accounts
+            if (status.state === 'ready') {
+                const token = status.token;
+                console.log({ token });
+                try {
+                    let listRes = await fetchCardList(token);
+                    targetAccounts.update((src) => {
+                        return {
+                            accounts: listRes.map((account) => ({
+                                id: account.id,
+                                address: account.address,
+                                state: account.state,
+                                balance: new BN(account.balance),
+                                type: 'virtual'
+                            }))
+                        };
+                    });
+
+                } catch (e) {
+                    console.warn(e);
+                }
             }
         });
     }

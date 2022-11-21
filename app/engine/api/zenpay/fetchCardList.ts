@@ -23,10 +23,9 @@ export const cardListCodec = t.union([
 export async function fetchCardList(token: string) {
   let res = await axios.post(
     'https://' + zenPayEndpoint + '/card/list',
-    undefined,
+    { token: token, },
     {
       headers: {
-        token: token,
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "*",

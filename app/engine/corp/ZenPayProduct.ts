@@ -7,6 +7,7 @@ import { fetchAccountToken } from "../api/zenpay/fetchAccountToken";
 import { fetchCardList } from "../api/zenpay/fetchCardList";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
+import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
@@ -45,6 +46,7 @@ export class ZenPayProduct {
     readonly #status;
     readonly #accountsState;
     readonly #lock = new AsyncLock();
+    watcher: null | (() => void) = null;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -120,10 +122,42 @@ export class ZenPayProduct {
         return useRecoilValue(this.#accountsState).accounts;
     }
 
+    // Update accounts
+    async syncAccounts() {
+        let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
+        let status: ZenPayAccountStatus = this.engine.persistence.zenPayStatus.item(this.engine.address).value || { state: 'need-enrolment' };
+        if (status.state === 'ready') {
+            const token = status.token;
+            console.log({ token });
+            try {
+                let listRes = await fetchCardList(token);
+                targetAccounts.update((src) => {
+                    return {
+                        accounts: listRes.map((account) => ({
+                            id: account.id,
+                            address: account.address,
+                            state: account.state,
+                            balance: new BN(account.balance),
+                            type: 'virtual'
+                        }))
+                    };
+                });
+
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+    }
+
+    watch(token: string) {
+        this.watcher = watchZenPayAccountUpdates(token, () => {
+            this.syncAccounts();
+        });
+    }
+
     async doSync() {
         await this.#lock.inLock(async () => {
             let targetStatus = this.engine.persistence.zenPayStatus.item(this.engine.address);
-            let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
             let status: ZenPayAccountStatus | null = targetStatus.value;
 
             // If not enrolled locally
@@ -140,6 +174,10 @@ export class ZenPayProduct {
                 } else {
                     targetStatus.update((src) => {
                         if (!src) {
+                            if (this.watcher) {
+                                this.watcher();
+                                this.watcher = null;
+                            }
                             return { state: 'need-enrolment' };
                         }
                         return src;
@@ -175,27 +213,10 @@ export class ZenPayProduct {
                 });
             }
 
-            // Update accounts
-            if (status.state === 'ready') {
-                const token = status.token;
-                console.log({ token });
-                try {
-                    let listRes = await fetchCardList(token);
-                    targetAccounts.update((src) => {
-                        return {
-                            accounts: listRes.map((account) => ({
-                                id: account.id,
-                                address: account.address,
-                                state: account.state,
-                                balance: new BN(account.balance),
-                                type: 'virtual'
-                            }))
-                        };
-                    });
+            await this.syncAccounts();
 
-                } catch (e) {
-                    console.warn(e);
-                }
+            if (status.state !== 'need-enrolment' && !this.watcher) {
+                this.watch(status.token);
             }
         });
     }

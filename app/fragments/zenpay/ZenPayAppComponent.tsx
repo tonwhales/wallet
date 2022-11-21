@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, View, Text, Pressable } from 'react-native';
+import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,10 +30,18 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         return Date.now();
     }, []);
     const close = React.useCallback(() => {
-        navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { type: props.variant.type, duration: Date.now() - start });
+        Alert.alert(t('products.zenPay.confirm.title'), t('products.zenPay.confirm.message'), [{
+            text: t('common.close'),
+            style: 'destructive',
+            onPress: () => {
+                navigation.goBack();
+                trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
+            }
+        }, {
+            text: t('common.cancel'),
+        }]);
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.variant.type });
+    useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
 
     //
     // View
@@ -95,6 +103,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         const walletConfig = contract.source.backup();
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);
+        console.log({ domain });
 
         let domainSign = engine.products.keys.createDomainSignature(domain);
 

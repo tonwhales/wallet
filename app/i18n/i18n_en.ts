@@ -349,6 +349,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     physical: 'Debit',
                     virtual: 'Virtual',
                 }
+            },
+            confirm: {
+                title: 'Are you sure want to close this screen?',
+                message: 'This will discard all of you changes'
             }
         }
     },

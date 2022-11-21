@@ -350,6 +350,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                     physical: 'Дебетовая',
                     virtual: 'Виртуальная',
                 }
+            },
+            confirm: {
+                title: 'Вы уверены, что хотите закрыть этот экран?',
+                message: 'Это отменит все ваши изменения'
             }
         }
     },

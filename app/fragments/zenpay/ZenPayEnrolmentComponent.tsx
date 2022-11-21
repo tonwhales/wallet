@@ -1,17 +1,35 @@
 import React, { useCallback } from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MixpanelEvent, trackEvent, useTrackEvent } from "../../analytics/mixpanel";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { Engine } from "../../engine/Engine";
+import { extractDomain } from "../../engine/utils/extractDomain";
 import { t } from "../../i18n/t";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
-export const ZenPayEnrolmentComponent = React.memo(({ engine }: { engine: Engine }) => {
+export const ZenPayEnrolmentComponent = React.memo(({ engine, endpoint }: { engine: Engine, endpoint: string }) => {
     const safeArea = useSafeAreaInsets();
     const onEnroll = useCallback(async () => {
         // TODO: run in backoff
-        const res = await engine.products.zenPay.enroll();
+        const domain = extractDomain(endpoint);
+        const res = await engine.products.zenPay.enroll(domain);
+        console.log({ res })
     }, []);
+
+    // 
+    // Track events
+    // 
+    const navigation = useTypedNavigation();
+    const start = React.useMemo(() => {
+        return Date.now();
+    }, []);
+    const close = React.useCallback(() => {
+        navigation.goBack();
+        trackEvent(MixpanelEvent.ZenPayEnrollmentClose, { duration: Date.now() - start });
+    }, []);
+    useTrackEvent(MixpanelEvent.ZenPayEnrollment);
 
     return (
         <>

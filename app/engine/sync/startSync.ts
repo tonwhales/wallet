@@ -188,7 +188,7 @@ export function startSync(engine: Engine) {
     // ZenPay Sync
     //
 
-    if (!AppConfig.isTestnet) {
+    if (AppConfig.isTestnet) {
         startZenPaySync(engine);
     }
 }

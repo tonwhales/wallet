@@ -28,6 +28,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const engine = useEngine();
     const counter = React.useMemo(() => engine.cloud.counter('counter.sample'), []);
     const counterValue = counter.use().counter;
+    const status = engine.products.zenPay.useStatus();
 
     // const isTestNet = useTestnet();
     // const switchNetwork = React.useCallback(() => {

@@ -2,12 +2,13 @@ import BN from "bn.js";
 import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
-import { fetchCardState } from "../api/fetchCardState";
-import { fetchCardToken } from "../api/fetchCardToken";
+import { fetchAccountState } from "../api/fetchCardState";
+import { fetchAccountToken } from "../api/zenpay/fetchAccountToken";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 
-export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
+// export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
+export const zenPayEndpoint = 'card-staging.whales-api.com';
 
 export type ZenPayAccountStatus =
     | {
@@ -41,7 +42,7 @@ export type ZenPayState = {
 export class ZenPayProduct {
     readonly engine: Engine;
     readonly #status;
-    readonly #state;
+    readonly #accountsState;
     readonly #lock = new AsyncLock();
 
     constructor(engine: Engine) {
@@ -55,7 +56,7 @@ export class ZenPayProduct {
                 return status;
             }
         });
-        this.#state = selector<ZenPayState>({
+        this.#accountsState = selector<ZenPayState>({
             key: 'zenpay/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/state',
             get: ({ get }) => {
                 // Get state
@@ -65,10 +66,10 @@ export class ZenPayProduct {
         })
     }
 
-    async enroll() {
-
+    async enroll(domain: string) {
         let res = await (async () => {
-            let existing = await this.engine.cloud.readKey('zen-pay-token');
+            let existing = await this.engine.cloud.readKey('zenpay-token');
+            console.log('zenpay', { existing });
             if (existing) {
                 return true;
             } else {
@@ -77,7 +78,8 @@ export class ZenPayProduct {
                 // Create domain key if needed
                 //
 
-                let created = await this.engine.products.keys.createDomainKeyIfNeeded('card.whales-api.com');
+                let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain);
+                console.log('zenpay', { created });
                 if (!created) {
                     return false;
                 }
@@ -87,8 +89,8 @@ export class ZenPayProduct {
                 //
 
                 let contract = contractFromPublicKey(this.engine.publicKey);
-                let signed = this.engine.products.keys.createDomainSignature('card.whales-api.com');
-                let token = await fetchCardToken({
+                let signed = this.engine.products.keys.createDomainSignature(domain);
+                let token = await fetchAccountToken({
                     address: contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     walletConfig: contract.source.backup(),
                     walletType: contract.source.type,
@@ -96,7 +98,8 @@ export class ZenPayProduct {
                     signature: signed.signature,
                     subkey: signed.subkey
                 });
-                await this.engine.cloud.update('zen-pay-token', () => Buffer.from(token));
+                console.log('zenpay', { token });
+                await this.engine.cloud.update('zenpay-token', () => Buffer.from(token));
             }
 
             return true;
@@ -113,7 +116,7 @@ export class ZenPayProduct {
     }
 
     useCards() {
-        return useRecoilValue(this.#state).accounts;
+        return useRecoilValue(this.#accountsState).accounts;
     }
 
     async doSync() {
@@ -123,7 +126,8 @@ export class ZenPayProduct {
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
-                const existing = await this.engine.cloud.readKey('zen-pay-token');
+                const existing = await this.engine.cloud.readKey('zenpay-token');
+                console.log({ existing });
                 if (existing) {
                     target.update((src) => {
                         if (!src || src.state === 'need-enrolment') {
@@ -146,7 +150,9 @@ export class ZenPayProduct {
             // Update state from server
             if (status.state !== 'need-enrolment') {
                 const token = status.token;
-                let state = await fetchCardState(token);
+                console.log({ token });
+                let state = await fetchAccountState(token);
+                console.log({ state });
                 target.update((src) => {
                     if (state.state === 'need-phone') {
                         if (src!.state !== 'need-phone') {

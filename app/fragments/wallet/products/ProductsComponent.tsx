@@ -100,32 +100,12 @@ export const ProductsComponent = React.memo(() => {
 
     products.push(<StakingProductComponent key={'pool'} />);
 
-    cards.map((c) => {
-        products.push(<ZenPayProductButton card={c} />)
-    });
-    products.push(<ZenPayProductButton />)
-
-    // if (__DEV__) {
-
-    //     console.log('sss', corpStatus);
-
-    //     let statusText = 'Begin enrollment';
-    //     if (corpStatus.status === 'need-kyc' || corpStatus.status === 'need-phone') {
-    //         statusText = 'Continue enrollment';
-    //     } else if (corpStatus.status === 'ready') {
-    //         statusText = 'Press to view your crypto card';
-    //     }
-
-    //     apps.push(
-    //         <ProductButton
-    //             key={"card"}
-    //             name="Cryptocard"
-    //             subtitle={statusText}
-    //             value={null}
-    //             onPress={() => navigation.navigate('Corp')}
-    //         />
-    //     );
-    // }
+    if (AppConfig.isTestnet) {
+        cards.map((c) => {
+            products.push(<ZenPayProductButton card={c} />)
+        });
+        products.push(<ZenPayProductButton />)
+    }
 
     return (
         <View style={{ paddingTop: 8 }}>

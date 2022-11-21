@@ -3,9 +3,6 @@ import { fragment } from '../../fragment';
 import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Color from 'color';
-import { useRoute } from '@react-navigation/native';
-import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
 import { ZenPayAppComponent } from './ZenPayAppComponent';
 import { Theme } from '../../Theme';
@@ -20,6 +17,7 @@ export const ZenPayAppFragment = fragment(() => {
     const params = useParams<ZenPayAppParams>();
     const safeArea = useSafeAreaInsets();
     const status = engine.products.zenPay.useStatus();
+
     return (
         <View style={{
             flex: 1,
@@ -37,7 +35,7 @@ export const ZenPayAppFragment = fragment(() => {
                 />
             )}
             {status.state === 'need-enrolment' && (
-                <ZenPayEnrolmentComponent engine={engine} />
+                <ZenPayEnrolmentComponent engine={engine} endpoint={'https://next.zenpay.org'} />
             )}
         </View>
     );

@@ -351,6 +351,10 @@ export type LocalizationSchema = {
                     physical: string,
                     virtual: string,
                 }
+            },
+            confirm: {
+                title: string,
+                message: string,
             }
         }
     }

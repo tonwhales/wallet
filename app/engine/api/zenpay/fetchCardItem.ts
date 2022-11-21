@@ -13,7 +13,7 @@ export const cardItemCodec = t.type({
 });
 
 export async function fetchCardItem(id: string) {
-  let res = await axios.post(zenPayEndpoint + "/card/get", { id });
+  let res = await axios.post('https://' + zenPayEndpoint + "/card/get", { id });
 
   if (!cardItemCodec.is(res.data)) {
     throw Error("Invalid card item response");

@@ -159,6 +159,8 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
 
     }, []);
 
+    console.log({ endpoint: props.endpoint });
+
     return (
         <>
             <View style={{ backgroundColor: 'white', flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -204,7 +206,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                 )}
                 <WebView
                     ref={webRef}
-                    source={{ uri: 'https://next.zenpay.org' }}
+                    source={{ uri: props.endpoint }}
                     startInLoadingState={true}
                     style={{ backgroundColor: 'white', flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {

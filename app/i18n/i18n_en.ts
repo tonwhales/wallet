@@ -353,6 +353,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             confirm: {
                 title: 'Are you sure want to close this screen?',
                 message: 'This will discard all of you changes'
+            },
+            enroll: {
+                poweredBy: 'Powered by ZenPay',
+                description_1: 'Use this card for online transactions in all Europe',
+                description_2: 'Add it to Apple Pay to pay in-store using your Apple Devices',
+                description_3: 'Simple KYC verification and card issuance in 5 minutes',
+                moreInfo: 'More about ZenPay Card',
             }
         }
     },

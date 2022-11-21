@@ -355,6 +355,13 @@ export type LocalizationSchema = {
             confirm: {
                 title: string,
                 message: string,
+            },
+            enroll: {
+                poweredBy: string,
+                description_1: string,
+                description_2: string,
+                description_3: string,
+                moreInfo: string,
             }
         }
     }

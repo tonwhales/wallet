@@ -192,7 +192,6 @@ export class ZenPayProduct {
                 const token = status.token;
                 console.log({ token });
                 let state = await fetchAccountState(token);
-                console.log({ state });
                 targetStatus.update((src) => {
                     if (state.state === 'need-phone') {
                         if (src!.state !== 'need-phone') {

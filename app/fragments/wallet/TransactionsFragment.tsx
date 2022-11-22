@@ -164,8 +164,10 @@ const WalletTransactions = React.memo((props: {
                 return <View style={{ height: 32 }} />;
             }}
             onEndReached={() => {
-                setLoadingMore(true);
-                props.onLoadMore();
+                if (props.next) {
+                    setLoadingMore(true);
+                    props.onLoadMore();
+                }
             }}
             onEndReachedThreshold={0.5}
         />

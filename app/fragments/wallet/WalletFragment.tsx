@@ -211,7 +211,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     React.useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [account.pending]);
+    }, [account.pending.length]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>

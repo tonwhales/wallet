@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Platform, View, Text, Pressable } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -29,8 +29,7 @@ const WalletTransactions = React.memo((props: {
     onLoadMore: () => void,
 }) => {
     const animRef = React.useRef<LottieView>(null);
-
-    console.log({ frame: props.frameArea });
+    const [loadingMore, setLoadingMore] = useState(false);
 
     const transactionsSectioned = React.useMemo(() => {
         let res: (string | { id: string, position?: 'first' | 'last' | 'single' })[] = [];
@@ -65,6 +64,10 @@ const WalletTransactions = React.memo((props: {
             }));
         }
         return res;
+    }, [props.txs]);
+
+    useEffect(() => {
+        setLoadingMore(false);
     }, [props.txs]);
 
     return (
@@ -150,29 +153,21 @@ const WalletTransactions = React.memo((props: {
                 );
             }}
             ListFooterComponent={() => {
+                if (loadingMore) {
+                    return (
+                        <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
+                            <LoadingIndicator simple={true} />
+                        </View>
+                    );
+                }
                 if (Platform.OS === 'ios') return null;
-                return (
-                    <View style={{ height: 32 }} />
-                )
+                return <View style={{ height: 32 }} />;
             }}
             onEndReached={() => {
-                console.log('onEndReached');
+                setLoadingMore(true);
                 props.onLoadMore();
             }}
             onEndReachedThreshold={0.5}
-        // ListFooterComponent={() => {
-        //     if (props.next) {
-        //         return (
-        //             <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
-        //                 <LoadingIndicator simple={true} />
-        //             </View>
-        //         );
-        //     } else {
-        //         return (
-        //             <View key="footer" style={{ height: 64 }} />
-        //         );
-        //     }
-        // }}
         />
     );
 });

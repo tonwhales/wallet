@@ -1,6 +1,6 @@
 import React from "react";
 import { Platform, View, Text, Pressable } from "react-native";
-import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
+import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { Engine, useEngine } from "../../engine/Engine";
 import { WalletState } from "../../engine/products/WalletProduct";
@@ -25,9 +25,12 @@ const WalletTransactions = React.memo((props: {
     navigation: TypedNavigation,
     onTxPress: (tx: string) => void,
     safeArea: EdgeInsets,
+    frameArea: Rect,
     onLoadMore: () => void,
 }) => {
     const animRef = React.useRef<LottieView>(null);
+
+    console.log({ frame: props.frameArea });
 
     const transactionsSectioned = React.useMemo(() => {
         let res: (string | { id: string, position?: 'first' | 'last' | 'single' })[] = [];
@@ -117,30 +120,33 @@ const WalletTransactions = React.memo((props: {
             estimatedItemSize={62}
             ListEmptyComponent={() => {
                 return (
-                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                        <Pressable
-                            onPress={() => {
-                                animRef.current?.play();
-                            }}>
-                            <LottieView
-                                ref={animRef}
-                                source={require('../../../assets/animations/duck.json')}
-                                autoPlay={true}
-                                loop={false}
-                                progress={0.2}
-                                style={{ width: 192, height: 192 }}
+                    <>
+                        <View style={{ height: (props.frameArea.height - 192 - (props.safeArea.top + 44) - (52 + props.safeArea.bottom) - 16 - 17) / 2 }} />
+                        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                            <Pressable
+                                onPress={() => {
+                                    animRef.current?.play();
+                                }}>
+                                <LottieView
+                                    ref={animRef}
+                                    source={require('../../../assets/animations/duck.json')}
+                                    autoPlay={true}
+                                    loop={false}
+                                    progress={0.2}
+                                    style={{ width: 192, height: 192 }}
+                                />
+                            </Pressable>
+                            <Text style={{ fontSize: 16, color: '#7D858A' }}>
+                                {t('wallet.empty.message')}
+                            </Text>
+                            <RoundButton
+                                title={t('wallet.empty.receive')}
+                                size="normal"
+                                display="text"
+                                onPress={() => props.navigation.navigate('Receive')}
                             />
-                        </Pressable>
-                        <Text style={{ fontSize: 16, color: '#7D858A' }}>
-                            {t('wallet.empty.message')}
-                        </Text>
-                        <RoundButton
-                            title={t('wallet.empty.receive')}
-                            size="normal"
-                            display="text"
-                            onPress={() => props.navigation.navigate('Receive')}
-                        />
-                    </View>
+                        </View>
+                    </>
                 );
             }}
             ListFooterComponent={() => {
@@ -174,6 +180,7 @@ const WalletTransactions = React.memo((props: {
 function TransactionsComponent(props: { wallet: WalletState }) {
     // Dependencies
     const safeArea = useSafeAreaInsets();
+    const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
@@ -203,20 +210,17 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-            {
-                account.transactions.length > 0 && (
-                    <WalletTransactions
-                        txs={account.transactions}
-                        next={account.next}
-                        address={address}
-                        engine={engine}
-                        onTxPress={openTransactionFragment}
-                        navigation={navigation}
-                        safeArea={safeArea}
-                        onLoadMore={onReachedEnd}
-                    />
-                )
-            }
+            <WalletTransactions
+                txs={account.transactions}
+                next={account.next}
+                address={address}
+                engine={engine}
+                onTxPress={openTransactionFragment}
+                navigation={navigation}
+                safeArea={safeArea}
+                onLoadMore={onReachedEnd}
+                frameArea={frameArea}
+            />
             {/* iOS Toolbar */}
             {
                 Platform.OS === 'ios' && (

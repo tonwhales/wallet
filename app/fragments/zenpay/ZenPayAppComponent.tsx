@@ -163,7 +163,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
 
     return (
         <>
-            <View style={{ backgroundColor: 'white', flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <AndroidToolbar pageTitle={t('products.zenPay.title')} />
                 {Platform.OS === 'ios' && (
                     <>
@@ -175,7 +175,8 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             flexDirection: 'row',
                             marginTop: 14,
                             paddingHorizontal: 15,
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            paddingBottom: 8
                         }}>
                             <Pressable
                                 style={({ pressed }) => {
@@ -208,7 +209,12 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                     ref={webRef}
                     source={{ uri: props.endpoint }}
                     startInLoadingState={true}
-                    style={{ backgroundColor: 'white', flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                    style={{
+                        backgroundColor: Theme.background,
+                        flexGrow: 1, flexBasis: 0,
+                        alignSelf: 'stretch',
+                        marginTop: Platform.OS === 'ios' ? 0 : 8,
+                    }}
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;

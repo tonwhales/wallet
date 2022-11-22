@@ -6,7 +6,7 @@ import { mixpanel, MixpanelEvent, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { useEngine } from "../engine/Engine";
+import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
@@ -15,10 +15,16 @@ import { Theme } from "../Theme";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 
+function clearZenPay(engine: Engine) {
+    const zenPayDomain = extractDomain('https://next.zenpay.org');
+    engine.persistence.domainKeys.setValue(zenPayDomain, null);
+    engine.persistence.zenPayState.setValue(engine.address, null);
+    engine.products.zenPay.stopWatching();
+}
+
 export const LogoutFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const zenPayDomain = extractDomain('https://next.zenpay.org');
     const reboot = useReboot();
     const engine = useEngine();
 
@@ -35,7 +41,7 @@ export const LogoutFragment = fragment(() => {
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
                         storage.clearAll();
-                        engine.persistence.domainKeys.setValue(zenPayDomain, null);
+                        clearZenPay(engine);
                         mixpanel.reset(); // Clear super properties and generates a new random distinctId
                         trackEvent(MixpanelEvent.Reset);
                         mixpanel.flush();
@@ -50,7 +56,7 @@ export const LogoutFragment = fragment(() => {
                 [{
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
                         storage.clearAll();
-                        engine.persistence.domainKeys.setValue(zenPayDomain, null);
+                        clearZenPay(engine);
                         mixpanel.reset(); // Clear super properties and generates a new random distinctId
                         trackEvent(MixpanelEvent.Reset);
                         mixpanel.flush();

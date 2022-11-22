@@ -149,6 +149,13 @@ export class ZenPayProduct {
         }
     }
 
+    stopWatching() {
+        if (this.watcher) {
+            this.watcher();
+            this.watcher = null;
+        }
+    }
+
     watch(token: string) {
         this.watcher = watchZenPayAccountUpdates(token, () => {
             this.syncAccounts();
@@ -174,10 +181,7 @@ export class ZenPayProduct {
                 } else {
                     targetStatus.update((src) => {
                         if (!src) {
-                            if (this.watcher) {
-                                this.watcher();
-                                this.watcher = null;
-                            }
+                            this.stopWatching();
                             return { state: 'need-enrolment' };
                         }
                         return src;
@@ -214,7 +218,7 @@ export class ZenPayProduct {
 
             await this.syncAccounts();
 
-            if (status.state !== 'need-enrolment' && !this.watcher) {
+            if (status.state === 'ready' && !this.watcher) {
                 this.watch(status.token);
             }
         });

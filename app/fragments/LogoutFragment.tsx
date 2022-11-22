@@ -7,6 +7,7 @@ import { AndroidToolbar } from "../components/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
+import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { storage } from "../storage/storage";
@@ -33,6 +34,8 @@ export const LogoutFragment = fragment(() => {
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
                         storage.clearAll();
+                        const zenPayDomain = extractDomain('https://next.zenpay.org');
+                        engine.persistence.domainKeys.setValue(zenPayDomain, null);
                         mixpanel.reset(); // Clear super properties and generates a new random distinctId
                         trackEvent(MixpanelEvent.Reset);
                         mixpanel.flush();

@@ -18,6 +18,8 @@ export const ZenPayEnrolmentComponent = React.memo(({ engine, endpoint }: { engi
     const safeArea = useSafeAreaInsets();
     const onEnroll = useCallback(async () => {
         const domain = extractDomain(endpoint);
+        const keys = engine.persistence.domainKeys.getValue(domain);
+        console.log({ keys });
         const res = await engine.products.zenPay.enroll(domain);
         console.log({ res })
     }, []);

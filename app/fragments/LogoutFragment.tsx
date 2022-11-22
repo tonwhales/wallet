@@ -18,6 +18,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 export const LogoutFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const zenPayDomain = extractDomain('https://next.zenpay.org');
     const reboot = useReboot();
     const engine = useEngine();
 
@@ -34,7 +35,6 @@ export const LogoutFragment = fragment(() => {
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
                         storage.clearAll();
-                        const zenPayDomain = extractDomain('https://next.zenpay.org');
                         engine.persistence.domainKeys.setValue(zenPayDomain, null);
                         mixpanel.reset(); // Clear super properties and generates a new random distinctId
                         trackEvent(MixpanelEvent.Reset);
@@ -50,6 +50,7 @@ export const LogoutFragment = fragment(() => {
                 [{
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
                         storage.clearAll();
+                        engine.persistence.domainKeys.setValue(zenPayDomain, null);
                         mixpanel.reset(); // Clear super properties and generates a new random distinctId
                         trackEvent(MixpanelEvent.Reset);
                         mixpanel.flush();

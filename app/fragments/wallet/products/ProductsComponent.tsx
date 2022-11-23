@@ -102,9 +102,9 @@ export const ProductsComponent = React.memo(() => {
 
     if (AppConfig.isTestnet) {
         cards.map((c) => {
-            products.push(<ZenPayProductButton card={c} />)
+            products.push(<ZenPayProductButton key={c.id} card={c} />)
         });
-        products.push(<ZenPayProductButton />)
+        products.push(<ZenPayProductButton key={'zenpay-add'} />)
     }
 
     return (

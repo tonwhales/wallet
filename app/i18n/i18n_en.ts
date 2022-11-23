@@ -343,7 +343,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         zenPay: {
             title: 'ZenPay Card',
             card: {
-                defaultSubtitle: 'Only for EU',
+                defaultSubtitle: 'For EU resident',
                 defaultTitle: 'ZenPay Card',
                 type: {
                     physical: 'Debit',

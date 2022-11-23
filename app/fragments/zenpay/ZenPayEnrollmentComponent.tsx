@@ -14,7 +14,7 @@ import Description_2 from '../../../assets/ic_zenpay_description_2.svg';
 import Description_3 from '../../../assets/ic_zenpay_description_3.svg';
 import { openWithInApp } from "../../utils/openWithInApp";
 
-export const ZenPayEnrolmentComponent = React.memo(({ engine, endpoint }: { engine: Engine, endpoint: string }) => {
+export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint }: { engine: Engine, endpoint: string }) => {
     const safeArea = useSafeAreaInsets();
     const onEnroll = useCallback(async () => {
         const domain = extractDomain(endpoint);

@@ -8,7 +8,7 @@ import { ZenPayAppComponent } from './ZenPayAppComponent';
 import { Theme } from '../../Theme';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { ZenPayEnrolmentComponent } from './ZenPayEnrolmentComponent';
+import { ZenPayEnrollmentComponent } from './ZenPayEnrollmentComponent';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 
@@ -57,7 +57,7 @@ export const ZenPayAppFragment = fragment(() => {
             )}
 
             {needsEnrolment && (
-                <ZenPayEnrolmentComponent engine={engine} endpoint={endpoint} />
+                <ZenPayEnrollmentComponent engine={engine} endpoint={endpoint} />
             )}
         </View>
     );

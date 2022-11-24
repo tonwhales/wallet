@@ -1,11 +1,9 @@
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
-import BN from "bn.js";
 import React, { useCallback } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
 import { ZenPayCard } from "../../engine/corp/ZenPayProduct";
-import { Engine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";

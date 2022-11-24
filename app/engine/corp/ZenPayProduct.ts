@@ -71,22 +71,23 @@ export class ZenPayProduct {
 
     async enroll(domain: string) {
         let res = await (async () => {
+            //
+            // Create domain key if needed
+            //
+
+            let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain);
+            if (!created) {
+                return false;
+            }
+
+            // 
+            // Check zenpay token cloud value
+            // 
+
             let existing = await this.engine.cloud.readKey('zenpay-token');
-            console.log('zenpay', { existing });
             if (existing) {
                 return true;
             } else {
-
-                //
-                // Create domain key if needed
-                //
-
-                let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain);
-                console.log('zenpay', { created });
-                if (!created) {
-                    return false;
-                }
-
                 //
                 // Create sign
                 //

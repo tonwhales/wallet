@@ -31,6 +31,14 @@ export const ZenPayAppFragment = fragment(() => {
 
     const needsEnrolment = useMemo(() => {
         try {
+            let domain = extractDomain('https://next.zenpay.org');
+            if (!domain) {
+                return; // Shouldn't happen
+            }
+            let domainKey = engine.persistence.domainKeys.getValue(domain);
+            if (!domainKey) {
+                return true;
+            }
             if (status.state === 'need-enrolment') {
                 return true;
             }

@@ -28,11 +28,9 @@ export const ZenPayAppFragment = fragment(() => {
                 : `/card/${params.id}`
         );
     }, [params, status]);
-    
-    const domain = extractDomain(endpoint);
+
     const needsEnrolment = useMemo(() => {
         try {
-            const key = engine.products.keys.getDomainKey(domain);
             if (status.state === 'need-enrolment') {
                 return true;
             }
@@ -40,7 +38,7 @@ export const ZenPayAppFragment = fragment(() => {
             return true;
         }
         return false;
-    }, [status, domain]);
+    }, [status]);
 
     return (
         <View style={{

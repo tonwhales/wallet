@@ -20,8 +20,15 @@ export const ZenPayAppFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const status = engine.products.zenPay.useStatus();
     const endpoint = useMemo(() => {
-        return 'https://next.zenpay.org' + (params.type === 'account' ? '' : '/cards/' + params.id)
-    }, [params]);
+        return 'https://next.zenpay.org' + (
+            params.type === 'account'
+                ? status.state === 'ready'
+                    ? '/create'
+                    : ''
+                : `/card/${params.id}`
+        );
+    }, [params, status]);
+    
     const domain = extractDomain(endpoint);
     const needsEnrolment = useMemo(() => {
         try {

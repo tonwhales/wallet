@@ -3,7 +3,7 @@ import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert } fr
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
+import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../analytics/mixpanel';
@@ -22,10 +22,13 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ZenPayAppParams } from './ZenPayAppFragment';
 
 export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
+    const [canGoBack, setCanGoBack] = React.useState(false);
+    const webRef = React.useRef<WebView>(null);
+    const navigation = useTypedNavigation();
+
     // 
     // Track events
     // 
-    const navigation = useTypedNavigation();
     const start = React.useMemo(() => {
         return Date.now();
     }, []);
@@ -34,13 +37,16 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             text: t('common.close'),
             style: 'destructive',
             onPress: () => {
+                if (canGoBack) {
+                    webRef.current?.goBack();
+                }
                 navigation.goBack();
                 trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
             }
         }, {
             text: t('common.cancel'),
         }]);
-    }, []);
+    }, [webRef]);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
 
     //
@@ -49,7 +55,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
 
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
-    const webRef = React.useRef<WebView>(null);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -164,7 +169,10 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     return (
         <>
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <AndroidToolbar pageTitle={t('products.zenPay.title')} />
+                <AndroidToolbar
+                    pageTitle={t('products.zenPay.title')}
+                    onBack={close}
+                />
                 {Platform.OS === 'ios' && (
                     <>
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -218,6 +226,10 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;
+                    }}
+                    onNavigationStateChange={(event: WebViewNavigation) => {
+                        console.log({ event });
+                        setCanGoBack(event.canGoBack);
                     }}
                     contentInset={{ top: 0, bottom: 0 }}
                     autoManageStatusBarEnabled={false}

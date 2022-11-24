@@ -5,7 +5,6 @@ import { Theme } from "../Theme";
 import { Ionicons } from '@expo/vector-icons';
 
 export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string, onBack?: () => void }) => {
-    console.log({ props });
     if (Platform.OS === 'ios') {
         return null;
     }

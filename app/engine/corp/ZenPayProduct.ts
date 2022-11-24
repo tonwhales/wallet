@@ -102,7 +102,6 @@ export class ZenPayProduct {
                     signature: signed.signature,
                     subkey: signed.subkey
                 });
-                console.log('zenpay', { token });
                 await this.engine.cloud.update('zenpay-token', () => Buffer.from(token));
             }
 
@@ -129,7 +128,6 @@ export class ZenPayProduct {
         let status: ZenPayAccountStatus = this.engine.persistence.zenPayStatus.item(this.engine.address).value || { state: 'need-enrolment' };
         if (status.state === 'ready') {
             const token = status.token;
-            console.log({ token });
             try {
                 let listRes = await fetchCardList(token);
                 targetAccounts.update((src) => {
@@ -171,7 +169,6 @@ export class ZenPayProduct {
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
                 const existing = await this.engine.cloud.readKey('zenpay-token');
-                console.log({ existing });
                 if (existing) {
                     targetStatus.update((src) => {
                         if (!src || src.state === 'need-enrolment') {
@@ -195,7 +192,6 @@ export class ZenPayProduct {
             // Update state from server
             if (status.state !== 'need-enrolment') {
                 const token = status.token;
-                console.log({ token });
                 let state = await fetchAccountState(token);
                 targetStatus.update((src) => {
                     if (state.state === 'need-phone') {

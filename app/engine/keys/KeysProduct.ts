@@ -21,7 +21,6 @@ export class KeysProduct {
 
         // Check if already exist and we don't have wallet keys loaded
         if (this.engine.persistence.domainKeys.getValue(domain) && !keys) {
-            console.log('here', { domain, key: this.engine.persistence.domainKeys.getValue(domain) });
             return true;
         }
 

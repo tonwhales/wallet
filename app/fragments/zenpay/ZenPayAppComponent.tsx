@@ -23,6 +23,7 @@ import { ZenPayAppParams } from './ZenPayAppFragment';
 
 export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
     const [canGoBack, setCanGoBack] = React.useState(false);
+    const [scrollEnabled, setScrollEnabled] = React.useState(false);
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
 
@@ -163,6 +164,8 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
 
     }, []);
 
+    console.log({ canGoBack });
+
     return (
         <>
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -197,7 +200,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                                     fontSize: 17,
                                     textAlign: 'center',
                                 }}>
-                                    {t('common.close')}
+                                    {canGoBack ? t('common.back') : t('common.close')}
                                 </Text>
                             </Pressable>
                             <Text style={{
@@ -216,7 +219,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                         backgroundColor: Theme.background,
                         flexGrow: 1,
                     }}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 16 : undefined}
                 >
                     <WebView
                         ref={webRef}
@@ -233,8 +235,15 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             opacity.value = 0;
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
-                            setCanGoBack(event.canGoBack);
+                            console.log({ event });
+                            if (event.url.endsWith('auth')) {
+                                setScrollEnabled(false);
+                            } else {
+                                setScrollEnabled(true);
+                                setCanGoBack(event.canGoBack);
+                            }
                         }}
+                        scrollEnabled={false}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         allowFileAccessFromFileURLs={false}

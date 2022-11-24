@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert } from 'react-native';
+import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert, KeyboardAvoidingView } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -108,7 +108,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         const walletConfig = contract.source.backup();
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);
-        console.log({ domain });
 
         let domainSign = engine.products.keys.createDomainSignature(domain);
 
@@ -164,8 +163,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
 
     }, []);
 
-    console.log({ endpoint: props.endpoint });
-
     return (
         <>
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -213,34 +210,42 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                         </View>
                     </>
                 )}
-                <WebView
-                    ref={webRef}
-                    source={{ uri: props.endpoint }}
-                    startInLoadingState={true}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
                         backgroundColor: Theme.background,
-                        flexGrow: 1, flexBasis: 0,
-                        alignSelf: 'stretch',
-                        marginTop: Platform.OS === 'ios' ? 0 : 8,
+                        flexGrow: 1,
                     }}
-                    onLoadEnd={() => {
-                        setLoaded(true);
-                        opacity.value = 0;
-                    }}
-                    onNavigationStateChange={(event: WebViewNavigation) => {
-                        console.log({ event });
-                        setCanGoBack(event.canGoBack);
-                    }}
-                    contentInset={{ top: 0, bottom: 0 }}
-                    autoManageStatusBarEnabled={false}
-                    allowFileAccessFromFileURLs={false}
-                    allowUniversalAccessFromFileURLs={false}
-                    decelerationRate="normal"
-                    allowsInlineMediaPlayback={true}
-                    injectedJavaScriptBeforeContentLoaded={injectSource}
-                    onShouldStartLoadWithRequest={loadWithRequest}
-                    onMessage={handleWebViewMessage}
-                />
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 16 : undefined}
+                >
+                    <WebView
+                        ref={webRef}
+                        source={{ uri: props.endpoint }}
+                        startInLoadingState={true}
+                        style={{
+                            backgroundColor: Theme.background,
+                            flexGrow: 1, flexBasis: 0, height: '100%',
+                            alignSelf: 'stretch',
+                            marginTop: Platform.OS === 'ios' ? 0 : 8,
+                        }}
+                        onLoadEnd={() => {
+                            setLoaded(true);
+                            opacity.value = 0;
+                        }}
+                        onNavigationStateChange={(event: WebViewNavigation) => {
+                            setCanGoBack(event.canGoBack);
+                        }}
+                        contentInset={{ top: 0, bottom: 0 }}
+                        autoManageStatusBarEnabled={false}
+                        allowFileAccessFromFileURLs={false}
+                        allowUniversalAccessFromFileURLs={false}
+                        decelerationRate="normal"
+                        allowsInlineMediaPlayback={true}
+                        injectedJavaScriptBeforeContentLoaded={injectSource}
+                        onShouldStartLoadWithRequest={loadWithRequest}
+                        onMessage={handleWebViewMessage}
+                    />
+                </KeyboardAvoidingView>
                 <Animated.View
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}

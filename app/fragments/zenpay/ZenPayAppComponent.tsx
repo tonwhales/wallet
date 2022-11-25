@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert, KeyboardAvoidingView } from 'react-native';
+import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert, KeyboardAvoidingView, BackHandler } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,7 +38,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         // Handle extension back navigation
         if (canGoBack) {
             webRef.current?.goBack();
-            return;
+            return true;
         }
 
         Alert.alert(t('products.zenPay.confirm.title'), t('products.zenPay.confirm.message'), [{
@@ -51,6 +51,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         }, {
             text: t('common.cancel'),
         }]);
+        return true;
     }, [webRef]);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
 
@@ -163,6 +164,14 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             dispatchResponse(webRef, { id, data: res });
         })();
     }, []);
+
+    React.useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', close);
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', close);
+        }
+    }, [close]);
+
 
     return (
         <>

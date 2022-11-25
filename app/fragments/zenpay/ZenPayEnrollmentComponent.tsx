@@ -127,7 +127,7 @@ export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint }: { eng
                                     }
                                 }}
                                 onPress={() => {
-                                    openWithInApp('https://next.zenpay.org');
+                                    openWithInApp('https://zenpay.org');
                                 }}
                             >
                                 <Text style={{

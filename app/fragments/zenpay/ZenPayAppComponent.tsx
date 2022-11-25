@@ -24,7 +24,7 @@ import { ZenPayAppParams } from './ZenPayAppFragment';
 export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
     const engine = useEngine();
     const [canGoBack, setCanGoBack] = React.useState(false);
-    const [scrollEnabled, setScrollEnabled] = React.useState(false);
+    const [scrollEnabled, setScrollEnabled] = React.useState(true);
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
 

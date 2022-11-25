@@ -62,9 +62,6 @@ import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
-// import { PickCountry } from './fragments/corp/PickCountry';
-// import { PhoneFragment } from './fragments/corp/PhoneScreen';
-// import { CodeFragment } from './fragments/corp/phone/CodeFragment';
 
 const Stack = createNativeStackNavigator();
 // const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
@@ -178,9 +175,6 @@ const navigation = [
     modalScreen('Contacts', ContactsFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
     lockedModalScreen('ZenPay', ZenPayAppFragment),
-    // modalScreen('Phone', PhoneFragment),
-    // modalScreen('Country', PickCountry),
-    // genericScreen('Code', CodeFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

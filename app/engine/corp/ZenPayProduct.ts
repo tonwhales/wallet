@@ -36,7 +36,7 @@ export type ZenPayCard = {
     balance: BN,
     type: 'virtual' | 'physical',
     card: {
-        lastFourDigits?: string | null,
+        lastFourDigits: string | null | undefined,
     }
 };
 

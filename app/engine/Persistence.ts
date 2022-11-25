@@ -323,6 +323,9 @@ const zenPayStateCodec = t.type({
         state: t.string,
         balance: c.bignum,
         type: t.union([t.literal('virtual'), t.literal('physical')]),
+        card: t.type({
+            lastFourDigits: t.union([t.string, t.undefined, t.null]),
+        }),
     })),
 });
 

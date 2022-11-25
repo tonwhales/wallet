@@ -95,9 +95,8 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
-    apps.push(<StakingProductComponent key={'pool'} />);
-
-    if (__DEV__) {
+    // Resolve products
+    let products: React.ReactElement[] = [];
 
     products.push(<StakingProductComponent key={'pool'} />);
 

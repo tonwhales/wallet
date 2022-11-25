@@ -239,11 +239,13 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             opacity.value = 0;
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
+                            if (event.url.endsWith('details') || event.url.endsWith('deposit') || event.url.endsWith('limits')) { 
+                                setCanGoBack(event.canGoBack);
+                            }
                             if (event.url.endsWith('auth')) {
                                 setScrollEnabled(false);
                             } else {
                                 setScrollEnabled(true);
-                                setCanGoBack(event.canGoBack);
                             }
                         }}
                         scrollEnabled={scrollEnabled}

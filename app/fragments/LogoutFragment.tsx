@@ -15,7 +15,7 @@ import { Theme } from "../Theme";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 
-function clearZenPay(engine: Engine) {
+export function clearZenPay(engine: Engine) {
     const zenPayDomain = extractDomain('https://next.zenpay.org');
     engine.persistence.domainKeys.setValue(zenPayDomain, null);
     engine.persistence.zenPayState.setValue(engine.address, null);

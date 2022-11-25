@@ -38,7 +38,7 @@ export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, 
 
 export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
     ? {
-        [Address.parse('kQBs7t3uDYae2Ap4686Bl4zGaPKvpbauBnZO_WSop1whaLEs').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+        [Address.parse('kQDV1LTU0sWojmDUV4HulrlYPpxLWSUjM6F3lUurMbwhales').toFriendly({ testOnly: AppConfig.isTestnet })]: {
             name: 'Nominators #1',
             colors: {
                 primary: '#65C6FF',
@@ -46,7 +46,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Whales
         },
-        [Address.parse('kQDsPXQhe6Jg5hZYATRfYwne0o_RbReMG2P3zHfcFUwHALeS').toFriendly({ testOnly: AppConfig.isTestnet })]: {
+        [Address.parse('kQCkXp5Z3tJ_eAjFG_0xbbfx2Oh_ESyY6Nk56zARZDwhales').toFriendly({ testOnly: AppConfig.isTestnet })]: {
             name: 'Nominators #2',
             colors: {
                 primary: '#65C6FF',

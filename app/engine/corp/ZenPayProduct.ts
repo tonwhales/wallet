@@ -35,6 +35,9 @@ export type ZenPayCard = {
     state: string,
     balance: BN,
     type: 'virtual' | 'physical',
+    card: {
+        lastFourDigits?: string,
+    }
 };
 
 export type ZenPayState = {
@@ -137,6 +140,7 @@ export class ZenPayProduct {
                             address: account.address,
                             state: account.state,
                             balance: new BN(account.balance),
+                            card: account.card,
                             type: 'virtual'
                         }))
                     };
@@ -213,8 +217,12 @@ export class ZenPayProduct {
                 });
             }
 
-            await this.syncAccounts();
+            // Initial sync
+            if (status.state === 'ready') {
+                await this.syncAccounts();
+            }
 
+            // Start watcher if ready
             if (status.state === 'ready' && !this.watcher) {
                 this.watch(status.token);
             }

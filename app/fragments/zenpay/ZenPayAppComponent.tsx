@@ -34,13 +34,17 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         return Date.now();
     }, []);
     const close = React.useCallback(() => {
+
+        // Handle extension back navigation
+        if (canGoBack) {
+            webRef.current?.goBack();
+            return;
+        }
+
         Alert.alert(t('products.zenPay.confirm.title'), t('products.zenPay.confirm.message'), [{
             text: t('common.close'),
             style: 'destructive',
             onPress: () => {
-                if (canGoBack) {
-                    webRef.current?.goBack();
-                }
                 navigation.goBack();
                 trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
             }
@@ -53,7 +57,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     //
     // View
     //
-
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
     const opacity = useSharedValue(1);
@@ -74,7 +77,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     //
     // Navigation
     //
-
     const linkNavigator = useLinkNavigator();
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
@@ -102,7 +104,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     //
     // Injection
     //
-
     const engine = useEngine();
     const injectSource = React.useMemo(() => {
         const contract = contractFromPublicKey(engine.publicKey);
@@ -161,10 +162,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             }
             dispatchResponse(webRef, { id, data: res });
         })();
-
     }, []);
-
-    console.log({ canGoBack });
 
     return (
         <>

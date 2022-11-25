@@ -11,6 +11,9 @@ export const cardListCodec = t.union([
         address: t.string,
         state: t.string,
         balance: t.string,
+        card: t.type({
+          lastFourDigits: t.union([t.string, t.undefined]),
+        })
       })
     ),
   }),
@@ -21,6 +24,7 @@ export const cardListCodec = t.union([
 ]);
 
 export async function fetchCardList(token: string) {
+  console.log({ token });
   let res = await axios.post(
     'https://' + zenPayEndpoint + '/card/list',
     { token: token, },
@@ -33,6 +37,8 @@ export async function fetchCardList(token: string) {
       }
     }
   );
+
+  console.log({ res: res.data });
 
   if (!cardListCodec.is(res.data)) {
     throw Error("Invalid card list response");

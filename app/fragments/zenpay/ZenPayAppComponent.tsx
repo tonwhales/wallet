@@ -35,8 +35,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         return Date.now();
     }, []);
     const close = React.useCallback(() => {
-        engine.products.zenPay.syncAccounts();
-
         // Handle extension back navigation
         if (canGoBack) {
             webRef.current?.goBack();
@@ -47,6 +45,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             text: t('common.close'),
             style: 'destructive',
             onPress: () => {
+                engine.products.zenPay.syncAccounts();
                 navigation.goBack();
                 trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
             }

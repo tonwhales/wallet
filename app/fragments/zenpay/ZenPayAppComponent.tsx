@@ -247,7 +247,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                                 setCanGoBack(event.canGoBack);
                             }
                         }}
-                        scrollEnabled={false}
+                        scrollEnabled={scrollEnabled}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         allowFileAccessFromFileURLs={false}

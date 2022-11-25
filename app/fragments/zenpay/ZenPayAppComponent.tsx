@@ -22,6 +22,7 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ZenPayAppParams } from './ZenPayAppFragment';
 
 export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
+    const engine = useEngine();
     const [canGoBack, setCanGoBack] = React.useState(false);
     const [scrollEnabled, setScrollEnabled] = React.useState(false);
     const webRef = React.useRef<WebView>(null);
@@ -34,6 +35,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         return Date.now();
     }, []);
     const close = React.useCallback(() => {
+        engine.products.zenPay.syncAccounts();
 
         // Handle extension back navigation
         if (canGoBack) {
@@ -105,7 +107,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     //
     // Injection
     //
-    const engine = useEngine();
     const injectSource = React.useMemo(() => {
         const contract = contractFromPublicKey(engine.publicKey);
         const walletConfig = contract.source.backup();

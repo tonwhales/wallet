@@ -12,8 +12,9 @@ export const cardListCodec = t.union([
         state: t.string,
         balance: t.string,
         card: t.type({
-          lastFourDigits: t.union([t.string, t.undefined]),
-        })
+          lastFourDigits: t.union([t.string, t.undefined, t.null]),
+        }),
+        contract: t.string
       })
     ),
   }),
@@ -38,7 +39,7 @@ export async function fetchCardList(token: string) {
     }
   );
 
-  console.log({ res: res.data });
+  console.log(JSON.stringify(res.data));
 
   if (!cardListCodec.is(res.data)) {
     throw Error("Invalid card list response");

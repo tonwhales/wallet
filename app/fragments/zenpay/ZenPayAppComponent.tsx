@@ -54,7 +54,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             text: t('common.cancel'),
         }]);
         return true;
-    }, [webRef]);
+    }, [webRef, canGoBack]);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
 
     //

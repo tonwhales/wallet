@@ -177,7 +177,7 @@ const navigation = [
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
-    modalScreen('ZenPay', ZenPayAppFragment),
+    lockedModalScreen('ZenPay', ZenPayAppFragment),
     // modalScreen('Phone', PhoneFragment),
     // modalScreen('Country', PickCountry),
     // genericScreen('Code', CodeFragment),

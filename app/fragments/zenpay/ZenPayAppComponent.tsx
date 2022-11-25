@@ -173,13 +173,10 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                 />
                 {Platform.OS === 'ios' && (
                     <>
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ height: 4, width: 35, borderRadius: 5, backgroundColor: '#CFCBCB', marginTop: 6 }} />
-                        </View>
                         <View style={{
                             width: '100%',
                             flexDirection: 'row',
-                            marginTop: 14,
+                            marginTop: 24,
                             paddingHorizontal: 15,
                             justifyContent: 'center',
                             paddingBottom: 8

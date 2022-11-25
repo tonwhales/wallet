@@ -41,11 +41,6 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
                             />
                         </Rect>
                     </Canvas>
-                    {!card?.card.lastFourDigits && (
-                        <Text style={{ color: 'white', fontSize: 10, marginHorizontal: 4, marginTop: 2 }} numberOfLines={2}>
-                            {card?.id?.slice(card?.id.length - 4, card?.id.length) ?? 'Zen Pay'}
-                        </Text>
-                    )}
                     {!!card?.card.lastFourDigits && (
                         <Text style={{ color: 'white', fontSize: 10, marginHorizontal: 4, marginTop: 2 }} numberOfLines={2}>
                             {card.card.lastFourDigits}

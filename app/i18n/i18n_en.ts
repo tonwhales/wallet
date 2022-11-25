@@ -343,7 +343,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         zenPay: {
             title: 'ZenPay Card',
             card: {
-                defaultSubtitle: 'For EU resident',
+                defaultSubtitle: 'For EU residents',
                 defaultTitle: 'ZenPay Card',
                 type: {
                     physical: 'Debit',
@@ -351,8 +351,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 }
             },
             confirm: {
-                title: 'Are you sure want to close this screen?',
-                message: 'This will discard all of you changes'
+                title: 'Are you sure you want to close this screen?',
+                message: 'This action will discard all of your changes'
             },
             enroll: {
                 poweredBy: 'Powered by ZenPay',
@@ -444,8 +444,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         doNotShow: 'Do not show it again for Neocrypto',
         termsAndPrivacy: 'I have read and agree to the ',
         confirm: {
-            title: 'Are you sure want to close this form?',
-            message: 'This will discard all of you changes'
+            title: 'Are you sure you want to close this form?',
+            message: 'This action will discard all of your changes'
         },
     },
     known: {

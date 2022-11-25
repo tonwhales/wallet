@@ -25,6 +25,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     const engine = useEngine();
     const [canGoBack, setCanGoBack] = React.useState(false);
     const [scrollEnabled, setScrollEnabled] = React.useState(true);
+    const [promptBeforeExit, setPromptBeforeExit] = React.useState(true);
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
 
@@ -41,19 +42,26 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             return true;
         }
 
-        Alert.alert(t('products.zenPay.confirm.title'), t('products.zenPay.confirm.message'), [{
-            text: t('common.close'),
-            style: 'destructive',
-            onPress: () => {
-                engine.products.zenPay.syncAccounts();
-                navigation.goBack();
-                trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
-            }
-        }, {
-            text: t('common.cancel'),
-        }]);
-        return true;
-    }, [webRef, canGoBack]);
+        if (promptBeforeExit) {
+            Alert.alert(t('products.zenPay.confirm.title'), t('products.zenPay.confirm.message'), [{
+                text: t('common.close'),
+                style: 'destructive',
+                onPress: () => {
+                    engine.products.zenPay.syncAccounts();
+                    navigation.goBack();
+                    trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
+                }
+            }, {
+                text: t('common.cancel'),
+            }]);
+            return true;
+        } else {
+            engine.products.zenPay.syncAccounts();
+            navigation.goBack();
+            trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
+            return false;
+        }
+    }, [webRef, canGoBack, promptBeforeExit]);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
 
     //
@@ -239,15 +247,26 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             opacity.value = 0;
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
+
+                            // Update canGoBack
                             if (event.url.endsWith('details') || event.url.endsWith('deposit') || event.url.endsWith('limits')) {
                                 setCanGoBack(event.canGoBack);
                             } else {
                                 setCanGoBack(false);
                             }
+
+                            // Update scrollEnabled
                             if (event.url.endsWith('auth')) {
                                 setScrollEnabled(false);
                             } else {
                                 setScrollEnabled(true);
+                            }
+
+                            // Update promptBeforeExit
+                            if (event.url.endsWith('auth') || event.url.endsWith('kyc') || event.url.endsWith('create')) {
+                                setPromptBeforeExit(true);
+                            } else {
+                                setPromptBeforeExit(false);
                             }
                         }}
                         scrollEnabled={scrollEnabled}

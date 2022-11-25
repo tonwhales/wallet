@@ -25,6 +25,8 @@ import { mixpanel } from './app/analytics/mixpanel';
 
 changeNavBarColor('white');
 
+console.disableYellowBox = true;
+
 mixpanel.init();
 if (__DEV__) {
   mixpanel.setLoggingEnabled(true);

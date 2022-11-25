@@ -357,7 +357,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             enroll: {
                 poweredBy: 'Powered by ZenPay',
-                description_1: 'Используйте эту карту для онлайн-операций во всей Европе',
+                description_1: 'Используйте эту карту для онлайн-операций по всему миру',
                 description_2: 'Добавьте эту карту в Apple Pay, чтобы оплачивать с помощью своих устройств Apple',
                 description_3: 'Простая проверка KYC и выпуск карты за 5 минут',
                 moreInfo: 'Подробнее о ZenPay Card',

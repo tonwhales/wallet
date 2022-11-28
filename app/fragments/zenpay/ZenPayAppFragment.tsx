@@ -11,6 +11,7 @@ import { t } from '../../i18n/t';
 import { ZenPayEnrollmentComponent } from './ZenPayEnrollmentComponent';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
+import { ZenPayInfoComponent } from './ZenPayInfoComponent';
 
 export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -19,6 +20,7 @@ export const ZenPayAppFragment = fragment(() => {
     const params = useParams<ZenPayAppParams>();
     const safeArea = useSafeAreaInsets();
     const status = engine.products.zenPay.useStatus();
+    const accounts = engine.products.zenPay.useCards();
     const endpoint = useMemo(() => {
         return 'https://next.zenpay.org' + (
             params.type === 'account'
@@ -28,6 +30,17 @@ export const ZenPayAppFragment = fragment(() => {
                 : `/card/${params.id}`
         );
     }, [params, status]);
+
+    const showInfoInitial = useMemo(() => {
+        if (accounts.length === 0 && params.type === 'account' && status.state === 'ready') {
+            return true;
+        }
+        return false;
+    }, []);
+
+    console.log({ showInfoInitial, params, status });
+
+    const [showInfo, setShowInfo] = React.useState(showInfoInitial);
 
     const needsEnrolment = useMemo(() => {
         try {
@@ -56,7 +69,7 @@ export const ZenPayAppFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 
-            {!needsEnrolment && (
+            {!needsEnrolment && !showInfo && (
                 <ZenPayAppComponent
                     title={t('products.zenPay.title')}
                     variant={params}
@@ -69,8 +82,12 @@ export const ZenPayAppFragment = fragment(() => {
                 />
             )}
 
-            {needsEnrolment && (
+            {needsEnrolment && !showInfo && (
                 <ZenPayEnrollmentComponent engine={engine} endpoint={endpoint} />
+            )}
+
+            {showInfo && (
+                <ZenPayInfoComponent callback={() => { setShowInfo(false) }} />
             )}
         </View>
     );

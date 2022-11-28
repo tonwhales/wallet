@@ -47,7 +47,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                 text: t('common.close'),
                 style: 'destructive',
                 onPress: () => {
-                    engine.products.zenPay.syncAccounts();
+                    engine.products.zenPay.doSync();
                     navigation.goBack();
                     trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
                 }
@@ -56,7 +56,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             }]);
             return true;
         } else {
-            engine.products.zenPay.syncAccounts();
+            engine.products.zenPay.doSync();
             navigation.goBack();
             trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
             return false;

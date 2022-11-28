@@ -19,6 +19,8 @@ export enum MixpanelEvent {
     AppClose = 'app_close',
     ZenPay = 'zen_pay',
     ZenPayEnrollment = 'zen_pay_entrollment',
+    ZenPayInfo = 'zen_pay_info',
+    ZenPayInfoClose = 'zen_pay_info_close',
     ZenPayEnrollmentClose = 'zen_pay_entrollment_close',
     ZenPayClose = 'zen_pay_close',
     AppInstall = 'app_install',

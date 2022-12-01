@@ -121,10 +121,9 @@ export const ContactsFragment = fragment(() => {
                             />
                         );
                     })}
-                </View>
-                {(!contactsList || contactsList.length === 0) && (
-                    <>
-                        {(!contactsList || contactsList.length === 0) && (
+                    {(!contactsList || contactsList.length === 0) && (
+                        <>
+
                             <View style={{ alignItems: 'center' }}>
                                 <LottieView
                                     ref={anim}
@@ -147,16 +146,15 @@ export const ContactsFragment = fragment(() => {
                                 <Text style={{
                                     fontSize: 16,
                                     color: '#6D6D71',
-                                    marginHorizontal: 16,
                                     marginVertical: 8,
                                 }}>
                                     {t('contacts.description')}
                                 </Text>
                             </View>
-                        )}
-                        {transactionsComponents}
-                    </>
-                )}
+                            {transactionsComponents}
+                        </>
+                    )}
+                </View>
             </ScrollView>
             {Platform.OS === 'ios' && (
                 <CloseButton

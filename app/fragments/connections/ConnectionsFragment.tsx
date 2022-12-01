@@ -86,7 +86,7 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
-    
+
     // 
     // Lottie animation
     // 
@@ -106,7 +106,7 @@ export const ConnectionsFragment = fragment(() => {
                 paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             }}>
                 <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                <AndroidToolbar />
+                <AndroidToolbar pageTitle={t('auth.apps.title')} />
                 {Platform.OS === 'ios' && (
                     <View style={{
                         marginTop: 17,
@@ -118,7 +118,13 @@ export const ConnectionsFragment = fragment(() => {
                         }, { textAlign: 'center' }]}>{t('auth.apps.title')}</Text>
                     </View>
                 )}
-                <View style={{ alignItems: 'center' }}>
+                <View style={{
+                    alignItems: 'center',
+                    marginBottom: 16,
+                    marginTop: 17,
+                    borderRadius: 14,
+                    flexShrink: 1,
+                }}>
                     <LottieView
                         ref={anim}
                         source={require('../../../assets/animations/empty.json')}

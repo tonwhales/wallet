@@ -94,10 +94,33 @@ export const AccountsFragment = fragment(() => {
             )}
             <ScrollView>
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginBottom: 16, 
+                    marginTop: 17,
                     borderRadius: 14,
                     flexShrink: 1,
                 }}>
+                    {jettons.length === 0 && (
+                        <View style={{ alignItems: 'center' }}>
+                            <LottieView
+                                ref={anim}
+                                source={require('../../assets/animations/empty.json')}
+                                autoPlay={true}
+                                loop={true}
+                                style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
+                            />
+                            <Text style={{
+                                fontSize: 18,
+                                fontWeight: '700',
+                                marginHorizontal: 16,
+                                marginBottom: 8,
+                                textAlign: 'center',
+                                color: Theme.textColor,
+                            }}
+                            >
+                                {t('accounts.noAccounts')}
+                            </Text>
+                        </View>
+                    )}
                     <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
                         {jettons.length > 0 && (
                             <Text style={{
@@ -110,28 +133,6 @@ export const AccountsFragment = fragment(() => {
                             >
                                 {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
                             </Text>
-                        )}
-                        {jettons.length === 0 && (
-                            <View style={{ alignItems: 'center' }}>
-                                <LottieView
-                                    ref={anim}
-                                    source={require('../../assets/animations/empty.json')}
-                                    autoPlay={true}
-                                    loop={true}
-                                    style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
-                                />
-                                <Text style={{
-                                    fontSize: 18,
-                                    fontWeight: '700',
-                                    marginHorizontal: 16,
-                                    marginBottom: 8,
-                                    textAlign: 'center',
-                                    color: Theme.textColor,
-                                }}
-                                >
-                                    {t('accounts.noAccounts')}
-                                </Text>
-                            </View>
                         )}
                         {disabled.length === 0 && (
                             <Text style={{

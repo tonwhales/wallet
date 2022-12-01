@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { Alert, Platform, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +15,7 @@ import { addPendingRevoke, getConnectionReferences, removeConnectionReference, r
 import { Theme } from '../../Theme';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import LottieView from 'lottie-react-native';
 
 type Item = {
     key: string;
@@ -84,32 +86,66 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
+    
+    // 
+    // Lottie animation
+    // 
+    const anim = useRef<LottieView>(null);
+    useLayoutEffect(() => {
+        if (Platform.OS === 'ios') {
+            setTimeout(() => {
+                anim.current?.play()
+            }, 300);
+        }
+    }, []);
+
     if (apps.length === 0 && extensions.length === 0) {
         return (
             <View style={{
-                flexGrow: 1, flexBasis: 0,
-                justifyContent: 'center', alignItems: 'center',
+                flex: 1,
+                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             }}>
                 <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                <AndroidToolbar style={{
-                    position: 'absolute',
-                    top: safeArea.top, left: 0, right: 0
-                }} />
+                <AndroidToolbar />
                 {Platform.OS === 'ios' && (
                     <View style={{
-                        position: 'absolute',
-                        top: 12, left: 0, right: 0,
-                        justifyContent: 'center', alignItems: 'center',
+                        marginTop: 17,
                         height: 32
                     }}>
                         <Text style={[{
                             fontWeight: '600',
-                            marginLeft: 17,
                             fontSize: 17
                         }, { textAlign: 'center' }]}>{t('auth.apps.title')}</Text>
                     </View>
                 )}
-                <Text style={{ fontSize: 24, textAlign: 'center', color: Theme.textSecondary }}>{t('auth.noApps')}</Text>
+                <View style={{ alignItems: 'center' }}>
+                    <LottieView
+                        ref={anim}
+                        source={require('../../../assets/animations/empty.json')}
+                        autoPlay={true}
+                        loop={true}
+                        style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
+                    />
+                    <Text style={{
+                        fontSize: 18,
+                        fontWeight: '700',
+                        marginHorizontal: 8,
+                        marginBottom: 8,
+                        textAlign: 'center',
+                        color: Theme.textColor,
+                    }}
+                    >
+                        {t('auth.noApps')}
+                    </Text>
+                    <Text style={{
+                        fontSize: 16,
+                        color: '#6D6D71',
+                        marginHorizontal: 16,
+                        marginVertical: 8,
+                    }}>
+                        {t('auth.apps.description')}
+                    </Text>
+                </View>
                 {Platform.OS === 'ios' && (
                     <CloseButton
                         style={{ position: 'absolute', top: 12, right: 10 }}

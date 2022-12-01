@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useMemo } from "react";
+import React, { useLayoutEffect, useMemo, useRef } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../components/AndroidToolbar";
@@ -12,6 +12,7 @@ import { Theme } from "../Theme";
 import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
+import LottieView from 'lottie-react-native';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -62,7 +63,7 @@ export const ContactsFragment = fragment(() => {
             >
                 {s.items.map((t, i) => <TransactionView
                     own={engine.address}
-                    engine={engine} 
+                    engine={engine}
                     tx={t}
                     separator={i < s.items.length - 1}
                     key={'tx-' + t}
@@ -71,6 +72,18 @@ export const ContactsFragment = fragment(() => {
             </View >
         );
     }
+
+    // 
+    // Lottie animation
+    // 
+    const anim = useRef<LottieView>(null);
+    useLayoutEffect(() => {
+        if (Platform.OS === 'ios') {
+            setTimeout(() => {
+                anim.current?.play()
+            }, 300);
+        }
+    }, []);
 
     return (
         <View style={{
@@ -81,12 +94,11 @@ export const ContactsFragment = fragment(() => {
             <AndroidToolbar pageTitle={t('contacts.title')} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        marginLeft: 17,
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
                         {t('contacts.title')}
@@ -113,22 +125,30 @@ export const ContactsFragment = fragment(() => {
                 {(!contactsList || contactsList.length === 0) && (
                     <>
                         {(!contactsList || contactsList.length === 0) && (
-                            <View style={{ backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ alignItems: 'center' }}>
+                                <LottieView
+                                    ref={anim}
+                                    source={require('../../assets/animations/empty.json')}
+                                    autoPlay={true}
+                                    loop={true}
+                                    style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
+                                />
                                 <Text style={{
                                     fontSize: 18,
                                     fontWeight: '700',
-                                    marginHorizontal: 16,
-                                    marginVertical: 8,
-                                    color: Theme.textSecondary
-                                }}>
+                                    marginHorizontal: 8,
+                                    marginBottom: 8,
+                                    textAlign: 'center',
+                                    color: Theme.textColor,
+                                }}
+                                >
                                     {t('contacts.empty')}
                                 </Text>
                                 <Text style={{
                                     fontSize: 16,
-                                    fontWeight: '700',
+                                    color: '#6D6D71',
                                     marginHorizontal: 16,
                                     marginVertical: 8,
-                                    color: Theme.textColor
                                 }}>
                                     {t('contacts.description')}
                                 </Text>

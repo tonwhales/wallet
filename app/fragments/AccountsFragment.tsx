@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
@@ -12,6 +12,7 @@ import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { JettonProduct } from "./wallet/products/JettonProduct";
+import LottieView from 'lottie-react-native';
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -59,6 +60,18 @@ export const AccountsFragment = fragment(() => {
         [],
     );
 
+    // 
+    // Lottie animation
+    // 
+    const anim = useRef<LottieView>(null);
+    useLayoutEffect(() => {
+        if (Platform.OS === 'ios') {
+            setTimeout(() => {
+                anim.current?.play()
+            }, 300);
+        }
+    }, []);
+
     return (
         <View style={{
             flex: 1,
@@ -68,12 +81,11 @@ export const AccountsFragment = fragment(() => {
             <AndroidToolbar pageTitle={t('products.accounts')} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        marginLeft: 17,
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
                         {t('products.accounts')}
@@ -87,16 +99,50 @@ export const AccountsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{
-                            fontSize: 18,
-                            fontWeight: '700',
-                            marginHorizontal: 16,
-                            marginVertical: 8,
-                            color: active.length > 0 ? Theme.textColor : Theme.textSecondary
-                        }}
-                        >
-                            {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
-                        </Text>
+                        {jettons.length > 0 && (
+                            <Text style={{
+                                fontSize: 18,
+                                fontWeight: '700',
+                                marginHorizontal: 16,
+                                marginVertical: 8,
+                                color: active.length > 0 ? Theme.textColor : Theme.textSecondary
+                            }}
+                            >
+                                {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
+                            </Text>
+                        )}
+                        {jettons.length === 0 && (
+                            <View style={{ alignItems: 'center' }}>
+                                <LottieView
+                                    ref={anim}
+                                    source={require('../../assets/animations/empty.json')}
+                                    autoPlay={true}
+                                    loop={true}
+                                    style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
+                                />
+                                <Text style={{
+                                    fontSize: 18,
+                                    fontWeight: '700',
+                                    marginHorizontal: 16,
+                                    marginBottom: 8,
+                                    textAlign: 'center',
+                                    color: Theme.textColor,
+                                }}
+                                >
+                                    {t('accounts.noAccounts')}
+                                </Text>
+                            </View>
+                        )}
+                        {disabled.length === 0 && (
+                            <Text style={{
+                                marginHorizontal: 16,
+                                fontSize: 16,
+                                color: '#6D6D71'
+                            }}
+                            >
+                                {t('accounts.description')}
+                            </Text>
+                        )}
                     </View>
                     {active.map((j) => {
                         return (
@@ -130,7 +176,7 @@ export const AccountsFragment = fragment(() => {
                                 navigation={navigation}
                                 engine={engine}
                                 onPress={() => promptActive(j.master, j.symbol)}
-                                onLongPress={() => {}}
+                                onLongPress={() => { }}
                             />
                         );
                     })}

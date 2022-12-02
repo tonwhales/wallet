@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert, KeyboardAvoidingView, BackHandler } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../engine/utils/extractDomain';
@@ -20,6 +20,7 @@ import { warn } from '../../utils/log';
 import { Theme } from '../../Theme';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ZenPayAppParams } from './ZenPayAppFragment';
+import { HeaderBackButton } from "@react-navigation/elements";
 
 export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
     const engine = useEngine();
@@ -193,32 +194,57 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                         <View style={{
                             width: '100%',
                             flexDirection: 'row',
-                            marginTop: 24,
                             paddingHorizontal: 15,
+                            marginVertical: 14,
+                            height: 42,
                             justifyContent: 'center',
-                            paddingBottom: 8
+                            alignItems: 'center',
                         }}>
-                            <Pressable
-                                style={({ pressed }) => {
-                                    return ({
-                                        opacity: pressed ? 0.3 : 1,
-                                        position: 'absolute', top: 0, bottom: 0, left: 15
-                                    });
-                                }}
-                                onPress={close}
-                            >
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 17,
-                                    textAlign: 'center',
-                                }}>
-                                    {canGoBack ? t('common.back') : t('common.close')}
-                                </Text>
-                            </Pressable>
+                            {canGoBack && (
+                                <Animated.View
+                                    entering={FadeIn}
+                                    exiting={FadeOut}
+                                    style={{ position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center' }}
+                                >
+                                    <HeaderBackButton
+                                        label={t('common.back')}
+                                        labelVisible
+                                        onPress={close}
+                                        tintColor={Theme.accent}
+                                    />
+                                </Animated.View>
+                            )}
+                            {!canGoBack && (
+                                <Animated.View
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0, bottom: 0, left: 15, justifyContent: 'center'
+                                    }}
+                                    entering={FadeIn}
+                                    exiting={FadeOut}
+                                >
+                                    <Pressable
+                                        style={({ pressed }) => {
+                                            return ({
+                                                opacity: pressed ? 0.3 : 1,
+                                            });
+                                        }}
+                                        onPress={close}
+                                    >
+                                        <Text style={{
+                                            fontWeight: '400',
+                                            fontSize: 17,
+                                            textAlign: 'center',
+                                        }}>
+                                            {canGoBack ? t('common.back') : t('common.close')}
+                                        </Text>
+                                    </Pressable>
+                                </Animated.View>
+                            )}
                             <Text style={{
                                 fontWeight: '600',
                                 fontSize: 17,
-                                textAlign: 'center'
+                                textAlign: 'center',
                             }}>
                                 {t('products.zenPay.title')}
                             </Text>

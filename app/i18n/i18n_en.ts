@@ -341,10 +341,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             }
         },
         zenPay: {
-            title: 'ZenPay Card',
+            title: 'Tonhub bank card',
             card: {
-                defaultSubtitle: 'For EU residents',
-                defaultTitle: 'ZenPay Card',
+                defaultSubtitle: 'TON to EUR (0% fee)',
+                defaultTitle: 'Tonhub Visa bank card',
                 type: {
                     physical: 'Debit',
                     virtual: 'Virtual',

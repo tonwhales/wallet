@@ -47,6 +47,11 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
                         </Text>
                     )}
                     {!card && (
+                        <Text style={{ color: 'white', fontWeight: '700', fontSize: 10, marginHorizontal: 4, marginTop: 2 }} numberOfLines={2}>
+                            {'Zen Pay'}
+                        </Text>
+                    )}
+                    {!card && (
                         <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                     {card && card.type === 'virtual' && (
@@ -105,7 +110,7 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
                 )}
                 {!card && (
                     <View style={{ flexDirection: 'row', flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'space-between', paddingRight: 10 }}>
-                        <View style={{ flexDirection: 'column' }}>
+                        <View style={{ flexDirection: 'column', flexShrink: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
                                 <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
                                     {t('products.zenPay.card.defaultTitle')}

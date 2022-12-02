@@ -305,6 +305,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                         injectedJavaScriptBeforeContentLoaded={injectSource}
                         onShouldStartLoadWithRequest={loadWithRequest}
                         onMessage={handleWebViewMessage}
+                        keyboardDisplayRequiresUserAction={false}
                     />
                 </KeyboardAvoidingView>
                 <Animated.View

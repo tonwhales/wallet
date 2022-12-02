@@ -41,7 +41,7 @@ export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<Tex
     r = parts.join(' ');
 
     const precision = !!props.decimals
-        ? props.decimals
+        ? r.length > 2 ? 2 : props.decimals
         : props.precision
             ? props.precision
             : r.length > 2 ? 2 : p[1].length

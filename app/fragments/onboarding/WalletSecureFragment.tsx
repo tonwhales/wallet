@@ -15,6 +15,7 @@ import { Theme } from '../../Theme';
 import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
+import { storagePersistence } from '../../storage/storage';
 
 export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const safeArea = useSafeAreaInsets();
@@ -50,7 +51,8 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
 
                 // Resolve contract
-                const contract = await contractFromPublicKey(key.publicKey);
+                const walletId = storagePersistence.getNumber('wallet-v4-wallet-id');
+                const contract = await contractFromPublicKey(key.publicKey, walletId);
 
                 // Persist state
                 const state = getAppState();

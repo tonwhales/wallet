@@ -132,7 +132,7 @@ export const AppComponent = React.memo((props: {
 
     const engine = useEngine();
     const injectSource = React.useMemo(() => {
-        const contract = contractFromPublicKey(engine.publicKey);
+        const contract = contractFromPublicKey(engine.publicKey, engine.walletId);
         const walletConfig = contract.source.backup();
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);

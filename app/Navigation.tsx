@@ -63,6 +63,7 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { storagePersistence } from './storage/storage';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -193,6 +194,7 @@ const navigation = [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
+    const walletId = storagePersistence.getNumber('wallet-v4-wallet-id');
 
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
 
@@ -205,7 +207,7 @@ export const Navigation = React.memo(() => {
             mixpanel.identify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
             mixpanel.flush();
 
-            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater });
+            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater, walletId });
         } else {
             return null;
         }

@@ -98,7 +98,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         }
 
         // Load data
-        const contract = contractFromPublicKey(acc.publicKey);
+        const contract = contractFromPublicKey(acc.publicKey, engine.walletId);
         let walletConfig = contract.source.backup();
         let walletType = contract.source.type;
         let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });

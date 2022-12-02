@@ -5,7 +5,7 @@ import { log } from "../utils/log";
 import { createSimpleConnector } from "./api/Connector";
 import { Engine } from "./Engine";
 
-export function createEngine(args: { address: Address, publicKey: Buffer, utilityKey: Buffer, recoilUpdater: (node: any, value: any) => void }) {
+export function createEngine(args: { address: Address, publicKey: Buffer, utilityKey: Buffer, recoilUpdater: (node: any, value: any) => void, walletId?: number }) {
     let start = Date.now();
     log('Starting engine...');
     let res = new Engine(
@@ -23,7 +23,8 @@ export function createEngine(args: { address: Address, publicKey: Buffer, utilit
             estimate: 'https://connect.tonhubapi.com/net/testnet/estimate',
             sender: 'https://connect.tonhubapi.com/net/testnet/send',
         }),
-        { updater: args.recoilUpdater }
+        { updater: args.recoilUpdater },
+        args.walletId
     );
     log('Engine started in ' + (Date.now() - start) + ' ms');
     return res;

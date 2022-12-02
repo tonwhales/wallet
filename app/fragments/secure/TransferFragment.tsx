@@ -420,7 +420,7 @@ export const TransferFragment = fragment(() => {
             }
 
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey);
+            const contract = contractFromPublicKey(from.publicKey, engine.walletId);
 
             // Create transfer
             let intMessage = new InternalMessage({

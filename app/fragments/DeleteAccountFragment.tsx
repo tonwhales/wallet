@@ -152,7 +152,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has at least 0.1 TON 
             if (account.balance.gt(toNano('0.1'))) {
-                const contract = await contractFromPublicKey(addr.publicKey);
+                const contract = await contractFromPublicKey(addr.publicKey, engine.walletId);
 
                 // Check if same address
                 if (target.address.equals(contract.address)) {

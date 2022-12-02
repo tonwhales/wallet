@@ -178,7 +178,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Load contract
-        const contract = await contractFromPublicKey(acc.publicKey);
+        const contract = await contractFromPublicKey(acc.publicKey, engine.walletId);
 
         // Check if same address
         if (address.equals(contract.address)) {

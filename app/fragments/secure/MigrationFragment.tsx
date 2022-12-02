@@ -50,7 +50,7 @@ const MigrationProcessFragment = fragment(() => {
                 navigation.goBack();
                 return;
             }
-            let targetContract = await contractFromPublicKey(key.keyPair.publicKey);
+            let targetContract = await contractFromPublicKey(key.keyPair.publicKey, engine.walletId);
 
             // Check possible addresses
             const legacyTypes: WalletContractType[] = [

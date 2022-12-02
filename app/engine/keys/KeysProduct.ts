@@ -26,7 +26,7 @@ export class KeysProduct {
 
         // Create new key
         const acc = getCurrentAddress();
-        const contract = contractFromPublicKey(acc.publicKey);
+        const contract = contractFromPublicKey(acc.publicKey, this.engine.walletId);
         let time = Math.floor(Date.now() / 1000);
 
         // Create signing key

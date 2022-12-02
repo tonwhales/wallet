@@ -29,6 +29,7 @@ export class Engine {
     // Config
     readonly address: Address;
     readonly publicKey: Buffer;
+    readonly walletId?: number;
 
     // Storage
     readonly persistence: Persistence;
@@ -66,8 +67,9 @@ export class Engine {
         persistence: MMKV,
         client4Endpoint: string,
         connector: Connector,
-        recoil: RecoilInterface
-    ) {
+        recoil: RecoilInterface,
+        walletId?: number,
+        ) {
         this.recoil = recoil;
         this.persistence = new Persistence(persistence, this);
         this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
@@ -79,6 +81,7 @@ export class Engine {
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.transactions = new Transactions(this);
         this.cloud = new Cloud(this, utilityKey);
+        this.walletId = walletId;
 
         //
         // Start sync

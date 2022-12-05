@@ -105,57 +105,62 @@ export const ContactsFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <ScrollView>
+            {(!contactsList || contactsList.length === 0) && (
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    borderRadius: 14,
                     paddingHorizontal: 16,
-                    flexShrink: 1,
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    justifyContent: 'center', alignItems: 'center'
                 }}>
-                    {contactsList.map((d) => {
-                        return (
-                            <ContactItemView
-                                key={`contact-${d[0]}`}
-                                addr={d[0]}
-                                contact={d[1]}
-                            />
-                        );
-                    })}
-                    {(!contactsList || contactsList.length === 0) && (
-                        <>
-
-                            <View style={{ alignItems: 'center' }}>
-                                <LottieView
-                                    ref={anim}
-                                    source={require('../../assets/animations/empty.json')}
-                                    autoPlay={true}
-                                    loop={true}
-                                    style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
-                                />
-                                <Text style={{
-                                    fontSize: 18,
-                                    fontWeight: '700',
-                                    marginHorizontal: 8,
-                                    marginBottom: 8,
-                                    textAlign: 'center',
-                                    color: Theme.textColor,
-                                }}
-                                >
-                                    {t('contacts.empty')}
-                                </Text>
-                                <Text style={{
-                                    fontSize: 16,
-                                    color: '#6D6D71',
-                                    marginVertical: 8,
-                                }}>
-                                    {t('contacts.description')}
-                                </Text>
-                            </View>
-                            {transactionsComponents}
-                        </>
-                    )}
+                    <View style={{ alignItems: 'center' }}>
+                        <LottieView
+                            ref={anim}
+                            source={require('../../assets/animations/empty.json')}
+                            autoPlay={true}
+                            loop={true}
+                            style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
+                        />
+                        <Text style={{
+                            fontSize: 18,
+                            fontWeight: '700',
+                            marginHorizontal: 8,
+                            marginBottom: 8,
+                            textAlign: 'center',
+                            color: Theme.textColor,
+                        }}
+                        >
+                            {t('contacts.empty')}
+                        </Text>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#6D6D71',
+                            marginVertical: 8,
+                        }}>
+                            {t('contacts.description')}
+                        </Text>
+                    </View>
+                    {transactionsComponents}
                 </View>
-            </ScrollView>
+            )}
+            {(contactsList && contactsList.length > 0) && (
+                <ScrollView>
+                    <View style={{
+                        marginBottom: 16, marginTop: 17,
+                        borderRadius: 14,
+                        paddingHorizontal: 16,
+                        flexShrink: 1,
+                    }}>
+                        {contactsList.map((d) => {
+                            return (
+                                <ContactItemView
+                                    key={`contact-${d[0]}`}
+                                    addr={d[0]}
+                                    contact={d[1]}
+                                />
+                            );
+                        })}
+                    </View>
+                </ScrollView>
+            )}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

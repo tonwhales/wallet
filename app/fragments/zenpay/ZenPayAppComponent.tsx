@@ -60,7 +60,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             engine.products.zenPay.doSync();
             navigation.goBack();
             trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
-            return false;
+            return true;
         }
     }, [webRef, canGoBack, promptBeforeExit]);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
@@ -272,8 +272,17 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             setLoaded(true);
                             opacity.value = 0;
                         }}
+                        onLoadProgress={(event) => {
+                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                // Update canGoBack
+                                if (event.nativeEvent.url.endsWith('details') || event.nativeEvent.url.endsWith('deposit') || event.nativeEvent.url.endsWith('limits')) {
+                                    setCanGoBack(event.nativeEvent.canGoBack);
+                                } else {
+                                    setCanGoBack(false);
+                                }
+                            }
+                        }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
-
                             // Update canGoBack
                             if (event.url.endsWith('details') || event.url.endsWith('deposit') || event.url.endsWith('limits')) {
                                 setCanGoBack(event.canGoBack);

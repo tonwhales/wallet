@@ -38,8 +38,6 @@ export const ZenPayAppFragment = fragment(() => {
         return false;
     }, []);
 
-    console.log({ showInfoInitial, params, status });
-
     const [showInfo, setShowInfo] = React.useState(showInfoInitial);
 
     const needsEnrolment = useMemo(() => {

@@ -168,14 +168,16 @@ export const ConnectionsFragment = fragment(() => {
             <AndroidToolbar />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        marginLeft: 17,
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>{t('auth.name')}</Text>
+                        fontSize: 17,
+                        textAlign: 'center'
+                    }]}>
+                        {t('auth.apps.title')}
+                    </Text>
                 </View>
             )}
             <ScrollView style={{ flexGrow: 1 }}>
@@ -187,6 +189,12 @@ export const ConnectionsFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
+                    <Text style={{
+                        fontSize: 16,
+                        color: '#6D6D71',
+                    }}>
+                        {t('auth.apps.description')}
+                    </Text>
                     {extensions.length > 0 && (
                         <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                             <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.extensions')}</Text>

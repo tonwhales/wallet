@@ -133,6 +133,16 @@ export const AccountsFragment = fragment(() => {
                         flexShrink: 1,
                     }}>
                         <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            {disabled.length === 0 && (
+                                <Text style={{
+                                    marginHorizontal: 16,
+                                    fontSize: 16,
+                                    color: '#6D6D71'
+                                }}
+                                >
+                                    {t('accounts.description')}
+                                </Text>
+                            )}
                             {jettons.length > 0 && (
                                 <Text style={{
                                     fontSize: 18,
@@ -143,16 +153,6 @@ export const AccountsFragment = fragment(() => {
                                 }}
                                 >
                                     {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
-                                </Text>
-                            )}
-                            {disabled.length === 0 && (
-                                <Text style={{
-                                    marginHorizontal: 16,
-                                    fontSize: 16,
-                                    color: '#6D6D71'
-                                }}
-                                >
-                                    {t('accounts.description')}
                                 </Text>
                             )}
                         </View>

@@ -248,7 +248,7 @@ android {
             applicationId 'com.tonhub.wallet'
         }
         nettest {
-            applicationId 'com.tonhub.wallet.testnet'
+            applicationId 'com.sandbox.app.zenpay.demo'
         }
     }
 
@@ -356,6 +356,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:23.0.0'
     implementation 'com.google.firebase:firebase-installations:17.0.0'
     implementation 'com.google.firebase:firebase-iid:21.1.0'
+    implementation 'androidx.work:work-runtime-ktx:2.7.0'
 }
 
 if (isNewArchitectureEnabled()) {

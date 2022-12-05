@@ -94,6 +94,64 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:809209865445:android:737fdce79a4a046a00200c",
+        "android_client_info": {
+          "package_name": "com.sandbox.app.zenpay.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMjCiQCAJhcnLzrRnerzxnPyceDK3k_YM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809209865445:android:737fdce79a4a046a00200c",
+        "android_client_info": {
+          "package_name": "com.sandbox.app.zenpay.demo.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMjCiQCAJhcnLzrRnerzxnPyceDK3k_YM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:809209865445:android:1bc9c06fbd15da1a00200c",
         "android_client_info": {
           "package_name": "com.tonhub.wallet.testnet.debug"

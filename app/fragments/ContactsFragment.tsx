@@ -107,11 +107,10 @@ export const ContactsFragment = fragment(() => {
             )}
             {(!contactsList || contactsList.length === 0) && (
                 <View style={{
-                    paddingHorizontal: 16,
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    <View style={{ alignItems: 'center' }}>
+                    <View style={{ alignItems: 'center', paddingHorizontal: 16, }}>
                         <LottieView
                             ref={anim}
                             source={require('../../assets/animations/empty.json')}
@@ -132,17 +131,18 @@ export const ContactsFragment = fragment(() => {
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: '#6D6D71',
-                            marginVertical: 8,
+                            color: '#6D6D71'
                         }}>
                             {t('contacts.description')}
                         </Text>
                     </View>
-                    {transactionsComponents}
+                    <View style={{ width: '100%' }}>
+                        {transactionsComponents}
+                    </View>
                 </View>
             )}
             {(contactsList && contactsList.length > 0) && (
-                <ScrollView>
+                <ScrollView style={{ flexGrow: 1 }}>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
                         borderRadius: 14,

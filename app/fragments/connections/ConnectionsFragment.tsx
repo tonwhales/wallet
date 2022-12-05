@@ -102,7 +102,7 @@ export const ConnectionsFragment = fragment(() => {
     if (apps.length === 0 && extensions.length === 0) {
         return (
             <View style={{
-                flex: 1,
+                flexGrow: 1,
                 paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             }}>
                 <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
@@ -120,10 +120,9 @@ export const ConnectionsFragment = fragment(() => {
                 )}
                 <View style={{
                     alignItems: 'center',
-                    marginBottom: 16,
-                    marginTop: 17,
-                    borderRadius: 14,
-                    flexShrink: 1,
+                    justifyContent: 'center',
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    paddingHorizontal: 16
                 }}>
                     <LottieView
                         ref={anim}
@@ -146,8 +145,6 @@ export const ConnectionsFragment = fragment(() => {
                     <Text style={{
                         fontSize: 16,
                         color: '#6D6D71',
-                        marginHorizontal: 16,
-                        marginVertical: 8,
                     }}>
                         {t('auth.apps.description')}
                     </Text>
@@ -155,9 +152,7 @@ export const ConnectionsFragment = fragment(() => {
                 {Platform.OS === 'ios' && (
                     <CloseButton
                         style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
+                        onPress={() => { navigation.goBack() }}
                     />
                 )}
             </View>
@@ -183,7 +178,7 @@ export const ConnectionsFragment = fragment(() => {
                     }, { textAlign: 'center' }]}>{t('auth.name')}</Text>
                 </View>
             )}
-            <ScrollView>
+            <ScrollView style={{ flexGrow: 1 }}>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     marginHorizontal: 16,
@@ -225,9 +220,7 @@ export const ConnectionsFragment = fragment(() => {
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
+                    onPress={() => { navigation.goBack() }}
                 />
             )}
         </View>

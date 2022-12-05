@@ -74,7 +74,7 @@ export const AccountsFragment = fragment(() => {
 
     return (
         <View style={{
-            flex: 1,
+            flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
@@ -92,97 +92,109 @@ export const AccountsFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <ScrollView>
+            {jettons.length === 0 && (
                 <View style={{
-                    marginBottom: 16, 
-                    marginTop: 17,
-                    borderRadius: 14,
-                    flexShrink: 1,
+                    paddingHorizontal: 16,
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    justifyContent: 'center', alignItems: 'center'
                 }}>
-                    {jettons.length === 0 && (
-                        <View style={{ alignItems: 'center' }}>
-                            <LottieView
-                                ref={anim}
-                                source={require('../../assets/animations/empty.json')}
-                                autoPlay={true}
-                                loop={true}
-                                style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
-                            />
-                            <Text style={{
-                                fontSize: 18,
-                                fontWeight: '700',
-                                marginHorizontal: 16,
-                                marginBottom: 8,
-                                textAlign: 'center',
-                                color: Theme.textColor,
-                            }}
-                            >
-                                {t('accounts.noAccounts')}
-                            </Text>
-                        </View>
-                    )}
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        {jettons.length > 0 && (
-                            <Text style={{
-                                fontSize: 18,
-                                fontWeight: '700',
-                                marginHorizontal: 16,
-                                marginVertical: 8,
-                                color: active.length > 0 ? Theme.textColor : Theme.textSecondary
-                            }}
-                            >
-                                {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
-                            </Text>
-                        )}
-                        {disabled.length === 0 && (
-                            <Text style={{
-                                marginHorizontal: 16,
-                                fontSize: 16,
-                                color: '#6D6D71'
-                            }}
-                            >
-                                {t('accounts.description')}
-                            </Text>
-                        )}
-                    </View>
-                    {active.map((j) => {
-                        return (
-                            <JettonProduct
-                                key={'jt' + j.wallet.toFriendly()}
-                                jetton={j}
-                                navigation={navigation}
-                                engine={engine}
-                                onPress={() => promptDisable(j.master, j.symbol)}
-                            />
-                        );
-                    })}
-                    {disabled.length > 0 && (
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                            <Text style={{
-                                fontSize: 18,
-                                fontWeight: '700',
-                                marginHorizontal: 16,
-                                marginVertical: 8
-                            }}
-                            >
-                                {t('accounts.disabled')}
-                            </Text>
-                        </View>
-                    )}
-                    {disabled.map((j) => {
-                        return (
-                            <JettonProduct
-                                key={'jt' + j.wallet.toFriendly()}
-                                jetton={j}
-                                navigation={navigation}
-                                engine={engine}
-                                onPress={() => promptActive(j.master, j.symbol)}
-                                onLongPress={() => { }}
-                            />
-                        );
-                    })}
+                    <LottieView
+                        ref={anim}
+                        source={require('../../assets/animations/empty.json')}
+                        autoPlay={true}
+                        loop={true}
+                        style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
+                    />
+                    <Text style={{
+                        fontSize: 18,
+                        fontWeight: '700',
+                        marginBottom: 8,
+                        textAlign: 'center',
+                        color: Theme.textColor,
+                    }}
+                    >
+                        {t('accounts.noAccounts')}
+                    </Text>
+                    <Text style={{
+                        fontSize: 16,
+                        color: '#6D6D71'
+                    }}
+                    >
+                        {t('accounts.description')}
+                    </Text>
                 </View>
-            </ScrollView>
+            )}
+            {jettons.length > 0 && (
+                <ScrollView style={{ flexGrow: 1 }}>
+                    <View style={{
+                        marginBottom: 16,
+                        marginTop: 17,
+                        borderRadius: 14,
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            {jettons.length > 0 && (
+                                <Text style={{
+                                    fontSize: 18,
+                                    fontWeight: '700',
+                                    marginHorizontal: 16,
+                                    marginVertical: 8,
+                                    color: active.length > 0 ? Theme.textColor : Theme.textSecondary
+                                }}
+                                >
+                                    {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
+                                </Text>
+                            )}
+                            {disabled.length === 0 && (
+                                <Text style={{
+                                    marginHorizontal: 16,
+                                    fontSize: 16,
+                                    color: '#6D6D71'
+                                }}
+                                >
+                                    {t('accounts.description')}
+                                </Text>
+                            )}
+                        </View>
+                        {active.map((j) => {
+                            return (
+                                <JettonProduct
+                                    key={'jt' + j.wallet.toFriendly()}
+                                    jetton={j}
+                                    navigation={navigation}
+                                    engine={engine}
+                                    onPress={() => promptDisable(j.master, j.symbol)}
+                                />
+                            );
+                        })}
+                        {disabled.length > 0 && (
+                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                                <Text style={{
+                                    fontSize: 18,
+                                    fontWeight: '700',
+                                    marginHorizontal: 16,
+                                    marginVertical: 8
+                                }}
+                                >
+                                    {t('accounts.disabled')}
+                                </Text>
+                            </View>
+                        )}
+                        {disabled.map((j) => {
+                            return (
+                                <JettonProduct
+                                    key={'jt' + j.wallet.toFriendly()}
+                                    jetton={j}
+                                    navigation={navigation}
+                                    engine={engine}
+                                    onPress={() => promptActive(j.master, j.symbol)}
+                                    onLongPress={() => { }}
+                                />
+                            );
+                        })}
+                    </View>
+                </ScrollView>
+            )}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

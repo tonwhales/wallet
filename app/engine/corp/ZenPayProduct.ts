@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
-import { fetchAccountState } from "../api/fetchCardState";
+import { fetchAccountState } from "../api/zenpay/fetchAccountState";
 import { fetchAccountToken } from "../api/zenpay/fetchAccountToken";
 import { fetchCardList } from "../api/zenpay/fetchCardList";
 import { contractFromPublicKey } from "../contractFromPublicKey";
@@ -88,7 +88,7 @@ export class ZenPayProduct {
             // 
 
             let existing = await this.engine.cloud.readKey('zenpay-token');
-            if (existing) {
+            if (existing && existing.toString().length > 0) {
                 return true;
             } else {
                 //
@@ -173,7 +173,7 @@ export class ZenPayProduct {
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
                 const existing = await this.engine.cloud.readKey('zenpay-token');
-                if (existing) {
+                if (existing && existing.toString().length > 0) {
                     targetStatus.update((src) => {
                         if (!src || src.state === 'need-enrolment') {
                             return { state: 'need-phone', token: existing.toString() };
@@ -196,35 +196,55 @@ export class ZenPayProduct {
             // Update state from server
             if (status.state !== 'need-enrolment') {
                 const token = status.token;
-                let state = await fetchAccountState(token);
-                targetStatus.update((src) => {
-                    if (state.state === 'need-phone') {
-                        if (src!.state !== 'need-phone') {
-                            return { state: 'need-phone', token: token };
-                        }
+
+                if (token && token.length > 0) {
+                    let state = await fetchAccountState(token);
+
+                    // Clear token if no-ref
+                    if (state.state === 'no-ref') {
+                        await this.engine.cloud.update('zenpay-token', () => Buffer.from(''));
+                        this.stopWatching();
+                        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
+                            return null;
+                        });
                     }
-                    if (state.state === 'need-kyc') {
-                        if (src!.state !== 'need-kyc') {
-                            return { state: 'need-kyc', token: token };
+
+                    targetStatus.update((src) => {
+                        if (state.state === 'no-ref') {
+                            return { state: 'need-enrolment' };
                         }
-                    }
-                    if (state.state === 'ok') {
-                        if (src!.state !== 'ready') {
-                            return { state: 'ready', token: token };
+                        if (state.state === 'need-phone') {
+                            if (src!.state !== 'need-phone') {
+                                return { state: 'need-phone', token: token };
+                            }
                         }
-                    }
-                    return src;
-                });
+                        if (state.state === 'need-kyc') {
+                            if (src!.state !== 'need-kyc') {
+                                return { state: 'need-kyc', token: token };
+                            }
+                        }
+                        if (state.state === 'ok') {
+                            if (src!.state !== 'ready') {
+                                return { state: 'ready', token: token };
+                            }
+                        }
+                        return src;
+                    });
+                } else {
+                    targetStatus.update(() => {
+                        return { state: 'need-enrolment' };
+                    });
+                }
             }
 
             // Initial sync
-            if (status.state === 'ready') {
+            if (targetStatus.value?.state === 'ready') {
                 await this.syncAccounts();
             }
 
             // Start watcher if ready
-            if (status.state === 'ready' && !this.watcher) {
-                this.watch(status.token);
+            if (targetStatus.value?.state === 'ready' && !this.watcher) {
+                this.watch(targetStatus.value.token);
             }
         });
     }

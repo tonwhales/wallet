@@ -23,7 +23,6 @@
     "@react-navigation/stack": "^6.0.11",
     "@shopify/flash-list": "^1.4.0",
     "@shopify/react-native-skia": "^0.1.156",
-    "@sumsub/react-native-mobilesdk-module": "^1.19.7",
     "@types/bn.js": "^5.1.0",
     "@types/color": "^3.0.3",
     "@types/events": "^3.0.0",

@@ -189,6 +189,11 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         };
         item.update(() => newState);
 
+        // TODO: Fix when testnet is updated to be able to fetch chart data
+        if (AppConfig.isTestnet) {
+            return;
+        }
+
         if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
             return;
         }

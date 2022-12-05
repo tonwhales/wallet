@@ -20,7 +20,6 @@ export const ZenPayAppFragment = fragment(() => {
     const params = useParams<ZenPayAppParams>();
     const safeArea = useSafeAreaInsets();
     const status = engine.products.zenPay.useStatus();
-    const accounts = engine.products.zenPay.useCards();
     const endpoint = useMemo(() => {
         return 'https://next.zenpay.org' + (
             params.type === 'account'
@@ -31,14 +30,7 @@ export const ZenPayAppFragment = fragment(() => {
         );
     }, [params, status]);
 
-    const showInfoInitial = useMemo(() => {
-        if (accounts.length === 0 && params.type === 'account' && status.state === 'ready') {
-            return true;
-        }
-        return false;
-    }, []);
-
-    const [showInfo, setShowInfo] = React.useState(showInfoInitial);
+    const [showInfo, setShowInfo] = React.useState(endpoint.includes('/create') ? true : false);
 
     const needsEnrolment = useMemo(() => {
         try {
@@ -80,11 +72,11 @@ export const ZenPayAppFragment = fragment(() => {
                 />
             )}
 
-            {needsEnrolment && !showInfo && (
+            {needsEnrolment && (
                 <ZenPayEnrollmentComponent engine={engine} endpoint={endpoint} />
             )}
 
-            {showInfo && (
+            {showInfo && !needsEnrolment && (
                 <ZenPayInfoComponent callback={() => { setShowInfo(false) }} />
             )}
         </View>

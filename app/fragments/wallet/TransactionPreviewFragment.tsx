@@ -214,7 +214,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     </View>
                     {transaction.base.status === 'failed' ? (
                         <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
-                            {'failed'}
+                            {t('tx.failed')}
                         </Text>
                     ) : (
                         <>

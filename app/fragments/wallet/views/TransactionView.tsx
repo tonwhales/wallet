@@ -249,7 +249,9 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                                 )}
                             </View>
                             {parsed.status === 'failed' ? (
-                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
+                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                                    {t('tx.failed')}
+                                </Text>
                             ) : (
                                 <Text
                                     style={{

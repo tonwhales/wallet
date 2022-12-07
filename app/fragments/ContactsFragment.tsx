@@ -57,7 +57,6 @@ export const ContactsFragment = fragment(() => {
 
     const editContact = useMemo(() => {
         return !!contactsList.find(([key, value]) => {
-            console.log({ key, target });
             return key === target
         });
     }, [contactsList, target]);

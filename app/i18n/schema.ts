@@ -72,7 +72,12 @@ export type LocalizationSchema = {
         empty: {
             message: string,
             receive: string
-        }
+        },
+        pendingTransactions: string
+    },
+    transactions: {
+        title: string,
+        history: string,
     },
     tx: {
         sending: string,

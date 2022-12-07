@@ -34,8 +34,9 @@ export const ContactsFragment = fragment(() => {
     const inputRef: React.RefObject<ATextInputRef> = React.createRef();
     const validAddress = useMemo(() => {
         try {
-            const parsed = Address.parse(target);
-            return target;
+            const valid = target.trim();
+            Address.parse(valid);
+            return valid;
         } catch (error) {
             return null;
         }

@@ -154,6 +154,7 @@ export type LocalizationSchema = {
                 title: string,
                 message: string
             },
+            description: string,
             installExtension: string
         },
         consent: string,
@@ -448,7 +449,9 @@ export type LocalizationSchema = {
         noActive: string,
         disabled: string,
         alertActive: string,
-        alertDisabled: string
+        alertDisabled: string,
+        description: string,
+        noAccounts: string,
     },
     spamFilter: {
         minAmount: string,

@@ -94,9 +94,7 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
-    if (!AppConfig.isTestnet) {
-        apps.push(<StakingProductComponent key={'pool'} />);
-    }
+    apps.push(<StakingProductComponent key={'pool'} />);
 
     if (__DEV__) {
 

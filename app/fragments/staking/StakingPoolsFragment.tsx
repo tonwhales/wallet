@@ -69,7 +69,7 @@ function PoolComponent(props: {
     const apy = props.engine.products.whalesStakingPools.useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
-            return `${t('common.apy')} ~${(apy - apy * (poolFee / 100)).toFixed(2)}%`
+            return `${t('products.staking.info.poolFeeTitle')} ${poolFee}%` + ` (${t('common.apy')} ~${(apy - apy * (poolFee / 100)).toFixed(2)}%)`;
         }
     }, [apy, poolFee]);
 

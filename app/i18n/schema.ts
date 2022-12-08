@@ -516,7 +516,8 @@ export type LocalizationSchema = {
         },
         delete: string,
         empty: string,
-        description: string
+        description: string,
+        contactAddress: string,
     },
     currency: {
         USD: string,

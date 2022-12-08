@@ -27,7 +27,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onTargetChange,
     isKnown,
     index,
-    contact
+    contact,
+    labelText
 }: {
     style?: StyleProp<ViewStyle>,
     onFocus?: (index: number) => void,
@@ -40,7 +41,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onDomainChange: (domain: string | undefined) => void,
     isKnown?: boolean,
     index: number,
-    contact?: AddressContact
+    contact?: AddressContact,
+    labelText?: string
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
     const [resolving, setResolving] = useState<boolean>();
@@ -61,7 +63,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             let domain = zone === '.ton'
                 ? toResolve.slice(0, toResolve.length - 4)
                 : toResolve.slice(0, toResolve.length - 5);
-                
+
             const valid = validateDomain(domain);
 
             if (!valid) {
@@ -141,7 +143,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                         color: '#7D858A',
                         alignSelf: 'flex-start',
                     }}>
-                        {t('transfer.sendTo')}
+                        {labelText ? labelText : t('transfer.sendTo')}
                     </Text>
                     {(isKnown && target && !resolvedAddress && !resolving) && (
                         <Animated.View

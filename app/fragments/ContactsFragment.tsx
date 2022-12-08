@@ -2,9 +2,13 @@ import { StatusBar } from "expo-status-bar";
 import React, { useLayoutEffect, useMemo, useRef } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Address } from "ton";
+import { AddressDomainInput } from "../components/AddressDomainInput";
 import { AndroidToolbar } from "../components/AndroidToolbar";
+import { ATextInputRef } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
+import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
@@ -23,29 +27,85 @@ export const ContactsFragment = fragment(() => {
     const settings = engine.products.settings;
     const contacts = settings.useContacts();
 
+    const [addingAddress, setAddingAddress] = useState(false);
+    const [domain, setDomain] = React.useState<string>();
+    const [target, setTarget] = React.useState('');
+    const [addressDomainInput, setAddressDomainInput] = React.useState('');
+    const inputRef: React.RefObject<ATextInputRef> = React.createRef();
+    const validAddress = useMemo(() => {
+        try {
+            const valid = target.trim();
+            Address.parse(valid);
+            return valid;
+        } catch (error) {
+            return null;
+        }
+    }, [target]);
+
+    const onAddContact = useCallback(
+        () => {
+            if (validAddress) {
+                setAddingAddress(false);
+                navigation.navigate('Contact', { address: validAddress });
+            }
+        },
+        [validAddress],
+    );
+
     const contactsList = useMemo(() => {
         return Object.entries(contacts);
     }, [contacts]);
 
-    const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: string[] }[] = [];
+    const editContact = useMemo(() => {
+        return !!contactsList.find(([key, value]) => {
+            return key === target
+        });
+    }, [contactsList, target]);
+
+    const transactionsComponents: any[] = React.useMemo(() => {
+        let transactionsSectioned: { title: string, items: string[] }[] = [];
         if (transactions.length > 0) {
             let lastTime: string = getDateKey(transactions[0].time);
             let lastSection: string[] = [];
             let title = formatDate(transactions[0].time);
-            sections.push({ title, items: lastSection });
+            transactionsSectioned.push({ title, items: lastSection });
             for (let t of transactions.length >= 3 ? transactions.slice(0, 3) : transactions) {
                 let time = getDateKey(t.time);
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
                     title = formatDate(t.time);
-                    sections.push({ title, items: lastSection });
+                    transactionsSectioned.push({ title, items: lastSection });
                 }
                 lastSection.push(t.id);
             }
         }
-        return sections;
+
+        const views = [];
+        for (let s of transactionsSectioned) {
+            views.push(
+                <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                    <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
+                </View>
+            );
+            views.push(
+                <View
+                    key={'s-' + s.title}
+                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }}
+                    collapsable={false}
+                >
+                    {s.items.map((t, i) => <TransactionView
+                        own={engine.address}
+                        engine={engine}
+                        tx={t}
+                        separator={i < s.items.length - 1}
+                        key={'tx-' + t}
+                        onPress={() => { }}
+                    />)}
+                </View >
+            );
+        }
+        return views;
     }, [transactions]);
 
     const transactionsComponents: any[] = [];

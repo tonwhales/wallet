@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useLayoutEffect, useMemo, useRef } from "react";
-import { Platform, View, Text, ScrollView } from "react-native";
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation } from "react-native";
+import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { AddressDomainInput } from "../components/AddressDomainInput";
@@ -108,30 +109,9 @@ export const ContactsFragment = fragment(() => {
         return views;
     }, [transactions]);
 
-    const transactionsComponents: any[] = [];
-    for (let s of transactionsSectioned) {
-        transactionsComponents.push(
-            <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
-            </View>
-        );
-        transactionsComponents.push(
-            <View
-                key={'s-' + s.title}
-                style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }}
-                collapsable={false}
-            >
-                {s.items.map((t, i) => <TransactionView
-                    own={engine.address}
-                    engine={engine}
-                    tx={t}
-                    separator={i < s.items.length - 1}
-                    key={'tx-' + t}
-                    onPress={() => { }}
-                />)}
-            </View >
-        );
-    }
+    useLayoutEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [addingAddress]);
 
     // 
     // Lottie animation
@@ -221,6 +201,113 @@ export const ContactsFragment = fragment(() => {
                     </View>
                 </ScrollView>
             )}
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{
+                    marginTop: 16,
+                    marginBottom: safeArea.bottom + 16,
+                    position: 'absolute', bottom: 0, left: 16, right: 16,
+                }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+            >
+                {addingAddress && (
+                    <>
+                        {Platform.OS === 'android' && (
+                            <Animated.View entering={FadeInDown}>
+                                <View style={{
+                                    marginBottom: 16, marginTop: 17,
+                                    backgroundColor: Theme.item,
+                                    borderRadius: 14,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <AddressDomainInput
+                                        input={addressDomainInput}
+                                        onInputChange={setAddressDomainInput}
+                                        target={target}
+                                        index={1}
+                                        ref={inputRef}
+                                        onTargetChange={setTarget}
+                                        onDomainChange={setDomain}
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            paddingHorizontal: 0,
+                                            marginHorizontal: 16,
+                                        }}
+                                        onSubmit={onAddContact}
+                                        labelText={t('contacts.contactAddress')}
+                                    />
+                                </View>
+                            </Animated.View>
+                        )}
+                        {Platform.OS !== 'android' && (
+                            <View style={{
+                                marginBottom: 16, marginTop: 17,
+                                backgroundColor: Theme.item,
+                                borderRadius: 14,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                                <AddressDomainInput
+                                    input={addressDomainInput}
+                                    onInputChange={setAddressDomainInput}
+                                    target={target}
+                                    index={1}
+                                    ref={inputRef}
+                                    onTargetChange={setTarget}
+                                    onDomainChange={setDomain}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0,
+                                        marginHorizontal: 16,
+                                    }}
+                                    onSubmit={onAddContact}
+                                    labelText={t('contacts.contactAddress')}
+                                />
+                            </View>
+                        )}
+                    </>
+                )}
+                <View style={{ flexDirection: 'row', width: '100%' }}>
+                    {addingAddress && (
+                        <>
+                            {Platform.OS === 'android' && (
+                                <Animated.View entering={FadeInLeft} exiting={FadeOutRight}>
+                                    <RoundButton
+                                        title={t('common.cancel')}
+                                        disabled={!addingAddress}
+                                        onPress={() => setAddingAddress(false)}
+                                        display={'secondary'}
+                                        style={{ flexGrow: 1, marginRight: 8 }}
+                                    />
+                                </Animated.View>
+                            )}
+                            {Platform.OS !== 'android' && (
+                                <RoundButton
+                                    title={t('common.cancel')}
+                                    disabled={!addingAddress}
+                                    onPress={() => setAddingAddress(false)}
+                                    display={'secondary'}
+                                    style={{ flexGrow: 1, marginRight: 8 }}
+                                />
+                            )}
+                        </>
+                    )}
+                    <RoundButton
+                        title={addingAddress && editContact ? t('contacts.edit') : t('contacts.add')}
+                        style={{ flexGrow: 1 }}
+                        disabled={addingAddress && !validAddress}
+                        onPress={() => {
+                            if (addingAddress) {
+                                onAddContact();
+                                return;
+                            }
+                            setAddingAddress(true);
+                        }}
+                        display={'default'}
+                    />
+                </View>
+            </KeyboardAvoidingView>
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

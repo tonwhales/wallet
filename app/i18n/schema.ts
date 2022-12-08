@@ -80,7 +80,8 @@ export type LocalizationSchema = {
         received: string,
         bounced: string,
         tokenTransfer: string,
-        airdrop: string
+        airdrop: string,
+        failed: string
     },
     txPreview: {
         sendAgain: string,

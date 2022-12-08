@@ -168,7 +168,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         received: 'Получено',
         bounced: 'Возвращено',
         tokenTransfer: 'Трансфер токенов',
-        airdrop: 'Airdrop'
+        airdrop: 'Airdrop',
+        failed: 'Ошибка',
     },
     txPreview: {
         sendAgain: 'Повторить',

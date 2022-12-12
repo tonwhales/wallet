@@ -86,7 +86,8 @@ export type LocalizationSchema = {
         received: string,
         bounced: string,
         tokenTransfer: string,
-        airdrop: string
+        airdrop: string,
+        failed: string
     },
     txPreview: {
         sendAgain: string,
@@ -159,6 +160,7 @@ export type LocalizationSchema = {
                 title: string,
                 message: string
             },
+            description: string,
             installExtension: string
         },
         consent: string,
@@ -475,7 +477,9 @@ export type LocalizationSchema = {
         noActive: string,
         disabled: string,
         alertActive: string,
-        alertDisabled: string
+        alertDisabled: string,
+        description: string,
+        noAccounts: string,
     },
     spamFilter: {
         minAmount: string,
@@ -540,7 +544,8 @@ export type LocalizationSchema = {
         },
         delete: string,
         empty: string,
-        description: string
+        description: string,
+        contactAddress: string,
     },
     currency: {
         USD: string,

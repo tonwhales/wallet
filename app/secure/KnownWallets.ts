@@ -34,6 +34,8 @@ const Img_venera = require('../../assets/known/Img_venera.jpeg');
 const Img_Team_1 = require('../../assets/known/ic_team_1.png');
 const Img_Team_2 = require('../../assets/known/ic_team_2.png');
 
+const Img_MEXC = require('../../assets/known/ic_mexc.png');
+
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
 export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
@@ -328,7 +330,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_TonTake
         },
-        
+
         [Address.parse('EQCOGv_9I544WnSLvuepzG8WetJek-ebNBwQ3-jfjTQYj5UY').toFriendly()]: {
             name: 'VENERA Exchange',
             colors: {
@@ -337,8 +339,20 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_venera
         },
+
+        [Address.parse('EQBX63RAdgShn34EAFMV73Cut7Z15lUZd1hnVva68SEl7sxi').toFriendly()]: {
+            name: 'MEXC',
+            colors: {
+                primary: '#16b979',
+                secondary: '#259D68'
+            },
+            ic: Img_MEXC
+        },
     }
 
-    export const KnownJettonMasters: { [key: string]: {} } = {
-        'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ }
+export const KnownJettonMasters: { [key: string]: {} } = !AppConfig.isTestnet
+    ? {
+        'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ },
+        'EQB-ajMyi5-WKIgOHnbOGApfckUGbl6tDk3Qt8PKmb-xLAvp': {},
     }
+    : {};

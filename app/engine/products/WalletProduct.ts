@@ -18,6 +18,7 @@ export type WalletState = {
     balance: BN;
     seqno: number;
     transactions: { id: string, time: number }[];
+    pending: { id: string, time: number }[];
     next: { lt: string, hash: string } | null;
 }
 
@@ -278,6 +279,7 @@ export class WalletProduct {
                         return t;
                     })
                 ],
+                pending: this.#pending.map((v) => ({ id: v.id, time: v.time })),
                 next
             };
 
@@ -372,6 +374,7 @@ export class WalletProduct {
                         return { id: t.id, time: t.time };
                     })
                 ],
+                pending: this.#pending.map((v) => ({ id: v.id, time: v.time })),
                 next
             };
 
@@ -406,7 +409,11 @@ export class WalletProduct {
         }
 
         // Update
-        this.#state = { ...this.#state, transactions: [{ id: src.id, time: src.time }, ...this.#state.transactions] };
+        this.#state = {
+            ...this.#state,
+            transactions: [{ id: src.id, time: src.time }, ...this.#state.transactions],
+            pending: [{ id: src.id, time: src.time }, ...this.#state.pending],
+        };
         this.#pending.push(src);
         this.#txs.set(src.id, src);
 

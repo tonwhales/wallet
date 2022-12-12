@@ -168,7 +168,7 @@ const WalletTransactions = React.memo((props: {
                     props.onLoadMore();
                 }
             }}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.7}
         />
     );
 });

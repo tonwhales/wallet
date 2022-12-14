@@ -24,11 +24,57 @@ import { HeaderBackButton } from "@react-navigation/elements";
 
 export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
     const engine = useEngine();
+    const zenPayCards = engine.products.zenPay.useCards();
     const [canGoBack, setCanGoBack] = React.useState(false);
     const [scrollEnabled, setScrollEnabled] = React.useState(true);
     const [promptBeforeExit, setPromptBeforeExit] = React.useState(true);
+    const [pageTitle, setPageTitle] = React.useState(t('products.zenPay.title'));
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
+
+    // 
+    // Page title
+    // 
+    const updatePateTitle = React.useCallback(
+        (url: string) => {
+            const card = /\/card\/[a-z0-9]/;
+            if (card.test(url)) {
+
+                let cardNumber: string | number | undefined | null = undefined;
+                const parts = url.split("/");
+                if (parts.length > 4) {
+                    const cardId = parts[4];
+                    const account = zenPayCards.find((c) => c.id === cardId);
+                    if (account) {
+                        cardNumber = account.card.lastFourDigits;
+                    }
+                }
+
+                const limits = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/limits$/;
+                if (limits.test(url)) {
+                    setPageTitle(cardNumber ? t('products.zenPay.pageTitles.cardLimits', { cardNumber }) : t('products.zenPay.pageTitles.cardLimitsDefault'));
+                    return;
+                }
+
+                const deposit = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/deposit$/;
+                if (deposit.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.cardDeposit'));
+                    return;
+                }
+
+                const details = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/details$/;
+                if (details.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.cardDetails'));
+                    return;
+                }
+
+                setPageTitle(t('products.zenPay.pageTitles.card'));
+            } else {
+                setPageTitle(t('products.zenPay.pageTitles.general'));
+            }
+        },
+        [zenPayCards],
+    );
 
     // 
     // Track events
@@ -181,12 +227,11 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         }
     }, [close]);
 
-
     return (
         <>
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <AndroidToolbar
-                    pageTitle={t('products.zenPay.title')}
+                    pageTitle={pageTitle}
                     onBack={close}
                 />
                 {Platform.OS === 'ios' && (
@@ -246,7 +291,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                                 fontSize: 17,
                                 textAlign: 'center',
                             }}>
-                                {t('products.zenPay.title')}
+                                {pageTitle}
                             </Text>
                         </View>
                     </>
@@ -280,9 +325,13 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                                 } else {
                                     setCanGoBack(false);
                                 }
+
+                                // Page title 
+                                updatePateTitle(event.nativeEvent.url);
                             }
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
+
                             // Update canGoBack
                             if (event.url.endsWith('details') || event.url.endsWith('deposit') || event.url.endsWith('limits')) {
                                 setCanGoBack(event.canGoBack);
@@ -303,6 +352,8 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             } else {
                                 setPromptBeforeExit(false);
                             }
+
+                            updatePateTitle(event.url);
                         }}
                         scrollEnabled={scrollEnabled}
                         contentInset={{ top: 0, bottom: 0 }}

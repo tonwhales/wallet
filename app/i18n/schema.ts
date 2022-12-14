@@ -346,6 +346,14 @@ export type LocalizationSchema = {
         },
         zenPay: {
             title: string,
+            pageTitles: {
+                general: string,
+                card: string,
+                cardDetails: string,
+                cardLimits: string,
+                cardLimitsDefault: string,
+                cardDeposit: string,
+            },
             card: {
                 defaultSubtitle: string,
                 defaultTitle: string,

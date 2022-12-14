@@ -344,6 +344,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         zenPay: {
             title: 'Tonhub bank card',
+            pageTitles: {
+                general: 'Tonhub Cards',
+                card: 'Tonhub Card',
+                cardDetails: 'Card Details',
+                cardLimits: '*{{cardNumber}} Card Limits',
+                cardLimitsDefault: 'Card Limits',
+                cardDeposit: 'Top Up TON',
+            },
             card: {
                 defaultSubtitle: 'TON to EUR (0% fee)',
                 defaultTitle: 'Tonhub Visa bank card',

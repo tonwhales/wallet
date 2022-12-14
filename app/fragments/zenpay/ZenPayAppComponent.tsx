@@ -38,6 +38,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     const updatePateTitle = React.useCallback(
         (url: string) => {
             const card = /\/card\/[a-z0-9]/;
+            const auth = /\/auth/;
             if (card.test(url)) {
 
                 let cardNumber: string | number | undefined | null = undefined;
@@ -69,6 +70,8 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                 }
 
                 setPageTitle(t('products.zenPay.pageTitles.card'));
+            } else if (auth.test(url)) {
+                setPageTitle(t('products.zenPay.title'));
             } else {
                 setPageTitle(t('products.zenPay.pageTitles.general'));
             }

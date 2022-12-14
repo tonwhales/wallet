@@ -344,7 +344,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             }
         },
         zenPay: {
-            title: 'Tonhub bank card',
+            title: 'Tonhub Bank card',
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',

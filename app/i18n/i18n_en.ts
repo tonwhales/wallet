@@ -343,7 +343,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             }
         },
         zenPay: {
-            title: 'Tonhub bank card',
+            title: 'Tonhub Bank card',
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',

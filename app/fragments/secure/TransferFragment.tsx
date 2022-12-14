@@ -160,7 +160,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         // Check bounce flag
         let bounce = true;
         if (!target.active) {
-            bounce = false;
+            bounce = order.stateInit ? true : false;
             if (target.balance.lte(new BN(0))) {
                 let cont = await confirm('transfer.error.addressIsNotActive');
                 if (!cont) {

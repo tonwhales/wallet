@@ -7,7 +7,8 @@ export const DNS_CATEGORY_NEXT_RESOLVER = 'dns_next_resolver'; // Smart Contract
 export const DNS_CATEGORY_WALLET = 'wallet'; // Smart Contract address
 export const DNS_CATEGORY_SITE = 'site'; // ADNL address
 
-export const tonDnsRootAddress = Address.parse('EQC3dNlesgVD8YbAazcauIrXBPfiVhMMr5YYk2in0Mtsz0Bz');
+export const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
+// export const tonDnsRootAddress = Address.parse('EQC3dNlesgVD8YbAazcauIrXBPfiVhMMr5YYk2in0Mtsz0Bz'); // old root (TON DNS Collection Address)
 
 export async function categoryToBN(category: string | undefined) {
     if (!category) return new BN(0); // all categories
@@ -187,11 +188,11 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
     const result = (await tonClient4.runMethod(seqno, dnsAddress, 'dnsresolve', [{ type: 'slice', cell: domainCell }, { type: 'int', value: categoryBN }])).result;
 
     if (result.length !== 2) {
-        throw new Error('Invalid dnsresolve response');
+        throw new Error('Invalid dnsresolve response, res.length !== 2');
     }
 
     if (result[0].type !== 'int') {
-        throw new Error('Invalid dnsresolve response');
+        throw new Error('Invalid dnsresolve response, res[0].type !== int');
     }
     const resultLen = result[0].value.toNumber();
 
@@ -200,7 +201,7 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
     }
 
     if (result[1].type !== 'cell') {
-        throw new Error('Invalid dnsresolve response');
+        throw new Error('Invalid dnsresolve response, res[1].type !== cell');
     }
     let cell: Cell | null = result[1].cell;
     if ((cell instanceof Array) && cell.length === 0) {
@@ -208,7 +209,7 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
     }
 
     if (cell && !cell.bits) { // not a Cell
-        throw new Error('Invalid dnsresolve response');
+        throw new Error('Invalid dnsresolve response, res[1].cell is not a Cell');
     }
 
     if (resultLen === 0) {

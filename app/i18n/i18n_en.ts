@@ -78,7 +78,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         received: 'Received',
         bounced: 'Bounced',
         tokenTransfer: 'Token transfer',
-        airdrop: 'Airdrop'
+        airdrop: 'Airdrop',
+        failed: 'Failed',
     },
     txPreview: {
         sendAgain: 'Send again',
@@ -151,6 +152,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 title: 'Delete this extension?',
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
             },
+            description: 'Applications or extensions you have authorized will be displayed here. You can revoke access from any app or extension at any time.',
             installExtension: 'Install and open extension for this application'
         },
         consent: 'By clicking continue you accepting our',
@@ -445,7 +447,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         noActive: 'No active accounts',
         disabled: 'Hidden',
         alertActive: 'Mark {{symbol}} active',
-        alertDisabled: 'Mark {{symbol}} hidden'
+        alertDisabled: 'Mark {{symbol}} hidden',
+        description: 'To change the status of an account, long press the account button on the home screen or press in this menu. The account will be added to the home screen or hidden.',
+        noAccounts: 'You have no accounts yet',
     },
     spamFilter: {
         minAmount: 'Min TON amount',
@@ -510,7 +514,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         delete: 'Delete contact',
         empty: 'No contacts yet',
-        description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.'
+        description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.',
+        contactAddress: 'Contacts address',
     },
     currency: {
         USD: "United States dollar",

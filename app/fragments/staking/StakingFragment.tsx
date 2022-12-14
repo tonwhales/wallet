@@ -54,6 +54,9 @@ export const StakingFragment = fragment(() => {
     }, [staking]);
 
     let available = useMemo(() => {
+        if (AppConfig.isTestnet) {
+            return true;
+        }
         return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
     }, [staking, target]);
 
@@ -248,6 +251,7 @@ export const StakingFragment = fragment(() => {
                             fontWeight: '500',
                             fontFamily: undefined
                         }}
+                        lockActions
                     />
                 </Animated.View>
                 <StakingPendingComponent

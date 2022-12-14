@@ -69,7 +69,7 @@ function PoolComponent(props: {
     const apy = props.engine.products.whalesStakingPools.useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
-            return `${t('common.apy')} ~${(apy - apy * (poolFee / 100)).toFixed(2)}%`
+            return `${t('products.staking.info.poolFeeTitle')} ${poolFee}%` + ` (${t('common.apy')} ~${(apy - apy * (poolFee / 100)).toFixed(2)}%)`;
         }
     }, [apy, poolFee]);
 
@@ -143,14 +143,16 @@ function Header(props: {
                         <Pressable style={({ pressed }) => {
                             return {
                                 opacity: pressed ? 0.3 : 1,
-                                alignSelf: 'flex-end'
+                                alignSelf: 'flex-end',
+                                flexShrink: 1
                             }
                         }}
                             onPress={props.action.onAction}
                         >
                             <Text style={{
                                 fontSize: 14, color: Theme.textColor,
-                                textDecorationLine: 'underline'
+                                textDecorationLine: 'underline',
+                                textAlign: 'right'
                             }}>
                                 {props.action.title}
                             </Text>

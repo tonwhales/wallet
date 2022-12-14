@@ -95,12 +95,11 @@ export const SpamFilterFragment = fragment(() => {
             <AndroidToolbar pageTitle={t('settings.spamFilter')} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        marginLeft: 17,
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
                         {t('settings.spamFilter')}
@@ -196,9 +195,8 @@ export const SpamFilterFragment = fragment(() => {
                                 </Text>
                                 <Text style={{
                                     fontSize: 16,
-                                    fontWeight: '700',
+                                    color: '#6D6D71',
                                     marginVertical: 8,
-                                    color: Theme.textColor
                                 }}>
                                     {t('spamFilter.description')}
                                 </Text>

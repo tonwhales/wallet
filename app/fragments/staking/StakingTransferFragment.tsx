@@ -13,7 +13,6 @@ import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useRoute } from '@react-navigation/native';
 import { useEngine } from '../../engine/Engine';
 import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
@@ -28,7 +27,6 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
-import { KnownPools } from '../../utils/KnownPools';
 import { LocalizedResources } from '../../i18n/schema';
 
 const labelStyle: StyleProp<TextStyle> = {
@@ -98,23 +96,6 @@ export const StakingTransferFragment = fragment(() => {
         }, []);
 
     const doContinue = React.useCallback(async () => {
-        async function confirm(title: LocalizedResources, message: LocalizedResources) {
-            return await new Promise<boolean>(resolve => {
-                Alert.alert(t(title), t(message), [{
-                    text: t('common.yes'),
-                    style: 'destructive',
-                    onPress: () => {
-                        resolve(true)
-                    }
-                }, {
-                    text: t('common.no'),
-                    onPress: () => {
-                        resolve(false);
-                    }
-                }])
-            });
-        }
-
         let value: BN;
         let minAmount = pool?.params.minStake
             ? pool.params.minStake
@@ -191,27 +172,6 @@ export const StakingTransferFragment = fragment(() => {
         // Dismiss keyboard for iOS
         if (Platform.OS === 'ios') {
             Keyboard.dismiss();
-        }
-
-        if (KnownPools[params.target.toFriendly({ testOnly: AppConfig.isTestnet })]?.restricted) {
-            let cont = await new Promise<boolean>(resolve => {
-                Alert.alert(t('products.staking.transfer.restrictedTitle'), t('products.staking.transfer.restrictedMessage'), [{
-                    text: t('common.continueAnyway'),
-                    style: 'destructive',
-                    onPress: () => {
-                        resolve(true)
-                    }
-                }, {
-                    text: t('common.cancel'),
-                    onPress: () => {
-                        resolve(false);
-                    }
-                }])
-            });
-
-            if (!cont) {
-                return;
-            }
         }
 
         // Navigate to TransferFragment

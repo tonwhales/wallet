@@ -86,7 +86,7 @@ const WalletTransactions = React.memo((props: {
                 if (typeof item === "string") {
                     // Rendering title
                     return (
-                        <View key={'t-' + item} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
                             <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{item}</Text>
                         </View>
                     );
@@ -94,7 +94,6 @@ const WalletTransactions = React.memo((props: {
                     // Render tx
                     return (
                         <View
-                            key={'tx-' + item.id}
                             style={{
                                 borderTopRightRadius: (item.position === 'first' || item.position === 'single') ? 14 : undefined,
                                 borderTopLeftRadius: (item.position === 'first' || item.position === 'single') ? 14 : undefined,
@@ -120,7 +119,7 @@ const WalletTransactions = React.memo((props: {
                 // To achieve better performance, specify the type based on the item
                 return typeof item === "string" ? "sectionHeader" : "row";
             }}
-            estimatedItemSize={62}
+            estimatedItemSize={42}
             ListEmptyComponent={() => {
                 return (
                     <>
@@ -169,7 +168,7 @@ const WalletTransactions = React.memo((props: {
                     props.onLoadMore();
                 }
             }}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.7}
         />
     );
 });

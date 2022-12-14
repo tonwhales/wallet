@@ -30,7 +30,7 @@ export const ZenPayAppFragment = fragment(() => {
         );
     }, [params, status]);
 
-    const [showInfo, setShowInfo] = React.useState(endpoint.includes('/create') ? true : false);
+    const [showInfo, setShowInfo] = React.useState(endpoint.includes('/create') || status.state === 'need-kyc' || status.state === 'need-phone' ? true : false);
 
     const needsEnrolment = useMemo(() => {
         try {

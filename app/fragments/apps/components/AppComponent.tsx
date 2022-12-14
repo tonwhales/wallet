@@ -143,7 +143,7 @@ export const AppComponent = React.memo((props: {
             version: 1,
             platform: Platform.OS,
             platformVersion: Platform.Version,
-            network: AppConfig.isTestnet ? 'sandbox' : 'mainnet',
+            network: AppConfig.isTestnet ? 'testnet' : 'mainnet',
             address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
             publicKey: engine.publicKey.toString('base64'),
             walletConfig,
@@ -199,7 +199,6 @@ export const AppComponent = React.memo((props: {
         },
         [onShare, onReview, onReport],
     );
-
 
     return (
         <>

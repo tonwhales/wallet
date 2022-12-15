@@ -38,7 +38,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     // 
     const updatePateTitle = React.useCallback(
         (url: string) => {
-            const card = /\/card\/[a-z0-9]/;
+            const card = /\/card\/[a-z0-9]+/;
             const auth = /\/auth/;
             if (card.test(url)) {
 
@@ -236,6 +236,20 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         })();
     }, []);
 
+    const updateCanGoBack = React.useCallback((url: string, canGoBack: boolean) => {
+        const cardAction = /\/card\/[a-z0-9]+\/confirm\?action=/;
+        if (cardAction.test(url)) {
+            setCanGoBack(canGoBack);
+            return;
+        }
+        if (url.endsWith('details') || url.endsWith('deposit') || url.endsWith('limits')) {
+            setCanGoBack(canGoBack);
+        } else {
+            setCanGoBack(false);
+        }
+    }, []);
+
+
     React.useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', close);
         return () => {
@@ -336,11 +350,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Update canGoBack
-                                if (event.nativeEvent.url.endsWith('details') || event.nativeEvent.url.endsWith('deposit') || event.nativeEvent.url.endsWith('limits')) {
-                                    setCanGoBack(event.nativeEvent.canGoBack);
-                                } else {
-                                    setCanGoBack(false);
-                                }
+                                updateCanGoBack(event.nativeEvent.url, event.nativeEvent.canGoBack);
 
                                 // Page title 
                                 updatePateTitle(event.nativeEvent.url);
@@ -349,11 +359,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                         onNavigationStateChange={(event: WebViewNavigation) => {
 
                             // Update canGoBack
-                            if (event.url.endsWith('details') || event.url.endsWith('deposit') || event.url.endsWith('limits')) {
-                                setCanGoBack(event.canGoBack);
-                            } else {
-                                setCanGoBack(false);
-                            }
+                            updateCanGoBack(event.url, event.canGoBack);
 
                             // Update scrollEnabled
                             if (event.url.endsWith('auth')) {

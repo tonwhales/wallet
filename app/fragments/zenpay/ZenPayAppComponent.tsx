@@ -21,6 +21,7 @@ import { Theme } from '../../Theme';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ZenPayAppParams } from './ZenPayAppFragment';
 import { HeaderBackButton } from "@react-navigation/elements";
+import { openWithInApp } from '../../utils/openWithInApp';
 
 export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
     const engine = useEngine();
@@ -209,6 +210,18 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         } catch (e) {
             warn(e);
             return;
+        }
+
+        if (data.name === 'openUrl' && data.args.url) {
+            try {
+                let pageDomain = extractDomain(data.args.url);
+                if (pageDomain.endsWith('tonsandbox.com') || pageDomain.endsWith('tonwhales.com')) {
+                    openWithInApp(data.args.url);
+                    return;
+                }
+            } catch (e) {
+                console.warn(e);
+            }
         }
 
         // Execute

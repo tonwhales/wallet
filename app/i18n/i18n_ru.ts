@@ -366,10 +366,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: 'Это отменит все ваши изменения'
             },
             enroll: {
-                poweredBy: 'Powered by ZenPay',
-                description_1: 'Используйте эту карту для онлайн-операций по всему миру',
-                description_2: 'Добавьте эту карту в Apple Pay, чтобы оплачивать с помощью своих устройств Apple',
-                description_3: 'Простая проверка KYC и выпуск карты за 5 минут',
+                poweredBy: 'Based on TON, powered by ZenPay',
+                description_1: 'Только вы управляете смарт-контрактом',
+                description_2: 'Никто, кроме вас, не имеет доступа к вашим средствам',
+                description_3: 'Вы действительно владеете своими деньгами',
                 moreInfo: 'Подробнее о ZenPay Card',
             }
         }

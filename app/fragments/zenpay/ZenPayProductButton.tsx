@@ -6,7 +6,15 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { ZenPayCard } from "../../engine/corp/ZenPayProduct";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
+import { avatarHash } from "../../utils/avatarHash";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+
+const colorsMap = [
+    ['#EA7509', '#E9A904'],
+    ['#0999EA', "#046DE9"],
+    ['#EA0909', "#E97204"],
+    ['#792AF6', "#954CF9"],
+];
 
 export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) => {
     const dimentions = useWindowDimensions();
@@ -19,6 +27,8 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
         },
         [card],
     );
+
+    const colors = card ? colorsMap[avatarHash(card.id, colorsMap.length)] : ['#333A5A', "#A7AFD3"]
 
     return (
         <TouchableHighlight
@@ -37,12 +47,12 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
                             <LinearGradient
                                 start={vec(0, 0)}
                                 end={vec(34, 46)}
-                                colors={card ? ['#EA7509', '#E9A904'] : ['#333A5A', "#A7AFD3"]}
+                                colors={colors}
                             />
                         </Rect>
                     </Canvas>
                     {!!card?.card.lastFourDigits && (
-                        <Text style={{ color: 'white', fontSize: 10, marginHorizontal: 4, marginTop: 2 }} numberOfLines={2}>
+                        <Text style={{ color: 'white', fontSize: 8, marginHorizontal: 4, marginTop: 2 }} numberOfLines={1}>
                             {card.card.lastFourDigits}
                         </Text>
                     )}
@@ -69,7 +79,7 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
                             </Text>
                             {!!card && card.balance && (
                                 <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
-                                    <ValueComponent value={card.balance} />{' TON'}
+                                    <ValueComponent value={card.balance} precision={2} />{' TON'}
                                 </Text>
                             )}
                         </View>

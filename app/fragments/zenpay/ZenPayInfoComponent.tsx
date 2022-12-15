@@ -79,7 +79,7 @@ export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => v
                         <View style={{ marginTop: 30, flexGrow: 1, paddingHorizontal: 20, width: '100%' }}>
                             <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
-                                    <Description_1 color={Theme.accent} />
+                                    <Image source={require('../../../assets/ic_sign.png')} style={{ height: 56, width: 56 }} />
                                 </View>
                                 <Text style={{
                                     fontSize: 17,
@@ -91,7 +91,7 @@ export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => v
                             </View>
                             <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
-                                    <Description_2 />
+                                    <Image source={require('../../../assets/ic_lock.png')} style={{ height: 56, width: 56 }} />
                                 </View>
                                 <Text style={{
                                     fontSize: 17,
@@ -103,7 +103,7 @@ export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => v
                             </View>
                             <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
-                                    <Description_3 />
+                                    <Image source={require('../../../assets/ic_key.png')} style={{ height: 56, width: 56 }} />
                                 </View>
                                 <Text style={{
                                     fontSize: 17,

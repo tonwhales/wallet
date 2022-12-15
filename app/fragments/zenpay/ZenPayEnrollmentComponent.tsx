@@ -9,16 +9,14 @@ import { extractDomain } from "../../engine/utils/extractDomain";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import Description_1 from '../../../assets/ic_zenpay_description_1.svg';
-import Description_2 from '../../../assets/ic_zenpay_description_2.svg';
-import Description_3 from '../../../assets/ic_zenpay_description_3.svg';
 import { openWithInApp } from "../../utils/openWithInApp";
 
-export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint }: { engine: Engine, endpoint: string }) => {
+export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint, onEnrollCallback }: { engine: Engine, endpoint: string, onEnrollCallback: () => void }) => {
     const safeArea = useSafeAreaInsets();
     const onEnroll = useCallback(async () => {
         const domain = extractDomain(endpoint);
         const res = await engine.products.zenPay.enroll(domain);
+        onEnrollCallback();
     }, []);
 
     // 
@@ -85,7 +83,7 @@ export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint }: { eng
                         <View style={{ marginTop: 30, flexGrow: 1, paddingHorizontal: 20, width: '100%' }}>
                             <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
-                                    <Description_1 color={Theme.accent} />
+                                    <Image source={require('../../../assets/ic_sign.png')} style={{ height: 56, width: 56 }} />
                                 </View>
                                 <Text style={{
                                     fontSize: 17,
@@ -97,7 +95,7 @@ export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint }: { eng
                             </View>
                             <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
-                                    <Description_2 />
+                                    <Image source={require('../../../assets/ic_lock.png')} style={{ height: 56, width: 56 }} />
                                 </View>
                                 <Text style={{
                                     fontSize: 17,
@@ -109,7 +107,7 @@ export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint }: { eng
                             </View>
                             <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
-                                    <Description_3 />
+                                    <Image source={require('../../../assets/ic_key.png')} style={{ height: 56, width: 56 }} />
                                 </View>
                                 <Text style={{
                                     fontSize: 17,

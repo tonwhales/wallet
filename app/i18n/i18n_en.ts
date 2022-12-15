@@ -365,10 +365,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'This action will discard all of your changes'
             },
             enroll: {
-                poweredBy: 'Powered by ZenPay',
-                description_1: 'Use this card for online transactions all over the world',
-                description_2: 'Add it to Apple Pay to pay in-store using your Apple Devices',
-                description_3: 'Simple KYC verification and card issuance in 5 minutes',
+                poweredBy: 'Based on TON, powered by ZenPay',
+                description_1: 'Only you manage the smart-contract',
+                description_2: 'No one except you has access to your funds',
+                description_3: 'You truly own your money',
                 moreInfo: 'More about ZenPay Card',
             }
         }

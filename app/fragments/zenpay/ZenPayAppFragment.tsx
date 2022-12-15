@@ -73,7 +73,7 @@ export const ZenPayAppFragment = fragment(() => {
             )}
 
             {needsEnrolment && (
-                <ZenPayEnrollmentComponent engine={engine} endpoint={endpoint} />
+                <ZenPayEnrollmentComponent onEnrollCallback={() => { setShowInfo(false) }} engine={engine} endpoint={endpoint} />
             )}
 
             {showInfo && !needsEnrolment && (

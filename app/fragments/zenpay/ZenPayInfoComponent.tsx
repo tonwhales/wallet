@@ -72,12 +72,12 @@ export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => v
                     <View style={{ flexGrow: 1, alignItems: 'center' }}>
                         <Image source={require('../../../assets/img_zenpay_card.png')} />
                         <Text style={{
-                            marginTop: 20, fontSize: 17, color: '#858B93'
+                            marginTop: 0, fontSize: 17, color: '#858B93'
                         }}>
                             {t('products.zenPay.enroll.poweredBy')}
                         </Text>
                         <View style={{ marginTop: 30, flexGrow: 1, paddingHorizontal: 20, width: '100%' }}>
-                            <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', marginBottom: 15, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
                                     <Image source={require('../../../assets/ic_sign.png')} style={{ height: 56, width: 56 }} />
                                 </View>
@@ -89,7 +89,7 @@ export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => v
                                     {t('products.zenPay.enroll.description_1')}
                                 </Text>
                             </View>
-                            <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', marginBottom: 15, alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
                                     <Image source={require('../../../assets/ic_lock.png')} style={{ height: 56, width: 56 }} />
                                 </View>
@@ -101,7 +101,7 @@ export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => v
                                     {t('products.zenPay.enroll.description_2')}
                                 </Text>
                             </View>
-                            <View style={{ flexDirection: 'row', marginVertical: 10, alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <View style={{ height: 56, width: 56, borderRadius: 56, marginRight: 15, backgroundColor: Theme.item }}>
                                     <Image source={require('../../../assets/ic_key.png')} style={{ height: 56, width: 56 }} />
                                 </View>

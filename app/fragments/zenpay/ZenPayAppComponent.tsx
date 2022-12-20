@@ -242,7 +242,12 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             setCanGoBack(canGoBack);
             return;
         }
-        if (url.endsWith('details') || url.endsWith('deposit') || url.endsWith('limits')) {
+        if (
+            url.endsWith('details')
+            || url.endsWith('deposit')
+            || url.endsWith('limits')
+            || url.endsWith('transfer')
+        ) {
             setCanGoBack(canGoBack);
         } else {
             setCanGoBack(false);

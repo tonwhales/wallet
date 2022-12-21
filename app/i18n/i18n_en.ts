@@ -37,7 +37,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
-        tx: 'Transaction'
+        tx: 'Transaction',
+        add: 'Add',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -57,7 +58,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         developerTools: 'Developer Tools',
         spamFilter: 'SPAM filter',
         logoutDescription: 'This action will disconnect the wallet from this app and delete all of your data from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.',
-        primaryCurrency: 'Primary currency'
+        primaryCurrency: 'Primary currency',
+        experimental: 'Experimental',
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -542,6 +544,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     hardwareWallet: {
+        ledger: 'Ledger',
         title: 'Hardware wallet',
         description: 'Your hardware Ledger wallet',
         connectionDescriptionAndroid: 'You can connect your Ledger via USB or Bluetooth (Nano X model)',
@@ -560,6 +563,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             connectBluetooth: 'Connect Ledger via Bluetooth',
             scanBluetooth: 'Scan',
             confirmOnLedger: 'Confirm via Ledger',
+        },
+        confirm: {
+            add: 'Are you sure want to add this app?',
+            remove: 'Are you sure want to remove this app?'   
         },
         errors: {
             noDevice: 'No device found',

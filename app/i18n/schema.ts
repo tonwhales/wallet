@@ -39,7 +39,8 @@ export type LocalizationSchema = {
         termsOfService: string,
         privacyPolicy: string,
         apy: string,
-        tx: string
+        tx: string,
+        add: string
     },
     syncStatus: {
         connecting: string,
@@ -59,7 +60,8 @@ export type LocalizationSchema = {
         developerTools: string,
         spamFilter: string,
         logoutDescription: string,
-        primaryCurrency: string
+        primaryCurrency: string,
+        experimental: string
     },
     wallet: {
         sync: string,
@@ -544,6 +546,7 @@ export type LocalizationSchema = {
         }
     },
     hardwareWallet: {
+        ledger: string,
         title: string,
         description: string,
         connectionDescriptionAndroid: string,
@@ -562,6 +565,10 @@ export type LocalizationSchema = {
             connectBluetooth: string,
             scanBluetooth: string,
             confirmOnLedger: string,
+        },
+        confirm: {
+            add: string,
+            remove: string
         },
         errors: {
             noDevice: string,

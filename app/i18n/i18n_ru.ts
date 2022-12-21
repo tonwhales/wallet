@@ -38,7 +38,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
-        tx: 'Транзакция'
+        tx: 'Транзакция',
+        add: 'Добавить',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -58,7 +59,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         developerTools: 'Инструменты разработчика',
         spamFilter: 'SPAM фильтр',
         logoutDescription: 'Это действие отключит кошелек от этого приложения и удалит все ваши данные из этого приложения. Вы сможете восстановить свой кошелек, используя 24 секретных слова, или импортировать другой кошелек.\n\nКошельки TON расположены в децентрализованной блокчейн сети TON. Если вы хотите, чтобы ваш кошелек был удален, просто переведите из него все TON и оставьте его пустым.',
-        primaryCurrency: 'Основная валюта'
+        primaryCurrency: 'Основная валюта',
+        experimental: 'Экспериментальные',
     },
     wallet: {
         sync: 'Синхронизация кошелька',
@@ -543,6 +545,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         }
     },
     hardwareWallet: {
+        ledger: 'Ledger',
         title: 'Аппаратный кошелёк',
         description: 'Ваш аппаратный Ledger кошелёк',
         connectionDescriptionAndroid: 'Вы можете подключить ваш Ledger через USB или Bluetooth (модель Nano X)',
@@ -561,6 +564,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             connectBluetooth: 'Подключить через Bluetooth',
             scanBluetooth: 'Начать поиск',
             confirmOnLedger: 'Подтвердить на Ledger',
+        },
+        confirm: {
+            add: 'Вы уверены, что хотите добавить это приложение?',
+            remove: 'Вы уверены что хотите удалить это приложение?'   
         },
         errors: {
             noDevice: 'Устройство не найдено',

@@ -23,6 +23,7 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
+    const ledger = engine.products.settings.useLedger();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);
         if (!domain) {
@@ -72,6 +73,16 @@ export const ProductsComponent = React.memo(() => {
             style: 'destructive',
             onPress: () => {
                 engine.products.extensions.removeExtension(key);
+            }
+        }]);
+    }, []);
+
+    const removeLedger = React.useCallback(() => {
+        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
+            text: t('common.delete'),
+            style: 'destructive',
+            onPress: () => {
+                engine.products.settings.setLedger(false);
             }
         }]);
     }, []);
@@ -175,19 +186,22 @@ export const ProductsComponent = React.memo(() => {
                     <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
                         <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
                     </View>
-                    <ProductButton
-                        name={t('hardwareWallet.title')}
-                        subtitle={t('hardwareWallet.description')}
-                        icon={HardwareWalletIcon}
-                        iconProps={{ width: 32, height: 32, color: 'black' }}
-                        iconViewStyle={{
-                            backgroundColor: 'transparent'
-                        }}
-                        value={null}
-                        onPress={() => {
-                            navigation.navigate('HardwareWallet');
-                        }}
-                    />
+                    {ledger && (
+                        <ProductButton
+                            name={t('hardwareWallet.title')}
+                            subtitle={t('hardwareWallet.description')}
+                            icon={HardwareWalletIcon}
+                            iconProps={{ width: 32, height: 32, color: 'black' }}
+                            iconViewStyle={{
+                                backgroundColor: 'transparent'
+                            }}
+                            value={null}
+                            onLongPress={removeLedger}
+                            onPress={() => {
+                                navigation.navigate('HardwareWallet');
+                            }}
+                        />
+                    )}
                     {apps}
                 </>
             )}

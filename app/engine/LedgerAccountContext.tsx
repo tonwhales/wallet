@@ -2,7 +2,9 @@ import React, { useEffect } from "react";
 import { Address } from "ton";
 import { useEngine } from "./Engine";
 import { LedgerWalletProduct } from "./products/LedgerWalletProduct";
+import { startAccountFullSync } from "./sync/startAccountFullSync";
 import { startAccountLiteSync } from "./sync/startAccountLiteSync";
+import { startWalletV4Sync } from "./sync/startWalletV4Sync";
 
 export const LedgerAccountContext = React.createContext<LedgerWalletProduct | null>(null);
 
@@ -15,6 +17,8 @@ export const LedgerAccountLoader = React.memo((props: { address: string, childre
 
     useEffect(() => {
         startAccountLiteSync(address, engine);
+        startAccountFullSync(address, engine);
+        startWalletV4Sync(address, engine);
     }, []);
 
     return (

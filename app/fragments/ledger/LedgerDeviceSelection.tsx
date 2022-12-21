@@ -136,7 +136,6 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                 left: 0, right: 0,
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingBottom: safeArea.bottom,
                 backgroundColor: Theme.background,
             }}>
                 <RoundButton

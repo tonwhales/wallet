@@ -574,7 +574,8 @@ export type LocalizationSchema = {
             noDevice: string,
             appNotOpen: string,
             turnOnBluetooth: string,
-        }
+        },
+        moreAbout: string
     }
 };
 

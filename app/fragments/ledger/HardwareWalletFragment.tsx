@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
-import { Platform, View, Text, ScrollView } from "react-native";
+import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
@@ -11,21 +11,12 @@ import { useEngine } from "../../engine/Engine";
 import { Theme } from "../../Theme";
 import { RoundButton } from "../../components/RoundButton";
 import LedgerIcon from '../../../assets/ic_ledger.svg';
-import { LedgerHIDComponent } from "./LedgerHIDComponent";
-import { LedgerBluetoothComponent } from "./LedgerBluetoothComponent";
+import { openWithInApp } from "../../utils/openWithInApp";
 
 export const HardwareWalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const [connection, setConnection] = useState<'hid' | 'bluetooth' | null>(Platform.OS === 'android' ? null : 'bluetooth');
-
-    const onReset = useCallback(
-        () => {
-            setConnection(null);
-        },
-        [],
-    );
 
     return (
         <View style={{
@@ -47,75 +38,63 @@ export const HardwareWalletFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            {!connection && (
-                <ScrollView
-                    contentContainerStyle={{ flexGrow: 1 }}
+            <View style={{
+                marginHorizontal: 16,
+                marginBottom: safeArea.bottom + 16,
+                borderRadius: 14,
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexGrow: 1,
+            }}>
+                <View style={{ flexGrow: 1 }} />
+                <LedgerIcon
+                    color={'black'}
+                    width={64}
+                    height={64}
                     style={{
-                        flexGrow: 1,
-                        backgroundColor: Theme.background,
-                        flexBasis: 0,
-                        marginBottom: safeArea.bottom
+                        margin: 16
                     }}
-                >
-                    <View style={{
-                        marginHorizontal: 16,
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 16
-                    }}>
-                        <LedgerIcon
-                            color={'black'}
-                            width={64}
-                            height={64}
-                            style={{
-                                margin: 16
-                            }}
-                        />
-                        {/* TODO: install TON app for Ledger description text */}
-                        <Text style={{
-                            color: Theme.textColor,
-                            fontWeight: '600',
-                            fontSize: 18,
-                            marginBottom: 12,
-                            textAlign: 'center'
-                        }}>
-                            {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
-                            {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')}
-                        </Text>
-                        {!connection && Platform.OS === 'android' && (
-                            <>
-                                <RoundButton
-                                    title={t('hardwareWallet.actions.connectHid')}
-                                    onPress={() => setConnection('hid')}
-                                    style={{
-                                        width: '100%',
-                                        marginHorizontal: 16,
-                                        marginVertical: 4
-                                    }}
-                                />
-                                <RoundButton
-                                    title={t('hardwareWallet.actions.connectBluetooth')}
-                                    onPress={() => setConnection('bluetooth')}
-                                    style={{
-                                        width: '100%',
-                                        marginHorizontal: 16,
-                                        marginVertical: 4
-                                    }}
-                                />
-                            </>
-                        )}
-                    </View>
-                </ScrollView>
-            )}
-            {connection === 'hid' && Platform.OS === 'android' && (
-                <LedgerHIDComponent onReset={onReset} />
-            )}
-            {connection === 'bluetooth' && (
-                <LedgerBluetoothComponent onReset={Platform.OS === 'android' ? onReset : undefined} />
-            )}
+                />
+                <Text style={{
+                    color: Theme.textColor,
+                    fontWeight: '600',
+                    fontSize: 18,
+                    marginBottom: 12,
+                    marginHorizontal: 8,
+                    textAlign: 'center'
+                }}>
+                    {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
+                    {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')}
+                </Text>
+                <View style={{ flexGrow: 1 }} />
+                <RoundButton
+                    display={"text"}
+                    title={t('hardwareWallet.moreAbout')}
+                    onPress={() => openWithInApp('https://www.ledger.com/toncoin-wallet')}
+                    style={{
+                        width: '100%',
+                        marginVertical: 4
+                    }}
+                />
+                {Platform.OS === 'android' && (
+                    <RoundButton
+                        title={t('hardwareWallet.actions.connectHid')}
+                        onPress={() => navigation.navigate('LedgerHID')}
+                        style={{
+                            width: '100%',
+                            marginVertical: 4
+                        }}
+                    />
+                )}
+                <RoundButton
+                    title={t('hardwareWallet.actions.connectBluetooth')}
+                    onPress={() => navigation.navigate('LedgerBle')}
+                    style={{
+                        width: '100%',
+                        marginVertical: 4
+                    }}
+                />
+            </View>
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

@@ -9983,7 +9983,7 @@ terminal-link@^2.0.0, terminal-link@^2.1.1:
     ansi-escapes "^4.2.1"
     supports-hyperlinks "^2.0.0"
 
-teslabot@^1.3.0:
+teslabot@^1.3.0, teslabot@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/teslabot/-/teslabot-1.5.0.tgz#70f544516699ca5f696d8ae94f3d12cd495d5cd6"
   integrity sha512-e2MmELhCgrgZEGo7PQu/6bmYG36IDH+YrBI1iGm6jovXkeDIGa3pZ2WSqRjzkuw2vt1EqfkZoV5GpXgqL8QJVg==
@@ -10135,13 +10135,14 @@ ton-crypto@3.2.0, ton-crypto@^3.2.0:
     ton-crypto-primitives "2.0.0"
     tweetnacl "1.0.3"
 
-ton-ledger@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/ton-ledger/-/ton-ledger-2.3.0.tgz#6ae8db27f37f7ba15829850512ec5ed96ec70050"
-  integrity sha512-I++mjaQcH1IM7B8Va0LbIRVIVGwQJs4MdRdjdSaFDpTo646xG0go2uDCf3QqUGWnIfDxSi/j02zOR4UQr6J7vg==
+ton-ledger@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/ton-ledger/-/ton-ledger-2.3.2.tgz#f152a8ff51425fe1f9628314e31ce6ce5b70972f"
+  integrity sha512-1YmHz3hOoGUiyAILGpSmsZ9Wf8qEqV+5+twYD+It/TGKtCMSEp9n+ezC6v12yIhUZnx8+a1nfHUKhGTNaSV3Ug==
   dependencies:
     "@ledgerhq/hw-transport" "^6.27.1"
     bn.js "^5.2.1"
+    teslabot "^1.5.0"
     ton-crypto "^3.2.0"
 
 ton@12.1.3:

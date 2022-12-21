@@ -65,6 +65,9 @@ import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragmen
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
+import { LedgerHIDFragment } from './fragments/ledger/LedgerHIDFragment';
+import { LedgerBleFragment } from './fragments/ledger/LedgerBleFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -182,6 +185,9 @@ const navigation = [
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
     modalScreen('HardwareWallet', HardwareWalletFragment),
+    modalScreen('LedgerHID', LedgerHIDFragment),
+    modalScreen('LedgerBle', LedgerBleFragment),
+    lockedModalScreen('LedgerApp', LedgerAppFragment),
     modalScreen('LedgerTransfer', LedgerTransferFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
     // modalScreen('Phone', PhoneFragment),

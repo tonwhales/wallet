@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Image, ScrollView } from "react-native";
 import { TonTransport } from "ton-ledger";
 import { useEngine } from "../../engine/Engine";
@@ -7,24 +7,29 @@ import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
 import { AppConfig } from "../../AppConfig";
 import { RoundButton } from "../../components/RoundButton";
 import { t } from "../../i18n/t";
-import { LedgerApp } from "./LedgerApp";
 import { Theme } from "../../Theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LedgerAccountLoader } from "../../engine/LedgerAccountContext";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { LedgerSelectAccountComponent } from "./LedgerSelectAccountComponent";
+import { LedgerLoadAccComponent } from "./LedgerLoadAccComponent";
 
-export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void }) => {
-    const engine = useEngine();
+export const LedgerHIDComponent = React.memo(() => {
+    const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
 
     const [started, setStarted] = React.useState(false);
     const [account, setAccount] = React.useState<number | null>(null);
-    const [address, setAddress] = React.useState<{ address: string, publicKey: Buffer } | null>(null);
+    const [screen, setScreen] = useState<'select-account' | 'load-address' | null>(null);
     const [device, setDevice] = React.useState<TonTransport | null>(null);
 
     let reset = React.useCallback(() => {
         setDevice(null);
         setAccount(null);
-        setAddress(null);
+    }, []);
+
+    const onSelectAccount = React.useCallback((account: number) => {
+        setAccount(account);
+        setScreen('load-address');
     }, []);
 
     const doStart = React.useMemo(() => {
@@ -40,12 +45,12 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
             (async () => {
                 try {
                     let hid = await TransportHID.create();
-                    console.warn(hid.deviceModel);
                     setDevice(new TonTransport(hid));
+                    setScreen('select-account');
                 } catch (e) {
+                    started = false;
                     console.warn(e);
                     setStarted(false);
-                    started = false;
                 }
             })()
         };
@@ -60,12 +65,10 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
                 return;
             }
             let path = pathFromAccountNumber(account);
-            console.log({ device, account, path });
             try {
                 let address = await device.getAddress(path, { testOnly: AppConfig.isTestnet });
-                console.log({ address });
                 await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
-                setAddress(address);
+                navigation.navigateLedgerApp({ account, address, device });
             } catch (e) {
                 console.warn(e);
                 reset();
@@ -75,7 +78,6 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
     );
 
     return (
-
         <View style={{ flexGrow: 1 }}>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -89,12 +91,13 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
                 {!device && (
                     <View style={{
                         marginHorizontal: 16,
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
+                        marginBottom: 16,
                         borderRadius: 14,
                         alignItems: 'center',
                         padding: 16,
+                        flexGrow: 1,
                     }}>
+                        <View style={{ flexGrow: 1 }} />
                         <Image style={{
                             width: 256, height: 256,
                         }}
@@ -104,14 +107,22 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
                             color: Theme.textColor,
                             fontWeight: '600',
                             fontSize: 18,
-                            marginBottom: 16,
+                            marginBottom: 12,
+                            marginHorizontal: 16,
                         }}>
-                            {/* {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
-                        {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')} */}
+                            {t('hardwareWallet.actions.connect')}
+                        </Text>
+                        <Text style={{
+                            color: Theme.textColor,
+                            fontWeight: '400',
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}>
                             {t('hardwareWallet.connectionHIDDescription')}
                         </Text>
+                        <View style={{ flexGrow: 1 }} />
                         <RoundButton
-                            title={t('hardwareWallet.actions.connect')}
+                            title={t('common.continue')}
                             onPress={doStart}
                             style={{
                                 width: '100%',
@@ -119,140 +130,14 @@ export const LedgerHIDComponent = React.memo(({ onReset }: { onReset: () => void
                         />
                     </View>
                 )}
-                {!!device && account === null && (
-                    <View style={{
-                        marginHorizontal: 16,
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 16
-                    }}>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 18,
-                            color: Theme.textColor,
-                            marginBottom: 16,
-                            textAlign: 'center'
-                        }}>
-                            {t('hardwareWallet.chooseAccountDescription')}
-                        </Text>
-                        <RoundButton
-                            title={t('hardwareWallet.actions.account', { account: 0 })}
-                            onPress={() => setAccount(0)}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                        <RoundButton
-                            title={t('hardwareWallet.actions.account', { account: 1 })}
-                            onPress={() => setAccount(1)}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                        <RoundButton
-                            title={t('hardwareWallet.actions.account', { account: 2 })}
-                            onPress={() => setAccount(2)}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                        <RoundButton
-                            title={t('hardwareWallet.actions.account', { account: 3 })}
-                            onPress={() => setAccount(3)}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                        <RoundButton
-                            title={t('hardwareWallet.actions.account', { account: 4 })}
-                            onPress={() => setAccount(4)}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                        <RoundButton
-                            title={t('hardwareWallet.actions.account', { account: 5 })}
-                            onPress={() => setAccount(5)}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                        <RoundButton
-                            title={t('hardwareWallet.actions.account', { account: 6 })}
-                            onPress={() => setAccount(6)}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                    </View>
+
+                {(!!device && screen === 'select-account') && (
+                    <LedgerSelectAccountComponent onSelect={onSelectAccount} />
                 )}
-                {!!device && account !== null && address === null && (
-                    <View style={{
-                        marginHorizontal: 16,
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 16
-                    }}>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 18,
-                            color: Theme.textColor,
-                            marginBottom: 16
-                        }}>
-                            {t('hardwareWallet.openAppVerifyAddress')}
-                        </Text>
-                        <RoundButton
-                            title={t('hardwareWallet.actions.loadAddress')}
-                            action={onLoadAccount}
-                            style={{
-                                width: '100%',
-                                margin: 4
-                            }}
-                        />
-                    </View>
-                )}
+
             </ScrollView>
-            {(!device || account === null || address === null) && (
-                <View style={{
-                    flexDirection: 'row',
-                    position: 'absolute',
-                    bottom: safeArea.bottom ?? 16,
-                    left: 0, right: 0,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: Theme.background,
-                }}>
-                    <RoundButton
-                        title={t('common.back')}
-                        display="secondary"
-                        size="normal"
-                        style={{ paddingHorizontal: 8 }}
-                        onPress={onReset}
-                    />
-                </View>
-            )}
-            {device && account !== null && address !== null && (
-                <LedgerAccountLoader address={address.address}>
-                    <LedgerApp
-                        transport={device}
-                        account={account}
-                        address={address}
-                        tonClient4={engine.client4}
-                    />
-                </LedgerAccountLoader>
+            {(!!device && account !== null && screen === 'load-address') && (
+                <LedgerLoadAccComponent account={account} device={device} reset={reset} />
             )}
         </View>
     );

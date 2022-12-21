@@ -78,8 +78,8 @@ export const ProductsComponent = React.memo(() => {
     }, []);
 
     const removeLedger = React.useCallback(() => {
-        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
-            text: t('common.delete'),
+        Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
+            text: t('common.continue'),
             style: 'destructive',
             onPress: () => {
                 engine.products.settings.setLedger(false);

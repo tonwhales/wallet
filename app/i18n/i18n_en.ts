@@ -548,10 +548,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         title: 'Hardware wallet',
         description: 'Your hardware Ledger wallet',
         connectionDescriptionAndroid: 'You can connect your Ledger via USB or Bluetooth (Nano X model)',
-        connectionDescriptionIOS: 'You can connect your Ledger Bluetooth (Nano X model)',
-        connectionHIDDescription: 'Connect your Ledger via USB and press \'Connect Ledger\' in Tonhub',
-        chooseAccountDescription: 'Open your Ledger Ton App and then choose account you would like to connect to',
-        bluetoothScanDescription: 'To connect to your Ledger via Bluetooth: Turn your ledger on and make sure that you have bluetooth enabled, then press \'Scan\' to search for available devices and select suitable Ledger Nano X',
+        connectionDescriptionIOS: 'You can connect your Ledger via Bluetooth (Nano X model)',
+        connectionHIDDescription: 'To connect to your Ledger via USB: Turn your ledger on, unlock it then press \"Continue\"',
+        chooseAccountDescription: 'Open your Ledger \"Ton App\" and then choose an account you would like to connect to',
+        bluetoothScanDescription: 'To connect to your Ledger via Bluetooth: Turn your ledger on, unlock it and make sure that you have bluetooth enabled, then press \'Scan\' to search for available devices and select suitable Ledger Nano X',
         openAppVerifyAddress: 'Press \'Load address\' in Tonhub and verify the address you\'ve selected in the Ledger Ton App',
         devices: 'Devices',
         actions: {
@@ -572,7 +572,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             noDevice: 'No device found',
             appNotOpen: 'Ton app is not open on Ledger',
             turnOnBluetooth: 'Please, turn Bluetooth on and try again',
-        }
+        },
+        moreAbout: 'More about Ledger'
     }
 };
 

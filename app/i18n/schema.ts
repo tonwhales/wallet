@@ -353,6 +353,7 @@ export type LocalizationSchema = {
                 cardLimits: string,
                 cardLimitsDefault: string,
                 cardDeposit: string,
+                transfer: string,
             },
             card: {
                 defaultSubtitle: string,
@@ -372,6 +373,7 @@ export type LocalizationSchema = {
                 description_2: string,
                 description_3: string,
                 moreInfo: string,
+                buttonSub: string
             }
         }
     }

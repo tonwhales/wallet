@@ -69,6 +69,12 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                     setPageTitle(t('products.zenPay.pageTitles.cardDetails'));
                     return;
                 }
+                
+                const transfer = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/transfer$/;
+                if (transfer.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.transfer'));
+                    return;
+                }
 
                 setPageTitle(t('products.zenPay.pageTitles.card'));
             } else if (auth.test(url)) {

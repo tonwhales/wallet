@@ -352,6 +352,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 cardLimits: '*{{cardNumber}} Лимиты карты',
                 cardLimitsDefault: 'Лимиты карты',
                 cardDeposit: 'Пополнить TON',
+                transfer: 'Перевод',
             },
             card: {
                 defaultSubtitle: 'TON в EUR (комиссия 0%)',
@@ -371,6 +372,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 description_2: 'Никто, кроме вас, не имеет доступа к вашим средствам',
                 description_3: 'Вы действительно владеете своими деньгами',
                 moreInfo: 'Подробнее о ZenPay Card',
+                buttonSub: 'KYC и выпуск карты занимает ~5 минут'
             }
         }
     },

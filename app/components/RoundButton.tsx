@@ -106,6 +106,7 @@ export const RoundButton = React.memo((props: {
     size?: RoundButtonSize,
     display?: RoundButtonDisplay,
     title?: string,
+    subtitle?: string,
     style?: StyleProp<ViewStyle>,
     disabled?: boolean,
     loading?: boolean,
@@ -175,13 +176,24 @@ export const RoundButton = React.memo((props: {
                             />
                         )}
                         {!doLoading && props.icon && (<View style={{ marginRight: 10 }}>{props.icon}</View>)}
-                        <Text
-                            style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
-                            numberOfLines={1}
-                            ellipsizeMode='tail'
-                        >
-                            {props.title}
-                        </Text>
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text
+                                style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
+                                numberOfLines={1}
+                                ellipsizeMode='tail'
+                            >
+                                {props.title}
+                            </Text>
+                            {!!props.subtitle && (
+                                <Text
+                                    style={[{ marginTop: 0, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: p.pressed ? display.textPressed : display.textColor, fontSize: 14, fontWeight: '400', includeFontPadding: false }]}
+                                    numberOfLines={1}
+                                    ellipsizeMode='tail'
+                                >
+                                    {props.subtitle}
+                                </Text>
+                            )}
+                        </View>
                     </View>
                 </View>
             )}

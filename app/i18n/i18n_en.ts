@@ -351,6 +351,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 cardLimits: '*{{cardNumber}} Card Limits',
                 cardLimitsDefault: 'Card Limits',
                 cardDeposit: 'Top Up TON',
+                transfer: 'Transfer',
             },
             card: {
                 defaultSubtitle: 'TON to EUR (0% fee)',
@@ -370,6 +371,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 description_2: 'No one except you has access to your funds',
                 description_3: 'You truly own your money',
                 moreInfo: 'More about ZenPay Card',
+                buttonSub: 'KYC and card issue takes ~5 min'
             }
         }
     },

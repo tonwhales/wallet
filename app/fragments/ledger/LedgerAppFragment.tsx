@@ -1,11 +1,13 @@
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Address } from "ton";
 import { TonTransport } from "ton-ledger";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { useEngine } from "../../engine/Engine";
-import { LedgerAccountLoader } from "../../engine/LedgerAccountContext";
+import { startWalletV4Sync } from "../../engine/sync/startWalletV4Sync";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
@@ -23,6 +25,15 @@ export const LedgerAppFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const { account, address, device } = useParams<LedgerAppParams>();
     const engine = useEngine();
+
+    useEffect(() => {
+        try {
+            const parsed = Address.parse(address.address);
+            startWalletV4Sync(parsed, engine);
+        } catch (e) {
+            console.warn(e)
+        }
+    }, []);
 
     return (
         <View style={{
@@ -45,14 +56,12 @@ export const LedgerAppFragment = fragment(() => {
                 </View>
             )}
             {device && account !== null && address !== null && (
-                <LedgerAccountLoader address={address.address}>
-                    <LedgerApp
-                        transport={device}
-                        account={account}
-                        address={address}
-                        tonClient4={engine.client4}
-                    />
-                </LedgerAccountLoader>
+                <LedgerApp
+                    transport={device}
+                    account={account}
+                    address={address}
+                    engine={engine}
+                />
             )}
             {Platform.OS === 'ios' && (
                 <CloseButton

@@ -29,6 +29,9 @@ import { fragment } from "../../fragment";
 import { estimateFees } from "../../engine/estimate/estimateFees";
 import { createSimpleOrder } from "../secure/ops/Order";
 import { useParams } from "../../utils/useParams";
+import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
+import { useLedgerWallet } from "./components/LedgerApp";
+import { fetchSeqno } from "../../engine/api/fetchSeqno";
 
 export type LedgerTransferParams = {
     transport: TonTransport,
@@ -45,6 +48,7 @@ export const LedgerTransferFragment = fragment(() => {
         balance,
     } = useParams<LedgerTransferParams>();
     const engine = useEngine();
+    const accountV4State = useLedgerWallet(engine, Address.parse(addr.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const config = engine.products.config.useConfig();
@@ -59,13 +63,6 @@ export const LedgerTransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const [progress, setProgress] = React.useState<'confirming' | 'sending' | 'sent'>();
-
-    let source = useMemo(() => {
-        return WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey })
-    }, [addr]);
-    let contract = useMemo(() => {
-        return new WalletV4Contract(Address.parse(addr.address), source)
-    }, [addr, source]);
 
     // Resolve order
     const order = React.useMemo(() => {
@@ -118,17 +115,19 @@ export const LedgerTransferFragment = fragment(() => {
             return null;
         }
 
+        const contract = await contractFromPublicKey(addr.publicKey);
+        const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
+
         try {
             // Fetch data
-            const [[accountSeqno, account, metadata, targetState]] = await Promise.all([
+            const [[accountSeqno, account, targetState]] = await Promise.all([
                 backoff('transfer-fetch-data', async () => {
-                    let seqno = await backoff('ledger-contract-seqno', () => contract.getSeqNo(engine.connector.client));
                     let block = await backoff('ledger-lastblock', () => engine.client4.getLastBlock());
+                    let seqno = await backoff('ledger-contract-seqno', () => fetchSeqno(engine.client4, block.last.seqno, contract.address));
                     return Promise.all([
                         seqno,
                         backoff('ledger-lite', () => engine.client4.getAccountLite(block.last.seqno, contract.address)),
-                        backoff('ledger-meta', () => fetchMetadata(engine.client4, block.last.seqno, address)),
-                        backoff('ledger-account', () => engine.client4.getAccount(block.last.seqno, address))
+                        backoff('ledger-target', () => engine.client4.getAccount(block.last.seqno, address))
                     ])
                 }),
             ]);
@@ -213,7 +212,9 @@ export const LedgerTransferFragment = fragment(() => {
         let ended = false;
         lock.inLock(async () => {
             await backoff('ledger-transfer', async () => {
-                console.log({ order });
+                if (!accountV4State) {
+                    return;
+                }
                 if (ended) {
                     return;
                 }
@@ -241,10 +242,8 @@ export const LedgerTransferFragment = fragment(() => {
                 }
 
                 const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
-                const contract = new WalletV4Contract(Address.parse(addr.address), source);
-
-                // Fetch accounts seqno
-                const accountSeqno = await backoff('contract-seqno', () => contract.getSeqNo(engine.connector.client));
+                // Load contract
+                const contract = await contractFromPublicKey(addr.publicKey);
                 const seqno = (await engine.client4.getLastBlock()).last.seqno;
                 // Fetch account light state
                 const accountState = (await backoff('account-state', () => engine.client4.getAccountLite(seqno, contract.address))).account;
@@ -259,7 +258,7 @@ export const LedgerTransferFragment = fragment(() => {
                     value: value,
                     bounce: false,
                     body: new CommonMessageInfo({
-                        stateInit: accountSeqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
+                        stateInit: accountV4State.seqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
                         body: order.payload ? new CellMessage(order.payload) : null
                     })
                 });
@@ -269,7 +268,7 @@ export const LedgerTransferFragment = fragment(() => {
 
                 // Create transfer
                 let transfer = await contract.createTransfer({
-                    seqno: accountSeqno,
+                    seqno: accountV4State.seqno,
                     walletId: contract.source.walletId,
                     secretKey: null,
                     sendMode,
@@ -285,7 +284,7 @@ export const LedgerTransferFragment = fragment(() => {
                     new ExternalMessage({
                         to: contract.address,
                         body: new CommonMessageInfo({
-                            stateInit: accountSeqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                            stateInit: accountV4State.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
                             body: new CellMessage(transfer)
                         })
                     }).writeTo(inMsg);
@@ -587,18 +586,20 @@ export const LedgerTransferFragment = fragment(() => {
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
-                <Animated.View>
-                    <Text
-                        style={{
-                            fontWeight: '500',
-                            fontSize: 16,
-                            marginLeft: 16,
-                            marginTop: 16
-                        }}
-                    >
-                        {t('hardwareWallet.actions.confirmOnLedger')}
-                    </Text>
-                </Animated.View>
+                {progress === 'confirming' && (
+                    <Animated.View>
+                        <Text
+                            style={{
+                                fontWeight: '500',
+                                fontSize: 16,
+                                marginLeft: 16,
+                                marginTop: 16
+                            }}
+                        >
+                            {t('hardwareWallet.actions.confirmOnLedger')}
+                        </Text>
+                    </Animated.View>
+                )}
                 <View style={{
                     flexDirection: 'row'
                 }}>

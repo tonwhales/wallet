@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { RoundButton } from "../../components/RoundButton";
-import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
+import { RoundButton } from "../../../components/RoundButton";
+import { t } from "../../../i18n/t";
+import { Theme } from "../../../Theme";
 
-export const LedgerSelectAccountComponent = React.memo(({ onSelect }: { onSelect: (account: number) => void }) => {
+export const LedgerSelectAccount = React.memo(({ onSelect }: { onSelect: (account: number) => void }) => {
 
     return (
         <View style={{

@@ -17,8 +17,6 @@ export const LedgerAccountLoader = React.memo((props: { address: string, childre
 
     useEffect(() => {
         startAccountLiteSync(address, engine);
-        startAccountFullSync(address, engine);
-        startWalletV4Sync(address, engine);
     }, []);
 
     return (

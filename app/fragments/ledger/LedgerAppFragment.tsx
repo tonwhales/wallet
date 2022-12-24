@@ -10,7 +10,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { LedgerApp } from "./LedgerApp";
+import { LedgerApp } from "./components/LedgerApp";
 
 export type LedgerAppParams = {
     account: number,

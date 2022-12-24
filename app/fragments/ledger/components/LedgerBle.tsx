@@ -1,21 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, Image, Alert } from "react-native";
+import { View, Text, Image } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
-import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { RoundButton } from "../../components/RoundButton";
-import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
-import { LedgerDeviceSelection } from "./LedgerDeviceSelection";
-import { LedgerDevice } from "./BleDeviceComponent";
+import { RoundButton } from "../../../components/RoundButton";
+import { t } from "../../../i18n/t";
+import { Theme } from "../../../Theme";
+import { LedgerDeviceSelection } from "../LedgerDeviceSelection";
+import { LedgerDevice } from "./BleDevice";
 import { TonTransport } from "ton-ledger";
-import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { LedgerSelectAccountComponent } from "./LedgerSelectAccountComponent";
-import { LedgerLoadAccComponent } from "./LedgerLoadAccComponent";
+import { LedgerSelectAccount } from "./LedgerSelectAccount";
+import { LedgerLoadAcc } from "./LedgerLoadAcc";
 
-export const LedgerBleComponent = React.memo(() => {
-    const navigation = useTypedNavigation();
+export const LedgerBle = React.memo(() => {
     const safeArea = useSafeAreaInsets();
     const [screen, setScreen] = useState<'scan' | 'select-account' | 'load-address' | null>(null);
 
@@ -80,7 +76,7 @@ export const LedgerBleComponent = React.memo(() => {
                     }}>
                         <View style={{ flexGrow: 1 }} />
                         <Image style={{ width: 256, height: 256 }}
-                            source={require('../../../assets/ic_ledger_x.png')}
+                            source={require('../../../../assets/ic_ledger_x.png')}
                         />
                         <Text style={{
                             color: Theme.textColor,
@@ -116,11 +112,11 @@ export const LedgerBleComponent = React.memo(() => {
             )}
 
             {(!!device && screen === 'select-account') && (
-                <LedgerSelectAccountComponent onSelect={onSelectAccount} />
+                <LedgerSelectAccount onSelect={onSelectAccount} />
             )}
 
             {(!!device && account !== null && screen === 'load-address') && (
-                <LedgerLoadAccComponent account={account} device={device} reset={reset} />
+                <LedgerLoadAcc account={account} device={device} reset={reset} />
             )}
             {(!!device || account) && !(device && account !== null) && (
                 <View style={{

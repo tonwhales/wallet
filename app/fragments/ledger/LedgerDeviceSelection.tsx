@@ -5,7 +5,7 @@ import { Observable, Subscription } from "rxjs";
 import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { BleDeviceComponent, LedgerDevice } from "./BleDeviceComponent";
+import { BleDevice, LedgerDevice } from "./components/BleDevice";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
@@ -125,7 +125,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
             }}>
                 {devices.map((device: any) => {
                     return (
-                        <BleDeviceComponent key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />
+                        <BleDevice key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />
                     );
                 })}
             </ScrollView>

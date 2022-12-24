@@ -68,12 +68,8 @@ import { StakingCalculatorFragment } from './fragments/staking/StakingCalculator
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerHIDFragment } from './fragments/ledger/LedgerHIDFragment';
 import { LedgerBleFragment } from './fragments/ledger/LedgerBleFragment';
-// import { PickCountry } from './fragments/corp/PickCountry';
-// import { PhoneFragment } from './fragments/corp/PhoneScreen';
-// import { CodeFragment } from './fragments/corp/phone/CodeFragment';
 
 const Stack = createNativeStackNavigator();
-// const Stack = Platform.OS === 'ios' ? createNativeStackNavigator() : createStackNavigator();
 
 function fullScreen(name: string, component: React.ComponentType<any>) {
     return (
@@ -190,9 +186,6 @@ const navigation = [
     lockedModalScreen('LedgerApp', LedgerAppFragment),
     modalScreen('LedgerTransfer', LedgerTransferFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
-    // modalScreen('Phone', PhoneFragment),
-    // modalScreen('Country', PickCountry),
-    // genericScreen('Code', CodeFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

@@ -6,7 +6,7 @@ import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { LedgerHIDComponent } from "./LedgerHIDComponent";
+import { LedgerHID } from "./components/LedgerHID";
 
 export const LedgerHIDFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -32,7 +32,7 @@ export const LedgerHIDFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <LedgerHIDComponent />
+            <LedgerHID />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

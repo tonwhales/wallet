@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { View, Text, Image, ScrollView } from "react-native";
 import { TonTransport } from "ton-ledger";
-import { useEngine } from "../../engine/Engine";
+import { useEngine } from "../../../engine/Engine";
 import TransportHID from "@ledgerhq/react-native-hid";
-import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
-import { AppConfig } from "../../AppConfig";
-import { RoundButton } from "../../components/RoundButton";
-import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
+import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
+import { AppConfig } from "../../../AppConfig";
+import { RoundButton } from "../../../components/RoundButton";
+import { t } from "../../../i18n/t";
+import { Theme } from "../../../Theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { LedgerSelectAccountComponent } from "./LedgerSelectAccountComponent";
-import { LedgerLoadAccComponent } from "./LedgerLoadAccComponent";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { LedgerSelectAccount } from "./LedgerSelectAccount";
+import { LedgerLoadAcc } from "./LedgerLoadAcc";
 
-export const LedgerHIDComponent = React.memo(() => {
+export const LedgerHID = React.memo(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
 
@@ -101,7 +101,7 @@ export const LedgerHIDComponent = React.memo(() => {
                         <Image style={{
                             width: 256, height: 256,
                         }}
-                            source={require('../../../assets/ic_ledger_s.png')}
+                            source={require('../../../../assets/ic_ledger_s.png')}
                         />
                         <Text style={{
                             color: Theme.textColor,
@@ -132,12 +132,12 @@ export const LedgerHIDComponent = React.memo(() => {
                 )}
 
                 {(!!device && screen === 'select-account') && (
-                    <LedgerSelectAccountComponent onSelect={onSelectAccount} />
+                    <LedgerSelectAccount onSelect={onSelectAccount} />
                 )}
 
             </ScrollView>
             {(!!device && account !== null && screen === 'load-address') && (
-                <LedgerLoadAccComponent account={account} device={device} reset={reset} />
+                <LedgerLoadAcc account={account} device={device} reset={reset} />
             )}
         </View>
     );

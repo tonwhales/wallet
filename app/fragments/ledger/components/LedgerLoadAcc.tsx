@@ -3,15 +3,15 @@ import { View, Text, Alert, Platform, LayoutAnimation } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { TonTransport } from "ton-ledger";
-import { AppConfig } from "../../AppConfig";
-import { RoundButton } from "../../components/RoundButton";
-import { WalletAddress } from "../../components/WalletAddress";
-import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
-import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { AppConfig } from "../../../AppConfig";
+import { RoundButton } from "../../../components/RoundButton";
+import { WalletAddress } from "../../../components/WalletAddress";
+import { t } from "../../../i18n/t";
+import { Theme } from "../../../Theme";
+import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
-export const LedgerLoadAccComponent = React.memo((
+export const LedgerLoadAcc = React.memo((
     {
         account,
         device,
@@ -49,7 +49,7 @@ export const LedgerLoadAccComponent = React.memo((
                 reset();
             }
         }),
-        [device, account],
+        [device, account, address],
     );
 
     useEffect(() => {
@@ -136,6 +136,7 @@ export const LedgerLoadAccComponent = React.memo((
             <RoundButton
                 title={t('hardwareWallet.actions.loadAddress')}
                 action={onLoadAccount}
+                disabled={!address}
                 style={{
                     position: 'absolute',
                     bottom: safeArea.bottom + 16, left: 16, right: 16,

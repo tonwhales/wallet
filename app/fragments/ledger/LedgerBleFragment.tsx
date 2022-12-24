@@ -6,7 +6,7 @@ import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { LedgerBleComponent } from "./LedgerBleComponent";
+import { LedgerBle } from "./components/LedgerBle";
 
 export const LedgerBleFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -32,7 +32,7 @@ export const LedgerBleFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <LedgerBleComponent />
+            <LedgerBle />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

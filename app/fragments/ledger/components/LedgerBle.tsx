@@ -9,11 +9,10 @@ import { LedgerDeviceSelection } from "../LedgerDeviceSelection";
 import { LedgerDevice } from "./BleDevice";
 import { TonTransport } from "ton-ledger";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
-import { LedgerLoadAcc } from "./LedgerLoadAcc";
 
 export const LedgerBle = React.memo(() => {
     const safeArea = useSafeAreaInsets();
-    const [screen, setScreen] = useState<'scan' | 'select-account' | 'load-address' | null>(null);
+    const [screen, setScreen] = useState<'scan' | 'select-account' | null>(null);
 
     const [account, setAccount] = React.useState<number | null>(null);
     const [bluetoothDevice, setBluetoothDevice] = useState<LedgerDevice | null>(null);
@@ -23,11 +22,6 @@ export const LedgerBle = React.memo(() => {
         setDevice(null);
         setAccount(null);
         setScreen(null)
-    }, []);
-
-    const onSelectAccount = React.useCallback((account: number) => {
-        setAccount(account);
-        setScreen('load-address');
     }, []);
 
     const onSelectDevice = useCallback(async (device: LedgerDevice) => {
@@ -112,12 +106,9 @@ export const LedgerBle = React.memo(() => {
             )}
 
             {(!!device && screen === 'select-account') && (
-                <LedgerSelectAccount device={device} onSelect={onSelectAccount} />
+                <LedgerSelectAccount reset={reset} device={device} />
             )}
 
-            {(!!device && account !== null && screen === 'load-address') && (
-                <LedgerLoadAcc account={account} device={device} reset={reset} />
-            )}
             {(!!device || account) && !(device && account !== null) && (
                 <View style={{
                     flexDirection: 'row',

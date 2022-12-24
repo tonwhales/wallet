@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, Image, ScrollView } from "react-native";
+import { View, Text, Image } from "react-native";
 import { TonTransport } from "ton-ledger";
-import { useEngine } from "../../../engine/Engine";
 import TransportHID from "@ledgerhq/react-native-hid";
-import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
-import { AppConfig } from "../../../AppConfig";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
-import { LedgerLoadAcc } from "./LedgerLoadAcc";
 
 export const LedgerHID = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -25,11 +21,6 @@ export const LedgerHID = React.memo(() => {
     let reset = React.useCallback(() => {
         setDevice(null);
         setAccount(null);
-    }, []);
-
-    const onSelectAccount = React.useCallback((account: number) => {
-        setAccount(account);
-        setScreen('load-address');
     }, []);
 
     const doStart = React.useMemo(() => {
@@ -55,27 +46,6 @@ export const LedgerHID = React.memo(() => {
             })()
         };
     }, [started]);
-
-    const onLoadAccount = React.useCallback(
-        (async () => {
-            if (!device) {
-                return;
-            }
-            if (account === null) {
-                return;
-            }
-            let path = pathFromAccountNumber(account);
-            try {
-                let address = await device.getAddress(path, { testOnly: AppConfig.isTestnet });
-                await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
-                navigation.navigateLedgerApp({ account, address, device });
-            } catch (e) {
-                console.warn(e);
-                reset();
-            }
-        }),
-        [device, account],
-    );
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -122,11 +92,7 @@ export const LedgerHID = React.memo(() => {
                 </View>
             )}
             {(!!device && screen === 'select-account') && (
-                <LedgerSelectAccount device={device} onSelect={onSelectAccount} />
-            )}
-
-            {(!!device && account !== null && screen === 'load-address') && (
-                <LedgerLoadAcc account={account} device={device} reset={reset} />
+                <LedgerSelectAccount reset={reset} device={device} />
             )}
         </View>
     );

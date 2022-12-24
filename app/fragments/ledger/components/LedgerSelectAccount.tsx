@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
@@ -11,21 +11,25 @@ import { WalletAddress } from "../../../components/WalletAddress";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+
+export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer } };
 
 export const LedgerSelectAccount = React.memo(({
-    onSelect,
-    device
+    device,
+    reset
 }: {
-    onSelect: (account: number) => void,
     device: TonTransport,
+    reset: () => void
 }) => {
+    const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [loading, setLoading] = useState(true);
-    const [accounts, setAccounts] = useState<{ i: number, addr: { address: string, publicKey: Buffer } }[]>([]);
+    const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
 
     useEffect(() => {
         (async () => {
-            const proms: Promise<{ i: number, addr: { address: string, publicKey: Buffer } }>[] = [];
+            const proms: Promise<LedgerAccount>[] = [];
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
                     const path = pathFromAccountNumber(i);
@@ -38,6 +42,25 @@ export const LedgerSelectAccount = React.memo(({
             setLoading(false);
         })();
     }, []);
+
+    const onLoadAccount = React.useCallback(
+        (async (acc: LedgerAccount) => {
+            if (!device) {
+                Alert.alert(t('hardwareWallet.errors.noDevice'));
+                reset();
+                return;
+            }
+            let path = pathFromAccountNumber(acc.i);
+            try {
+                await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
+                navigation.navigateLedgerApp({ account: acc.i, address: acc.addr, device });
+            } catch (e) {
+                console.warn(e);
+                reset();
+            }
+        }),
+        [device],
+    );
 
     return (
         <View style={{
@@ -90,7 +113,9 @@ export const LedgerSelectAccount = React.memo(({
                             />
                             <RoundButton
                                 title={t('hardwareWallet.actions.account', { account: acc.i })}
-                                onPress={() => onSelect(acc.i)}
+                                action={() => {
+                                    return onLoadAccount(acc);
+                                }}
                                 style={{
                                     width: '100%',
                                     margin: 4

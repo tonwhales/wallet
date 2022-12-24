@@ -41,7 +41,7 @@ export const LedgerAppFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar onBack={navigation.popToTop} pageTitle={t('hardwareWallet.title')} />
+            <AndroidToolbar pageTitle={t('hardwareWallet.title')} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     marginTop: 17,
@@ -66,7 +66,7 @@ export const LedgerAppFragment = fragment(() => {
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={navigation.popToTop}
+                    onPress={navigation.goBack}
                 />
             )}
         </View>

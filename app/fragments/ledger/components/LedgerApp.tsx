@@ -17,8 +17,6 @@ export function useLedgerWallet(engine: Engine, address: Address) {
     return useRecoilValue(engine.persistence.wallets.item(address).atom);
 }
 
-// startWalletV4Sync
-
 export const LedgerApp = React.memo((props: {
     transport: TonTransport,
     account: number,

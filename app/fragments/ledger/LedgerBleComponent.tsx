@@ -10,7 +10,6 @@ import { LedgerDeviceSelection } from "./LedgerDeviceSelection";
 import { LedgerDevice } from "./BleDeviceComponent";
 import { TonTransport } from "ton-ledger";
 import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
-import { AppConfig } from "../../AppConfig";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerSelectAccountComponent } from "./LedgerSelectAccountComponent";
 import { LedgerLoadAccComponent } from "./LedgerLoadAccComponent";
@@ -67,82 +66,67 @@ export const LedgerBleComponent = React.memo(() => {
         }
     }, [bluetoothDevice]);
 
-    console.log({ screen, device: !!device, account });
+    console.log({ screen, device: !!device, account: account !== null });
 
     return (
         <View style={{ flexGrow: 1 }}>
-            {!(device && account !== null) && (
-                <ScrollView
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    style={{
+            {(screen !== 'scan' && !device) && (
+                <>
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingHorizontal: 16,
                         flexGrow: 1,
-                        backgroundColor: Theme.background,
-                        flexBasis: 0,
-                        marginBottom: safeArea.bottom
-                    }}
-                >
-                    {(screen !== 'scan' && !device) && (
-                        <View style={{
-                            borderRadius: 14,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            paddingHorizontal: 16,
-                            flexGrow: 1,
-                            paddingBottom: 16
+                    }}>
+                        <View style={{ flexGrow: 1 }} />
+                        <Image style={{ width: 256, height: 256 }}
+                            source={require('../../../assets/ic_ledger_x.png')}
+                        />
+                        <Text style={{
+                            color: Theme.textColor,
+                            fontWeight: '600',
+                            fontSize: 18,
+                            marginBottom: 12,
+                            marginHorizontal: 16,
                         }}>
-                            <View style={{ flexGrow: 1 }} />
-                            <Image style={{
-                                width: 256, height: 256,
-                            }}
-                                source={require('../../../assets/ic_ledger_x.png')}
-                            />
-                            <Text style={{
-                                color: Theme.textColor,
-                                fontWeight: '600',
-                                fontSize: 18,
-                                marginBottom: 12,
-                                marginHorizontal: 16,
-                            }}>
-                                {t('hardwareWallet.actions.connect')}
-                            </Text>
-                            <Text style={{
-                                color: Theme.textColor,
-                                fontWeight: '400',
-                                fontSize: 16,
-                                marginBottom: 12,
-                            }}>
-                                {t('hardwareWallet.bluetoothScanDescription')}
-                            </Text>
-                            <View style={{ flexGrow: 1 }} />
-                            <RoundButton
-                                title={t('hardwareWallet.actions.scanBluetooth')}
-                                onPress={onScan}
-                                style={{
-                                    width: '100%',
-                                }}
-                            />
-                        </View>
-                    )}
-
-                    {screen === 'scan' && (
-                        <LedgerDeviceSelection onReset={reset} onSelectDevice={onSelectDevice} />
-                    )}
-
-                    {(!!device && screen === 'select-account') && (
-                        <LedgerSelectAccountComponent onSelect={onSelectAccount} />
-                    )}
-
-                    {(!!device && account !== null && screen === 'load-address') && (
-                        <LedgerLoadAccComponent account={account} device={device} reset={reset} />
-                    )}
-                </ScrollView>
+                            {t('hardwareWallet.actions.connect')}
+                        </Text>
+                        <Text style={{
+                            color: Theme.textColor,
+                            fontWeight: '400',
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}>
+                            {t('hardwareWallet.bluetoothScanDescription')}
+                        </Text>
+                        <View style={{ flexGrow: 1 }} />
+                    </View>
+                    <RoundButton
+                        title={t('hardwareWallet.actions.scanBluetooth')}
+                        onPress={onScan}
+                        style={{
+                            position: 'absolute',
+                            bottom: safeArea.bottom + 16, left: 16, right: 16,
+                        }}
+                    />
+                </>
+            )}
+            {screen === 'scan' && (
+                <LedgerDeviceSelection onReset={reset} onSelectDevice={onSelectDevice} />
             )}
 
-            {(device || account) && !(device && account !== null) && (
+            {(!!device && screen === 'select-account') && (
+                <LedgerSelectAccountComponent onSelect={onSelectAccount} />
+            )}
+
+            {(!!device && account !== null && screen === 'load-address') && (
+                <LedgerLoadAccComponent account={account} device={device} reset={reset} />
+            )}
+            {(!!device || account) && !(device && account !== null) && (
                 <View style={{
                     flexDirection: 'row',
                     position: 'absolute',
-                    bottom: 16,
+                    bottom: safeArea.bottom + 16,
                     left: 0, right: 0,
                     alignItems: 'center',
                     justifyContent: 'center',

@@ -104,7 +104,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
     }, []);
 
     return (
-        <View style={{flexGrow: 1}}>
+        <View style={{ flexGrow: 1 }}>
             {!!scan && (scan.type === 'ongoing' || scan.type === 'completed') && (
                 <View style={{ marginTop: 8, backgroundColor: Theme.background, flexDirection: 'row' }} collapsable={false}>
                     <Text style={{
@@ -132,7 +132,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
             <View style={{
                 flexDirection: 'row',
                 position: 'absolute',
-                bottom: 16,
+                bottom: safeArea.bottom + 16,
                 left: 0, right: 0,
                 alignItems: 'center',
                 justifyContent: 'center',

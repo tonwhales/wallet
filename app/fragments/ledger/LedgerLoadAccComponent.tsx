@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Alert } from "react-native";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { View, Text, Alert, Platform, LayoutAnimation } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Address } from "ton";
 import { TonTransport } from "ton-ledger";
 import { AppConfig } from "../../AppConfig";
 import { RoundButton } from "../../components/RoundButton";
+import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
@@ -18,6 +21,7 @@ export const LedgerLoadAccComponent = React.memo((
         device: TonTransport,
         reset: () => void
     }) => {
+    const safeArea = useSafeAreaInsets();
     const [address, setAddress] = useState<{ address: string, publicKey: Buffer }>();
     const navigation = useTypedNavigation();
 
@@ -63,40 +67,78 @@ export const LedgerLoadAccComponent = React.memo((
         })();
     }, []);
 
+    useLayoutEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [address]);
 
     return (
-        <View style={{
-            marginHorizontal: 16,
-            marginBottom: 16, marginTop: 17,
-            backgroundColor: Theme.item,
-            borderRadius: 14,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-            flexGrow: 1,
-        }}>
-            <Text style={{
-                fontWeight: '600',
-                fontSize: 18,
-                color: Theme.textColor,
-                marginBottom: 16
+        <View style={{ flexGrow: 1 }}>
+            <View style={{
+                backgroundColor: Theme.item,
+                borderRadius: 14,
+                marginTop: 17,
+                marginHorizontal: 16,
+                padding: 16,
             }}>
-                {t('hardwareWallet.openAppVerifyAddress')}
-            </Text>
+                <Text style={{
+                    fontSize: 18,
+                    fontWeight: '700',
+                    marginVertical: 8
+                }}>
+                    {t('hardwareWallet.actions.account', { account: account })}
+                </Text>
+                {!address && (
+                    <Text
+                        style={{
+                            fontSize: 16,
+                            color: Theme.textColor,
+                            fontVariant: ['tabular-nums'],
+                            fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            lineHeight: 20,
+                            marginBottom: 12,
+                        }}
+                        selectable={false}
+                        ellipsizeMode={'middle'}
+                        numberOfLines={1}
+                    >
+                        {'...'}
+                    </Text>
+                )}
+                {address && (
+                    <WalletAddress
+                        address={Address.parse(address.address)}
+                        textProps={{ numberOfLines: undefined }}
+                        textStyle={{
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            fontSize: 16,
+                            lineHeight: 20
+                        }}
+                        style={{
+                            width: undefined,
+                            marginTop: undefined,
+                            marginBottom: 12,
+                        }}
+                        previewBackgroundColor={Theme.item}
+                    />
+                )}
+                <Text style={{
+                    color: Theme.textColor,
+                    fontWeight: '400',
+                    fontSize: 16,
+                }}>
+                    {t('hardwareWallet.openAppVerifyAddress')}
+                </Text>
+            </View>
 
-            <Text style={{
-                fontWeight: '600',
-                fontSize: 18,
-                color: Theme.textColor,
-                marginBottom: 16
-            }}>
-                {address ? address.address : '...'}
-            </Text>
             <RoundButton
                 title={t('hardwareWallet.actions.loadAddress')}
                 action={onLoadAccount}
                 style={{
-                    width: '100%',
+                    position: 'absolute',
+                    bottom: safeArea.bottom + 16, left: 16, right: 16,
                     margin: 4
                 }}
             />

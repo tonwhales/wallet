@@ -79,63 +79,52 @@ export const LedgerHID = React.memo(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <ScrollView
-                contentContainerStyle={{ flexGrow: 1 }}
-                style={{
+            {!device && (
+                <View style={{
+                    marginHorizontal: 16,
+                    marginBottom: 16,
+                    borderRadius: 14,
+                    alignItems: 'center',
+                    padding: 16,
                     flexGrow: 1,
-                    backgroundColor: Theme.background,
-                    flexBasis: 0,
-                    marginBottom: safeArea.bottom
-                }}
-            >
-                {!device && (
-                    <View style={{
+                }}>
+                    <View style={{ flexGrow: 1 }} />
+                    <Image style={{
+                        width: 256, height: 256,
+                    }}
+                        source={require('../../../../assets/ic_ledger_s.png')}
+                    />
+                    <Text style={{
+                        color: Theme.textColor,
+                        fontWeight: '600',
+                        fontSize: 18,
+                        marginBottom: 12,
                         marginHorizontal: 16,
-                        marginBottom: 16,
-                        borderRadius: 14,
-                        alignItems: 'center',
-                        padding: 16,
-                        flexGrow: 1,
                     }}>
-                        <View style={{ flexGrow: 1 }} />
-                        <Image style={{
-                            width: 256, height: 256,
+                        {t('hardwareWallet.actions.connect')}
+                    </Text>
+                    <Text style={{
+                        color: Theme.textColor,
+                        fontWeight: '400',
+                        fontSize: 16,
+                        marginBottom: 12,
+                    }}>
+                        {t('hardwareWallet.connectionHIDDescription')}
+                    </Text>
+                    <View style={{ flexGrow: 1 }} />
+                    <RoundButton
+                        title={t('common.continue')}
+                        onPress={doStart}
+                        style={{
+                            width: '100%',
                         }}
-                            source={require('../../../../assets/ic_ledger_s.png')}
-                        />
-                        <Text style={{
-                            color: Theme.textColor,
-                            fontWeight: '600',
-                            fontSize: 18,
-                            marginBottom: 12,
-                            marginHorizontal: 16,
-                        }}>
-                            {t('hardwareWallet.actions.connect')}
-                        </Text>
-                        <Text style={{
-                            color: Theme.textColor,
-                            fontWeight: '400',
-                            fontSize: 16,
-                            marginBottom: 12,
-                        }}>
-                            {t('hardwareWallet.connectionHIDDescription')}
-                        </Text>
-                        <View style={{ flexGrow: 1 }} />
-                        <RoundButton
-                            title={t('common.continue')}
-                            onPress={doStart}
-                            style={{
-                                width: '100%',
-                            }}
-                        />
-                    </View>
-                )}
+                    />
+                </View>
+            )}
+            {(!!device && screen === 'select-account') && (
+                <LedgerSelectAccount device={device} onSelect={onSelectAccount} />
+            )}
 
-                {(!!device && screen === 'select-account') && (
-                    <LedgerSelectAccount onSelect={onSelectAccount} />
-                )}
-
-            </ScrollView>
             {(!!device && account !== null && screen === 'load-address') && (
                 <LedgerLoadAcc account={account} device={device} reset={reset} />
             )}

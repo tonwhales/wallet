@@ -112,7 +112,7 @@ export const LedgerBle = React.memo(() => {
             )}
 
             {(!!device && screen === 'select-account') && (
-                <LedgerSelectAccount onSelect={onSelectAccount} />
+                <LedgerSelectAccount device={device} onSelect={onSelectAccount} />
             )}
 
             {(!!device && account !== null && screen === 'load-address') && (
@@ -126,7 +126,6 @@ export const LedgerBle = React.memo(() => {
                     left: 0, right: 0,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: Theme.background,
                 }}>
                     <RoundButton
                         title={t('common.back')}

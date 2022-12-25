@@ -357,7 +357,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 defaultSubtitle: 'TON to EUR (0% fee)',
                 defaultTitle: 'Tonhub Visa bank card',
                 type: {
-                    physical: 'Debit',
+                    physical: 'Plastic Card',
                     virtual: 'Virtual',
                 }
             },

@@ -141,7 +141,7 @@ export class ZenPayProduct {
                             state: account.state,
                             balance: new BN(account.balance),
                             card: account.card,
-                            type: 'virtual'
+                            type: 'physical'
                         }))
                     };
                 });

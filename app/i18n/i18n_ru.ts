@@ -358,7 +358,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 defaultSubtitle: 'TON в EUR (комиссия 0%)',
                 defaultTitle: 'Tonhub Visa bank card',
                 type: {
-                    physical: 'Дебетовая',
+                    physical: 'Plastic Card',
                     virtual: 'Виртуальная',
                 }
             },

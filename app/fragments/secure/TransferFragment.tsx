@@ -42,11 +42,13 @@ import TonSign from '../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Contact from '../../../assets/ic_transfer_contact.svg';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
+import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
 import { AddressComponent } from '../../components/AddressComponent';
-import Collapsible from 'react-native-collapsible';
 import { ItemCollapsible } from '../../components/ItemCollapsible';
+import { WImage } from '../../components/WImage';
+import { ItemAddress } from '../../components/ItemAddress';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -91,6 +93,23 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     // Resolve operation
     let body = order.payload ? parseBody(order.payload) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+    const jettonAmount = React.useMemo(() => {
+        try {
+            if (jettonMaster && order.payload) {
+                const temp = order.payload;
+                if (temp) {
+                    const parsing = temp.beginParse();
+                    parsing.readUint(32);
+                    parsing.readUint(64);
+                    return parsing.readCoins();
+                }
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+
+        return undefined;
+    }, [order]);
 
     // Tracking
     const success = React.useRef(false);
@@ -324,32 +343,57 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     >
                         <View style={{ flexDirection: 'row' }}>
                             <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
-                                <View style={{
-                                    backgroundColor: Theme.accent,
-                                    height: 40, width: 40,
-                                    borderRadius: 40,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginTop: 2
-                                }}>
-                                    <TonSign />
-                                </View>
-                                <View style={{ marginVertical: 14 }}>
-                                    <TransferToArrow />
-                                </View>
-                                {contact && !known && (
+                                {!jettonAmount && (
                                     <View style={{
-                                        backgroundColor: '#EDA652',
+                                        backgroundColor: Theme.accent,
                                         height: 40, width: 40,
                                         borderRadius: 40,
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         marginTop: 2
                                     }}>
+                                        <TonSign />
+                                    </View>
+                                )}
+                                {!!jettonAmount && !!jettonMaster && (
+                                    <WImage
+                                        src={jettonMaster.image?.preview256}
+                                        blurhash={jettonMaster.image?.blurhash}
+                                        width={40}
+                                        heigh={40}
+                                        borderRadius={40}
+                                    />
+                                )}
+                                {!jettonAmount && (
+                                    <View style={{ marginVertical: 14 }}>
+                                        <TransferToArrow />
+                                    </View>
+                                )}
+                                {!!jettonAmount && (
+                                    <View style={{
+                                        position: 'absolute',
+                                        top: 42,
+                                        bottom: contact ? 42 + 36 : 42,
+                                        left: 19,
+                                        width: 2,
+                                        borderRadius: 2,
+                                        backgroundColor: Theme.divider
+                                    }} />
+                                )}
+
+                                {contact && (
+                                    <View style={{
+                                        backgroundColor: '#EDA652',
+                                        height: 40, width: 40,
+                                        borderRadius: 40,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        marginBottom: 36
+                                    }}>
                                         <Contact />
                                     </View>
                                 )}
-                                {(!contact || known) && (
+                                {!contact && (
                                     <Avatar
                                         address={friendlyTarget}
                                         id={friendlyTarget}
@@ -364,17 +408,28 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 marginLeft: 8,
                                 flex: 1,
                             }}>
-
                                 <View>
-                                    <Text style={{
-                                        fontWeight: '700',
-                                        fontSize: 20,
-                                        color: Theme.accent,
-                                        marginLeft: 2
-                                    }}>
-                                        {`${fromNano(order.amountAll ? account.balance : order.amount)} ${jettonMaster?.symbol ?? 'TON'}`}
-                                    </Text>
-                                    {!jettonMaster && (
+                                    {!jettonAmount && (
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 20,
+                                            color: Theme.accent,
+                                            marginLeft: 2,
+                                        }}>
+                                            {`${fromNano(order.amountAll ? account.balance : order.amount)} TON`}
+                                        </Text>
+                                    )}
+                                    {!!jettonAmount && !!jettonMaster && (
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 20,
+                                            color: Theme.accent,
+                                            marginLeft: 2
+                                        }}>
+                                            {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
+                                        </Text>
+                                    )}
+                                    {!jettonAmount && (
                                         <PriceComponent
                                             prefix={'~'}
                                             amount={order.amountAll ? account.balance : order.amount}
@@ -391,27 +446,71 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             backgroundColor: Theme.background,
                                             padding: 10,
                                             borderRadius: 6,
-                                            marginBottom: 30,
+                                            marginBottom: !!jettonAmount ? 24 : 30,
+                                            marginTop: 8
                                         }}>
                                             <Text>
                                                 {`💬 ${operation.comment}`}
                                             </Text>
                                         </View>
                                     )}
+                                    {(jettonAmount || AppConfig.isTestnet) && (
+                                        <View style={{ height: 24 }} />
+                                    )}
                                 </View>
 
-                                {!operation.comment && (
+                                {!operation.comment && !jettonAmount && (
                                     <View style={{ height: 20 + 14 + 14 }} />
                                 )}
 
-                                <View>
+                                {!!jettonAmount && (
+                                    <View style={{
+                                        marginTop: !!operation.comment ? 0 : 24,
+                                        marginBottom: 33,
+                                        marginLeft: 2
+                                    }}>
+                                        <PriceComponent
+                                            prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
+                                            suffix={')'}
+                                            amount={order.amountAll ? account.balance : order.amount}
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                paddingHorizontal: 0,
+                                                marginLeft: 2
+                                            }}
+                                            textStyle={{
+                                                color: '#858B93',
+                                                fontWeight: '400', fontSize: 14
+                                            }}
+                                        />
+                                        <View style={{
+                                            backgroundColor: Theme.item,
+                                            shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                            shadowOffset: {
+                                                height: 1,
+                                                width: 0
+                                            },
+                                            shadowRadius: 3,
+                                            shadowOpacity: 1,
+                                            height: 24, width: 24,
+                                            borderRadius: 24,
+                                            position: 'absolute', top: 0, bottom: 0, left: -42,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                            <TonSignGas />
+                                        </View>
+                                    </View>
+                                )}
+
+                                <View style={{ flex: 1 }}>
                                     {(!!contact || !!known) && (
                                         <View style={{ flexDirection: 'row' }}>
                                             <Text style={{
                                                 fontWeight: '700',
                                                 fontSize: 20,
                                                 color: Theme.accent,
-                                                marginLeft: 2
+                                                marginLeft: 2,
                                             }}>
                                                 {`${contact?.name ?? known?.name}`}
                                             </Text>
@@ -425,14 +524,23 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         </View>
                                     )}
                                     {(!contact && !known) && (
-                                        <Text style={{
-                                            fontWeight: '700',
-                                            fontSize: 20,
-                                            color: Theme.accent,
-                                            marginLeft: 2
-                                        }}>
-                                            <AddressComponent address={target.address} />
-                                        </Text>
+                                        <>
+                                            <Text style={{
+                                                fontWeight: '700',
+                                                fontSize: 20,
+                                                color: Theme.accent,
+                                                marginLeft: 2
+                                            }}>
+                                                <AddressComponent address={target.address} />
+                                            </Text>
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 14,
+                                                color: '#858B93',
+                                                marginLeft: 2,
+                                                marginTop: 4
+                                            }}>{''}</Text>
+                                        </>
                                     )}
                                     {(!!contact || !!known) && (
                                         <Text style={{
@@ -445,6 +553,29 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <AddressComponent address={target.address} />
                                         </Text>
                                     )}
+                                    {!!contact && (
+                                        <View style={{
+                                            alignItems: 'baseline',
+                                            marginTop: 8
+                                        }}>
+                                            <View style={{
+                                                borderRadius: 6,
+                                                borderWidth: 1,
+                                                borderColor: Theme.divider,
+                                                paddingHorizontal: 8, paddingVertical: 4,
+                                            }}>
+                                                <Text style={{
+                                                    flexShrink: 1,
+                                                    fontWeight: '500',
+                                                    fontSize: 14,
+                                                    color: Theme.textColor,
+                                                    opacity: 0.4
+                                                }}>
+                                                    {t('transfer.contact')}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    )}
                                 </View>
 
                             </View>
@@ -452,7 +583,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     </View>
                     <ItemGroup>
                         <ItemCollapsible title={t('transfer.moreDetails')}>
-                            <ItemLarge
+                            <ItemAddress
                                 title={t('common.walletAddress')}
                                 text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 verified={!!known}
@@ -483,10 +614,17 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     <ItemLarge title={t('transfer.unknown')} text={order.payload.hash().toString('base64')} />
                                 </>
                             )}
+                            {!!jettonAmount && (
+                                <>
+                                    <ItemDivider />
+                                    <ItemLarge title={t('transfer.gasFee')} text={fromNano(order.amount) + ' TON'} />
+                                </>
+                            )}
                             <ItemDivider />
                             <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
                         </ItemCollapsible>
                     </ItemGroup>
+                    <View style={{ height: 56 }} />
                 </View>
             </ScrollView>
             <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>

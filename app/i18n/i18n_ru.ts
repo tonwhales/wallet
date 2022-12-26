@@ -108,7 +108,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         checkComment: 'Проверьте перед отправкой',
         confirmTitle: 'Подтверждение транзакции',
         unknown: 'Неизвестная операция',
-        moreDetails: 'Подробнее'
+        moreDetails: 'Подробнее',
+        gasFee: 'Gas комиссия',
+        contact: 'Ваш контакт',
+        firstTime: 'Отправка первый раз',
     },
     auth: {
         phoneNumber: 'Номер телефона',

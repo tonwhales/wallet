@@ -122,7 +122,10 @@ export type LocalizationSchema = {
         checkComment: string,
         confirmTitle: string,
         unknown: string,
-        moreDetails: string
+        moreDetails: string,
+        gasFee: string,
+        contact: string,
+        firstTime: string,
     },
     auth: {
         phoneVerify: string,

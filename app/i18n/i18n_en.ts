@@ -120,7 +120,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         checkComment: 'Check before sending',
         confirmTitle: 'Confirm sending',
         unknown: 'Unknown operation',
-        moreDetails: 'More details'
+        moreDetails: 'More details',
+        gasFee: 'Gas fee',
+        contact: 'Your contact',
+        firstTime: 'Sending first time',
     },
     auth: {
         phoneVerify: 'Verify phone',

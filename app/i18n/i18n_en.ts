@@ -118,8 +118,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         commentRequired: 'Сomment required',
         commentLabel: 'Message',
         checkComment: 'Check before sending',
-        confirmTitle: 'Confirm transaction',
+        confirmTitle: 'Confirm sending',
         unknown: 'Unknown operation',
+        moreDetails: 'More details'
     },
     auth: {
         phoneVerify: 'Verify phone',

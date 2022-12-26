@@ -7,7 +7,19 @@ import { usePrice } from "../engine/PriceContext"
 import { Theme } from "../Theme"
 import { formatCurrency } from "../utils/formatCurrency"
 
-export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount: BN, style?: StyleProp<ViewStyle>, textStyle?: StyleProp<TextStyle> }) => {
+export const PriceComponent = React.memo((
+    {
+        amount,
+        style,
+        textStyle,
+        prefix
+    }: {
+        amount: BN,
+        style?: StyleProp<ViewStyle>,
+        textStyle?: StyleProp<TextStyle>,
+        prefix?: string
+    }
+) => {
     const [price, currency] = usePrice();
 
     if (!price || AppConfig.isTestnet) {
@@ -30,7 +42,7 @@ export const PriceComponent = React.memo(({ amount, style, textStyle }: { amount
                 textAlign: "center",
                 lineHeight: 16
             }, textStyle]}>
-                {`${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}`}
+                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}`}
             </Text>
         </View>
     )

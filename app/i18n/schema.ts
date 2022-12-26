@@ -121,7 +121,8 @@ export type LocalizationSchema = {
         commentLabel: string,
         checkComment: string,
         confirmTitle: string,
-        unknown: string
+        unknown: string,
+        moreDetails: string
     },
     auth: {
         phoneVerify: string,

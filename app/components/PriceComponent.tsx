@@ -12,12 +12,14 @@ export const PriceComponent = React.memo((
         amount,
         style,
         textStyle,
-        prefix
+        prefix,
+        suffix
     }: {
         amount: BN,
         style?: StyleProp<ViewStyle>,
         textStyle?: StyleProp<TextStyle>,
-        prefix?: string
+        prefix?: string,
+        suffix?: string
     }
 ) => {
     const [price, currency] = usePrice();
@@ -42,7 +44,7 @@ export const PriceComponent = React.memo((
                 textAlign: "center",
                 lineHeight: 16
             }, textStyle]}>
-                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}`}
+                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}${suffix ?? ''}`}
             </Text>
         </View>
     )

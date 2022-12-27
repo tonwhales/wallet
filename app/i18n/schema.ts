@@ -126,6 +126,7 @@ export type LocalizationSchema = {
         gasFee: string,
         contact: string,
         firstTime: string,
+        requestsToSign: string
     },
     auth: {
         phoneVerify: string,

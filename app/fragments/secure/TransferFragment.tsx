@@ -43,6 +43,7 @@ import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Contact from '../../../assets/ic_transfer_contact.svg';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import TonSignGas from '../../../assets/ic_transfer_gas.svg';
+import SignLock from '../../../assets/ic_sign_lock.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
 import { AddressComponent } from '../../components/AddressComponent';
@@ -303,6 +304,38 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     return (
         <>
+            {!!order.app && (
+                <View style={{
+                    paddingTop: 12,
+                    paddingBottom: 17,
+                    paddingHorizontal: Platform.OS === 'ios' ? 40 + 8 : 16,
+                }}>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 14,
+                        fontWeight: '600'
+                    }}>
+                        {t('transfer.requestsToSign', { app: order.app.title })}
+                    </Text>
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        marginTop: 6
+                    }}>
+                        <SignLock />
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 14,
+                            fontWeight: '400',
+                            marginLeft: 4,
+                            color: '#858B93'
+                        }}>
+                            {order.app.domain}
+                        </Text>
+                    </View>
+                </View>
+            )}
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}

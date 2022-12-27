@@ -44,6 +44,8 @@ import Contact from '../../../assets/ic_transfer_contact.svg';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
+import SignSafe from '../../../assets/ic_sign_safe.svg';
+import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
 import { AddressComponent } from '../../components/AddressComponent';
@@ -295,11 +297,9 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const anim = React.useRef<LottieView>(null);
 
     React.useLayoutEffect(() => {
-        if (Platform.OS === 'ios') {
-            setTimeout(() => {
-                anim.current?.play()
-            }, 300);
-        }
+        setTimeout(() => {
+            anim.current?.play()
+        }, 300);
     }, []);
 
     return (
@@ -350,8 +350,9 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                         <LottieView
                             ref={anim}
                             source={require('../../../assets/animations/sign.json')}
-                            style={{ width: 90, height: 90 }}
-                            autoPlay={true}
+                            style={{ width: 120, height: 120 }}
+                            autoPlay={false}
+                            loop={false}
                         />
                         {Platform.OS === 'ios' && (
                             <Text style={{
@@ -374,95 +375,22 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             marginBottom: 14
                         }}
                     >
-                        <View style={{ flexDirection: 'row' }}>
-                            <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
-                                {!jettonAmount && (
+                        <View>
+                            {!jettonAmount && (
+                                <>
                                     <View style={{
-                                        backgroundColor: Theme.accent,
-                                        height: 40, width: 40,
-                                        borderRadius: 40,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        marginTop: 2
+                                        marginLeft: 40 + 6,
+                                        minHeight: 40,
+                                        justifyContent: 'center'
                                     }}>
-                                        <TonSign />
-                                    </View>
-                                )}
-                                {!!jettonAmount && !!jettonMaster && (
-                                    <WImage
-                                        src={jettonMaster.image?.preview256}
-                                        blurhash={jettonMaster.image?.blurhash}
-                                        width={40}
-                                        heigh={40}
-                                        borderRadius={40}
-                                    />
-                                )}
-                                {!jettonAmount && (
-                                    <View style={{ marginVertical: 14 }}>
-                                        <TransferToArrow />
-                                    </View>
-                                )}
-                                {!!jettonAmount && (
-                                    <View style={{
-                                        position: 'absolute',
-                                        top: 42,
-                                        bottom: contact ? 42 + 36 : 42,
-                                        left: 19,
-                                        width: 2,
-                                        borderRadius: 2,
-                                        backgroundColor: Theme.divider
-                                    }} />
-                                )}
-
-                                {contact && (
-                                    <View style={{
-                                        backgroundColor: '#EDA652',
-                                        height: 40, width: 40,
-                                        borderRadius: 40,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        marginBottom: 36
-                                    }}>
-                                        <Contact />
-                                    </View>
-                                )}
-                                {!contact && (
-                                    <Avatar
-                                        address={friendlyTarget}
-                                        id={friendlyTarget}
-                                        size={40}
-                                        spam={spam}
-                                        dontShowVerified={true}
-                                    />
-                                )}
-                            </View>
-
-                            <View style={{
-                                marginLeft: 8,
-                                flex: 1,
-                            }}>
-                                <View>
-                                    {!jettonAmount && (
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.accent,
+                                            color: Theme.textColor,
                                             marginLeft: 2,
                                         }}>
                                             {`${fromNano(order.amountAll ? account.balance : order.amount)} TON`}
                                         </Text>
-                                    )}
-                                    {!!jettonAmount && !!jettonMaster && (
-                                        <Text style={{
-                                            fontWeight: '700',
-                                            fontSize: 20,
-                                            color: Theme.accent,
-                                            marginLeft: 2
-                                        }}>
-                                            {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
-                                        </Text>
-                                    )}
-                                    {!jettonAmount && (
                                         <PriceComponent
                                             prefix={'~'}
                                             amount={order.amountAll ? account.balance : order.amount}
@@ -473,49 +401,132 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             }}
                                             textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
                                         />
-                                    )}
-                                    {!!operation.comment && operation.comment.length > 0 && (
+                                        {!!operation.comment && operation.comment.length > 0 && (
+                                            <View style={{
+                                                backgroundColor: Theme.background,
+                                                padding: 10,
+                                                borderRadius: 6,
+                                                marginTop: 8
+                                            }}>
+                                                <Text>
+                                                    {`💬 ${operation.comment}`}
+                                                </Text>
+                                            </View>
+                                        )}
                                         <View style={{
-                                            backgroundColor: Theme.background,
-                                            padding: 10,
-                                            borderRadius: 6,
-                                            marginBottom: !!jettonAmount ? 24 : 30,
-                                            marginTop: 8
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                            backgroundColor: Theme.accent,
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginTop: 2
                                         }}>
-                                            <Text>
-                                                {`💬 ${operation.comment}`}
-                                            </Text>
+                                            <TonSign />
                                         </View>
-                                    )}
-                                    {(jettonAmount || AppConfig.isTestnet) && (
-                                        <View style={{ height: 24 }} />
-                                    )}
-                                </View>
-
-                                {!operation.comment && !jettonAmount && (
-                                    <View style={{ height: 20 + 14 + 14 }} />
-                                )}
-
-                                {!!jettonAmount && (
+                                    </View>
                                     <View style={{
-                                        marginTop: !!operation.comment ? 0 : 24,
-                                        marginBottom: 33,
-                                        marginLeft: 2
+                                        marginLeft: 40 + 6,
+                                        marginVertical: 14,
+                                        justifyContent: 'center',
+                                        minHeight: 22
                                     }}>
-                                        <PriceComponent
-                                            prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
-                                            suffix={')'}
-                                            amount={order.amountAll ? account.balance : order.amount}
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                paddingHorizontal: 0,
-                                                marginLeft: 2
-                                            }}
-                                            textStyle={{
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: -26 - 10, top: 0, bottom: 0,
+                                        }}>
+                                            <TransferToArrow />
+                                        </View>
+                                    </View>
+                                </>
+                            )}
+                            {!!jettonAmount && !!jettonMaster && (
+                                <>
+                                    <View style={{
+                                        position: 'absolute',
+                                        top: 44,
+                                        bottom: contact ? 48 : 44,
+                                        left: 17,
+                                        width: 2,
+                                        borderRadius: 2,
+                                        backgroundColor: Theme.divider
+                                    }} />
+                                    <View style={{
+                                        marginLeft: 40 + 6,
+                                        minHeight: 40,
+                                        justifyContent: 'center'
+                                    }}>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 20,
+                                            color: Theme.textColor,
+                                            marginLeft: 2
+                                        }}>
+                                            {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
+                                        </Text>
+                                        {!!operation.comment && operation.comment.length > 0 && (
+                                            <View style={{
+                                                backgroundColor: Theme.background,
+                                                padding: 10,
+                                                borderRadius: 6,
+                                                marginTop: 8
+                                            }}>
+                                                <Text>
+                                                    {`💬 ${operation.comment}`}
+                                                </Text>
+                                            </View>
+                                        )}
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                            backgroundColor: Theme.accent,
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginTop: 2
+                                        }}>
+                                            <WImage
+                                                src={jettonMaster.image?.preview256}
+                                                blurhash={jettonMaster.image?.blurhash}
+                                                width={40}
+                                                heigh={40}
+                                                borderRadius={40}
+                                            />
+                                        </View>
+                                    </View>
+                                    <View style={{
+                                        marginLeft: 40 + 6,
+                                        minHeight: 24,
+                                        marginTop: 20, marginBottom: 30,
+                                        justifyContent: 'center'
+                                    }}>
+                                        {!AppConfig.isTestnet && (
+                                            <PriceComponent
+                                                prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
+                                                suffix={')'}
+                                                amount={order.amountAll ? account.balance : order.amount}
+                                                style={{
+                                                    backgroundColor: 'transparent',
+                                                    paddingHorizontal: 0,
+                                                    marginLeft: 2
+                                                }}
+                                                textStyle={{
+                                                    color: '#858B93',
+                                                    fontWeight: '400', fontSize: 14
+                                                }}
+                                            />
+                                        )}
+                                        {AppConfig.isTestnet && (
+                                            <Text style={{
                                                 color: '#858B93',
-                                                fontWeight: '400', fontSize: 14
-                                            }}
-                                        />
+                                                fontWeight: '400', fontSize: 14,
+                                                lineHeight: 16
+                                            }}>
+                                                {`${t('transfer.gasFee')} ${fromNano(order.amount)} TON`}
+                                            </Text>
+                                        )}
                                         <View style={{
                                             backgroundColor: Theme.item,
                                             shadowColor: 'rgba(0, 0, 0, 0.25)',
@@ -527,92 +538,224 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             shadowOpacity: 1,
                                             height: 24, width: 24,
                                             borderRadius: 24,
-                                            position: 'absolute', top: 0, bottom: 0, left: -42,
+                                            position: 'absolute', top: 0, bottom: 0, left: -40,
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                         }}>
                                             <TonSignGas />
                                         </View>
                                     </View>
-                                )}
-
-                                <View style={{ flex: 1 }}>
-                                    {(!!contact || !!known) && (
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Text style={{
-                                                fontWeight: '700',
-                                                fontSize: 20,
-                                                color: Theme.accent,
-                                                marginLeft: 2,
-                                            }}>
-                                                {`${contact?.name ?? known?.name}`}
-                                            </Text>
-                                            {known && (
-                                                <VerifiedIcon
-                                                    width={20}
-                                                    height={20}
-                                                    style={{ alignSelf: 'center', marginLeft: 6 }}
-                                                />
-                                            )}
+                                </>
+                            )}
+                            {(!!contact || !!known) && (
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    minHeight: 40,
+                                    justifyContent: 'center'
+                                }}>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 20,
+                                            color: Theme.textColor,
+                                            marginLeft: 2,
+                                        }}>
+                                            {`${contact?.name ?? known?.name}`}
+                                        </Text>
+                                        {known && (
+                                            <VerifiedIcon
+                                                width={20}
+                                                height={20}
+                                                style={{ alignSelf: 'center', marginLeft: 6 }}
+                                            />
+                                        )}
+                                    </View>
+                                    <Text style={{
+                                        fontWeight: '400',
+                                        fontSize: 14,
+                                        color: '#858B93',
+                                        marginLeft: 2,
+                                        marginTop: 4
+                                    }}>
+                                        <AddressComponent address={target.address} />
+                                    </Text>
+                                    {contact && (
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                            backgroundColor: '#EDA652',
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginBottom: 36
+                                        }}>
+                                            <Contact />
                                         </View>
                                     )}
-                                    {(!contact && !known) && (
-                                        <>
-                                            <Text style={{
-                                                fontWeight: '700',
-                                                fontSize: 20,
-                                                color: Theme.accent,
-                                                marginLeft: 2
-                                            }}>
-                                                <AddressComponent address={target.address} />
-                                            </Text>
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 14,
-                                                color: '#858B93',
-                                                marginLeft: 2,
-                                                marginTop: 4
-                                            }}>{''}</Text>
-                                        </>
-                                    )}
-                                    {(!!contact || !!known) && (
-                                        <Text style={{
-                                            fontWeight: '400',
-                                            fontSize: 14,
-                                            color: '#858B93',
-                                            marginLeft: 2,
-                                            marginTop: 4
-                                        }}>
-                                            <AddressComponent address={target.address} />
-                                        </Text>
-                                    )}
-                                    {!!contact && (
+                                    {!contact && (
                                         <View style={{
-                                            alignItems: 'baseline',
-                                            marginTop: 8
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                            height: 40, width: 40,
                                         }}>
-                                            <View style={{
-                                                borderRadius: 6,
-                                                borderWidth: 1,
-                                                borderColor: Theme.divider,
-                                                paddingHorizontal: 8, paddingVertical: 4,
+                                            <Avatar
+                                                address={friendlyTarget}
+                                                id={friendlyTarget}
+                                                size={40}
+                                                spam={spam}
+                                                dontShowVerified={true}
+                                            />
+                                        </View>
+                                    )}
+                                </View>
+                            )}
+                            {(!contact && !known) && (
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    minHeight: 40,
+                                    justifyContent: 'center'
+                                }}>
+                                    <Text style={{
+                                        fontWeight: '700',
+                                        fontSize: 20,
+                                        color: Theme.textColor,
+                                        marginLeft: 2
+                                    }}>
+                                        <AddressComponent address={target.address} />
+                                    </Text>
+                                    <View style={{
+                                        position: 'absolute',
+                                        left: -48, top: 0, bottom: 0,
+                                        height: 40, width: 40,
+                                    }}>
+                                        <Avatar
+                                            address={friendlyTarget}
+                                            id={friendlyTarget}
+                                            size={40}
+                                            spam={spam}
+                                            dontShowVerified={true}
+                                        />
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+
+                        {!jettonAmount && (
+                            <View>
+                                <View style={{
+                                    position: 'absolute',
+                                    top: -2,
+                                    bottom: 42,
+                                    left: 17,
+                                    width: 2,
+                                    borderRadius: 2,
+                                    backgroundColor: Theme.divider
+                                }} />
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    justifyContent: 'center'
+                                }}>
+                                    {!!operation.op && (
+                                        <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                color: '#858B93',
+                                                fontWeight: '400', fontSize: 14,
+                                                lineHeight: 16
                                             }}>
-                                                <Text style={{
-                                                    flexShrink: 1,
-                                                    fontWeight: '500',
-                                                    fontSize: 14,
-                                                    color: Theme.textColor,
-                                                    opacity: 0.4
-                                                }}>
-                                                    {t('transfer.contact')}
-                                                </Text>
+                                                {t('transfer.smartContract')}
+                                            </Text>
+                                            <View style={{
+                                                backgroundColor: Theme.item,
+                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                                shadowOffset: {
+                                                    height: 1,
+                                                    width: 0
+                                                },
+                                                shadowRadius: 3,
+                                                shadowOpacity: 1,
+                                                height: 24, width: 24,
+                                                borderRadius: 24,
+                                                position: 'absolute', top: 0, bottom: 0, left: -42,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <SignSafe />
+                                            </View>
+                                        </View>
+                                    )}
+                                    {!operation.comment && !operation.op && !!text && (
+                                        <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                color: '#858B93',
+                                                fontWeight: '400', fontSize: 14,
+                                                lineHeight: 16
+                                            }}>
+                                                {t('transfer.smartContract')}
+                                            </Text>
+                                            <View style={{
+                                                backgroundColor: Theme.item,
+                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                                shadowOffset: {
+                                                    height: 1,
+                                                    width: 0
+                                                },
+                                                shadowRadius: 3,
+                                                shadowOpacity: 1,
+                                                height: 24, width: 24,
+                                                borderRadius: 24,
+                                                position: 'absolute', top: 0, bottom: 0, left: -42,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <SignSafe />
                                             </View>
                                         </View>
                                     )}
                                 </View>
-
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    justifyContent: 'center'
+                                }}>
+                                    {!!operation.op && (
+                                        <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 17,
+                                                color: Theme.textColor,
+                                            }}>
+                                                {operation.op}
+                                            </Text>
+                                        </View>
+                                    )}
+                                    {!operation.comment && !operation.op && !!text && (
+                                        <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                flexShrink: 1,
+                                                fontWeight: '500',
+                                                fontSize: 14,
+                                                color: Theme.textColor,
+                                                opacity: 0.4
+                                            }}>
+                                                {text}
+                                            </Text>
+                                        </View>
+                                    )}
+                                    <View style={{
+                                        backgroundColor: '#60C75E',
+                                        height: 40, width: 40,
+                                        borderRadius: 40,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        position: 'absolute',
+                                        left: -48, top: 0, bottom: 0,
+                                    }}>
+                                        <SmartContract />
+                                    </View>
+                                </View>
                             </View>
-                        </View>
+                        )}
+                        
                     </View>
                     <ItemGroup>
                         <ItemCollapsible title={t('transfer.moreDetails')}>

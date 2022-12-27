@@ -125,6 +125,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         contact: 'Your contact',
         firstTime: 'Sending first time',
         requestsToSign: '{{app}} requests to sign',
+        smartContract: 'Smart contract transaction',
     },
     auth: {
         phoneVerify: 'Verify phone',

@@ -113,6 +113,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         contact: 'Ваш контакт',
         firstTime: 'Отправка первый раз',
         requestsToSign: '{{app}} запрашивает подпись транзакции',
+        smartContract: 'Смарт-контракт транзакция',
     },
     auth: {
         phoneNumber: 'Номер телефона',

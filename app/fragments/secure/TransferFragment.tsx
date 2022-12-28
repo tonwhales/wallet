@@ -46,12 +46,14 @@ import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
 import SignSafe from '../../../assets/ic_sign_safe.svg';
 import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
+import Staking from '../../../assets/ic_sign_staking.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
 import { AddressComponent } from '../../components/AddressComponent';
 import { ItemCollapsible } from '../../components/ItemCollapsible';
 import { WImage } from '../../components/WImage';
 import { ItemAddress } from '../../components/ItemAddress';
+import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -95,6 +97,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     // Resolve operation
     let body = order.payload ? parseBody(order.payload) : null;
+    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
     const jettonAmount = React.useMemo(() => {
         try {
@@ -763,7 +766,12 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         position: 'absolute',
                                         left: -48, top: 0, bottom: 0,
                                     }}>
-                                        <SmartContract />
+                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            <Staking />
+                                        )}
+                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            <SmartContract />
+                                        )}
                                     </View>
                                 </View>
                             </View>

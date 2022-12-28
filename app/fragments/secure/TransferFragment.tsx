@@ -18,7 +18,7 @@ import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { LocalizedResources } from '../../i18n/schema';
-import { KnownWallets } from '../../secure/KnownWallets';
+import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -37,12 +37,23 @@ import { estimateFees } from '../../engine/estimate/estimateFees';
 import { warn } from '../../utils/log';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from '../../utils/dns/dns';
-
-const labelStyle: StyleProp<TextStyle> = {
-    fontWeight: '600',
-    marginLeft: 17,
-    fontSize: 17
-};
+import LottieView from 'lottie-react-native';
+import TonSign from '../../../assets/ic_ton_sign.svg';
+import TransferToArrow from '../../../assets/ic_transfer_to.svg';
+import Contact from '../../../assets/ic_transfer_contact.svg';
+import VerifiedIcon from '../../../assets/ic_verified.svg';
+import TonSignGas from '../../../assets/ic_transfer_gas.svg';
+import SignLock from '../../../assets/ic_sign_lock.svg';
+import SignSafe from '../../../assets/ic_sign_safe.svg';
+import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
+import Staking from '../../../assets/ic_sign_staking.svg';
+import { PriceComponent } from '../../components/PriceComponent';
+import { Avatar } from '../../components/Avatar';
+import { AddressComponent } from '../../components/AddressComponent';
+import { ItemCollapsible } from '../../components/ItemCollapsible';
+import { WImage } from '../../components/WImage';
+import { ItemAddress } from '../../components/ItemAddress';
+import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -86,7 +97,25 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     // Resolve operation
     let body = order.payload ? parseBody(order.payload) : null;
+    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+    const jettonAmount = React.useMemo(() => {
+        try {
+            if (jettonMaster && order.payload) {
+                const temp = order.payload;
+                if (temp) {
+                    const parsing = temp.beginParse();
+                    parsing.readUint(32);
+                    parsing.readUint(64);
+                    return parsing.readCoins();
+                }
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+
+        return undefined;
+    }, [order]);
 
     // Tracking
     const success = React.useRef(false);
@@ -96,10 +125,23 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
     }, []);
 
-    // Verified wallets
-    const known = KnownWallets[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+    const friendlyTarget = target.address.toFriendly({ testOnly: AppConfig.isTestnet });
     // Contact wallets
     const contact = engine.products.settings.useContactAddress(operation.address);
+
+    // Resolve built-in known wallets
+    let known: KnownWallet | undefined = undefined;
+    if (KnownWallets[friendlyTarget]) {
+        known = KnownWallets[friendlyTarget];
+    } else if (operation.title) {
+        known = { name: operation.title };
+    } else if (!!contact) { // Resolve contact known wallet
+        known = { name: contact.name }
+    }
+
+    const isSpam = engine.products.settings.useDenyAddress(operation.address);
+    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam
+
 
     // Confirmation
     const doSend = React.useCallback(async () => {
@@ -255,8 +297,48 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
     }, []);
 
+    const anim = React.useRef<LottieView>(null);
+
+    React.useLayoutEffect(() => {
+        setTimeout(() => {
+            anim.current?.play()
+        }, 300);
+    }, []);
+
     return (
         <>
+            {!!order.app && (
+                <View style={{
+                    paddingTop: 12,
+                    paddingBottom: 17,
+                    paddingHorizontal: Platform.OS === 'ios' ? 40 + 8 : 16,
+                }}>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 14,
+                        fontWeight: '600'
+                    }}>
+                        {t('transfer.requestsToSign', { app: order.app.title })}
+                    </Text>
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        marginTop: 6
+                    }}>
+                        <SignLock />
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 14,
+                            fontWeight: '400',
+                            marginLeft: 4,
+                            color: '#858B93'
+                        }}>
+                            {order.app.domain}
+                        </Text>
+                    </View>
+                </View>
+            )}
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
@@ -267,75 +349,479 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
-
+                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
+                        <LottieView
+                            ref={anim}
+                            source={require('../../../assets/animations/sign.json')}
+                            style={{ width: 120, height: 120 }}
+                            autoPlay={false}
+                            loop={false}
+                        />
+                        {Platform.OS === 'ios' && (
+                            <Text style={{
+                                fontWeight: '700',
+                                fontSize: 30,
+                                textAlign: 'center'
+                            }}>
+                                {t('transfer.confirmTitle')}
+                            </Text>
+                        )}
+                    </View>
                     <View
                         style={{
-                            marginBottom: 14,
-                            backgroundColor: "white",
+                            marginTop: 30,
+                            backgroundColor: Theme.item,
                             borderRadius: 14,
                             justifyContent: 'center',
                             paddingHorizontal: 16,
-                            paddingVertical: 19,
-                            height: 95
+                            paddingVertical: 20,
+                            marginBottom: 14
                         }}
                     >
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 16,
-                            color: '#8E979D'
-                        }}>
-                            {t('common.amount')}
-                        </Text>
-                        <Text style={{
-                            fontWeight: '800',
-                            fontSize: 38,
-                            color: Theme.accent,
-                            marginTop: 4
-                        }}>
-                            {fromNano(order.amountAll ? account.balance : order.amount)}
-                        </Text>
+                        <View>
+                            {!jettonAmount && (
+                                <>
+                                    <View style={{
+                                        marginLeft: 40 + 6,
+                                        minHeight: 40,
+                                        justifyContent: 'center'
+                                    }}>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 20,
+                                            color: Theme.textColor,
+                                            marginLeft: 2,
+                                        }}>
+                                            {`${fromNano(order.amountAll ? account.balance : order.amount)} TON`}
+                                        </Text>
+                                        <PriceComponent
+                                            prefix={'~'}
+                                            amount={order.amountAll ? account.balance : order.amount}
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                paddingHorizontal: 0,
+                                                marginLeft: 2
+                                            }}
+                                            textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                        />
+                                        {!!operation.comment && operation.comment.length > 0 && (
+                                            <View style={{
+                                                backgroundColor: Theme.background,
+                                                padding: 10,
+                                                borderRadius: 6,
+                                                marginTop: 8
+                                            }}>
+                                                <Text>
+                                                    {`💬 ${operation.comment}`}
+                                                </Text>
+                                            </View>
+                                        )}
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                            backgroundColor: Theme.accent,
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginTop: 2
+                                        }}>
+                                            <TonSign />
+                                        </View>
+                                    </View>
+                                    <View style={{
+                                        marginLeft: 40 + 6,
+                                        marginVertical: 14,
+                                        justifyContent: 'center',
+                                        minHeight: 22
+                                    }}>
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: -26 - 10, top: 0, bottom: 0,
+                                        }}>
+                                            <TransferToArrow />
+                                        </View>
+                                    </View>
+                                </>
+                            )}
+                            {!!jettonAmount && !!jettonMaster && (
+                                <>
+                                    <View style={{
+                                        position: 'absolute',
+                                        top: 44,
+                                        bottom: contact ? 48 : 44,
+                                        left: 17,
+                                        width: 2,
+                                        borderRadius: 2,
+                                        backgroundColor: Theme.divider
+                                    }} />
+                                    <View style={{
+                                        marginLeft: 40 + 6,
+                                        minHeight: 40,
+                                        justifyContent: 'center'
+                                    }}>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 20,
+                                            color: Theme.textColor,
+                                            marginLeft: 2
+                                        }}>
+                                            {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
+                                        </Text>
+                                        {!!operation.comment && operation.comment.length > 0 && (
+                                            <View style={{
+                                                backgroundColor: Theme.background,
+                                                padding: 10,
+                                                borderRadius: 6,
+                                                marginTop: 8
+                                            }}>
+                                                <Text>
+                                                    {`💬 ${operation.comment}`}
+                                                </Text>
+                                            </View>
+                                        )}
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                            backgroundColor: Theme.accent,
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginTop: 2
+                                        }}>
+                                            <WImage
+                                                src={jettonMaster.image?.preview256}
+                                                blurhash={jettonMaster.image?.blurhash}
+                                                width={40}
+                                                heigh={40}
+                                                borderRadius={40}
+                                            />
+                                        </View>
+                                    </View>
+                                    <View style={{
+                                        marginLeft: 40 + 6,
+                                        minHeight: 24,
+                                        marginTop: 20, marginBottom: 30,
+                                        justifyContent: 'center'
+                                    }}>
+                                        {!AppConfig.isTestnet && (
+                                            <PriceComponent
+                                                prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
+                                                suffix={')'}
+                                                amount={order.amountAll ? account.balance : order.amount}
+                                                style={{
+                                                    backgroundColor: 'transparent',
+                                                    paddingHorizontal: 0,
+                                                    marginLeft: 2
+                                                }}
+                                                textStyle={{
+                                                    color: '#858B93',
+                                                    fontWeight: '400', fontSize: 14
+                                                }}
+                                            />
+                                        )}
+                                        {AppConfig.isTestnet && (
+                                            <Text style={{
+                                                color: '#858B93',
+                                                fontWeight: '400', fontSize: 14,
+                                                lineHeight: 16
+                                            }}>
+                                                {`${t('transfer.gasFee')} ${fromNano(order.amount)} TON`}
+                                            </Text>
+                                        )}
+                                        <View style={{
+                                            backgroundColor: Theme.item,
+                                            shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                            shadowOffset: {
+                                                height: 1,
+                                                width: 0
+                                            },
+                                            shadowRadius: 3,
+                                            shadowOpacity: 1,
+                                            height: 24, width: 24,
+                                            borderRadius: 24,
+                                            position: 'absolute', top: 0, bottom: 0, left: -40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                            <TonSignGas />
+                                        </View>
+                                    </View>
+                                </>
+                            )}
+                            {(!!contact || !!known) && (
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    minHeight: 40,
+                                    justifyContent: 'center'
+                                }}>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 20,
+                                            color: Theme.textColor,
+                                            marginLeft: 2,
+                                        }}>
+                                            {`${contact?.name ?? known?.name}`}
+                                        </Text>
+                                        {known && (
+                                            <VerifiedIcon
+                                                width={20}
+                                                height={20}
+                                                style={{ alignSelf: 'center', marginLeft: 6 }}
+                                            />
+                                        )}
+                                    </View>
+                                    <Text style={{
+                                        fontWeight: '400',
+                                        fontSize: 14,
+                                        color: '#858B93',
+                                        marginLeft: 2,
+                                        marginTop: 4
+                                    }}>
+                                        <AddressComponent address={target.address} />
+                                    </Text>
+                                    {contact && (
+                                        <>
+                                            <View style={{
+                                                position: 'absolute',
+                                                left: -48, top: 0, bottom: 0,
+                                                backgroundColor: '#EDA652',
+                                                height: 40, width: 40,
+                                                borderRadius: 40,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                marginBottom: 36
+                                            }}>
+                                                <Contact />
+                                            </View>
+                                            <View style={{
+                                                alignSelf: 'flex-start',
+                                                borderRadius: 6, borderWidth: 1,
+                                                borderColor: '#DEDEDE',
+                                                paddingHorizontal: 8, paddingVertical: 4,
+                                                marginTop: 4
+                                            }}>
+                                                <Text>
+                                                    {t('transfer.contact')}
+                                                </Text>
+                                            </View>
+                                        </>
+                                    )}
+                                    {!contact && (
+                                        <View style={{
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                            height: 40, width: 40,
+                                        }}>
+                                            <Avatar
+                                                address={friendlyTarget}
+                                                id={friendlyTarget}
+                                                size={40}
+                                                spam={spam}
+                                                dontShowVerified={true}
+                                            />
+                                        </View>
+                                    )}
+                                </View>
+                            )}
+                            {(!contact && !known) && (
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    minHeight: 40,
+                                    justifyContent: 'center'
+                                }}>
+                                    <Text style={{
+                                        fontWeight: '700',
+                                        fontSize: 20,
+                                        color: Theme.textColor,
+                                        marginLeft: 2
+                                    }}>
+                                        <AddressComponent address={target.address} />
+                                    </Text>
+                                    <View style={{
+                                        position: 'absolute',
+                                        left: -48, top: 0, bottom: 0,
+                                        height: 40, width: 40,
+                                    }}>
+                                        <Avatar
+                                            address={friendlyTarget}
+                                            id={friendlyTarget}
+                                            size={40}
+                                            spam={spam}
+                                            dontShowVerified={true}
+                                        />
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+
+                        {!jettonAmount && (!!operation.op || (!operation.comment && !operation.op && !!text)) && (
+                            <View>
+                                <View style={{
+                                    position: 'absolute',
+                                    top: -2,
+                                    bottom: 42,
+                                    left: 17,
+                                    width: 2,
+                                    borderRadius: 2,
+                                    backgroundColor: Theme.divider
+                                }} />
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    justifyContent: 'center'
+                                }}>
+                                    {!!operation.op && (
+                                        <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                color: '#858B93',
+                                                fontWeight: '400', fontSize: 14,
+                                                lineHeight: 16
+                                            }}>
+                                                {t('transfer.smartContract')}
+                                            </Text>
+                                            <View style={{
+                                                backgroundColor: Theme.item,
+                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                                shadowOffset: {
+                                                    height: 1,
+                                                    width: 0
+                                                },
+                                                shadowRadius: 3,
+                                                shadowOpacity: 1,
+                                                height: 24, width: 24,
+                                                borderRadius: 24,
+                                                position: 'absolute', top: 0, bottom: 0, left: -42,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <SignSafe />
+                                            </View>
+                                        </View>
+                                    )}
+                                    {!operation.comment && !operation.op && !!text && (
+                                        <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                color: '#858B93',
+                                                fontWeight: '400', fontSize: 14,
+                                                lineHeight: 16
+                                            }}>
+                                                {t('transfer.smartContract')}
+                                            </Text>
+                                            <View style={{
+                                                backgroundColor: Theme.item,
+                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                                shadowOffset: {
+                                                    height: 1,
+                                                    width: 0
+                                                },
+                                                shadowRadius: 3,
+                                                shadowOpacity: 1,
+                                                height: 24, width: 24,
+                                                borderRadius: 24,
+                                                position: 'absolute', top: 0, bottom: 0, left: -42,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <SignSafe />
+                                            </View>
+                                        </View>
+                                    )}
+                                </View>
+                                <View style={{
+                                    marginLeft: 40 + 6,
+                                    justifyContent: 'center'
+                                }}>
+                                    {!!operation.op && (
+                                        <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                fontWeight: '400',
+                                                fontSize: 17,
+                                                color: Theme.textColor,
+                                            }}>
+                                                {operation.op}
+                                            </Text>
+                                        </View>
+                                    )}
+                                    {!operation.comment && !operation.op && !!text && (
+                                        <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
+                                            <Text style={{
+                                                flexShrink: 1,
+                                                fontWeight: '500',
+                                                fontSize: 14,
+                                                color: Theme.textColor,
+                                                opacity: 0.4
+                                            }}>
+                                                {text}
+                                            </Text>
+                                        </View>
+                                    )}
+                                    <View style={{
+                                        backgroundColor: '#60C75E',
+                                        height: 40, width: 40,
+                                        borderRadius: 40,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        position: 'absolute',
+                                        left: -48, top: 0, bottom: 0,
+                                    }}>
+                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            <Staking />
+                                        )}
+                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            <SmartContract />
+                                        )}
+                                    </View>
+                                </View>
+                            </View>
+                        )}
+
                     </View>
                     <ItemGroup>
-                        <ItemLarge
-                            title={t('common.walletAddress')}
-                            text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            verified={!!known}
-                            contact={!!contact}
-                            secondary={known ? known.name : contact?.name ?? undefined}
-                        />
-                        {!!props.order.domain && (
-                            <>
-                                <ItemDivider />
-                                <ItemLarge title={t('common.domain')} text={`${props.order.domain}.ton`} />
-                            </>
-                        )}
-                        {!!operation.op && (
-                            <>
-                                <ItemDivider />
-                                <ItemLarge title={t('transfer.purpose')} text={operation.op} />
-                            </>
-                        )}
-                        {!!operation.comment && (
-                            <>
-                                <ItemDivider />
-                                <ItemLarge title={t('transfer.comment')} text={operation.comment} />
-                            </>
-                        )}
-                        {!operation.comment && !operation.op && !!text && (
-                            <>
-                                <ItemDivider />
-                                <ItemLarge title={t('transfer.purpose')} text={text} />
-                            </>
-                        )}
-                        {!operation.comment && !operation.op && order.payload && (
-                            <>
-                                <ItemDivider />
-                                <ItemLarge title={t('transfer.unknown')} text={order.payload.hash().toString('base64')} />
-                            </>
-                        )}
-                        <ItemDivider />
-                        <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
+                        <ItemCollapsible title={t('transfer.moreDetails')}>
+                            <ItemAddress
+                                title={t('common.walletAddress')}
+                                text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                verified={!!known}
+                                contact={!!contact}
+                                secondary={known ? known.name : contact?.name ?? undefined}
+                            />
+                            {!!props.order.domain && (
+                                <>
+                                    <ItemDivider />
+                                    <ItemLarge title={t('common.domain')} text={`${props.order.domain}.ton`} />
+                                </>
+                            )}
+                            {!!operation.op && (
+                                <>
+                                    <ItemDivider />
+                                    <ItemLarge title={t('transfer.purpose')} text={operation.op} />
+                                </>
+                            )}
+                            {!operation.comment && !operation.op && !!text && (
+                                <>
+                                    <ItemDivider />
+                                    <ItemLarge title={t('transfer.purpose')} text={text} />
+                                </>
+                            )}
+                            {!operation.comment && !operation.op && order.payload && (
+                                <>
+                                    <ItemDivider />
+                                    <ItemLarge title={t('transfer.unknown')} text={order.payload.hash().toString('base64')} />
+                                </>
+                            )}
+                            {!!jettonAmount && (
+                                <>
+                                    <ItemDivider />
+                                    <ItemLarge title={t('transfer.gasFee')} text={fromNano(order.amount) + ' TON'} />
+                                </>
+                            )}
+                            <ItemDivider />
+                            <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
+                        </ItemCollapsible>
                     </ItemGroup>
+                    <View style={{ height: 56 }} />
                 </View>
             </ScrollView>
             <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
@@ -519,14 +1005,6 @@ export const TransferFragment = fragment(() => {
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.confirmTitle')} />
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
-                }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('transfer.confirmTitle')}</Text>
-                </View>
-            )}
             <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
                 {!loadedProps && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
                 {!!loadedProps && <TransferLoaded {...loadedProps} />}

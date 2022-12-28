@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Alert } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Alert, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
@@ -661,8 +661,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             <View>
                                 <View style={{
                                     position: 'absolute',
-                                    top: -2,
-                                    bottom: 42,
+                                    top: order?.app?.domain === 'next.zenpay.org' ? 2 : -2,
+                                    bottom: order?.app?.domain === 'next.zenpay.org' ? 48 : 42,
                                     left: 17,
                                     width: 2,
                                     borderRadius: 2,
@@ -731,7 +731,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 </View>
                                 <View style={{
                                     marginLeft: 40 + 6,
-                                    justifyContent: 'center'
+                                    justifyContent: 'center',
+                                    minHeight: order?.app?.domain === 'next.zenpay.org' ? 46 : 40
                                 }}>
                                     {!!operation.op && (
                                         <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
@@ -751,28 +752,46 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 fontWeight: '500',
                                                 fontSize: 14,
                                                 color: Theme.textColor,
-                                                opacity: 0.4
                                             }}>
                                                 {text}
                                             </Text>
                                         </View>
                                     )}
-                                    <View style={{
-                                        backgroundColor: '#60C75E',
-                                        height: 40, width: 40,
-                                        borderRadius: 40,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'absolute',
-                                        left: -48, top: 0, bottom: 0,
-                                    }}>
-                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <Staking />
-                                        )}
-                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <SmartContract />
-                                        )}
-                                    </View>
+                                    {order?.app?.domain !== 'next.zenpay.org' && (
+                                        <View style={{
+                                            backgroundColor: '#60C75E',
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                        }}>
+                                            {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                                <Staking />
+                                            )}
+                                            {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                                <SmartContract />
+                                            )}
+                                        </View>
+                                    )}
+                                    {order?.app?.domain === 'next.zenpay.org' && (
+                                        <View style={{
+                                            height: 46, width: 34,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            position: 'absolute',
+                                            left: -46, top: 0, bottom: 0,
+                                            borderRadius: 6
+                                        }}>
+                                            <Image
+                                                style={{
+                                                    height: 46, width: 34,
+                                                }}
+                                                source={require('../../../assets/ic_sign_card.png')}
+                                            />
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         )}

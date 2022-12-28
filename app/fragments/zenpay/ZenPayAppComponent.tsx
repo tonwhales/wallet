@@ -198,7 +198,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             }
         });
     }, []);
-    const injectionEngine = useInjectEngine(props.title);
+    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 

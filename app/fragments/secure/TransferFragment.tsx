@@ -580,18 +580,31 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         <AddressComponent address={target.address} />
                                     </Text>
                                     {contact && (
-                                        <View style={{
-                                            position: 'absolute',
-                                            left: -48, top: 0, bottom: 0,
-                                            backgroundColor: '#EDA652',
-                                            height: 40, width: 40,
-                                            borderRadius: 40,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            marginBottom: 36
-                                        }}>
-                                            <Contact />
-                                        </View>
+                                        <>
+                                            <View style={{
+                                                position: 'absolute',
+                                                left: -48, top: 0, bottom: 0,
+                                                backgroundColor: '#EDA652',
+                                                height: 40, width: 40,
+                                                borderRadius: 40,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                marginBottom: 36
+                                            }}>
+                                                <Contact />
+                                            </View>
+                                            <View style={{
+                                                alignSelf: 'flex-start',
+                                                borderRadius: 6, borderWidth: 1,
+                                                borderColor: '#DEDEDE',
+                                                paddingHorizontal: 8, paddingVertical: 4,
+                                                marginTop: 4
+                                            }}>
+                                                <Text>
+                                                    {t('transfer.contact')}
+                                                </Text>
+                                            </View>
+                                        </>
                                     )}
                                     {!contact && (
                                         <View style={{
@@ -641,7 +654,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             )}
                         </View>
 
-                        {!jettonAmount && (
+                        {!jettonAmount && (!!operation.op || (!operation.comment && !operation.op && !!text)) && (
                             <View>
                                 <View style={{
                                     position: 'absolute',
@@ -755,7 +768,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 </View>
                             </View>
                         )}
-                        
+
                     </View>
                     <ItemGroup>
                         <ItemCollapsible title={t('transfer.moreDetails')}>

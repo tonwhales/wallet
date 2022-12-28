@@ -60,7 +60,7 @@ export function startSync(engine: Engine) {
     });
 
     // APY
-    // startApySync(engine);
+    startApySync(engine);
 
     // Account Balance
     startAccountBalanceChartSync(engine);

@@ -39,7 +39,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     const updatePateTitle = React.useCallback(
         (url: string) => {
             const card = /\/card\/[a-z0-9]+/;
-            const auth = /\/auth/;
             if (card.test(url)) {
 
                 let cardNumber: string | number | undefined | null = undefined;
@@ -69,7 +68,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                     setPageTitle(t('products.zenPay.pageTitles.cardDetails'));
                     return;
                 }
-                
+
                 const transfer = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/transfer$/;
                 if (transfer.test(url)) {
                     setPageTitle(t('products.zenPay.pageTitles.transfer'));
@@ -77,7 +76,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                 }
 
                 setPageTitle(t('products.zenPay.pageTitles.card'));
-            } else if (auth.test(url)) {
+            } else if (url.indexOf('/auth') !== -1) {
                 setPageTitle(t('products.zenPay.title'));
             } else {
                 setPageTitle(t('products.zenPay.pageTitles.general'));
@@ -229,6 +228,10 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                 console.warn(e);
             }
         }
+        if (data.name === 'closeApp') {
+            navigation.goBack();
+            return;
+        }
 
         // Execute
         (async () => {
@@ -249,7 +252,10 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             return;
         }
         if (
-            url.endsWith('details')
+            url.indexOf('/auth/countrySelect') !== -1
+            || url.indexOf('/auth/phone') !== -1
+            || url.indexOf('/auth/code') !== -1
+            || url.endsWith('details')
             || url.endsWith('deposit')
             || url.endsWith('limits')
             || url.endsWith('transfer')

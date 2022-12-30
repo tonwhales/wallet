@@ -361,10 +361,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 transfer: 'Перевод',
             },
             card: {
+                title: 'Tonhub Card *{{cardNumber}}',
                 defaultSubtitle: 'TON в EUR (комиссия 0%)',
                 defaultTitle: 'Tonhub Visa bank card',
                 type: {
-                    physical: 'Plastic Card',
+                    physical: 'Пластиковая карта',
                     virtual: 'Виртуальная',
                 }
             },

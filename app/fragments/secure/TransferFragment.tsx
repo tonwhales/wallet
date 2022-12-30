@@ -45,7 +45,8 @@ import VerifiedIcon from '../../../assets/ic_verified.svg';
 import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
 import SignSafe from '../../../assets/ic_sign_safe.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
+import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
+import WithStateInit from '../../../assets/ic_sign_contract.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
@@ -580,7 +581,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         marginLeft: 2,
                                         marginTop: 4
                                     }}>
-                                        <AddressComponent address={target.address} />
+                                        <AddressComponent startLength={6} address={target.address} />
                                     </Text>
                                     {contact && (
                                         <>
@@ -638,7 +639,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         color: Theme.textColor,
                                         marginLeft: 2
                                     }}>
-                                        <AddressComponent address={target.address} />
+                                        <AddressComponent startLength={6} address={target.address} />
                                     </Text>
                                     <View style={{
                                         position: 'absolute',
@@ -696,7 +697,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                <SignSafe />
+                                                {!order.stateInit && (<SignSafe />)}
+                                                {!!order.stateInit && (<WithStateInit />)}
                                             </View>
                                         </View>
                                     )}
@@ -724,7 +726,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                <SignSafe />
+                                                {!order.stateInit && (<SignSafe />)}
+                                                {!!order.stateInit && (<WithStateInit />)}
                                             </View>
                                         </View>
                                     )}
@@ -750,7 +753,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <Text style={{
                                                 flexShrink: 1,
                                                 fontWeight: '500',
-                                                fontSize: 14,
+                                                fontSize: 17,
                                                 color: Theme.textColor,
                                             }}>
                                                 {text}

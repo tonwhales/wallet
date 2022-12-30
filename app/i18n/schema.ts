@@ -362,6 +362,7 @@ export type LocalizationSchema = {
                 transfer: string,
             },
             card: {
+                title: string,
                 defaultSubtitle: string,
                 defaultTitle: string,
                 type: {

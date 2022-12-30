@@ -75,7 +75,7 @@ export const ZenPayProductButton = React.memo(({ card }: { card?: ZenPayCard }) 
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
                             <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
-                                {t('products.zenPay.card.defaultTitle')}
+                                {card.card.lastFourDigits ? t('products.zenPay.card.title', {cardNumber: card.card.lastFourDigits}) : t('products.zenPay.card.defaultTitle')}
                             </Text>
                             {!!card && card.balance && (
                                 <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>

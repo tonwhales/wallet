@@ -124,6 +124,7 @@ export const LedgerSelectAccount = React.memo(({
                         </View>
                     )
                 })}
+                <View style={{ height: 56 }} />
             </ScrollView>
         </View>
     );

@@ -565,6 +565,8 @@ export type LocalizationSchema = {
             connectBluetooth: string,
             scanBluetooth: string,
             confirmOnLedger: string,
+            sending: string,
+            sent: string
         },
         confirm: {
             add: string,

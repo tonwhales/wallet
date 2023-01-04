@@ -564,6 +564,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             connectBluetooth: 'Подключить через Bluetooth',
             scanBluetooth: 'Начать поиск',
             confirmOnLedger: 'Подтвердить на Ledger',
+            sending: 'Ожидание транзакции...',
+            sent: 'Транзакция отправлена',
         },
         confirm: {
             add: 'Вы уверены, что хотите добавить это приложение?',

@@ -190,7 +190,10 @@ export const LedgerTransferFragment = fragment(() => {
 
                     if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt ?? '0', 10))) {
                         setProgress('sent');
-                        navigation.goBack();
+                        // Show success, then go back
+                        setTimeout(() => {
+                            navigation.goBack();
+                        }, 1200);
                         return;
                     }
 
@@ -587,16 +590,44 @@ export const LedgerTransferFragment = fragment(() => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
                 {progress === 'confirming' && (
-                    <Animated.View>
+                    <Animated.View entering={FadeIn} exiting={FadeOut}>
                         <Text
                             style={{
                                 fontWeight: '500',
                                 fontSize: 16,
                                 marginLeft: 16,
-                                marginTop: 16
+                                marginBottom: 16
                             }}
                         >
                             {t('hardwareWallet.actions.confirmOnLedger')}
+                        </Text>
+                    </Animated.View>
+                )}
+                {progress === 'sending' && (
+                    <Animated.View entering={FadeIn} exiting={FadeOut}>
+                        <Text
+                            style={{
+                                fontWeight: '500',
+                                fontSize: 16,
+                                marginLeft: 16,
+                                marginBottom: 16
+                            }}
+                        >
+                            {t('hardwareWallet.actions.sending')}
+                        </Text>
+                    </Animated.View>
+                )}
+                {progress === 'sent' && (
+                    <Animated.View entering={FadeIn} exiting={FadeOut}>
+                        <Text
+                            style={{
+                                fontWeight: '500',
+                                fontSize: 16,
+                                marginLeft: 16,
+                                marginBottom: 16
+                            }}
+                        >
+                            {t('hardwareWallet.actions.sent')}
                         </Text>
                     </Animated.View>
                 )}

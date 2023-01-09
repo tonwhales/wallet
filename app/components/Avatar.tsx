@@ -275,7 +275,8 @@ export const Avatar = React.memo((props: {
     image?: string,
     spam?: boolean,
     markContact?: boolean,
-    verified?: boolean
+    verified?: boolean,
+    dontShowVerified?: boolean,
 }) => {
 
     let known = props.address ? KnownWallets[props.address] : undefined;
@@ -309,7 +310,7 @@ export const Avatar = React.memo((props: {
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                 opacity: 0.06
             }} />
-            {(!!known || props.verified) && !props.markContact && (
+            {(!!known || props.verified) && !props.markContact && !props.dontShowVerified && (
                 <Verified
                     style={{
                         position: 'absolute', top: -1, right: -4

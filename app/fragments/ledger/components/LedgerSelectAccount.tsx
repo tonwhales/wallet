@@ -1,3 +1,4 @@
+import BN from "bn.js";
 import React, { useEffect, useState } from "react";
 import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -8,12 +9,14 @@ import { AppConfig } from "../../../AppConfig";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { RoundButton } from "../../../components/RoundButton";
 import { WalletAddress } from "../../../components/WalletAddress";
+import { useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { AccountButton } from "./AccountButton";
 
-export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer } };
+export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
 export const LedgerSelectAccount = React.memo(({
     device,
@@ -23,6 +26,7 @@ export const LedgerSelectAccount = React.memo(({
     reset: () => void
 }) => {
     const navigation = useTypedNavigation();
+    const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     const [loading, setLoading] = useState(true);
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
@@ -30,11 +34,18 @@ export const LedgerSelectAccount = React.memo(({
     useEffect(() => {
         (async () => {
             const proms: Promise<LedgerAccount>[] = [];
+            const seqno = (await engine.client4.getLastBlock()).last.seqno;
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
                     const path = pathFromAccountNumber(i);
                     const addr = await device.getAddress(path, { testOnly: AppConfig.isTestnet });
-                    return { i, addr };
+                    try {
+                        const address = Address.parse(addr.address);
+                        const liteAcc = await engine.client4.getAccountLite(seqno, address);
+                        return { i, addr, balance: new BN(liteAcc.account.balance.coins, 10) };
+                    } catch (error) {
+                        return { i, addr, balance: new BN(0) };
+                    }
                 })());
             }
             const res = await Promise.all(proms);
@@ -81,49 +92,8 @@ export const LedgerSelectAccount = React.memo(({
                 contentOffset={{ y: 16 + safeArea.top, x: 0 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
             >
-                {loading && (
-                    <LoadingIndicator simple />
-                )}
-                {accounts.map((acc) => {
-                    return (
-                        <View key={acc.i} style={{
-                            marginVertical: 4,
-                            backgroundColor: Theme.item,
-                            borderRadius: 14,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            padding: 16,
-                        }}>
-                            <WalletAddress
-                                address={Address.parse(acc.addr.address)}
-                                textProps={{ numberOfLines: undefined }}
-                                textStyle={{
-                                    textAlign: 'left',
-                                    fontWeight: '500',
-                                    fontSize: 16,
-                                    lineHeight: 20
-                                }}
-                                style={{
-                                    width: undefined,
-                                    marginTop: undefined,
-                                    marginBottom: 4,
-                                    alignSelf: 'flex-start'
-                                }}
-                                previewBackgroundColor={Theme.item}
-                            />
-                            <RoundButton
-                                title={t('hardwareWallet.actions.account', { account: acc.i })}
-                                action={() => {
-                                    return onLoadAccount(acc);
-                                }}
-                                style={{
-                                    width: '100%',
-                                    margin: 4
-                                }}
-                            />
-                        </View>
-                    )
-                })}
+                {loading && (<LoadingIndicator simple />)}
+                {accounts.map((acc) => <AccountButton onSelect={onLoadAccount} key={acc.i} acc={acc} />)}
                 <View style={{ height: 56 }} />
             </ScrollView>
         </View>

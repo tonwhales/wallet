@@ -40,6 +40,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         apy: 'APY',
         tx: 'Транзакция',
         add: 'Добавить',
+        connect: 'Подключить'
     },
     syncStatus: {
         connecting: 'Идет подключение',

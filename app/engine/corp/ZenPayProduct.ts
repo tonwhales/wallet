@@ -133,9 +133,19 @@ export class ZenPayProduct {
             const token = status.token;
             try {
                 let listRes = await fetchCardList(token);
+
+                if (!listRes) {
+                    targetAccounts.update((src) => {
+                        return {
+                            accounts: []
+                        };
+                    });
+                    return;
+                }
+
                 targetAccounts.update((src) => {
                     return {
-                        accounts: listRes.map((account) => ({
+                        accounts: listRes!.map((account) => ({
                             id: account.id,
                             address: account.address,
                             state: account.state,

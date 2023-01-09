@@ -271,9 +271,9 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             || url.indexOf('/auth/phone') !== -1
             || url.indexOf('/auth/code') !== -1
         ) {
-            setScrollEnabled(true);
-        } else {
             setScrollEnabled(false);
+        } else {
+            setScrollEnabled(true);
         }
     }, []);
 

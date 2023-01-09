@@ -266,6 +266,30 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         }
     }, []);
 
+    const updateScrollEnabled = React.useCallback((url: string) => {
+        if (url.indexOf('/auth/countrySelect') !== -1
+            || url.indexOf('/auth/phone') !== -1
+            || url.indexOf('/auth/code') !== -1
+        ) {
+            setScrollEnabled(true);
+        } else {
+            setScrollEnabled(false);
+        }
+    }, []);
+
+    const updatePromptBeforeExit = React.useCallback((url: string) => {
+        if (url.indexOf('/auth/countrySelect') !== -1
+            || url.indexOf('/auth/phone') !== -1
+            || url.indexOf('/auth/code') !== -1
+            || url.endsWith('auth')
+            || url.endsWith('create')
+            || url.endsWith('kyc')
+        ) {
+            setPromptBeforeExit(true);
+        } else {
+            setScrollEnabled(false);
+        }
+    }, []);
 
     React.useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', close);
@@ -369,6 +393,9 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                                 // Update canGoBack
                                 updateCanGoBack(event.nativeEvent.url, event.nativeEvent.canGoBack);
 
+                                // Update promptBeforeExit
+                                updatePromptBeforeExit(event.nativeEvent.url);
+
                                 // Page title 
                                 updatePateTitle(event.nativeEvent.url);
                             }
@@ -378,20 +405,15 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             // Update canGoBack
                             updateCanGoBack(event.url, event.canGoBack);
 
-                            // Update scrollEnabled
-                            if (event.url.endsWith('auth')) {
-                                setScrollEnabled(false);
-                            } else {
-                                setScrollEnabled(true);
+                            // Update scrollEnabled for iOS
+                            if (Platform.OS === 'ios') {
+                                updateScrollEnabled(event.url)
                             }
 
                             // Update promptBeforeExit
-                            if (event.url.endsWith('auth') || event.url.endsWith('kyc') || event.url.endsWith('create')) {
-                                setPromptBeforeExit(true);
-                            } else {
-                                setPromptBeforeExit(false);
-                            }
+                            updatePromptBeforeExit(event.url)
 
+                            // Page title 
                             updatePateTitle(event.url);
                         }}
                         scrollEnabled={scrollEnabled}

@@ -181,7 +181,6 @@ export const LedgerTransferFragment = fragment(() => {
             // Awaiting
             await backoff('tx-await', async () => {
                 while (true) {
-                    console.log('tx-await', JSON.stringify(account.account));
                     if (!account.account.last) {
                         return;
                     }

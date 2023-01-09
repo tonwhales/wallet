@@ -29,6 +29,7 @@ export const LedgerSelectAccount = React.memo(({
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     const [loading, setLoading] = useState(true);
+    const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
 
     useEffect(() => {
@@ -61,6 +62,7 @@ export const LedgerSelectAccount = React.memo(({
                 reset();
                 return;
             }
+            setSelected(acc.i);
             let path = pathFromAccountNumber(acc.i);
             try {
                 await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
@@ -68,6 +70,7 @@ export const LedgerSelectAccount = React.memo(({
             } catch (e) {
                 console.warn(e);
                 reset();
+                setSelected(undefined);
             }
         }),
         [device],
@@ -93,7 +96,7 @@ export const LedgerSelectAccount = React.memo(({
                 contentContainerStyle={{ paddingHorizontal: 16 }}
             >
                 {loading && (<LoadingIndicator simple />)}
-                {accounts.map((acc) => <AccountButton onSelect={onLoadAccount} key={acc.i} acc={acc} />)}
+                {accounts.map((acc) => <AccountButton key={acc.i} loadingAcc={selected} onSelect={onLoadAccount} acc={acc} />)}
                 <View style={{ height: 56 }} />
             </ScrollView>
         </View>

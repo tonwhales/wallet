@@ -5,9 +5,12 @@ import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { LedgerAccount } from "./LedgerSelectAccount";
 
-export const AccountButton = React.memo(({ acc, onSelect }: { acc: LedgerAccount, onSelect: (acc: LedgerAccount) => Promise<any> }) => {
+export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: LedgerAccount, onSelect: (acc: LedgerAccount) => Promise<any>, loadingAcc?: number }) => {
     const [loading, setLoading] = React.useState(false);
     const doAction = React.useCallback(() => {
+        if (!!loadingAcc && loadingAcc !== acc.i) {
+            return;
+        }
         setLoading(true);
         (async () => {
             try {
@@ -16,12 +19,12 @@ export const AccountButton = React.memo(({ acc, onSelect }: { acc: LedgerAccount
                 setLoading(false);
             }
         })();
-    }, [onSelect, acc]);
+    }, [onSelect, acc, loadingAcc]);
 
     return (
         <Pressable onPress={doAction} style={({ pressed }) => {
             return {
-                opacity: pressed ? 0.3 : 1
+                opacity: (pressed && !loadingAcc) || (!!loadingAcc && loadingAcc !== acc.i) ? 0.3 : 1
             };
         }}>
             <View style={{
@@ -45,6 +48,7 @@ export const AccountButton = React.memo(({ acc, onSelect }: { acc: LedgerAccount
                             value={acc.balance}
                             precision={3}
                         />
+                        {' TON'}
                     </Text>
                     <Text style={{
                         fontWeight: '400',
@@ -65,8 +69,17 @@ export const AccountButton = React.memo(({ acc, onSelect }: { acc: LedgerAccount
                     <View style={{
                         position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
                         alignItems: 'center', justifyContent: 'center',
+                        flexDirection: 'row',
                         backgroundColor: Theme.item, borderRadius: 14
                     }}>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            color: Theme.accent,
+                            marginRight: 8
+                        }}>
+                            {t('hardwareWallet.actions.confirmOnLedger')}
+                        </Text>
                         <ActivityIndicator color={Theme.accent} size='small' />
                     </View>
                 )}

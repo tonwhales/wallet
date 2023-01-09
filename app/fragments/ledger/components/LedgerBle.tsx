@@ -56,7 +56,6 @@ export const LedgerBle = React.memo(() => {
         }
     }, [bluetoothDevice]);
 
-    console.log({ screen, device: !!device, account: account !== null });
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -69,34 +68,52 @@ export const LedgerBle = React.memo(() => {
                         flexGrow: 1,
                     }}>
                         <View style={{ flexGrow: 1 }} />
-                        <Image style={{ width: 256, height: 256 }}
+                        <Image style={{ width: 204, height: 204 }}
                             source={require('../../../../assets/ic_ledger_x.png')}
                         />
                         <Text style={{
                             color: Theme.textColor,
                             fontWeight: '600',
                             fontSize: 18,
-                            marginBottom: 12,
-                            marginHorizontal: 16,
+                            marginBottom: 32,
+                            marginHorizontal: 16
                         }}>
                             {t('hardwareWallet.actions.connect')}
                         </Text>
-                        <Text style={{
-                            color: Theme.textColor,
-                            fontWeight: '400',
-                            fontSize: 16,
-                            marginBottom: 12,
-                        }}>
-                            {t('hardwareWallet.bluetoothScanDescription')}
-                        </Text>
+                        <View style={{ justifyContent: 'center' }}>
+                            <Text style={{
+                                color: Theme.textColor,
+                                fontWeight: '400',
+                                fontSize: 16,
+                                marginBottom: 12,
+                            }}>
+                                {t('hardwareWallet.bluetoothScanDescription_1')}
+                            </Text>
+                            <Text style={{
+                                color: Theme.textColor,
+                                fontWeight: '400',
+                                fontSize: 16,
+                                marginBottom: 12,
+                            }}>
+                                {t('hardwareWallet.bluetoothScanDescription_2')}
+                            </Text>
+                            <Text style={{
+                                color: Theme.textColor,
+                                fontWeight: '400',
+                                fontSize: 16,
+                                marginBottom: 12,
+                            }}>
+                                {t('hardwareWallet.bluetoothScanDescription_3')}
+                            </Text>
+                        </View>
                         <View style={{ flexGrow: 1 }} />
                     </View>
                     <RoundButton
                         title={t('hardwareWallet.actions.scanBluetooth')}
                         onPress={onScan}
                         style={{
-                            position: 'absolute',
-                            bottom: safeArea.bottom + 16, left: 16, right: 16,
+                            marginBottom: safeArea.bottom + 16,
+                            marginHorizontal: 16,
                         }}
                     />
                 </>

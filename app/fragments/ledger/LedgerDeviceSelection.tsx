@@ -16,7 +16,6 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
     const [devices, setDevices] = useState([]);
 
     const onDeviceSelect = useCallback(async (device: any) => {
-        console.log('onDeviceSelect', { device });
         await onSelectDevice(device);
     }, []);
 
@@ -24,14 +23,12 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
         (async () => {
             let sub: Subscription;
             const scan = async () => {
-                console.log('Scanning...');
                 setScan({ type: 'ongoing' });
                 sub = new Observable(TransportBLE.listen).subscribe({
                     complete: () => {
                         setScan({ type: 'completed', success: true });
                     },
                     next: e => {
-                        console.log(e);
                         if (e.type === "add") {
                             const device = e.descriptor;
                             setDevices((prev) => {
@@ -44,7 +41,6 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                         // NB there is no "remove" case in BLE.
                     },
                     error: error => {
-                        console.log(JSON.stringify(error));
                         setScan({ type: 'completed', success: false });
                     }
                 });
@@ -54,7 +50,6 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
 
                 if (checkCoarse[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== 'granted' || checkCoarse[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== 'granted') {
                     const requestLocation = await requestMultiple([PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION]);
-                    console.log({ requestLocation });
                     if (requestLocation[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== 'granted' || requestLocation[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== 'granted') {
                         return;
                     }
@@ -65,14 +60,11 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                     PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
                 ]);
 
-                console.log({ scanConnect });
                 if (scanConnect[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] !== 'granted' || scanConnect[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] !== 'granted') {
-                    console.log('here');
                     let resScanConnect = await requestMultiple([
                         PERMISSIONS.ANDROID.BLUETOOTH_SCAN,
                         PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
                     ]);
-                    console.log({ resScanConnect });
                     if (resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] !== 'granted' || resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] !== 'granted') {
                         return;
                     }
@@ -80,7 +72,6 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
             }
             let previousAvailable = false;
             new Observable(TransportBLE.observeState).subscribe((e: any) => {
-                console.log(e);
                 if (e.type === 'PoweredOff') {
                     Alert.alert(t('hardwareWallet.errors.turnOnBluetooth'));
                     if (sub) sub.unsubscribe();

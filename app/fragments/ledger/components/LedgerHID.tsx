@@ -59,35 +59,41 @@ export const LedgerHID = React.memo(() => {
                     flexGrow: 1,
                 }}>
                     <View style={{ flexGrow: 1 }} />
-                    <Image style={{
-                        width: 256, height: 256,
-                    }}
+                    <Image style={{ width: 204, height: 204 }}
                         source={require('../../../../assets/ic_ledger_s.png')}
                     />
                     <Text style={{
                         color: Theme.textColor,
                         fontWeight: '600',
                         fontSize: 18,
-                        marginBottom: 12,
-                        marginHorizontal: 16,
+                        marginBottom: 32,
+                        marginHorizontal: 16
                     }}>
                         {t('hardwareWallet.actions.connect')}
                     </Text>
-                    <Text style={{
-                        color: Theme.textColor,
-                        fontWeight: '400',
-                        fontSize: 16,
-                        marginBottom: 12,
-                    }}>
-                        {t('hardwareWallet.connectionHIDDescription')}
-                    </Text>
+                    <View style={{ justifyContent: 'center' }}>
+                        <Text style={{
+                            color: Theme.textColor,
+                            fontWeight: '400',
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}>
+                            {t('hardwareWallet.connectionHIDDescription_1')}
+                        </Text>
+                        <Text style={{
+                            color: Theme.textColor,
+                            fontWeight: '400',
+                            fontSize: 16,
+                            marginBottom: 12,
+                        }}>
+                            {t('hardwareWallet.connectionHIDDescription_2')}
+                        </Text>
+                    </View>
                     <View style={{ flexGrow: 1 }} />
                     <RoundButton
                         title={t('common.continue')}
                         onPress={doStart}
-                        style={{
-                            width: '100%',
-                        }}
+                        style={{ width: '100%' }}
                     />
                 </View>
             )}

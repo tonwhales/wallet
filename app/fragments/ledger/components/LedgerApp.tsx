@@ -92,9 +92,6 @@ export const LedgerApp = React.memo((props: {
                 style={{
                     flexDirection: 'row',
                     marginHorizontal: 16,
-                    position: 'absolute',
-                    bottom: safeArea.bottom + 16,
-                    left: 0, right: 0,
                 }}
                 collapsable={false}
             >

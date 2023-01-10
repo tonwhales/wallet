@@ -178,7 +178,7 @@ export const ConnectionsFragment = fragment(() => {
                     </View>
                     <View style={{ position: 'absolute', bottom: safeArea.bottom + 16, left: 0, right: 0 }}>
                         <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>
+                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
                                 {t('settings.experimental')}
                             </Text>
                         </View>
@@ -214,7 +214,7 @@ export const ConnectionsFragment = fragment(() => {
                         </Text>
                         {extensions.length > 0 && (
                             <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
-                                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.extensions')}</Text>
+                                <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
                             </View>
                         )}
                         {extensions.map((app) => (
@@ -228,7 +228,7 @@ export const ConnectionsFragment = fragment(() => {
                         ))}
                         {apps.length > 0 && (
                             <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
-                                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.connections')}</Text>
+                                <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.connections')}</Text>
                             </View>
                         )}
                         {apps.map((app) => (
@@ -242,8 +242,8 @@ export const ConnectionsFragment = fragment(() => {
                         ))}
                     </View>
                     <>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>
+                        <View style={{ marginHorizontal: 16, marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <Text style={{ fontSize: 18, fontWeight: '700' }}>
                                 {t('settings.experimental')}
                             </Text>
                         </View>

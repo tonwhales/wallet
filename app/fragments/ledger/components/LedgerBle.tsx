@@ -40,11 +40,6 @@ export const LedgerBle = React.memo(() => {
     }, []);
 
     const onScan = useCallback(async () => {
-        // const state = await bleManager.state();
-        // if (state !== 'PoweredOn') {
-        //     Alert.alert(t('hardwareWallet.errors.turnOnBluetooth'));
-        //     return;
-        // }
         setScreen('scan');
     }, []);
 
@@ -55,7 +50,6 @@ export const LedgerBle = React.memo(() => {
             }
         }
     }, [bluetoothDevice]);
-
 
     return (
         <View style={{ flexGrow: 1 }}>

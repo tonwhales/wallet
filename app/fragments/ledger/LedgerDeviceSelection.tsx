@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { PermissionsAndroid, Platform, View, Text, ScrollView, Alert } from "react-native";
+import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { Observable, Subscription } from "rxjs";
 import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { BleDevice, LedgerDevice } from "./components/BleDevice";
+import { BleDevice } from "./components/BleDevice";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
@@ -20,8 +20,9 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
     }, []);
 
     useEffect(() => {
+        let powerSub: Subscription;
+        let sub: Subscription;
         (async () => {
-            let sub: Subscription;
             const scan = async () => {
                 setScan({ type: 'ongoing' });
                 sub = new Observable(TransportBLE.listen).subscribe({
@@ -71,7 +72,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                 }
             }
             let previousAvailable = false;
-            new Observable(TransportBLE.observeState).subscribe((e: any) => {
+            powerSub =  new Observable(TransportBLE.observeState).subscribe((e: any) => {
                 if (e.type === 'PoweredOff') {
                     Alert.alert(t('hardwareWallet.errors.turnOnBluetooth'));
                     if (sub) sub.unsubscribe();
@@ -92,6 +93,10 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
 
             scan();
         })();
+        return () => {
+            if (sub) sub.unsubscribe();
+            if (powerSub) powerSub.unsubscribe();
+        }
     }, []);
 
     return (

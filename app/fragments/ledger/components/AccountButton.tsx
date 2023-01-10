@@ -24,7 +24,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
     return (
         <Pressable onPress={doAction} style={({ pressed }) => {
             return {
-                opacity: (pressed && !loadingAcc) || (!!loadingAcc && loadingAcc !== acc.i) ? 0.3 : 1
+                opacity: (pressed && loadingAcc === undefined) || (loadingAcc !== undefined && loadingAcc !== acc.i) ? 0.3 : 1
             };
         }}>
             <View style={{

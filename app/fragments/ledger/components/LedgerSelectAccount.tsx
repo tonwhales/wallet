@@ -67,6 +67,7 @@ export const LedgerSelectAccount = React.memo(({
             try {
                 await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
                 navigation.navigateLedgerApp({ account: acc.i, address: acc.addr, device });
+                setSelected(undefined);
             } catch (e) {
                 console.warn(e);
                 reset();

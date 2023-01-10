@@ -1,6 +1,8 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, CommentMessage, toNano } from "ton";
+import { Address, beginCell, Cell, CellMessage, CommentMessage } from "ton";
+import { TonPayloadFormat } from "ton-ledger";
 import { AppConfig } from "../../../AppConfig";
+import { resolveLedgerPayload } from "../../ledger/utils/resolveLedgerPayload";
 
 export type Order = {
     target: string;
@@ -14,6 +16,52 @@ export type Order = {
         title: string
     }
 };
+
+export type LedgerOrder = {
+    target: string;
+    domain?: string;
+    amount: BN;
+    amountAll: boolean;
+    payload: TonPayloadFormat | null;
+    stateInit: Cell | null;
+    app?: {
+        domain: string,
+        title: string
+    }
+};
+
+export function createSimpleLedgerOrder(args: {
+    target: string,
+    domain?: string,
+    text: string | null,
+    amount: BN,
+    amountAll: boolean,
+    payload: Cell | null,
+    stateInit: Cell | null,
+    app?: {
+        domain: string,
+        title: string
+    }
+}): LedgerOrder {
+
+    // Resolve payload
+    let payload: TonPayloadFormat | null = null;
+    if (args.payload) {
+        payload = { type: 'unsafe', message: new CellMessage(args.payload) };
+    } else if (args.text) {
+        payload = { type: 'comment', text: args.text };
+    }
+
+    return {
+        target: args.target,
+        domain: args.domain,
+        amount: args.amount,
+        amountAll: args.amountAll,
+        payload,
+        stateInit: args.stateInit,
+        app: args.app
+    }
+}
 
 export function createOrder(args: {
     target: string,

@@ -7,6 +7,7 @@ import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerTransferParams } from '../fragments/ledger/LedgerTransferFragment';
 import { LedgerAppParams } from '../fragments/ledger/LedgerAppFragment';
+import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -109,6 +110,10 @@ export class TypedNavigation {
 
     navigateLedgerTransfer(params: LedgerTransferParams) {
         this.navigate('LedgerTransfer', params);
+    }
+
+    navigateLedgerSignTransfer(params: LedgerSignTransferParams) {
+        this.navigate('LedgerSignTransfer', params);
     }
 
     navigateStakingCalculator(params: { target: Address }) {

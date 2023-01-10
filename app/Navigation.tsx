@@ -68,6 +68,7 @@ import { StakingCalculatorFragment } from './fragments/staking/StakingCalculator
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerHIDFragment } from './fragments/ledger/LedgerHIDFragment';
 import { LedgerBleFragment } from './fragments/ledger/LedgerBleFragment';
+import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -185,6 +186,7 @@ const navigation = [
     lockedModalScreen('LedgerBle', LedgerBleFragment),
     lockedModalScreen('LedgerApp', LedgerAppFragment),
     modalScreen('LedgerTransfer', LedgerTransferFragment),
+    modalScreen('LedgerSignTransfer', LedgerSignTransferFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
     <Stack.Screen
         key={`genericScreen-App`}

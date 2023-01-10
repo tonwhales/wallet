@@ -6,7 +6,7 @@ import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard 
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock, delay } from "teslabot";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { WalletV4Contract, WalletV4Source } from "ton-contracts";
 import { TonPayloadFormat, TonTransport } from "ton-ledger";
 import { AppConfig } from "../../AppConfig";
@@ -27,7 +27,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { fragment } from "../../fragment";
 import { estimateFees } from "../../engine/estimate/estimateFees";
-import { createSimpleOrder } from "../secure/ops/Order";
+import { createSimpleLedgerOrder, createSimpleOrder } from "../secure/ops/Order";
 import { useParams } from "../../utils/useParams";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useLedgerWallet } from "./components/LedgerApp";
@@ -53,8 +53,6 @@ export const LedgerTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const config = engine.products.config.useConfig();
 
-    let path = pathFromAccountNumber(account);
-
     const [target, setTarget] = React.useState('');
     const [addressDomainInput, setAddressDomainInput] = React.useState(target);
     const [domain, setDomain] = React.useState<string>();
@@ -62,7 +60,6 @@ export const LedgerTransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState('');
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
-    const [progress, setProgress] = React.useState<'confirming' | 'sending' | 'sent'>();
 
     // Resolve order
     const order = React.useMemo(() => {
@@ -85,7 +82,7 @@ export const LedgerTransferFragment = fragment(() => {
         }
 
         // Resolve order
-        return createSimpleOrder({
+        return createSimpleLedgerOrder({
             target: target,
             domain: domain,
             text: comment,
@@ -115,94 +112,17 @@ export const LedgerTransferFragment = fragment(() => {
             return null;
         }
 
-        const contract = await contractFromPublicKey(addr.publicKey);
-        const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
-
-        try {
-            // Fetch data
-            const [[accountSeqno, account, targetState]] = await Promise.all([
-                backoff('transfer-fetch-data', async () => {
-                    let block = await backoff('ledger-lastblock', () => engine.client4.getLastBlock());
-                    let seqno = await backoff('ledger-contract-seqno', () => fetchSeqno(engine.client4, block.last.seqno, contract.address));
-                    return Promise.all([
-                        seqno,
-                        backoff('ledger-lite', () => engine.client4.getAccountLite(block.last.seqno, contract.address)),
-                        backoff('ledger-target', () => engine.client4.getAccount(block.last.seqno, address))
-                    ])
-                }),
-            ]);
-
-            let bounce = targetState.account.state.type === 'active';
-
-            // Signing
-            let payload: TonPayloadFormat | undefined = undefined;
-            if (comment.trim().length > 0) {
-                payload = { type: 'comment', text: comment.trim() };
-            }
-
-            // Dismiss keyboard for iOS
-            if (Platform.OS === 'ios') {
-                Keyboard.dismiss();
-            }
-
-            setProgress('confirming');
-
-            let signed = await transport.signTransaction(path, {
-                to: address!,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                amount: value!,
-                seqno: accountSeqno,
-                timeout: Math.floor(Date.now() / 1e3) + 60000,
-                bounce,
-                payload
-            });
-
-            // Sending
-            let extMessage = new ExternalMessage({
-                to: contract.address,
-                body: new CommonMessageInfo({
-                    stateInit: accountSeqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
-                    body: new CellMessage(signed)
-                })
-            });
-            let msg = new Cell();
-            extMessage.writeTo(msg);
-
-            // Transfer
-            await backoff('ledger-transfer', async () => {
-                try {
-                    setProgress('sending');
-                    await engine.client4.sendMessage(msg.toBoc({ idx: false }));
-                } catch (error) {
-                    console.warn(error);
-                }
-            });
-
-            // Awaiting
-            await backoff('tx-await', async () => {
-                while (true) {
-                    if (!account.account.last) {
-                        return;
-                    }
-                    const lastBlock = await engine.client4.getLastBlock();
-                    const lite = await engine.client4.getAccountLite(lastBlock.last.seqno, contract.address);
-
-                    if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt ?? '0', 10))) {
-                        setProgress('sent');
-                        // Show success, then go back
-                        setTimeout(() => {
-                            navigation.goBack();
-                        }, 1200);
-                        return;
-                    }
-
-                    await delay(1000);
-                }
-            });
-        } catch (e) {
-            console.warn(e);
-            setProgress(undefined);
+        // Dismiss keyboard for iOS
+        if (Platform.OS === 'ios') {
+            Keyboard.dismiss();
         }
+
+        navigation.navigateLedgerSignTransfer({
+            transport,
+            addr: { ...addr, acc: account },
+            text: null,
+            order: order!,
+        });
 
     }, [addr, target, amount, comment]);
 
@@ -261,7 +181,7 @@ export const LedgerTransferFragment = fragment(() => {
                     bounce: false,
                     body: new CommonMessageInfo({
                         stateInit: accountV4State.seqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
-                        body: order.payload ? new CellMessage(order.payload) : null
+                        body: new CommentMessage(comment || '')
                     })
                 });
                 if (order.amountAll) {
@@ -302,13 +222,27 @@ export const LedgerTransferFragment = fragment(() => {
         }
     }, [order, config, comment]);
 
-    const linkNavigator = useLinkNavigator();
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src, AppConfig.isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
                 navigation.goBack();
-                linkNavigator(res);
+
+                const payloadOrder = createSimpleLedgerOrder({
+                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    text: res.comment,
+                    payload: res.payload,
+                    amount: res.amount ? res.amount : new BN(0),
+                    amountAll: false,
+                    stateInit: res.stateInit
+                });
+
+                navigation.navigateLedgerSignTransfer({
+                    transport,
+                    addr: { ...addr, acc: account },
+                    text: comment,
+                    order: payloadOrder,
+                });
             } else {
                 setAddressDomainInput(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
                 if (res.amount) {
@@ -335,7 +269,6 @@ export const LedgerTransferFragment = fragment(() => {
     //
     // Scroll state tracking
     //
-
     const [selectedInput, setSelectedInput] = React.useState(0);
 
     const refs = React.useMemo(() => {
@@ -588,48 +521,6 @@ export const LedgerTransferFragment = fragment(() => {
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
-                {progress === 'confirming' && (
-                    <Animated.View entering={FadeIn} exiting={FadeOut}>
-                        <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 16,
-                                marginLeft: 16,
-                                marginBottom: 16
-                            }}
-                        >
-                            {t('hardwareWallet.actions.confirmOnLedger')}
-                        </Text>
-                    </Animated.View>
-                )}
-                {progress === 'sending' && (
-                    <Animated.View entering={FadeIn} exiting={FadeOut}>
-                        <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 16,
-                                marginLeft: 16,
-                                marginBottom: 16
-                            }}
-                        >
-                            {t('hardwareWallet.actions.sending')}
-                        </Text>
-                    </Animated.View>
-                )}
-                {progress === 'sent' && (
-                    <Animated.View entering={FadeIn} exiting={FadeOut}>
-                        <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 16,
-                                marginLeft: 16,
-                                marginBottom: 16
-                            }}
-                        >
-                            {t('hardwareWallet.actions.sent')}
-                        </Text>
-                    </Animated.View>
-                )}
                 <View style={{
                     flexDirection: 'row'
                 }}>

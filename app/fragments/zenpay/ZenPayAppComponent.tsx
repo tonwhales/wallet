@@ -287,7 +287,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         ) {
             setPromptBeforeExit(true);
         } else {
-            setScrollEnabled(false);
+            setPromptBeforeExit(false);
         }
     }, []);
 

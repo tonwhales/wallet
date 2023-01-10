@@ -5,22 +5,15 @@ import TransportHID from "@ledgerhq/react-native-hid";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
 
 export const LedgerHID = React.memo(() => {
-    const navigation = useTypedNavigation();
-    const safeArea = useSafeAreaInsets();
-
     const [started, setStarted] = React.useState(false);
-    const [account, setAccount] = React.useState<number | null>(null);
     const [screen, setScreen] = useState<'select-account' | 'load-address' | null>(null);
     const [device, setDevice] = React.useState<TonTransport | null>(null);
 
     let reset = React.useCallback(() => {
         setDevice(null);
-        setAccount(null);
     }, []);
 
     const doStart = React.useMemo(() => {

@@ -102,6 +102,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         addr
     } = props;
 
+    const [transferState, setTransferState] = React.useState<'confirm' | 'sending' | 'sent'>();
+
     // Resolve operation
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
     let body = payload ? parseBody(payload) : null;
@@ -195,8 +197,9 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 Keyboard.dismiss();
             }
 
-            // setProgress('confirming');
+            setTransferState('confirm');
 
+            // Send sign request to Ledger
             let signed = await transport.signTransaction(path, {
                 to: address!,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
@@ -207,7 +210,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 payload: order.payload ? order.payload : undefined,
             });
 
-            // Sending
+            // Sending when accepted
             let extMessage = new ExternalMessage({
                 to: contract.address,
                 body: new CommonMessageInfo({
@@ -221,7 +224,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             // Transfer
             await backoff('ledger-transfer', async () => {
                 try {
-                    // setProgress('sending');
+                    setTransferState('sending');
                     await engine.client4.sendMessage(msg.toBoc({ idx: false }));
                 } catch (error) {
                     console.warn(error);
@@ -238,11 +241,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     const lite = await engine.client4.getAccountLite(lastBlock.last.seqno, contract.address);
 
                     if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt ?? '0', 10))) {
-                        // setProgress('sent');
-                        // Show success, then go back
-                        setTimeout(() => {
-                            navigation.goBack();
-                        }, 1200);
+                        setTransferState('sent');
+                        navigation.goBack();
                         return;
                     }
 
@@ -251,7 +251,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             });
         } catch (e) {
             console.warn(e);
-            // setProgress(undefined);
+            setTransferState(undefined);
         }
 
     }, [order]);
@@ -787,6 +787,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 <RoundButton
                     title={t('common.confirm')}
                     action={doSend}
+                    loadingStatus={transferState === 'confirm' ? t('hardwareWallet.actions.confirmOnLedger') : undefined}
                 />
             </View>
         </>

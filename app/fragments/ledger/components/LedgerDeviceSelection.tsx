@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { Observable, Subscription } from "rxjs";
-import { Theme } from "../../Theme";
-import { t } from "../../i18n/t";
-import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { BleDevice } from "./components/BleDevice";
+import { Theme } from "../../../Theme";
+import { t } from "../../../i18n/t";
+import { LoadingIndicator } from "../../../components/LoadingIndicator";
+import { BleDevice } from "./BleDevice";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { RoundButton } from "../../components/RoundButton";
+import { RoundButton } from "../../../components/RoundButton";
 
 export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { onSelectDevice: (device: any) => Promise<void>, onReset: () => void }) => {
     const safeArea = useSafeAreaInsets();
@@ -72,7 +72,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                 }
             }
             let previousAvailable = false;
-            powerSub =  new Observable(TransportBLE.observeState).subscribe((e: any) => {
+            powerSub = new Observable(TransportBLE.observeState).subscribe((e: any) => {
                 if (e.type === 'PoweredOff') {
                     Alert.alert(t('hardwareWallet.errors.turnOnBluetooth'));
                     if (sub) sub.unsubscribe();

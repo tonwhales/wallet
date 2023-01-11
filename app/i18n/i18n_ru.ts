@@ -585,6 +585,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             noDevice: 'Устройство не найдено',
             appNotOpen: 'Приложение Ton App не открыто на вашем Ledger',
             turnOnBluetooth: 'Пожалуйста, включите Bluetooth и попробуйте снова',
+            lostConnection: 'Потеряно соединение с устройством',
         },
         moreAbout: 'Подробнее о Ledger'
     }

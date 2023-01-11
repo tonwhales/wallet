@@ -56,11 +56,10 @@ import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
+import { useTransport } from './components/TransportContext';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
-    transport: TonTransport,
-    addr: { acc: number, address: string, publicKey: Buffer },
     text: string | null,
 }
 
@@ -797,17 +796,17 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 export const LedgerSignTransferFragment = fragment(() => {
     const params: {
         order: LedgerOrder,
-        transport: TonTransport,
-        addr: { acc: number, address: string, publicKey: Buffer },
         text: string | null,
     } = useRoute().params! as any;
+
+    const { ledgerConnection, tonTransport, addr } = useTransport();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
     // Memmoize all parameters just in case
-    const from = React.useMemo(() => params.addr, []);
+    const from = React.useMemo(() => addr, []);
     const target = React.useMemo(() => Address.parseFriendly(params.order.target), []);
     const order = React.useMemo(() => params.order, []);
     const text = React.useMemo(() => params.text, []);
@@ -815,6 +814,7 @@ export const LedgerSignTransferFragment = fragment(() => {
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
     const netConfig = engine.products.config.useConfig();
+
     React.useEffect(() => {
 
         // Await data
@@ -822,9 +822,17 @@ export const LedgerSignTransferFragment = fragment(() => {
             return;
         }
 
+        if (!ledgerConnection || !tonTransport || !addr) {
+            return;
+        }
+
         let exited = false;
 
         backoff('transfer', async () => {
+
+            if (!from) {
+                return;
+            }
 
             // Confirm domain-resolved wallet address
             if (order.domain) {
@@ -937,8 +945,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                 jettonMaster,
                 fees,
                 metadata,
-                addr: params.addr,
-                transport: params.transport,
+                addr: addr,
+                transport: tonTransport,
                 text
             });
         });

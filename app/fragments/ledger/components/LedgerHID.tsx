@@ -1,20 +1,16 @@
 import React, { useState } from "react";
 import { View, Text, Image } from "react-native";
-import { TonTransport } from "ton-ledger";
 import TransportHID from "@ledgerhq/react-native-hid";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
+import { TypedTransport, useTransport } from "./TransportContext";
 
 export const LedgerHID = React.memo(() => {
     const [started, setStarted] = React.useState(false);
+    const { setLedgerConnection, tonTransport } = useTransport();
     const [screen, setScreen] = useState<'select-account' | 'load-address' | null>(null);
-    const [device, setDevice] = React.useState<TonTransport | null>(null);
-
-    let reset = React.useCallback(() => {
-        setDevice(null);
-    }, []);
 
     const doStart = React.useMemo(() => {
         let started = false;
@@ -29,20 +25,20 @@ export const LedgerHID = React.memo(() => {
             (async () => {
                 try {
                     let hid = await TransportHID.create();
-                    setDevice(new TonTransport(hid));
+                    setLedgerConnection({ type: 'hid', transport: hid } as TypedTransport);
                     setScreen('select-account');
                 } catch (e) {
                     started = false;
                     console.warn(e);
                     setStarted(false);
                 }
-            })()
+            })();
         };
     }, [started]);
 
     return (
         <View style={{ flexGrow: 1 }}>
-            {!device && (
+            {!tonTransport && (
                 <View style={{
                     marginHorizontal: 16,
                     marginBottom: 16,
@@ -90,8 +86,8 @@ export const LedgerHID = React.memo(() => {
                     />
                 </View>
             )}
-            {(!!device && screen === 'select-account') && (
-                <LedgerSelectAccount reset={reset} device={device} />
+            {(!!tonTransport && screen === 'select-account') && (
+                <LedgerSelectAccount reset={() => setLedgerConnection(null)} />
             )}
         </View>
     );

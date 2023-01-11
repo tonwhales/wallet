@@ -22,7 +22,7 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { NavigationTheme, Theme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext, useEngine } from './engine/Engine';
+import { EngineContext } from './engine/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { backoff } from './utils/time';
@@ -60,15 +60,10 @@ import { PhoneVerificationStack } from './fragments/corp/phone/_navigation';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
-import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
-import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
-import { LedgerHIDFragment } from './fragments/ledger/LedgerHIDFragment';
-import { LedgerBleFragment } from './fragments/ledger/LedgerBleFragment';
-import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
+import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 
 const Stack = createNativeStackNavigator();
 
@@ -181,12 +176,7 @@ const navigation = [
     modalScreen('StartPhone', PhoneVerificationStack),
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
-    modalScreen('HardwareWallet', HardwareWalletFragment),
-    lockedModalScreen('LedgerHID', LedgerHIDFragment),
-    lockedModalScreen('LedgerBle', LedgerBleFragment),
-    lockedModalScreen('LedgerApp', LedgerAppFragment),
-    modalScreen('LedgerTransfer', LedgerTransferFragment),
-    modalScreen('LedgerSignTransfer', LedgerSignTransferFragment),
+    modalScreen('Ledger', LedgerRoot),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
     <Stack.Screen
         key={`genericScreen-App`}

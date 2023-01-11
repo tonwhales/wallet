@@ -120,8 +120,8 @@ export class TypedNavigation {
         this.navigate('StakingCalculator', params);
     }
 
-    navigateLedgerApp(params: LedgerAppParams) {
-        this.navigate('LedgerApp', params);
+    navigateLedgerApp() {
+        this.navigate('LedgerApp');
     }
 }
 

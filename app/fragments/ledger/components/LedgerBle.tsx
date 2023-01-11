@@ -5,38 +5,19 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
-import { LedgerDeviceSelection } from "../LedgerDeviceSelection";
+import { LedgerDeviceSelection } from "./LedgerDeviceSelection";
 import { LedgerDevice } from "./BleDevice";
-import { TonTransport } from "ton-ledger";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
+import { useTransport } from "./TransportContext";
 
 export const LedgerBle = React.memo(() => {
     const safeArea = useSafeAreaInsets();
+    const { ledgerConnection, setLedgerConnection, tonTransport, addr } = useTransport();
     const [screen, setScreen] = useState<'scan' | 'select-account' | null>(null);
-
-    const [account, setAccount] = React.useState<number | null>(null);
-    const [bluetoothDevice, setBluetoothDevice] = useState<LedgerDevice | null>(null);
-    const [device, setDevice] = React.useState<TonTransport | null>(null);
-
-    let reset = React.useCallback(() => {
-        setDevice(null);
-        setAccount(null);
-        setScreen(null)
-    }, []);
 
     const onSelectDevice = useCallback(async (device: LedgerDevice) => {
         const transport = await TransportBLE.open(device.id);
-        transport.on('disconnect', () => {
-            // Intentionally for the sake of simplicity we use a transport local state
-            // and remove it on disconnect.
-            // A better way is to pass in the device.id and handle the connection internally.
-            setDevice(null);
-            setBluetoothDevice(null);
-        });
-        const tonTransport = new TonTransport(transport);
-        setBluetoothDevice(device);
-        setDevice(tonTransport);
-        setScreen('select-account');
+        setLedgerConnection({ type: 'ble', transport });
     }, []);
 
     const onScan = useCallback(async () => {
@@ -44,16 +25,18 @@ export const LedgerBle = React.memo(() => {
     }, []);
 
     useEffect(() => {
-        return () => {
-            if (bluetoothDevice) {
-                TransportBLE.disconnect(bluetoothDevice.id);
-            }
+        if (!ledgerConnection) {
+            setScreen(null);
+            return;
         }
-    }, [bluetoothDevice]);
+        if (tonTransport) {
+            setScreen('select-account');
+        }
+    }, [ledgerConnection, tonTransport]);
 
     return (
         <View style={{ flexGrow: 1 }}>
-            {(screen !== 'scan' && !device) && (
+            {(screen !== 'scan' && !tonTransport) && (
                 <>
                     <View style={{
                         justifyContent: 'center',
@@ -113,14 +96,14 @@ export const LedgerBle = React.memo(() => {
                 </>
             )}
             {screen === 'scan' && (
-                <LedgerDeviceSelection onReset={reset} onSelectDevice={onSelectDevice} />
+                <LedgerDeviceSelection onReset={() => setLedgerConnection(null)} onSelectDevice={onSelectDevice} />
             )}
 
-            {(!!device && screen === 'select-account') && (
-                <LedgerSelectAccount reset={reset} device={device} />
+            {(!!tonTransport && screen === 'select-account') && (
+                <LedgerSelectAccount reset={() => setLedgerConnection(null)} />
             )}
 
-            {(!!device || account) && !(device && account !== null) && (
+            {(!!tonTransport || addr) && !(tonTransport && addr !== null) && (
                 <View style={{
                     flexDirection: 'row',
                     position: 'absolute',
@@ -134,7 +117,7 @@ export const LedgerBle = React.memo(() => {
                         display="secondary"
                         size="normal"
                         style={{ paddingHorizontal: 8 }}
-                        onPress={reset}
+                        onPress={() => setLedgerConnection(null)}
                     />
                 </View>
             )}

@@ -2,62 +2,62 @@ import { useKeyboard } from "@react-native-community/hooks";
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import React, { useMemo } from "react"
-import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard } from "react-native"
+import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard, Alert } from "react-native"
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AsyncLock, delay } from "teslabot";
+import { AsyncLock } from "teslabot";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
-import { WalletV4Contract, WalletV4Source } from "ton-contracts";
-import { TonPayloadFormat, TonTransport } from "ton-ledger";
+import { WalletV4Source } from "ton-contracts";
 import { AppConfig } from "../../AppConfig";
 import { AddressDomainInput } from "../../components/AddressDomainInput";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { useEngine } from "../../engine/Engine";
-import { fetchMetadata } from "../../engine/metadata/fetchMetadata";
 import { t } from "../../i18n/t";
-import { useLinkNavigator } from "../../Navigation";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { Theme } from "../../Theme";
-import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
 import { resolveUrl } from "../../utils/resolveUrl";
 import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
-import { fragment } from "../../fragment";
 import { estimateFees } from "../../engine/estimate/estimateFees";
-import { createSimpleLedgerOrder, createSimpleOrder } from "../secure/ops/Order";
+import { createSimpleLedgerOrder } from "../secure/ops/Order";
 import { useParams } from "../../utils/useParams";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useLedgerWallet } from "./components/LedgerApp";
-import { fetchSeqno } from "../../engine/api/fetchSeqno";
+import { useTransport } from "./components/TransportContext";
+import { fragment } from "../../fragment";
 
-export type LedgerTransferParams = {
-    transport: TonTransport,
-    account: number,
-    addr: { address: string, publicKey: Buffer },
-    balance: BN | null,
-}
+export type LedgerTransferParams = { balance: BN | null }
 
 export const LedgerTransferFragment = fragment(() => {
-    const {
-        transport,
-        account,
-        addr,
-        balance,
-    } = useParams<LedgerTransferParams>();
+    const { ledgerConnection, tonTransport, addr } = useTransport();
+    const { balance } = useParams<LedgerTransferParams>();
+
     const engine = useEngine();
-    const accountV4State = useLedgerWallet(engine, Address.parse(addr.address));
+    const address = useMemo(() => {
+        if (addr) {
+            try {
+                return Address.parse(addr.address);
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+    }, [addr]);
+
+    const accountV4State = useLedgerWallet(engine, address);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const config = engine.products.config.useConfig();
 
+    // Input state
     const [target, setTarget] = React.useState('');
     const [addressDomainInput, setAddressDomainInput] = React.useState(target);
     const [domain, setDomain] = React.useState<string>();
     const [comment, setComment] = React.useState('');
     const [amount, setAmount] = React.useState('');
+
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
 
@@ -118,8 +118,6 @@ export const LedgerTransferFragment = fragment(() => {
         }
 
         navigation.navigateLedgerSignTransfer({
-            transport,
-            addr: { ...addr, acc: account },
             text: null,
             order: order!,
         });
@@ -134,6 +132,10 @@ export const LedgerTransferFragment = fragment(() => {
         let ended = false;
         lock.inLock(async () => {
             await backoff('ledger-transfer', async () => {
+                if (!addr) {
+                    return;
+                }
+
                 if (!accountV4State) {
                     return;
                 }
@@ -238,8 +240,6 @@ export const LedgerTransferFragment = fragment(() => {
                 });
 
                 navigation.navigateLedgerSignTransfer({
-                    transport,
-                    addr: { ...addr, acc: account },
                     text: comment,
                     order: payloadOrder,
                 });

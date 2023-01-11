@@ -1,8 +1,8 @@
 import React from "react";
-import { View, Text, Image, useWindowDimensions, TouchableHighlight, ScrollView } from "react-native";
+import { View, Text, Image, useWindowDimensions, TouchableHighlight } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilValue } from "recoil";
-import { Address, toNano, TonClient4 } from "ton";
+import { Address, toNano } from "ton";
 import { TonTransport } from "ton-ledger";
 import { AppConfig } from "../../../AppConfig";
 import { PriceComponent } from "../../../components/PriceComponent";
@@ -13,7 +13,10 @@ import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
-export function useLedgerWallet(engine: Engine, address: Address) {
+export function useLedgerWallet(engine: Engine, address?: Address) {
+    if (!address) {
+        return null;
+    }
     return useRecoilValue(engine.persistence.wallets.item(address).atom);
 }
 
@@ -25,7 +28,6 @@ export const LedgerApp = React.memo((props: {
 }) => {
     const engine = useEngine();
     const account = useLedgerWallet(engine, Address.parse(props.address.address));
-    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => Address.parse(props.address.address), [props.address.address]);
     const window = useWindowDimensions();
@@ -110,14 +112,10 @@ export const LedgerApp = React.memo((props: {
                     </TouchableHighlight>
                 </View>
                 <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
-                    <TouchableHighlight onPress={() => {
-                        navigation.navigateLedgerTransfer({
-                            transport: props.transport,
-                            account: props.account,
-                            addr: props.address,
-                            balance: account?.balance ?? toNano('0')
-                        })
-                    }} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                    <TouchableHighlight
+                        onPress={() => { navigation.navigateLedgerTransfer({ balance: account?.balance ?? toNano('0') }) }}
+                        underlayColor={Theme.selector} style={{ borderRadius: 14 }}
+                    >
                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                             <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                 <Image source={require('../../../../assets/ic_send.png')} />

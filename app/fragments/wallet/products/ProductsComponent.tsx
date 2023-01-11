@@ -198,7 +198,7 @@ export const ProductsComponent = React.memo(() => {
                             value={null}
                             onLongPress={removeLedger}
                             onPress={() => {
-                                navigation.navigate('HardwareWallet');
+                                navigation.navigate('Ledger');
                             }}
                         />
                     )}

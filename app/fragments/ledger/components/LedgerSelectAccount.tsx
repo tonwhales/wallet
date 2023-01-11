@@ -4,42 +4,38 @@ import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { TonTransport } from "ton-ledger";
 import { AppConfig } from "../../../AppConfig";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { RoundButton } from "../../../components/RoundButton";
-import { WalletAddress } from "../../../components/WalletAddress";
 import { useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
+import { useTransport } from "./TransportContext";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
-export const LedgerSelectAccount = React.memo(({
-    device,
-    reset
-}: {
-    device: TonTransport,
-    reset: () => void
-}) => {
+export const LedgerSelectAccount = React.memo(({ reset }: { reset: () => void }) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
+    const { tonTransport, setAddr, addr } = useTransport();
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
 
     useEffect(() => {
         (async () => {
+            if (!tonTransport) {
+                return;
+            }
             const proms: Promise<LedgerAccount>[] = [];
             const seqno = (await engine.client4.getLastBlock()).last.seqno;
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
                     const path = pathFromAccountNumber(i);
-                    const addr = await device.getAddress(path, { testOnly: AppConfig.isTestnet });
+                    const addr = await tonTransport.getAddress(path, { testOnly: AppConfig.isTestnet });
                     try {
                         const address = Address.parse(addr.address);
                         const liteAcc = await engine.client4.getAccountLite(seqno, address);
@@ -53,11 +49,11 @@ export const LedgerSelectAccount = React.memo(({
             setAccounts(res);
             setLoading(false);
         })();
-    }, []);
+    }, [tonTransport]);
 
     const onLoadAccount = React.useCallback(
         (async (acc: LedgerAccount) => {
-            if (!device) {
+            if (!tonTransport) {
                 Alert.alert(t('hardwareWallet.errors.noDevice'));
                 reset();
                 return;
@@ -65,8 +61,8 @@ export const LedgerSelectAccount = React.memo(({
             setSelected(acc.i);
             let path = pathFromAccountNumber(acc.i);
             try {
-                await device.validateAddress(path, { testOnly: AppConfig.isTestnet });
-                navigation.navigateLedgerApp({ account: acc.i, address: acc.addr, device });
+                await tonTransport.validateAddress(path, { testOnly: AppConfig.isTestnet });
+                setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
                 setSelected(undefined);
             } catch (e) {
                 console.warn(e);
@@ -74,8 +70,14 @@ export const LedgerSelectAccount = React.memo(({
                 setSelected(undefined);
             }
         }),
-        [device],
+        [tonTransport],
     );
+
+    useEffect(() => {
+        if (!!addr) {
+            navigation.navigateLedgerApp();
+        }
+    }, [addr]);
 
     return (
         <View style={{

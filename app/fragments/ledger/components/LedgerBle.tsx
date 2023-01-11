@@ -34,9 +34,11 @@ export const LedgerBle = React.memo(() => {
         }
     }, [ledgerConnection, tonTransport]);
 
+    console.log({screen, ledgerConnection, tonTransport, addr});
+
     return (
         <View style={{ flexGrow: 1 }}>
-            {(screen !== 'scan' && !tonTransport) && (
+            {(screen !== 'scan' && screen !== 'select-account') && (
                 <>
                     <View style={{
                         justifyContent: 'center',

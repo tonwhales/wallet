@@ -5,12 +5,12 @@ import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
-import { TypedTransport, useTransport } from "./TransportContext";
+import { useTransport } from "./TransportContext";
 
 export const LedgerHID = React.memo(() => {
     const [started, setStarted] = React.useState(false);
     const { setLedgerConnection, tonTransport } = useTransport();
-    const [screen, setScreen] = useState<'select-account' | 'load-address' | null>(null);
+    const [screen, setScreen] = useState<'select-account' | null>(null);
 
     const doStart = React.useMemo(() => {
         let started = false;
@@ -25,7 +25,7 @@ export const LedgerHID = React.memo(() => {
             (async () => {
                 try {
                     let hid = await TransportHID.create();
-                    setLedgerConnection({ type: 'hid', transport: hid } as TypedTransport);
+                    setLedgerConnection({ type: 'hid', transport: hid });
                     setScreen('select-account');
                 } catch (e) {
                     started = false;
@@ -38,9 +38,8 @@ export const LedgerHID = React.memo(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            {!tonTransport && (
+            {((!tonTransport || !screen)) && (
                 <View style={{
-                    marginHorizontal: 16,
                     marginBottom: 16,
                     borderRadius: 14,
                     alignItems: 'center',

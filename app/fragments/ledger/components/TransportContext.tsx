@@ -1,12 +1,13 @@
-import BluetoothTransport from "@ledgerhq/react-native-hw-transport-ble";
-import Transport from "@ledgerhq/react-native-hid";
+import Transport from "@ledgerhq/hw-transport";
+import TransportHID from "@ledgerhq/react-native-hid";
 import React, { useCallback, useEffect } from "react";
 import { TonTransport } from "ton-ledger";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
+import { Observable, Subscription } from "rxjs";
 
-export type TypedTransport = { type: 'hid', transport: Transport } | { type: 'ble', transport: BluetoothTransport };
+export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
 
 export const TransportContext = React.createContext<
@@ -32,39 +33,69 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
         setAddr(null);
     }, []);
 
+    const onSetLedgerConnecton = useCallback((connection: TypedTransport | null) => {
+        if (!connection) {
+            ledgerConnection?.transport.off('disconnect', () => { });
+            ledgerConnection?.transport.close();
+        }
+        setLedgerConnection(connection);
+    }, []);
+
+    const disconnectAlert = useCallback(() => {
+        Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
+            text: t('common.back'),
+            onPress: () => {
+                navigation.popToTop();
+            }
+        }]);
+    }, []);
+
     useEffect(() => {
+        let sub: Subscription | null = null;
         if (ledgerConnection?.type === 'ble') {
             ledgerConnection.transport.on('disconnect', () => {
-                Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
-                    text: t('common.back'),
-                    onPress: () => {
-                        navigation.popToTop();
-                    }
-                }]);
+                disconnectAlert();
             });
 
             setTonTransport(new TonTransport(ledgerConnection.transport));
 
         } else if (ledgerConnection?.type === 'hid') {
             ledgerConnection.transport.on('disconnect', () => {
-                Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
-                    text: t('common.back'),
-                    onPress: () => {
-                        navigation.popToTop();
-                    }
-                }]);
+                disconnectAlert();
             });
-        }
 
-        return () => {
-            ledgerConnection?.transport.off('disconnect', () => { });
-            ledgerConnection?.transport.close();
-            reset();
+            sub = new Observable(TransportHID.listen).subscribe((e: any) => {
+                if (e.type === "remove") {
+                    disconnectAlert();
+                }
+            });
+
+            ledgerConnection.transport.on('onDeviceDisconnect', () => {
+                disconnectAlert();
+            });
+
+            setTonTransport(new TonTransport(ledgerConnection.transport));
+
+            return () => {
+                sub?.unsubscribe();
+            }
         }
     }, [ledgerConnection]);
 
+    useEffect(() => {
+        return () => {
+            if (ledgerConnection) {
+                ledgerConnection.transport.off('disconnect', () => { });
+                ledgerConnection.transport.off('onDeviceDisconnect', () => { });
+                ledgerConnection.transport.close();
+                reset();
+            }
+        }
+    }, []);
+
+
     return (
-        <TransportContext.Provider value={{ ledgerConnection, setLedgerConnection, tonTransport, addr, setAddr }}>
+        <TransportContext.Provider value={{ ledgerConnection, setLedgerConnection: onSetLedgerConnecton, tonTransport, addr, setAddr }}>
             {children}
         </TransportContext.Provider>
     );

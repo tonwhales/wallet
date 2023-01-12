@@ -57,6 +57,8 @@ import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
 import { useTransport } from './components/TransportContext';
+import { LottieAnimView } from '../../components/LottieAnimView';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -101,7 +103,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         addr
     } = props;
 
-    const [transferState, setTransferState] = React.useState<'confirm' | 'sending' | 'sent'>();
+    const [transferState, setTransferState] = React.useState<'confirm' | 'sending' | 'sent'>('confirm');
 
     // Resolve operation
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
@@ -154,7 +156,6 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const isSpam = engine.products.settings.useDenyAddress(target.address);
     let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam
 
-
     // Confirmation
     const doSend = React.useCallback(async () => {
         let value: BN = order.amount;
@@ -186,28 +187,33 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 if (target.balance.lte(new BN(0))) {
                     let cont = await confirm('transfer.error.addressIsNotActive');
                     if (!cont) {
+                        navigation.goBack();
                         return;
                     }
                 }
             }
 
-            // Dismiss keyboard for iOS
-            if (Platform.OS === 'ios') {
-                Keyboard.dismiss();
-            }
-
-            setTransferState('confirm');
-
             // Send sign request to Ledger
-            let signed = await transport.signTransaction(path, {
-                to: address!,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                amount: value!,
-                seqno: accountSeqno,
-                timeout: Math.floor(Date.now() / 1e3) + 60000,
-                bounce,
-                payload: order.payload ? order.payload : undefined,
-            });
+            let signed: Cell | null = null;
+            try {
+                signed = await transport.signTransaction(path, {
+                    to: address!,
+                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                    amount: value!,
+                    seqno: accountSeqno,
+                    timeout: Math.floor(Date.now() / 1e3) + 60000,
+                    bounce,
+                    payload: order.payload ? order.payload : undefined,
+                });
+            } catch (error) {
+                Alert.alert(t('hardwareWallet.errors.transactionRejected'), undefined, [{
+                    text: t('common.back'),
+                    onPress: () => {
+                        navigation.goBack();
+                    }
+                }]);
+                return;
+            }
 
             // Sending when accepted
             let extMessage = new ExternalMessage({
@@ -253,17 +259,18 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             });
         } catch (e) {
             console.warn(e);
-            setTransferState(undefined);
+            Alert.alert(t('hardwareWallet.errors.transferFailed'), undefined, [{
+                text: t('common.back'),
+                onPress: () => {
+                    navigation.goBack();
+                }
+            }]);
         }
+    }, []);
 
-    }, [order]);
-
-    const anim = React.useRef<LottieView>(null);
-
-    React.useLayoutEffect(() => {
-        setTimeout(() => {
-            anim.current?.play()
-        }, 300);
+    React.useEffect(() => {
+        // Start transfer confirmation via Ledger
+        doSend();
     }, []);
 
     return (
@@ -311,21 +318,59 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
                     <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
-                        <LottieView
-                            ref={anim}
-                            source={require('../../../assets/animations/sign.json')}
-                            style={{ width: 120, height: 120 }}
-                            autoPlay={false}
-                            loop={false}
-                        />
-                        {Platform.OS === 'ios' && (
-                            <Text style={{
-                                fontWeight: '700',
-                                fontSize: 30,
-                                textAlign: 'center'
-                            }}>
-                                {t('transfer.confirmTitle')}
-                            </Text>
+                        {transferState === 'confirm' && (
+                            <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <LottieAnimView
+                                    autoPlayIos
+                                    source={require('../../../assets/animations/sign.json')}
+                                    style={{ width: 120, height: 120 }}
+                                    autoPlay={true}
+                                    loop={true}
+                                />
+                                <Text style={{
+                                    fontWeight: '700',
+                                    fontSize: 30,
+                                    textAlign: 'center'
+                                }}>
+                                    {t('hardwareWallet.actions.confirmOnLedger')}
+                                </Text>
+                            </Animated.View>
+                        )}
+                        {transferState === 'sending' && (
+                            <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <LottieAnimView
+                                    autoPlayIos
+                                    source={require('../../../assets/animations/clock.json')}
+                                    style={{ width: 120, height: 120 }}
+                                    autoPlay={true}
+                                    loop={true}
+                                />
+                                <Text style={{
+                                    fontWeight: '700',
+                                    fontSize: 30,
+                                    textAlign: 'center'
+                                }}>
+                                    {t('hardwareWallet.actions.sending')}
+                                </Text>
+                            </Animated.View>
+                        )}
+                        {transferState === 'sent' && (
+                            <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <LottieAnimView
+                                    autoPlayIos
+                                    source={require('../../../assets/animations/done.json')}
+                                    style={{ width: 120, height: 120 }}
+                                    autoPlay={true}
+                                    loop={true}
+                                />
+                                <Text style={{
+                                    fontWeight: '700',
+                                    fontSize: 30,
+                                    textAlign: 'center'
+                                }}>
+                                    {t('hardwareWallet.actions.sent')}
+                                </Text>
+                            </Animated.View>
                         )}
                     </View>
                     <View
@@ -785,13 +830,6 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     <View style={{ height: 56 }} />
                 </View>
             </ScrollView>
-            <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-                <RoundButton
-                    title={t('common.confirm')}
-                    action={doSend}
-                    loadingStatus={transferState === 'confirm' ? t('hardwareWallet.actions.confirmOnLedger') : undefined}
-                />
-            </View>
         </>
     );
 });

@@ -95,7 +95,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
         if (!transactionHash) {
             return null;
         }
-        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
+        return (AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
             address.toFriendly() +
             '/' + txId
@@ -616,7 +616,8 @@ export const LedgerTransactionPreview = fragment(() => {
                         verified = true;
                     }
 
-                    const hash = Cell.fromBoc(loaded[tx].tx.toBoc({ idx: false }))[0].hash().toString('base64');
+                    const hash = loaded[tx].tx.hash().toString('hex');
+
 
                     ended = true;
                     setLoadedTx({

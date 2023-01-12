@@ -586,6 +586,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             turnOnBluetooth: 'Please, turn Bluetooth on and try again',
             lostConnection: 'Lost connection with Ledger',
             transactionNotFound: 'Transaction not found',
+            transactionRejected: 'Transaction rejected',
+            transferFailed: 'Transfer failed',
         },
         moreAbout: 'More about Ledger'
     }

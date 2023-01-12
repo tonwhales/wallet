@@ -573,7 +573,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             connectHid: 'Подключить через USB',
             connectBluetooth: 'Подключить через Bluetooth',
             scanBluetooth: 'Начать поиск',
-            confirmOnLedger: 'Подтвердить на Ledger',
+            confirmOnLedger: 'Подтвердите на Ledger',
             sending: 'Ожидание транзакции...',
             sent: 'Транзакция отправлена',
         },
@@ -586,7 +586,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             appNotOpen: 'Приложение Ton App не открыто на вашем Ledger',
             turnOnBluetooth: 'Пожалуйста, включите Bluetooth и попробуйте снова',
             lostConnection: 'Потеряно соединение с устройством',
-            transactionNotFound: 'Транзакция не найдена'
+            transactionNotFound: 'Транзакция не найдена',
+            transactionRejected: 'Транзакция отклонена',
+            transferFailed: 'Ошибка отправки транзакции',
         },
         moreAbout: 'Подробнее о Ledger'
     }

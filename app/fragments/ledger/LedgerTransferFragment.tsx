@@ -117,6 +117,8 @@ export const LedgerTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
+        navigation.goBack();
+
         navigation.navigateLedgerSignTransfer({
             text: null,
             order: order!,

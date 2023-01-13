@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Alert, Image } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
@@ -48,6 +48,7 @@ import SignSafe from '../../../assets/ic_sign_safe.svg';
 import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
 import WithStateInit from '../../../assets/ic_sign_contract.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
+import Question from '../../../assets/ic_question.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
 import { AddressComponent } from '../../components/AddressComponent';
@@ -202,14 +203,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
         // Check bounce flag
         let bounce = true;
-        if (!target.active) {
+        if (!target.active && !order.stateInit) {
             bounce = false;
-            if (target.balance.lte(new BN(0))) {
-                let cont = await confirm('transfer.error.addressIsNotActive');
-                if (!cont) {
-                    return;
-                }
-            }
         }
 
         // Read key
@@ -305,6 +300,16 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             anim.current?.play()
         }, 300);
     }, []);
+
+    const inactiveAlert = React.useCallback(
+        () => {
+            Alert.alert(t('transfer.error.addressIsNotActive'),
+                t('transfer.error.addressIsNotActiveDescription'),
+                [{ text: t('common.gotIt') }])
+        },
+        [],
+    );
+
 
     return (
         <>
@@ -583,6 +588,34 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     }}>
                                         <AddressComponent startLength={6} address={target.address} />
                                     </Text>
+                                    {!target.active && !order.stateInit && (
+                                        <>
+                                            <Pressable
+                                                onPress={inactiveAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        borderRadius: 6, borderWidth: 1,
+                                                        borderColor: '#FFC165',
+                                                        paddingHorizontal: 8, paddingVertical: 4,
+                                                        marginTop: 4,
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        opacity: pressed ? 0.3 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '400',
+                                                    color: '#E19626'
+                                                }}>
+                                                    {t('transfer.error.addressIsNotActive')}
+                                                </Text>
+                                                <Question style={{ marginLeft: 5 }} />
+                                            </Pressable>
+                                        </>
+                                    )}
                                     {contact && (
                                         <>
                                             <View style={{
@@ -654,6 +687,34 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             dontShowVerified={true}
                                         />
                                     </View>
+                                    {!target.active && !order.stateInit && (
+                                        <>
+                                            <Pressable
+                                                onPress={inactiveAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        borderRadius: 6, borderWidth: 1,
+                                                        borderColor: '#FFC165',
+                                                        paddingHorizontal: 8, paddingVertical: 4,
+                                                        marginTop: 4,
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        opacity: pressed ? 0.3 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '400',
+                                                    color: '#E19626'
+                                                }}>
+                                                    {t('transfer.error.addressIsNotActive')}
+                                                </Text>
+                                                <Question style={{ marginLeft: 5 }} />
+                                            </Pressable>
+                                        </>
+                                    )}
                                 </View>
                             )}
                         </View>

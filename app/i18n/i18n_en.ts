@@ -113,7 +113,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notEnoughCoins: 'unfortunately you don\'t have enougth coins for this transaction',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
-            addressIsNotActive: 'This wallet has never been used',
+            addressIsNotActive: 'This wallet has no history',
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
         },
         sendAll: 'send all',

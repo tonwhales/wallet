@@ -220,7 +220,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 to: contract.address,
                 body: new CommonMessageInfo({
                     stateInit: accountSeqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
-                    body: new CellMessage(signed)
+                    body: new CellMessage(signed!)
                 })
             });
             let msg = new Cell();
@@ -330,7 +330,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 30,
-                                    textAlign: 'center'
+                                    textAlign: 'center', 
+                                    marginTop: 8
                                 }}>
                                     {t('hardwareWallet.actions.confirmOnLedger')}
                                 </Text>
@@ -348,7 +349,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 30,
-                                    textAlign: 'center'
+                                    textAlign: 'center', 
+                                    marginTop: 8
                                 }}>
                                     {t('hardwareWallet.actions.sending')}
                                 </Text>
@@ -366,7 +368,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 30,
-                                    textAlign: 'center'
+                                    textAlign: 'center', 
+                                    marginTop: 8
                                 }}>
                                     {t('hardwareWallet.actions.sent')}
                                 </Text>

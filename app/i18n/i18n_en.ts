@@ -573,7 +573,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             connectBluetooth: 'Connect Ledger via Bluetooth',
             scanBluetooth: 'Scan',
             confirmOnLedger: 'Confirm via Ledger',
-            sending: 'Awaiting transaction...',
+            sending: 'Awaiting transaction',
             sent: 'Transaction sent',
         },
         confirm: {

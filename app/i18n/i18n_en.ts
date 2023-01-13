@@ -37,7 +37,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
-        tx: 'Transaction'
+        tx: 'Transaction',
+        gotIt: 'Got it'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -106,7 +107,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notEnoughCoins: 'unfortunately you don\'t have enougth coins for this transaction',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
-            addressIsNotActive: 'This wallet has never been used'
+            addressIsNotActive: 'This wallet has never been used',
+            addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
         },
         sendAll: 'send all',
         scanQR: 'scan qr code',

@@ -44,9 +44,8 @@ import Contact from '../../../assets/ic_transfer_contact.svg';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
-import SignSafe from '../../../assets/ic_sign_safe.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
 import WithStateInit from '../../../assets/ic_sign_contract.svg';
+import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
 import Question from '../../../assets/ic_question.svg';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -758,8 +757,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                {!order.stateInit && (<SignSafe />)}
-                                                {!!order.stateInit && (<WithStateInit />)}
+                                                <WithStateInit />
                                             </View>
                                         </View>
                                     )}
@@ -787,8 +785,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                {!order.stateInit && (<SignSafe />)}
-                                                {!!order.stateInit && (<WithStateInit />)}
+                                                <WithStateInit />
                                             </View>
                                         </View>
                                     )}

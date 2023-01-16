@@ -414,11 +414,26 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 backgroundColor: Theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
-                                                marginTop: 8
+                                                marginTop: 8,
+                                                marginBottom: 22,
                                             }}>
                                                 <Text>
                                                     {`💬 ${operation.comment}`}
                                                 </Text>
+                                                <View style={{
+                                                    marginLeft: 40 + 6,
+                                                    marginVertical: 14,
+                                                    justifyContent: 'center',
+                                                    minHeight: 22,
+                                                    position: 'absolute',
+                                                    left: -82, top: 22, bottom: 0,
+                                                }}>
+                                                    <View style={{
+
+                                                    }}>
+                                                        <TransferToArrow />
+                                                    </View>
+                                                </View>
                                             </View>
                                         )}
                                         <View style={{
@@ -434,19 +449,22 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <TonSign />
                                         </View>
                                     </View>
-                                    <View style={{
-                                        marginLeft: 40 + 6,
-                                        marginVertical: 14,
-                                        justifyContent: 'center',
-                                        minHeight: 22
-                                    }}>
+                                    {!(!!operation.comment && operation.comment.length > 0) && (
                                         <View style={{
-                                            position: 'absolute',
-                                            left: -26 - 10, top: 0, bottom: 0,
+                                            marginLeft: 40 + 6,
+                                            marginVertical: 14,
+                                            justifyContent: 'center',
+                                            minHeight: 22,
+                                            backgroundColor: 'red'
                                         }}>
-                                            <TransferToArrow />
+                                            <View style={{
+                                                position: 'absolute',
+                                                left: -26 - 10, top: 0, bottom: 0,
+                                            }}>
+                                                <TransferToArrow />
+                                            </View>
                                         </View>
-                                    </View>
+                                    )}
                                 </>
                             )}
                             {!!jettonAmount && !!jettonMaster && (

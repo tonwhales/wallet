@@ -220,7 +220,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         if (data.name === 'openUrl' && data.args.url) {
             try {
                 let pageDomain = extractDomain(data.args.url);
-                if (pageDomain.endsWith('tonsandbox.com') || pageDomain.endsWith('tonwhales.com')) {
+                if (pageDomain.endsWith('tonsandbox.com') || pageDomain.endsWith('tonwhales.com') || pageDomain.endsWith('tontestnet.com')) {
                     openWithInApp(data.args.url);
                     return;
                 }

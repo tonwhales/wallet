@@ -455,7 +455,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             marginVertical: 14,
                                             justifyContent: 'center',
                                             minHeight: 22,
-                                            backgroundColor: 'red'
                                         }}>
                                             <View style={{
                                                 position: 'absolute',

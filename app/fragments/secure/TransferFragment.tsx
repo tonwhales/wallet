@@ -428,9 +428,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                     position: 'absolute',
                                                     left: -82, top: 22, bottom: 0,
                                                 }}>
-                                                    <View style={{
-
-                                                    }}>
+                                                    <View>
                                                         <TransferToArrow />
                                                     </View>
                                                 </View>

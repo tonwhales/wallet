@@ -1,11 +1,10 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, Alert, Keyboard, Pressable } from "react-native";
+import { Platform, Text, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { RoundButton } from '../../components/RoundButton';
 import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
@@ -32,7 +31,6 @@ import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from '../../utils/dns/dns';
-import LottieView from 'lottie-react-native';
 import TonSign from '../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Contact from '../../../assets/ic_transfer_contact.svg';
@@ -40,7 +38,7 @@ import VerifiedIcon from '../../../assets/ic_verified.svg';
 import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
 import WithStateInit from '../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
+import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
 import Question from '../../../assets/ic_question.svg';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -207,10 +205,13 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     payload: order.payload ? order.payload : undefined,
                 });
             } catch (error) {
+                const focused = navigation.baseNavigation().isFocused();
                 Alert.alert(t('hardwareWallet.errors.transactionRejected'), undefined, [{
-                    text: t('common.back'),
+                    text: focused ? t('common.back') : undefined,
                     onPress: () => {
-                        navigation.goBack();
+                        if (focused) {
+                            navigation.goBack();
+                        }
                     }
                 }]);
                 return;
@@ -340,7 +341,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 30,
-                                    textAlign: 'center', 
+                                    textAlign: 'center',
                                     marginTop: 8
                                 }}>
                                     {t('hardwareWallet.actions.confirmOnLedger')}
@@ -359,7 +360,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 30,
-                                    textAlign: 'center', 
+                                    textAlign: 'center',
                                     marginTop: 8
                                 }}>
                                     {t('hardwareWallet.actions.sending')}
@@ -378,7 +379,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 30,
-                                    textAlign: 'center', 
+                                    textAlign: 'center',
                                     marginTop: 8
                                 }}>
                                     {t('hardwareWallet.actions.sent')}
@@ -440,7 +441,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                     justifyContent: 'center',
                                                     minHeight: 22,
                                                     position: 'absolute',
-                                                    left: -82, top: 22, bottom: 0,
+                                                    left: -82, top: operation.comment.length > 32 ? 22 : 8, bottom: 0,
                                                 }}>
                                                     <View>
                                                         <TransferToArrow />

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
-import { Platform, View, Text } from "react-native";
+import { Platform, View, Text, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
@@ -59,23 +59,42 @@ export const HardwareWalletFragment = fragment(() => {
                     color: Theme.textColor,
                     fontWeight: '600',
                     fontSize: 18,
-                    marginBottom: 12,
+                    marginBottom: 16,
                     marginHorizontal: 8,
                     textAlign: 'center'
                 }}>
                     {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
                     {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')}
                 </Text>
+                <View style={{ paddingHorizontal: 36, alignItems: 'center' }}>
+                    <Text style={{
+                        color: Theme.textColor,
+                        fontWeight: '400',
+                        fontSize: 16,
+                        textAlign: 'center'
+                    }}>
+                        {Platform.OS === 'android' && t('hardwareWallet.installationAndroid')}
+                        {Platform.OS === 'ios' && t('hardwareWallet.installationIOS')}
+                    </Text>
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.3 : 1,
+                                marginTop: 14
+                            }
+                        }}
+                        onPress={() => openWithInApp('https://tonwhales.com/ledger')}
+                    >
+                        <Text style={{
+                            color: Theme.accent,
+                            fontWeight: '600',
+                            fontSize: 16,
+                        }}>
+                            {t('hardwareWallet.installationGuide')}
+                        </Text>
+                    </Pressable>
+                </View>
                 <View style={{ flexGrow: 1 }} />
-                <RoundButton
-                    display={"text"}
-                    title={t('hardwareWallet.moreAbout')}
-                    onPress={() => openWithInApp('https://www.ledger.com/toncoin-wallet')}
-                    style={{
-                        width: '100%',
-                        marginVertical: 4
-                    }}
-                />
                 {Platform.OS === 'android' && (
                     <RoundButton
                         title={t('hardwareWallet.actions.connectHid')}

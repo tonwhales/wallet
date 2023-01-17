@@ -31,6 +31,10 @@ export class TypedNavigation {
         this.base = navigation;
     }
 
+    baseNavigation = () => {
+        return this.base;
+    }
+
     navigate = (name: string, params?: any) => {
         typedNavigate(this.base, name, params);
     }

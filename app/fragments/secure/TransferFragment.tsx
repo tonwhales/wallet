@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Alert } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
@@ -44,9 +44,10 @@ import Contact from '../../../assets/ic_transfer_contact.svg';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
-import SignSafe from '../../../assets/ic_sign_safe.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
+import WithStateInit from '../../../assets/ic_sign_contract.svg';
+import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
+import Question from '../../../assets/ic_question.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
 import { AddressComponent } from '../../components/AddressComponent';
@@ -203,12 +204,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         let bounce = true;
         if (!target.active && !order.stateInit) {
             bounce = false;
-            if (target.balance.lte(new BN(0))) {
-                let cont = await confirm('transfer.error.addressIsNotActive');
-                if (!cont) {
-                    return;
-                }
-            }
         }
 
         // Read key
@@ -304,6 +299,16 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             anim.current?.play()
         }, 300);
     }, []);
+
+    const inactiveAlert = React.useCallback(
+        () => {
+            Alert.alert(t('transfer.error.addressIsNotActive'),
+                t('transfer.error.addressIsNotActiveDescription'),
+                [{ text: t('common.gotIt') }])
+        },
+        [],
+    );
+
 
     return (
         <>
@@ -409,11 +414,24 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 backgroundColor: Theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
-                                                marginTop: 8
+                                                marginTop: 8,
+                                                marginBottom: 22,
                                             }}>
                                                 <Text>
                                                     {`💬 ${operation.comment}`}
                                                 </Text>
+                                                <View style={{
+                                                    marginLeft: 40 + 6,
+                                                    marginVertical: 14,
+                                                    justifyContent: 'center',
+                                                    minHeight: 22,
+                                                    position: 'absolute',
+                                                    left: -82, top: 22, bottom: 0,
+                                                }}>
+                                                    <View>
+                                                        <TransferToArrow />
+                                                    </View>
+                                                </View>
                                             </View>
                                         )}
                                         <View style={{
@@ -429,19 +447,21 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <TonSign />
                                         </View>
                                     </View>
-                                    <View style={{
-                                        marginLeft: 40 + 6,
-                                        marginVertical: 14,
-                                        justifyContent: 'center',
-                                        minHeight: 22
-                                    }}>
+                                    {!(!!operation.comment && operation.comment.length > 0) && (
                                         <View style={{
-                                            position: 'absolute',
-                                            left: -26 - 10, top: 0, bottom: 0,
+                                            marginLeft: 40 + 6,
+                                            marginVertical: 14,
+                                            justifyContent: 'center',
+                                            minHeight: 22,
                                         }}>
-                                            <TransferToArrow />
+                                            <View style={{
+                                                position: 'absolute',
+                                                left: -26 - 10, top: 0, bottom: 0,
+                                            }}>
+                                                <TransferToArrow />
+                                            </View>
                                         </View>
-                                    </View>
+                                    )}
                                 </>
                             )}
                             {!!jettonAmount && !!jettonMaster && (
@@ -582,6 +602,34 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     }}>
                                         <AddressComponent address={target.address} />
                                     </Text>
+                                    {!target.active && !order.stateInit && (
+                                        <>
+                                            <Pressable
+                                                onPress={inactiveAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        borderRadius: 6, borderWidth: 1,
+                                                        borderColor: '#FFC165',
+                                                        paddingHorizontal: 8, paddingVertical: 4,
+                                                        marginTop: 4,
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        opacity: pressed ? 0.3 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '400',
+                                                    color: '#E19626'
+                                                }}>
+                                                    {t('transfer.error.addressIsNotActive')}
+                                                </Text>
+                                                <Question style={{ marginLeft: 5 }} />
+                                            </Pressable>
+                                        </>
+                                    )}
                                     {contact && (
                                         <>
                                             <View style={{
@@ -653,6 +701,34 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             dontShowVerified={true}
                                         />
                                     </View>
+                                    {!target.active && !order.stateInit && (
+                                        <>
+                                            <Pressable
+                                                onPress={inactiveAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        borderRadius: 6, borderWidth: 1,
+                                                        borderColor: '#FFC165',
+                                                        paddingHorizontal: 8, paddingVertical: 4,
+                                                        marginTop: 4,
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        opacity: pressed ? 0.3 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '400',
+                                                    color: '#E19626'
+                                                }}>
+                                                    {t('transfer.error.addressIsNotActive')}
+                                                </Text>
+                                                <Question style={{ marginLeft: 5 }} />
+                                            </Pressable>
+                                        </>
+                                    )}
                                 </View>
                             )}
                         </View>
@@ -696,7 +772,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                <SignSafe />
+                                                <WithStateInit />
                                             </View>
                                         </View>
                                     )}
@@ -724,7 +800,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                <SignSafe />
+                                                <WithStateInit />
                                             </View>
                                         </View>
                                     )}

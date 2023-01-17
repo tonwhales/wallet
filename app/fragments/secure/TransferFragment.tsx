@@ -426,11 +426,9 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                     justifyContent: 'center',
                                                     minHeight: 22,
                                                     position: 'absolute',
-                                                    left: -82, top: 22, bottom: 0,
+                                                    left: -82, top: operation.comment.length > 32 ? 22 : 8, bottom: 0,
                                                 }}>
-                                                    <View style={{
-
-                                                    }}>
+                                                    <View>
                                                         <TransferToArrow />
                                                     </View>
                                                 </View>

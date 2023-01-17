@@ -153,7 +153,7 @@ export const WalletAddress = React.memo((props: {
                                     textAlign: 'center',
                                     color: Theme.textColor,
                                     fontVariant: ['tabular-nums'],
-                                    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'
+                                    fontFamily: Platform.OS === 'ios' ? undefined : 'monospace'
                                 },
                                 props.textStyle
                             ]}
@@ -172,7 +172,7 @@ export const WalletAddress = React.memo((props: {
                                     textAlign: 'center',
                                     color: Theme.textColor,
                                     fontVariant: ['tabular-nums'],
-                                    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace'
+                                    fontFamily: Platform.OS === 'ios' ? undefined : 'monospace'
                                 },
                                 props.textStyle
                             ]}

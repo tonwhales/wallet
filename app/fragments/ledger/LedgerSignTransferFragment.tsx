@@ -39,7 +39,7 @@ import Contact from '../../../assets/ic_transfer_contact.svg';
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
-import SignSafe from '../../../assets/ic_sign_safe.svg';
+import WithStateInit from '../../../assets/ic_sign_contract.svg';
 import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -418,11 +418,26 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 backgroundColor: Theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
-                                                marginTop: 8
+                                                marginTop: 8,
+                                                marginBottom: 22,
                                             }}>
                                                 <Text>
                                                     {`💬 ${operation.comment}`}
                                                 </Text>
+                                                <View style={{
+                                                    marginLeft: 40 + 6,
+                                                    marginVertical: 14,
+                                                    justifyContent: 'center',
+                                                    minHeight: 22,
+                                                    position: 'absolute',
+                                                    left: -82, top: 22, bottom: 0,
+                                                }}>
+                                                    <View style={{
+
+                                                    }}>
+                                                        <TransferToArrow />
+                                                    </View>
+                                                </View>
                                             </View>
                                         )}
                                         <View style={{
@@ -482,11 +497,26 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 backgroundColor: Theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
-                                                marginTop: 8
+                                                marginTop: 8,
+                                                marginBottom: 22,
                                             }}>
                                                 <Text>
                                                     {`💬 ${operation.comment}`}
                                                 </Text>
+                                                <View style={{
+                                                    marginLeft: 40 + 6,
+                                                    marginVertical: 14,
+                                                    justifyContent: 'center',
+                                                    minHeight: 22,
+                                                    position: 'absolute',
+                                                    left: -82, top: 22, bottom: 0,
+                                                }}>
+                                                    <View style={{
+
+                                                    }}>
+                                                        <TransferToArrow />
+                                                    </View>
+                                                </View>
                                             </View>
                                         )}
                                         <View style={{
@@ -705,7 +735,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                <SignSafe />
+                                                <WithStateInit />
                                             </View>
                                         </View>
                                     )}
@@ -733,7 +763,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                                <SignSafe />
+                                                <WithStateInit />
                                             </View>
                                         </View>
                                     )}

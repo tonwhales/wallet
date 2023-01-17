@@ -50,10 +50,11 @@ export const LedgerBle = React.memo(() => {
                         />
                         <Text style={{
                             color: Theme.textColor,
-                            fontWeight: '600',
-                            fontSize: 18,
+                            fontWeight: '700',
+                            fontSize: 20,
                             marginBottom: 32,
-                            marginHorizontal: 16
+                            marginHorizontal: 16,
+                            marginTop: 16
                         }}>
                             {t('hardwareWallet.actions.connect')}
                         </Text>

@@ -39,8 +39,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Транзакция',
-        add: 'Добавить',
-        connect: 'Подключить'
+        gotIt: 'Понятно'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -97,7 +96,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             notEnoughCoins: 'К сожалению, на кошельке недостаточно монет для совершения транзакции',
             addressIsForTestnet: 'Этот адрес для тестовой сети',
             addressCantReceive: 'Этот адрес не может принимать монеты',
-            addressIsNotActive: 'Этот кошелёк никогда не использовался'
+            addressIsNotActive: 'У этого кошелька нет истории',
+            addressIsNotActiveDescription: 'Это означает, что с данного адреса кошелька не было совершено ни одной транзакции',
         },
         sendAll: 'отправить все',
         scanQR: 'считать QR код',

@@ -40,8 +40,7 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         apy: string,
         tx: string,
-        add: string,
-        connect: string
+        gotIt: string
     },
     syncStatus: {
         connecting: string,
@@ -112,6 +111,7 @@ export type LocalizationSchema = {
             addressIsForTestnet: string,
             addressCantReceive: string,
             addressIsNotActive: string
+            addressIsNotActiveDescription: string
         },
         sendAll: string,
         scanQR: string,

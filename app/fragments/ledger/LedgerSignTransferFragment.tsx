@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, Alert, Keyboard } from "react-native";
+import { Platform, Text, View, Alert, Keyboard, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
@@ -42,6 +42,7 @@ import SignLock from '../../../assets/ic_sign_lock.svg';
 import WithStateInit from '../../../assets/ic_sign_contract.svg';
 import SmartContract from '../../../assets/ic_sign_smart_contact.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
+import Question from '../../../assets/ic_question.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
 import { AddressComponent } from '../../components/AddressComponent';
@@ -273,6 +274,15 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         doSend();
     }, []);
 
+    const inactiveAlert = React.useCallback(
+        () => {
+            Alert.alert(t('transfer.error.addressIsNotActive'),
+                t('transfer.error.addressIsNotActiveDescription'),
+                [{ text: t('common.gotIt') }])
+        },
+        [],
+    );
+
     return (
         <>
             {!!order.app && (
@@ -432,9 +442,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                     position: 'absolute',
                                                     left: -82, top: 22, bottom: 0,
                                                 }}>
-                                                    <View style={{
-
-                                                    }}>
+                                                    <View>
                                                         <TransferToArrow />
                                                     </View>
                                                 </View>
@@ -453,19 +461,21 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <TonSign />
                                         </View>
                                     </View>
-                                    <View style={{
-                                        marginLeft: 40 + 6,
-                                        marginVertical: 14,
-                                        justifyContent: 'center',
-                                        minHeight: 22
-                                    }}>
+                                    {!(!!operation.comment && operation.comment.length > 0) && (
                                         <View style={{
-                                            position: 'absolute',
-                                            left: -26 - 10, top: 0, bottom: 0,
+                                            marginLeft: 40 + 6,
+                                            marginVertical: 14,
+                                            justifyContent: 'center',
+                                            minHeight: 22,
                                         }}>
-                                            <TransferToArrow />
+                                            <View style={{
+                                                position: 'absolute',
+                                                left: -26 - 10, top: 0, bottom: 0,
+                                            }}>
+                                                <TransferToArrow />
+                                            </View>
                                         </View>
-                                    </View>
+                                    )}
                                 </>
                             )}
                             {!!jettonAmount && !!jettonMaster && (
@@ -497,26 +507,11 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 backgroundColor: Theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
-                                                marginTop: 8,
-                                                marginBottom: 22,
+                                                marginTop: 8
                                             }}>
                                                 <Text>
                                                     {`💬 ${operation.comment}`}
                                                 </Text>
-                                                <View style={{
-                                                    marginLeft: 40 + 6,
-                                                    marginVertical: 14,
-                                                    justifyContent: 'center',
-                                                    minHeight: 22,
-                                                    position: 'absolute',
-                                                    left: -82, top: 22, bottom: 0,
-                                                }}>
-                                                    <View style={{
-
-                                                    }}>
-                                                        <TransferToArrow />
-                                                    </View>
-                                                </View>
                                             </View>
                                         )}
                                         <View style={{
@@ -621,6 +616,34 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     }}>
                                         <AddressComponent address={target.address} />
                                     </Text>
+                                    {!target.active && !order.stateInit && (
+                                        <>
+                                            <Pressable
+                                                onPress={inactiveAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        borderRadius: 6, borderWidth: 1,
+                                                        borderColor: '#FFC165',
+                                                        paddingHorizontal: 8, paddingVertical: 4,
+                                                        marginTop: 4,
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        opacity: pressed ? 0.3 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '400',
+                                                    color: '#E19626'
+                                                }}>
+                                                    {t('transfer.error.addressIsNotActive')}
+                                                </Text>
+                                                <Question style={{ marginLeft: 5 }} />
+                                            </Pressable>
+                                        </>
+                                    )}
                                     {contact && (
                                         <>
                                             <View style={{
@@ -692,6 +715,34 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             dontShowVerified={true}
                                         />
                                     </View>
+                                    {!target.active && !order.stateInit && (
+                                        <>
+                                            <Pressable
+                                                onPress={inactiveAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        borderRadius: 6, borderWidth: 1,
+                                                        borderColor: '#FFC165',
+                                                        paddingHorizontal: 8, paddingVertical: 4,
+                                                        marginTop: 4,
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        opacity: pressed ? 0.3 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '400',
+                                                    color: '#E19626'
+                                                }}>
+                                                    {t('transfer.error.addressIsNotActive')}
+                                                </Text>
+                                                <Question style={{ marginLeft: 5 }} />
+                                            </Pressable>
+                                        </>
+                                    )}
                                 </View>
                             )}
                         </View>

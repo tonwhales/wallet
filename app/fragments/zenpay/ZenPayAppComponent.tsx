@@ -262,6 +262,12 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             setCanGoBack(canGoBack);
             return;
         }
+        
+        const cardTransaction = /\/card\/[a-z0-9]+\/transaction\/[a-z0-9]+/;
+        if (cardTransaction.test(url)) {
+            setCanGoBack(canGoBack);
+            return;
+        }
         if (
             url.indexOf('/auth/countrySelect') !== -1
             || url.indexOf('/auth/phone') !== -1
@@ -271,6 +277,11 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             || url.endsWith('credentials')
             || url.endsWith('limits')
             || url.endsWith('transfer')
+            || url.endsWith('/create/design')
+            || url.endsWith('/create/address')
+            || url.endsWith('/create/details')
+            || url.endsWith('/create/confirm')
+            || url.endsWith('/create/delivery')
         ) {
             setCanGoBack(canGoBack);
         } else {

@@ -69,6 +69,12 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                     return;
                 }
 
+                const credentials = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/credentials$/;
+                if (credentials.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.cardCredentials'));
+                    return;
+                }
+
                 const transfer = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/transfer$/;
                 if (transfer.test(url)) {
                     setPageTitle(t('products.zenPay.pageTitles.transfer'));
@@ -262,6 +268,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             || url.indexOf('/auth/code') !== -1
             || url.endsWith('details')
             || url.endsWith('deposit')
+            || url.endsWith('credentials')
             || url.endsWith('limits')
             || url.endsWith('transfer')
         ) {
@@ -406,6 +413,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             }
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
+                            console.log(event.url);
 
                             // Update canGoBack
                             updateCanGoBack(event.url, event.canGoBack);

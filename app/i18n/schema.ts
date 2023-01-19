@@ -358,6 +358,7 @@ export type LocalizationSchema = {
                 general: string,
                 card: string,
                 cardDetails: string,
+                cardCredentials: string,
                 cardLimits: string,
                 cardLimitsDefault: string,
                 cardDeposit: string,

@@ -356,6 +356,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',
                 cardDetails: 'Card Details',
+                cardCredentials: 'Card Details',
                 cardLimits: '*{{cardNumber}} Card Limits',
                 cardLimitsDefault: 'Card Limits',
                 cardDeposit: 'Top Up TON',

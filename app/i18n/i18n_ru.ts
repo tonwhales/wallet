@@ -357,6 +357,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',
                 cardDetails: 'Детали карты',
+                cardCredentials: 'Данные карты',
                 cardLimits: '*{{cardNumber}} Лимиты карты',
                 cardLimitsDefault: 'Лимиты карты',
                 cardDeposit: 'Пополнить TON',

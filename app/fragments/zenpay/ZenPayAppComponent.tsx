@@ -262,7 +262,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             setCanGoBack(canGoBack);
             return;
         }
-        
+
         const cardTransaction = /\/card\/[a-z0-9]+\/transaction\/[a-z0-9]+/;
         if (cardTransaction.test(url)) {
             setCanGoBack(canGoBack);
@@ -290,10 +290,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     }, []);
 
     const updateScrollEnabled = React.useCallback((url: string) => {
-        if (url.indexOf('/auth/countrySelect') !== -1
-            || url.indexOf('/auth/phone') !== -1
-            || url.indexOf('/auth/code') !== -1
-        ) {
+        if (url.indexOf('/auth/phone') !== -1 || url.indexOf('/auth/code') !== -1) {
             setScrollEnabled(false);
         } else {
             setScrollEnabled(true);

@@ -286,6 +286,14 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Web3TON
         },
+        [Address.parse('EQBUFfTuiKVivJBNI35fHmDqXHwc2Fy6Eb-RzUI7QWeb3TON').toFriendly()]: {
+            name: 'Web3TON',
+            colors: {
+                primary: '#2c3556',
+                secondary: '#7f88b5'
+            },
+            ic: Img_Web3TON
+        },
         [Address.parse('EQCNyEcHg5I7YR_PhtuPye7yDMs9Imnm22MY5CiZPyCALBA4').toFriendly()]: {
             name: 'Web3TON',
             colors: {

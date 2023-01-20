@@ -38,7 +38,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Terms\u00A0Of\u00A0Service',
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
-        tx: 'Транзакция'
+        tx: 'Транзакция',
+        gotIt: 'Понятно'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -99,7 +100,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             notEnoughCoins: 'К сожалению, на кошельке недостаточно монет для совершения транзакции',
             addressIsForTestnet: 'Этот адрес для тестовой сети',
             addressCantReceive: 'Этот адрес не может принимать монеты',
-            addressIsNotActive: 'Этот кошелёк никогда не использовался'
+            addressIsNotActive: 'У этого кошелька нет истории',
+            addressIsNotActiveDescription: 'Это означает, что с данного адреса кошелька не было совершено ни одной транзакции',
         },
         sendAll: 'отправить все',
         scanQR: 'считать QR код',
@@ -112,7 +114,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',
         confirmTitle: 'Подтверждение транзакции',
-        unknown: 'Неизвестная операция'
+        unknown: 'Неизвестная операция',
+        moreDetails: 'Подробнее',
+        gasFee: 'Gas комиссия',
+        contact: 'Ваш контакт',
+        firstTime: 'Отправка первый раз',
+        requestsToSign: '{{app}} запрашивает подпись транзакции',
+        smartContract: 'Смарт-контракт транзакция',
     },
     auth: {
         phoneNumber: 'Номер телефона',

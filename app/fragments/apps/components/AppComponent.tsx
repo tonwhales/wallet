@@ -158,7 +158,7 @@ export const AppComponent = React.memo((props: {
             }
         });
     }, []);
-    const injectionEngine = useInjectEngine(props.title);
+    const injectionEngine = useInjectEngine(domain, props.title);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 

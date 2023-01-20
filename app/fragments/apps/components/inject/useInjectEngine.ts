@@ -41,7 +41,7 @@ function parseString(slice: Slice) {
     return res;
 }
 
-export function useInjectEngine(name: string) {
+export function useInjectEngine(domain: string, name: string) {
     const navigation = useTypedNavigation();
     return React.useMemo(() => {
         const inj = new InjectEngine();
@@ -72,6 +72,10 @@ export function useInjectEngine(name: string) {
                         amountAll: false,
                         payload: src.payload,
                         stateInit: src.stateInit ? src.stateInit : null,
+                        app: {
+                            domain,
+                            title: name
+                        }
                     },
                     text: src.text ? src.text : null,
                     job: null,
@@ -87,7 +91,11 @@ export function useInjectEngine(name: string) {
                     job: null,
                     jetton: null,
                     callback: callback!,
-                    back: 1
+                    back: 1,
+                    app: {
+                        domain,
+                        title: name
+                    }
                 });
             }
 

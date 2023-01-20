@@ -361,6 +361,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 cardLimitsDefault: 'Card Limits',
                 cardDeposit: 'Top Up TON',
                 transfer: 'Transfer',
+                cardSmartContract: 'Card Smart Contract',
+                setUpCard: 'Set up the card',
             },
             card: {
                 title: 'Tonhub Card *{{cardNumber}}',

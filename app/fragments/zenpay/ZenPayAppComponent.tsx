@@ -38,6 +38,36 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
     // 
     const updatePateTitle = React.useCallback(
         (url: string) => {
+
+            if (url.endsWith('/create')) {
+                setPageTitle(t('products.zenPay.pageTitles.card'));
+                return;
+            }
+
+            if (url.indexOf('/create/activation') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.cardSmartContract'));
+                return;
+            }
+
+            if (url.indexOf('/create/congrats') !== -1) {
+                setPageTitle(t('products.zenPay.card.defaultTitle'));
+                return;
+            }
+
+            if (url.indexOf('/create/design') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
+                return;
+            }
+            if (url.indexOf('/create/setup') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
+                return;
+            }
+
+            if (url.indexOf('/create/address') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
+                return;
+            }
+
             const card = /\/card\/[a-z0-9]+/;
             if (card.test(url)) {
 
@@ -421,8 +451,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                             }
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
-                            console.log(event.url);
-
                             // Update canGoBack
                             updateCanGoBack(event.url, event.canGoBack);
 

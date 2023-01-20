@@ -363,6 +363,8 @@ export type LocalizationSchema = {
                 cardLimitsDefault: string,
                 cardDeposit: string,
                 transfer: string,
+                cardSmartContract: string,
+                setUpCard: string
             },
             card: {
                 title: string,

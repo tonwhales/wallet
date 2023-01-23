@@ -1,5 +1,5 @@
 import BN from "bn.js"
-import React from "react"
+import React, { useMemo } from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "ton"
 import { AppConfig } from "../AppConfig"
@@ -13,18 +13,32 @@ export const PriceComponent = React.memo((
         style,
         textStyle,
         prefix,
-        suffix
+        suffix,
+        centFontStyle
     }: {
         amount: BN,
         style?: StyleProp<ViewStyle>,
         textStyle?: StyleProp<TextStyle>,
         prefix?: string,
-        suffix?: string
+        suffix?: string,
+        centFontStyle?: StyleProp<TextStyle>
     }
 ) => {
     const [price, currency] = usePrice();
+    const summ: { value: string, cents?: string } | undefined = useMemo(() => {
+        if (price) {
+            const splited = (parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2).split('.');
+            if (splited.length === 2) {
+                return {
+                    value: splited[0],
+                    cents: splited[1]
+                };
+            }
+            return { value: splited[0], cents: undefined };
+        }
+    }, [price]);
 
-    if (!price || AppConfig.isTestnet) {
+    if (!summ || AppConfig.isTestnet) {
         return <></>;
     }
 
@@ -44,8 +58,13 @@ export const PriceComponent = React.memo((
                 textAlign: "center",
                 lineHeight: 16
             }, textStyle]}>
-                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}${suffix ?? ''}`}
+                {prefix ?? ''}
+                {formatCurrency(summ.value, currency, amount.isNeg())}
+                <Text style={[centFontStyle]}>
+                    {summ.cents ? `.${summ.cents}` : ''}
+                </Text>
+                {suffix ?? ''}
             </Text>
-        </View>
+        </View >
     )
 })

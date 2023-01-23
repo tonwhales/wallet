@@ -6,28 +6,25 @@ import { TransactionView } from './views/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
-import { ValueComponent } from '../../components/ValueComponent';
 import { BlurView } from 'expo-blur';
-import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, FadeInUp, FadeOutDown, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
-import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
-import { PriceComponent } from '../../components/PriceComponent';
 import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
-import BN from 'bn.js';
-import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { log } from '../../utils/log';
 import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from '../../Navigation';
-import { ExchangeRate } from '../../components/ExchangeRate';
-import GraphIcon from '../../../assets/ic_graph.svg';
+import { WalletAccountCard } from '../../components/WalletAccountCard';
+import { WalletActionButton } from '../../components/WalletActionButton';
+import BuyIcon from '../../../assets/ic_action_buy.svg';
+import ReceiveIcon from '../../../assets/ic_action_receive.svg';
+import SendIcon from '../../../assets/ic_action_send.svg';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -113,19 +110,19 @@ function WalletComponent(props: { wallet: WalletState }) {
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
 
     const cardOpacity = useSharedValue(1);
-    const smallCardOpacity = useSharedValue(0);
+    const dividerOpacity = useSharedValue(0);
     const titleOpacity = useSharedValue(1);
     const smallCardY = useSharedValue(Math.floor(cardHeight * 0.15));
 
     const onScroll = useAnimatedScrollHandler((event) => {
-        if ((event.contentOffset.y + 28 - cardHeight) >= 0) { // Fully scrolled
+        if ((event.contentOffset.y + 28) >= 0) { // Fully scrolled
             cardOpacity.value = 0;
-            smallCardOpacity.value = 1;
+            dividerOpacity.value = 1;
             titleOpacity.value = 0;
             smallCardY.value = - Math.floor(cardHeight * 0.15 / 2);
         } else { // Visible
             cardOpacity.value = 1;
-            smallCardOpacity.value = 0;
+            dividerOpacity.value = 0;
             titleOpacity.value = 1;
             smallCardY.value = Math.floor(cardHeight * 0.15 / 2);
         }
@@ -139,9 +136,9 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [cardHeight, onReachedEnd]);
 
-    const smallCardStyle = useAnimatedStyle(() => {
+    const smallTitleStyle = useAnimatedStyle(() => {
         return {
-            opacity: withTiming(smallCardOpacity.value, {
+            opacity: withTiming(dividerOpacity.value, {
                 duration: 300,
                 easing: Easing.bezier(0.25, 0.1, 0.25, 1),
             }),
@@ -179,6 +176,16 @@ function WalletComponent(props: { wallet: WalletState }) {
             }),
         };
     }, []);
+
+    const dividerOpacityStyle = useAnimatedStyle(() => {
+        return {
+            opacity: withTiming(dividerOpacity.value, {
+                duration: 200,
+                easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+            }),
+        };
+    }, []);
+
     const linkNavigator = useLinkNavigator();
 
     const onQRCodeRead = (src: string) => {
@@ -229,164 +236,32 @@ function WalletComponent(props: { wallet: WalletState }) {
                 removeClippedSubviews={true}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-                <View
-                    style={[
-                        {
-                            marginHorizontal: 16, marginVertical: 16,
-                            height: cardHeight,
-                        }
-                    ]}
-                    collapsable={false}
-                >
-                    <Image
-                        source={require('../../../assets/wallet_card.png')}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: cardHeight,
-                            width: window.width - 32
-                        }}
-                        resizeMode="stretch"
-                        resizeMethod="resize"
-                    />
-                    {/* Sync state */}
-                    <View style={{
-                        flexDirection: 'row',
-                        marginTop: 16, marginLeft: 22,
-                        alignItems: 'center'
-                    }}>
-                        {syncState === 'online' && (
-                            <View style={{
-                                marginRight: 4,
-                                height: 8, width: 8,
-                                borderRadius: 4,
-                                backgroundColor: Theme.success
-                            }} />
-                        )}
-                        {syncState !== 'online' && (
-                            <CircularProgress
-                                style={{
-                                    transform: [{ rotate: '-90deg' }],
-                                    marginRight: 4
-                                }}
-                                progress={100}
-                                animateFromValue={0}
-                                duration={6000}
-                                size={12}
-                                width={2}
-                                color={'#FFFFFF'}
-                                backgroundColor={'#596080'}
-                                fullColor={null}
-                                loop={true}
-                                containerColor={'transparent'}
-                            />
-                        )}
-                        <Text style={{
-                            fontSize: 14, fontWeight: '400',
-                            color: syncState === 'online' ? Theme.success : '#A2A5B2'
-                        }}>
-                            {t(`syncStatus.${syncState}`)}
-                        </Text>
-                    </View>
 
-                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: (pressed && balanceChart && balanceChart.chart.length > 0) ? 0.3 : 1,
-                                    marginLeft: 22,
-                                    flexDirection: 'row', alignItems: 'center'
-                                };
-                            }}
-                            onPress={openGraph}
-                        >
-                            <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
-                                <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
-                            </Text>
-                            {account?.balance.gt(new BN(0)) && <GraphIcon />}
-                        </Pressable>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.3 : 1,
-                                }
-                            }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <PriceComponent amount={account.balance} />
-                        </Pressable>
-                        <Pressable style={({ pressed }) => {
-                            return {
-                                marginLeft: 8,
-                                opacity: pressed ? 0.3 : 1
-                            }
-                        }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <ExchangeRate />
-                        </Pressable>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={address}
-                        elipsise
-                        style={{
-                            marginLeft: 22,
-                            marginBottom: 24,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: 'white',
-                            fontWeight: '500',
-                            fontFamily: undefined
-                        }}
-                        lockActions
-                    />
-                </View>
+                {/* Card */}
+                <WalletAccountCard account={account} engine={engine} />
 
-                <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 16 }} collapsable={false}>
                     {
                         !AppConfig.isTestnet && (
-                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                                <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                        <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
-                                            <Image source={require('../../../assets/ic_buy.png')} />
-                                        </View>
-                                        <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('wallet.actions.buy')}</Text>
-                                    </View>
-                                </TouchableHighlight>
-                            </View>
+                            <WalletActionButton
+                                action={onOpenBuy}
+                                icon={BuyIcon}
+                                title={t('wallet.actions.buy')}
+                                style={{ marginRight: 16 }}
+                            />
                         )
                     }
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
-                                    <Image source={require('../../../assets/ic_receive.png')} />
-                                </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
-                            </View>
-                        </TouchableHighlight>
-                    </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
-                                    <Image source={require('../../../assets/ic_send.png')} />
-                                </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
-                            </View>
-                        </TouchableHighlight>
-                    </View>
+                    <WalletActionButton
+                        action={() => navigation.navigate('Receive')}
+                        icon={ReceiveIcon}
+                        title={t('wallet.actions.receive')}
+                        style={{ marginRight: 16 }}
+                    />
+                    <WalletActionButton
+                        action={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
+                        icon={SendIcon}
+                        title={t('wallet.actions.send')}
+                    />
                 </View>
 
                 {account.pending.length > 0 && Platform.OS === 'android' && (
@@ -417,95 +292,66 @@ function WalletComponent(props: { wallet: WalletState }) {
                 <View style={{ height: 56 + safeArea.bottom }} />
             </Animated.ScrollView>
             {/* iOS Toolbar */}
-            {
-                Platform.OS === 'ios' && (
-                    <View style={{
+            {Platform.OS === 'ios' && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0,
+                    height: safeArea.top + 44,
+                }}>
+                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                    <BlurView style={{
                         position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        paddingTop: safeArea.top,
+                        flexDirection: 'row',
+                        overflow: 'hidden'
                     }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: safeArea.top,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}
+                        <View style={{ width: '100%', height: 44, paddingHorizontal: 20, justifyContent: 'center' }}>
+                            <Animated.Text style={[
+                                { fontSize: 37, color: Theme.textColor, fontWeight: '700' },
+                                { position: 'relative', ...titleOpacityStyle },
+                            ]}>
+                                {'Tonhub'}
+                            </Animated.Text>
+                            <Pressable
+                                style={{
+                                    position: 'absolute',
+                                    right: 13,
+                                }}
+                                onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                            >
+                                <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
+                            </Pressable>
+                        </View>
+                        <Animated.View
+                            style={[
+                                {
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    position: 'absolute',
+                                    bottom: 0, left: 0, right: 0,
+                                },
+                                { ...smallTitleStyle },
+                            ]}
+                            collapsable={false}
                         >
-                            <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                                <Animated.Text style={[
-                                    { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
-                                    { position: 'relative', ...titleOpacityStyle },
-                                ]}>
-                                    Tonhub
-                                </Animated.Text>
-                                <Animated.View
-                                    style={[
-                                        {
-                                            flex: 1,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            position: 'absolute',
-                                            top: 0, bottom: 0
-                                        },
-                                        { ...smallCardStyle },
-                                    ]}
-                                    collapsable={false}
-                                >
-                                    <View style={{
-                                        height: cardHeight,
-                                        width: window.width - 32,
-                                        flex: 1,
-                                        transform: [{ scale: 0.15 }],
-                                    }}>
-                                        <Image
-                                            source={require('../../../assets/wallet_card.png')}
-                                            style={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                height: cardHeight,
-                                                width: window.width - 32
-                                            }}
-                                            resizeMode="stretch"
-                                            resizeMethod="resize"
-                                        />
+                            <Text style={{ fontWeight: '700', fontSize: 17 }}>
+                                {'Tonhub'}
+                            </Text>
+                        </Animated.View>
 
-                                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
-                                        <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
-                                        <View style={{ flexGrow: 1 }}>
-
-                                        </View>
-                                        <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
-                                            <AddressComponent address={address} />
-                                        </Text>
-                                    </View>
-                                </Animated.View>
-                                <Pressable
-                                    style={{
-                                        position: 'absolute',
-                                        right: 13,
-                                    }}
-                                    onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                >
-                                    <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
-                                </Pressable>
-                            </View>
-                        </BlurView>
+                    </BlurView>
+                    <Animated.View style={[{ position: 'absolute', bottom: 0.5, left: 0, right: 0, }, { ...dividerOpacityStyle }]}>
                         <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
                             backgroundColor: '#000',
                             opacity: 0.08
                         }} />
-                    </View >
-                )
-            }
+                    </Animated.View>
+                </View >
+            )}
             {/* Android Toolbar */}
             {
                 Platform.OS === 'android' && (
@@ -525,50 +371,6 @@ function WalletComponent(props: { wallet: WalletState }) {
                             ]}>
                                 Tonhub
                             </Animated.Text>
-                            <Animated.View
-                                style={[
-                                    {
-                                        flex: 1,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'absolute',
-                                        top: 0, bottom: 0
-                                    },
-                                    { ...smallCardStyle },
-                                ]}
-                                collapsable={false}
-                            >
-                                <View style={{
-                                    height: cardHeight,
-                                    width: window.width - 32,
-                                    flex: 1,
-                                    transform: [{ scale: 0.15 }],
-                                }}>
-                                    <Image
-                                        source={require('../../../assets/wallet_card.png')}
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            height: cardHeight,
-                                            width: window.width - 32
-                                        }}
-                                        resizeMode="stretch"
-                                        resizeMethod="resize"
-                                    />
-
-                                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
-                                    <Text style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}><ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} /></Text>
-                                    <View style={{ flexGrow: 1 }}>
-
-                                    </View>
-                                    <Text style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
-                                        <AddressComponent address={address} />
-                                    </Text>
-                                </View>
-                            </Animated.View>
                             <Pressable
                                 style={{
                                     position: 'absolute',

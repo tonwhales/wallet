@@ -197,6 +197,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     products: {
         accounts: 'Accounts',
         services: 'Extensions',
+        add: 'Add new product',
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'
@@ -212,9 +213,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         staking: {
             title: 'Staking',
             balance: 'Staking balance',
+            joinButton: 'Start Earning',
             subtitle: {
-                join: 'Earn up to 13.3% on your TONs',
-                joined: 'Earn up to 13.3%',
+                join: 'Earn with the decentralized TON staking pool',
+                joined: 'Earn on TON',
                 rewards: 'Estimated Interest',
                 apy: '~13.3 APY of the contribution',
                 devPromo: 'Multiply your test coins'

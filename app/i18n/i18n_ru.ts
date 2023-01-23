@@ -198,6 +198,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     products: {
         accounts: 'Счета',
         services: 'Расширения',
+        add: 'Добавить новый продукт',
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'
@@ -213,8 +214,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         staking: {
             title: 'Стейкинг',
             balance: 'Баланс стейкинга',
+            joinButton: 'Начать зарабатывать',
             subtitle: {
-                join: 'Зарабатывайте на TON до 13,3%',
+                join: 'Зарабатывайте с децентрализованными TON стейкинг пулами',
                 joined: 'Зарабатывайте на TON',
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада',

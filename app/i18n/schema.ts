@@ -199,6 +199,7 @@ export type LocalizationSchema = {
     products: {
         accounts: string,
         services: string,
+        add: string,
         oldWallets: {
             title: string,
             subtitle: string
@@ -214,12 +215,13 @@ export type LocalizationSchema = {
         staking: {
             title: string,
             balance: string,
+            joinButton: string,
             subtitle: {
                 join: string,
                 rewards: string,
                 apy: string,
                 joined: string,
-                devPromo: string
+                devPromo: string,
             },
             nextCycle: string,
             cycleNote: string,

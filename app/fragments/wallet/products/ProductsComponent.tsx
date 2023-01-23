@@ -1,6 +1,6 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
-import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
+import { Alert, LayoutAnimation, Text, View } from "react-native"
 import { ProductButton } from "./ProductButton"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
@@ -14,8 +14,9 @@ import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
+import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
-import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();

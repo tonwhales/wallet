@@ -9,7 +9,7 @@ import { PriceComponent } from '../../../components/PriceComponent';
 import { WImage } from '../../../components/WImage';
 import Verified from '../../../../assets/ic_verified.svg';
 
-export function ProductButton(props: {
+export type ProductButtonProps = {
     name: string,
     subtitle: string,
     icon?: React.FC<SvgProps>,
@@ -26,7 +26,9 @@ export function ProductButton(props: {
     iconViewStyle?: StyleProp<ViewStyle>,
     iconProps?: SvgProps,
     known?: boolean
-}) {
+}
+
+export function ProductButton(props: ProductButtonProps) {
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;

@@ -19,6 +19,7 @@ import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from '../Navigation';
 import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
+import { TransactionsFragment } from './wallet/TransactionsFragment';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -104,6 +105,8 @@ export const HomeFragment = fragment(() => {
     if (tab === 0) {
         useTrackScreen('Wallet');
     } else if (tab === 1) {
+        useTrackScreen('Transactions');
+    } else if (tab === 2) {
         useTrackScreen('Settings');
     }
 
@@ -115,6 +118,9 @@ export const HomeFragment = fragment(() => {
                 <WalletFragment />
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
+                <TransactionsFragment />
+            </View>
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 2 ? 1 : 0 }} pointerEvents={tab === 2 ? 'box-none' : 'none'}>
                 <SettingsFragment />
             </View>
             <View style={{ height: 52 + safeArea.bottom, }}>
@@ -135,7 +141,7 @@ export const HomeFragment = fragment(() => {
                         />
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
-                                source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
+                                source={tab === 0 ? require('../../assets/ic_home_selected.png') : require('../../assets/ic_home.png')}
                                 style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
                             />
                             <Text
@@ -146,11 +152,22 @@ export const HomeFragment = fragment(() => {
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                             <Image
-                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
                                 style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
                             />
                             <Text
                                 style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                            >
+                                {t('transactions.history')}
+                            </Text>
+                        </Pressable>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
+                            <Image
+                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                style={{ tintColor: tab === 2 ? Theme.accent : Theme.textSecondary }}
+                            />
+                            <Text
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? Theme.accent : Theme.textSecondary }}
                             >
                                 {t('home.settings')}
                             </Text>
@@ -177,10 +194,19 @@ export const HomeFragment = fragment(() => {
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                             <Image
-                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
                                 style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
                             />
                             <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>
+                                {t('transactions.history')}
+                            </Text>
+                        </Pressable>
+                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
+                            <Image
+                                source={tab === 2 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                style={{ tintColor: tab === 2 ? Theme.accent : Theme.textSecondary }}
+                            />
+                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? Theme.accent : Theme.textSecondary }}>
                                 {t('home.settings')}
                             </Text>
                         </Pressable>

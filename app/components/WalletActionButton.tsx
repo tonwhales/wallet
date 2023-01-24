@@ -27,7 +27,7 @@ export const WalletActionButton = React.memo(({
                     opacity: (pressed && !disablePressed) ? 0.3 : 1,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: 58
+                    width: 64
                 }, style]
             }}
             onPress={action}
@@ -50,7 +50,7 @@ export const WalletActionButton = React.memo(({
                     textAlign: 'center',
                     color: Theme.accent,
                     marginTop: 6,
-                }}>
+                }} numberOfLines={2}>
                     {title}
                 </Text>
             )}

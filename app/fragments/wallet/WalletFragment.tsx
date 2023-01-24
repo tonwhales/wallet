@@ -115,7 +115,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     const smallCardY = useSharedValue(Math.floor(cardHeight * 0.15));
 
     const onScroll = useAnimatedScrollHandler((event) => {
-        if ((event.contentOffset.y + 28) >= 0) { // Fully scrolled
+        if ((event.contentOffset.y + 28 + 16) >= 0) { // Fully scrolled
             cardOpacity.value = 0;
             dividerOpacity.value = 1;
             titleOpacity.value = 0;
@@ -229,8 +229,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                         ? safeArea.top + 44
                         : undefined,
                 }}
-                contentInset={{ top: 44, bottom: 52 }}
-                contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
+                contentInset={{ top: 44 + 16, bottom: 52 }}
+                contentOffset={{ y: -(44 + 16 + safeArea.top), x: 0 }}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
                 removeClippedSubviews={true}
@@ -296,13 +296,14 @@ function WalletComponent(props: { wallet: WalletState }) {
                 <View style={{
                     position: 'absolute',
                     top: 0, left: 0, right: 0,
-                    height: safeArea.top + 44,
+                    height: safeArea.top + 44 + 16,
                 }}>
                     <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+
                     <BlurView style={{
                         position: 'absolute',
                         top: 0, left: 0, right: 0, bottom: 0,
-                        paddingTop: safeArea.top,
+                        paddingTop: safeArea.top + 16,
                         flexDirection: 'row',
                         overflow: 'hidden'
                     }}>
@@ -316,7 +317,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             <Pressable
                                 style={{
                                     position: 'absolute',
-                                    right: 13,
+                                    right: 24,
                                 }}
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                             >
@@ -340,8 +341,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 {'Tonhub'}
                             </Text>
                         </Animated.View>
-
                     </BlurView>
+
                     <Animated.View style={[{ position: 'absolute', bottom: 0.5, left: 0, right: 0, }, { ...dividerOpacityStyle }]}>
                         <View style={{
                             height: 0.5,

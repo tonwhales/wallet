@@ -50,7 +50,7 @@ import { ResolvedUrl } from './utils/resolveUrl';
 import BN from 'bn.js';
 import { mixpanel } from './analytics/mixpanel';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
-import { AccountsFragment } from './fragments/AccountsFragment';
+import { AccountsSettingsFragment } from './fragments/AccountsSettingsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
@@ -170,7 +170,7 @@ const navigation = [
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),
     modalScreen('Corp', CorpFragment),
-    modalScreen('Accounts', AccountsFragment),
+    modalScreen('AccountsSettings', AccountsSettingsFragment),
     modalScreen('SpamFilter', SpamFilterFragment),
     modalScreen('Currency', CurrencyFragment),
     modalScreen('Review', ReviewFragment),

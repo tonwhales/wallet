@@ -7,7 +7,7 @@ import { Engine } from '../../../engine/Engine';
 import { markJettonDisabled } from '../../../engine/sync/ops';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
-import { confirmJettonAction } from '../../AccountsFragment';
+import { confirmJettonAction } from '../../AccountsSettingsFragment';
 import { AnimatedProductButton } from './AnimatedProductButton';
 import { ProductButton } from './ProductButton';
 

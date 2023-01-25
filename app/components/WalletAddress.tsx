@@ -11,10 +11,10 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { Address } from "ton";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 
-function ellipsiseAddress(src: string) {
-    return src.slice(0, 6)
+function ellipsiseAddress(src: string, elipsiseStart?: number, elipsiseEnd?: number) {
+    return src.slice(0, elipsiseStart ?? 6)
         + '...'
-        + src.slice(src.length - 8)
+        + src.slice(src.length - (elipsiseEnd ?? 8))
 }
 
 export const WalletAddress = React.memo((props: {
@@ -26,7 +26,10 @@ export const WalletAddress = React.memo((props: {
     known?: boolean,
     spam?: boolean;
     elipsise?: boolean,
+    elipsiseStart?: number,
+    elipsiseEnd?: number,
     lockActions?: boolean,
+    dropdownMenuMode?: boolean,
     previewBackgroundColor?: string
 }) => {
     const engine = useEngine();
@@ -76,7 +79,7 @@ export const WalletAddress = React.memo((props: {
                     onCopy();
                     break;
                 }
-                case t('common.share'): {
+                case t('common.shareAddressLink'): {
                     onShare();
                     break;
                 }
@@ -116,11 +119,12 @@ export const WalletAddress = React.memo((props: {
         <ContextMenu
             actions={[
                 { title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined },
-                { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+                { title: t('common.shareAddressLink'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
                 ...(props.lockActions ? [] : actions)
             ]}
             onPress={handleAction}
             style={props.style}
+            dropdownMenuMode={props.dropdownMenuMode}
             previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : 'transparent'}
         >
             <View>
@@ -140,7 +144,7 @@ export const WalletAddress = React.memo((props: {
                         ellipsizeMode={'middle'}
                         {...props.textProps}
                     >
-                        {ellipsiseAddress(friendlyAddress)}
+                        {ellipsiseAddress(friendlyAddress, props.elipsiseStart, props.elipsiseEnd)}
                     </Text>
                 )}
                 {!props.elipsise && (

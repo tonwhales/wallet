@@ -1,99 +1,42 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
-import { Alert, LayoutAnimation, Pressable, Text, useWindowDimensions, View } from "react-native"
-import { ProductButton } from "./ProductButton"
+import { LayoutAnimation, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { useEngine } from "../../../engine/Engine"
 import IconAdd from '../../../../assets/ic_action_add.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { AppConfig } from "../../../AppConfig"
-import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
-import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
-import { extractDomain } from "../../../engine/utils/extractDomain"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { CardProductButton, gradientColorsMap } from "./CardProductButton"
-import { avatarHash } from "../../../utils/avatarHash"
-import { WImage } from "../../../components/WImage"
 import { ValueComponent } from "../../../components/ValueComponent"
 import { PriceComponent } from "../../../components/PriceComponent"
 import { WalletActionButton } from "../../../components/WalletActionButton"
+import { ExtensionsProductButton } from "./ExtensionsProductButton";
 
-export const ProductsComponent = React.memo(() => {
+export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWallets = engine.products.legacy.useStateFull();
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
-    const extensions = engine.products.extensions.useExtensions();
     const staking = engine.products.whalesStakingPools.useStaking();
+    const account = engine.products.main.useAccount();
     const showJoin = staking.total.eq(new BN(0));
-
-    const removeExtension = React.useCallback((key: string) => {
-        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
-            text: t('common.delete'),
-            style: 'destructive',
-            onPress: () => {
-                engine.products.extensions.removeExtension(key);
-            }
-        }]);
-    }, []);
-
-    const openExtension = React.useCallback((url: string) => {
-        let domain = extractDomain(url);
-        if (!domain) {
-            return; // Shouldn't happen
-        }
-        let k = engine.persistence.domainKeys.getValue(domain);
-        if (!k) {
-            navigation.navigate('Install', { url });
-        } else {
-            navigation.navigate('App', { url });
-        }
-    }, []);
 
     // Resolve oldWallets
     let oldAccounts = oldWallets.filter((a) => a.balance.gt(new BN(0)));
 
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [extensions, jettons, oldWallets, currentJob,]);
+    }, [jettons, oldWallets, currentJob,]);
 
     const window = useWindowDimensions();
     const itemWidth = window.width / 2 - 16 - 7;
-
-    // Resolve apps
-    let apps: React.ReactElement[] = [];
-    for (let e of extensions) {
-        const colorsIndex = avatarHash(e.key, gradientColorsMap.length);
-        apps.push(
-            <CardProductButton
-                key={`app-` + e.key}
-                title={e.name}
-                description={e.description ?? undefined}
-                width={itemWidth}
-                height={itemWidth}
-                style={{ marginBottom: 14 }}
-                gradientColors={gradientColorsMap[colorsIndex]}
-                descriptionTextProps={{ numberOfLines: 3 }}
-                icon={
-                    <WImage
-                        src={e.image?.url}
-                        blurhash={e.image?.url}
-                        width={42}
-                        heigh={42}
-                        borderRadius={8}
-                    />
-                }
-                onPress={() => openExtension(e.url)}
-                onLongPress={() => removeExtension(e.key)}
-            />
-        );
-    }
 
     return (
         <>
@@ -161,6 +104,42 @@ export const ProductsComponent = React.memo(() => {
                         height={itemWidth}
                         style={{ marginBottom: 14 }}
                         // onPress={() => navigation.navigate('AccountsList')}
+                        balance={<View>
+                            <View>
+                                <PriceComponent
+                                    amount={account?.balance ?? new BN(0)}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0, paddingVertical: 0,
+                                        height: undefined,
+                                        marginBottom: 4
+                                    }}
+                                    textStyle={{
+                                        fontSize: 16,
+                                        fontWeight: '700',
+                                        color: Theme.textColor,
+                                    }}
+                                    hidden={hidden}
+                                />
+                                <Text
+                                    numberOfLines={1}
+                                    ellipsizeMode={'tail'}
+                                    style={{
+                                        fontSize: 14,
+                                        fontWeight: '400',
+                                        color: Theme.textColor,
+                                        opacity: 0.7
+                                    }}
+                                >
+                                    <ValueComponent
+                                        value={account?.balance ?? new BN(0)}
+                                        precision={2}
+                                        ton
+                                        hidden={hidden}
+                                    />
+                                </Text>
+                            </View>
+                        </View>}
                     />
                 )}
                 <CardProductButton
@@ -189,6 +168,7 @@ export const ProductsComponent = React.memo(() => {
                                         fontWeight: '700',
                                         color: Theme.textColor,
                                     }}
+                                    hidden={hidden}
                                 />
                                 <Text
                                     numberOfLines={1}
@@ -203,15 +183,18 @@ export const ProductsComponent = React.memo(() => {
                                     <ValueComponent
                                         value={staking.total}
                                         precision={2}
+                                        ton
+                                        hidden={hidden}
                                     />
-                                    {' TON'}
                                 </Text>
                             </View>
                         )
                         : undefined
                     }
                 />
-                {apps}
+
+                <ExtensionsProductButton engine={engine} itemWidth={itemWidth} />
+
                 <Pressable
                     style={({ pressed }) => {
                         return ([{

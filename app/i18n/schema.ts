@@ -18,6 +18,7 @@ export type LocalizationSchema = {
         copy: string,
         copied: string,
         share: string,
+        shareAddressLink: string,
         send: string,
         yes: string,
         no: string,
@@ -40,7 +41,8 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         apy: string,
         tx: string,
-        gotIt: string
+        gotIt: string,
+        total: string
     },
     syncStatus: {
         connecting: string,
@@ -199,6 +201,7 @@ export type LocalizationSchema = {
     products: {
         accounts: string,
         services: string,
+        servicesDescription: string,
         add: string,
         oldWallets: {
             title: string,

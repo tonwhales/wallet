@@ -314,8 +314,7 @@ export const StakingTransferFragment = fragment(() => {
                                     fontSize: 16,
                                     color: '#6D6D71',
                                 }}>
-                                    <ValueComponent value={balance} precision={3} />
-                                    {' TON'}
+                                    <ValueComponent value={balance} precision={3} ton/>
                                 </Text>
                             </View>
                             <View style={{ width: '100%' }}>

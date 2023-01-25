@@ -1,21 +1,25 @@
-import React from "react";
-import { View, Text, Pressable } from "react-native";
-import { AppConfig } from "../AppConfig";
+import React, { useMemo, useState } from "react";
+import { View, Text, Pressable, Platform } from "react-native";
 import { Engine } from "../engine/Engine";
 import { WalletState } from "../engine/products/WalletProduct";
 import { t } from "../i18n/t";
 import { getCurrentAddress } from "../storage/appState";
 import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { ExchangeRate } from "./ExchangeRate";
 import { PriceComponent } from "./PriceComponent";
 import { ValueComponent } from "./ValueComponent";
 import { WalletAddress } from "./WalletAddress";
+import HideIcon from '../../assets/ic_visible.svg';
 
-export const WalletAccountCard = React.memo(({ engine, account }: { engine: Engine, account: WalletState }) => {
+export const WalletAccountCard = React.memo(({ engine, account, hidden, setHidden }: { engine: Engine, account: WalletState, hidden: boolean, setHidden: (newVal: boolean) => void }) => {
     const navigation = useTypedNavigation();
     // const syncState = engine.state.use();
+    const staking = engine.products.whalesStakingPools.useStaking();
     const address = React.useMemo(() => getCurrentAddress().address, []);
+    const totalBalance = useMemo(() => {
+        return account.balance.add(staking.total);
+    }, [staking, account]);
+
     const navigateToCurrencySettings = React.useCallback(() => {
         navigation.navigate('Currency');
     }, []);
@@ -31,7 +35,7 @@ export const WalletAccountCard = React.memo(({ engine, account }: { engine: Engi
             }}
             collapsable={false}
         >
-            <Text style={{ fontSize: 14, color: Theme.textColor, opacity: 0.8 }}>{t('wallet.balanceTitle')}</Text>
+            <Text style={{ fontSize: 14, color: Theme.price }}>{t('wallet.balanceTitle')}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Pressable
                     style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 } }}
@@ -52,10 +56,11 @@ export const WalletAccountCard = React.memo(({ engine, account }: { engine: Engi
                         centFontStyle={{
                             fontSize: 20
                         }}
-                        amount={account.balance}
+                        amount={totalBalance}
+                        hidden={hidden}
                     />
                 </Pressable>
-                <Pressable style={({ pressed }) => {
+                {/* <Pressable style={({ pressed }) => {
                     return {
                         marginLeft: 8,
                         opacity: pressed ? 0.3 : 1
@@ -64,20 +69,50 @@ export const WalletAccountCard = React.memo(({ engine, account }: { engine: Engi
                     onPress={navigateToCurrencySettings}
                 >
                     <ExchangeRate />
-                </Pressable>
+                </Pressable> */}
             </View>
-            <Text style={{
-                fontSize: 14,
-                color: Theme.textColor,
-                fontWeight: '400',
-                marginTop: 2
+            <View style={{
+                flexDirection: 'row', width: '100%',
+                marginTop: 2, justifyContent: 'space-between'
             }}>
-                <ValueComponent
-                    value={account.balance}
-                    precision={3}
+                <Text style={{
+                    fontSize: 14,
+                    color: Theme.textColor,
+                    fontWeight: '500',
+                }}>
+                    <ValueComponent
+                        value={totalBalance}
+                        precision={3}
+                        hidden={hidden}
+                        ton
+                    />
+                </Text>
+                <WalletAddress
+                    textStyle={{ color: Theme.price, fontSize: 14, fontWeight: '400' }}
+                    address={address}
+                    elipsiseStart={4}
+                    elipsiseEnd={4}
+                    elipsise
+                    dropdownMenuMode
+                    lockActions
+                    previewBackgroundColor={'white'}
                 />
-                {' TON'}
-            </Text>
+            </View>
+            <Pressable style={({ pressed }) => {
+                return {
+                    position: 'absolute', top: 0, right: 9,
+                    height: 48, width: 48, justifyContent: 'center', alignItems: 'center',
+                    opacity: pressed ? 0.3 : 1
+                }
+            }}
+                onPress={() => setHidden(!hidden)}
+            >
+                <HideIcon
+                    color={'black'}
+                    style={{ opacity: Platform.OS === 'android' ? 0.4 : 1 }}
+
+                />
+            </Pressable>
         </View>
     );
 });

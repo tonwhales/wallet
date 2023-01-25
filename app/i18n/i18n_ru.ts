@@ -17,6 +17,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copy: 'Скопировать',
         copied: 'Скопировано в буфер обмена',
         share: 'Поделиться',
+        shareAddressLink: 'Поделиться ссылкой на адрес',
         send: 'Отправить',
         yes: 'Да',
         no: 'Нет',
@@ -39,7 +40,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Транзакция',
-        gotIt: 'Понятно'
+        gotIt: 'Понятно',
+        total: 'Всего'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -63,7 +65,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     wallet: {
         sync: 'Синхронизация кошелька',
-        balanceTitle: 'Баланс Ton',
+        balanceTitle: 'Общий баланс',
         actions: {
             receive: 'Получить',
             send: 'Отправить',
@@ -198,7 +200,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     products: {
         accounts: 'Счета',
         services: 'Расширения',
-        add: 'Добавить новый продукт',
+        servicesDescription: 'Ваша коллекция приложений TON',
+        add: 'Добавить продукт',
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'
@@ -214,7 +217,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         staking: {
             title: 'Стейкинг',
             balance: 'Баланс стейкинга',
-            joinButton: 'Начать зарабатывать',
+            joinButton: 'Начать',
             subtitle: {
                 join: 'Зарабатывайте с децентрализованными TON стейкинг пулами',
                 joined: 'Зарабатывайте на TON',

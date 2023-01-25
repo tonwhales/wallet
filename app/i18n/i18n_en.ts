@@ -16,6 +16,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         copy: 'Copy',
         copied: 'Copied to clipboard',
         share: 'Share',
+        shareAddressLink: 'Share address link',
         send: 'Send',
         yes: 'Yes',
         no: 'No',
@@ -38,7 +39,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Transaction',
-        gotIt: 'Got it'
+        gotIt: 'Got it',
+        total: 'Total'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -62,7 +64,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     wallet: {
         sync: 'Downloading wallet data',
-        balanceTitle: 'Ton balance',
+        balanceTitle: 'Total balance',
         actions: {
             receive: 'Receive',
             send: 'Send',
@@ -197,7 +199,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     products: {
         accounts: 'Accounts',
         services: 'Extensions',
-        add: 'Add new product',
+        servicesDescription: 'Your TON Apps collection',
+        add: 'Add product',
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'

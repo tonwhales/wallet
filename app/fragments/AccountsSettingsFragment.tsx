@@ -36,7 +36,7 @@ export async function confirmJettonAction(disable: boolean, symbol: string) {
     });
 }
 
-export const AccountsFragment = fragment(() => {
+export const AccountsSettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();

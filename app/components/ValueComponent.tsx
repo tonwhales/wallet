@@ -1,9 +1,19 @@
 import BN from "bn.js";
-import { StyleProp, Text, TextStyle } from "react-native";
+import { BlurView } from "expo-blur";
+import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { fromNano } from "ton";
+import { Theme } from "../Theme";
 import { fromBNWithDecimals } from "../utils/withDecimals";
 
-export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle>, precision?: number, decimals?: number | null }) {
+export function ValueComponent(props: {
+    value: BN,
+    centFontStyle?: StyleProp<TextStyle>,
+    precision?: number,
+    decimals?: number | null,
+    ton?: boolean,
+    hidden?: boolean
+}) {
     let t: string;
     t = fromBNWithDecimals(props.value, props.decimals);
 
@@ -22,7 +32,28 @@ export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<Tex
             parts.unshift(t);
         }
         t = parts.join(' ');
-        return <>{t}</>
+        return (
+            <View>
+                <Text>
+                    <Text>
+                        {t}
+                    </Text>
+                    {props.ton && (
+                        <Text>{' TON'}</Text>
+                    )}
+                </Text>
+                {props.hidden && (
+                    <Animated.View
+                        style={{ position: 'absolute', top: 1, left: 0, right: 0, bottom: 1, borderRadius: 4, overflow: 'hidden' }}
+                        entering={FadeIn}
+                        exiting={FadeOut}
+                    >
+                        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'grey' }} />
+                        <BlurView style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }} />
+                    </Animated.View>
+                )}
+            </View>
+        )
     }
 
     let p = t.split('.');
@@ -47,14 +78,30 @@ export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<Tex
             : r.length > 2 ? 2 : p[1].length
 
     return (
-        <Text>
-            <Text>{r}</Text>
-            <Text style={[props.centFontStyle]}>
-                .{p[1].substring(
-                    0,
-                    precision // Show only the last two decimal places
+        <View>
+            <Text>
+                <Text>{r}</Text>
+                <Text style={[props.centFontStyle]}>
+                    .{p[1].substring(
+                        0,
+                        precision // Show only the last two decimal places
+                    )}
+                </Text>
+                {props.ton && (
+                    <Text>{' TON'}</Text>
                 )}
             </Text>
-        </Text>
+            {props.hidden && (
+                <Animated.View
+                    style={{ position: 'absolute', top: 1, left: 0, right: 0, bottom: 1, borderRadius: 4, overflow: 'hidden' }}
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                >
+                    {Platform.OS !== 'ios' && (<View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'grey' }} />)}
+                    {Platform.OS === 'ios' && (<Text style={{ color: Theme.accent }}>{'********'}</Text>)}
+                    <BlurView style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }} />
+                </Animated.View>
+            )}
+        </View>
     );
 }

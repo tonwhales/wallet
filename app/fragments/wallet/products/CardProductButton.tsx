@@ -108,7 +108,7 @@ export const CardProductButton = React.memo((
                     alignItems: 'center',
                     borderRadius: 20,
                     position: 'absolute', bottom: 14, right: 14, left: 14,
-                    paddingVertical: 14
+                    paddingVertical: 14, paddingHorizontal: 2
                 }}>
                     <Text style={{
                         color: button.textColor,

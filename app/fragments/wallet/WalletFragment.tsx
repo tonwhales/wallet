@@ -10,7 +10,6 @@ import { BlurView } from 'expo-blur';
 import Animated, { Easing, FadeInUp, FadeOutDown, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
 import { ProductsComponent } from './products/ProductsComponent';
@@ -71,6 +70,8 @@ function WalletComponent(props: { wallet: WalletState }) {
     const syncState = engine.state.use();
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
+
+    const [hidden, setHidden] = React.useState(false);
 
     //
     // Transactions
@@ -237,8 +238,12 @@ function WalletComponent(props: { wallet: WalletState }) {
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
 
-                {/* Card */}
-                <WalletAccountCard account={account} engine={engine} />
+                <WalletAccountCard
+                    hidden={hidden}
+                    setHidden={setHidden}
+                    account={account}
+                    engine={engine}
+                />
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginHorizontal: 16 }} collapsable={false}>
                     {
@@ -287,7 +292,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 )}
 
                 {/* Jettons, Extensions & other products */}
-                <ProductsComponent />
+                <ProductsComponent hidden={hidden} />
 
                 <View style={{ height: 56 + safeArea.bottom }} />
             </Animated.ScrollView>

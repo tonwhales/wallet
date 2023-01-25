@@ -78,8 +78,7 @@ export const StakingCalcComponent = React.memo((
                                 color: Theme.textColor
                             }}>
                                 {'~'}
-                                <ValueComponent precision={2} value={yearly} />
-                                {' TON'}
+                                <ValueComponent precision={2} value={yearly} ton />
                             </Text>
                             <PriceComponent
                                 amount={yearly}
@@ -138,8 +137,7 @@ export const StakingCalcComponent = React.memo((
                                         color: '#4FAE42'
                                     }}>
                                         {'~'}
-                                        <ValueComponent precision={2} value={yearlyPlus} />
-                                        {' TON'}
+                                        <ValueComponent precision={2} value={yearlyPlus} ton />
                                     </Text>
                                     <PriceComponent
                                         amount={yearlyPlus}
@@ -202,8 +200,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} />
-                            {' TON'}
+                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} ton />
                         </Text>
                         <PriceComponent
                             amount={yearly}
@@ -239,8 +236,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} />
-                            {' TON'}
+                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} ton />
                         </Text>
                         <PriceComponent
                             amount={monthly}
@@ -276,8 +272,7 @@ export const StakingCalcComponent = React.memo((
                             color: '#4FAE42'
                         }}>
                             {'~'}
-                            <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} />
-                            {' TON'}
+                            <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} ton />
                         </Text>
                         <PriceComponent
                             amount={daily}

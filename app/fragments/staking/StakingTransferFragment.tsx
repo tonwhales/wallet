@@ -309,13 +309,16 @@ export const StakingTransferFragment = fragment(() => {
                                 }}>
                                     {t('common.amount')}
                                 </Text>
-                                <Text style={{
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    color: '#6D6D71',
-                                }}>
-                                    <ValueComponent value={balance} precision={3} ton/>
-                                </Text>
+                                <ValueComponent
+                                    style={{
+                                        fontWeight: '600',
+                                        fontSize: 16,
+                                        color: '#6D6D71',
+                                    }}
+                                    value={balance}
+                                    precision={3}
+                                    suffix={' TON'}
+                                />
                             </View>
                             <View style={{ width: '100%' }}>
                                 <View style={{

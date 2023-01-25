@@ -72,14 +72,17 @@ export const StakingCalcComponent = React.memo((
                             {t('products.staking.calc.yearlyCurrent')}
                         </Text>
                         <View>
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: Theme.textColor
-                            }}>
-                                {'~'}
-                                <ValueComponent precision={2} value={yearly} ton />
-                            </Text>
+                            <ValueComponent
+                                prefix={'~'}
+                                style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    color: Theme.textColor
+                                }}
+                                precision={2}
+                                value={yearly}
+                                suffix={' TON'}
+                            />
                             <PriceComponent
                                 amount={yearly}
                                 style={{
@@ -131,14 +134,17 @@ export const StakingCalcComponent = React.memo((
                             )}
                             {!yearlyPlus.eq(new BN(0)) && yearlyPlus.lt(toNano('100000000000000')) && (
                                 <>
-                                    <Text style={{
-                                        fontWeight: '600',
-                                        fontSize: 16,
-                                        color: '#4FAE42'
-                                    }}>
-                                        {'~'}
-                                        <ValueComponent precision={2} value={yearlyPlus} ton />
-                                    </Text>
+                                    <ValueComponent
+                                        style={{
+                                            fontWeight: '600',
+                                            fontSize: 16,
+                                            color: '#4FAE42'
+                                        }}
+                                        precision={2}
+                                        value={yearlyPlus}
+                                        suffix={' TON'}
+                                        prefix={'~'}
+                                    />
                                     <PriceComponent
                                         amount={yearlyPlus}
                                         style={{
@@ -149,8 +155,7 @@ export const StakingCalcComponent = React.memo((
                                         textStyle={{ color: '#6D6D71', fontWeight: '400' }}
                                     />
                                 </>
-                            )
-                            }
+                            )}
                         </View>
                     </View>
                 </View>
@@ -194,14 +199,17 @@ export const StakingCalcComponent = React.memo((
                         {t('products.staking.calc.yearly')}
                     </Text>
                     <View>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: '#4FAE42'
-                        }}>
-                            {'~'}
-                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} ton />
-                        </Text>
+                        <ValueComponent
+                            precision={bnIsLess(monthly, 0.01) ? 8 : 2}
+                            value={yearly}
+                            style={{
+                                fontWeight: '600',
+                                fontSize: 16,
+                                color: '#4FAE42'
+                            }}
+                            prefix={'~'}
+                            suffix={' TON'}
+                        />
                         <PriceComponent
                             amount={yearly}
                             style={{
@@ -230,14 +238,17 @@ export const StakingCalcComponent = React.memo((
                         {t('products.staking.calc.monthly')}
                     </Text>
                     <View>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: '#4FAE42'
-                        }}>
-                            {'~'}
-                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} ton />
-                        </Text>
+                        <ValueComponent
+                            precision={bnIsLess(monthly, 0.01) ? 8 : 2}
+                            value={monthly}
+                            style={{
+                                fontWeight: '600',
+                                fontSize: 16,
+                                color: '#4FAE42'
+                            }}
+                            prefix={'~'}
+                            suffix={' TON'}
+                        />
                         <PriceComponent
                             amount={monthly}
                             style={{
@@ -266,14 +277,17 @@ export const StakingCalcComponent = React.memo((
                         {t('products.staking.calc.daily')}
                     </Text>
                     <View>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: '#4FAE42'
-                        }}>
-                            {'~'}
-                            <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} ton />
-                        </Text>
+                        <ValueComponent
+                            precision={bnIsLess(daily, 0.01) ? 8 : 2}
+                            value={daily}
+                            style={{
+                                fontWeight: '600',
+                                fontSize: 16,
+                                color: '#4FAE42'
+                            }}
+                            prefix={'~'}
+                            suffix={' TON'}
+                        />
                         <PriceComponent
                             amount={daily}
                             style={{

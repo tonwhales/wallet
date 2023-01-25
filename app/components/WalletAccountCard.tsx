@@ -75,18 +75,17 @@ export const WalletAccountCard = React.memo(({ engine, account, hidden, setHidde
                 flexDirection: 'row', width: '100%',
                 marginTop: 2, justifyContent: 'space-between'
             }}>
-                <Text style={{
-                    fontSize: 14,
-                    color: Theme.textColor,
-                    fontWeight: '500',
-                }}>
-                    <ValueComponent
-                        value={totalBalance}
-                        precision={3}
-                        hidden={hidden}
-                        ton
-                    />
-                </Text>
+                <ValueComponent
+                    value={totalBalance}
+                    precision={3}
+                    hidden={hidden}
+                    style={{
+                        fontSize: 14,
+                        color: Theme.textColor,
+                        fontWeight: '500',
+                    }}
+                    suffix={' TON'}
+                />
                 <WalletAddress
                     textStyle={{ color: Theme.price, fontSize: 14, fontWeight: '400' }}
                     address={address}

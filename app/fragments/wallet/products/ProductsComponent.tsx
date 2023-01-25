@@ -103,7 +103,7 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                         width={itemWidth}
                         height={itemWidth}
                         style={{ marginBottom: 14 }}
-                        // onPress={() => navigation.navigate('AccountsList')}
+                        onPress={() => navigation.navigate('Accounts')}
                         balance={<View>
                             <View>
                                 <PriceComponent
@@ -121,7 +121,7 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                                     }}
                                     hidden={hidden}
                                 />
-                                <Text
+                                <ValueComponent
                                     numberOfLines={1}
                                     ellipsizeMode={'tail'}
                                     style={{
@@ -130,14 +130,11 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                                         color: Theme.textColor,
                                         opacity: 0.7
                                     }}
-                                >
-                                    <ValueComponent
-                                        value={account?.balance ?? new BN(0)}
-                                        precision={2}
-                                        ton
-                                        hidden={hidden}
-                                    />
-                                </Text>
+                                    value={account?.balance ?? new BN(0)}
+                                    precision={2}
+                                    suffix={' TON'}
+                                    hidden={hidden}
+                                />
                             </View>
                         </View>}
                     />
@@ -170,7 +167,7 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                                     }}
                                     hidden={hidden}
                                 />
-                                <Text
+                                <ValueComponent
                                     numberOfLines={1}
                                     ellipsizeMode={'tail'}
                                     style={{
@@ -179,14 +176,11 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                                         color: Theme.textColor,
                                         opacity: 0.7
                                     }}
-                                >
-                                    <ValueComponent
-                                        value={staking.total}
-                                        precision={2}
-                                        ton
-                                        hidden={hidden}
-                                    />
-                                </Text>
+                                    value={staking.total}
+                                    precision={2}
+                                    suffix={' TON'}
+                                    hidden={hidden}
+                                />
                             </View>
                         )
                         : undefined

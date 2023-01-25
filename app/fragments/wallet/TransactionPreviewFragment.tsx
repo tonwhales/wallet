@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Platform, Text, Image, Pressable, Alert, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
+import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -7,7 +7,7 @@ import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano } from "ton";
+import { fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -19,7 +19,6 @@ import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-import { confirmAlert } from "../../utils/confirmAlert";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import ContactIcon from '../../../assets/ic_contacts.svg';
 import CopyIcon from '../../../assets/ic_copy.svg';
@@ -218,7 +217,8 @@ export const TransactionPreviewFragment = fragment(() => {
                         </Text>
                     ) : (
                         <>
-                            <Text
+                            <ValueComponent
+                                numberOfLines={1}
                                 style={{
                                     color: item.amount.gte(new BN(0))
                                         ? spam
@@ -229,16 +229,11 @@ export const TransactionPreviewFragment = fragment(() => {
                                     fontSize: 36,
                                     marginRight: 2,
                                 }}
-                                numberOfLines={1}
-                            >
-                                <ValueComponent
-                                    value={item.amount}
-                                    decimals={item.kind === 'token' ? item.decimals : undefined}
-                                    precision={5}
-                                />
-                                {item.kind === 'token' ? ' ' + item.symbol : ''}
-                                {(item.kind === 'ton' && !AppConfig.isTestnet) ? ' ' + 'TON' : ''}
-                            </Text>
+                                value={item.amount}
+                                decimals={item.kind === 'token' ? item.decimals : undefined}
+                                precision={5}
+                                suffix={item.kind === 'token' ? ` ${item.symbol}` : item.kind === 'ton' ? ' TON' : ''}
+                            />
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{

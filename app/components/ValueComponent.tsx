@@ -1,19 +1,20 @@
 import BN from "bn.js";
 import { BlurView } from "expo-blur";
-import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
+import { Platform, StyleProp, Text, TextProps, TextStyle, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { fromNano } from "ton";
 import { Theme } from "../Theme";
 import { fromBNWithDecimals } from "../utils/withDecimals";
 
 export function ValueComponent(props: {
     value: BN,
+    prefix?: string,
+    suffix?: string,
+    style?: StyleProp<TextStyle>,
     centFontStyle?: StyleProp<TextStyle>,
     precision?: number,
     decimals?: number | null,
-    ton?: boolean,
     hidden?: boolean
-}) {
+} & TextProps) {
     let t: string;
     t = fromBNWithDecimals(props.value, props.decimals);
 
@@ -34,12 +35,19 @@ export function ValueComponent(props: {
         t = parts.join(' ');
         return (
             <View>
-                <Text>
+                <Text {...props} style={props.style}>
+                    {props.prefix && (
+                        <Text>
+                            {props.prefix}
+                        </Text>
+                    )}
                     <Text>
                         {t}
                     </Text>
-                    {props.ton && (
-                        <Text>{' TON'}</Text>
+                    {props.suffix && (
+                        <Text>
+                            {props.suffix}
+                        </Text>
                     )}
                 </Text>
                 {props.hidden && (
@@ -79,16 +87,23 @@ export function ValueComponent(props: {
 
     return (
         <View>
-            <Text>
+            <Text {...props} style={props.style}>
+                {props.prefix && (
+                    <Text>
+                        {props.prefix}
+                    </Text>
+                )}
                 <Text>{r}</Text>
                 <Text style={[props.centFontStyle]}>
                     .{p[1].substring(
                         0,
-                        precision // Show only the last two decimal places
+                        precision
                     )}
                 </Text>
-                {props.ton && (
-                    <Text>{' TON'}</Text>
+                {props.suffix && (
+                    <Text>
+                        {props.suffix}
+                    </Text>
                 )}
             </Text>
             {props.hidden && (

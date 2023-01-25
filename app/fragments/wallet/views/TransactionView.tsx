@@ -253,16 +253,17 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                                     {t('tx.failed')}
                                 </Text>
                             ) : (
-                                <Text
+                                <ValueComponent
+                                    value={item.amount}
+                                    decimals={item.kind === 'token' ? item.decimals : undefined}
                                     style={{
                                         color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
                                         fontWeight: '400',
                                         fontSize: 16,
                                         marginRight: 2
-                                    }}>
-                                    <ValueComponent value={item.amount} decimals={item.kind === 'token' ? item.decimals : undefined} />
-                                    {item.kind === 'token' ? ' ' + item.symbol : ''}
-                                </Text>
+                                    }}
+                                    suffix={item.kind === 'token' ? ` ${item.symbol}` : ''}
+                                />
                             )}
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>

@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
+import { ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
@@ -78,9 +78,17 @@ export function ProductButton(props: ProductButtonProps) {
                             {props.name}
                         </Text>
                         {(!!props.value && typeof props.value !== 'string') && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
-                                <ValueComponent value={props.value} decimals={props.decimals} />{props.symbol ? (' ' + props.symbol) : ''}
-                            </Text>
+                            <ValueComponent
+                                value={props.value}
+                                decimals={props.decimals}
+                                style={{
+                                    color: props.value.gte(new BN(0)) ? '#4FAE42' : '#FF0000',
+                                    fontWeight: '400', fontSize: 16,
+                                    marginRight: 2,
+                                    alignSelf: 'flex-start'
+                                }}
+                                suffix={props.symbol ? (' ' + props.symbol) : ''}
+                            />
                         )}
                         {(!!props.value && typeof props.value === 'string') && (
                             <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>

@@ -219,9 +219,11 @@ export const MigrationFragment = systemFragment(() => {
                                         value={v.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                         style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                     />
-                                    <Text>
-                                        <ValueComponent value={v.balance} /> TON
-                                    </Text>
+                                    <ValueComponent
+                                        style={{ color: Theme.textColor, fontSize: 14, fontWeight: '400' }}
+                                        value={v.balance}
+                                        suffix={' TON'}
+                                    />
                                 </View>
                             </>
                         ))}

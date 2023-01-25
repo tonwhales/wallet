@@ -51,18 +51,17 @@ export const StakingProductComponent = React.memo(() => {
                             <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
                                 {t('products.staking.title')}
                             </Text>
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                color: staking.total && staking.total.gt(new BN(0))
-                                    ? '#4FAE42'
-                                    : Theme.textColor
-                            }}>
-                                <ValueComponent
-                                    value={staking.total}
-                                    precision={3}
-                                />
-                            </Text>
+                            <ValueComponent
+                                value={staking.total}
+                                precision={3}
+                                style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    color: staking.total && staking.total.gt(new BN(0))
+                                        ? '#4FAE42'
+                                        : Theme.textColor
+                                }}
+                            />
                         </View>
                         <View style={{
                             flexDirection: 'row',

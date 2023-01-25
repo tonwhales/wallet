@@ -225,12 +225,12 @@ export const StakingFragment = fragment(() => {
                             }}
                             onPress={openGraph}
                         >
-                            <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
-                                <ValueComponent
-                                    value={member?.balance || toNano('0')}
-                                    centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                                />
-                            </Text>
+                            <ValueComponent
+                                style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}
+                                value={member?.balance || toNano('0')}
+                                centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                            // suffix={' TON'}
+                            />
                             {!!stakingChart && <GraphIcon />}
                         </Pressable>
                     </View>
@@ -360,11 +360,11 @@ export const StakingFragment = fragment(() => {
                                         >
                                             {t('products.staking.balance')}
                                         </Text>
-                                        <Text
+                                        <ValueComponent
                                             style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
-                                        >
-                                            <ValueComponent value={member?.balance || toNano('0')} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
-                                        </Text>
+                                            value={member?.balance || toNano('0')}
+                                            centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                        />
                                         <View style={{ flexGrow: 1 }}>
 
                                         </View>
@@ -486,14 +486,11 @@ export const StakingFragment = fragment(() => {
                                     >
                                         {t('products.staking.balance')}
                                     </Text>
-                                    <Text
+                                    <ValueComponent
                                         style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
-                                    >
-                                        <ValueComponent
-                                            value={member?.balance || toNano('0')}
-                                            centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                                        />
-                                    </Text>
+                                        value={member?.balance || toNano('0')}
+                                        centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                    />
                                     <View style={{ flexGrow: 1 }}>
 
                                     </View>

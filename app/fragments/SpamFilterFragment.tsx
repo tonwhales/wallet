@@ -15,8 +15,8 @@ import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { ProductButton } from "./wallet/products/ProductButton";
 import SpamIcon from '../../assets/known/spam_icon.svg';
+import { ProductButton } from "../components/products/ProductButton";
 
 export type SpamFilterConfig = {
     minAmount: BN | null,

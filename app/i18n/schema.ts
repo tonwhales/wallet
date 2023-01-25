@@ -39,7 +39,8 @@ export type LocalizationSchema = {
         termsOfService: string,
         privacyPolicy: string,
         apy: string,
-        tx: string
+        tx: string,
+        gotIt: string
     },
     syncStatus: {
         connecting: string,
@@ -72,7 +73,12 @@ export type LocalizationSchema = {
         empty: {
             message: string,
             receive: string
-        }
+        },
+        pendingTransactions: string
+    },
+    transactions: {
+        title: string,
+        history: string,
     },
     tx: {
         sending: string,
@@ -109,6 +115,7 @@ export type LocalizationSchema = {
             addressIsForTestnet: string,
             addressCantReceive: string,
             addressIsNotActive: string
+            addressIsNotActiveDescription: string
         },
         sendAll: string,
         scanQR: string,
@@ -121,7 +128,13 @@ export type LocalizationSchema = {
         commentLabel: string,
         checkComment: string,
         confirmTitle: string,
-        unknown: string
+        unknown: string,
+        moreDetails: string,
+        gasFee: string,
+        contact: string,
+        firstTime: string,
+        requestsToSign: string,
+        smartContract: string,
     },
     auth: {
         phoneVerify: string,

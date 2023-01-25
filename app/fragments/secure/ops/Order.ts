@@ -9,6 +9,10 @@ export type Order = {
     amountAll: boolean;
     payload: Cell | null;
     stateInit: Cell | null;
+    app?: {
+        domain: string,
+        title: string
+    }
 };
 
 export function createOrder(args: {
@@ -17,7 +21,11 @@ export function createOrder(args: {
     amount: BN,
     amountAll: boolean,
     payload: Cell | null,
-    stateInit: Cell | null
+    stateInit: Cell | null,
+    app?: {
+        domain: string,
+        title: string
+    }
 }) {
     return {
         type: 'final',
@@ -26,7 +34,8 @@ export function createOrder(args: {
         amount: args.amount,
         amountAll: args.amountAll,
         payload: args.payload,
-        stateInit: args.stateInit
+        stateInit: args.stateInit,
+        app: args.app
     };
 }
 
@@ -37,7 +46,11 @@ export function createSimpleOrder(args: {
     amount: BN,
     amountAll: boolean,
     payload: Cell | null,
-    stateInit: Cell | null
+    stateInit: Cell | null,
+    app?: {
+        domain: string,
+        title: string
+    }
 }): Order {
 
     // Resolve payload
@@ -56,7 +69,8 @@ export function createSimpleOrder(args: {
         payload,
         amount: args.amount,
         amountAll: args.amountAll,
-        stateInit: args.stateInit
+        stateInit: args.stateInit,
+        app: args.app
     });
 }
 

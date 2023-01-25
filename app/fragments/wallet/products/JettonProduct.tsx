@@ -1,5 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
+import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { Address } from 'ton';
 import { AppConfig } from '../../../AppConfig';
 import { Engine } from '../../../engine/Engine';
@@ -7,6 +8,7 @@ import { markJettonDisabled } from '../../../engine/sync/ops';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { confirmJettonAction } from '../../AccountsFragment';
+import { AnimatedProductButton } from './AnimatedProductButton';
 import { ProductButton } from './ProductButton';
 
 export const JettonProduct = React.memo((props: {
@@ -38,7 +40,9 @@ export const JettonProduct = React.memo((props: {
     );
 
     return (
-        <ProductButton
+        <AnimatedProductButton
+            entering={FadeInUp}
+            exiting={FadeOutDown}
             key={props.jetton.master.toFriendly()}
             name={props.jetton.name}
             subtitle={props.jetton.description}
@@ -53,7 +57,7 @@ export const JettonProduct = React.memo((props: {
                 }
                 props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })
             }}
-            onLongPress={props.onLongPress? props.onLongPress: promptDisable}
+            onLongPress={props.onLongPress ? props.onLongPress : promptDisable}
             style={{ marginVertical: 4 }}
             known={isKnown}
         />

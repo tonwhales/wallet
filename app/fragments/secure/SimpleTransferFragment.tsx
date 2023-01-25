@@ -49,7 +49,11 @@ export const SimpleTransferFragment = fragment(() => {
         job?: string | null,
         jetton?: Address | null,
         callback?: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number
+        back?: number,
+        app?: {
+            domain: string,
+            title: string
+        }
     } | undefined = useRoute().params;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -138,10 +142,11 @@ export const SimpleTransferFragment = fragment(() => {
             payload: null,
             amount: value.eq(account.balance) ? toNano('0') : value,
             amountAll: value.eq(account.balance),
-            stateInit
+            stateInit,
+            app: params?.app
         });
 
-    }, [amount, target, domain, comment, stateInit, jettonWallet, jettonMaster]);
+    }, [amount, target, domain, comment, stateInit, jettonWallet, jettonMaster, params?.app]);
 
     const doSend = React.useCallback(async () => {
 

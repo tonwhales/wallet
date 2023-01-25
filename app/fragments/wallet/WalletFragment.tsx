@@ -1,17 +1,15 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Image, LayoutAnimation, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
-import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from './views/TransactionView';
 import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { ValueComponent } from '../../components/ValueComponent';
-import { formatDate, getDateKey } from '../../utils/dates';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import Animated, { Easing, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeInUp, FadeOutDown, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -31,63 +29,38 @@ import { useLinkNavigator } from '../../Navigation';
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
 
-const WalletTransactions = React.memo((props: {
+const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
     next: { lt: string, hash: string } | null,
     address: Address,
     engine: Engine,
     onPress: (tx: string) => void
 }) => {
-    const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: string[] }[] = [];
-        if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(props.txs[0].time);
-            sections.push({ title, items: lastSection });
-            for (let t of props.txs) {
-                let time = getDateKey(t.time);
-                if (lastTime !== time) {
-                    lastSection = [];
-                    lastTime = time;
-                    title = formatDate(t.time);
-                    sections.push({ title, items: lastSection });
-                }
-                lastSection.push(t.id);
-            }
-        }
-        return sections;
-    }, [props.txs]);
-
-    const components: any[] = [];
-    for (let s of transactionsSectioned) {
-        components.push(
-            <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
+    return (
+        <>
+            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('wallet.pendingTransactions')}</Text>
             </View>
-        );
-        components.push(
-            < View key={'s-' + s.title} style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }
-            } collapsable={false} >
-                {s.items.map((t, i) => <TransactionView own={props.address} engine={props.engine} tx={t} separator={i < s.items.length - 1} key={'tx-' + t} onPress={props.onPress} />)}
-            </View >
-        );
-    }
-
-    // Last
-    if (props.next) {
-        components.push(
-            <View key="prev-loader" style={{ height: 64, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' }}>
-                <LoadingIndicator simple={true} />
-            </View>
-        );
-    } else {
-        components.push(
-            <View key="footer" style={{ height: 64 }} />
-        );
-    }
-
-    return <>{components}</>;
+            {props.txs.map((t, i) => {
+                return (
+                    <View
+                        key={'tx-view' + t}
+                        style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }}
+                        collapsable={false}
+                    >
+                        <TransactionView
+                            key={'tx-' + t}
+                            own={props.address}
+                            engine={props.engine}
+                            tx={t.id}
+                            separator={i < props.txs.length - 1}
+                            onPress={props.onPress}
+                        />
+                    </View>
+                )
+            })}
+        </>
+    );
 });
 
 function WalletComponent(props: { wallet: WalletState }) {
@@ -236,6 +209,10 @@ function WalletComponent(props: { wallet: WalletState }) {
         navigation.navigate('Currency');
     }, []);
 
+    React.useLayoutEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [account.pending.length]);
+
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
@@ -352,7 +329,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         }}
                             onPress={navigateToCurrencySettings}
                         >
-                            <ExchangeRate/>
+                            <ExchangeRate />
                         </Pressable>
                     </View>
                     <View style={{ flexGrow: 1 }} />
@@ -412,47 +389,31 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </View>
                 </View>
 
-                <ProductsComponent />
-
-                {
-                    account.transactions.length === 0 && (
-                        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                            <Pressable
-                                onPress={() => {
-                                    animRef.current?.play();
-                                }}>
-                                <LottieView
-                                    ref={animRef}
-                                    source={require('../../../assets/animations/duck.json')}
-                                    autoPlay={true}
-                                    loop={false}
-                                    progress={0.2}
-                                    style={{ width: 192, height: 192 }}
-                                />
-                            </Pressable>
-                            <Text style={{ fontSize: 16, color: '#7D858A' }}>
-                                {t('wallet.empty.message')}
-                            </Text>
-                            <RoundButton
-                                title={t('wallet.empty.receive')}
-                                size="normal"
-                                display="text"
-                                onPress={() => navigation.navigate('Receive')}
-                            />
-                        </View>
-                    )
-                }
-                {
-                    account.transactions.length > 0 && (
-                        <WalletTransactions
-                            txs={account.transactions}
+                {account.pending.length > 0 && Platform.OS === 'android' && (
+                    <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
+                        <PendingTxs
+                            txs={account.pending}
                             next={account.next}
                             address={address}
                             engine={engine}
                             onPress={openTransactionFragment}
                         />
-                    )
-                }
+                    </Animated.View>
+                )}
+
+                {account.pending.length > 0 && Platform.OS !== 'android' && (
+                    <PendingTxs
+                        txs={account.pending}
+                        next={account.next}
+                        address={address}
+                        engine={engine}
+                        onPress={openTransactionFragment}
+                    />
+                )}
+
+                {/* Jettons, Extensions & other products */}
+                <ProductsComponent />
+
                 <View style={{ height: 56 + safeArea.bottom }} />
             </Animated.ScrollView>
             {/* iOS Toolbar */}

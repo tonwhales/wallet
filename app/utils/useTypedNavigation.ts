@@ -78,7 +78,11 @@ export class TypedNavigation {
         job: string | null,
         jetton: Address | null,
         callback: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number
+        back?: number,
+        app?: {
+            domain: string,
+            title: string
+        }
     }) {
         this.navigate('SimpleTransfer', tx);
     }

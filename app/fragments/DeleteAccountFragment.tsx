@@ -168,7 +168,7 @@ export const DeleteAccountFragment = fragment(() => {
                     secretKey: key.keyPair.secretKey,
                     sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
                     order: new InternalMessage({
-                        to: tresuresAddress,
+                        to: target.address,
                         value: new BN(0),
                         bounce: false,
                         body: new CommonMessageInfo({

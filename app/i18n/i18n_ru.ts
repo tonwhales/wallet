@@ -202,6 +202,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         services: 'Расширения',
         servicesDescription: 'Ваша коллекция приложений TON',
         add: 'Добавить продукт',
+        productsScreen: {
+            title: 'Добавить продукты',
+            tonProducts: 'TON продукты',
+        },
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'

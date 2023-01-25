@@ -98,7 +98,7 @@ export const ExtensionsProductButton = React.memo(({ engine, itemWidth }: { engi
 
                     </View>
                 }
-            // onPress={() => openExtension(e.url)}
+                onPress={() => navigation.navigate('AppsList')}
             // onLongPress={() => removeExtension(e.key)}
             />
         </>

@@ -201,6 +201,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         services: 'Extensions',
         servicesDescription: 'Your TON Apps collection',
         add: 'Add product',
+        productsScreen: {
+            title: 'Add Products',
+            tonProducts: 'TON Products',
+        },
         oldWallets: {
             title: 'Old wallets',
             subtitle: 'Press to migrate old wallets'

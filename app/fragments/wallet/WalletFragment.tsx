@@ -116,12 +116,14 @@ function WalletComponent(props: { wallet: WalletState }) {
     const smallCardY = useSharedValue(Math.floor(cardHeight * 0.15));
 
     const onScroll = useAnimatedScrollHandler((event) => {
-        if ((event.contentOffset.y + 28 + 16) >= 0) { // Fully scrolled
+        if ((event.contentOffset.y + (Platform.OS === 'android' ? -1 : 28 + 16)) >= 0) { // Fully scrolled
+            console.log('Fully scrolled', { y: event.contentOffset.y });
             cardOpacity.value = 0;
             dividerOpacity.value = 1;
             titleOpacity.value = 0;
             smallCardY.value = - Math.floor(cardHeight * 0.15 / 2);
         } else { // Visible
+            console.log('Visible');
             cardOpacity.value = 1;
             dividerOpacity.value = 0;
             titleOpacity.value = 1;
@@ -207,16 +209,6 @@ function WalletComponent(props: { wallet: WalletState }) {
         [],
     );
 
-    const openGraph = React.useCallback(() => {
-        if (balanceChart && balanceChart.chart.length > 0) {
-            navigation.navigate('AccountBalanceGraph');
-        }
-    }, [account]);
-
-    const navigateToCurrencySettings = React.useCallback(() => {
-        navigation.navigate('Currency');
-    }, []);
-
     React.useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [account.pending.length]);
@@ -236,7 +228,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 scrollEventThrottle={16}
                 removeClippedSubviews={true}
             >
-                {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
+                <View style={{ height: Platform.OS === 'android' ? 8 : safeArea.top }} />
 
                 <WalletAccountCard
                     hidden={hidden}
@@ -295,109 +287,136 @@ function WalletComponent(props: { wallet: WalletState }) {
                 <ProductsComponent hidden={hidden} />
 
                 <View style={{ height: 56 + safeArea.bottom }} />
+                {Platform.OS === 'android' && (<View style={{ height: 560 + safeArea.bottom }} />)}
             </Animated.ScrollView>
-            {/* iOS Toolbar */}
-            {Platform.OS === 'ios' && (
-                <View style={{
+
+            <View style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0,
+                height: safeArea.top + 44 + 16,
+            }}>
+                <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+
+                <BlurView style={{
                     position: 'absolute',
-                    top: 0, left: 0, right: 0,
-                    height: safeArea.top + 44 + 16,
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    paddingTop: safeArea.top + 16,
+                    flexDirection: 'row',
+                    overflow: 'hidden'
                 }}>
-                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-
-                    <BlurView style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0, bottom: 0,
-                        paddingTop: safeArea.top + 16,
-                        flexDirection: 'row',
-                        overflow: 'hidden'
-                    }}>
-                        <View style={{ width: '100%', height: 44, paddingHorizontal: 20, justifyContent: 'center' }}>
-                            <Animated.Text style={[
-                                { fontSize: 37, color: Theme.textColor, fontWeight: '700' },
-                                { position: 'relative', ...titleOpacityStyle },
-                            ]}>
-                                {'Tonhub'}
-                            </Animated.Text>
-                            <Pressable
-                                style={{
-                                    position: 'absolute',
-                                    right: 24,
-                                }}
-                                onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                            >
-                                <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
-                            </Pressable>
-                        </View>
-                        <Animated.View
-                            style={[
-                                {
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    position: 'absolute',
-                                    bottom: 0, left: 0, right: 0,
-                                },
-                                { ...smallTitleStyle },
-                            ]}
-                            collapsable={false}
+                    <View style={{ width: '100%', height: 44, paddingHorizontal: 20, justifyContent: 'center' }}>
+                        <Animated.Text style={[
+                            { fontSize: 37, color: Theme.textColor, fontWeight: '700' },
+                            { position: 'relative', ...titleOpacityStyle },
+                        ]}>
+                            {'Tonhub'}
+                        </Animated.Text>
+                        <Pressable
+                            style={{
+                                position: 'absolute',
+                                right: 24,
+                            }}
+                            onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                         >
-                            <Text style={{ fontWeight: '700', fontSize: 17 }}>
-                                {'Tonhub'}
-                            </Text>
-                        </Animated.View>
-                    </BlurView>
-
-                    <Animated.View style={[{ position: 'absolute', bottom: 0.5, left: 0, right: 0, }, { ...dividerOpacityStyle }]}>
-                        <View style={{
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: '#000',
-                            opacity: 0.08
-                        }} />
+                            <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
+                        </Pressable>
+                    </View>
+                    <Animated.View
+                        style={[
+                            {
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                position: 'absolute',
+                                bottom: 0, left: 0, right: 0,
+                            },
+                            { ...smallTitleStyle },
+                        ]}
+                        collapsable={false}
+                    >
+                        <Text style={{ fontWeight: '700', fontSize: 17 }}>
+                            {'Tonhub'}
+                        </Text>
                     </Animated.View>
-                </View >
-            )}
-            {/* Android Toolbar */}
+                </BlurView>
+
+                <Animated.View style={[{ position: 'absolute', bottom: 0.5, left: 0, right: 0, }, { ...dividerOpacityStyle }]}>
+                    <View style={{
+                        height: 0.5,
+                        width: '100%',
+                        backgroundColor: '#000',
+                        opacity: 0.08
+                    }} />
+                </Animated.View>
+            </View>
+            {/* Android Toolbar
             {
                 Platform.OS === 'android' && (
                     <View style={{
                         position: 'absolute',
                         top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
+                        height: safeArea.top + 44 + 16,
                         backgroundColor: Theme.background,
                         paddingTop: safeArea.top,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                            <Animated.Text style={[
-                                { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
-                                { position: 'relative', ...titleOpacityStyle },
-                            ]}>
-                                Tonhub
-                            </Animated.Text>
-                            <Pressable
-                                style={{
-                                    position: 'absolute',
-                                    right: 13,
-                                }}
-                                onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                            >
-                                <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
-                            </Pressable>
-                        </View>
-                        <View style={{
+                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+
+                        <BlurView style={{
                             position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: '#000',
-                            opacity: 0.08
-                        }} />
+                            top: 0, left: 0, right: 0, bottom: 0,
+                            paddingTop: safeArea.top + 16,
+                            flexDirection: 'row',
+                            overflow: 'hidden'
+                        }}>
+                            <View style={{ width: '100%', height: 44, paddingHorizontal: 20, justifyContent: 'center' }}>
+                                <Animated.Text style={[
+                                    { fontSize: 37, color: Theme.textColor, fontWeight: '700' },
+                                    { position: 'relative', ...titleOpacityStyle },
+                                ]}>
+                                    {'Tonhub'}
+                                </Animated.Text>
+                                <Pressable
+                                    style={{
+                                        position: 'absolute',
+                                        right: 24,
+                                    }}
+                                    onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                                >
+                                    <Image source={require('../../../assets/ic_qr.png')} style={{ tintColor: Theme.accent }} />
+                                </Pressable>
+                            </View>
+                            <Animated.View
+                                style={[
+                                    {
+                                        flex: 1,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        position: 'absolute',
+                                        bottom: 0, left: 0, right: 0,
+                                    },
+                                    { ...smallTitleStyle },
+                                ]}
+                                collapsable={false}
+                            >
+                                <Text style={{ fontWeight: '700', fontSize: 17 }}>
+                                    {'Tonhub'}
+                                </Text>
+                            </Animated.View>
+                        </BlurView>
+
+                        <Animated.View style={[{ position: 'absolute', bottom: 0.5, left: 0, right: 0, }, { ...dividerOpacityStyle }]}>
+                            <View style={{
+                                height: 0.5,
+                                width: '100%',
+                                backgroundColor: '#000',
+                                opacity: 0.08
+                            }} />
+                        </Animated.View>
                     </View>
                 )
-            }
+            } */}
         </View >
     );
 }

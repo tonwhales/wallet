@@ -64,6 +64,8 @@ import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { AccountsFragment } from './fragments/wallet/AccountsFragment';
+import { AppsListFragment } from './fragments/apps/AppsListFragment';
+import { ProductsFragment } from './fragments/apps/ProductsFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -159,6 +161,8 @@ const navigation = [
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
     modalScreen('Install', InstallFragment),
+    modalScreen('AppsList', AppsListFragment),
+    modalScreen('Products', ProductsFragment),
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),
     lockedModalScreen('Scanner', ScannerFragment),

@@ -121,20 +121,22 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                                     }}
                                     hidden={hidden}
                                 />
-                                <ValueComponent
-                                    numberOfLines={1}
-                                    ellipsizeMode={'tail'}
-                                    style={{
-                                        fontSize: 14,
-                                        fontWeight: '400',
-                                        color: Theme.textColor,
-                                        opacity: 0.7
-                                    }}
-                                    value={account?.balance ?? new BN(0)}
-                                    precision={2}
-                                    suffix={' TON'}
-                                    hidden={hidden}
-                                />
+                                <View style={{ flexDirection: 'row' }}>
+                                    <ValueComponent
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                        style={{
+                                            fontSize: 14,
+                                            fontWeight: '400',
+                                            color: Theme.textColor,
+                                            opacity: 0.7
+                                        }}
+                                        value={account?.balance ?? new BN(0)}
+                                        precision={2}
+                                        suffix={' TON'}
+                                        hidden={hidden}
+                                    />
+                                </View>
                             </View>
                         </View>}
                     />
@@ -167,20 +169,22 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                                     }}
                                     hidden={hidden}
                                 />
-                                <ValueComponent
-                                    numberOfLines={1}
-                                    ellipsizeMode={'tail'}
-                                    style={{
-                                        fontSize: 14,
-                                        fontWeight: '400',
-                                        color: Theme.textColor,
-                                        opacity: 0.7
-                                    }}
-                                    value={staking.total}
-                                    precision={2}
-                                    suffix={' TON'}
-                                    hidden={hidden}
-                                />
+                                <View style={{ flexDirection: 'row' }}>
+                                    <ValueComponent
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                        style={{
+                                            fontSize: 14,
+                                            fontWeight: '400',
+                                            color: Theme.textColor,
+                                            opacity: 0.7
+                                        }}
+                                        value={staking.total}
+                                        precision={2}
+                                        suffix={' TON'}
+                                        hidden={hidden}
+                                    />
+                                </View>
                             </View>
                         )
                         : undefined
@@ -203,7 +207,7 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                             alignItems: 'center',
                         }]);
                     }}
-                // onPress={onPress}
+                    onPress={() => navigation.navigate('Products')}
                 // onLongPress={onLongPress}
                 >
                     <WalletActionButton

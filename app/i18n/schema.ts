@@ -203,6 +203,10 @@ export type LocalizationSchema = {
         services: string,
         servicesDescription: string,
         add: string,
+        productsScreen: {
+            title: string,
+            tonProducts: string
+        }
         oldWallets: {
             title: string,
             subtitle: string

@@ -1,21 +1,21 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
 import { LayoutAnimation, Pressable, Text, useWindowDimensions, View } from "react-native"
-import { useEngine } from "../../../engine/Engine"
-import IconAdd from '../../../../assets/ic_action_add.svg';
-import SignIcon from '../../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../../assets/ic_transaction.svg';
-import { useTypedNavigation } from "../../../utils/useTypedNavigation"
-import { AppConfig } from "../../../AppConfig"
-import { t } from "../../../i18n/t"
-import { Theme } from "../../../Theme"
-import { getConnectionReferences } from "../../../storage/appState"
+import { useEngine } from "../../engine/Engine"
+import IconAdd from '../../../assets/ic_action_add.svg';
+import SignIcon from '../../../assets/ic_sign.svg';
+import TransactionIcon from '../../../assets/ic_transaction.svg';
+import { useTypedNavigation } from "../../utils/useTypedNavigation"
+import { AppConfig } from "../../AppConfig"
+import { t } from "../../i18n/t"
+import { Theme } from "../../Theme"
+import { getConnectionReferences } from "../../storage/appState"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { CardProductButton, gradientColorsMap } from "./CardProductButton"
-import { ValueComponent } from "../../../components/ValueComponent"
-import { PriceComponent } from "../../../components/PriceComponent"
-import { WalletActionButton } from "../../../components/WalletActionButton"
+import { ValueComponent } from "../../components/ValueComponent"
+import { PriceComponent } from "../../components/PriceComponent"
+import { WalletActionButton } from "../../components/WalletActionButton"
 import { ExtensionsProductButton } from "./ExtensionsProductButton";
 
 export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) => {

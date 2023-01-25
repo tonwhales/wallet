@@ -2,12 +2,12 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { Address } from 'ton';
-import { AppConfig } from '../../../AppConfig';
-import { Engine } from '../../../engine/Engine';
-import { markJettonDisabled } from '../../../engine/sync/ops';
-import { KnownJettonMasters } from '../../../secure/KnownWallets';
-import { TypedNavigation } from '../../../utils/useTypedNavigation';
-import { confirmJettonAction } from '../../AccountsSettingsFragment';
+import { AppConfig } from '../../AppConfig';
+import { Engine } from '../../engine/Engine';
+import { markJettonDisabled } from '../../engine/sync/ops';
+import { confirmJettonAction } from '../../fragments/AccountsSettingsFragment';
+import { KnownJettonMasters } from '../../secure/KnownWallets';
+import { TypedNavigation } from '../../utils/useTypedNavigation';
 import { AnimatedProductButton } from './AnimatedProductButton';
 import { ProductButton } from './ProductButton';
 

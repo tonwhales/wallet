@@ -12,7 +12,6 @@ import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
 import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
-import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { log } from '../../utils/log';
@@ -24,6 +23,7 @@ import { WalletActionButton } from '../../components/WalletActionButton';
 import BuyIcon from '../../../assets/ic_action_buy.svg';
 import ReceiveIcon from '../../../assets/ic_action_receive.svg';
 import SendIcon from '../../../assets/ic_action_send.svg';
+import { ProductsComponent } from '../../components/products/ProductsComponent';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],

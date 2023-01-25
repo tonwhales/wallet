@@ -11,8 +11,8 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { JettonProduct } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
+import { JettonProduct } from "../components/products/JettonProduct";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {

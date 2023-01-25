@@ -5,7 +5,6 @@ import { AppConfig } from "../../AppConfig";
 import { Engine, useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { KnownPools } from "../../utils/KnownPools";
-import { ProductButton } from "../wallet/products/ProductButton";
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from "expo-blur";
@@ -17,6 +16,7 @@ import { Address, fromNano, toNano } from "ton";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
+import { ProductButton } from "../../components/products/ProductButton";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(

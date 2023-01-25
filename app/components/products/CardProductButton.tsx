@@ -1,7 +1,7 @@
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import React from "react";
 import { StyleProp, View, ViewStyle, Text, TextProps, Pressable } from "react-native";
-import { Theme } from "../../../Theme";
+import { Theme } from "../../Theme";
 
 export const gradientColorsMap = [
     ['#E4E4EB', '#F0E0FF'],

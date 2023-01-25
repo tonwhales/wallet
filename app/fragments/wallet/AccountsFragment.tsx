@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { View, Text, Platform, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -10,7 +10,11 @@ import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { JettonProduct } from "./products/JettonProduct";
+import { JettonProduct } from "../../components/products/JettonProduct";
+import { ProductButton } from "../../components/products/ProductButton";
+import TonIcon from '../../../assets/ic_ton_account.svg';
+import BN from "bn.js";
+import { SearchBar } from '@rneui/themed';
 
 export const AccountsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -18,7 +22,7 @@ export const AccountsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const jettons = engine.products.main.useJettons();
     const active = jettons.filter((j) => !j.disabled);
-    const disabled = jettons.filter((j) => j.disabled);
+    const account = engine.products.main.useAccount();
 
     // 
     // Lottie animation
@@ -75,85 +79,89 @@ export const AccountsFragment = fragment(() => {
                     >
                         {t('accounts.noAccounts')}
                     </Text>
-                    <Text style={{
-                        fontSize: 16,
-                        color: '#6D6D71'
-                    }}
-                    >
-                        {t('accounts.description')}
-                    </Text>
                 </View>
             )}
             {jettons.length > 0 && (
-                <ScrollView style={{ flexGrow: 1 }}>
-                    <View style={{
-                        marginBottom: 16,
-                        marginTop: 17,
-                        borderRadius: 14,
-                        flexShrink: 1,
-                    }}>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                            {disabled.length === 0 && (
-                                <Text style={{
-                                    marginHorizontal: 16,
-                                    fontSize: 16,
-                                    color: '#6D6D71'
+                <>
+                    <SearchBar
+                        platform={Platform.OS === 'android' ? 'android' : 'ios'}
+                        containerStyle={{
+                            backgroundColor: Platform.OS === 'ios'
+                                ? 'transparent'
+                                : undefined,
+                            height: Platform.OS === 'ios' ? 36 : 42,
+                            paddingHorizontal: 8,
+                            marginTop: 24
+                        }}
+                        inputContainerStyle={{
+                            height: 36,
+                            // backgroundColor: searchBarBackgroundColor
+                            //     ? searchBarBackgroundColor
+                            //     : inputContainerColors,
+                            borderRadius: 8,
+
+                        }}
+                        returnKeyType="search"
+                        inputStyle={{
+                            fontSize: Platform.OS === 'ios' ? undefined : 14,
+                            // color: colors.backgroundText,
+                        }}
+                        cancelIcon={false}
+                        placeholder={t('common.search')}
+                    // placeholderTextColor={colors.toolBarIcon}
+                    // searchIcon={() => <IconElement
+                    //     name={'md-search'}
+                    //     collection={'ionicons'}
+                    //     color={colors.toolBarIcon}
+                    //     size={16}
+                    // />}
+                    // cancelButtonProps={{
+                    //     color: Platform.OS === 'ios'
+                    //         ? colors.accent
+                    //         : colors.toolBarIcon
+                    // }}
+                    // value={search ? search : ''}
+                    // showLoading={loading}
+                    // onChangeText={setSearch}
+                    // onClear={() => setSearch('')}
+                    // onSubmitEditing={() => {
+                    //     if (onSubmitEditing) onSubmitEditing(search ? search : '');
+                    //     setSearch(search ? search : '');
+                    // }}
+                    // onCancel={() => { if (onCancel) onCancel() }}
+                    />
+                    <ScrollView style={{ flexGrow: 1 }}>
+                        <View style={{
+                            marginBottom: 16,
+                            marginTop: 24,
+                            borderRadius: 14,
+                            flexShrink: 1,
+                        }}>
+                            <ProductButton
+                                key={'ton'}
+                                name={'TON'}
+                                subtitle={'The Open Network'}
+                                icon={TonIcon}
+                                value={account?.balance ?? new BN(0)}
+                                onPress={() => {
+                                    navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })
                                 }}
-                                >
-                                    {t('accounts.description')}
-                                </Text>
-                            )}
-                            {jettons.length > 0 && (
-                                <Text style={{
-                                    fontSize: 18,
-                                    fontWeight: '700',
-                                    marginHorizontal: 16,
-                                    marginVertical: 8,
-                                    color: active.length > 0 ? Theme.textColor : Theme.textSecondary
-                                }}
-                                >
-                                    {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
-                                </Text>
-                            )}
+                                symbol={'TON'}
+                                style={{ marginVertical: 4 }}
+                            />
+                            {active.map((j) => {
+                                return (
+                                    <JettonProduct
+                                        key={'jt' + j.wallet.toFriendly()}
+                                        jetton={j}
+                                        navigation={navigation}
+                                        engine={engine}
+                                    />
+                                );
+                            })}
                         </View>
-                        {active.map((j) => {
-                            return (
-                                <JettonProduct
-                                    key={'jt' + j.wallet.toFriendly()}
-                                    jetton={j}
-                                    navigation={navigation}
-                                    engine={engine}
-                                // onPress={() => promptDisable(j.master, j.symbol)}
-                                />
-                            );
-                        })}
-                        {disabled.length > 0 && (
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                                <Text style={{
-                                    fontSize: 18,
-                                    fontWeight: '700',
-                                    marginHorizontal: 16,
-                                    marginVertical: 8
-                                }}
-                                >
-                                    {t('accounts.disabled')}
-                                </Text>
-                            </View>
-                        )}
-                        {disabled.map((j) => {
-                            return (
-                                <JettonProduct
-                                    key={'jt' + j.wallet.toFriendly()}
-                                    jetton={j}
-                                    navigation={navigation}
-                                    engine={engine}
-                                    // onPress={() => promptActive(j.master, j.symbol)}
-                                    onLongPress={() => { }}
-                                />
-                            );
-                        })}
-                    </View>
-                </ScrollView>
+                    </ScrollView>
+                </>
             )}
             {Platform.OS === 'ios' && (
                 <CloseButton

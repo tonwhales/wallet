@@ -1,11 +1,11 @@
 import { t } from "i18next";
 import React, { useLayoutEffect } from "react";
 import { Alert, LayoutAnimation, View } from "react-native";
-import { WImage } from "../../../components/WImage";
-import { Engine } from "../../../engine/Engine";
-import { extractDomain } from "../../../engine/utils/extractDomain";
-import { avatarHash } from "../../../utils/avatarHash";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { WImage } from "../../components/WImage";
+import { Engine } from "../../engine/Engine";
+import { extractDomain } from "../../engine/utils/extractDomain";
+import { avatarHash } from "../../utils/avatarHash";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { CardProductButton, gradientColorsMap } from "./CardProductButton";
 
 export const ExtensionsProductButton = React.memo(({ engine, itemWidth }: { engine: Engine, itemWidth: number }) => {

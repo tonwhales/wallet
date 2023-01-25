@@ -2,12 +2,12 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
-import { ValueComponent } from '../../../components/ValueComponent';
-import { Theme } from '../../../Theme';
+import { ValueComponent } from '../../components/ValueComponent';
+import { Theme } from '../../Theme';
 import { SvgProps } from 'react-native-svg';
-import { PriceComponent } from '../../../components/PriceComponent';
-import { WImage } from '../../../components/WImage';
-import Verified from '../../../../assets/ic_verified.svg';
+import { PriceComponent } from '../../components/PriceComponent';
+import { WImage } from '../../components/WImage';
+import Verified from '../../../assets/ic_verified.svg';
 
 export type ProductButtonProps = {
     name: string,

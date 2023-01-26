@@ -63,6 +63,7 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { TonconnectAuthenticateFragment } from './fragments/secure/TonconnectAuthenticateFragment';
 // import { PickCountry } from './fragments/corp/PickCountry';
 // import { PhoneFragment } from './fragments/corp/PhoneScreen';
 // import { CodeFragment } from './fragments/corp/phone/CodeFragment';
@@ -157,6 +158,7 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
+    modalScreen('TonconnectAuthenticate', TonconnectAuthenticateFragment),
     modalScreen('Install', InstallFragment),
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),
@@ -398,6 +400,9 @@ export function useLinkNavigator() {
                 session: resolved.session,
                 endpoint: resolved.endpoint
             });
+        }
+        if (resolved.type === 'tonconnect') {
+            navigation.navigate('TonconnectAuthenticate', { query: resolved.query });
         }
         if (resolved.type === 'install') {
             navigation.navigate('Install', {

@@ -26,10 +26,11 @@ import { CorpStatus } from "./corp/CorpProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState, PrimaryCurrency } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
+import { AppManifest, appManifestCodec } from "./tonconnect/fetchManifest";
 
 export class Persistence {
 
-    readonly version: number = 9;
+    readonly version: number = 10;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -62,6 +63,7 @@ export class Persistence {
     readonly config: PersistedCollection<void, ConfigState>;
 
     readonly dApps: PersistedCollection<string, AppData>;
+    readonly connectDApps: PersistedCollection<string, AppManifest>;
     readonly domainKeys: PersistedCollection<string, DomainSubkey>;
 
     readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
@@ -109,6 +111,7 @@ export class Persistence {
 
         // dApps
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
+        this.connectDApps = new PersistedCollection({ storage, namespace: 'connectDApps', key: stringKey, codec: appManifestCodec, engine });
         this.domainKeys = new PersistedCollection({ storage, namespace: 'domainKeys', key: stringKey, codec: domainKeyCodec, engine });
 
         // Cloud

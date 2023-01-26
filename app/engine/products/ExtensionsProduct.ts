@@ -7,6 +7,7 @@ import { AppConfig } from "../../AppConfig";
 import { AppState } from "react-native";
 import { sha256_sync } from "ton-crypto";
 import { toUrlSafe } from "../../utils/toUrlSafe";
+import { AppManifest, fetchManifest } from "../tonconnect/fetchManifest";
 
 export type DomainSubkey = {
     time: number,
@@ -114,6 +115,30 @@ export class ExtensionsProduct {
             return null;
         }
         return persisted;
+    }
+
+    async getConnectAppData(url: string) {
+        const persisted = this.engine.persistence.connectDApps.item(url).value;
+        // fetch and add if does not exist
+        if (!persisted) {
+            try {
+                const appData = await fetchManifest(url);
+                if (appData) {
+                    await this.updateConnectAppData(url, appData);
+                    return appData;
+                }
+            } catch (e) {
+                warn(e);
+                return null;
+            }
+            return null;
+        }
+        return persisted;
+    }
+
+    private async updateConnectAppData(url: string, appData: AppManifest) {
+        const app = this.engine.persistence.connectDApps.item(url);
+        app.update(() => appData);
     }
 
     private async updateAppData(url: string, appData: AppData) {

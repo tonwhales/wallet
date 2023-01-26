@@ -126,7 +126,7 @@ export const ZenPayEnrollmentComponent = React.memo(({ engine, endpoint, onEnrol
                 style={animatedStyles}
                 pointerEvents={loaded ? 'none' : 'box-none'}
             >
-                <ActivityIndicator size="large" color={Theme.accent} />
+                <ActivityIndicator size="small" color={Theme.accent} />
             </Animated.View>
         </View>
     );

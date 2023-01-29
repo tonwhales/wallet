@@ -6,21 +6,42 @@ export enum TonConnectBridgeType {
   Injected = 'injected',
 }
 
-export interface IConnectedAppConnectionRemote {
+export interface ConnectQrQuery {
+  v: string;
+  r: string;
+  id: string;
+  ret: ReturnStrategy;
+}
+
+export type ReturnStrategy = 'back' | 'none' | string;
+
+export interface SignRawMessage {
+  address: string;
+  amount: string; // (decimal string): number of nanocoins to send.
+  payload?: string; // (string base64, optional): raw one-cell BoC encoded in Base64.
+  stateInit?: string; // (string base64, optional): raw once-cell BoC encoded in Base64.
+}
+
+export type SignRawParams = {
+  valid_until: number;
+  messages: SignRawMessage[];
+};
+
+export interface ConnectedAppConnectionRemote {
   type: TonConnectBridgeType.Remote;
   sessionKeyPair: KeyPair;
   clientSessionId: string;
   replyItems: ConnectItemReply[];
 }
 
-export interface IConnectedAppConnectionInjected {
+export interface ConnectedAppConnectionInjected {
   type: TonConnectBridgeType.Injected;
   replyItems: ConnectItemReply[];
 }
 
-export type IConnectedAppConnection =
-  | IConnectedAppConnectionRemote
-  | IConnectedAppConnectionInjected;
+export type ConnectedAppConnection =
+  | ConnectedAppConnectionRemote
+  | ConnectedAppConnectionInjected;
 
 // id: string; result: string | undefined; error: string | undefined
 
@@ -80,19 +101,36 @@ export const tonConnectappDataCodec = t.type({
   ),
 });
 
-export interface IConnectedApp {
+export type SendTransactionRequest = {
+  method: 'sendTransaction',
+  params: string[],
+  id: string
+}
+
+export const sendTransactionRpcRequestCodec = t.type({
+  method: t.literal('sendTransaction'),
+  params: t.array(t.string),
+  id: t.string,
+  from: t.string
+});
+
+export const RpcRequestCodec = t.type({
+  sendTransaction: sendTransactionRpcRequestCodec
+});
+
+export interface ConnectedApp {
   name: string;
   url: string;
   icon: string;
-  autoConnectDisabled: boolean | undefined;
-  connections: IConnectedAppConnection[];
+  autoConnectDisabled?: boolean | undefined;
+  connections: ConnectedAppConnection[];
 }
 
-export interface IConnectedAppsStore {
+export interface ConnectedAppsStore {
   connectedApps: {
     [chainName: string]: {
       [walletAddress: string]: {
-        [domain: string]: IConnectedApp;
+        [domain: string]: ConnectedApp;
       };
     };
   };
@@ -100,8 +138,8 @@ export interface IConnectedAppsStore {
     saveAppConnection: (
       chainName: 'mainnet' | 'testnet',
       walletAddress: string,
-      appData: Omit<IConnectedApp, 'connections'>,
-      connection: IConnectedAppConnection,
+      appData: Omit<ConnectedApp, 'connections'>,
+      connection: ConnectedAppConnection,
     ) => void;
     removeApp: (
       chainName: 'mainnet' | 'testnet',

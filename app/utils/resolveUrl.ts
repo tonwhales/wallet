@@ -4,7 +4,7 @@ import Url from 'url-parse';
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
-import { IConnectQrQuery } from "../engine/tonconnect/TonConnect";
+import { ConnectQrQuery } from "../engine/tonconnect/types";
 
 export type ResolvedUrl = {
     type: 'transaction',
@@ -24,7 +24,7 @@ export type ResolvedUrl = {
     customImage: { url: string, blurhash: string } | null
 } | {
     type: 'tonconnect',
-    query: IConnectQrQuery
+    query: ConnectQrQuery
 }
 
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
@@ -258,7 +258,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             if (!!url.query.r && !!url.query.v && !!url.query.id) {
                 return {
                     type: 'tonconnect',
-                    query: url.query as unknown as IConnectQrQuery
+                    query: url.query as unknown as ConnectQrQuery
                 };
             }
         }

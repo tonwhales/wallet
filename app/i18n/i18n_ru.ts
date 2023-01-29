@@ -39,7 +39,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Транзакция',
-        gotIt: 'Понятно'
+        gotIt: 'Понятно',
+        error: 'Ошибка'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -196,6 +197,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         requestPermission: 'Открыть настройки',
     },
     products: {
+        tonConnect: {
+            errors: {
+                connection: 'Ошибка соединения',
+            }
+        },
         accounts: 'Счета',
         services: 'Расширения',
         oldWallets: {

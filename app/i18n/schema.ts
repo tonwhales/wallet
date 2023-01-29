@@ -40,7 +40,8 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         apy: string,
         tx: string,
-        gotIt: string
+        gotIt: string,
+        error: string
     },
     syncStatus: {
         connecting: string,
@@ -197,6 +198,11 @@ export type LocalizationSchema = {
         requestPermission: string
     },
     products: {
+        tonConnect: {
+            errors: {
+                connection: string
+            }
+        },
         accounts: string,
         services: string,
         oldWallets: {

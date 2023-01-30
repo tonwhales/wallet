@@ -39,7 +39,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Транзакция',
-        gotIt: 'Понятно'
+        gotIt: 'Понятно',
+        wallet: 'Кошелек'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -80,7 +81,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         history: 'История',
     },
     receive: {
-        title: 'Получить Ton',
+        title: 'Получить',
         subtitle: 'Поделитесь данной ссылкой, чтобы получить Ton',
         share: {
             title: 'My Tonhub Address'

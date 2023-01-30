@@ -198,6 +198,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     products: {
         accounts: 'Accounts',
+        crypto: 'Crypto',
         services: 'Extensions',
         servicesDescription: 'Your TON Apps collection',
         add: 'Add product',

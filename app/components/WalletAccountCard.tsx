@@ -10,6 +10,7 @@ import { PriceComponent } from "./PriceComponent";
 import { ValueComponent } from "./ValueComponent";
 import { WalletAddress } from "./WalletAddress";
 import HideIcon from '../../assets/ic_visible.svg';
+import ShowIcon from '../../assets/ic_hidden.svg';
 
 export const WalletAccountCard = React.memo(({ engine, account, hidden, setHidden }: { engine: Engine, account: WalletState, hidden: boolean, setHidden: (newVal: boolean) => void }) => {
     const navigation = useTypedNavigation();
@@ -106,11 +107,14 @@ export const WalletAccountCard = React.memo(({ engine, account, hidden, setHidde
             }}
                 onPress={() => setHidden(!hidden)}
             >
-                <HideIcon
+                {hidden && <HideIcon
                     color={'black'}
                     style={{ opacity: Platform.OS === 'android' ? 0.4 : 1 }}
-
-                />
+                />}
+                {!hidden && <ShowIcon
+                    color={'black'}
+                    style={{ opacity: Platform.OS === 'android' ? 0.4 : 1 }}
+                />}
             </Pressable>
         </View>
     );

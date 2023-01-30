@@ -200,6 +200,7 @@ export type LocalizationSchema = {
     },
     products: {
         accounts: string,
+        crypto: string,
         services: string,
         servicesDescription: string,
         add: string,

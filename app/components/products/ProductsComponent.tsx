@@ -98,7 +98,7 @@ export const ProductsComponent = React.memo(({ hidden }: { hidden?: boolean }) =
                 {(jettons.length > 0 || oldAccounts.length > 0) && (
                     <CardProductButton
                         key={'accounts'}
-                        title={`${t('products.accounts')} (${jettons.length + (oldAccounts.length > 0 ? oldAccounts.length + 1 : 1)})`}
+                        title={`${t('products.crypto')} (${jettons.length + (oldAccounts.length > 0 ? oldAccounts.length + 1 : 1)})`}
                         description={`TON, ${jettons.map((j) => j.name).join(', ')}`}
                         width={itemWidth}
                         height={itemWidth}

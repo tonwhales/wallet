@@ -106,20 +106,18 @@ export function ProductButton(props: ProductButtonProps) {
                                 {props.subtitle}
                             </Text>
                         </Text>
-                        {(!!props.value && typeof props.value !== 'string' && !props.symbol) &&
-                            (
-                                <PriceComponent
-                                    amount={props.value}
-                                    style={{
-                                        backgroundColor: 'transparent',
-                                        paddingHorizontal: 0, paddingVertical: 0,
-                                        alignSelf: 'flex-end',
-                                        marginTop: 2, height: 14
-                                    }}
-                                    textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
-                                />
-                            )
-                        }
+                        {(!!props.value && typeof props.value !== 'string' && (!props.symbol || props.symbol === 'TON')) && (
+                            <PriceComponent
+                                amount={props.value}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    marginTop: 2, height: 14
+                                }}
+                                textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
+                            />
+                        )}
                     </View>
                     <View style={{ flexGrow: 1 }} />
                 </View>

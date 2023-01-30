@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { View, Text, Platform, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -24,17 +24,28 @@ export const AccountsFragment = fragment(() => {
     const active = jettons.filter((j) => !j.disabled);
     const account = engine.products.main.useAccount();
 
-    // 
-    // Lottie animation
-    // 
-    const anim = useRef<LottieView>(null);
-    useLayoutEffect(() => {
-        if (Platform.OS === 'ios') {
-            setTimeout(() => {
-                anim.current?.play()
-            }, 300);
-        }
-    }, []);
+    // const items = useMemo(() => {
+    //     return active.map((j) => {
+    //         return {
+    //             name: j.name,
+    //             icon: j.icon,
+    //             onPress: () => {
+    //                 navigation.navigate('Jetton', { jetton: j });
+    //             }
+    //         }
+    //     });
+    // }, [active]);
+
+    // const [searchText, setSearchText] = useState("");
+    // // TODO fix this hack
+    // const [showTon, setShowTon] = useState(true);
+    // const [filteredItems, setFilteredItems] = useState([]);
+
+    // const handleSearch = useCallback((text) => {
+    //     setSearchText(text);
+    //     const filtered = items.filter((i) =>  i.name.toLowerCase().includes(text.toLowerCase()));
+    //     setFilteredItems(filtered);
+    // }, [items]);
 
     return (
         <View style={{
@@ -42,7 +53,7 @@ export const AccountsFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('products.accounts')} />
+            <AndroidToolbar pageTitle={t('products.crypto')} />
             {Platform.OS === 'ios' && (
                 <View style={{
                     marginTop: 17,
@@ -52,36 +63,11 @@ export const AccountsFragment = fragment(() => {
                         fontWeight: '600',
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
-                        {t('products.accounts')}
+                        {t('products.crypto')}
                     </Text>
                 </View>
             )}
-            {jettons.length === 0 && (
-                <View style={{
-                    paddingHorizontal: 16,
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    justifyContent: 'center', alignItems: 'center'
-                }}>
-                    <LottieView
-                        ref={anim}
-                        source={require('../../../assets/animations/empty.json')}
-                        autoPlay={true}
-                        loop={true}
-                        style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
-                    />
-                    <Text style={{
-                        fontSize: 18,
-                        fontWeight: '700',
-                        marginBottom: 8,
-                        textAlign: 'center',
-                        color: Theme.textColor,
-                    }}
-                    >
-                        {t('accounts.noAccounts')}
-                    </Text>
-                </View>
-            )}
-            {jettons.length > 0 && (
+            {jettons.length > 1 && (
                 <>
                     <SearchBar
                         platform={Platform.OS === 'android' ? 'android' : 'ios'}
@@ -108,22 +94,22 @@ export const AccountsFragment = fragment(() => {
                         }}
                         cancelIcon={false}
                         placeholder={t('common.search')}
-                    // placeholderTextColor={colors.toolBarIcon}
-                    // searchIcon={() => <IconElement
-                    //     name={'md-search'}
-                    //     collection={'ionicons'}
-                    //     color={colors.toolBarIcon}
-                    //     size={16}
-                    // />}
-                    // cancelButtonProps={{
-                    //     color: Platform.OS === 'ios'
-                    //         ? colors.accent
-                    //         : colors.toolBarIcon
-                    // }}
-                    // value={search ? search : ''}
-                    // showLoading={loading}
-                    // onChangeText={setSearch}
-                    // onClear={() => setSearch('')}
+                        // placeholderTextColor={colors.toolBarIcon}
+                        // searchIcon={() => <IconElement
+                        //     name={'md-search'}
+                        //     collection={'ionicons'}
+                        //     color={colors.toolBarIcon}
+                        //     size={16}
+                        // />}
+                        // cancelButtonProps={{
+                        //     color: Platform.OS === 'ios'
+                        //         ? colors.accent
+                        //         : colors.toolBarIcon
+                        // }}
+                        value={searchText}
+                        // showLoading={loading}
+                        onChangeText={handleSearch}
+                        onClear={() => handleSearch('')}
                     // onSubmitEditing={() => {
                     //     if (onSubmitEditing) onSubmitEditing(search ? search : '');
                     //     setSearch(search ? search : '');
@@ -144,7 +130,15 @@ export const AccountsFragment = fragment(() => {
                                 icon={TonIcon}
                                 value={account?.balance ?? new BN(0)}
                                 onPress={() => {
-                                    navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })
+                                    navigation.navigateSimpleTransfer({
+                                        amount: null,
+                                        target: null,
+                                        stateInit: null,
+                                        job: null,
+                                        comment: null,
+                                        jetton: null,
+                                        callback: null
+                                    })
                                 }}
                                 symbol={'TON'}
                                 style={{ marginVertical: 4 }}

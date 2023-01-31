@@ -40,7 +40,8 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         apy: string,
         tx: string,
-        gotIt: string
+        gotIt: string,
+        wallet: string
     },
     syncStatus: {
         connecting: string,

@@ -22,6 +22,7 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
 import { mixpanel } from './app/analytics/mixpanel';
+import { storage } from './app/storage/storage';
 
 changeNavBarColor('white');
 
@@ -29,6 +30,9 @@ mixpanel.init();
 if (__DEV__) {
   mixpanel.setLoggingEnabled(true);
 }
+
+const startTime = performance.now();
+storage.set('startTime', startTime);
 
 function Boot() {
   return (

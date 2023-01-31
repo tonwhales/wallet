@@ -20,6 +20,9 @@ import { useLinkNavigator } from '../Navigation';
 import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Tab = createBottomTabNavigator();
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -112,9 +115,29 @@ export const HomeFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <View style={{ flexGrow: 1 }} />
+            {/* <View style={{ flexGrow: 1 }} /> */}
             <StatusBar style={'dark'} />
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
+            <Tab.Navigator
+                initialRouteName={'Wallet'}
+                screenOptions={{
+                    headerShown: false
+                }}
+            >
+                <Tab.Screen
+                    name="Wallet"
+                    component={WalletFragment}
+                />
+                <Tab.Screen
+                    name="Transactions"
+                    component={TransactionsFragment}
+                />
+                <Tab.Screen
+                    name="Settings"
+                    component={SettingsFragment}
+                />
+                {/* <Tab.Screen name="Settings" component={SettingsScreen} /> */}
+            </Tab.Navigator>
+            {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
                 <WalletFragment />
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
@@ -122,8 +145,8 @@ export const HomeFragment = fragment(() => {
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 2 ? 1 : 0 }} pointerEvents={tab === 2 ? 'box-none' : 'none'}>
                 <SettingsFragment />
-            </View>
-            <View style={{ height: 52 + safeArea.bottom, }}>
+            </View> */}
+            {/* <View style={{ height: 52 + safeArea.bottom, }}>
                 {Platform.OS === 'ios' && (
                     <BlurView
                         style={{
@@ -222,7 +245,7 @@ export const HomeFragment = fragment(() => {
                         opacity: 0.08
                     }}
                 />
-            </View>
+            </View> */}
         </View>
     );
 }, true);

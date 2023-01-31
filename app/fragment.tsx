@@ -1,6 +1,4 @@
 import * as React from 'react';
-// import { DefaultErrorBoundary } from '../components/DefaultErrorBoundary';
-// import { Suspense } from '../components/Suspence';
 import { GlobalLoaderProvider } from './components/useGlobalLoader';
 import { Host } from 'react-native-portalize';
 import { Context } from 'react-native-portalize/lib/Host';

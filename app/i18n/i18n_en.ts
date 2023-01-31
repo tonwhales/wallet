@@ -38,7 +38,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Transaction',
-        gotIt: 'Got it'
+        gotIt: 'Got it',
+        wallet: 'Wallet',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -92,7 +93,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         blockchainFee: 'Blockchain fee'
     },
     receive: {
-        title: 'Receive Ton',
+        title: 'Receive',
         subtitle: 'Share this link to receive Ton',
         share: {
             title: 'My Tonhub Address'

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -15,11 +15,15 @@ import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { Suspense } from "../../Suspense";
+import TonIcon from '../../../assets/ic_ton_account.svg';
+import CopyIcon from '../../../assets/ic_copy_address.svg';
+import ShareIcon from '../../../assets/ic_share_address.svg';
 
 export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
+    const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
     const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
 
     const onCopy = React.useCallback(() => {
@@ -39,64 +43,78 @@ export const ReceiveFragment = fragment(() => {
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             justifyContent: 'space-between', alignItems: 'center',
             backgroundColor: Theme.background,
-            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined
+            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t('receive.title')} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12 }}>
+                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17 }}>
                         {t('receive.title')}
                     </Text>
                 )}
-                <Text style={{ fontSize: 16, color: Theme.textSecondary, marginTop: Platform.OS === 'android' ? 7 + 56 : 7, paddingHorizontal: 32, textAlign: 'center' }}>
-                    {t('receive.subtitle')}
-                </Text>
             </View>
-            <View style={{
-                justifyContent: 'center', alignItems: 'center',
-                backgroundColor: 'white', borderRadius: 36,
-                paddingHorizontal: 16, paddingTop: 50, paddingBottom: 25,
-                marginHorizontal: 45,
-                width: 300, height: 344
-            }}>
-                <View style={{ flex: 1 }}>
-                    <Suspense>
-                        <QRCode data={link} size={202} />
-                    </Suspense>
-                    <View style={{ position: 'absolute', bottom: 0, left: 0, top: 0, right: 0, justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ padding: 2, backgroundColor: 'white', borderRadius: 8 }}>
-                            <Image source={require('../../../assets/ic_qr_logo.png')} style={{ height: 30, width: 30 }} />
+            <View style={{ flexGrow: 1 }} />
+            <View style={{ padding: 16, width: '100%' }}>
+                <View style={{
+                    justifyContent: 'center',
+                    backgroundColor: 'white', borderRadius: 20,
+                    marginHorizontal: 16, padding: 14,
+                    minHeight: 358
+                }}>
+                    <View style={{ marginBottom: 40, flexDirection: 'row' }}>
+                        <TonIcon width={42} height={42} style={{ marginRight: 10 }} />
+                        <View style={{ justifyContent: 'space-between' }}>
+                            <Text style={{
+                                fontSize: 16,
+                                color: Theme.textColor, fontWeight: '600',
+                            }}>
+                                {`TON ${t('common.wallet')}`}
+                            </Text>
+                            <Text
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: '400',
+                                    color: Theme.price,
+                                }}
+                                selectable={false}
+                                ellipsizeMode={'middle'}
+                            >
+                                {
+                                    friendly.slice(0, 6)
+                                    + '...'
+                                    + friendly.slice(friendly.length - 6)
+                                }
+                            </Text>
                         </View>
                     </View>
+                    <View style={{ height: 240, marginBottom: 38, justifyContent: 'center', alignItems: 'center' }}>
+                        <QRCode data={link} size={240} />
+                    </View>
+
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-evenly',
+                        alignContent: 'stretch'
+                    }}>
+                        <RoundButton
+                            title={t('common.copy')}
+                            onPress={onCopy}
+                            style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
+                            display={'secondary_contrast'}
+                            icon={<CopyIcon width={18} height={20} />}
+                        />
+                        <RoundButton
+                            title={t('common.share')}
+                            onPress={onShare}
+                            style={{ flex: 2, alignSelf: 'stretch' }}
+                            display={'secondary_contrast'}
+                            icon={<ShareIcon width={15} height={24} />}
+                        />
+                    </View>
                 </View>
-                <WalletAddress
-                    address={address}
-                    style={{ marginTop: 16 }}
-                />
-                <Text style={{ fontSize: 16, color: Theme.textSecondary, fontWeight: '400', textAlign: 'center', marginTop: 6 }}>
-                    {t('common.walletAddress')}
-                </Text>
             </View>
-            <View style={{
-                flexDirection: 'row',
-                paddingHorizontal: 16, marginBottom: safeArea.bottom + 16,
-                justifyContent: 'space-evenly',
-                // position: 'absolute', bottom: 0,
-                alignContent: 'stretch'
-            }}>
-                <RoundButton
-                    title={t('common.copy')}
-                    onPress={onCopy}
-                    style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
-                    display={'secondary'}
-                />
-                <RoundButton
-                    title={t('common.share')}
-                    onPress={onShare}
-                    style={{ flex: 2, alignSelf: 'stretch' }}
-                />
-            </View>
+            <View style={{ flexGrow: 1 }} />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

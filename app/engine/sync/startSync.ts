@@ -12,7 +12,7 @@ import { startJettonWalletSync } from "./startJettonWalletSync";
 import { startHintsTxSync } from "./startHintsTxSync";
 import { startHintSync } from "./startHintSync";
 import { startFileSync } from "./startFileSync";
-import { requestHintsIfNeeded } from "./ops";
+import { requestAllHintsIfNeeded, requestHintsIfNeeded } from "./ops";
 import { startConfigSync } from "./startConfigSync";
 import { startServerConfigSync } from "./startServerConfigSync";
 import { resolveLink } from "../../utils/resolveLink";
@@ -21,8 +21,10 @@ import { startWalletConfigSync } from "./startWalletConfigSync";
 import { startCorpSync } from "./startCorpSync";
 import { startApySync } from "./startApySync";
 import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
+import { createTracer } from '../../utils/tracer';
 
 export function startSync(engine: Engine) {
+    const tracer = createTracer();
 
     //
     // Config
@@ -37,6 +39,7 @@ export function startSync(engine: Engine) {
     engine.persistence.liteAccounts.each((key) => {
         startAccountLiteSync(key, engine);
     });
+    tracer.label('lite accounts');
 
     //
     // Full accounts
@@ -45,6 +48,7 @@ export function startSync(engine: Engine) {
     engine.persistence.fullAccounts.each((key) => {
         startAccountFullSync(key, engine);
     });
+    tracer.label('full accounts');
 
     //
     // Wallet v4
@@ -53,17 +57,21 @@ export function startSync(engine: Engine) {
     engine.persistence.wallets.each((key) => {
         startWalletV4Sync(key, engine);
     });
+    tracer.label('wallet v4');
 
     // Staking
     engine.persistence.staking.each((key) => {
         startStakingPoolSync(key.target, key.address, engine);
     });
+    tracer.label('staking');
 
     // APY
     startApySync(engine);
+    tracer.label('APY');
 
     // Account Balance
     startAccountBalanceChartSync(engine);
+    tracer.label('balance chart');
 
     //
     // Wallet Plugins
@@ -78,6 +86,7 @@ export function startSync(engine: Engine) {
         startedPlugins.add(k);
         startPluginSync(address, engine);
     }
+    tracer.label('plugins');
 
     //
     // Wallet sync
@@ -88,6 +97,7 @@ export function startSync(engine: Engine) {
             startPluginSyncIfNeeded(p);
         }
     });
+    tracer.label('wallet plugins');
 
     //
     // Jetton Masters
@@ -107,6 +117,7 @@ export function startSync(engine: Engine) {
             startJettonMaster(addr);
         }
     });
+    tracer.label('jetton masters');
 
     //
     // Jetton Wallets
@@ -126,13 +137,18 @@ export function startSync(engine: Engine) {
             startJettonWallet(addr);
         }
     });
+    tracer.label('jetton wallets');
 
     //
     // Hints
     //
 
     startHintsSync(engine.address, engine);
+    tracer.label('hints');
+
     startHintsTxSync(engine.address, engine);
+    tracer.label('hints tx sync');
+
     let hintsStarted = new Set<string>();
     function startHints(address: Address) {
         let k = address.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -147,6 +163,7 @@ export function startSync(engine: Engine) {
             startHints(addr);
         }
     });
+    tracer.label('hints for');
 
     //
     // Downloads
@@ -155,26 +172,32 @@ export function startSync(engine: Engine) {
     engine.persistence.downloads.each((file) => {
         startFileSync(file, engine);
     });
+    tracer.label('downloads');
 
     //
     // Auto-query on metadata fetching
     //
 
+    let metadataAddresses: Address[] = [];
     engine.persistence.metadata.each((address) => {
-        requestHintsIfNeeded(address, null, engine);
+        metadataAddresses.push(address);
     });
+    requestAllHintsIfNeeded(metadataAddresses, null, engine);
+    tracer.label('metadata hints');
 
     // 
     // Server config for restrict_send and spam wallets
     // 
 
     startServerConfigSync(engine);
+    tracer.label('server config');
 
     //
     // Wallet Config
     //
 
     startWalletConfigSync(engine);
+    tracer.label('wallet config');
 
     //
     // App Metadata
@@ -183,6 +206,11 @@ export function startSync(engine: Engine) {
     engine.persistence.dApps.each((url) => {
         startAppMetadataSync(url, engine);
     });
+    tracer.label('app metadata');
+
+
+    tracer.report();
+
 
     //
     // Corp Sync

@@ -28,7 +28,6 @@ import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from '../../Navigation';
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
-import { storage } from '../../storage/storage';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -215,7 +214,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     }, [account.pending.length]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+        <View style={{ flexGrow: 1 }}>
             <Animated.ScrollView
                 contentContainerStyle={{
                     flexGrow: 1,
@@ -223,7 +222,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         ? safeArea.top + 44
                         : undefined,
                 }}
-                contentInset={{ top: 44, bottom: 52 }}
+                contentInset={{ top: 44, bottom: 0 }}
                 contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
@@ -598,11 +597,6 @@ function WalletComponent(props: { wallet: WalletState }) {
 export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
-    React.useEffect(() => {
-        const endTime = performance.now();
-        storage.set('endTime', endTime);
-    }, []);
-
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>

@@ -79,7 +79,7 @@ const WalletTransactions = React.memo((props: {
                 paddingHorizontal: 16,
                 paddingVertical: 44,
             }}
-            contentInset={{ top: 44, bottom: 52 }}
+            contentInset={{ top: 44 }}
             contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
             data={transactionsSectioned}
             renderItem={({ item }) => {
@@ -205,7 +205,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     }, [account.next ? account.next.lt : null]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+        <View style={{ flexGrow: 1 }}>
             <WalletTransactions
                 txs={account.transactions}
                 next={account.next}

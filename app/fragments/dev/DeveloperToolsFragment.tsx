@@ -6,7 +6,7 @@ import { Item } from '../../components/Item';
 import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storage, storagePersistence } from '../../storage/storage';
+import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
@@ -28,13 +28,6 @@ export const DeveloperToolsFragment = fragment(() => {
     const engine = useEngine();
     const counter = React.useMemo(() => engine.cloud.counter('counter.sample'), []);
     const counterValue = counter.use().counter;
-
-    const bootTime = React.useMemo(() => {
-        const startTime = storage.getNumber('startTime');
-        const endTime = storage.getNumber('endTime');
-
-        return (endTime ?? 0) - (startTime ?? 0);
-    }, []);
 
     // const isTestNet = useTestnet();
     // const switchNetwork = React.useCallback(() => {
@@ -82,10 +75,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
-                    </View>
-
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"BootTime"} hint={bootTime.toString()} />
                     </View>
                 </View>
             </View>

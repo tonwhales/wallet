@@ -100,7 +100,6 @@ export const SettingsFragment = fragment(() => {
                     backgroundColor: Theme.background,
                     paddingHorizontal: 16,
                     flexBasis: 0,
-                    marginBottom: 52 + safeArea.bottom
                 }}
             >
                 {__DEV__ && (
@@ -207,13 +206,13 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton leftIcon={require('../../assets/ic_delete.png')} dangerZone title={t('deleteAccount.title')} onPress={() => navigation.navigate('DeleteAccount')} />
                     </View>
                 </View>
-                <View style={{ height: 52 + 8 + safeArea.bottom }} />
+                <View style={{ height: safeArea.bottom }} />
             </ScrollView>
             <Pressable
                 onPress={onVersionTap}
                 style={{
                     position: 'absolute',
-                    bottom: 52 + 14 + safeArea.bottom,
+                    bottom: 14,
                     flexShrink: 1,
                     alignSelf: 'center',
                     borderRadius: 20,

@@ -122,13 +122,11 @@ export const QRCode = React.memo((props: { data: string, size: number }) => {
             borderRadius: 20,
             borderColor: '#E7E7E7', borderWidth: 1
         }}>
-            <Suspense>
-                <Canvas style={{
-                    width: props.size, height: props.size,
-                }}>
-                    {items}
-                </Canvas>
-            </Suspense>
+            <Canvas style={{
+                width: props.size, height: props.size,
+            }}>
+                {items}
+            </Canvas>
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0, bottom: 0, right: 0,

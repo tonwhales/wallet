@@ -89,9 +89,7 @@ export const ReceiveFragment = fragment(() => {
                         </View>
                     </View>
                     <View style={{ height: 240, marginBottom: 38, justifyContent: 'center', alignItems: 'center' }}>
-                        <Suspense>
-                            <QRCode data={link} size={240} />
-                        </Suspense>
+                        <QRCode data={link} size={240} />
                     </View>
 
                     <View style={{

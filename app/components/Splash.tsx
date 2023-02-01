@@ -16,7 +16,7 @@ export const Splash = React.memo(({ hide }: { hide: boolean }) => {
             }).start(() => {
                 // Hide native splash screen only after we insure that
                 // our splash screen is rendered
-                try { // Just in case Native Slash is already hidden
+                try { // Just in case Native Splash is already hidden
                     SplashScreen.hideAsync();
                 } catch (error) {
                     // ignore

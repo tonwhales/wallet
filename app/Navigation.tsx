@@ -61,6 +61,7 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { Splash } from './components/Splash';
 
 const Stack = createNativeStackNavigator();
 
@@ -226,49 +227,15 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Splash
-    const [splashVisible, setSplashVisible] = React.useState(true);
-
-    const splashOpacity = React.useMemo(() => {
-        return new Animated.Value<number>(1);
-    }, [splashVisible]);
-
+    const [hideSplash, setHideSplash] = React.useState(false);
     const onMounted = React.useMemo(() => {
         return () => {
-            if (!splashVisible) {
+            if (hideSplash) {
                 return;
             }
-            Animated.timing(splashOpacity, {
-                toValue: 0,
-                duration: 350,
-                easing: EasingNode.linear
-            }).start((e) => {
-                setSplashVisible(false);
-            });
+            setHideSplash(true);
         }
-    }, [splashVisible]);
-
-    let splash = React.useMemo(() => (splashVisible && (
-        <Animated.View
-            key="splash"
-            style={{
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                opacity: splashOpacity as any,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: Theme.background,
-            }}
-            pointerEvents={'none'}
-        >
-            <View style={{
-                width: 256, height: 416,
-                alignItems: 'center',
-            }}>
-                <Image style={{
-                    width: 256, height: 256,
-                }} source={require('../assets/splash_icon.png')} />
-            </View>
-        </Animated.View>
-    )), [splashVisible, safeArea]);
+    }, [hideSplash]);
 
     // Register token
     React.useEffect(() => {
@@ -346,7 +313,7 @@ export const Navigation = React.memo(() => {
                         {navigation}
                     </Stack.Navigator>
                 </NavigationContainer>
-                {splash}
+                <Splash hide={hideSplash} />
             </View>
         </EngineContext.Provider>
     );

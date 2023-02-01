@@ -232,9 +232,9 @@ export class WalletProduct {
                     next = { lt: latest.prev.lt, hash: latest.prev.hash };
                 }
 
-                let toLoad = this.#initialLoad ? 10 : state.transactions.length;
+                let toLoad = this.#initialLoad ? 20 : state.transactions.length;
 
-                if (state.transactions.length <= 10) {
+                if (state.transactions.length <= 20) {
                     toLoad = state.transactions.length - 1; // first 10 txs except for the latest
                 }
 
@@ -276,7 +276,7 @@ export class WalletProduct {
                             this.#txs.set(t.id, t);
                         }
 
-                        return t;
+                        return { id: t.id, time: t.time };
                     })
                 ],
                 pending: this.#pending.map((v) => ({ id: v.id, time: v.time })),
@@ -334,7 +334,7 @@ export class WalletProduct {
         // Resolve updated state
         if (this.#state) {
 
-            for (let i = 0; i < 10 - 1; i++) {
+            for (let i = 0; i < 20 - 1; i++) {
 
                 // Stop if no previous
                 if (!next) {

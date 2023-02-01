@@ -163,13 +163,11 @@ export const ContactFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
-        console.log({ selected: index });
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
     const onSubmit = React.useCallback((index: number) => {
-        console.log({ index });
         let next = refs[index + 1]?.current;
         if (next) {
             next.focus();

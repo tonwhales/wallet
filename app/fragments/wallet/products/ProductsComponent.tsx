@@ -36,7 +36,6 @@ export const ProductsComponent = React.memo(() => {
             navigation.navigate('App', { url });
         }
     }, []);
-    const corpStatus = engine.products.corp.use();
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];
@@ -101,28 +100,6 @@ export const ProductsComponent = React.memo(() => {
     }
 
     apps.push(<StakingProductComponent key={'pool'} />);
-
-    if (__DEV__) {
-
-        console.log('sss', corpStatus);
-
-        let statusText = 'Begin enrollment';
-        if (corpStatus.status === 'need-kyc' || corpStatus.status === 'need-phone') {
-            statusText = 'Continue enrollment';
-        } else if (corpStatus.status === 'ready') {
-            statusText = 'Press to view your crypto card';
-        }
-
-        apps.push(
-            <ProductButton
-                key={"card"}
-                name="Cryptocard"
-                subtitle={statusText}
-                value={null}
-                onPress={() => navigation.navigate('Corp')}
-            />
-        );
-    }
 
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

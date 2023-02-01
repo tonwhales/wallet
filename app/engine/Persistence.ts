@@ -22,14 +22,13 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
-import { CorpStatus } from "./corp/CorpProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState, PrimaryCurrency } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
 
 export class Persistence {
 
-    readonly version: number = 9;
+    readonly version: number = 10;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -67,8 +66,6 @@ export class Persistence {
     readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
 
     readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
-
-    readonly corp: PersistedCollection<Address, CorpStatus>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -116,9 +113,6 @@ export class Persistence {
 
         // SpamFilter
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
-
-        // Corp
-        this.corp = new PersistedCollection({ storage, namespace: 'corp', key: addressKey, codec: corpCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -295,24 +289,6 @@ const spamFilterCodec = t.type({
     minAmount: t.union([c.bignum, t.null]),
     dontShowComments: t.union([t.boolean, t.null])
 });
-
-const corpCodec = t.union([
-    t.type({
-        state: t.literal('need-enrolment'),
-    }),
-    t.type({
-        state: t.literal('need-phone'),
-        token: t.string
-    }),
-    t.type({
-        state: t.literal('need-kyc'),
-        token: t.string
-    }),
-    t.type({
-        state: t.literal('ready'),
-        token: t.string
-    })
-]);
 
 const apyCodec = t.type({
     apy: t.number

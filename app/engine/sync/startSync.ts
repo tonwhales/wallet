@@ -12,13 +12,11 @@ import { startJettonWalletSync } from "./startJettonWalletSync";
 import { startHintsTxSync } from "./startHintsTxSync";
 import { startHintSync } from "./startHintSync";
 import { startFileSync } from "./startFileSync";
-import { requestAllHintsIfNeeded, requestHintsIfNeeded } from "./ops";
+import { requestAllHintsIfNeeded } from "./ops";
 import { startConfigSync } from "./startConfigSync";
 import { startServerConfigSync } from "./startServerConfigSync";
-import { resolveLink } from "../../utils/resolveLink";
 import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
-import { startCorpSync } from "./startCorpSync";
 import { startApySync } from "./startApySync";
 import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
 import { createTracer } from '../../utils/tracer';
@@ -210,13 +208,4 @@ export function startSync(engine: Engine) {
 
 
     tracer.report();
-
-
-    //
-    // Corp Sync
-    //
-
-    if (!AppConfig.isTestnet) {
-        startCorpSync(engine);
-    }
 }

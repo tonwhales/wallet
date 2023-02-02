@@ -1,5 +1,5 @@
-import React from "react";
-import { Platform, View, Text } from "react-native";
+import React, { useCallback } from "react";
+import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { Engine, useEngine } from "../../engine/Engine";
@@ -12,8 +12,9 @@ import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { Address } from "ton";
 import { formatDate, getDateKey } from "../../utils/dates";
-import { TransactionView } from "./views/TransactionView";
-import Animated, { runOnJS, useAnimatedScrollHandler } from "react-native-reanimated";
+import { TransactionsSection } from "./views/TransactionsSection";
+import { RoundButton } from "../../components/RoundButton";
+import LottieView from "lottie-react-native";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -21,7 +22,6 @@ const WalletTransactions = React.memo((props: {
     address: Address,
     engine: Engine,
     navigation: TypedNavigation,
-    onTxPress: (tx: string) => void,
     safeArea: EdgeInsets,
     frameArea: Rect,
     onLoadMore: () => void,
@@ -50,44 +50,13 @@ const WalletTransactions = React.memo((props: {
     const components: any[] = [];
     for (let s of transactionsSectioned) {
         components.push(
-            <View
-                key={'t-' + s.title}
-                style={{ marginTop: 8, backgroundColor: Theme.background }}
-                collapsable={false}
-            >
-                <Text
-                    style={{
-                        fontSize: 18,
-                        fontWeight: '700',
-                        marginHorizontal: 16,
-                        marginVertical: 8
-                    }}
-                >
-                    {s.title}
-                </Text>
-            </View>
-        );
-        components.push(
-            <View
-                key={'s-' + s.title}
-                style={{
-                    marginHorizontal: 16,
-                    borderRadius: 14,
-                    backgroundColor: 'white',
-                    overflow: 'hidden'
-                }}
-                collapsable={false}
-            >
-                {s.items.map((t, i) => <TransactionView
-                    own={props.address}
-                    engine={props.engine}
-                    tx={t}
-                    separator={i < s.items.length - 1}
-                    key={'tx-' + t}
-                    onPress={props.onTxPress}
-                />
-                )}
-            </View>
+            <TransactionsSection
+                key={s.title}
+                section={s}
+                address={props.address}
+                engine={props.engine}
+                navigation={props.navigation}
+            />
         );
     }
 
@@ -112,18 +81,18 @@ const WalletTransactions = React.memo((props: {
         );
     }
 
-    const onScroll = useAnimatedScrollHandler((event) => {
-        // Bottom reached
-        if (event.contentSize.height > 0) {
-            let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
-            if (bottomOffset < 2000) {
-                runOnJS(props.onLoadMore)();
-            }
+    const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        if (!event) return;
+        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+        if (!layoutMeasurement || !contentOffset || !contentSize) return;
+
+        if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000) {
+            props.onLoadMore();
         }
     }, [props.onLoadMore]);
 
     return (
-        <Animated.ScrollView
+        <ScrollView
             contentContainerStyle={{
                 flexGrow: 1,
                 paddingTop: Platform.OS === 'android'
@@ -133,12 +102,12 @@ const WalletTransactions = React.memo((props: {
             contentInset={{ top: 44, bottom: 52 }}
             contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
             onScroll={onScroll}
-            scrollEventThrottle={16}
+            scrollEventThrottle={26}
             removeClippedSubviews={true}
         >
             {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
             {components}
-        </Animated.ScrollView>
+        </ScrollView>
     );
 });
 
@@ -150,12 +119,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const account = props.wallet;
-
-    const openTransactionFragment = React.useCallback((transaction: string) => {
-        if (transaction) {
-            navigation.navigate('Transaction', { transaction: transaction });
-        }
-    }, [navigation]);
+    const animRef = React.useRef<LottieView>(null);
 
     const onReachedEnd = React.useMemo(() => {
         let prev = account.next;
@@ -173,17 +137,44 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-            <WalletTransactions
-                txs={account.transactions}
-                next={account.next}
-                address={address}
-                engine={engine}
-                onTxPress={openTransactionFragment}
-                navigation={navigation}
-                safeArea={safeArea}
-                onLoadMore={onReachedEnd}
-                frameArea={frameArea}
-            />
+            {account.transactions.length === 0 && (
+                <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                    <Pressable
+                        onPress={() => {
+                            animRef.current?.play();
+                        }}>
+                        <LottieView
+                            ref={animRef}
+                            source={require('../../../assets/animations/duck.json')}
+                            autoPlay={true}
+                            loop={false}
+                            progress={0.2}
+                            style={{ width: 192, height: 192 }}
+                        />
+                    </Pressable>
+                    <Text style={{ fontSize: 16, color: '#7D858A' }}>
+                        {t('wallet.empty.message')}
+                    </Text>
+                    <RoundButton
+                        title={t('wallet.empty.receive')}
+                        size="normal"
+                        display="text"
+                        onPress={() => navigation.navigate('Receive')}
+                    />
+                </View>
+            )}
+            {account.transactions.length > 0 && (
+                <WalletTransactions
+                    txs={account.transactions}
+                    next={account.next}
+                    address={address}
+                    engine={engine}
+                    navigation={navigation}
+                    safeArea={safeArea}
+                    onLoadMore={onReachedEnd}
+                    frameArea={frameArea}
+                />
+            )}
             {/* iOS Toolbar */}
             {
                 Platform.OS === 'ios' && (

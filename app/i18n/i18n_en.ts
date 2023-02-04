@@ -402,7 +402,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     errors: {
         incorrectWords: {
             title: 'Incorrect words',
-            message: 'You have entered incorrect secret words. Please, double ckeck your input and try again.'
+            message: 'You have entered incorrect secret words. Please, double check your input and try again.'
         },
         secureStorageError: {
             title: 'Secure storage error',

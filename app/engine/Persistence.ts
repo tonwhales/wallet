@@ -30,7 +30,7 @@ import { Transaction } from "./Transaction";
 
 export class Persistence {
 
-    readonly version: number = 10;
+    readonly version: number = 11;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;

@@ -46,13 +46,8 @@ export function startHintsTxSync(address: Address, engine: Engine) {
                     continue;
                 }
 
-                if (tx.inMessage && tx.inMessage.info.src && Address.isAddress(tx.inMessage.info.src) && !tx.inMessage.info.src.equals(address)) {
-                    mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
-                }
-                for (let out of tx.outMessages) {
-                    if (out.info.dest && Address.isAddress(out.info.dest) && !out.info.dest.equals(address)) {
-                        mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
-                    }
+                for (let m of tx.mentioned) {
+                    mentioned.add(m);
                 }
             }
         }

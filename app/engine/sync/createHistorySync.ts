@@ -1,10 +1,11 @@
 import BN from "bn.js";
 import { SyncValue } from "teslabot";
-import { Address, parseTransaction } from "ton";
+import { Address, Cell, parseTransaction } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { createLogger } from "../../utils/log";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
+import { parseWalletTransaction } from "../transactions/parseWalletTransaction";
 import { FullAccount } from "./startAccountFullSync";
 
 export function createHistorySync(address: Address, engine: Engine) {
@@ -26,10 +27,10 @@ export function createHistorySync(address: Address, engine: Engine) {
             return;
         }
         let ex = engine.transactions.get(address, itm.transactions[itm.transactions.length - 1]);
-        if (!ex || !ex.prevTransaction) {
+        if (!ex || !ex.prev) {
             return;
         }
-        if (cursor.lt !== ex.prevTransaction.lt.toString(10)) {
+        if (cursor.lt !== ex.prev.lt) {
             return;
         }
 
@@ -43,7 +44,6 @@ export function createHistorySync(address: Address, engine: Engine) {
 
         let loadedTransactions: string[] = [];
         // Download introspection
-        let mentioned = new Set<string>();
         for (let t of fetched) {
             const tx = parseTransaction(address.workChain, t.tx.beginParse());
             const data = t.tx.toBoc({ idx: false }).toString('base64');
@@ -52,16 +52,8 @@ export function createHistorySync(address: Address, engine: Engine) {
             loadedTransactions.push(tx.lt.toString(10));
 
             // Persist transaction
-            engine.transactions.set(address, tx.lt.toString(10), data);
-
-            if (tx.inMessage && tx.inMessage.info.src && Address.isAddress(tx.inMessage.info.src)) {
-                mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
-            }
-            for (let out of tx.outMessages) {
-                if (out.info.dest && Address.isAddress(out.info.dest)) {
-                    mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
-                }
-            }
+            const parsed = parseWalletTransaction(tx, Cell.fromBoc(Buffer.from(data, 'base64'))[0].hash(), address);
+            engine.transactions.set(address, tx.lt.toString(10), parsed);
         }
 
         // Read previous transaction
@@ -100,11 +92,11 @@ export function createHistorySync(address: Address, engine: Engine) {
             let itm = item.value;
             if (itm && itm.transactions.length > 0) {
                 let ex = engine.transactions.get(address, itm.transactions[itm.transactions.length - 1]);
-                if (!ex || !ex.prevTransaction) {
+                if (!ex || !ex.prev) {
                     logger.warn('Reached end');
                     return;
                 }
-                if (lt !== ex.prevTransaction.lt.toString(10)) {
+                if (lt !== ex.prev.lt) {
                     logger.warn('Incorrect LT');
                     return;
                 }

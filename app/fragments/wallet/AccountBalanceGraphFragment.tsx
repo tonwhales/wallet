@@ -39,7 +39,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
         });
 
         if (account && last) {
-            const latest = engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
+            const latest = engine.transactions.get(engine.address, last.lt.toString(10));
 
             if (latest && (latest.time * 1000 > temp[temp.length - 1].date.getTime())) {
                 temp.push({

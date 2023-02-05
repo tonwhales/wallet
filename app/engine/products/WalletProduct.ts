@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, fromNano } from "ton";
+import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
@@ -218,7 +218,7 @@ export class WalletProduct {
             const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 
             if (last) {
-                let latest = this.engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
+                let latest = this.engine.transactions.get(engine.address, last.lt.toString(10));
 
                 if (!latest) {
                     return;
@@ -244,7 +244,7 @@ export class WalletProduct {
                         break;
                     }
 
-                    let tx = this.engine.transactions.getWalletTransaction(engine.address, next.lt);
+                    let tx = this.engine.transactions.get(engine.address, next.lt);
 
                     if (!tx) {
                         break;
@@ -341,7 +341,7 @@ export class WalletProduct {
                     break;
                 }
 
-                let tx = this.engine.transactions.getWalletTransaction(this.engine.address, next.lt);
+                let tx = this.engine.transactions.get(this.engine.address, next.lt);
 
                 // Stop if not found in storage
                 if (!tx) {
@@ -384,7 +384,7 @@ export class WalletProduct {
     }
 
     loadMore = (lt: string, hash: string) => {
-        let tx = this.engine.transactions.getWalletTransaction(this.engine.address, lt);
+        let tx = this.engine.transactions.get(this.engine.address, lt);
         // If found in storage 
         if (tx) {
             this.loadMoreFromStorage(tx);

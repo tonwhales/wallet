@@ -399,7 +399,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
-                                    fontWeight: '500',
+                                    fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20
                                 }}

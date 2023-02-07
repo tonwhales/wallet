@@ -16,4 +16,6 @@ export type Transaction = {
     time: number;
     bounced: boolean;
     prev: { lt: string, hash: string } | null;
+    mentioned: string[];
+    hash: Buffer;
 }

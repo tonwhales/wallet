@@ -23,16 +23,18 @@ import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 import { StakingAPY } from "./api/fetchApy";
-import { PriceState, PrimaryCurrency } from "./products/PriceProduct";
+import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
+import { walletTransactionCodec } from "./transactions/codecs";
+import { Transaction } from "./Transaction";
 
 export class Persistence {
 
-    readonly version: number = 10;
+    readonly version: number = 11;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
-    readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
+    readonly parsedTransactions: PersistedCollection<{ address: Address, lt: BN }, Transaction>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, PriceState>;
@@ -75,7 +77,7 @@ export class Persistence {
         this.liteAccounts = new PersistedCollection({ storage, namespace: 'liteAccounts', key: addressKey, codec: liteAccountCodec, engine });
         this.fullAccounts = new PersistedCollection({ storage, namespace: 'fullAccounts', key: addressKey, codec: fullAccountCodec, engine });
         this.wallets = new PersistedCollection({ storage, namespace: 'wallets', key: addressKey, codec: walletCodec, engine });
-        this.transactions = new PersistedCollection({ storage, namespace: 'transactions', key: transactionKey, codec: t.string, engine });
+        this.parsedTransactions = new PersistedCollection({ storage, namespace: 'parsedTransactions', key: transactionKey, codec: walletTransactionCodec, engine });
         this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });

@@ -40,7 +40,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     let transaction = engine.products.main.useTransaction(params.transaction);
-    let transactionHash = engine.transactions.getHash(address, transaction.base.lt);
+    // let transactionHash = engine.transactions.getHash(address, transaction.base.lt);
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
@@ -80,19 +80,19 @@ export const TransactionPreviewFragment = fragment(() => {
         if (!transaction.base.lt) {
             return null;
         }
-        if (!transactionHash) {
+        if (!transaction.base.hash) {
             return null;
         }
         return transaction.base.lt +
             '_' +
-            transactionHash.toString('hex')
-    }, [transaction, transactionHash]);
+            transaction.base.hash.toString('hex')
+    }, [transaction]);
 
     const explorerLink = useMemo(() => {
         if (!transaction.base.lt) {
             return null;
         }
-        if (!transactionHash) {
+        if (!transaction.base.hash) {
             return null;
         }
         return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'

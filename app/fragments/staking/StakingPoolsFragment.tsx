@@ -76,6 +76,7 @@ function PoolComponent(props: {
     let requireSource: ImageRequireSource | undefined;
     let club: boolean | undefined;
     let team: boolean | undefined;
+    // TODO refactor this
     if (addr === 'EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB') {
         requireSource = require('../../../assets/ic_club_cosmos.png');
         club = true;
@@ -90,6 +91,14 @@ function PoolComponent(props: {
     }
     if (addr === 'EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM') {
         requireSource = require('../../../assets/known/ic_team_2.png');
+        team = true;
+    }
+    if (addr === 'EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN') {
+        requireSource = require('../../../assets/known/ic_epn_1.png');
+        team = true;
+    }
+    if (addr === 'EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN') {
+        requireSource = require('../../../assets/known/ic_epn_2.png');
         team = true;
     }
 

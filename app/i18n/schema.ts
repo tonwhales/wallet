@@ -254,7 +254,7 @@ export type LocalizationSchema = {
                 teamBanner: string,
                 teamBannerLearnMore: string,
                 teamBannerDescription: string,
-                partners: string,
+                epnPartners: string,
             },
             transfer: {
                 stakingWarning: string,

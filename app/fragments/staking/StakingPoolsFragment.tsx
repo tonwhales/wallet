@@ -333,6 +333,7 @@ export const StakingPoolsFragment = fragment(() => {
     let club = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('club') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
     let team = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('team') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
     let nominators = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('nominators') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+    let epn = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('epn') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
 
     if (nominators.length > 0) {
         items.push(
@@ -394,6 +395,25 @@ export const StakingPoolsFragment = fragment(() => {
             items.push(
                 <PoolComponent
                     key={`team-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={pool.address}
+                    balance={pool.balance}
+                    engine={engine}
+                />
+            );
+        }
+    }
+
+    if (epn.length > 0) {
+        items.push(
+            <Header
+                key={'epn-header'}
+                text={t('products.staking.pools.partners')}
+            />
+        );
+        for (let pool of epn) {
+            items.push(
+                <PoolComponent
+                    key={`epn-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}

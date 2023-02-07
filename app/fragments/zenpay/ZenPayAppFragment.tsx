@@ -13,7 +13,7 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
-export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' } | { type: 'about' };
+export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
 export const ZenPayAppFragment = fragment(() => {
     const engine = useEngine();
@@ -27,8 +27,6 @@ export const ZenPayAppFragment = fragment(() => {
             url += status.state === 'ready' ? '/create' : '';
         } else if (params.type === 'card') {
             url += `/card/${params.id}`;
-        } else if (params.type === 'about') {
-            url += '/about';
         }
         return url
     }, [params, status]);
@@ -66,18 +64,16 @@ export const ZenPayAppFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 
-            {!needsEnrolment && (
-                <ZenPayAppComponent
-                    title={t('products.zenPay.title')}
-                    variant={params}
-                    token={(
-                        status as { state: 'need-phone', token: string }
-                        | { state: 'need-kyc', token: string }
-                        | { state: 'ready', token: string }
-                    ).token}
-                    endpoint={endpoint}
-                />
-            )}
+            <ZenPayAppComponent
+                title={t('products.zenPay.title')}
+                variant={params}
+                token={(
+                    status as { state: 'need-phone', token: string }
+                    | { state: 'need-kyc', token: string }
+                    | { state: 'ready', token: string }
+                ).token}
+                endpoint={endpoint}
+            />
         </View>
     );
 });

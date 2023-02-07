@@ -46,11 +46,7 @@ export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPay
     const onPress = useCallback(
         () => {
             if (needsEnrolment) {
-                navigation.navigateZenPayEnrollment({
-                    endpoint: zenPayUrl, callback: () => {
-                        navigation.navigateZenPay({ type: 'about' });
-                    }
-                });
+                navigation.navigate('ZenPayLanding', { endpoint: zenPayUrl });
                 return;
             }
             navigation.navigateZenPay(card ? { type: 'card', id: card.id } : { type: 'account' });

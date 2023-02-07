@@ -6,6 +6,7 @@ import { mixpanel, MixpanelEvent, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
+import { zenPayUrl } from "../engine/corp/ZenPayProduct";
 import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
@@ -16,7 +17,7 @@ import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 
 export function clearZenPay(engine: Engine) {
-    const zenPayDomain = extractDomain('https://next.zenpay.org');
+    const zenPayDomain = extractDomain(zenPayUrl);
     engine.persistence.domainKeys.setValue(zenPayDomain, null);
     engine.persistence.zenPayState.setValue(engine.address, null);
     engine.products.zenPay.stopWatching();

@@ -14,6 +14,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import WebView from "react-native-webview";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { LinearGradient } from 'expo-linear-gradient';
+import { zenPayUrl } from "../../engine/corp/ZenPayProduct";
 
 export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => void }) => {
     const safeArea = useSafeAreaInsets();
@@ -88,7 +89,7 @@ export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => v
                 </>
             )}
             <WebView
-                source={{ uri: 'https://next.zenpay.org/about' }}
+                source={{ uri: `${zenPayUrl}/about` }}
                 onLoadEnd={() => {
                     setLoaded(true);
                     opacity.value = 0;

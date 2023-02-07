@@ -8,33 +8,34 @@ import { ZenPayAppComponent } from './ZenPayAppComponent';
 import { Theme } from '../../Theme';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { ZenPayEnrollmentComponent } from './ZenPayEnrollmentComponent';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { ZenPayInfoComponent } from './ZenPayInfoComponent';
+import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
-export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
+export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' } | { type: 'about' };
 
 export const ZenPayAppFragment = fragment(() => {
     const engine = useEngine();
     const params = useParams<ZenPayAppParams>();
     const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
     const status = engine.products.zenPay.useStatus();
     const endpoint = useMemo(() => {
-        return 'https://next.zenpay.org' + (
-            params.type === 'account'
-                ? status.state === 'ready'
-                    ? '/create'
-                    : ''
-                : `/card/${params.id}`
-        );
+        let url = zenPayUrl;
+        if (params.type === 'account') {
+            url += status.state === 'ready' ? '/create' : '';
+        } else if (params.type === 'card') {
+            url += `/card/${params.id}`;
+        } else if (params.type === 'about') {
+            url += '/about';
+        }
+        return url
     }, [params, status]);
-
-    const [showInfo, setShowInfo] = React.useState(endpoint.includes('/create') || status.state === 'need-kyc' || status.state === 'need-phone' ? true : false);
 
     const needsEnrolment = useMemo(() => {
         try {
-            let domain = extractDomain('https://next.zenpay.org');
+            let domain = extractDomain(zenPayUrl);
             if (!domain) {
                 return; // Shouldn't happen
             }
@@ -51,6 +52,12 @@ export const ZenPayAppFragment = fragment(() => {
         return false;
     }, [status]);
 
+    React.useEffect(() => {
+        if (needsEnrolment) {
+            navigation.goBack();
+        }
+    }, [needsEnrolment]);
+
     return (
         <View style={{
             flex: 1,
@@ -59,7 +66,7 @@ export const ZenPayAppFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 
-            {!needsEnrolment && !showInfo && (
+            {!needsEnrolment && (
                 <ZenPayAppComponent
                     title={t('products.zenPay.title')}
                     variant={params}
@@ -70,14 +77,6 @@ export const ZenPayAppFragment = fragment(() => {
                     ).token}
                     endpoint={endpoint}
                 />
-            )}
-
-            {needsEnrolment && (
-                <ZenPayEnrollmentComponent onEnrollCallback={() => { setShowInfo(false) }} engine={engine} endpoint={endpoint} />
-            )}
-
-            {showInfo && !needsEnrolment && (
-                <ZenPayInfoComponent callback={() => { setShowInfo(false) }} />
             )}
         </View>
     );

@@ -1,6 +1,6 @@
 import { log } from './log';
 
-export const createTracer = () => {
+export const createTracer = (tag?: string) => {
     let start = Date.now();
     let last = Date.now();
     let report: { label: string, fromStart: string, elapsed: string }[] = [];
@@ -13,7 +13,7 @@ export const createTracer = () => {
             log('');
             log('> Tracer report:');
             for (let r of report) {
-                log('\t' + r.label + '\t' + r.fromStart + '\t' + r.elapsed);
+                log('\t' + (tag ?? '') + '\t' + r.label + '\t' + r.fromStart + '\t' + r.elapsed);
             }
             log('');
         }

@@ -1,5 +1,6 @@
 import { BN } from "bn.js";
 import { Address, Cell, parseMessageRelaxed, RawTransaction } from "ton";
+import { AppConfig } from "../../AppConfig";
 import { Body, Transaction } from "../Transaction";
 
 export function parseBody(cell: Cell): Body | null {
@@ -27,7 +28,7 @@ export function parseBody(cell: Cell): Body | null {
     return { type: 'payload', cell };
 }
 
-export function parseWalletTransaction(tx: RawTransaction): Transaction {
+export function parseWalletTransaction(tx: RawTransaction, hash: Buffer, own: Address): Transaction {
 
     //
     // Resolve previous
@@ -131,6 +132,16 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         body = parseBody(tx.inMessage.body);
     }
 
+    const mentioned = new Set<string>();
+    if (tx.inMessage && tx.inMessage.info.src && Address.isAddress(tx.inMessage.info.src) && !tx.inMessage.info.src.equals(own)) {
+        mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
+    }
+    for (let out of tx.outMessages) {
+        if (out.info.dest && Address.isAddress(out.info.dest) && !out.info.dest.equals(own)) {
+            mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
+        }
+    }
+
     return {
         id: 'chain:' + tx.lt.toString(10),
         lt: tx.lt.toString(10),
@@ -143,6 +154,8 @@ export function parseWalletTransaction(tx: RawTransaction): Transaction {
         status,
         time: tx.time,
         bounced,
-        prev
+        prev,
+        mentioned: Array.from(mentioned),
+        hash
     };
 }

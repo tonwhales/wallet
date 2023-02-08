@@ -1,12 +1,11 @@
-import { Cell } from "ton";
 import { Engine } from "../Engine";
 import axios from 'axios';
 import { createLogger, warn } from '../../utils/log';
 import EventSource, { MessageEvent } from 'react-native-sse';
-import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionInjected, ConnectedAppConnectionRemote, ConnectQrQuery, SendTransactionRequest, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
+import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
 import { AppRequest, Base64, ConnectEvent, ConnectRequest, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
 import { CloudValue } from '../cloud/CloudValue';
-import { RecoilValueReadOnly, selector, useRecoilValue } from 'recoil';
+import { selector, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
 import { AppState } from 'react-native';
 import { AppManifest, fetchManifest } from '../tonconnect/fetchManifest';

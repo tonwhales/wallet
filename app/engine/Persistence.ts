@@ -22,13 +22,11 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
-import { CorpStatus } from "./corp/CorpProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
-import { AppManifest, appManifestCodec } from "./tonconnect/fetchManifest";
-import { SendTransactionRpcRequest } from "@tonconnect/protocol";
-import { SendTransactionRequest, sendTransactionRpcRequestCodec } from "./tonconnect/types";
+import { walletTransactionCodec } from "./transactions/codecs";
+import { Transaction } from "./Transaction";
 
 export class Persistence {
 
@@ -36,7 +34,7 @@ export class Persistence {
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
-    readonly transactions: PersistedCollection<{ address: Address, lt: BN }, string>;
+    readonly parsedTransactions: PersistedCollection<{ address: Address, lt: BN }, Transaction>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, PriceState>;
@@ -75,8 +73,6 @@ export class Persistence {
 
     readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
 
-    readonly corp: PersistedCollection<Address, CorpStatus>;
-
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
             storage.clearAll();
@@ -85,7 +81,7 @@ export class Persistence {
         this.liteAccounts = new PersistedCollection({ storage, namespace: 'liteAccounts', key: addressKey, codec: liteAccountCodec, engine });
         this.fullAccounts = new PersistedCollection({ storage, namespace: 'fullAccounts', key: addressKey, codec: fullAccountCodec, engine });
         this.wallets = new PersistedCollection({ storage, namespace: 'wallets', key: addressKey, codec: walletCodec, engine });
-        this.transactions = new PersistedCollection({ storage, namespace: 'transactions', key: transactionKey, codec: t.string, engine });
+        this.parsedTransactions = new PersistedCollection({ storage, namespace: 'parsedTransactions', key: transactionKey, codec: walletTransactionCodec, engine });
         this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
@@ -127,9 +123,6 @@ export class Persistence {
 
         // SpamFilter
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
-
-        // Corp
-        this.corp = new PersistedCollection({ storage, namespace: 'corp', key: addressKey, codec: corpCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -306,24 +299,6 @@ const spamFilterCodec = t.type({
     minAmount: t.union([c.bignum, t.null]),
     dontShowComments: t.union([t.boolean, t.null])
 });
-
-const corpCodec = t.union([
-    t.type({
-        state: t.literal('need-enrolment'),
-    }),
-    t.type({
-        state: t.literal('need-phone'),
-        token: t.string
-    }),
-    t.type({
-        state: t.literal('need-kyc'),
-        token: t.string
-    }),
-    t.type({
-        state: t.literal('ready'),
-        token: t.string
-    })
-]);
 
 const apyCodec = t.type({
     apy: t.number

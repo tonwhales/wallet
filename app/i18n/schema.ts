@@ -41,7 +41,7 @@ export type LocalizationSchema = {
         apy: string,
         tx: string,
         gotIt: string,
-        error: string
+        wallet: string
     },
     syncStatus: {
         connecting: string,
@@ -259,6 +259,7 @@ export type LocalizationSchema = {
                 teamBanner: string,
                 teamBannerLearnMore: string,
                 teamBannerDescription: string,
+                epnPartners: string,
             },
             transfer: {
                 stakingWarning: string,

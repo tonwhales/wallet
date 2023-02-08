@@ -22,13 +22,18 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
 }
 
-export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
+export function TransactionView(props: {
+    own: Address,
+    tx: string,
+    separator: boolean,
+    engine: Engine,
+    onPress: (src: string) => void
+}) {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
     const tx = props.engine.products.main.useTransaction(props.tx);
-    let transactionHash = props.engine.transactions.getHash(props.engine.address, tx.base.lt);
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -100,13 +105,13 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         if (!tx.base.lt) {
             return null;
         }
-        if (!transactionHash) {
+        if (!tx.base.hash) {
             return null;
         }
         return tx.base.lt +
             '_' +
-            transactionHash.toString('hex')
-    }, [tx, transactionHash]);
+            tx.base.hash.toString('hex')
+    }, [tx]);
 
     const explorerTxLink = React.useMemo(() => {
         if (!txId) {

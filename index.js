@@ -1,3 +1,4 @@
+// polyfills
 global.Buffer = global.Buffer || require('buffer').Buffer;
 import 'react-native-url-polyfill/auto';
 import 'text-encoding-polyfill';

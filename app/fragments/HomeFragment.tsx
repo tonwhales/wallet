@@ -43,7 +43,11 @@ export const HomeFragment = fragment(() => {
                             }
 
                             if (existing.job.job.type === 'transaction') {
-                                SplashScreen.hideAsync();
+                                try {
+                                    SplashScreen.hideAsync();
+                                } catch (e) {
+                                    // Ignore
+                                }
                                 if (existing.job.job.payload) {
                                     navigation.navigateTransfer({
                                         order: {

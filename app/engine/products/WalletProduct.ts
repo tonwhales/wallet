@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, fromNano } from "ton";
+import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
@@ -218,7 +218,7 @@ export class WalletProduct {
             const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 
             if (last) {
-                let latest = this.engine.transactions.getWalletTransaction(engine.address, last.lt.toString(10));
+                let latest = this.engine.transactions.get(engine.address, last.lt.toString(10));
 
                 if (!latest) {
                     return;
@@ -232,9 +232,9 @@ export class WalletProduct {
                     next = { lt: latest.prev.lt, hash: latest.prev.hash };
                 }
 
-                let toLoad = this.#initialLoad ? 10 : state.transactions.length;
+                let toLoad = this.#initialLoad ? 20 : state.transactions.length;
 
-                if (state.transactions.length <= 10) {
+                if (state.transactions.length <= 20) {
                     toLoad = state.transactions.length - 1; // first 10 txs except for the latest
                 }
 
@@ -244,7 +244,7 @@ export class WalletProduct {
                         break;
                     }
 
-                    let tx = this.engine.transactions.getWalletTransaction(engine.address, next.lt);
+                    let tx = this.engine.transactions.get(engine.address, next.lt);
 
                     if (!tx) {
                         break;
@@ -276,7 +276,7 @@ export class WalletProduct {
                             this.#txs.set(t.id, t);
                         }
 
-                        return t;
+                        return { id: t.id, time: t.time };
                     })
                 ],
                 pending: this.#pending.map((v) => ({ id: v.id, time: v.time })),
@@ -334,14 +334,14 @@ export class WalletProduct {
         // Resolve updated state
         if (this.#state) {
 
-            for (let i = 0; i < 10 - 1; i++) {
+            for (let i = 0; i < 20 - 1; i++) {
 
                 // Stop if no previous
                 if (!next) {
                     break;
                 }
 
-                let tx = this.engine.transactions.getWalletTransaction(this.engine.address, next.lt);
+                let tx = this.engine.transactions.get(this.engine.address, next.lt);
 
                 // Stop if not found in storage
                 if (!tx) {
@@ -384,7 +384,7 @@ export class WalletProduct {
     }
 
     loadMore = (lt: string, hash: string) => {
-        let tx = this.engine.transactions.getWalletTransaction(this.engine.address, lt);
+        let tx = this.engine.transactions.get(this.engine.address, lt);
         // If found in storage 
         if (tx) {
             this.loadMoreFromStorage(tx);

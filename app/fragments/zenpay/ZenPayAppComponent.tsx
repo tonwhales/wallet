@@ -111,6 +111,12 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
                     return;
                 }
 
+                const pin = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/pin$/;
+                if (pin.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.pin'));
+                    return;
+                }
+
                 setPageTitle(t('products.zenPay.pageTitles.card'));
             } else if (url.indexOf('/auth') !== -1) {
                 setPageTitle(t('products.zenPay.title'));
@@ -298,6 +304,13 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             setCanGoBack(canGoBack);
             return;
         }
+        
+        const cardPin = /\/card\/[a-z0-9]+\/pin$/;
+        if (cardPin.test(url)) {
+            setCanGoBack(canGoBack);
+            return;
+        }
+
         if (
             url.indexOf('/auth/countrySelect') !== -1
             || url.indexOf('/auth/phone') !== -1

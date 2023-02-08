@@ -41,6 +41,7 @@ export type LocalizationSchema = {
         apy: string,
         tx: string,
         gotIt: string,
+        error: string,
         wallet: string
     },
     syncStatus: {

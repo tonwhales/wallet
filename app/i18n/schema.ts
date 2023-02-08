@@ -364,7 +364,8 @@ export type LocalizationSchema = {
                 cardDeposit: string,
                 transfer: string,
                 cardSmartContract: string,
-                setUpCard: string
+                setUpCard: string,
+                pin: string
             },
             card: {
                 title: string,

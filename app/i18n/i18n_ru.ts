@@ -364,6 +364,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 transfer: 'Перевод',
                 cardSmartContract: 'Смарт-контракт карты',
                 setUpCard: 'Настройка карты',
+                pin: 'Смена PIN-кода',
             },
             card: {
                 title: 'Tonhub Card *{{cardNumber}}',

@@ -57,6 +57,8 @@ export class ConnectProduct {
                     privacyPolicyUrl: string | null,
                 }[] = [];
 
+                console.log('ConnectProduct extensions', { apps });
+
                 for (let k in apps.installed) {
                     let app = apps.installed[k];
                     let key = extensionKey(app.url);
@@ -225,12 +227,13 @@ export class ConnectProduct {
     }
 
     saveAppConnection(appData: Omit<ConnectedApp, 'connections'>, connection: ConnectedAppConnection) {
+        console.log('saveAppConnection', { appData, connection });
         this.extensions.value.installed
 
         let key = extensionKey(appData.url);
 
         const connected = this.extensions.value.installed[key];
-        if (!!connected) { 
+        if (!!connected) {
             this.extensions.update((doc) => {
                 doc.installed[key].connections.push(connection);
             });
@@ -257,6 +260,10 @@ export class ConnectProduct {
         });
 
         this._startSync();
+    }
+
+    useAppManifest(url: string) {
+        return useRecoilValue(this.engine.persistence.connectDApps.item(extensionKey(url)).atom);
     }
 
     async getConnectAppData(url: string) {

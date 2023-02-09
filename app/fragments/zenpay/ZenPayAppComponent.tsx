@@ -23,11 +23,18 @@ import { ZenPayAppParams } from './ZenPayAppFragment';
 import { HeaderBackButton } from "@react-navigation/elements";
 import { openWithInApp } from '../../utils/openWithInApp';
 
-export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams, token: string, title: string, endpoint: string }) => {
+export const ZenPayAppComponent = React.memo((
+    props: {
+        variant: ZenPayAppParams,
+        token: string,
+        title: string,
+        endpoint: string
+    }
+) => {
     const engine = useEngine();
     const zenPayCards = engine.products.zenPay.useCards();
     const [canGoBack, setCanGoBack] = React.useState(false);
-    const [scrollEnabled, setScrollEnabled] = React.useState(true);
+    const [background, setBackground] = React.useState(Theme.background);
     const [promptBeforeExit, setPromptBeforeExit] = React.useState(true);
     const [pageTitle, setPageTitle] = React.useState(t('products.zenPay.title'));
     const webRef = React.useRef<WebView>(null);
@@ -304,7 +311,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
             setCanGoBack(canGoBack);
             return;
         }
-        
+
         const cardPin = /\/card\/[a-z0-9]+\/pin$/;
         if (cardPin.test(url)) {
             setCanGoBack(canGoBack);
@@ -332,14 +339,6 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         }
     }, []);
 
-    const updateScrollEnabled = React.useCallback((url: string) => {
-        if (url.indexOf('/auth/phone') !== -1 || url.indexOf('/auth/code') !== -1) {
-            setScrollEnabled(false);
-        } else {
-            setScrollEnabled(true);
-        }
-    }, []);
-
     const updatePromptBeforeExit = React.useCallback((url: string) => {
         if (url.indexOf('/auth/countrySelect') !== -1
             || url.indexOf('/auth/phone') !== -1
@@ -354,6 +353,14 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
         }
     }, []);
 
+    const updateBackground = React.useCallback((url: string) => {
+        if (url.indexOf('/create/about') !== -1) {
+            setBackground(Theme.item);
+        } else {
+            setBackground(Theme.background);
+        }
+    }, []);
+
     React.useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', close);
         return () => {
@@ -363,7 +370,7 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
 
     return (
         <>
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <AndroidToolbar
                     pageTitle={pageTitle}
                     onBack={close}
@@ -461,24 +468,24 @@ export const ZenPayAppComponent = React.memo((props: { variant: ZenPayAppParams,
 
                                 // Page title 
                                 updatePateTitle(event.nativeEvent.url);
+
+                                // Background
+                                updateBackground(event.nativeEvent.url);
                             }
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
                             // Update canGoBack
                             updateCanGoBack(event.url, event.canGoBack);
 
-                            // Update scrollEnabled for iOS
-                            if (Platform.OS === 'ios') {
-                                updateScrollEnabled(event.url)
-                            }
-
                             // Update promptBeforeExit
                             updatePromptBeforeExit(event.url)
 
                             // Page title 
                             updatePateTitle(event.url);
+
+                            // Background
+                            updateBackground(event.url);
                         }}
-                        scrollEnabled={scrollEnabled}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         allowFileAccessFromFileURLs={false}

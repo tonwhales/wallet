@@ -14,7 +14,7 @@ import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
-import { ZenPayProductButton } from "../../zenpay/ZenPayProductButton"
+import { ZenPayProductButton } from "../../zenpay/components/ZenPayProductButton"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();

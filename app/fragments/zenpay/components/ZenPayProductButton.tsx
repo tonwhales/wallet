@@ -1,15 +1,15 @@
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import React, { useCallback } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
-import { PriceComponent } from "../../components/PriceComponent";
-import { ValueComponent } from "../../components/ValueComponent";
-import { ZenPayCard, zenPayUrl } from "../../engine/corp/ZenPayProduct";
-import { Engine } from "../../engine/Engine";
-import { extractDomain } from "../../engine/utils/extractDomain";
-import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
-import { avatarHash } from "../../utils/avatarHash";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { PriceComponent } from "../../../components/PriceComponent";
+import { ValueComponent } from "../../../components/ValueComponent";
+import { ZenPayCard, zenPayUrl } from "../../../engine/corp/ZenPayProduct";
+import { Engine } from "../../../engine/Engine";
+import { extractDomain } from "../../../engine/utils/extractDomain";
+import { t } from "../../../i18n/t";
+import { Theme } from "../../../Theme";
+import { avatarHash } from "../../../utils/avatarHash";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
 const colorsMap = [
     ['#EA7509', '#E9A904'],
@@ -88,13 +88,13 @@ export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPay
                         </Text>
                     )}
                     {!card && (
-                        <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                        <Image source={require('../../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                     {card && card.type === 'virtual' && (
-                        <Image source={require('../../../assets/ic_virtual_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                        <Image source={require('../../../../assets/ic_virtual_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                     {card && card.type === 'physical' && (
-                        <Image source={require('../../../assets/ic_visa_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                        <Image source={require('../../../../assets/ic_visa_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                 </View>
                 {!!card && (

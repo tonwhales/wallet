@@ -1,20 +1,20 @@
 import React from "react";
 import { View, Text, Pressable, Platform, Image, ScrollView, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MixpanelEvent, trackEvent, useTrackEvent } from "../../analytics/mixpanel";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
-import { RoundButton } from "../../components/RoundButton";
-import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { MixpanelEvent, trackEvent, useTrackEvent } from "../../../analytics/mixpanel";
+import { AndroidToolbar } from "../../../components/AndroidToolbar";
+import { RoundButton } from "../../../components/RoundButton";
+import { t } from "../../../i18n/t";
+import { Theme } from "../../../Theme";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import Description_1 from '../../../assets/ic_zenpay_description_1.svg';
 import Description_2 from '../../../assets/ic_zenpay_description_2.svg';
 import Description_3 from '../../../assets/ic_zenpay_description_3.svg';
-import { openWithInApp } from "../../utils/openWithInApp";
+import { openWithInApp } from "../../../utils/openWithInApp";
 import WebView from "react-native-webview";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { LinearGradient } from 'expo-linear-gradient';
-import { zenPayUrl } from "../../engine/corp/ZenPayProduct";
+import { zenPayUrl } from "../../../engine/corp/ZenPayProduct";
 
 export const ZenPayInfoComponent = React.memo(({ callback }: { callback: () => void }) => {
     const safeArea = useSafeAreaInsets();

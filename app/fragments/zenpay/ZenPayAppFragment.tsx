@@ -4,7 +4,7 @@ import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEngine } from '../../engine/Engine';
-import { ZenPayAppComponent } from './ZenPayAppComponent';
+import { ZenPayAppComponent } from './components/ZenPayAppComponent';
 import { Theme } from '../../Theme';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';

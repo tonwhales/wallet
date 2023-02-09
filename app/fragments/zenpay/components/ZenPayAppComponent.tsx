@@ -4,24 +4,25 @@ import WebView from 'react-native-webview';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
-import { extractDomain } from '../../engine/utils/extractDomain';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { MixpanelEvent, trackEvent, useTrackEvent } from '../../analytics/mixpanel';
-import { t } from '../../i18n/t';
-import { useLinkNavigator } from '../../Navigation';
-import { resolveUrl } from '../../utils/resolveUrl';
-import { AppConfig } from '../../AppConfig';
-import { protectNavigation } from '../apps/components/protect/protectNavigation';
-import { useEngine } from '../../engine/Engine';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { createInjectSource, dispatchResponse } from '../apps/components/inject/createInjectSource';
-import { useInjectEngine } from '../apps/components/inject/useInjectEngine';
-import { warn } from '../../utils/log';
-import { Theme } from '../../Theme';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { ZenPayAppParams } from './ZenPayAppFragment';
+import { extractDomain } from '../../../engine/utils/extractDomain';
+import { useTypedNavigation } from '../../../utils/useTypedNavigation';
+import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
+import { t } from '../../../i18n/t';
+import { useLinkNavigator } from '../../../Navigation';
+import { resolveUrl } from '../../../utils/resolveUrl';
+import { AppConfig } from '../../../AppConfig';
+import { protectNavigation } from '../../apps/components/protect/protectNavigation';
+import { useEngine } from '../../../engine/Engine';
+import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
+import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
+import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
+import { warn } from '../../../utils/log';
+import { Theme } from '../../../Theme';
+import { AndroidToolbar } from '../../../components/AndroidToolbar';
+import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { HeaderBackButton } from "@react-navigation/elements";
-import { openWithInApp } from '../../utils/openWithInApp';
+import { openWithInApp } from '../../../utils/openWithInApp';
+import { IOSToolbar } from './IOSToolbar';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -34,6 +35,7 @@ export const ZenPayAppComponent = React.memo((
     const engine = useEngine();
     const zenPayCards = engine.products.zenPay.useCards();
     const [canGoBack, setCanGoBack] = React.useState(false);
+    const [scrollEnabled, setScrollEnabled] = React.useState(true);
     const [background, setBackground] = React.useState(Theme.background);
     const [promptBeforeExit, setPromptBeforeExit] = React.useState(true);
     const [pageTitle, setPageTitle] = React.useState(t('products.zenPay.title'));
@@ -339,6 +341,14 @@ export const ZenPayAppComponent = React.memo((
         }
     }, []);
 
+    const updateScrollEnabled = React.useCallback((url: string) => {
+        if (url.indexOf('/auth/phone') !== -1 || url.indexOf('/auth/code') !== -1) {
+            setScrollEnabled(false);
+        } else {
+            setScrollEnabled(true);
+        }
+    }, []);
+
     const updatePromptBeforeExit = React.useCallback((url: string) => {
         if (url.indexOf('/auth/countrySelect') !== -1
             || url.indexOf('/auth/phone') !== -1
@@ -371,78 +381,19 @@ export const ZenPayAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <AndroidToolbar
-                    pageTitle={pageTitle}
-                    onBack={close}
-                />
-                {Platform.OS === 'ios' && (
-                    <>
-                        <View style={{
-                            width: '100%',
-                            flexDirection: 'row',
-                            paddingHorizontal: 15,
-                            marginVertical: 14,
-                            height: 42,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                            {canGoBack && (
-                                <Animated.View
-                                    entering={FadeIn}
-                                    exiting={FadeOut}
-                                    style={{ position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center' }}
-                                >
-                                    <HeaderBackButton
-                                        label={t('common.back')}
-                                        labelVisible
-                                        onPress={close}
-                                        tintColor={Theme.accent}
-                                    />
-                                </Animated.View>
-                            )}
-                            {!canGoBack && (
-                                <Animated.View
-                                    style={{
-                                        position: 'absolute',
-                                        top: 0, bottom: 0, left: 15, justifyContent: 'center'
-                                    }}
-                                    entering={FadeIn}
-                                    exiting={FadeOut}
-                                >
-                                    <Pressable
-                                        style={({ pressed }) => {
-                                            return ({
-                                                opacity: pressed ? 0.3 : 1,
-                                            });
-                                        }}
-                                        onPress={close}
-                                    >
-                                        <Text style={{
-                                            fontWeight: '400',
-                                            fontSize: 17,
-                                            textAlign: 'center',
-                                        }}>
-                                            {canGoBack ? t('common.back') : t('common.close')}
-                                        </Text>
-                                    </Pressable>
-                                </Animated.View>
-                            )}
-                            <Text style={{
-                                fontWeight: '600',
-                                fontSize: 17,
-                                textAlign: 'center',
-                            }}>
-                                {pageTitle}
-                            </Text>
-                        </View>
-                    </>
-                )}
+                <AndroidToolbar pageTitle={pageTitle} onBack={close} />
+                <IOSToolbar canGoBack={canGoBack} pageTitle={pageTitle} onBack={close} />
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
                         backgroundColor: Theme.background,
                         flexGrow: 1,
                     }}
+                    keyboardVerticalOffset={
+                        Platform.OS === 'ios'
+                            ? (!scrollEnabled ? 42 : undefined)
+                            : 8
+                    }
                 >
                     <WebView
                         ref={webRef}
@@ -485,7 +436,11 @@ export const ZenPayAppComponent = React.memo((
 
                             // Background
                             updateBackground(event.url);
+
+                            // Update scrollEnabled
+                            updateScrollEnabled(event.url);
                         }}
+                        scrollEnabled={scrollEnabled}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         allowFileAccessFromFileURLs={false}
@@ -496,6 +451,7 @@ export const ZenPayAppComponent = React.memo((
                         onShouldStartLoadWithRequest={loadWithRequest}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
+                        hideKeyboardAccessoryView={true}
                     />
                 </KeyboardAvoidingView>
                 <Animated.View

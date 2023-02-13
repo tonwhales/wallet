@@ -333,6 +333,7 @@ export const ZenPayAppComponent = React.memo((
             || url.endsWith('/create/details')
             || url.endsWith('/create/confirm')
             || url.endsWith('/create/delivery')
+            || url.endsWith('/pin')
         ) {
             setCanGoBack(canGoBack);
         } else {

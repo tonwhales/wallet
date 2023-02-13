@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, View, Text, Pressable, Alert, KeyboardAvoidingView, BackHandler } from 'react-native';
+import { ActivityIndicator, Linking, Platform, View, Alert, KeyboardAvoidingView, BackHandler } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
@@ -20,7 +20,6 @@ import { warn } from '../../../utils/log';
 import { Theme } from '../../../Theme';
 import { AndroidToolbar } from '../../../components/AndroidToolbar';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
-import { HeaderBackButton } from "@react-navigation/elements";
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { IOSToolbar } from './IOSToolbar';
 

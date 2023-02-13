@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, CommentMessage, toNano } from "ton";
+import { Address, beginCell, Cell, CommentMessage } from "ton";
 import { AppConfig } from "../../../AppConfig";
 
 export type Order = {

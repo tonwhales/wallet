@@ -341,7 +341,12 @@ export const ZenPayAppComponent = React.memo((
     }, []);
 
     const updateScrollEnabled = React.useCallback((url: string) => {
-        if (url.indexOf('/auth/phone') !== -1 || url.indexOf('/auth/code') !== -1) {
+        if (
+            url.indexOf('/auth/phone') !== -1
+            || url.indexOf('/auth/code') !== -1
+            || url.indexOf('/pin') !== -1
+            || url.indexOf('/deposit') !== -1
+        ) {
             setScrollEnabled(false);
         } else {
             setScrollEnabled(true);

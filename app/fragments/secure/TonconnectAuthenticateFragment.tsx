@@ -160,7 +160,7 @@ const SignStateLoader = React.memo((props: { query: ConnectQrQuery }) => {
                 }
             } as ConnectEvent
 
-            engine.products.tonConnect.send(response, sessionCrypto, state.clientSessionId);
+            engine.products.tonConnect.send({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
             engine.products.tonConnect.saveAppConnection(
                 {

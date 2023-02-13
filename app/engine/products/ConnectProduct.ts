@@ -183,13 +183,19 @@ export class ConnectProduct {
         return storage.getString('connect_last_event_id');
     }
 
-    async send<T extends RpcMethod>(
+    async send<T extends RpcMethod>({
+        response,
+        sessionCrypto,
+        clientSessionId,
+        bridgeUrl,
+        ttl
+    }: {
         response: WalletResponse<T> | ConnectEvent | DisconnectEvent,
         sessionCrypto: SessionCrypto,
         clientSessionId: string,
         bridgeUrl?: string,
         ttl?: number,
-    ): Promise<void> {
+    }): Promise<void> {
         try {
             const url = `${bridgeUrl ?? 'https://bridge.tonapi.io/bridge'}/message?client_id=${sessionCrypto.sessionId}&to=${clientSessionId}&ttl=${ttl || this.defaultTtl}`;
 
@@ -441,7 +447,7 @@ export class ConnectProduct {
     sendDisconnectEvent(connection: ConnectedAppConnectionRemote) {
         const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
         const event: DisconnectEvent = { event: 'disconnect', payload: {} };
-        this.send(event, sessionCrypto, connection.clientSessionId);
+        this.send({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
     }
 
     async disconnect(url: string) {
@@ -505,8 +511,8 @@ export class ConnectProduct {
             );
 
             if (this.activeRequests[from]) {
-                await this.send(
-                    {
+                await this.send({
+                    response: {
                         error: {
                             code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
                             message: 'User has already opened the previous request',
@@ -514,8 +520,8 @@ export class ConnectProduct {
                         id: request.id.toString(),
                     },
                     sessionCrypto,
-                    from,
-                );
+                    clientSessionId: from,
+                });
 
                 return;
             }
@@ -527,7 +533,7 @@ export class ConnectProduct {
             const callback = (response: WalletResponse<RpcMethod>) => {
                 delete this.activeRequests[from];
                 console.log('handleMessage response', response);
-                this.send(response, sessionCrypto, from);
+                this.send({ response, sessionCrypto, clientSessionId: from });
             }
 
             this.handleRequestFromRemoteBridge(request, from, callback, from);

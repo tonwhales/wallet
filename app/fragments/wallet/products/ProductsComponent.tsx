@@ -115,29 +115,29 @@ export const ProductsComponent = React.memo(() => {
         sessionCrypto: SessionCrypto
     ) => {
         if (!ok) {
-            engine.products.tonConnect.send(
-                new SendTransactionError(
+            engine.products.tonConnect.send({
+                response: new SendTransactionError(
                     request.id,
                     SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
                     'Wallet declined the request',
                 ),
                 sessionCrypto,
-                request.from
-            );
+                clientSessionId: request.from
+            });
         }
 
-        engine.products.tonConnect.send(
-            { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
+        engine.products.tonConnect.send({
+            response: { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
             sessionCrypto,
-            request.from
-        );
+            clientSessionId: request.from
+        });
         engine.products.tonConnect.deleteActiveRequest(request.from);
     }
 
     const checkRequest = (request: { from: string } & SendTransactionRequest) => {
         const params = JSON.parse(request.params[0]) as SignRawParams;
 
-        console.log('checkRequest', {request});
+        console.log('checkRequest', { request });
 
         const isValidRequest =
             params && typeof params.valid_until === 'number' &&
@@ -154,8 +154,8 @@ export const ProductsComponent = React.memo(() => {
 
         if (!isValidRequest) {
             engine.products.tonConnect.deleteActiveRequest(request.from);
-            engine.products.tonConnect.send(
-                {
+            engine.products.tonConnect.send({
+                response: {
                     error: {
                         code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
                         message: `Bad request`,
@@ -163,8 +163,8 @@ export const ProductsComponent = React.memo(() => {
                     id: request.id.toString(),
                 },
                 sessionCrypto,
-                request.from
-            )
+                clientSessionId: request.from
+            })
             return;
         }
 
@@ -173,8 +173,8 @@ export const ProductsComponent = React.memo(() => {
             target = Address.parse(params.messages[0].address);
         } catch (e) {
             engine.products.tonConnect.deleteActiveRequest(request.from);
-            engine.products.tonConnect.send(
-                {
+            engine.products.tonConnect.send({
+                response: {
                     error: {
                         code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
                         message: `Wrong address`,
@@ -182,16 +182,16 @@ export const ProductsComponent = React.memo(() => {
                     id: request.id.toString(),
                 },
                 sessionCrypto,
-                request.from
-            );
+                clientSessionId: request.from
+            });
             return;
         }
 
         const { valid_until } = params;
         if (valid_until < getTimeSec()) {
             engine.products.tonConnect.deleteActiveRequest(request.from);
-            engine.products.tonConnect.send(
-                {
+            engine.products.tonConnect.send({
+                response: {
                     error: {
                         code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
                         message: `Request timed out`,
@@ -199,8 +199,8 @@ export const ProductsComponent = React.memo(() => {
                     id: request.id.toString(),
                 },
                 sessionCrypto,
-                request.from
-            )
+                clientSessionId: request.from
+            })
             return;
         }
 

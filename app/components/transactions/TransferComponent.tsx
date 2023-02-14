@@ -68,7 +68,6 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
         <>
             <View
                 style={{
-                    marginTop: first ? 30 : 0,
                     backgroundColor: Theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
@@ -424,8 +423,6 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
                             )}
                         </View>
                     )}
-
-                    {/* TODO: smart contract handling */}
                     {!transfer.jettonAmount && !!transfer.operation.op && (
                         <View>
                             <View style={{
@@ -505,7 +502,7 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
             <ItemGroup style={{ marginTop: 8 }}>
                 <ItemCollapsible title={t('transfer.moreDetails')}>
                     <ItemAddress
-                        title={t('common.walletAddress')}
+                        title={t('common.recepientAddress')}
                         text={transfer.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         verified={!!transfer.known}
                         contact={!!transfer.contact}

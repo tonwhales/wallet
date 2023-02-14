@@ -40,6 +40,7 @@ import { SignRawMessage } from '../../engine/tonconnect/types';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
 import { TransferComponent } from '../../components/transactions/TransferComponent';
 import { ItemDivider } from '../../components/ItemDivider';
+import { Theme } from '../../Theme';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -68,7 +69,8 @@ type ConfirmLoadedProps = {
     },
     fees: BN,
     callback: ((ok: boolean, result: Cell | null) => void) | null,
-    back?: number
+    back?: number,
+    totalAmount: BN
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -81,7 +83,8 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         job,
         fees,
         callback,
-        back
+        back,
+        totalAmount
     } = props;
 
     const internals = React.useMemo(() => {
@@ -180,7 +183,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
 
-        let total = new BN(0);
         const messages: InternalMessage[] = [];
         for (const i of internals) {
             const target = i.message.addr.address;
@@ -208,8 +210,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 }
             }
 
-            total = total.add(new BN(i.message.amount));
-
             // Check bounce flag
             let bounce = true;
             if (!i.message.addr.active && !i.message.stateInit) {
@@ -231,11 +231,11 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
 
         // Check amount
-        if (account.balance.lt(total)) {
+        if (account.balance.lt(totalAmount)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (total.eq(new BN(0))) {
+        if (totalAmount.eq(new BN(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -296,7 +296,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             id: 'pending-' + account.seqno,
             lt: null,
             fees: fees,
-            amount: total.mul(new BN(-1)),
+            amount: totalAmount.mul(new BN(-1)),
             address: null,
             seqno: account.seqno,
             kind: 'out',
@@ -389,6 +389,33 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             </Text>
                         )}
                     </View>
+                    <ItemGroup style={{ marginBottom: 16, marginTop: 30 }}>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            color: Theme.textColor,
+                            marginHorizontal: 16,
+                            marginVertical: 14,
+                        }}>
+                            {t('transfer.txsSummary')}
+                        </Text>
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+                        <ItemLarge
+                            title={t('transfer.txsTotal')}
+                            text={fromNano(totalAmount) + ' TON'}
+                        />
+                        <ItemDivider />
+                        {!!text && (
+                            <>
+                                <ItemLarge title={t('transfer.purpose')} text={text} />
+                                <ItemDivider />
+                            </>
+                        )}
+                        <ItemLarge
+                            title={t('transfer.feeTotalTitle')}
+                            text={fromNano(fees) + ' TON'}
+                        />
+                    </ItemGroup>
                     {internals.map((i, index) => {
                         return (
                             <TransferComponent
@@ -398,18 +425,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             />
                         );
                     })}
-                    <ItemGroup style={{ marginTop: 16 }}>
-                        {!!text && (
-                            <>
-                                <ItemLarge title={t('transfer.purpose')} text={text} />
-                                <ItemDivider />
-                            </>
-                        )}
-                        <ItemLarge
-                            title={t('transfer.feeTitle')}
-                            text={fromNano(fees) + ' TON'}
-                        />
-                    </ItemGroup>
                     <View style={{ height: 56 }} />
                 </View>
             </ScrollView>
@@ -487,6 +502,7 @@ export const TransferV4Fragment = fragment(() => {
             const storageStats = [];
             const inMsgs: InternalMessage[] = [];
             const messages = [];
+            let totalAmount = new BN(0);
             for (let i = 0; i < order.messages.length; i++) {
                 const msg = internalFromSignRawMessage(order.messages[i]);
                 if (msg) {
@@ -510,6 +526,7 @@ export const TransferV4Fragment = fragment(() => {
                     let outMsg = new Cell();
                     msg.writeTo(outMsg);
                     outMsgs.push(outMsg);
+                    totalAmount = totalAmount.add(msg.value);
 
                     messages.push({
                         ...order.messages[i],
@@ -520,8 +537,20 @@ export const TransferV4Fragment = fragment(() => {
                             balance: new BN(state.account.balance.coins, 10),
                             active: state.account.state.type === 'active',
                         },
-                    })
+                    });
                 } else {
+                    Alert.alert(t('transfer.error.invalidTransaction'), undefined, [{
+                        text: t('common.back'),
+                        onPress: () => {
+                            if (params.back && params.back > 0) {
+                                for (let i = 0; i < params.back; i++) {
+                                    navigation.goBack();
+                                }
+                            } else {
+                                navigation.popToTop();
+                            }
+                        }
+                    }]);
                     exited = true;
                     if (params && params.job) {
                         engine.products.apps.commitCommand(false, params.job, new Cell());
@@ -562,7 +591,8 @@ export const TransferV4Fragment = fragment(() => {
                 job,
                 fees,
                 callback: callback ? callback : null,
-                back: params.back
+                back: params.back,
+                totalAmount,
             });
         });
 

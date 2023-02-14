@@ -219,6 +219,7 @@ export const ProductsComponent = React.memo(() => {
     for (let r of tonconnectRequests) {
         tonconnect.push(
             <AnimatedProductButton
+                key={r.from}
                 entering={FadeInUp}
                 exiting={FadeOutDown}
                 name={t('products.transactionRequest.title')}

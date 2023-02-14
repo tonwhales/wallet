@@ -15,6 +15,7 @@ export type LocalizationSchema = {
         cancel: string,
         balance: string,
         walletAddress: string,
+        recepientAddress: string,
         copy: string,
         copied: string,
         share: string,
@@ -117,13 +118,15 @@ export type LocalizationSchema = {
             addressIsForTestnet: string,
             addressCantReceive: string,
             addressIsNotActive: string
-            addressIsNotActiveDescription: string
+            addressIsNotActiveDescription: string,
+            invalidTransaction: string,
         },
         sendAll: string,
         scanQR: string,
         sendTo: string,
         fee: string,
         feeTitle: string,
+        feeTotalTitle: string,
         purpose: string,
         comment: string,
         commentRequired: string,
@@ -138,6 +141,8 @@ export type LocalizationSchema = {
         firstTime: string,
         requestsToSign: string,
         smartContract: string,
+        txsSummary: string,
+        txsTotal: string,
     },
     auth: {
         phoneVerify: string,

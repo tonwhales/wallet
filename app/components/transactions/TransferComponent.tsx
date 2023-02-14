@@ -426,6 +426,80 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
                     )}
 
                     {/* TODO: smart contract handling */}
+                    {!transfer.jettonAmount && !!transfer.operation.op && (
+                        <View>
+                            <View style={{
+                                position: 'absolute',
+                                top: -2,
+                                bottom: 42,
+                                left: 17,
+                                width: 2,
+                                borderRadius: 2,
+                                backgroundColor: Theme.divider
+                            }} />
+                            <View style={{
+                                marginLeft: 40 + 6,
+                                justifyContent: 'center'
+                            }}>
+                                <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
+                                    <Text style={{
+                                        color: '#858B93',
+                                        fontWeight: '400', fontSize: 14,
+                                        lineHeight: 16
+                                    }}>
+                                        {t('transfer.smartContract')}
+                                    </Text>
+                                    <View style={{
+                                        backgroundColor: Theme.item,
+                                        shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                        shadowOffset: {
+                                            height: 1,
+                                            width: 0
+                                        },
+                                        shadowRadius: 3,
+                                        shadowOpacity: 1,
+                                        height: 24, width: 24,
+                                        borderRadius: 24,
+                                        position: 'absolute', top: 0, bottom: 0, left: -42,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                        <WithStateInit />
+                                    </View>
+                                </View>
+                            </View>
+                            <View style={{
+                                marginLeft: 40 + 6,
+                                justifyContent: 'center'
+                            }}>
+                                <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
+                                    <Text style={{
+                                        fontWeight: '400',
+                                        fontSize: 17,
+                                        color: Theme.textColor,
+                                    }}>
+                                        {transfer.operation.op}
+                                    </Text>
+                                </View>
+                                <View style={{
+                                    backgroundColor: '#60C75E',
+                                    height: 40, width: 40,
+                                    borderRadius: 40,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    position: 'absolute',
+                                    left: -48, top: 0, bottom: 0,
+                                }}>
+                                    {(transfer.parsedBody?.type === 'deposit' || transfer.parsedBody?.type === 'withdraw') && (
+                                        <Staking />
+                                    )}
+                                    {!(transfer.parsedBody?.type === 'deposit' || transfer.parsedBody?.type === 'withdraw') && (
+                                        <SmartContract />
+                                    )}
+                                </View>
+                            </View>
+                        </View>
+                    )}
                 </View>
             </View>
             <ItemGroup style={{ marginTop: 8 }}>

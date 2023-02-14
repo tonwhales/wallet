@@ -107,7 +107,7 @@ const WalletTransactions = React.memo((props: {
         >
             {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
             {components}
-            {props.next && (<View style={{ height: 64 }} />)}
+            {(Platform.OS !== 'ios' && props.next) && (<View style={{ height: 64 }} />)}
         </ScrollView>
     );
 });

@@ -5,6 +5,7 @@ import BN from 'bn.js';
 import { Order } from '../fragments/secure/ops/Order';
 import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import { SignRawMessage } from '../engine/tonconnect/types';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -64,6 +65,16 @@ export class TypedNavigation {
         back?: number
     }) {
         this.navigate('Transfer', tx);
+    }
+
+    navigateTransferV4(tx: {
+        text: string | null,
+        order: { messages: SignRawMessage[] },
+        job: string | null,
+        back?: number,
+        callback?: ((ok: boolean, result: Cell | null) => void) | null
+    }) {
+        this.navigate('TransferV4', tx);
     }
 
     navigateStaking(params: StakingTransferParams) {

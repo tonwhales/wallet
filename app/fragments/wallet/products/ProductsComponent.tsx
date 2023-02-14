@@ -124,6 +124,8 @@ export const ProductsComponent = React.memo(() => {
                 sessionCrypto,
                 clientSessionId: request.from
             });
+            engine.products.tonConnect.deleteActiveRequest(request.from);
+            return;
         }
 
         engine.products.tonConnect.send({
@@ -204,13 +206,10 @@ export const ProductsComponent = React.memo(() => {
             return;
         }
 
-        // TODO check why do we use an array of messages
-        const message = params.messages[0];
-
         return {
             request,
             sessionCrypto,
-            message: { target, ...message }
+            messages: params.messages
         }
     }
 
@@ -226,20 +225,12 @@ export const ProductsComponent = React.memo(() => {
                 onPress={() => {
                     const prepared = checkRequest(r);
                     if (r.method === 'sendTransaction' && prepared) {
-                        navigation.navigateTransfer({
-                            order: {
-                                target: prepared.message.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                amount: toNano(fromNano(prepared.message.amount)),
-                                payload: prepared.message.payload ? Cell.fromBoc(Buffer.from(prepared.message.payload, 'base64'))[0] : null,
-                                stateInit: prepared.message.stateInit ? Cell.fromBoc(Buffer.from(prepared.message.stateInit, 'base64'))[0] : null,
-                                amountAll: false
-                            },
-                            // job: currentJob.jobRaw,
-                            // text: currentJob.job.text,
-                            job: null,
+                        navigation.navigateTransferV4({
                             text: null,
+                            order: { messages: prepared.messages },
+                            job: null,
                             callback: (ok, result) => callback(ok, result, prepared.request, prepared.sessionCrypto)
-                        });
+                        })
                     }
                 }}
             />

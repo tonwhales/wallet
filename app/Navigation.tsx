@@ -63,6 +63,7 @@ import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGr
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { TonconnectAuthenticateFragment } from './fragments/secure/TonconnectAuthenticateFragment';
 import { Splash } from './components/Splash';
+import { TransferV4Fragment } from './fragments/secure/TransferV4Fragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -149,6 +150,7 @@ const navigation = [
     genericScreen('Terms', TermsFragment),
     modalScreen('Connections', ConnectionsFragment),
     modalScreen('Transfer', TransferFragment),
+    modalScreen('TransferV4', TransferV4Fragment),
     modalScreen('SimpleTransfer', SimpleTransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),

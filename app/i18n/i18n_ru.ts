@@ -352,6 +352,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: "Уверены, что хотите вывести?"
             }
         },
+        lockups: {
+            title: 'Заблокированный кошелек'
+        }
     },
     welcome: {
         title: 'Tonhub',

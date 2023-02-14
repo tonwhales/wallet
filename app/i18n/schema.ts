@@ -353,6 +353,9 @@ export type LocalizationSchema = {
                 message: string
             }
         },
+        lockups: {
+            title: string,
+        }
     }
     welcome: {
         title: string,

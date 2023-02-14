@@ -351,6 +351,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Are you sure about the unstaking?'
             }
         },
+        lockups: {
+            title: 'Lockup Wallet',
+        }
     },
     welcome: {
         title: 'Tonhub',

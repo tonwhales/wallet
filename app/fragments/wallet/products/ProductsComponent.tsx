@@ -15,12 +15,14 @@ import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
 import { AnimatedProductButton } from "./AnimatedProductButton"
-import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { LockupProductComponent } from '../../../components/Lockup/LockupProductComponent'
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
+    const lockupBalance = engine.products.lockup.useState();
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
@@ -39,6 +41,12 @@ export const ProductsComponent = React.memo(() => {
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];
+
+    // Lockups
+    if (lockupBalance.gtn(0)) {
+        accounts.push(<LockupProductComponent key={'lockup'} />);
+    }
+
     if (oldWalletsBalance.gt(new BN(0))) {
         accounts.push(
             <AnimatedProductButton

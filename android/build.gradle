@@ -57,6 +57,12 @@ allprojects {
             resolutionStrategy {
                 // Remove this override in 0.66, as a proper fix is included in react-native itself.
                 force "com.facebook.react:react-native:" + REACT_NATIVE_VERSION
+
+                eachDependency {
+                    if ((requested.group == "org.jetbrains.kotlin") && (requested.name.startsWith("kotlin-stdlib"))) {
+                        useVersion("1.6.0")
+                    }
+                }
             }
         }
     }

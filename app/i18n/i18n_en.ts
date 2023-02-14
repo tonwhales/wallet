@@ -128,6 +128,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         commentLabel: 'Message',
         checkComment: 'Check before sending',
         confirmTitle: 'Confirm transaction',
+        confirmManyTitle: 'Confirm transactions',
         unknown: 'Unknown operation',
         moreDetails: 'More details',
         gasFee: 'Gas fee',

@@ -14,7 +14,7 @@ import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
 import Staking from '../../../assets/ic_sign_staking.svg';
 import Question from '../../../assets/ic_question.svg';
 import { WImage } from "../WImage";
-import { Address, fromNano, SupportedMessage, toNano } from "ton";
+import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
 import BN from "bn.js";
@@ -25,6 +25,11 @@ import { AddressContact } from "../../engine/products/SettingsProduct";
 import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
+import { ItemGroup } from "../ItemGroup";
+import { ItemCollapsible } from "../ItemCollapsible";
+import { ItemAddress } from "../ItemAddress";
+import { ItemDivider } from "../ItemDivider";
+import { ItemLarge } from "../ItemLarge";
 
 export const TransferComponent = React.memo(({ transfer, last, first }: {
     transfer: {
@@ -68,8 +73,7 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
                     borderRadius: 14,
                     justifyContent: 'center',
                     paddingHorizontal: 16,
-                    paddingVertical: 20,
-                    marginBottom: 14
+                    paddingVertical: 20
                 }}
             >
                 <View>
@@ -424,7 +428,36 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
                     {/* TODO: smart contract handling */}
                 </View>
             </View>
-            {!!last && <View style={{ height: 8 }} />}
+            <ItemGroup style={{ marginTop: 8 }}>
+                <ItemCollapsible title={t('transfer.moreDetails')}>
+                    <ItemAddress
+                        title={t('common.walletAddress')}
+                        text={transfer.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        verified={!!transfer.known}
+                        contact={!!transfer.contact}
+                        secondary={transfer.known ? transfer.known.name : transfer.contact?.name ?? undefined}
+                    />
+                    {!!transfer.operation.op && (
+                        <>
+                            <ItemDivider />
+                            <ItemLarge title={t('transfer.purpose')} text={transfer.operation.op} />
+                        </>
+                    )}
+                    {!transfer.operation.comment && !transfer.operation.op && transfer.message.payload && (
+                        <>
+                            <ItemDivider />
+                            <ItemLarge title={t('transfer.unknown')} text={Cell.fromBoc(Buffer.from(transfer.message.payload, 'base64'))[0].hash().toString('base64')} />
+                        </>
+                    )}
+                    {!!transfer.jettonAmount && (
+                        <>
+                            <ItemDivider />
+                            <ItemLarge title={t('transfer.gasFee')} text={fromNano(transfer.message.amount) + ' TON'} />
+                        </>
+                    )}
+                </ItemCollapsible>
+            </ItemGroup>
+            {!!last && <View style={{ height: 16 }} />}
         </>
     );
 });

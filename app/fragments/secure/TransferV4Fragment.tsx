@@ -1,12 +1,11 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, Alert, Pressable } from "react-native";
+import { Platform, Text, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
-import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -25,39 +24,22 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
 import { ItemLarge } from '../../components/ItemLarge';
-import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
-import { Order } from './ops/Order';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { estimateFees, estimateV4Fees } from '../../engine/estimate/estimateFees';
+import { estimateV4Fees } from '../../engine/estimate/estimateFees';
 import { warn } from '../../utils/log';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from '../../utils/dns/dns';
 import LottieView from 'lottie-react-native';
-import TonSign from '../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../assets/ic_transfer_to.svg';
-import Contact from '../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import TonSignGas from '../../../assets/ic_transfer_gas.svg';
 import SignLock from '../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../assets/ic_sign_staking.svg';
-import Question from '../../../assets/ic_question.svg';
-import { PriceComponent } from '../../components/PriceComponent';
-import { Avatar } from '../../components/Avatar';
-import { AddressComponent } from '../../components/AddressComponent';
-import { ItemCollapsible } from '../../components/ItemCollapsible';
-import { WImage } from '../../components/WImage';
-import { ItemAddress } from '../../components/ItemAddress';
 import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { SignRawMessage } from '../../engine/tonconnect/types';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
 import { TransferComponent } from '../../components/transactions/TransferComponent';
+import { ItemDivider } from '../../components/ItemDivider';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -164,7 +146,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
 
         return temp;
-
     }, []);
 
     // Tracking
@@ -310,24 +291,23 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         success.current = true;
         trackEvent(MixpanelEvent.Transfer, { order });
 
-        // TODO
         // Register pending
-        // engine.products.main.registerPending({
-        //     id: 'pending-' + account.seqno,
-        //     lt: null,
-        //     fees: fees,
-        //     amount: total.mul(new BN(-1)),
-        //     address: null,
-        //     seqno: account.seqno,
-        //     kind: 'out',
-        //     body: null,
-        //     status: 'pending',
-        //     time: Math.floor(Date.now() / 1000),
-        //     bounced: false,
-        //     prev: null,
-        //     mentioned: [],
-        //     hash: msg.hash(),
-        // });
+        engine.products.main.registerPending({
+            id: 'pending-' + account.seqno,
+            lt: null,
+            fees: fees,
+            amount: total.mul(new BN(-1)),
+            address: null,
+            seqno: account.seqno,
+            kind: 'out',
+            body: null,
+            status: 'pending',
+            time: Math.floor(Date.now() / 1000),
+            bounced: false,
+            prev: null,
+            mentioned: [],
+            hash: msg.hash(),
+        });
 
         // Reset stack to root
         if (back && back > 0) {
@@ -405,7 +385,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 fontSize: 30,
                                 textAlign: 'center'
                             }}>
-                                {t('transfer.confirmTitle')}
+                                {order.messages.length > 1 ? t('transfer.confirmManyTitle') : t('transfer.confirmTitle')}
                             </Text>
                         )}
                     </View>
@@ -418,50 +398,18 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             />
                         );
                     })}
-                    {internals.map((i, index) => {
-                        return (
+                    <ItemGroup style={{ marginTop: 16 }}>
+                        {!!text && (
                             <>
-                                <ItemGroup>
-                                    <ItemCollapsible title={t('transfer.moreDetails')}>
-                                        <ItemAddress
-                                            title={t('common.walletAddress')}
-                                            text={i.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                            verified={!!i.known}
-                                            contact={!!i.contact}
-                                            secondary={i.known ? i.known.name : i.contact?.name ?? undefined}
-                                        />
-                                        {!!i.operation.op && (
-                                            <>
-                                                <ItemDivider />
-                                                <ItemLarge title={t('transfer.purpose')} text={i.operation.op} />
-                                            </>
-                                        )}
-                                        {!i.operation.comment && !i.operation.op && !!text && (
-                                            <>
-                                                <ItemDivider />
-                                                <ItemLarge title={t('transfer.purpose')} text={text} />
-                                            </>
-                                        )}
-                                        {!i.operation.comment && !i.operation.op && i.message.payload && (
-                                            <>
-                                                <ItemDivider />
-                                                <ItemLarge title={t('transfer.unknown')} text={Cell.fromBoc(Buffer.from(i.message.payload, 'base64'))[0].hash().toString('base64')} />
-                                            </>
-                                        )}
-                                        {!!i.jettonAmount && (
-                                            <>
-                                                <ItemDivider />
-                                                <ItemLarge title={t('transfer.gasFee')} text={fromNano(i.message.amount) + ' TON'} />
-                                            </>
-                                        )}
-                                        <ItemDivider />
-                                        <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
-                                    </ItemCollapsible>
-                                </ItemGroup>
-                                {index < internals.length - 1 && <View style={{ height: 8 }} />}
+                                <ItemLarge title={t('transfer.purpose')} text={text} />
+                                <ItemDivider />
                             </>
-                        )
-                    })}
+                        )}
+                        <ItemLarge
+                            title={t('transfer.feeTitle')}
+                            text={fromNano(fees) + ' TON'}
+                        />
+                    </ItemGroup>
                     <View style={{ height: 56 }} />
                 </View>
             </ScrollView>
@@ -478,7 +426,13 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 export const TransferV4Fragment = fragment(() => {
     const params: {
         text: string | null,
-        order: { messages: SignRawMessage[] },
+        order: {
+            messages: SignRawMessage[],
+            app?: {
+                domain: string,
+                title: string
+            }
+        },
         job: string | null,
         back?: number,
         callback?: ((ok: boolean, result: Cell | null) => void) | null
@@ -603,7 +557,7 @@ export const TransferV4Fragment = fragment(() => {
 
             // Set state
             setLoadedProps({
-                order: { messages },
+                order: { messages, app: order.app },
                 text,
                 job,
                 fees,
@@ -622,7 +576,11 @@ export const TransferV4Fragment = fragment(() => {
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.confirmTitle')} />
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
-                {!loadedProps && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
+                {!loadedProps && (
+                    <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <LoadingIndicator simple={true} />
+                    </View>
+                )}
                 {!!loadedProps && <TransferLoaded {...loadedProps} />}
             </View>
             {

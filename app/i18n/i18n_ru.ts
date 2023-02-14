@@ -116,6 +116,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',
         confirmTitle: 'Подтверждение транзакции',
+        confirmManyTitle: 'Подтверждение транзакций',
         unknown: 'Неизвестная операция',
         moreDetails: 'Подробнее',
         gasFee: 'Gas комиссия',

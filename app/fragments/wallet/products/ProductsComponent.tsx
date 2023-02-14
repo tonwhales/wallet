@@ -148,7 +148,7 @@ export const ProductsComponent = React.memo(() => {
 
         const session = engine.products.tonConnect.getConnectionByClientSessionId(request.from);
         if (!session) {
-            // TODO dont allow sending tx without session & delete request
+            engine.products.tonConnect.deleteActiveRequest(request.from);
             Alert.alert(t('common.error'), t('products.tonConnect.errors.connection'));
             return;
         }
@@ -206,10 +206,13 @@ export const ProductsComponent = React.memo(() => {
             return;
         }
 
+        const app = engine.products.tonConnect.findConnectedAppByClientSessionId(request.from);
+
         return {
             request,
             sessionCrypto,
-            messages: params.messages
+            messages: params.messages,
+            app
         }
     }
 
@@ -227,7 +230,13 @@ export const ProductsComponent = React.memo(() => {
                     if (r.method === 'sendTransaction' && prepared) {
                         navigation.navigateTransferV4({
                             text: null,
-                            order: { messages: prepared.messages },
+                            order: {
+                                messages: prepared.messages,
+                                app: (prepared.app && prepared.app.connectedApp) ? {
+                                    title: prepared.app.connectedApp.name,
+                                    domain: extractDomain(prepared.app.connectedApp.url),
+                                } : undefined
+                            },
                             job: null,
                             callback: (ok, result) => callback(ok, result, prepared.request, prepared.sessionCrypto)
                         })

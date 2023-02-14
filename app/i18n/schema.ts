@@ -130,6 +130,7 @@ export type LocalizationSchema = {
         commentLabel: string,
         checkComment: string,
         confirmTitle: string,
+        confirmManyTitle: string,
         unknown: string,
         moreDetails: string,
         gasFee: string,

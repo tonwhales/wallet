@@ -69,7 +69,13 @@ export class TypedNavigation {
 
     navigateTransferV4(tx: {
         text: string | null,
-        order: { messages: SignRawMessage[] },
+        order: {
+            messages: SignRawMessage[],
+            app?: {
+                domain: string,
+                title: string
+            }
+        },
         job: string | null,
         back?: number,
         callback?: ((ok: boolean, result: Cell | null) => void) | null
@@ -116,7 +122,7 @@ export class TypedNavigation {
         this.navigate('Review', params);
     }
 
-    navigateStakingCalculator(params: { target: Address}) {
+    navigateStakingCalculator(params: { target: Address }) {
         this.navigate('StakingCalculator', params);
     }
 }

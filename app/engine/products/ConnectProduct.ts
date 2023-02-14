@@ -175,6 +175,10 @@ export class ConnectProduct {
         return useRecoilValue(this.#extensionsSelector);
     }
 
+    getExtension(key: string) {
+        return this.extensions.value.installed[key];
+    }
+
     private async setLastEventId(lastEventId: string) {
         storage.set('connect_last_event_id', lastEventId);
     }

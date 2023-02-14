@@ -18,13 +18,15 @@ import { useParams } from "../../utils/useParams";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import BN from "bn.js";
+import { RestrictedComponent } from "../../components/Lockup/RestrictedComponent";
+import { LockedComponent } from "../../components/Lockup/LockedComponent";
 
 export const LockupsWalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
-    const params = useParams<{ backToHome?: boolean, pool: string }>();
+    const { address } = useParams<{ address: string }>();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const target = Address.parse(params.pool);
+    const target = Address.parse(address);
     const wallet = engine.products.lockup.useLockupWallet(target);
 
     const window = useWindowDimensions();
@@ -142,7 +144,7 @@ export const LockupsWalletFragment = fragment(() => {
                     <Text
                         style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
                     >
-                        {t('products.staking.balance')}
+                        {'Liquid balance'}
                     </Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View
@@ -153,14 +155,12 @@ export const LockupsWalletFragment = fragment(() => {
                         >
                             <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
                                 <ValueComponent
-                                    // TODO - liquid balance
                                     value={new BN(0)}
                                     centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                                 />
                             </Text>
                         </View>
                     </View>
-                                    // TODO - liquid balance here too
                     <PriceComponent amount={new BN(0)} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
@@ -183,6 +183,13 @@ export const LockupsWalletFragment = fragment(() => {
                 </Animated.View>
 
                 {/* TODO:  BALANCES HERE */}
+
+                {!!wallet && (
+                    <>
+                        <LockedComponent lockup={wallet} />
+                        <RestrictedComponent lockup={wallet} />
+                    </>
+                )}
 
             </Animated.ScrollView >
             {/* iOS Toolbar */}
@@ -214,10 +221,6 @@ export const LockupsWalletFragment = fragment(() => {
                                     label={t('common.back')}
                                     labelVisible
                                     onPress={() => {
-                                        if (params.backToHome) {
-                                            navigation.popToTop();
-                                            return;
-                                        }
                                         navigation.goBack();
                                     }}
                                     tintColor={Theme.accent}
@@ -268,7 +271,7 @@ export const LockupsWalletFragment = fragment(() => {
                                         <Text
                                             style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
                                         >
-                                            {t('products.staking.balance')}
+                                            {'Liquid balance'}
                                         </Text>
                                         <Text
                                             style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
@@ -320,10 +323,6 @@ export const LockupsWalletFragment = fragment(() => {
                             }}>
                                 <TouchableNativeFeedback
                                     onPress={() => {
-                                        if (params.backToHome) {
-                                            navigation.popToTop();
-                                            return;
-                                        }
                                         navigation.goBack();
                                     }}
                                     background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
@@ -376,13 +375,12 @@ export const LockupsWalletFragment = fragment(() => {
                                     <Text
                                         style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
                                     >
-                                        {t('products.staking.balance')}
+                                        {'Liquid balance'}
                                     </Text>
                                     <Text
                                         style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
                                     >
                                         <ValueComponent
-                                            // TODO: liquid balance
                                             value={new BN(0)}
                                             centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                                         />

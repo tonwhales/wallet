@@ -1,57 +1,65 @@
 import BN from "bn.js";
 import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
 import { Address } from "ton";
+import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
+import { Lockup } from "../metadata/Metadata";
 
 export class LockupProduct {
 
     readonly engine: Engine;
-    readonly wallets: Address[] = [];
-    readonly atom: RecoilValueReadOnly<BN>;
-    readonly atomFull: RecoilValueReadOnly<{ address: Address, balance: BN }[]>;
+    readonly #wallets: RecoilValueReadOnly<{ metadata: Lockup, address: Address }[]>;
+    readonly #balance: RecoilValueReadOnly<BN>;
 
     constructor(engine: Engine) {
         this.engine = engine;
 
-        // TODO: sync lockups with hints
-
-        this.atom = selector({
-            key: 'selector/lockup',
+        this.#wallets = selector({
+            key: 'lockups/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/wallets',
             get: ({ get }) => {
-                let b = new BN(0);
-                for (let w of this.wallets) {
-                    let account = get(this.engine.model.accountLite(w).atom);
-                    if (account) {
-                        b = b.add(account.balance);
-                    }
+                const lockups = get(this.engine.persistence.knownAccountLockups.item(this.engine.address).atom);
+                if (!lockups) {
+                    return [];
                 }
-                return b;
-            },
-            dangerouslyAllowMutability: true
-        });
-        this.atomFull = selector({
-            key: 'selector/lockup/full',
-            get: ({ get }) => {
-                let wallets: { address: Address, balance: BN }[] = [];
-                for (let w of this.wallets) {
-                    let account = get(this.engine.model.accountLite(w).atom);
-                    if (account) {
-                        wallets.push({ address: w, balance: account.balance });
-                    } else {
-                        wallets.push({ address: w, balance: new BN(0) });
+                const wallets = [];
+                for (let i = 0; i < lockups.length; i++) {
+                    const lockup = lockups[i];
+                    const metadata = get(this.engine.persistence.metadata.item(lockup).atom)?.lockup;
+                    if (metadata) {
+                        wallets.push({
+                            address: lockup,
+                            metadata
+                        });
                     }
                 }
                 return wallets;
-            },
-            dangerouslyAllowMutability: true
+            }
+        });
+
+        this.#balance = selector({
+            key: 'lockups/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/balance',
+            get: ({ get }) => {
+                const wallets = get(this.#wallets);
+                let balance = new BN(0);
+                for (let i = 0; i < wallets.length; i++) {
+                    const wallet = wallets[i];
+                    balance = balance.add(wallet.metadata.totalLockedValue ?? new BN(0));
+                    balance = balance.add(wallet.metadata.totalRestrictedValue ?? new BN(0));
+                }
+                return balance;
+            }
         });
     }
 
-    useState = () => {
-        return useRecoilValue(this.atom);
+    useLockupWallets() {
+        return useRecoilValue(this.#wallets);
     }
 
-    useStateFull = () => {
-        return useRecoilValue(this.atomFull);
+    useLockuoBalance() {
+        return useRecoilValue(this.#balance);
+    }
+
+    useLockupWallet(address: Address) {
+        return useRecoilValue(this.engine.persistence.metadata.item(address).atom)?.lockup;
     }
 }

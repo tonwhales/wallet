@@ -1,6 +1,4 @@
-
-import { BN } from 'bn.js';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TouchableHighlight, View, Text } from 'react-native';
 import { t } from '../../i18n/t';
 import { Theme } from '../../Theme';
@@ -8,15 +6,26 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { PriceComponent } from '../PriceComponent';
 import { ValueComponent } from '../ValueComponent';
 import ProtectedIcon from '../../../assets/ic_sign_lock.svg';
+import BN from 'bn.js';
 
-export const LockupProductComponent = React.memo(() => {
+// { lockup }: { lockup: { metadata: Lockup, address: Address } }
+// const balance = useMemo(() => {
+//     let temp = new BN(0);
+//     if (lockup.metadata.totalLockedValue) {
+//         temp = temp.add(lockup.metadata.totalLockedValue);
+//     }
+//     if (lockup.metadata.totalRestrictedValue) {
+//         temp = temp.add(lockup.metadata.totalRestrictedValue);
+//     }
+//     return temp;
+// }, [lockup]);
+
+export const LockupProductComponent = React.memo(({ balance }: { balance: BN }) => {
     const navigation = useTypedNavigation();
-
-    const tvl = new BN(2000000000);
 
     return (
         <TouchableHighlight
-            onPress={() => navigation.navigate('StakingPools')}
+            onPress={() => navigation.navigate('Lockups')}
             underlayColor={Theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
@@ -52,7 +61,7 @@ export const LockupProductComponent = React.memo(() => {
                                 color: '#4FAE42'
                             }}>
                                 <ValueComponent
-                                    value={tvl}
+                                    value={balance}
                                     precision={3}
                                 />
                             </Text>
@@ -62,10 +71,10 @@ export const LockupProductComponent = React.memo(() => {
                             justifyContent: 'space-between',
                         }}>
                             <Text style={{ color: '#787F83', fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
-                                {"Eqc....abC"}
+                                {"Description here"}
                             </Text>
                             <PriceComponent
-                                amount={tvl}
+                                amount={balance}
                                 style={{
                                     backgroundColor: 'transparent',
                                     paddingHorizontal: 0, paddingVertical: 0,

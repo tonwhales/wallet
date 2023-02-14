@@ -353,7 +353,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             }
         },
         lockups: {
-            title: 'Заблокированный кошелек'
+            title: 'Заблокированные кошелеки',
+            wallet: 'Заблокированный кошелек'
         }
     },
     welcome: {

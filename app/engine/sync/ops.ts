@@ -65,6 +65,11 @@ export function registerKnownJettonWallet(engine: Engine, owner: Address, wallet
     itm.update((src) => addToSetArray(src, wallet));
 }
 
+export function registerKnownLockupWallet(engine: Engine, wallet: Address) {
+    let itm = engine.persistence.knownAccountLockups.item(engine.address);
+    itm.update((src) => addToSetArray(src, wallet));
+}
+
 export function markJettonDisabled(engine: Engine, owner: Address, master: Address) {
     let itm = engine.persistence.disabledJettons.item(owner);
     itm.update((src) => addToSetArray(src, master));

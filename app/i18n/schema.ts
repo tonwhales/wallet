@@ -355,6 +355,7 @@ export type LocalizationSchema = {
         },
         lockups: {
             title: string,
+            wallet: string
         }
     }
     welcome: {

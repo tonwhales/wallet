@@ -22,7 +22,7 @@ export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
-    const lockupBalance = engine.products.lockup.useState();
+    const lockupBalance = engine.products.lockup.useLockuoBalance();
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
@@ -43,8 +43,8 @@ export const ProductsComponent = React.memo(() => {
     let accounts: React.ReactElement[] = [];
 
     // Lockups
-    if (lockupBalance.gtn(0)) {
-        accounts.push(<LockupProductComponent key={'lockup'} />);
+    if (lockupBalance.gt(new BN(0))) {
+        accounts.push(<LockupProductComponent balance={lockupBalance} key={'lockup'} />);
     }
 
     if (oldWalletsBalance.gt(new BN(0))) {

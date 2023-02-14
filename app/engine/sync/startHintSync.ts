@@ -5,7 +5,7 @@ import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 import { fetchMetadata } from "../metadata/fetchMetadata";
 import { tryGetJettonWallet } from "../metadata/introspections/tryGetJettonWallet";
-import { registerKnownJettonMaster, registerKnownJettonWallet } from "./ops";
+import { registerKnownJettonMaster, registerKnownJettonWallet, registerKnownLockupWallet } from "./ops";
 
 const logger = createLogger('hints');
 
@@ -96,6 +96,13 @@ export function startHintSync(address: Address, engine: Engine) {
 
             // Register wallet
             registerKnownJettonWallet(engine, metadata.jettonWallet.owner, address);
+        }
+
+        // 
+        // Process lockup
+        // 
+        if (metadata.lockup) {
+            registerKnownLockupWallet(engine, address);
         }
 
         //

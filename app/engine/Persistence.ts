@@ -30,7 +30,7 @@ import { Transaction } from "./Transaction";
 
 export class Persistence {
 
-    readonly version: number = 11;
+    readonly version: number = 12;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -50,6 +50,7 @@ export class Persistence {
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
     readonly knownJettons: PersistedCollection<void, Address[]>;
     readonly knownAccountJettons: PersistedCollection<Address, Address[]>;
+    readonly knownAccountLockups: PersistedCollection<Address, Address[]>;
     readonly disabledJettons: PersistedCollection<Address, Address[]>;
 
     readonly downloads: PersistedCollection<string, string>;
@@ -100,6 +101,9 @@ export class Persistence {
         this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
         this.disabledJettons = new PersistedCollection({ storage, namespace: 'disabledJettons', key: addressKey, codec: t.array(c.address), engine });
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
+
+        // Lockups
+        this.knownAccountLockups = new PersistedCollection({ storage, namespace: 'knownAccountLockups', key: addressKey, codec: t.array(c.address), engine });
 
         // Configs
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
@@ -207,6 +211,17 @@ const metadataCodec = t.type({
         mintalbe: t.boolean,
         owner: c.address,
         content: t.union([t.undefined, contentSourceCodec])
+    })]),
+    lockup: t.union([t.undefined, t.type({
+        seqno: t.number,
+        subwalletId: t.number,
+        publicKey: c.buffer,
+        configPublicKey: c.buffer,
+        allowedDestinations: t.array(c.address),
+        totalLockedValue: c.bignum,
+        locked: t.union([t.null, c.mapStringBn]),
+        totalRestrictedValue: c.bignum,
+        restricted: t.union([t.null, c.mapStringBn])
     })])
 });
 

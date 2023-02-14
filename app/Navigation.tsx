@@ -164,7 +164,7 @@ const navigation = [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     fullScreen('Lockups', LockupsFragment),
-    fullScreen('LockupsWallet', LockupsWalletFragment),
+    fullScreen('LockupWallet', LockupsWalletFragment),
     modalScreen('StakingGraph', StakingGraphFragment),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),
     modalScreen('StakingTransfer', StakingTransferFragment),

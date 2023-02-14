@@ -2,6 +2,7 @@ import { Address, TonClient4 } from "ton";
 import { fetchSupportedInterfaces } from "./introspections/fetchSupportedInterfaces";
 import { tryFetchJettonMaster } from "./introspections/tryFetchJettonMaster";
 import { tryFetchJettonWallet } from "./introspections/tryFetchJettonWallet";
+import { tryFetchLockup } from './introspections/tryFetchLockup';
 import { tryGetJettonWallet } from "./introspections/tryGetJettonWallet";
 import { ContractMetadata } from "./Metadata";
 
@@ -10,11 +11,13 @@ export async function fetchMetadata(client: TonClient4, seqno: number, address: 
     let [
         interfaces,
         jettonWallet,
-        jettonMaster
+        jettonMaster,
+        lockup
     ] = await Promise.all([
         fetchSupportedInterfaces(client, seqno, address),
         tryFetchJettonWallet(client, seqno, address),
-        tryFetchJettonMaster(client, seqno, address)
+        tryFetchJettonMaster(client, seqno, address),
+        tryFetchLockup(client, seqno, address)
     ]);
 
     // Check jetton wallet
@@ -29,6 +32,7 @@ export async function fetchMetadata(client: TonClient4, seqno: number, address: 
         seqno,
         interfaces,
         jettonWallet: jettonWallet ? jettonWallet : undefined,
-        jettonMaster: jettonMaster ? jettonMaster : undefined
+        jettonMaster: jettonMaster ? jettonMaster : undefined,
+        lockup: lockup ? lockup : undefined
     };
 }

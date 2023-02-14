@@ -1,4 +1,5 @@
 import BN from "bn.js";
+import { mixed } from 'io-ts';
 import { Address } from "ton"
 
 export type JettonWallet = {
@@ -12,6 +13,18 @@ export type JettonMaster = {
     mintalbe: boolean;
     owner: Address;
     content: ContentSource | undefined;
+}
+
+export type Lockup = {
+    seqno: number;
+    subwalletId: number;
+    publicKey: Buffer;
+    configPublicKey: Buffer;
+    allowedDestinations: Address[];
+    totalLockedValue: BN;
+    locked: Map<string, BN> | null;
+    totalRestrictedValue: BN;
+    restricted: Map<string, BN> | null;
 }
 
 export type ContentSource = {
@@ -31,4 +44,5 @@ export type ContractMetadata = {
     interfaces: string[],
     jettonMaster: JettonMaster | undefined;
     jettonWallet: JettonWallet | undefined;
+    lockup: Lockup | undefined;
 }

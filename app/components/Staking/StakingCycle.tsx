@@ -4,7 +4,7 @@ import { AppConfig } from "../../AppConfig"
 import { t } from "../../i18n/t"
 import { Theme } from "../../Theme"
 import { Countdown } from "../Countdown"
-import { StakingCycleProgress } from "./StakingCycleProgress"
+import { ProgressBar } from "../StakingCycleProgress"
 
 export const StakingCycle = React.memo((
     {
@@ -40,7 +40,7 @@ export const StakingCycle = React.memo((
         }, style]}>
             {locked && (
                 <>
-                    <StakingCycleProgress left={left} />
+                    <ProgressBar left={left} />
                     <View style={{
                         flex: 1,
                         paddingHorizontal: 16,

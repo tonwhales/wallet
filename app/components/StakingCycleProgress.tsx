@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle } from "react-native"
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { AppConfig } from "../../AppConfig";
-import { Theme } from "../../Theme";
+import { AppConfig } from "../AppConfig";
+import { Theme } from "../Theme";
 
 export const stakingCycle = AppConfig.isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
 
-export const StakingCycleProgress = React.memo((
+export const ProgressBar = React.memo((
     {
         left,
         style,

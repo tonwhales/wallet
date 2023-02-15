@@ -1,37 +1,42 @@
 import React from "react";
+import { View, Text } from "react-native";
 import { fromNano } from "ton";
 import { Lockup } from "../../engine/metadata/Metadata";
-import { formatDate } from "../../utils/dates";
-import { ItemDivider } from "../ItemDivider";
-import { ItemGroup } from "../ItemGroup";
-import { ItemLarge } from "../ItemLarge";
+import { LockupTimer } from "./LockupTimer";
 
 export const LockedComponent = React.memo(({ lockup }: { lockup: Lockup }) => {
     const locked = React.useMemo(() => {
         return lockup.locked ? Array.from(lockup.locked, ([key, value]) => {
-            return {
-                key,
-                value
-            }
-        }).map((item, index, it) => {
             return (
-                <>
-                    <ItemLarge
-                        key={item.key + item.value}
-                        title={'Locked until: ' + formatDate(parseInt(item.key))}
-                        text={`${fromNano(item.value)} TON`}
-                    />
-                    {index < it.length - 1 && <ItemDivider />}
-                </>
+                <LockupTimer
+                    key={key + ':' + value}
+                    title={'Unlocked'}
+                    description={`${fromNano(value)} TON`}
+                    until={parseInt(key)}
+                    readyText={'Unlocked'}
+                    style={{ marginBottom: 8 }}
+                />
             )
         }) : [];
     }, [lockup]);
 
+    if (locked.length === 0) {
+        return null;
+    }
+
     return (
-        <>
-            <ItemGroup style={{ marginVertical: 8, marginHorizontal: 16 }}>
-                {locked}
-            </ItemGroup>
-        </>
+        <View>
+            <Text
+                style={{
+                    fontSize: 18,
+                    fontWeight: '700',
+                    marginHorizontal: 16,
+                    marginBottom: 8
+                }}
+            >
+                {'Locked'}
+            </Text>
+            {locked}
+        </View>
     );
 });

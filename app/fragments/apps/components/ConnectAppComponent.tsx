@@ -102,7 +102,7 @@ export const ConnectAppComponent = React.memo((props: {
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <View style={{ height: safeArea.top }} />
                 <WebView
-                    ref={webRef}
+                    ref={ref}
                     source={{ uri: props.endpoint }}
                     startInLoadingState={true}
                     style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}

@@ -29,7 +29,6 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
       isWalletBrowser: true,
 
       connect: async (protocolVersion, request) => {
-
         try {
           checkProtocolVersionCapability(protocolVersion);
           verifyConnectRequest(request);
@@ -66,9 +65,10 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
                   },
                 });
 
-                return;
+                // return;
+              } else {
+                reject();
               }
-              reject();
             }
 
             navigation.navigateConnectAuth({

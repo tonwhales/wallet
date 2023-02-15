@@ -61,7 +61,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             if (connectProps.type === 'qr') {
                 try {
                     const handled = await engine.products.tonConnect.handleConnectDeeplink(connectProps.query);
-
+                    
                     if (handled) {
                         checkProtocolVersionCapability(handled.protocolVersion);
                         verifyConnectRequest(handled.request);
@@ -183,8 +183,10 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                 setState({ type: 'authorized' });
                 return;
             } else if (connectProps.type === 'callback') {
-                navigation.goBack();
                 connectProps.callback({ ok: true, replyItems });
+                setTimeout(() => {
+                    navigation.goBack();
+                }, 50);
                 return;
             }
             setState({ type: 'failed' });

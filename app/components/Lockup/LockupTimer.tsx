@@ -36,7 +36,7 @@ export const LockupTimer = React.memo(({
             marginHorizontal: 16,
             overflow: 'hidden',
         }, style]}>
-            <ProgressBar left={left} full={60 * 60 * 24 * 365} />
+            <ProgressBar left={left} full={60 * 60 * 24 * 365 * 3} />
             <View style={{
                 flex: 1,
                 paddingHorizontal: 16,

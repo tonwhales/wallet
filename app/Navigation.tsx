@@ -64,6 +64,7 @@ import { StakingCalculatorFragment } from './fragments/staking/StakingCalculator
 import { TonconnectAuthenticateFragment } from './fragments/secure/TonconnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { TransferV4Fragment } from './fragments/secure/TransferV4Fragment';
+import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -181,6 +182,12 @@ const navigation = [
         key={`genericScreen-App`}
         name={'App'}
         component={AppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />,
+    <Stack.Screen
+        key={`genericScreen-connect-App`}
+        name={'ConnectApp'}
+        component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
     />
 ];

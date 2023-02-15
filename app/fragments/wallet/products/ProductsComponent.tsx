@@ -1,7 +1,7 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
-import { useEngine } from "../../../engine/Engine"
+import { Engine, useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';
@@ -17,9 +17,97 @@ import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from "@tonconnect/protocol"
 import { SendTransactionRequest, SignRawParams } from "../../../engine/tonconnect/types"
-import { Address, Cell, fromNano, toNano } from "ton"
+import { Cell } from "ton"
 import { SendTransactionError } from "../../../engine/tonconnect/TonConnect"
 import { getTimeSec } from "../../../utils/getTimeSec"
+
+const callback = (
+    ok: boolean,
+    result: Cell | null,
+    request: { from: string } & SendTransactionRequest,
+    sessionCrypto: SessionCrypto,
+    engine: Engine
+) => {
+    if (!ok) {
+        engine.products.tonConnect.send({
+            response: new SendTransactionError(
+                request.id,
+                SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                'Wallet declined the request',
+            ),
+            sessionCrypto,
+            clientSessionId: request.from
+        });
+        engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+        return;
+    }
+
+    engine.products.tonConnect.send({
+        response: { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
+        sessionCrypto,
+        clientSessionId: request.from
+    });
+    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+}
+
+const checkRequest = (request: { from: string } & SendTransactionRequest, engine: Engine) => {
+    const params = JSON.parse(request.params[0]) as SignRawParams;
+
+    const isValidRequest =
+        params && typeof params.valid_until === 'number' &&
+        Array.isArray(params.messages) &&
+        params.messages.every((msg) => !!msg.address && !!msg.amount);
+
+    const session = engine.products.tonConnect.getConnectionByClientSessionId(request.from);
+    if (!session) {
+        engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+        Alert.alert(t('common.error'), t('products.tonConnect.errors.connection'));
+        return;
+    }
+    const sessionCrypto = new SessionCrypto(session.sessionKeyPair);
+
+    if (!isValidRequest) {
+        engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+        engine.products.tonConnect.send({
+            response: {
+                error: {
+                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                    message: `Bad request`,
+                },
+                id: request.id.toString(),
+            },
+            sessionCrypto,
+            clientSessionId: request.from
+        })
+        return;
+    }
+
+    const { valid_until } = params;
+    if (valid_until < getTimeSec()) {
+        engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+        engine.products.tonConnect.send({
+            response: {
+                error: {
+                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                    message: `Request timed out`,
+                },
+                id: request.id.toString(),
+            },
+            sessionCrypto,
+            clientSessionId: request.from
+        })
+        return;
+    }
+
+    const app = engine.products.tonConnect.findConnectedAppByClientSessionId(request.from);
+
+    return {
+        request,
+        sessionCrypto,
+        messages: params.messages,
+        app
+    }
+}
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -28,6 +116,7 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
+    const tonconnectExtensions = engine.products.tonConnect.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);
@@ -104,96 +193,30 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
+    for (let e of tonconnectExtensions) {
+        apps.push(
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                key={e.key}
+                name={e.name}
+                subtitle={e.url}
+                image={e.image ?? undefined}
+                value={null}
+                onPress={() => {
+                    navigation.navigate('TonConnect', { url: e.url });
+                }}
+                extension={true}
+                style={{ marginVertical: 4 }}
+            />
+        );
+    }
+
     apps.push(<StakingProductComponent key={'pool'} />);
 
     // Resolve tonconnect requests
     let tonconnect: React.ReactElement[] = [];
-    const callback = (
-        ok: boolean,
-        result: Cell | null,
-        request: { from: string } & SendTransactionRequest,
-        sessionCrypto: SessionCrypto
-    ) => {
-        if (!ok) {
-            engine.products.tonConnect.send({
-                response: new SendTransactionError(
-                    request.id,
-                    SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-                    'Wallet declined the request',
-                ),
-                sessionCrypto,
-                clientSessionId: request.from
-            });
-            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-            return;
-        }
 
-        engine.products.tonConnect.send({
-            response: { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
-            sessionCrypto,
-            clientSessionId: request.from
-        });
-        engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-    }
-
-    const checkRequest = (request: { from: string } & SendTransactionRequest) => {
-        const params = JSON.parse(request.params[0]) as SignRawParams;
-
-        const isValidRequest =
-            params && typeof params.valid_until === 'number' &&
-            Array.isArray(params.messages) &&
-            params.messages.every((msg) => !!msg.address && !!msg.amount);
-
-        const session = engine.products.tonConnect.getConnectionByClientSessionId(request.from);
-        if (!session) {
-            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-            Alert.alert(t('common.error'), t('products.tonConnect.errors.connection'));
-            return;
-        }
-        const sessionCrypto = new SessionCrypto(session.sessionKeyPair);
-
-        if (!isValidRequest) {
-            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-            engine.products.tonConnect.send({
-                response: {
-                    error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                        message: `Bad request`,
-                    },
-                    id: request.id.toString(),
-                },
-                sessionCrypto,
-                clientSessionId: request.from
-            })
-            return;
-        }
-
-        const { valid_until } = params;
-        if (valid_until < getTimeSec()) {
-            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-            engine.products.tonConnect.send({
-                response: {
-                    error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                        message: `Request timed out`,
-                    },
-                    id: request.id.toString(),
-                },
-                sessionCrypto,
-                clientSessionId: request.from
-            })
-            return;
-        }
-
-        const app = engine.products.tonConnect.findConnectedAppByClientSessionId(request.from);
-
-        return {
-            request,
-            sessionCrypto,
-            messages: params.messages,
-            app
-        }
-    }
 
     for (let r of tonconnectRequests) {
         tonconnect.push(
@@ -206,7 +229,7 @@ export const ProductsComponent = React.memo(() => {
                 icon={TransactionIcon}
                 value={null}
                 onPress={() => {
-                    const prepared = checkRequest(r);
+                    const prepared = checkRequest(r, engine);
                     if (r.method === 'sendTransaction' && prepared) {
                         navigation.navigateTransferV4({
                             text: null,
@@ -218,7 +241,7 @@ export const ProductsComponent = React.memo(() => {
                                 } : undefined
                             },
                             job: null,
-                            callback: (ok, result) => callback(ok, result, prepared.request, prepared.sessionCrypto)
+                            callback: (ok, result) => callback(ok, result, prepared.request, prepared.sessionCrypto, engine)
                         })
                     }
                 }}

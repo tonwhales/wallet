@@ -14,6 +14,8 @@ export class LockupProduct {
     constructor(engine: Engine) {
         this.engine = engine;
 
+        // TODO: sync balances and metadata with Lockup state
+
         this.#wallets = selector({
             key: 'lockups/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/wallets',
             get: ({ get }) => {

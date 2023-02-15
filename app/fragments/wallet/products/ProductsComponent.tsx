@@ -204,7 +204,7 @@ export const ProductsComponent = React.memo(() => {
                 image={e.image ?? undefined}
                 value={null}
                 onPress={() => {
-                    navigation.navigate('TonConnect', { url: e.url });
+                    navigation.navigate('ConnectApp', { url: e.url });
                 }}
                 extension={true}
                 style={{ marginVertical: 4 }}

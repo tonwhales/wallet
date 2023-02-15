@@ -23,7 +23,7 @@ export const ConnectAppFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             backgroundColor: Theme.background
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light': 'dark'} />
+            <StatusBar style={'dark'} />
 
             <ConnectAppComponent
                 endpoint={url}

@@ -65,10 +65,6 @@ export class ConnectProduct {
                     let app = apps.installed[k];
                     let key = extensionKey(app.url);
 
-                    this.engine.persistence.connectDApps.each((persistenceKey) => {
-                        const data = this.engine.persistence.connectDApps.item(key).value;
-                    });
-
                     const persisted = this.engine.persistence.connectDApps.item(key).value;
 
                     if (!persisted) {

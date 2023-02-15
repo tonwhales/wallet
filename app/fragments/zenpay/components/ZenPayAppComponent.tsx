@@ -334,6 +334,8 @@ export const ZenPayAppComponent = React.memo((
             || url.endsWith('/create/confirm')
             || url.endsWith('/create/delivery')
             || url.endsWith('/pin')
+            || url.indexOf('/create/delivery/address/country') !== -1
+            || url.indexOf('/create/delivery/address/deliver-to') !== -1
         ) {
             setCanGoBack(canGoBack);
         } else {
@@ -347,6 +349,8 @@ export const ZenPayAppComponent = React.memo((
             || url.indexOf('/auth/code') !== -1
             || url.indexOf('/pin') !== -1
             || url.indexOf('/deposit') !== -1
+            || url.indexOf('/create/delivery/address/country') !== -1
+            || url.indexOf('/create/delivery/address/deliver-to') !== -1
         ) {
             setScrollEnabled(false);
         } else {

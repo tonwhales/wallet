@@ -1,3 +1,5 @@
+import { RefObject } from 'react';
+import WebView, { WebViewMessageEvent } from 'react-native-webview';
 import { CHAIN, ConnectItemReply, KeyPair } from '@tonconnect/protocol';
 import * as t from 'io-ts';
 
@@ -42,8 +44,6 @@ export interface ConnectedAppConnectionInjected {
 export type ConnectedAppConnection =
   | ConnectedAppConnectionRemote
   | ConnectedAppConnectionInjected;
-
-// id: string; result: string | undefined; error: string | undefined
 
 export const tonProofItemReplyCodec = t.union([
   t.type({
@@ -104,7 +104,8 @@ export const tonConnectappDataCodec = t.type({
 export type SendTransactionRequest = {
   method: 'sendTransaction',
   params: string[],
-  id: string
+  id: string,
+  from: string
 }
 
 export const sendTransactionRpcRequestCodec = t.type({
@@ -126,30 +127,40 @@ export interface ConnectedApp {
   connections: ConnectedAppConnection[];
 }
 
-// export interface ConnectedAppsStore {
-//   connectedApps: {
-//     [chainName: string]: {
-//       [walletAddress: string]: {
-//         [domain: string]: ConnectedApp;
-//       };
-//     };
-//   };
-//   actions: {
-//     saveAppConnection: (
-//       chainName: 'mainnet' | 'testnet',
-//       walletAddress: string,
-//       appData: Omit<ConnectedApp, 'connections'>,
-//       connection: ConnectedAppConnection,
-//     ) => void;
-//     removeApp: (
-//       chainName: 'mainnet' | 'testnet',
-//       walletAddress: string,
-//       url: string,
-//     ) => void;
-//     removeInjectedConnection: (
-//       chainName: 'mainnet' | 'testnet',
-//       walletAddress: string,
-//       url: string,
-//     ) => void;
-//   };
-// }
+export enum WebViewBridgeMessageType {
+  invokeRnFunc = 'invokeRnFunc',
+  functionResponse = 'functionResponse',
+  event = 'event',
+}
+
+export interface WebViewBridgeMessage {
+  type: string;
+  invocationId: string;
+  name: string;
+  args: any[];
+}
+
+export type UseWebViewBridgeReturnType<Event> = [
+  RefObject<WebView<{}>>,
+  string,
+  (e: WebViewMessageEvent) => void,
+  (event: Event) => void,
+];
+
+import {
+  ConnectEventError as IConnectEventError,
+  CONNECT_EVENT_ERROR_CODES,
+} from '@tonconnect/protocol';
+
+export class ConnectEventError implements IConnectEventError {
+  event: IConnectEventError['event'];
+  payload: IConnectEventError['payload'];
+
+  constructor(code = CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR, message: string) {
+    this.event = 'connect_error';
+    this.payload = {
+      code,
+      message,
+    };
+  }
+}

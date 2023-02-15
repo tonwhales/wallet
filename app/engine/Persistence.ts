@@ -67,7 +67,7 @@ export class Persistence {
     readonly dApps: PersistedCollection<string, AppData>;
     readonly connectManifests: PersistedCollection<string, string>;
     readonly connectDApps: PersistedCollection<string, AppManifest>;
-    readonly connectDAppRequests: PersistedCollection<void, (SendTransactionRequest & { from: string })[]>;
+    readonly connectDAppRequests: PersistedCollection<void, SendTransactionRequest[]>;
     readonly connectDAppsLastEventId: PersistedCollection<string, string>;
     readonly domainKeys: PersistedCollection<string, DomainSubkey>;
 

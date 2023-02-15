@@ -360,7 +360,7 @@ export function useLinkNavigator() {
             });
         }
         if (resolved.type === 'tonconnect') {
-            navigation.navigate('TonconnectAuthenticate', { query: resolved.query });
+            navigation.navigate('TonconnectAuthenticate', { query: resolved.query, type: 'qr' });
         }
         if (resolved.type === 'install') {
             navigation.navigate('Install', {

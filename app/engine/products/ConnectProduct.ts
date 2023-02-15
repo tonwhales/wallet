@@ -2,8 +2,8 @@ import { Engine } from "../Engine";
 import axios from 'axios';
 import { createLogger, warn } from '../../utils/log';
 import EventSource, { MessageEvent } from 'react-native-sse';
-import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
-import { AppRequest, Base64, ConnectEvent, ConnectRequest, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
+import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
+import { AppRequest, Base64, ConnectEvent, ConnectItemReply, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
 import { CloudValue } from '../cloud/CloudValue';
 import { selector, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
@@ -13,6 +13,11 @@ import { storage } from '../../storage/storage';
 import { extensionKey } from './ExtensionsProduct';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { checkProtocolVersionCapability, verifyConnectRequest } from "../tonconnect/TonConnect";
+import { tonConnectDeviceInfo } from "../tonconnect/config";
+import { ConnectReplyBuilder } from "../tonconnect/ConnectReplyBuilder";
+import { getCurrentAddress } from "../../storage/appState";
+import { contractFromPublicKey } from "../contractFromPublicKey";
+import { Cell, StateInit } from "ton";
 
 let logger = createLogger('tonconnect');
 
@@ -226,8 +231,6 @@ export class ConnectProduct {
     }
 
     saveAppConnection(appData: Omit<ConnectedApp, 'connections'>, connection: ConnectedAppConnection) {
-        this.extensions.value.installed
-
         let key = extensionKey(appData.url);
 
         const connected = this.extensions.value.installed[key];
@@ -238,6 +241,7 @@ export class ConnectProduct {
             return;
         }
         this.extensions.update((doc) => {
+            delete doc.installed[key];
             doc.installed[key] = {
                 ...appData,
                 connections: connection ? [connection] : [],
@@ -333,12 +337,18 @@ export class ConnectProduct {
         return apps.find((app) => fixedUrl.startsWith(app.url.replace(/\/$/, ''))) ?? null;
     };
 
-    async handleSendTransaction(
+    async handleSendTransaction(tx: {
         request: AppRequest<'sendTransaction'>,
         callback: (response: WalletResponse<'sendTransaction'>) => void,
+        type: 'remote',
         from: string
-    ) {
-        const params = JSON.parse(request.params[0]) as SignRawParams;
+    } | {
+        request: AppRequest<'sendTransaction'>,
+        callback: (response: WalletResponse<'sendTransaction'>) => void,
+        type: 'injected',
+        webViewUrl: string
+    }) {
+        const params = JSON.parse(tx.request.params[0]) as SignRawParams;
 
         const isValidRequest =
             params && typeof params.valid_until === 'number' &&
@@ -346,12 +356,12 @@ export class ConnectProduct {
             params.messages.every((msg) => !!msg.address && !!msg.amount);
 
         if (!isValidRequest) {
-            callback({
+            tx.callback({
                 error: {
                     code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
                     message: `Bad request`,
                 },
-                id: request.id.toString(),
+                id: tx.request.id.toString(),
             });
             return;
         }
@@ -359,63 +369,90 @@ export class ConnectProduct {
         const { valid_until } = params;
 
         if (valid_until < getTimeSec()) {
-            callback({
+            tx.callback({
                 error: {
                     code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
                     message: `Request timed out`,
                 },
-                id: request.id.toString(),
+                id: tx.request.id.toString(),
             });
             return;
         }
 
         const current = this.pendingItem.value ?? [];
-        const found = current.find((item) => item.from === from);
-        if (found) {
-            callback({
-                error: {
-                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                    message: `Request already pending`,
-                },
-                id: request.id.toString(),
+
+        if (tx.type === 'remote') {
+            const found = current.find((item) => {
+                return item.from === tx.from;
             });
-            return;
+            if (found) {
+                tx.callback({
+                    error: {
+                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                        message: `Request already pending`,
+                    },
+                    id: tx.request.id.toString(),
+                });
+                return;
+            }
+            this.pendingItem.update((doc) => {
+                const temp = doc ?? [];
+                temp.push({ from: tx.from, id: tx.request.id.toString(), params: tx.request.params, method: 'sendTransaction' });
+                return temp;
+            });
         }
 
-        this.pendingItem.update((doc) => {
-            const temp = doc ?? [];
-            temp.push({ from: from, id: request.id.toString(), params: request.params, method: 'sendTransaction' });
-            return temp;
-        });
+        // TODO
+        navigation.navigateTransferV4({
+            text: null,
+            order: {
+                messages: prepared.messages,
+                app: (prepared.app && prepared.app.connectedApp) ? {
+                    title: prepared.app.connectedApp.name,
+                    domain: extractDomain(prepared.app.connectedApp.url),
+                } : undefined
+            },
+            job: null,
+            callback: (ok, result) => callback(ok, result, prepared.request, prepared.sessionCrypto)
+        })
     }
 
     private async handleRequest<T extends RpcMethod>(
-        request: AppRequest<T>,
-        connectedApp: ConnectedApp | null,
-        callback: (response: WalletResponse<T>) => void,
-        from: string
+        args: {
+            request: AppRequest<T>,
+            connectedApp: ConnectedApp | null,
+            callback: (response: WalletResponse<T>) => void,
+            type: 'remote',
+            from: string
+        } | {
+            request: AppRequest<T>,
+            connectedApp: ConnectedApp | null,
+            callback: (response: WalletResponse<T>) => void,
+            type: 'injected',
+            webViewUrl: string
+        }
     ) {
-        if (!connectedApp) {
-            callback({
+        if (!args.connectedApp) {
+            args.callback({
                 error: {
                     code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
                     message: 'Unknown app',
                 },
-                id: request.id.toString(),
+                id: args.request.id.toString(),
             });
         }
 
-        if (request.method === 'sendTransaction') {
-            this.handleSendTransaction(request, callback, from);
+        if (args.request.method === 'sendTransaction') {
+            await this.handleSendTransaction(args);
             return;
         }
 
-        callback({
+        args.callback({
             error: {
                 code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                message: `Method "${request.method}" is not supported by the wallet app`,
+                message: `Method "${args.request.method}" is not supported by the wallet app`,
             },
-            id: request.id.toString(),
+            id: args.request.id.toString(),
         });
     }
 
@@ -426,7 +463,7 @@ export class ConnectProduct {
         from: string
     ) {
         const { connectedApp } = this.findConnectedAppByClientSessionId(clientSessionId);
-        this.handleRequest(request, connectedApp, callback, from);
+        this.handleRequest({ request, connectedApp, callback, from, type: 'remote' });
     }
 
     sendDisconnectEvent(connection: ConnectedAppConnectionRemote) {
@@ -451,83 +488,97 @@ export class ConnectProduct {
         this.removeConnectedApp(url);
     }
 
-    async connect(
-        protocolVersion: number,
-        request: ConnectRequest,
-        sessionCrypto?: SessionCrypto,
-        clientSessionId?: string,
-        webViewUrl?: string,
-      ): Promise<ConnectEvent> {
+    async autoConnect(webViewUrl: string): Promise<ConnectEvent> {
         try {
-          checkProtocolVersionCapability(protocolVersion);
-          verifyConnectRequest(request);
-    
-          const manifest = await this.getConnectAppData(request.manifestUrl);
+            const connectedApp = this.getConnectedAppByUrl(webViewUrl);
 
-          if (!manifest) {
+            if (
+                !connectedApp ||
+                connectedApp.connections.length === 0 ||
+                connectedApp.autoConnectDisabled
+            ) {
+                throw new ConnectEventError(
+                    CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    'Unknown app',
+                );
+            }
+
+            let walletStateInit = '';
+            const acc = getCurrentAddress();
+            try {
+                const contract = await contractFromPublicKey(acc.publicKey);
+                const stateInit = new StateInit({ code: contract.source.initialCode, data: contract.source.initialData });
+                const initCell = new Cell();
+                stateInit.writeTo(initCell);
+                walletStateInit = initCell.toBoc({ idx: false }).toString('base64');
+            } catch (err) {
+                warn(err);
+            }
+
+            const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(
+                acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
+                walletStateInit,
+            );
+
+            return {
+                event: 'connect',
+                payload: {
+                    items: replyItems,
+                    device: tonConnectDeviceInfo,
+                },
+            };
+        } catch (error: any) {
+            if (error instanceof ConnectEventError) {
+                return error;
+            }
+
+            return new ConnectEventError(
+                CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
+                error?.message,
+            );
+        }
+    }
+
+    removeInjectedConnection(webViewUrl: string) {
+        let key = extensionKey(webViewUrl);
+
+        const app = this.extensions.value.installed[key];
+        if (!app) {
+            return;
+        }
+
+        this.extensions.update((doc) => {
+            delete doc.installed[key];
+            doc.installed[key] = {
+                ...app,
+                connections: app.connections.filter((item) => item.type !== TonConnectBridgeType.Injected),
+            }
+        });
+    }
+
+    async handleRequestFromInjectedBridge<T extends RpcMethod>(
+        request: AppRequest<T>,
+        webViewUrl: string,
+    ): Promise<WalletResponse<T>> {
+        const connectedApp = this.getConnectedAppByUrl(webViewUrl);
+
+        if (!connectedApp) {
             return {
                 error: {
                     code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
                     message: 'Unknown app',
                 },
                 id: request.id.toString(),
-            }
-          }
-    
-          try {
-            const { address, replyItems } = await new Promise<TonConnectModalResponse>(
-              (resolve, reject) =>
-                openTonConnect({
-                  protocolVersion: protocolVersion as 2,
-                  manifest,
-                  replyBuilder: new ConnectReplyBuilder(request, manifest),
-                  requestPromise: { resolve, reject },
-                  hideImmediately: !!webViewUrl,
-                }),
-            );
-    
-            this.saveAppConnection(
-              {
-                name: manifest.name,
-                url: manifest.url,
-                icon: manifest.iconUrl,
-              },
-              webViewUrl
-                ? { type: TonConnectBridgeType.Injected, replyItems }
-                : {
-                    type: TonConnectBridgeType.Remote,
-                    sessionKeyPair: sessionCrypto!.stringifyKeypair(),
-                    clientSessionId: clientSessionId!,
-                    replyItems,
-                  },
-            );
-    
-            return {
-              event: 'connect',
-              payload: {
-                items: replyItems,
-                device: tonConnectDeviceInfo,
-              },
             };
-          } catch {
-            throw new ConnectEventError(
-              CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
-              'Wallet declined the request',
-            );
-          }
-        } catch (error) {
-          if (error instanceof ConnectEventError) {
-            return error;
-          }
-    
-          error && debugLog(error.message);
-    
-          return new ConnectEventError(
-            CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
-            error?.message,
-          );
         }
-      }
+
+        return new Promise<WalletResponse<T>>((resolve) => {
+            const callback = (response: WalletResponse<T>) => {
+                resolve(response);
+            };
+            this.handleRequest({ request, connectedApp, callback, webViewUrl, type: 'injected' });
+        });
+    }
 
     getConnectionByClientSessionId(clientSessionId: string): ConnectedAppConnectionRemote | undefined {
         const connection = this.connections.find((item) => {
@@ -594,7 +645,7 @@ export class ConnectProduct {
         }
     }
 
-    deleteActiveRequest(clientSessionId: string) {
+    deleteActiveRemoteRequest(clientSessionId: string) {
         delete this.activeRequests[clientSessionId];
 
         this.pendingItem.update((doc) => {

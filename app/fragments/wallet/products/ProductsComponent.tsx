@@ -124,7 +124,7 @@ export const ProductsComponent = React.memo(() => {
                 sessionCrypto,
                 clientSessionId: request.from
             });
-            engine.products.tonConnect.deleteActiveRequest(request.from);
+            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
             return;
         }
 
@@ -133,7 +133,7 @@ export const ProductsComponent = React.memo(() => {
             sessionCrypto,
             clientSessionId: request.from
         });
-        engine.products.tonConnect.deleteActiveRequest(request.from);
+        engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
     }
 
     const checkRequest = (request: { from: string } & SendTransactionRequest) => {
@@ -146,14 +146,14 @@ export const ProductsComponent = React.memo(() => {
 
         const session = engine.products.tonConnect.getConnectionByClientSessionId(request.from);
         if (!session) {
-            engine.products.tonConnect.deleteActiveRequest(request.from);
+            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
             Alert.alert(t('common.error'), t('products.tonConnect.errors.connection'));
             return;
         }
         const sessionCrypto = new SessionCrypto(session.sessionKeyPair);
 
         if (!isValidRequest) {
-            engine.products.tonConnect.deleteActiveRequest(request.from);
+            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
             engine.products.tonConnect.send({
                 response: {
                     error: {
@@ -168,11 +168,10 @@ export const ProductsComponent = React.memo(() => {
             return;
         }
 
-        let target: Address;
         try {
-            target = Address.parse(params.messages[0].address);
+            Address.parse(params.messages[0].address);
         } catch (e) {
-            engine.products.tonConnect.deleteActiveRequest(request.from);
+            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
             engine.products.tonConnect.send({
                 response: {
                     error: {
@@ -189,7 +188,7 @@ export const ProductsComponent = React.memo(() => {
 
         const { valid_until } = params;
         if (valid_until < getTimeSec()) {
-            engine.products.tonConnect.deleteActiveRequest(request.from);
+            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
             engine.products.tonConnect.send({
                 response: {
                     error: {

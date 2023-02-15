@@ -6,6 +6,7 @@ import { Order } from '../fragments/secure/ops/Order';
 import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { SignRawMessage } from '../engine/tonconnect/types';
+import { TonConnectAuthProps } from '../fragments/secure/TonconnectAuthenticateFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -124,6 +125,10 @@ export class TypedNavigation {
 
     navigateStakingCalculator(params: { target: Address }) {
         this.navigate('StakingCalculator', params);
+    }
+
+    navigateConnectAuth(params: TonConnectAuthProps) {
+        this.navigate('TonconnectAuthenticate', params);
     }
 }
 

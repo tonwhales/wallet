@@ -23,11 +23,12 @@ import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/TonConnect';
-import { ConnectEvent, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
+import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
 import { AppManifest } from '../../engine/tonconnect/fetchManifest';
 import { ConnectReplyBuilder } from '../../engine/tonconnect/ConnectReplyBuilder';
 import { ConnectQrQuery, TonConnectBridgeType } from '../../engine/tonconnect/types';
 import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';
+import { useParams } from '../../utils/useParams';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -44,45 +45,69 @@ type SignState = { type: 'loading' }
         app: AppManifest,
         protocolVersion: number,
         request: ConnectRequest,
-        clientSessionId: string,
+        clientSessionId?: string,
     }
     | { type: 'completed' }
     | { type: 'authorized' }
     | { type: 'failed' }
 
-const SignStateLoader = React.memo((props: { query: ConnectQrQuery }) => {
+const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
     const engine = useEngine();
     React.useEffect(() => {
         (async () => {
-            try {
-                const handled = await engine.products.tonConnect.handleConnectDeeplink(props.query);
+            if (connectProps.type === 'qr') {
+                try {
+                    const handled = await engine.products.tonConnect.handleConnectDeeplink(connectProps.query);
 
-                if (handled) {
-                    checkProtocolVersionCapability(handled.protocolVersion);
-                    verifyConnectRequest(handled.request);
+                    if (handled) {
+                        checkProtocolVersionCapability(handled.protocolVersion);
+                        verifyConnectRequest(handled.request);
 
-                    if (handled.manifest) {
-                        setState({
-                            type: 'initing',
-                            name: handled.manifest.name,
-                            url: handled.manifest.url,
-                            app: handled.manifest,
-                            protocolVersion: handled.protocolVersion,
-                            request: handled.request,
-                            clientSessionId: handled.clientSessionId,
-                        });
+                        if (handled.manifest) {
+                            setState({
+                                type: 'initing',
+                                name: handled.manifest.name,
+                                url: handled.manifest.url,
+                                app: handled.manifest,
+                                protocolVersion: handled.protocolVersion,
+                                request: handled.request,
+                                clientSessionId: handled.clientSessionId,
+                            });
+                            return;
+                        }
+                        setState({ type: 'failed' });
                         return;
                     }
-                    setState({ type: 'failed' });
-                    return;
-                }
 
-            } catch (error) {
-                setState({ type: 'failed' });
+                } catch (error) {
+                    setState({ type: 'failed' });
+                }
+                return;
             }
+
+            checkProtocolVersionCapability(connectProps.protocolVersion);
+            verifyConnectRequest(connectProps.request);
+
+            const manifest = await engine.products.tonConnect.getConnectAppData(connectProps.request.manifestUrl);
+
+            if (manifest) {
+                setState({
+                    type: 'initing',
+                    name: manifest.name,
+                    url: manifest.url,
+                    app: manifest,
+                    protocolVersion: connectProps.protocolVersion,
+                    request: connectProps.request
+                });
+                return;
+            }
+
+            setState({ type: 'failed' });
+            return;
+
         })()
     }, []);
 
@@ -130,34 +155,43 @@ const SignStateLoader = React.memo((props: { query: ConnectQrQuery }) => {
                 stateInitStr,
             );
 
-            const response = {
-                event: 'connect',
-                payload: {
-                    items: replyItems,
-                    device: tonConnectDeviceInfo,
-                }
-            } as ConnectEvent
+            if (connectProps.type === 'qr' && state.clientSessionId) {
+                const response = {
+                    event: 'connect',
+                    payload: {
+                        items: replyItems,
+                        device: tonConnectDeviceInfo,
+                    }
+                } as ConnectEvent
 
-            engine.products.tonConnect.send({ response, sessionCrypto, clientSessionId: state.clientSessionId });
+                engine.products.tonConnect.send({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
-            engine.products.tonConnect.saveAppConnection(
-                {
-                    name: state.app.name,
-                    url: state.app.url,
-                    icon: state.app.iconUrl,
-                },
-                {
-                    type: TonConnectBridgeType.Remote,
-                    sessionKeyPair: sessionCrypto.stringifyKeypair(),
-                    clientSessionId: state.clientSessionId,
-                    replyItems,
-                },
-            );
+                engine.products.tonConnect.saveAppConnection(
+                    {
+                        name: state.app.name,
+                        url: state.app.url,
+                        icon: state.app.iconUrl,
+                    },
+                    {
+                        type: TonConnectBridgeType.Remote,
+                        sessionKeyPair: sessionCrypto.stringifyKeypair(),
+                        clientSessionId: state.clientSessionId,
+                        replyItems,
+                    },
+                );
 
-            setState({ type: 'authorized' });
+                setState({ type: 'authorized' });
+                return;
+            } else if (connectProps.type === 'callback') {
+                navigation.goBack();
+                connectProps.callback({ ok: true, replyItems });
+                return;
+            }
+            setState({ type: 'failed' });
+
 
         } catch (error) {
-            console.warn(error);
+            warn(error);
             setState({ type: 'failed' });
         }
 
@@ -433,10 +467,30 @@ const SignStateLoader = React.memo((props: { query: ConnectQrQuery }) => {
     );
 });
 
+export type TonConnectAuthResult = { replyItems: ConnectItemReply[], ok: true } | { ok: false }
+
+export type TonConnectAuthProps = {
+    query: ConnectQrQuery,
+    type: 'qr'
+} | {
+    type: 'callback',
+    protocolVersion: number,
+    request: ConnectRequest,
+    callback: (result: TonConnectAuthResult) => void
+}
+
 export const TonconnectAuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const { query }: { query: ConnectQrQuery } = useRoute().params as any;
+    const props = useParams<TonConnectAuthProps>()
+
+    React.useEffect(() => {
+        return () => {
+            if (props && props.type === 'callback' && props.callback) {
+                props.callback({ ok: false });
+            }
+        }
+    }, []);
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('auth.title')} />
@@ -449,7 +503,7 @@ export const TonconnectAuthenticateFragment = fragment(() => {
                     <Text style={[labelStyle, { textAlign: 'center' }]}>{t('auth.title')}</Text>
                 </View>
             )}
-            <SignStateLoader query={query} />
+            <SignStateLoader connectProps={props} />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

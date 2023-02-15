@@ -12,6 +12,7 @@ import { AppManifest, fetchManifest } from '../tonconnect/fetchManifest';
 import { storage } from '../../storage/storage';
 import { extensionKey } from './ExtensionsProduct';
 import { getTimeSec } from '../../utils/getTimeSec';
+import { checkProtocolVersionCapability, verifyConnectRequest } from "../tonconnect/TonConnect";
 
 let logger = createLogger('tonconnect');
 
@@ -449,6 +450,84 @@ export class ConnectProduct {
 
         this.removeConnectedApp(url);
     }
+
+    async connect(
+        protocolVersion: number,
+        request: ConnectRequest,
+        sessionCrypto?: SessionCrypto,
+        clientSessionId?: string,
+        webViewUrl?: string,
+      ): Promise<ConnectEvent> {
+        try {
+          checkProtocolVersionCapability(protocolVersion);
+          verifyConnectRequest(request);
+    
+          const manifest = await this.getConnectAppData(request.manifestUrl);
+
+          if (!manifest) {
+            return {
+                error: {
+                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    message: 'Unknown app',
+                },
+                id: request.id.toString(),
+            }
+          }
+    
+          try {
+            const { address, replyItems } = await new Promise<TonConnectModalResponse>(
+              (resolve, reject) =>
+                openTonConnect({
+                  protocolVersion: protocolVersion as 2,
+                  manifest,
+                  replyBuilder: new ConnectReplyBuilder(request, manifest),
+                  requestPromise: { resolve, reject },
+                  hideImmediately: !!webViewUrl,
+                }),
+            );
+    
+            this.saveAppConnection(
+              {
+                name: manifest.name,
+                url: manifest.url,
+                icon: manifest.iconUrl,
+              },
+              webViewUrl
+                ? { type: TonConnectBridgeType.Injected, replyItems }
+                : {
+                    type: TonConnectBridgeType.Remote,
+                    sessionKeyPair: sessionCrypto!.stringifyKeypair(),
+                    clientSessionId: clientSessionId!,
+                    replyItems,
+                  },
+            );
+    
+            return {
+              event: 'connect',
+              payload: {
+                items: replyItems,
+                device: tonConnectDeviceInfo,
+              },
+            };
+          } catch {
+            throw new ConnectEventError(
+              CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
+              'Wallet declined the request',
+            );
+          }
+        } catch (error) {
+          if (error instanceof ConnectEventError) {
+            return error;
+          }
+    
+          error && debugLog(error.message);
+    
+          return new ConnectEventError(
+            CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
+            error?.message,
+          );
+        }
+      }
 
     getConnectionByClientSessionId(clientSessionId: string): ConnectedAppConnectionRemote | undefined {
         const connection = this.connections.find((item) => {

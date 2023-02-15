@@ -1,4 +1,4 @@
-import { ConnectRequest, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, } from '@tonconnect/protocol';
+import { AppRequest, ConnectEvent, ConnectRequest, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse, } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
 
 export function checkProtocolVersionCapability(protocolVersion: number) {
@@ -30,4 +30,18 @@ export class SendTransactionError implements SendTransactionRpcResponseError {
       data,
     };
   }
+}
+
+export interface TonConnectInjectedBridge {
+  deviceInfo: DeviceInfo;
+  protocolVersion: number;
+  isWalletBrowser: boolean;
+  connect(
+    protocolVersion: number,
+    message: ConnectRequest,
+    auto: boolean,
+  ): Promise<ConnectEvent>;
+  restoreConnection(): Promise<ConnectEvent>;
+  disconnect(): Promise<void>;
+  send<T extends RpcMethod>(message: AppRequest<T>): Promise<WalletResponse<T>>;
 }

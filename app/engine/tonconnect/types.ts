@@ -126,30 +126,30 @@ export interface ConnectedApp {
   connections: ConnectedAppConnection[];
 }
 
-export interface ConnectedAppsStore {
-  connectedApps: {
-    [chainName: string]: {
-      [walletAddress: string]: {
-        [domain: string]: ConnectedApp;
-      };
-    };
-  };
-  actions: {
-    saveAppConnection: (
-      chainName: 'mainnet' | 'testnet',
-      walletAddress: string,
-      appData: Omit<ConnectedApp, 'connections'>,
-      connection: ConnectedAppConnection,
-    ) => void;
-    removeApp: (
-      chainName: 'mainnet' | 'testnet',
-      walletAddress: string,
-      url: string,
-    ) => void;
-    removeInjectedConnection: (
-      chainName: 'mainnet' | 'testnet',
-      walletAddress: string,
-      url: string,
-    ) => void;
-  };
-}
+// export interface ConnectedAppsStore {
+//   connectedApps: {
+//     [chainName: string]: {
+//       [walletAddress: string]: {
+//         [domain: string]: ConnectedApp;
+//       };
+//     };
+//   };
+//   actions: {
+//     saveAppConnection: (
+//       chainName: 'mainnet' | 'testnet',
+//       walletAddress: string,
+//       appData: Omit<ConnectedApp, 'connections'>,
+//       connection: ConnectedAppConnection,
+//     ) => void;
+//     removeApp: (
+//       chainName: 'mainnet' | 'testnet',
+//       walletAddress: string,
+//       url: string,
+//     ) => void;
+//     removeInjectedConnection: (
+//       chainName: 'mainnet' | 'testnet',
+//       walletAddress: string,
+//       url: string,
+//     ) => void;
+//   };
+// }

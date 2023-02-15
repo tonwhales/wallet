@@ -340,13 +340,7 @@ export class ConnectProduct {
     async handleSendTransaction(tx: {
         request: AppRequest<'sendTransaction'>,
         callback: (response: WalletResponse<'sendTransaction'>) => void,
-        type: 'remote',
         from: string
-    } | {
-        request: AppRequest<'sendTransaction'>,
-        callback: (response: WalletResponse<'sendTransaction'>) => void,
-        type: 'injected',
-        webViewUrl: string
     }) {
         const params = JSON.parse(tx.request.params[0]) as SignRawParams;
 
@@ -381,57 +375,32 @@ export class ConnectProduct {
 
         const current = this.pendingItem.value ?? [];
 
-        if (tx.type === 'remote') {
-            const found = current.find((item) => {
-                return item.from === tx.from;
+        const found = current.find((item) => {
+            return item.from === tx.from;
+        });
+        if (found) {
+            tx.callback({
+                error: {
+                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                    message: `Request already pending`,
+                },
+                id: tx.request.id.toString(),
             });
-            if (found) {
-                tx.callback({
-                    error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                        message: `Request already pending`,
-                    },
-                    id: tx.request.id.toString(),
-                });
-                return;
-            }
-            this.pendingItem.update((doc) => {
-                const temp = doc ?? [];
-                temp.push({ from: tx.from, id: tx.request.id.toString(), params: tx.request.params, method: 'sendTransaction' });
-                return temp;
-            });
+            return;
         }
-
-        // TODO
-        navigation.navigateTransferV4({
-            text: null,
-            order: {
-                messages: prepared.messages,
-                app: (prepared.app && prepared.app.connectedApp) ? {
-                    title: prepared.app.connectedApp.name,
-                    domain: extractDomain(prepared.app.connectedApp.url),
-                } : undefined
-            },
-            job: null,
-            callback: (ok, result) => callback(ok, result, prepared.request, prepared.sessionCrypto)
-        })
+        this.pendingItem.update((doc) => {
+            const temp = doc ?? [];
+            temp.push({ from: tx.from, id: tx.request.id.toString(), params: tx.request.params, method: 'sendTransaction' });
+            return temp;
+        });
     }
 
-    private async handleRequest<T extends RpcMethod>(
-        args: {
-            request: AppRequest<T>,
-            connectedApp: ConnectedApp | null,
-            callback: (response: WalletResponse<T>) => void,
-            type: 'remote',
-            from: string
-        } | {
-            request: AppRequest<T>,
-            connectedApp: ConnectedApp | null,
-            callback: (response: WalletResponse<T>) => void,
-            type: 'injected',
-            webViewUrl: string
-        }
-    ) {
+    private async handleRequest<T extends RpcMethod>(args: {
+        request: AppRequest<T>,
+        connectedApp: ConnectedApp | null,
+        callback: (response: WalletResponse<T>) => void,
+        from: string
+    }) {
         if (!args.connectedApp) {
             args.callback({
                 error: {
@@ -463,7 +432,7 @@ export class ConnectProduct {
         from: string
     ) {
         const { connectedApp } = this.findConnectedAppByClientSessionId(clientSessionId);
-        this.handleRequest({ request, connectedApp, callback, from, type: 'remote' });
+        this.handleRequest({ request, connectedApp, callback, from });
     }
 
     sendDisconnectEvent(connection: ConnectedAppConnectionRemote) {
@@ -553,30 +522,6 @@ export class ConnectProduct {
                 ...app,
                 connections: app.connections.filter((item) => item.type !== TonConnectBridgeType.Injected),
             }
-        });
-    }
-
-    async handleRequestFromInjectedBridge<T extends RpcMethod>(
-        request: AppRequest<T>,
-        webViewUrl: string,
-    ): Promise<WalletResponse<T>> {
-        const connectedApp = this.getConnectedAppByUrl(webViewUrl);
-
-        if (!connectedApp) {
-            return {
-                error: {
-                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
-                    message: 'Unknown app',
-                },
-                id: request.id.toString(),
-            };
-        }
-
-        return new Promise<WalletResponse<T>>((resolve) => {
-            const callback = (response: WalletResponse<T>) => {
-                resolve(response);
-            };
-            this.handleRequest({ request, connectedApp, callback, webViewUrl, type: 'injected' });
         });
     }
 

@@ -1,12 +1,14 @@
-import { AppRequest, ConnectEvent, ConnectItemReply, CONNECT_EVENT_ERROR_CODES, RpcMethod, WalletEvent } from '@tonconnect/protocol';
+import { AppRequest, ConnectEvent, CONNECT_EVENT_ERROR_CODES, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
 import { useCallback, useMemo, useState } from 'react';
 import { Engine } from '../Engine';
 import { checkProtocolVersionCapability, TonConnectInjectedBridge, verifyConnectRequest } from './TonConnect';
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from './config';
 import { useWebViewBridge } from './useWebViewBridge';
-import { ConnectEventError, TonConnectBridgeType } from './types';
+import { ConnectEventError, SignRawParams, TonConnectBridgeType } from './types';
 import { TypedNavigation } from '../../utils/useTypedNavigation';
 import { TonConnectAuthResult } from '../../fragments/secure/TonconnectAuthenticateFragment';
+import { getTimeSec } from '../../utils/getTimeSec';
+import { extractDomain } from '../utils/extractDomain';
 
 export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: TypedNavigation) {
   const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
@@ -105,8 +107,102 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
       },
 
       send: async <T extends RpcMethod>(request: AppRequest<T>) => {
-        
-        return engine.products.tonConnect.handleRequestFromInjectedBridge(request, webViewUrl)
+        const connectedApp = engine.products.tonConnect.getConnectedAppByUrl(webViewUrl);
+
+        if (!connectedApp) {
+          return {
+            error: {
+              code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+              message: 'Unknown app',
+            },
+            id: request.id.toString(),
+          };
+        }
+
+        return new Promise<WalletResponse<T>>((resolve) => {
+          const callback = (response: WalletResponse<T>) => {
+            resolve(response);
+          };
+          if (!connectedApp) {
+            callback({
+              error: {
+                code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                message: 'Unknown app',
+              },
+              id: request.id.toString(),
+            });
+          }
+
+          if (request.method === 'sendTransaction') {
+            const params = JSON.parse(request.params[0]) as SignRawParams;
+
+            const isValidRequest =
+              params && typeof params.valid_until === 'number' &&
+              Array.isArray(params.messages) &&
+              params.messages.every((msg) => !!msg.address && !!msg.amount);
+
+            if (!isValidRequest) {
+              callback({
+                error: {
+                  code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                  message: `Bad request`,
+                },
+                id: request.id.toString(),
+              });
+              return;
+            }
+
+            const { valid_until } = params;
+
+            if (valid_until < getTimeSec()) {
+              callback({
+                error: {
+                  code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                  message: `Request timed out`,
+                },
+                id: request.id.toString(),
+              });
+              return;
+            }
+
+            navigation.navigateTransferV4({
+              text: null,
+              order: {
+                messages: params.messages,
+                app: app ? {
+                  title: app.name,
+                  domain: extractDomain(app.url),
+                } : undefined
+              },
+              job: null,
+              callback: (ok, result) => {
+                if (ok) {
+                  callback({
+                    result: result?.toBoc({ idx: false }).toString('base64') ?? '',
+                    id: request.id.toString(),
+                  });
+                } else {
+                  callback({
+                    error: {
+                      code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                      message: 'User rejected',
+                    },
+                    id: request.id.toString(),
+                  });
+                }
+              }
+            })
+            return;
+          }
+
+          callback({
+            error: {
+              code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+              message: `Method "${request.method}" is not supported`,
+            },
+            id: request.id.toString(),
+          });
+        });
       }
     };
   }, [webViewUrl]);

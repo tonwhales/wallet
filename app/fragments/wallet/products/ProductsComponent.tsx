@@ -168,24 +168,6 @@ export const ProductsComponent = React.memo(() => {
             return;
         }
 
-        try {
-            Address.parse(params.messages[0].address);
-        } catch (e) {
-            engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-            engine.products.tonConnect.send({
-                response: {
-                    error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                        message: `Wrong address`,
-                    },
-                    id: request.id.toString(),
-                },
-                sessionCrypto,
-                clientSessionId: request.from
-            });
-            return;
-        }
-
         const { valid_until } = params;
         if (valid_until < getTimeSec()) {
             engine.products.tonConnect.deleteActiveRemoteRequest(request.from);

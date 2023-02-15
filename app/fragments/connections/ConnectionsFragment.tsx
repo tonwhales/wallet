@@ -55,8 +55,6 @@ export const ConnectionsFragment = fragment(() => {
     const tonconnectApps = engine.products.tonConnect.useExtensions();
     let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
 
-    console.log({ tonconnectApps });
-
     let disconnectApp = React.useCallback((url: string) => {
         let refs = getConnectionReferences();
         let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());

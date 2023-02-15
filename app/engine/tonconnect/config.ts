@@ -1,5 +1,4 @@
 import { DeviceInfo } from '@tonconnect/protocol';
-import * as Device from 'expo-device';
 import * as Application from 'expo-application';
 import { Platform } from 'react-native';
 
@@ -18,7 +17,7 @@ const getPlatform = (): DeviceInfo['platform'] => {
 export const tonConnectDeviceInfo: DeviceInfo = {
   platform: getPlatform(),
   appName: Application.applicationName ?? 'Tonhub',
-  appVersion: Application.nativeApplicationVersion ?? '1.23.2',
+  appVersion: Application.nativeApplicationVersion ?? '1.23.3',
   maxProtocolVersion: CURRENT_PROTOCOL_VERSION,
   features: ['SendTransaction'],
 };

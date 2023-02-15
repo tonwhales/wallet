@@ -76,13 +76,11 @@ const SignStateLoader = React.memo((props: { query: ConnectQrQuery }) => {
                         });
                         return;
                     }
-                    console.log('here_3', { manifest: handled.manifest });
                     setState({ type: 'failed' });
                     return;
                 }
 
             } catch (error) {
-                console.log('here_2')
                 setState({ type: 'failed' });
             }
         })()
@@ -105,7 +103,6 @@ const SignStateLoader = React.memo((props: { query: ConnectQrQuery }) => {
         const sessionCrypto = new SessionCrypto();
 
         if (state.protocolVersion === 1) {
-            console.log('here_1')
             setState({ type: 'failed' });
         }
 
@@ -131,25 +128,6 @@ const SignStateLoader = React.memo((props: { query: ConnectQrQuery }) => {
                 acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
                 Uint8Array.from(walletKeys.keyPair.secretKey),
                 stateInitStr,
-            );
-
-            console.log({ replyItems });
-
-            console.log(
-                {
-                    address: acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
-                    manifest: {
-                        name: state.app.name,
-                        url: state.app.url,
-                        icon: state.app.iconUrl,
-                    },
-                    connect: {
-                        type: TonConnectBridgeType.Remote,
-                        sessionKeyPair: sessionCrypto!.stringifyKeypair(),
-                        clientSessionId: state.clientSessionId,
-                        replyItems,
-                    }
-                }
             );
 
             const response = {

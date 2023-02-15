@@ -1,6 +1,4 @@
-import {
-  ConnectRequest, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES,
-} from '@tonconnect/protocol';
+import { ConnectRequest, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
 
 export function checkProtocolVersionCapability(protocolVersion: number) {

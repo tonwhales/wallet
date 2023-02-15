@@ -139,8 +139,6 @@ export const ProductsComponent = React.memo(() => {
     const checkRequest = (request: { from: string } & SendTransactionRequest) => {
         const params = JSON.parse(request.params[0]) as SignRawParams;
 
-        console.log('checkRequest', { request });
-
         const isValidRequest =
             params && typeof params.valid_until === 'number' &&
             Array.isArray(params.messages) &&
@@ -250,8 +248,6 @@ export const ProductsComponent = React.memo(() => {
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [extensions, jettons, oldWalletsBalance, currentJob, tonconnectRequests]);
-
-    console.log('tonconnectRequests', tonconnectRequests);
 
     return (
         <View style={{ paddingTop: 8 }}>

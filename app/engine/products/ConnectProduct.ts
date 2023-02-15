@@ -38,7 +38,6 @@ export class ConnectProduct {
             key: 'tonconnect/requests',
             get: ({ get }) => {
                 let reqests = get(this.engine.persistence.connectDAppRequests.item().atom);
-                console.log('#pendingRequestsSelector', { reqests });
                 return reqests ?? [];
             },
             dangerouslyAllowMutability: true
@@ -56,26 +55,19 @@ export class ConnectProduct {
                     privacyPolicyUrl: string | null,
                 }[] = [];
 
-                console.log('ConnectProduct extensions', { apps });
-
                 for (let k in apps.installed) {
                     let app = apps.installed[k];
                     let key = extensionKey(app.url);
 
                     this.engine.persistence.connectDApps.each((persistenceKey) => {
                         const data = this.engine.persistence.connectDApps.item(key).value;
-                        console.log({ key, persistenceKey, ok: persistenceKey === key, data });
                     });
 
                     const persisted = this.engine.persistence.connectDApps.item(key).value;
 
-                    console.log({ persisted })
-
                     if (!persisted) {
                         continue;
                     }
-
-                    console.log('adding', { k });
                     res.push({
                         key: k,
                         url: app.url,
@@ -142,7 +134,6 @@ export class ConnectProduct {
         this.eventSource.addEventListener(
             'message',
             (event) => {
-                console.log('eventSource new Message', { event });
                 this.handleMessage(event as MessageEvent);
             }
             //   debounce(this.handleMessage.bind(this), 200) as EventSourceListener,
@@ -222,8 +213,6 @@ export class ConnectProduct {
 
             const manifest = await this.getConnectAppData(request.manifestUrl);
 
-            console.log({ protocolVersion, request, clientSessionId, manifest });
-
             return ({
                 protocolVersion,
                 request,
@@ -236,7 +225,6 @@ export class ConnectProduct {
     }
 
     saveAppConnection(appData: Omit<ConnectedApp, 'connections'>, connection: ConnectedAppConnection) {
-        console.log('saveAppConnection', { appData, connection });
         this.extensions.value.installed
 
         let key = extensionKey(appData.url);
@@ -278,12 +266,10 @@ export class ConnectProduct {
     async getConnectAppData(url: string) {
         let key = extensionKey(url);
         const isPersisted = this.engine.persistence.connectManifests.item(key).value;
-        console.log('getConnectAppData', { url, key, persisted: isPersisted });
         // fetch and add if does not exist
         if (!isPersisted) {
             try {
                 const appData = await fetchManifest(url);
-                console.log('fetchManifest', { key, appData })
                 if (appData) {
                     this.updateConnectAppData(appData);
                     this.engine.persistence.connectManifests.item(key).update(() => appData.url);
@@ -300,7 +286,6 @@ export class ConnectProduct {
         if (!stored) {
             try {
                 const appData = await fetchManifest(url);
-                console.log('fetchManifest', { key, appData })
                 if (appData) {
                     this.updateConnectAppData(appData);
                     this.engine.persistence.connectManifests.item(key).update(() => appData.url);
@@ -354,8 +339,6 @@ export class ConnectProduct {
     ) {
         const params = JSON.parse(request.params[0]) as SignRawParams;
 
-        console.log('sendTransaction', { params: JSON.stringify(params) });
-
         const isValidRequest =
             params && typeof params.valid_until === 'number' &&
             Array.isArray(params.messages) &&
@@ -399,10 +382,8 @@ export class ConnectProduct {
         }
 
         this.pendingItem.update((doc) => {
-            console.log('updating with new pending request', { doc });
             const temp = doc ?? [];
             temp.push({ from: from, id: request.id.toString(), params: request.params, method: 'sendTransaction' });
-            console.log('new state', temp);
             return temp;
         });
     }
@@ -444,7 +425,6 @@ export class ConnectProduct {
         from: string
     ) {
         const { connectedApp } = this.findConnectedAppByClientSessionId(clientSessionId);
-        console.log('handleRequestFromRemoteBridge', { connectedApp });
         this.handleRequest(request, connectedApp, callback, from);
     }
 
@@ -471,9 +451,7 @@ export class ConnectProduct {
     }
 
     getConnectionByClientSessionId(clientSessionId: string): ConnectedAppConnectionRemote | undefined {
-        console.log({ connections: this.connections });
         const connection = this.connections.find((item) => {
-            console.log({ item, finding: clientSessionId });
             return item.clientSessionId === clientSessionId
         });
 
@@ -491,17 +469,11 @@ export class ConnectProduct {
                 this.setLastEventId(event.lastEventId);
             }
 
-            console.log('handleMessage', { data: event.data });
-
             const { from, message } = JSON.parse(event.data!);
-            console.log('Parsed', { from, message });
-
-            console.log('handleMessage', from);
 
             const connection = this.connections.find((item) => item.clientSessionId === from);
 
             if (!connection) {
-                console.log(`connection with clientId "${from}" not found!`);
                 return;
             }
 
@@ -532,17 +504,13 @@ export class ConnectProduct {
 
             this.activeRequests[from] = request;
 
-            console.log('handleMessage request', request);
-
             const callback = (response: WalletResponse<RpcMethod>) => {
                 delete this.activeRequests[from];
-                console.log('handleMessage response', response);
                 this.send({ response, sessionCrypto, clientSessionId: from });
             }
 
             this.handleRequestFromRemoteBridge(request, from, callback, from);
         } catch (e) {
-            console.log('handleMessage error');
             console.error(e);
         }
     }

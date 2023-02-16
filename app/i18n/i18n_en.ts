@@ -354,6 +354,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         lockups: {
             title: 'Lockup Wallets',
             wallet: 'Lockup Wallet',
+            totalBalance: 'Total Balance',
+            liquidBalance: 'Liquid Balance',
+            lockedBalance: 'Locked Balance',
+            restrictedBalance: 'Restricted Balance',
+            lockedTitle: 'Locked',
+            restrictedTitle: 'Restricted',
         }
     },
     welcome: {

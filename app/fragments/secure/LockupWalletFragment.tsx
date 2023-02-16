@@ -155,13 +155,16 @@ export const LockupWalletFragment = fragment(() => {
                         >
                             <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
                                 <ValueComponent
-                                    value={new BN(0)}
+                                    value={wallet?.balance ?? new BN(0)}
                                     centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                                 />
                             </Text>
                         </View>
                     </View>
-                    <PriceComponent amount={new BN(0)} style={{ marginHorizontal: 22, marginTop: 6 }} />
+                    <PriceComponent
+                        amount={wallet?.balance ?? new BN(0)}
+                        style={{ marginHorizontal: 22, marginTop: 6 }}
+                    />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
                         value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
@@ -181,8 +184,6 @@ export const LockupWalletFragment = fragment(() => {
                         lockActions
                     />
                 </Animated.View>
-
-                {/* TODO:  BALANCES HERE */}
 
                 {!!wallet && (
                     <>
@@ -231,7 +232,7 @@ export const LockupWalletFragment = fragment(() => {
                                         { position: 'relative', ...titleOpacityStyle },
                                     ]}
                                 >
-                                    {t('products.staking.title')}
+                                    {t('products.lockups.wallet')}
                                 </Animated.Text>
                                 <Animated.View
                                     style={[
@@ -271,13 +272,12 @@ export const LockupWalletFragment = fragment(() => {
                                         <Text
                                             style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
                                         >
-                                            {'Liquid balance'}
+                                            {t('products.lockups.totalBalance')}
                                         </Text>
                                         <Text
                                             style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
                                         >
-                                            {/* TODO: liquid balance */}
-                                            <ValueComponent value={new BN(0)} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
+                                            <ValueComponent value={wallet?.balance ?? new BN(0)} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                                         </Text>
                                         <View style={{ flexGrow: 1 }}>
 
@@ -336,7 +336,7 @@ export const LockupWalletFragment = fragment(() => {
                                 { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
                                 { position: 'relative', ...titleOpacityStyle },
                             ]}>
-                                {t('products.staking.title')}
+                                {t('products.lockups.wallet')}
                             </Animated.Text>
                             <Animated.View
                                 style={[
@@ -375,13 +375,13 @@ export const LockupWalletFragment = fragment(() => {
                                     <Text
                                         style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
                                     >
-                                        {'Liquid balance'}
+                                        {t('products.lockups.totalBalance')}
                                     </Text>
                                     <Text
                                         style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
                                     >
                                         <ValueComponent
-                                            value={new BN(0)}
+                                            value={wallet?.balance ?? new BN(0)}
                                             centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
                                         />
                                     </Text>

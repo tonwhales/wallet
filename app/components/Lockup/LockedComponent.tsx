@@ -1,12 +1,13 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { fromNano } from "ton";
-import { Lockup } from "../../engine/metadata/Metadata";
+import { LockupWalletState } from "../../engine/sync/startLockupWalletSync";
+import { t } from "../../i18n/t";
 import { LockupTimer } from "./LockupTimer";
 
-export const LockedComponent = React.memo(({ lockup }: { lockup: Lockup }) => {
+export const LockedComponent = React.memo(({ lockup }: { lockup: LockupWalletState }) => {
     const locked = React.useMemo(() => {
-        return lockup.locked ? Array.from(lockup.locked, ([key, value]) => {
+        return lockup.wallet?.locked ? Array.from(lockup.wallet.locked, ([key, value]) => {
             return (
                 <LockupTimer
                     key={key + ':' + value}
@@ -34,7 +35,7 @@ export const LockedComponent = React.memo(({ lockup }: { lockup: Lockup }) => {
                     marginBottom: 8
                 }}
             >
-                {'Locked'}
+                {t('products.lockups.lockedTitle')}
             </Text>
             {locked}
         </View>

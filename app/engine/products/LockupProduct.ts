@@ -44,6 +44,6 @@ export class LockupProduct {
     }
 
     useLockupWallet(address: Address) {
-        return useRecoilValue(this.engine.persistence.metadata.item(address).atom)?.lockup;
+        return useRecoilValue(this.engine.persistence.lockupWallets.item(address).atom);
     }
 }

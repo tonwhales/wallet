@@ -355,7 +355,13 @@ export type LocalizationSchema = {
         },
         lockups: {
             title: string,
-            wallet: string
+            wallet: string,
+            totalBalance: string,
+            liquidBalance: string,
+            lockedBalance: string,
+            restrictedBalance: string,
+            lockedTitle: string,
+            restrictedTitle: string,
         }
     }
     welcome: {

@@ -18,7 +18,7 @@ const Img_Tegro_TON_bot = require('../../assets/known/Tegro_TON_bot.png');
 // NFT
 const Img_tonwhalesNFT = require('../../assets/known/tonwhalesNFT.png');
 
-const Img_kingyTON = require('../../assets/known/kingyTON.png');
+const Img_kingyTON = require('../../assets/known/kingyTON.jpeg');
 const Img_kingyru = require('../../assets/known/kingyru.png');
 const Img_thetrixter = require('../../assets/known/thetrixter.jpg');
 

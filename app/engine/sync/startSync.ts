@@ -20,6 +20,7 @@ import { startWalletConfigSync } from "./startWalletConfigSync";
 import { startApySync } from "./startApySync";
 import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
 import { createTracer } from '../../utils/tracer';
+import { startLockupWalletSync } from "./startLockupWalletSync";
 
 export function startSync(engine: Engine) {
     const tracer = createTracer();
@@ -136,6 +137,25 @@ export function startSync(engine: Engine) {
         }
     });
     tracer.label('jetton wallets');
+
+    // 
+    // Lockup Wallets
+    // 
+    let lockupWalletsStarted = new Set<string>();
+    function startLockupWallet(address: Address) {
+        let k = address.toFriendly({ testOnly: AppConfig.isTestnet });
+        if (lockupWalletsStarted.has(k)) {
+            return;
+        }
+        lockupWalletsStarted.add(k);
+        startLockupWalletSync(address, engine);
+    }
+    engine.persistence.knownAccountLockups.item(engine.address).for((e) => {
+        for (let addr of e) {
+            startLockupWallet(addr);
+        }
+    });
+    tracer.label('lockup wallets');
 
     //
     // Hints

@@ -4,12 +4,12 @@ import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Lockup } from "../metadata/Metadata";
+import { LockupWalletState } from "../sync/startLockupWalletSync";
 
 export class LockupProduct {
 
     readonly engine: Engine;
-    readonly #wallets: RecoilValueReadOnly<{ metadata: Lockup, address: Address }[]>;
-    readonly #balance: RecoilValueReadOnly<BN>;
+    readonly #wallets: RecoilValueReadOnly<{ state: LockupWalletState, address: Address }[]>;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -26,39 +26,21 @@ export class LockupProduct {
                 const wallets = [];
                 for (let i = 0; i < lockups.length; i++) {
                     const lockup = lockups[i];
-                    const metadata = get(this.engine.persistence.metadata.item(lockup).atom)?.lockup;
-                    if (metadata) {
+                    const wallet = get(this.engine.persistence.lockupWallets.item(lockup).atom);
+                    if (!!wallet) {
                         wallets.push({
                             address: lockup,
-                            metadata
+                            state: wallet
                         });
                     }
                 }
                 return wallets;
             }
         });
-
-        this.#balance = selector({
-            key: 'lockups/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/balance',
-            get: ({ get }) => {
-                const wallets = get(this.#wallets);
-                let balance = new BN(0);
-                for (let i = 0; i < wallets.length; i++) {
-                    const wallet = wallets[i];
-                    balance = balance.add(wallet.metadata.totalLockedValue ?? new BN(0));
-                    balance = balance.add(wallet.metadata.totalRestrictedValue ?? new BN(0));
-                }
-                return balance;
-            }
-        });
     }
 
     useLockupWallets() {
         return useRecoilValue(this.#wallets);
-    }
-
-    useLockuoBalance() {
-        return useRecoilValue(this.#balance);
     }
 
     useLockupWallet(address: Address) {

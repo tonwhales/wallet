@@ -27,6 +27,7 @@ import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
+import { LockupWalletState } from "./sync/startLockupWalletSync";
 
 export class Persistence {
 
@@ -50,8 +51,10 @@ export class Persistence {
     readonly jettonMasters: PersistedCollection<Address, JettonMasterState>;
     readonly knownJettons: PersistedCollection<void, Address[]>;
     readonly knownAccountJettons: PersistedCollection<Address, Address[]>;
-    readonly knownAccountLockups: PersistedCollection<Address, Address[]>;
     readonly disabledJettons: PersistedCollection<Address, Address[]>;
+
+    readonly knownAccountLockups: PersistedCollection<Address, Address[]>;
+    readonly lockupWallets: PersistedCollection<Address, LockupWalletState>;
 
     readonly downloads: PersistedCollection<string, string>;
     readonly hintState: PersistedCollection<Address, HintProcessingState>;
@@ -104,6 +107,7 @@ export class Persistence {
 
         // Lockups
         this.knownAccountLockups = new PersistedCollection({ storage, namespace: 'knownAccountLockups', key: addressKey, codec: t.array(c.address), engine });
+        this.lockupWallets = new PersistedCollection({ storage, namespace: 'lockupWallets', key: addressKey, codec: lockupWalletCodec, engine });
 
         // Configs
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
@@ -213,6 +217,22 @@ const metadataCodec = t.type({
         content: t.union([t.undefined, contentSourceCodec])
     })]),
     lockup: t.union([t.undefined, t.type({
+        seqno: t.number,
+        subwalletId: t.number,
+        publicKey: c.buffer,
+        configPublicKey: c.buffer,
+        allowedDestinations: t.array(c.address),
+        totalLockedValue: c.bignum,
+        locked: t.union([t.null, c.mapStringBn]),
+        totalRestrictedValue: c.bignum,
+        restricted: t.union([t.null, c.mapStringBn])
+    })])
+});
+
+const lockupWalletCodec = t.type({
+    block: t.number,
+    balance: c.bignum,
+    wallet: t.union([t.null, t.type({
         seqno: t.number,
         subwalletId: t.number,
         publicKey: c.buffer,

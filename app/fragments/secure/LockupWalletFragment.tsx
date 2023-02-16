@@ -21,7 +21,7 @@ import BN from "bn.js";
 import { RestrictedComponent } from "../../components/Lockup/RestrictedComponent";
 import { LockedComponent } from "../../components/Lockup/LockedComponent";
 
-export const LockupsWalletFragment = fragment(() => {
+export const LockupWalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const { address } = useParams<{ address: string }>();
     const navigation = useTypedNavigation();

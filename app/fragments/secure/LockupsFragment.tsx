@@ -17,27 +17,28 @@ export const LockupsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const wallets = engine.products.lockup.useLockupWallets();
+    const lockupWallets = engine.products.lockup.useLockupWallets();
     const items: React.ReactElement[] = [];
 
-    for (let wallet of wallets) {
+    for (let lockup of lockupWallets) {
         let balance = new BN(0);
-        if (wallet.metadata.totalLockedValue) {
-            balance = balance.add(wallet.metadata.totalLockedValue);
+        balance = balance.add(lockup.state.balance);
+        if (lockup.state.wallet?.totalLockedValue) {
+            balance = balance.add(lockup.state.wallet.totalLockedValue);
         }
-        if (wallet.metadata.totalRestrictedValue) {
-            balance = balance.add(wallet.metadata.totalRestrictedValue);
+        if (lockup.state.wallet?.totalRestrictedValue) {
+            balance = balance.add(lockup.state.wallet.totalRestrictedValue);
         }
-        let at = wallet.address.toFriendly({ testOnly: AppConfig.isTestnet });
+        let at = lockup.address.toFriendly({ testOnly: AppConfig.isTestnet });
         items.push(
             <ProductButton
-                key={wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                key={lockup.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                 name={t('products.lockups.wallet')}
                 subtitle={at.slice(0, 6) + '...' + at.slice(t.length - 8)}
                 requireSource={require('../../../assets/ic_wallet_2.png')}
                 value={balance}
                 onPress={() => {
-                    navigation.navigate('LockupWallet', { address: wallet.address.toFriendly({ testOnly: AppConfig.isTestnet }) });
+                    navigation.navigate('LockupWallet', { address: lockup.address.toFriendly({ testOnly: AppConfig.isTestnet }) });
                 }}
             />
         );

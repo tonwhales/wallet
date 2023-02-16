@@ -16,6 +16,7 @@ export type LocalizationSchema = {
         balance: string,
         walletAddress: string,
         copy: string,
+        copiedAlert: string,
         copied: string,
         share: string,
         send: string,

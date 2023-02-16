@@ -360,6 +360,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             restrictedBalance: 'Restricted Balance',
             lockedTitle: 'Locked',
             restrictedTitle: 'Restricted',
+            until: 'Until {{date}}',
+            unlocked: 'Unlocked',
+            unrestricted: 'Unrestricted',
         }
     },
     welcome: {

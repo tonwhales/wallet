@@ -1,27 +1,43 @@
+import BN from "bn.js";
 import React from "react";
 import { View, Text } from "react-native";
 import { fromNano } from "ton";
 import { LockupWalletState } from "../../engine/sync/startLockupWalletSync";
 import { t } from "../../i18n/t";
-import { LockupTimer } from "./LockupTimer";
+import { formatDate } from "../../utils/dates";
+import { ItemGroup } from "../ItemGroup";
+import { ItemLarge } from "../ItemLarge";
 
 export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalletState }) => {
-    const restricted = React.useMemo(() => {
-        return lockup.wallet?.restricted ? Array.from(lockup.wallet.restricted, ([key, value]) => {
-            return (
-                <LockupTimer
-                    key={key + ':' + value}
-                    title={'Unrestricted'}
-                    description={`${fromNano(value)} TON`}
-                    until={parseInt(key)}
-                    readyText={'Unrestricted'}
-                    style={{ marginBottom: 8 }}
-                />
-            )
-        }) : [];
+    const { views, restricted } = React.useMemo(() => {
+        const views: any[] = [];
+        let restricted = new BN(0);
+        if (lockup.wallet?.restricted) {
+            Array.from(lockup.wallet.restricted).forEach(([key, value]) => {
+                const until = parseInt(key);
+                let untilLabel = t('products.lockups.unrestricted');
+                if (until > Date.now() / 1000) {
+                    untilLabel = t('products.lockups.until', { date: formatDate(until) });
+                    restricted = restricted.add(new BN(value));
+                }
+                views.push(
+                    <ItemGroup style={{ marginHorizontal: 16, marginBottom: 8 }}>
+                        <ItemLarge
+                            text={`${fromNano(value)} TON`}
+                            title={untilLabel}
+                        />
+                    </ItemGroup>
+                )
+            });
+        }
+
+        return {
+            views,
+            restricted
+        }
     }, [lockup]);
 
-    if (restricted.length === 0) {
+    if (views.length === 0) {
         return null;
     }
 
@@ -35,9 +51,9 @@ export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalle
                     marginVertical: 8
                 }}
             >
-                {t('products.lockups.restrictedTitle')}
+                {t('products.lockups.restrictedTitle') + ': ' + fromNano(restricted.toString()) + ' TON'}
             </Text>
-            {restricted}
+            {views}
         </View>
     );
 });

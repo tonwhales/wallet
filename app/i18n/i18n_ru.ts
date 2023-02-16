@@ -361,6 +361,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             restrictedBalance: 'Ограниченный баланс',
             lockedTitle: 'Заблокировано',
             restrictedTitle: 'Ограничено',
+            until: 'До {{date}}',
+            unlocked: 'Разблокировано',
+            unrestricted: 'Без ограничений',
         }
     },
     welcome: {

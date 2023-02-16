@@ -27,7 +27,42 @@ export const LockupWalletFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const target = Address.parse(address);
-    const wallet = engine.products.lockup.useLockupWallet(target);
+    const walletState = engine.products.lockup.useLockupWallet(target);
+
+    const { totalBalance, liquidBalance } = useMemo(() => {
+        let totalBalance = new BN(0);
+        let liquidBalance = new BN(0);
+        if (!walletState) {
+            return { totalBalance, liquidBalance };
+        }
+        totalBalance = totalBalance.add(walletState.balance);
+        liquidBalance = liquidBalance.add(walletState.balance);
+        if (!walletState.wallet) {
+            return { totalBalance, liquidBalance };
+        }
+        if (walletState.wallet?.totalLockedValue) {
+            totalBalance = totalBalance.add(walletState.wallet.totalLockedValue);
+        }
+        if (walletState.wallet.locked) {
+            for (let locked of Array.from(walletState.wallet.locked)) {
+                if (parseInt(locked[0]) < (Date.now() / 1000)) {
+                    liquidBalance = liquidBalance.add(locked[1]);
+                }
+            }
+        }
+        if (walletState.wallet?.totalRestrictedValue) {
+            totalBalance = totalBalance.add(walletState.wallet.totalRestrictedValue);
+        }
+        if (walletState.wallet.restricted) {
+            for (let restricted of Array.from(walletState.wallet.restricted)) {
+                if (parseInt(restricted[0]) < (Date.now() / 1000)) {
+                    liquidBalance = liquidBalance.add(restricted[1]);
+                }
+            }
+        }
+        return { totalBalance, liquidBalance };
+    }, [walletState]);
+
 
     const window = useWindowDimensions();
     // Animating wallet card
@@ -67,27 +102,17 @@ export const LockupWalletFragment = fragment(() => {
                 easing: Easing.bezier(0.25, 0.1, 0.25, 1),
             }),
             transform: [
-                {
-                    translateY: Math.floor(cardHeight * 0.15 / 2),
-                },
-                {
-                    translateY: -Math.floor(cardHeight * 0.15 / 2),
-                },
+                { translateY: Math.floor(cardHeight * 0.15 / 2), },
+                { translateY: -Math.floor(cardHeight * 0.15 / 2), },
                 {
                     translateY: withTiming(smallCardY.value, {
                         duration: 300,
                         easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-                    }),
+                    })
                 },
-                {
-                    translateY: Math.floor(cardHeight * 0.15 / 2) - Math.floor(window.height * 0.013),
-                },
-                {
-                    translateX: -Math.floor((window.width - 32) * 0.15 / 2),
-                },
-                {
-                    translateX: Math.floor((window.width - 32) * 0.15 / 2)
-                }
+                { translateY: Math.floor(cardHeight * 0.15 / 2) - Math.floor(window.height * 0.013), },
+                { translateX: -Math.floor((window.width - 32) * 0.15 / 2), },
+                { translateX: Math.floor((window.width - 32) * 0.15 / 2) }
             ],
         };
     }, [cardHeight, window]);
@@ -141,10 +166,14 @@ export const LockupWalletFragment = fragment(() => {
                         resizeMethod="resize"
                     />
 
-                    <Text
-                        style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
-                    >
-                        {'Liquid balance'}
+                    <Text style={{
+                        fontSize: 14,
+                        color: 'white',
+                        opacity: 0.8,
+                        marginTop: 22,
+                        marginLeft: 22
+                    }}>
+                        {t('products.lockups.totalBalance')}
                     </Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View
@@ -153,42 +182,78 @@ export const LockupWalletFragment = fragment(() => {
                                 flexDirection: 'row', alignItems: 'center'
                             }}
                         >
-                            <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
+                            <Text style={{
+                                fontSize: 26,
+                                color: 'white',
+                                marginRight: 8,
+                                fontWeight: '800',
+                            }}>
                                 <ValueComponent
-                                    value={wallet?.balance ?? new BN(0)}
-                                    centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                    value={totalBalance}
+                                    centFontStyle={{ fontSize: 20, fontWeight: '500', opacity: 0.55 }}
                                 />
                             </Text>
                         </View>
                     </View>
                     <PriceComponent
-                        amount={wallet?.balance ?? new BN(0)}
-                        style={{ marginHorizontal: 22, marginTop: 6 }}
+                        amount={totalBalance}
+                        style={{ marginHorizontal: 22 }}
                     />
                     <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={target}
-                        elipsise
-                        style={{
-                            marginLeft: 22,
-                            marginBottom: 16,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: 'white',
-                            fontWeight: '500',
-                            fontFamily: undefined
-                        }}
-                        lockActions
-                    />
+                    <Text style={{
+                        fontSize: 14,
+                        color: 'white',
+                        opacity: 0.8,
+                        marginTop: 12,
+                        marginLeft: 22
+                    }}>
+                        {t('products.lockups.liquidBalance')}
+                    </Text>
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingHorizontal: 22,
+                        marginBottom: 22
+                    }}>
+                        <View>
+                            <Text style={{
+                                fontSize: 22,
+                                color: 'white',
+                                marginRight: 8,
+                                fontWeight: '800',
+                                marginTop: 2
+                            }}>
+                                <ValueComponent
+                                    value={liquidBalance}
+                                    centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.55 }}
+                                />
+                            </Text>
+                            <PriceComponent amount={liquidBalance} />
+                        </View>
+                        <WalletAddress
+                            value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            address={target}
+                            elipsise
+                            style={{
+                                alignSelf: 'flex-end',
+                                marginRight: 8
+                            }}
+                            textStyle={{
+                                textAlign: 'left',
+                                color: 'white',
+                                fontWeight: '500',
+                                fontFamily: undefined
+                            }}
+                            lockActions
+                        />
+                    </View>
                 </Animated.View>
 
-                {!!wallet && (
+                {!!walletState && (
                     <>
-                        <LockedComponent lockup={wallet} />
-                        <RestrictedComponent lockup={wallet} />
+                        <LockedComponent lockup={walletState} />
+                        <RestrictedComponent lockup={walletState} />
                     </>
                 )}
 
@@ -269,25 +334,49 @@ export const LockupWalletFragment = fragment(() => {
                                             resizeMethod="resize"
                                         />
 
-                                        <Text
-                                            style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
-                                        >
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: 'white',
+                                            opacity: 0.8,
+                                            marginTop: 22,
+                                            marginLeft: 22
+                                        }}>
                                             {t('products.lockups.totalBalance')}
                                         </Text>
-                                        <Text
-                                            style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
-                                        >
-                                            <ValueComponent value={wallet?.balance ?? new BN(0)} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
+                                        <Text style={{
+                                            fontSize: 30,
+                                            color: 'white',
+                                            marginHorizontal: 22,
+                                            fontWeight: '800',
+                                            height: 40,
+                                            marginTop: 2
+                                        }}>
+                                            <ValueComponent
+                                                value={totalBalance}
+                                                centFontStyle={{
+                                                    fontSize: 22,
+                                                    fontWeight: '500',
+                                                    opacity: 0.55
+                                                }}
+                                            />
                                         </Text>
                                         <View style={{ flexGrow: 1 }}>
 
                                         </View>
-                                        <Text style={{ color: 'white', marginLeft: 22, marginBottom: 16, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
+                                        <Text
+                                            style={{
+                                                color: 'white',
+                                                marginLeft: 22,
+                                                marginBottom: 16,
+                                                alignSelf: 'flex-start',
+                                                fontWeight: '500'
+                                            }}
+                                            numberOfLines={1}
+                                        >
                                             <AddressComponent address={target} />
                                         </Text>
                                     </View>
                                 </Animated.View>
-                                {/* TODO */}
                             </View>
                         </BlurView>
                         <View style={{
@@ -325,7 +414,8 @@ export const LockupWalletFragment = fragment(() => {
                                     onPress={() => {
                                         navigation.goBack();
                                     }}
-                                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
+                                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)}
+                                    hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                                 >
                                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
                                         <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
@@ -372,24 +462,45 @@ export const LockupWalletFragment = fragment(() => {
                                         resizeMethod="resize"
                                     />
 
-                                    <Text
-                                        style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: 'white',
+                                        opacity: 0.8,
+                                        marginTop: 22,
+                                        marginLeft: 22
+                                    }}
                                     >
                                         {t('products.lockups.totalBalance')}
                                     </Text>
-                                    <Text
-                                        style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
+                                    <Text style={{
+                                        fontSize: 30,
+                                        color: 'white',
+                                        marginHorizontal: 22,
+                                        fontWeight: '800',
+                                        height: 40,
+                                        marginTop: 2
+                                    }}
                                     >
                                         <ValueComponent
-                                            value={wallet?.balance ?? new BN(0)}
-                                            centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                            value={walletState?.balance ?? new BN(0)}
+                                            centFontStyle={{
+                                                fontSize: 22,
+                                                fontWeight: '500',
+                                                opacity: 0.55
+                                            }}
                                         />
                                     </Text>
                                     <View style={{ flexGrow: 1 }}>
 
                                     </View>
                                     <Text
-                                        style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }}
+                                        style={{
+                                            color: 'white',
+                                            marginLeft: 22,
+                                            marginBottom: 24,
+                                            alignSelf: 'flex-start',
+                                            fontWeight: '500'
+                                        }}
                                         numberOfLines={1}
                                     >
                                         <AddressComponent address={target} />

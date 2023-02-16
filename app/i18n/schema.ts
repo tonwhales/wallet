@@ -362,6 +362,9 @@ export type LocalizationSchema = {
             restrictedBalance: string,
             lockedTitle: string,
             restrictedTitle: string,
+            until: string,
+            unlocked: string,
+            unrestricted: string,
         }
     }
     welcome: {

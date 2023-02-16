@@ -10,6 +10,7 @@ export class LockupProduct {
 
     readonly engine: Engine;
     readonly #wallets: RecoilValueReadOnly<{ state: LockupWalletState, address: Address }[]>;
+    readonly #balance: RecoilValueReadOnly<BN>;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -37,10 +38,35 @@ export class LockupProduct {
                 return wallets;
             }
         });
+
+        this.#balance = selector({
+            key: 'lockups/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/balance',
+            get: ({ get }) => {
+                const wallets = get(this.#wallets);
+                let balance = new BN(0);
+                for (let i = 0; i < wallets.length; i++) {
+                    balance = balance.add(wallets[i].state.balance);
+
+                    const locked = wallets[i].state.wallet?.totalLockedValue;
+                    if (!!locked) {
+                        balance = balance.add(locked);
+                    }
+                    const restricted = wallets[i].state.wallet?.totalRestrictedValue;
+                    if (!!restricted) {
+                        balance = balance.add(restricted);
+                    }
+                }
+                return balance;
+            }
+        });
     }
 
     useLockupWallets() {
         return useRecoilValue(this.#wallets);
+    }
+
+    useLockupBalance() {
+        return useRecoilValue(this.#balance);
     }
 
     useLockupWallet(address: Address) {

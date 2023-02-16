@@ -22,7 +22,7 @@ export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
-    const lockupBalance = engine.products.lockup.useLockuoBalance();
+    const lockupBalance = engine.products.lockup.useLockupBalance();
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();

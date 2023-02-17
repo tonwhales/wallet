@@ -243,6 +243,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 teamBannerLearnMore: 'Learn about our team',
                 teamBannerDescription: 'If you are not a part of our team or one of top 15 Club members your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
                 epnPartners: 'ePN Partners',
+                epnPartnersDescription: 'Join over 200,000 webmasters working with ePN and get paid in TON',
+                moreAboutEPN: 'More about ePN',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

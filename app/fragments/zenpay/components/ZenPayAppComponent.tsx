@@ -249,6 +249,100 @@ export const ZenPayAppComponent = React.memo((
         }
     }, []);
 
+    // 
+    // Page title
+    // 
+    const updatePateTitle = React.useCallback(
+        (url: string) => {
+
+            if (url.endsWith('/create')) {
+                setPageTitle(t('products.zenPay.pageTitles.card'));
+                return;
+            }
+
+            if (url.indexOf('/create/activation') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.cardSmartContract'));
+                return;
+            }
+
+            if (url.indexOf('/create/congrats') !== -1) {
+                setPageTitle(t('products.zenPay.card.defaultTitle'));
+                return;
+            }
+
+            if (url.indexOf('/create/design') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
+                return;
+            }
+            if (url.indexOf('/create/setup') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
+                return;
+            }
+
+            if (url.indexOf('/create/address') !== -1) {
+                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
+                return;
+            }
+
+            const card = /\/card\/[a-z0-9]+/;
+            if (card.test(url)) {
+
+                let cardNumber: string | number | undefined | null = undefined;
+                const parts = url.split("/");
+                if (parts.length > 4) {
+                    const cardId = parts[4];
+                    const account = zenPayCards.find((c) => c.id === cardId);
+                    if (account) {
+                        cardNumber = account.card.lastFourDigits;
+                    }
+                }
+
+                const limits = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/limits$/;
+                if (limits.test(url)) {
+                    setPageTitle(cardNumber ? t('products.zenPay.pageTitles.cardLimits', { cardNumber }) : t('products.zenPay.pageTitles.cardLimitsDefault'));
+                    return;
+                }
+
+                const deposit = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/deposit$/;
+                if (deposit.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.cardDeposit'));
+                    return;
+                }
+
+                const details = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/details$/;
+                if (details.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.cardDetails'));
+                    return;
+                }
+
+                const credentials = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/credentials$/;
+                if (credentials.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.cardCredentials'));
+                    return;
+                }
+
+                const transfer = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/transfer$/;
+                if (transfer.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.transfer'));
+                    return;
+                }
+
+                const pin = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/pin$/;
+                if (pin.test(url)) {
+                    setPageTitle(t('products.zenPay.pageTitles.pin'));
+                    return;
+                }
+
+                setPageTitle(t('products.zenPay.pageTitles.card'));
+            } else if (url.indexOf('/auth') !== -1) {
+                setPageTitle(t('products.zenPay.title'));
+            } else {
+                setPageTitle(t('products.zenPay.pageTitles.general'));
+            }
+        },
+        [zenPayCards],
+    );
+
     const updateScrollEnabled = React.useCallback((url: string) => {
         if (
             url.indexOf('/auth/phone') !== -1
@@ -334,7 +428,7 @@ export const ZenPayAppComponent = React.memo((
                                 updatePromptBeforeExit(event.nativeEvent.url);
 
                                 // Page title 
-                                setPageTitle(event.nativeEvent.title);
+                                updatePateTitle(event.nativeEvent.url);
 
                                 // Background
                                 updateBackground(event.nativeEvent.url);
@@ -348,7 +442,7 @@ export const ZenPayAppComponent = React.memo((
                             updatePromptBeforeExit(event.url)
 
                             // Page title 
-                            setPageTitle(event.title);
+                            updatePateTitle(event.url);
 
                             // Background
                             updateBackground(event.url);

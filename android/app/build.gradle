@@ -5,6 +5,20 @@ import com.android.build.OutputFile
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.taskdefs.condition.Os
 
+def getPassword(String currentUser, String keyChain) {
+   def stdout = new ByteArrayOutputStream()
+   def stderr = new ByteArrayOutputStream()
+   exec {
+       commandLine 'security', '-q', 'find-generic-password', '-a', currentUser, '-s', keyChain, '-w'
+       standardOutput = stdout
+       errorOutput = stderr
+       ignoreExitValue true
+   }
+   //noinspection GroovyAssignabilityCheck
+      stdout.toString().trim()
+}
+
+
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
  * and bundleReleaseJsAndAssets).
@@ -141,6 +155,9 @@ def packageJson = packageSlurper.parse file('../../package.json')
 def packageVersion = packageJson.version
 def versionCodeValue = Integer.parseInt(file('../../VERSION_CODE').text)
 
+def username = System.properties['user.name']
+def keystorePass = getPassword(username, TONHUB_UPLOAD_STORE_PASSWORD)
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -276,9 +293,9 @@ android {
         release {
 	    if (project.hasProperty('TONHUB_UPLOAD_STORE_FILE')) {
                 storeFile file(TONHUB_UPLOAD_STORE_FILE)
-                storePassword TONHUB_UPLOAD_STORE_PASSWORD
+                storePassword keystorePass
                 keyAlias TONHUB_UPLOAD_KEY_ALIAS
-                keyPassword TONHUB_UPLOAD_KEY_PASSWORD
+                keyPassword keystorePass
 	    }
 	}
     }

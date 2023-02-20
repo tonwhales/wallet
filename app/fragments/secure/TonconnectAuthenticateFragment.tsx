@@ -11,7 +11,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { getCurrentAddress } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
-import { Cell, StateInit } from 'ton';
+import { beginCell, Cell, safeSign, StateInit } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
@@ -23,12 +23,13 @@ import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/TonConnect';
-import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
+import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto, TonProofItemReplySuccess } from '@tonconnect/protocol';
 import { AppManifest } from '../../engine/tonconnect/fetchManifest';
 import { ConnectReplyBuilder } from '../../engine/tonconnect/ConnectReplyBuilder';
 import { ConnectQrQuery, TonConnectBridgeType } from '../../engine/tonconnect/types';
 import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';
 import { useParams } from '../../utils/useParams';
+import { connectAnswer } from '../../engine/api/connectAnswer';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -61,12 +62,13 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             if (connectProps.type === 'qr') {
                 try {
                     const handled = await engine.products.tonConnect.handleConnectDeeplink(connectProps.query);
-                    
+
                     if (handled) {
                         checkProtocolVersionCapability(handled.protocolVersion);
                         verifyConnectRequest(handled.request);
 
                         if (handled.manifest) {
+                            console.log({ request: JSON.stringify(handled.request.items) })
                             setState({
                                 type: 'initing',
                                 name: handled.manifest.name,
@@ -133,6 +135,9 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
 
         try {
             const contract = contractFromPublicKey(acc.publicKey);
+            let walletConfig = contract.source.backup();
+            let walletType = contract.source.type;
+            let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
 
             // Sign
             let walletKeys: WalletKeys;
@@ -163,6 +168,32 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                         device: tonConnectDeviceInfo,
                     }
                 } as ConnectEvent
+
+                let toSign = beginCell()
+                    .storeCoins(0)
+                    .storeBuffer(Buffer.from(state.clientSessionId, 'base64'))
+                    .storeAddress(contract.address)
+                    .storeRefMaybe(beginCell()
+                        .storeBuffer(Buffer.from(state.app.url))
+                        .endCell())
+                    .storeRef(beginCell()
+                        .storeBuffer(Buffer.from(sessionCrypto.stringifyKeypair().publicKey, 'hex'))
+                        .endCell())
+                    .endCell();
+                let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
+
+                await connectAnswer({
+                    reportEndpoint: 'connect.tonhubapi.com',
+                    key: state.clientSessionId,
+                    appPublicKey: sessionCrypto.stringifyKeypair().publicKey,
+                    address: address,
+                    walletType,
+                    walletConfig,
+                    walletSig: signature.toString('base64'),
+                    endpoint: state.app.url,
+                    kind: 'tonconnect-v2',
+                    testnet: AppConfig.isTestnet
+                });
 
                 engine.products.tonConnect.send({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 

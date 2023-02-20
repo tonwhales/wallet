@@ -28,9 +28,9 @@ import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { CheckBox } from '../../components/CheckBox';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
 import Url from 'url-parse';
 import isValid from 'is-valid-domain';
+import { connectAnswer } from '../../engine/api/connectAnswer';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -140,15 +140,18 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             }
 
             // Apply answer
-            await axios.post('https://' + props.endpoint + '/connect/answer', {
+            await connectAnswer({
+                reportEndpoint: props.endpoint,
                 key: props.session,
                 appPublicKey: appInstanceKeyPair.publicKey.toString('base64'),
                 address: address,
                 walletType,
                 walletConfig,
                 walletSig: signature.toString('base64'),
-                endpoint
-            }, { timeout: 5000 });
+                endpoint,
+                kind: 'ton-x',
+                testnet: AppConfig.isTestnet
+            });
 
             // Persist reference
             addConnectionReference(props.session, name, url, Date.now());

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { createLogger, warn } from '../../utils/log';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
-import { AppRequest, Base64, ConnectEvent, ConnectItemReply, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
+import { AppRequest, Base64, ConnectEvent, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
 import { CloudValue } from '../cloud/CloudValue';
 import { selector, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
@@ -12,7 +12,6 @@ import { AppManifest, fetchManifest } from '../tonconnect/fetchManifest';
 import { storage } from '../../storage/storage';
 import { extensionKey } from './ExtensionsProduct';
 import { getTimeSec } from '../../utils/getTimeSec';
-import { checkProtocolVersionCapability, verifyConnectRequest } from "../tonconnect/TonConnect";
 import { tonConnectDeviceInfo } from "../tonconnect/config";
 import { ConnectReplyBuilder } from "../tonconnect/ConnectReplyBuilder";
 import { getCurrentAddress } from "../../storage/appState";
@@ -24,7 +23,7 @@ let logger = createLogger('tonconnect');
 export class ConnectProduct {
     readonly engine: Engine;
     private _destroyed: boolean;
-    private readonly bridgeUrl = 'https://bridge.tonapi.io/bridge';
+    private readonly bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
     private readonly defaultTtl = 300;
 
     readonly extensions: CloudValue<{ installed: { [key: string]: ConnectedApp; } }>;
@@ -194,7 +193,7 @@ export class ConnectProduct {
         ttl?: number,
     }): Promise<void> {
         try {
-            const url = `${bridgeUrl ?? 'https://bridge.tonapi.io/bridge'}/message?client_id=${sessionCrypto.sessionId}&to=${clientSessionId}&ttl=${ttl || this.defaultTtl}`;
+            const url = `${bridgeUrl ?? 'https://connect.tonhubapi.com/tonconnect'}/message?client_id=${sessionCrypto.sessionId}&to=${clientSessionId}&ttl=${ttl || this.defaultTtl}`;
 
             const encodedResponse = sessionCrypto.encrypt(
                 JSON.stringify(response),

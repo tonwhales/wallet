@@ -26,13 +26,13 @@ import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
 import { AppManifest, appManifestCodec } from "./tonconnect/fetchManifest";
-import { SendTransactionRequest, sendTransactionRpcRequestCodec } from "./tonconnect/types";
+import { appConnectionCodec, ConnectedAppConnection, SendTransactionRequest, sendTransactionRpcRequestCodec, tonProofItemReplyErrorCodec } from "./tonconnect/types";
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
 
 export class Persistence {
 
-    readonly version: number = 12;
+    readonly version: number = 13;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -65,11 +65,13 @@ export class Persistence {
     readonly config: PersistedCollection<void, ConfigState>;
 
     readonly dApps: PersistedCollection<string, AppData>;
+    readonly domainKeys: PersistedCollection<string, DomainSubkey>;
+
+    // tonconnect
     readonly connectManifests: PersistedCollection<string, string>;
     readonly connectDApps: PersistedCollection<string, AppManifest>;
     readonly connectDAppRequests: PersistedCollection<void, SendTransactionRequest[]>;
-    readonly connectDAppsLastEventId: PersistedCollection<string, string>;
-    readonly domainKeys: PersistedCollection<string, DomainSubkey>;
+    readonly connectAppConnections: PersistedCollection<string, ConnectedAppConnection[]>;
 
     readonly cloud: PersistedCollection<{ key: string, address: Address }, string>;
 
@@ -114,11 +116,13 @@ export class Persistence {
 
         // dApps
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
+        this.domainKeys = new PersistedCollection({ storage, namespace: 'domainKeys', key: stringKey, codec: domainKeyCodec, engine });
+
+        // tonconnect
         this.connectDApps = new PersistedCollection({ storage, namespace: 'connectDApps', key: stringKey, codec: appManifestCodec, engine });
-        this.connectDAppsLastEventId = new PersistedCollection({ storage, namespace: 'connectDAppsLastEventId', key: stringKey, codec: t.string, engine });
         this.connectManifests = new PersistedCollection({ storage, namespace: 'connectManifests', key: stringKey, codec: t.string, engine });
         this.connectDAppRequests = new PersistedCollection({ storage, namespace: 'connectDAppRequests', key: voidKey, codec: t.array(sendTransactionRpcRequestCodec), engine });
-        this.domainKeys = new PersistedCollection({ storage, namespace: 'domainKeys', key: stringKey, codec: domainKeyCodec, engine });
+        this.connectAppConnections = new PersistedCollection({ storage, namespace: 'connectConnectedApps', key: stringKey, codec: t.array(appConnectionCodec), engine });
 
         // Cloud
         this.cloud = new PersistedCollection({ storage, namespace: 'cloud', key: keyedAddressKey, codec: t.string, engine });

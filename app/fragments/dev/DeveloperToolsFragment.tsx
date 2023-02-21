@@ -6,14 +6,12 @@ import { Item } from '../../components/Item';
 import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storagePersistence } from '../../storage/storage';
+import { storage, storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { CloudValue } from '../../engine/cloud/CloudValue';
-import { ConnectedApp } from '../../engine/tonconnect/types';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -30,8 +28,6 @@ export const DeveloperToolsFragment = fragment(() => {
     const engine = useEngine();
     const counter = React.useMemo(() => engine.cloud.counter('counter.sample'), []);
     const counterValue = counter.use().counter;
-
-    const connectExtensions = engine.products.tonConnect.useExtensions();
 
     // const isTestNet = useTestnet();
     // const switchNetwork = React.useCallback(() => {
@@ -80,13 +76,13 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                     </View>
-
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Disconnect ton connect"} hint={` (${connectExtensions.length})`} onPress={() => {
-                            for (const ext of connectExtensions) {
-                                engine.products.tonConnect.disconnect(ext.url);
-                            }
-                        }} />
+                        <ItemButton
+                            title={"delet last ID"}
+                            hint={counterValue.toString()}
+                            onPress={() => {
+                                storage.delete('connect_last_event_id');
+                            }} />
                     </View>
                 </View>
             </View>

@@ -1,7 +1,17 @@
 import { RefObject } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
+import {
+  ConnectEventError as IConnectEventError,
+  CONNECT_EVENT_ERROR_CODES,
+} from '@tonconnect/protocol';
 import { CHAIN, ConnectItemReply, KeyPair } from '@tonconnect/protocol';
 import * as t from 'io-ts';
+import * as c from '../utils/codecs';
+
+export enum CONNECT_ITEM_ERROR_CODES {
+  UNKNOWN_ERROR = 0,
+  METHOD_NOT_SUPPORTED = 400
+}
 
 export enum TonConnectBridgeType {
   Remote = 'remote',
@@ -29,21 +39,34 @@ export type SignRawParams = {
   messages: SignRawMessage[];
 };
 
-export interface ConnectedAppConnectionRemote {
-  type: TonConnectBridgeType.Remote;
-  sessionKeyPair: KeyPair;
-  clientSessionId: string;
-  replyItems: ConnectItemReply[];
+export type ConnectedAppConnectionRemote = {
+  type: TonConnectBridgeType.Remote,
+  sessionKeyPair: KeyPair,
+  clientSessionId: string,
+  replyItems: ConnectItemReply[],
 }
 
-export interface ConnectedAppConnectionInjected {
-  type: TonConnectBridgeType.Injected;
-  replyItems: ConnectItemReply[];
+export type ConnectedAppConnectionInjected = {
+  type: TonConnectBridgeType.Injected,
+  replyItems: ConnectItemReply[],
 }
 
 export type ConnectedAppConnection =
   | ConnectedAppConnectionRemote
   | ConnectedAppConnectionInjected;
+
+
+export const tonProofItemReplyErrorCodec = t.type({
+  name: t.literal('ton_proof'),
+  error: t.intersection([
+    t.type({
+      code: c.createEnumType<CONNECT_ITEM_ERROR_CODES>(CONNECT_ITEM_ERROR_CODES, 'CONNECT_ITEM_ERROR_CODES'),
+    }),
+    t.partial({
+      message: t.union([t.string, t.undefined]),
+    })
+  ])
+});
 
 export const tonProofItemReplyCodec = t.union([
   t.type({
@@ -58,48 +81,34 @@ export const tonProofItemReplyCodec = t.union([
       signature: t.string,
     })
   }),
-  t.type({
-    name: t.literal('ton_proof'),
-    error: t.partial({
-      code: t.union([t.literal(0), t.literal(400)]),
-      message: t.union([t.string, t.undefined]),
-    })
-  })
+  tonProofItemReplyErrorCodec
 ]);
 
 export const connectItemReplyCodec = t.union([
   t.type({
     name: t.literal('ton_addr'),
     address: t.string,
-    network: t.union([t.literal(CHAIN.MAINNET), t.literal(CHAIN.TESTNET)]),
+    network: c.createEnumType<CHAIN>(CHAIN, 'CHAIN'),
     walletStateInit: t.string,
   }),
   tonProofItemReplyCodec,
 ]);
 
-export const tonConnectappDataCodec = t.type({
-  name: t.string,
-  url: t.string,
-  icon: t.string,
-  autoConnectDisabled: t.union([t.boolean, t.undefined]),
-  connections: t.array(
-    t.union([
-      t.type({
-        type: t.literal(TonConnectBridgeType.Remote),
-        sessionKeyPair: t.type({
-          publicKey: t.string,
-          secretKey: t.string,
-        }),
-        clientSessionId: t.string,
-        replyItems: t.array(connectItemReplyCodec)
-      }),
-      t.type({
-        type: t.literal(TonConnectBridgeType.Injected),
-        replyItems: t.array(connectItemReplyCodec)
-      }),
-    ]),
-  ),
-});
+export const appConnectionCodec = t.union([
+  t.type({
+    type: t.literal('remote'),
+    sessionKeyPair: t.type({
+      publicKey: t.string,
+      secretKey: t.string,
+    }),
+    clientSessionId: t.string,
+    replyItems: t.array(connectItemReplyCodec)
+  }),
+  t.type({
+    type: t.literal('injected'),
+    replyItems: t.array(connectItemReplyCodec)
+  }),
+]);
 
 export type SendTransactionRequest = {
   method: 'sendTransaction',
@@ -119,12 +128,12 @@ export const RpcRequestCodec = t.type({
   sendTransaction: sendTransactionRpcRequestCodec
 });
 
-export interface ConnectedApp {
-  name: string;
-  url: string;
-  icon: string;
-  autoConnectDisabled?: boolean | undefined;
-  connections: ConnectedAppConnection[];
+export type ConnectedApp = {
+  date: number,
+  name: string,
+  url: string,
+  iconUrl: string,
+  autoConnectDisabled: boolean,
 }
 
 export enum WebViewBridgeMessageType {
@@ -146,11 +155,6 @@ export type UseWebViewBridgeReturnType<Event> = [
   (e: WebViewMessageEvent) => void,
   (event: Event) => void,
 ];
-
-import {
-  ConnectEventError as IConnectEventError,
-  CONNECT_EVENT_ERROR_CODES,
-} from '@tonconnect/protocol';
 
 export class ConnectEventError implements IConnectEventError {
   event: IConnectEventError['event'];

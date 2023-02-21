@@ -49,7 +49,8 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
                   {
                     name: manifest.name,
                     url: manifest.url,
-                    icon: manifest.iconUrl,
+                    iconUrl: manifest.iconUrl,
+                    autoConnectDisabled: false
                   },
                   {
                     type: TonConnectBridgeType.Injected,

@@ -28,7 +28,7 @@ export async function connectAnswer({
     testnet?: boolean,
     kind?: 'ton-x' | 'tonconnect-v2'
 }) {
-    let res = (await axios.post('https://' + reportEndpoint + '/connect/answer', {
+    let res = await axios.post('https://' + reportEndpoint + '/connect/answer', {
         key,
         appPublicKey,
         address,
@@ -39,9 +39,9 @@ export async function connectAnswer({
         name,
         testnet,
         kind,
-    }, { timeout: 5000 })).data;
+    }, { timeout: 5000 });
 
-    if (!connectAnswerResCode.is(res)) {
+    if (!connectAnswerResCode.is(res.data)) {
         throw Error('Failed to post connect answer');
     }
 

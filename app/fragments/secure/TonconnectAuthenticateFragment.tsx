@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useRoute } from "@react-navigation/native";
 import { Platform, StyleProp, Text, TextStyle, View, Image } from "react-native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { t, tStyled } from "../../i18n/t";
@@ -8,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { getCurrentAddress } from '../../storage/appState';
+import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AppConfig } from '../../AppConfig';
 import { beginCell, Cell, safeSign, StateInit } from 'ton';
@@ -68,7 +67,6 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                         verifyConnectRequest(handled.request);
 
                         if (handled.manifest) {
-                            console.log({ request: JSON.stringify(handled.request.items) })
                             setState({
                                 type: 'initing',
                                 name: handled.manifest.name,
@@ -138,6 +136,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             let walletConfig = contract.source.backup();
             let walletType = contract.source.type;
             let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
+            let appInstanceKeyPair = await getAppInstanceKeyPair();
 
             // Sign
             let walletKeys: WalletKeys;
@@ -169,39 +168,45 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     }
                 } as ConnectEvent
 
+                // Sign clientSessionId
                 let toSign = beginCell()
                     .storeCoins(0)
-                    .storeBuffer(Buffer.from(state.clientSessionId, 'base64'))
+                    .storeBuffer(Buffer.from(state.clientSessionId, 'hex'))
                     .storeAddress(contract.address)
                     .storeRefMaybe(beginCell()
                         .storeBuffer(Buffer.from(state.app.url))
                         .endCell())
                     .storeRef(beginCell()
-                        .storeBuffer(Buffer.from(sessionCrypto.stringifyKeypair().publicKey, 'hex'))
+                        .storeBuffer(appInstanceKeyPair.publicKey)
                         .endCell())
                     .endCell();
                 let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
 
+                // Report answer
                 await connectAnswer({
                     reportEndpoint: 'connect.tonhubapi.com',
-                    key: state.clientSessionId,
-                    appPublicKey: sessionCrypto.stringifyKeypair().publicKey,
+                    key: Buffer.from(state.clientSessionId, 'hex').toString('base64'),
+                    appPublicKey: appInstanceKeyPair.publicKey.toString('base64'),
                     address: address,
                     walletType,
                     walletConfig,
                     walletSig: signature.toString('base64'),
                     endpoint: state.app.url,
+                    name: state.app.name,
                     kind: 'tonconnect-v2',
                     testnet: AppConfig.isTestnet
                 });
 
+                // Send connect response
                 engine.products.tonConnect.send({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
+                // Save connection
                 engine.products.tonConnect.saveAppConnection(
                     {
                         name: state.app.name,
                         url: state.app.url,
-                        icon: state.app.iconUrl,
+                        iconUrl: state.app.iconUrl,
+                        autoConnectDisabled: false
                     },
                     {
                         type: TonConnectBridgeType.Remote,
@@ -220,9 +225,9 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                 }, 50);
                 return;
             }
+
+            // Should not happen
             setState({ type: 'failed' });
-
-
         } catch (error) {
             warn(error);
             setState({ type: 'failed' });

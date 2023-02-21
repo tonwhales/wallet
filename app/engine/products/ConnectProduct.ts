@@ -1,10 +1,9 @@
 import { Engine } from "../Engine";
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { createLogger, warn } from '../../utils/log';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
 import { AppRequest, Base64, ConnectEvent, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
-import { CloudValue } from '../cloud/CloudValue';
 import { selector, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
 import { AppState } from 'react-native';
@@ -17,18 +16,19 @@ import { ConnectReplyBuilder } from "../tonconnect/ConnectReplyBuilder";
 import { getCurrentAddress } from "../../storage/appState";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Cell, StateInit } from "ton";
+import { CloudValue } from "../cloud/CloudValue";
 
 let logger = createLogger('tonconnect');
 
 export class ConnectProduct {
     readonly engine: Engine;
     private _destroyed: boolean;
-    private readonly bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
+    private readonly bridgeUrl = 'https://bridge.tonapi.io/bridge';
     private readonly defaultTtl = 300;
 
-    readonly extensions: CloudValue<{ installed: { [key: string]: ConnectedApp; } }>;
     readonly #pendingRequestsSelector;
-    readonly pendingItem;
+    readonly extensions: CloudValue<{ installed: { [key: string]: ConnectedApp } }>;
+    readonly pendingRequestsItem;
     readonly #extensionsSelector;
     private eventSource: EventSource | null = null;
     private connections: ConnectedAppConnectionRemote[] = [];
@@ -38,11 +38,11 @@ export class ConnectProduct {
         this.engine = engine;
         this._destroyed = false;
         this.extensions = this.engine.cloud.get('wallet.tonconnect.extensions.v1', (src) => { src.installed = {} });
-        this.pendingItem = this.engine.persistence.connectDAppRequests.item();
+        this.pendingRequestsItem = this.engine.persistence.connectDAppRequests.item();
         this.#pendingRequestsSelector = selector({
             key: 'tonconnect/requests',
             get: ({ get }) => {
-                let reqests = get(this.engine.persistence.connectDAppRequests.item().atom);
+                let reqests = get(this.pendingRequestsItem.atom);
                 return reqests ?? [];
             },
             dangerouslyAllowMutability: true
@@ -73,7 +73,7 @@ export class ConnectProduct {
                         key: k,
                         url: app.url,
                         name: app.name ?? persisted.name,
-                        image: app.icon ?? persisted.iconUrl,
+                        image: app.iconUrl ?? persisted.iconUrl,
                         privacyPolicyUrl: persisted.privacyPolicyUrl ?? null,
                         termsOfUseUrl: persisted.termsOfUseUrl ?? null
                     });
@@ -114,6 +114,7 @@ export class ConnectProduct {
     }
 
     async open(connections: ConnectedAppConnection[]) {
+        // Clear old connections
         this.close();
 
         this.connections = connections.filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
@@ -126,20 +127,22 @@ export class ConnectProduct {
         let url = `${this.bridgeUrl}/events?client_id=${walletSessionIds}`;
         const lastEventId = await this.getLastEventId();
 
+        console.log('sse connect: walletSessionIds ', { walletSessionIds });
+
         if (lastEventId) {
             url += `&last_event_id=${lastEventId}`;
         }
 
+        console.log('sse connect: ' + url);
         this.eventSource = new EventSource(url);
 
         this.eventSource.addEventListener(
             'message',
             (event) => {
+                logger.log(`sse connect message: type ${(event as MessageEvent).lastEventId}, lastEventId ${(event as MessageEvent).lastEventId}`);
                 this.handleMessage(event as MessageEvent);
             }
-            //   debounce(this.handleMessage.bind(this), 200) as EventSourceListener,
         );
-
 
         this.eventSource.addEventListener('open', () => {
             logger.log('sse connect: opened');
@@ -151,11 +154,14 @@ export class ConnectProduct {
     }
 
     private _startSync() {
-        const apps = Object.values(this.extensions.value.installed);
+        console.log('new sync');
+        const apps = Object.keys(this.extensions.value.installed);
         const connections: ConnectedAppConnection[] = []
-        for (let app of apps) {
-            connections.push(...app.connections);
+        for (let appKey of apps) {
+            const appConnections = this.engine.persistence.connectAppConnections.item(appKey).value;
+            connections.push(...(appConnections ?? []));
         }
+        console.log('new sync connections', { connections });
         this.open(connections);
     }
 
@@ -183,26 +189,30 @@ export class ConnectProduct {
         response,
         sessionCrypto,
         clientSessionId,
-        bridgeUrl,
+        bridge,
         ttl
     }: {
         response: WalletResponse<T> | ConnectEvent | DisconnectEvent,
         sessionCrypto: SessionCrypto,
         clientSessionId: string,
-        bridgeUrl?: string,
+        bridge?: string,
         ttl?: number,
     }): Promise<void> {
         try {
-            const url = `${bridgeUrl ?? 'https://connect.tonhubapi.com/tonconnect'}/message?client_id=${sessionCrypto.sessionId}&to=${clientSessionId}&ttl=${ttl || this.defaultTtl}`;
+            // Form url with client session id
+            const url = `${bridge ?? this.bridgeUrl}/message?client_id=${sessionCrypto.sessionId}&to=${clientSessionId}&ttl=${ttl || this.defaultTtl}`;
 
+            // Encrypt response
             const encodedResponse = sessionCrypto.encrypt(
                 JSON.stringify(response),
                 hexToByteArray(clientSessionId),
             );
 
-            await axios.post(url, Base64.encode(encodedResponse));
+            console.log('send', { url, data: Base64.encode(encodedResponse) });
+
+            const res = await axios.post(url, Base64.encode(encodedResponse), { headers: { 'Content-Type': 'text/plain' } });
         } catch (e) {
-            logger.warn(e);
+            console.log('send error', (e as AxiosError).response?.data);
         }
     }
 
@@ -225,23 +235,37 @@ export class ConnectProduct {
         }
     }
 
-    saveAppConnection(appData: Omit<ConnectedApp, 'connections'>, connection: ConnectedAppConnection) {
-        let key = extensionKey(appData.url);
+    saveAppConnection(app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean }, connection: ConnectedAppConnection) {
+        let key = extensionKey(app.url);
 
+        // Update cloud value
         const connected = this.extensions.value.installed[key];
         if (!!connected) {
             this.extensions.update((doc) => {
-                doc.installed[key].connections.push(connection);
+                doc.installed[key].iconUrl = app.iconUrl;
+                doc.installed[key].name = app.name;
+                doc.installed[key].date = Date.now();
+                doc.installed[key].autoConnectDisabled = app.autoConnectDisabled;
             });
-            return;
+        } else {
+            this.extensions.update((doc) => {
+                delete doc.installed[key];
+                doc.installed[key] = {
+                    url: app.url,
+                    iconUrl: app.iconUrl,
+                    name: app.name,
+                    date: Date.now(),
+                    autoConnectDisabled: app.autoConnectDisabled,
+                }
+            });
         }
-        this.extensions.update((doc) => {
-            delete doc.installed[key];
-            doc.installed[key] = {
-                ...appData,
-                connections: connection ? [connection] : [],
-            }
+
+        // Persist connection
+        this.engine.persistence.connectAppConnections.item(key).update((src) => {
+            return [...(src ?? []), connection];
         });
+
+        console.log(`new App connection clientSessionId: ${(connection as ConnectedAppConnectionRemote).clientSessionId}, starting new Sync...`)
 
         this._startSync();
     }
@@ -311,16 +335,17 @@ export class ConnectProduct {
         const connectedAppsList = Object.values(this.extensions.value.installed);
         let connection: ConnectedAppConnection | null = null;
 
-        const connectedApp = connectedAppsList.find((app) =>
-            app.connections.find((item) => {
+        const connectedApp = connectedAppsList.find((app) => {
+            const connections = this.engine.persistence.connectAppConnections.item(extensionKey(app.url)).value;
+            return connections?.find((item) => {
                 if (item.type === TonConnectBridgeType.Remote && item.clientSessionId === clientSessionId) {
                     connection = item;
                     return true;
                 }
 
                 return false;
-            }),
-        );
+            })
+        });
 
         return { connectedApp: connectedApp ?? null, connection };
     };
@@ -368,11 +393,8 @@ export class ConnectProduct {
             return;
         }
 
-        const current = this.pendingItem.value ?? [];
-
-        const found = current.find((item) => {
-            return item.from === tx.from;
-        });
+        const current = this.pendingRequestsItem.value ?? [];
+        const found = current.find((item) => item.from === tx.from);
         if (found) {
             tx.callback({
                 error: {
@@ -383,9 +405,14 @@ export class ConnectProduct {
             });
             return;
         }
-        this.pendingItem.update((doc) => {
+        this.pendingRequestsItem.update((doc) => {
             const temp = doc ?? [];
-            temp.push({ from: tx.from, id: tx.request.id.toString(), params: tx.request.params, method: 'sendTransaction' });
+            temp.push({
+                from: tx.from,
+                id: tx.request.id.toString(),
+                params: tx.request.params,
+                method: 'sendTransaction'
+            });
             return temp;
         });
     }
@@ -443,81 +470,21 @@ export class ConnectProduct {
             return;
         }
 
-        const remoteConnections = connectedApp.connections.filter(
+        // Disconnect remote connections
+        const connections = this.engine.persistence.connectAppConnections.item(extensionKey(connectedApp.url)).value;
+        const remoteConnections = (connections ?? []).filter(
             (connection) => connection.type === TonConnectBridgeType.Remote,
         ) as ConnectedAppConnectionRemote[];
-
         remoteConnections.forEach((connection) => this.sendDisconnectEvent(connection));
 
-        this.removeConnectedApp(url);
-    }
-
-    async autoConnect(webViewUrl: string): Promise<ConnectEvent> {
-        try {
-            const connectedApp = this.getConnectedAppByUrl(webViewUrl);
-
-            if (
-                !connectedApp ||
-                connectedApp.connections.length === 0 ||
-                connectedApp.autoConnectDisabled
-            ) {
-                throw new ConnectEventError(
-                    CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR,
-                    'Unknown app',
-                );
-            }
-
-            let walletStateInit = '';
-            const acc = getCurrentAddress();
-            try {
-                const contract = await contractFromPublicKey(acc.publicKey);
-                const stateInit = new StateInit({ code: contract.source.initialCode, data: contract.source.initialData });
-                const initCell = new Cell();
-                stateInit.writeTo(initCell);
-                walletStateInit = initCell.toBoc({ idx: false }).toString('base64');
-            } catch (err) {
-                warn(err);
-            }
-
-            const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(
-                acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
-                walletStateInit,
-            );
-
-            return {
-                event: 'connect',
-                payload: {
-                    items: replyItems,
-                    device: tonConnectDeviceInfo,
-                },
-            };
-        } catch (error: any) {
-            if (error instanceof ConnectEventError) {
-                return error;
-            }
-
-            return new ConnectEventError(
-                CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
-                error?.message,
-            );
-        }
-    }
-
-    removeInjectedConnection(webViewUrl: string) {
-        let key = extensionKey(webViewUrl);
-
-        const app = this.extensions.value.installed[key];
-        if (!app) {
-            return;
-        }
-
-        this.extensions.update((doc) => {
-            delete doc.installed[key];
-            doc.installed[key] = {
-                ...app,
-                connections: app.connections.filter((item) => item.type !== TonConnectBridgeType.Injected),
-            }
+        // Remove pending requests
+        remoteConnections.forEach((connection) => {
+            this.deleteActiveRemoteRequest(connection.clientSessionId);
         });
+
+        // Remove app from cloud
+        this.removeConnectedApp(url);
+
     }
 
     getConnectionByClientSessionId(clientSessionId: string): ConnectedAppConnectionRemote | undefined {
@@ -534,6 +501,7 @@ export class ConnectProduct {
     }
 
     private async handleMessage(event: MessageEvent) {
+        console.log('handleMessage', { event });
         try {
             if (event.lastEventId) {
                 this.setLastEventId(event.lastEventId);
@@ -588,13 +556,82 @@ export class ConnectProduct {
     deleteActiveRemoteRequest(clientSessionId: string) {
         delete this.activeRequests[clientSessionId];
 
-        this.pendingItem.update((doc) => {
+        this.pendingRequestsItem.update((doc) => {
             const temp = doc ?? [];
             const index = temp.findIndex((item) => item.from === clientSessionId);
             if (index !== -1) {
                 temp.splice(index, 1);
             }
             return temp;
+        });
+    }
+
+    // 
+    // Injected
+    //
+
+    async autoConnect(webViewUrl: string): Promise<ConnectEvent> {
+        try {
+            const connectedApp = this.getConnectedAppByUrl(webViewUrl);
+            const connections = this.engine.persistence.connectAppConnections.item(extensionKey(webViewUrl)).value ?? [];
+
+            if (
+                !connectedApp ||
+                connections.length === 0 ||
+                connectedApp.autoConnectDisabled
+            ) {
+                throw new ConnectEventError(
+                    CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    'Unknown app',
+                );
+            }
+
+            let walletStateInit = '';
+            const acc = getCurrentAddress();
+            try {
+                const contract = await contractFromPublicKey(acc.publicKey);
+                const stateInit = new StateInit({ code: contract.source.initialCode, data: contract.source.initialData });
+                const initCell = new Cell();
+                stateInit.writeTo(initCell);
+                walletStateInit = initCell.toBoc({ idx: false }).toString('base64');
+            } catch (err) {
+                warn(err);
+            }
+
+            const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(
+                acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
+                walletStateInit,
+            );
+
+            return {
+                event: 'connect',
+                payload: {
+                    items: replyItems,
+                    device: tonConnectDeviceInfo,
+                },
+            };
+        } catch (error: any) {
+            if (error instanceof ConnectEventError) {
+                return error;
+            }
+
+            return new ConnectEventError(
+                CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
+                error?.message,
+            );
+        }
+    }
+
+    removeInjectedConnection(webViewUrl: string) {
+        let key = extensionKey(webViewUrl);
+
+        const app = this.extensions.value.installed[key];
+        if (!app) {
+            return;
+        }
+
+        this.engine.persistence.connectAppConnections.item(key).update((doc) => {
+            return (doc ?? []).filter((item) => item.type !== TonConnectBridgeType.Injected);
         });
     }
 }

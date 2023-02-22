@@ -1,5 +1,5 @@
 import { Engine } from "../Engine";
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { createLogger, warn } from '../../utils/log';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
@@ -23,7 +23,7 @@ let logger = createLogger('tonconnect');
 export class ConnectProduct {
     readonly engine: Engine;
     private _destroyed: boolean;
-    private readonly bridgeUrl = 'https://bridge.tonapi.io/bridge';
+    private readonly bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
     private readonly defaultTtl = 300;
 
     readonly #pendingRequestsSelector;
@@ -127,19 +127,16 @@ export class ConnectProduct {
         let url = `${this.bridgeUrl}/events?client_id=${walletSessionIds}`;
         const lastEventId = await this.getLastEventId();
 
-        console.log('sse connect: walletSessionIds ', { walletSessionIds });
-
         if (lastEventId) {
             url += `&last_event_id=${lastEventId}`;
         }
 
-        console.log('sse connect: ' + url);
         this.eventSource = new EventSource(url);
 
         this.eventSource.addEventListener(
             'message',
             (event) => {
-                logger.log(`sse connect message: type ${(event as MessageEvent).lastEventId}, lastEventId ${(event as MessageEvent).lastEventId}`);
+                logger.log(`sse connect message: type ${event}`);
                 this.handleMessage(event as MessageEvent);
             }
         );
@@ -148,20 +145,22 @@ export class ConnectProduct {
             logger.log('sse connect: opened');
         });
 
+        this.eventSource.addEventListener('close', () => {
+            logger.log('sse connect: closed');
+        });
+
         this.eventSource.addEventListener('error', (event) => {
-            logger.log('sse connect: error' + JSON.stringify(event));
+            warn('sse connect: error' + JSON.stringify(event));
         });
     }
 
     private _startSync() {
-        console.log('new sync');
         const apps = Object.keys(this.extensions.value.installed);
         const connections: ConnectedAppConnection[] = []
         for (let appKey of apps) {
             const appConnections = this.engine.persistence.connectAppConnections.item(appKey).value;
             connections.push(...(appConnections ?? []));
         }
-        console.log('new sync connections', { connections });
         this.open(connections);
     }
 
@@ -208,11 +207,9 @@ export class ConnectProduct {
                 hexToByteArray(clientSessionId),
             );
 
-            console.log('send', { url, data: Base64.encode(encodedResponse) });
-
-            const res = await axios.post(url, Base64.encode(encodedResponse), { headers: { 'Content-Type': 'text/plain' } });
+            await axios.post(url, Base64.encode(encodedResponse), { headers: { 'Content-Type': 'text/plain' } });
         } catch (e) {
-            console.log('send error', (e as AxiosError).response?.data);
+            warn(e);
         }
     }
 
@@ -235,7 +232,10 @@ export class ConnectProduct {
         }
     }
 
-    saveAppConnection(app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean }, connection: ConnectedAppConnection) {
+    saveAppConnection(
+        app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean },
+        connection: ConnectedAppConnection
+    ) {
         let key = extensionKey(app.url);
 
         // Update cloud value
@@ -265,8 +265,7 @@ export class ConnectProduct {
             return [...(src ?? []), connection];
         });
 
-        console.log(`new App connection clientSessionId: ${(connection as ConnectedAppConnectionRemote).clientSessionId}, starting new Sync...`)
-
+        // Restart sync
         this._startSync();
     }
 
@@ -501,7 +500,6 @@ export class ConnectProduct {
     }
 
     private async handleMessage(event: MessageEvent) {
-        console.log('handleMessage', { event });
         try {
             if (event.lastEventId) {
                 this.setLastEventId(event.lastEventId);
@@ -549,7 +547,7 @@ export class ConnectProduct {
 
             this.handleRequestFromRemoteBridge(request, from, callback, from);
         } catch (e) {
-            console.error(e);
+            warn(e);
         }
     }
 

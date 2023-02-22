@@ -439,41 +439,43 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             fontSize: 20,
                             color: Theme.textColor,
                             marginHorizontal: 16,
-                            marginVertical: 14,
+                            marginVertical: 16,
                         }}>
                             {t('transfer.txsSummary')}
                         </Text>
-                        <View style={{
-                            minHeight: 40,
-                            flexDirection: 'row',
-                            marginHorizontal: 16,
-                        }}>
+                        <View>
                             <View style={{
-                                backgroundColor: Theme.accent,
-                                height: 20, width: 20,
-                                borderRadius: 20,
-                                justifyContent: 'center',
+                                flexDirection: 'row',
+                                marginHorizontal: 16,
                                 alignItems: 'center'
                             }}>
-                                <TonSign height={10} width={10} color={'white'} />
-                            </View>
-                            <View style={{ marginLeft: 12 }}>
+                                <View style={{
+                                    backgroundColor: Theme.accent,
+                                    height: 20, width: 20,
+                                    borderRadius: 20,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginRight: 12
+                                }}>
+                                    <TonSign height={10} width={10} color={'white'} />
+                                </View>
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 20,
-                                    color: Theme.textColor,
+                                    color: Theme.textColor
                                 }}>
                                     {fromNano(totalAmount) + ' TON'}
                                 </Text>
-                                <PriceComponent
-                                    amount={totalAmount}
-                                    style={{
-                                        backgroundColor: 'transparent',
-                                        paddingHorizontal: 0,
-                                    }}
-                                    textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
-                                />
                             </View>
+                            <PriceComponent
+                                amount={totalAmount}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0,
+                                    marginLeft: 48, marginTop: 4
+                                }}
+                                textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                            />
                         </View>
                         {totalJettons.size > 0 && (
                             Array.from(totalJettons).map((value) => {
@@ -484,14 +486,15 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             minHeight: 40,
                                             flexDirection: 'row',
                                             marginHorizontal: 16,
-                                            marginTop: 16
+                                            marginBottom: 16,
+                                            alignItems: 'center'
                                         }}>
                                         <View style={{
                                             backgroundColor: Theme.accent,
                                             height: 20, width: 20,
                                             borderRadius: 20,
                                             justifyContent: 'center',
-                                            alignItems: 'center',
+                                            alignItems: 'center', marginTop: 2
                                         }}>
                                             <WImage
                                                 src={value[1].jettonMaster.image?.preview256}
@@ -603,7 +606,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     <>
                                         <ItemAddress
                                             key={'address' + index}
-                                            title={`#${index + 1}` + t('common.walletAddress')}
+                                            title={`#${index + 1} ` + t('common.walletAddress')}
                                             text={i.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                         />
                                         {index < internals.length - 1 && (<ItemDivider />)}

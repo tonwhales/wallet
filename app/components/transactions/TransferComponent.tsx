@@ -31,7 +31,7 @@ import { ItemAddress } from "../ItemAddress";
 import { ItemDivider } from "../ItemDivider";
 import { ItemLarge } from "../ItemLarge";
 
-export const TransferComponent = React.memo(({ transfer, last, first }: {
+export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     transfer: {
         message: {
             addr: {
@@ -54,7 +54,8 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
         jettonMaster: JettonMasterState | null
     },
     first?: boolean,
-    last?: boolean
+    last?: boolean,
+    index?: number,
 }) => {
     const amount = toNano(fromNano(transfer.message.amount));
     const friendlyTarget = transfer.message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -66,28 +67,30 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
 
     return (
         <>
-            <View
-                style={{
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    paddingHorizontal: 16,
-                    paddingVertical: 20
-                }}
-            >
-                <View>
-                    {!transfer.jettonAmount && (
-                        <>
-                            <View style={{
-                                marginLeft: 40 + 6,
-                                minHeight: 40,
-                                justifyContent: 'center'
-                            }}>
+            <View style={{
+                flexDirection: 'row',
+                paddingHorizontal: 14,
+                marginBottom: last ? 20 : 16,
+                marginTop: first ? 16 : 0,
+            }}>
+                <Text style={{
+                    color: Theme.textSubtitle,
+                    fontSize: 14,
+                    marginRight: 14,
+                    marginTop: 2,
+                    includeFontPadding: false,
+                }}>
+                    {`# ${index}`}
+                </Text>
+                <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
+                        {!transfer.jettonAmount && (
+                            <View>
                                 <Text style={{
                                     fontWeight: '700',
-                                    fontSize: 20,
+                                    fontSize: 17,
                                     color: Theme.textColor,
-                                    marginLeft: 2,
+                                    includeFontPadding: false,
                                 }}>
                                     {`${fromNano(amount)} TON`}
                                 </Text>
@@ -97,438 +100,171 @@ export const TransferComponent = React.memo(({ transfer, last, first }: {
                                     style={{
                                         backgroundColor: 'transparent',
                                         paddingHorizontal: 0,
-                                        marginLeft: 2
+                                        marginTop: 4
                                     }}
                                     textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
                                 />
-                                {!!transfer.operation.comment && transfer.operation.comment.length > 0 && (
-                                    <View style={{
-                                        backgroundColor: Theme.background,
-                                        padding: 10,
-                                        borderRadius: 6,
-                                        marginTop: 8,
-                                        marginBottom: 22,
-                                    }}>
-                                        <Text>
-                                            {`💬 ${transfer.operation.comment}`}
-                                        </Text>
-                                        <View style={{
-                                            marginLeft: 40 + 6,
-                                            marginVertical: 14,
-                                            justifyContent: 'center',
-                                            minHeight: 22,
-                                            position: 'absolute',
-                                            left: -82, top: transfer.operation.comment.length > 32 ? 22 : 8, bottom: 0,
-                                        }}>
-                                            <View>
-                                                <TransferToArrow />
-                                            </View>
-                                        </View>
-                                    </View>
-                                )}
-                                <View style={{
-                                    position: 'absolute',
-                                    left: -48, top: 0, bottom: 0,
-                                    backgroundColor: Theme.accent,
-                                    height: 40, width: 40,
-                                    borderRadius: 40,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginTop: 2
-                                }}>
-                                    <TonSign />
-                                </View>
                             </View>
-                            {!(!!transfer.operation.comment && transfer.operation.comment.length > 0) && (
-                                <View style={{
-                                    marginLeft: 40 + 6,
-                                    marginVertical: 14,
-                                    justifyContent: 'center',
-                                    minHeight: 22,
-                                }}>
-                                    <View style={{
-                                        position: 'absolute',
-                                        left: -26 - 10, top: 0, bottom: 0,
-                                    }}>
-                                        <TransferToArrow />
-                                    </View>
-                                </View>
-                            )}
-                        </>
-                    )}
-                    {!!transfer.jettonAmount && !!transfer.jettonMaster && (
-                        <>
-                            <View style={{
-                                position: 'absolute',
-                                top: 44,
-                                bottom: transfer.contact ? 48 : 44,
-                                left: 17,
-                                width: 2,
-                                borderRadius: 2,
-                                backgroundColor: Theme.divider
-                            }} />
-                            <View style={{
-                                marginLeft: 40 + 6,
-                                minHeight: 40,
-                                justifyContent: 'center'
-                            }}>
+                        )}
+                        {!!transfer.jettonAmount && transfer.jettonMaster && (
+                            <View>
                                 <Text style={{
                                     fontWeight: '700',
-                                    fontSize: 20,
+                                    fontSize: 17,
                                     color: Theme.textColor,
-                                    marginLeft: 2
+                                    includeFontPadding: false,
                                 }}>
                                     {`${fromNano(transfer.jettonAmount)} ${transfer.jettonMaster.symbol}`}
                                 </Text>
-                                {!!transfer.operation.comment && transfer.operation.comment.length > 0 && (
-                                    <View style={{
-                                        backgroundColor: Theme.background,
-                                        padding: 10,
-                                        borderRadius: 6,
-                                        marginTop: 8
-                                    }}>
-                                        <Text>
-                                            {`💬 ${transfer.operation.comment}`}
-                                        </Text>
-                                    </View>
-                                )}
-                                <View style={{
-                                    position: 'absolute',
-                                    left: -48, top: 0, bottom: 0,
-                                    backgroundColor: Theme.accent,
-                                    height: 40, width: 40,
-                                    borderRadius: 40,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginTop: 2
-                                }}>
-                                    <WImage
-                                        src={transfer.jettonMaster.image?.preview256}
-                                        blurhash={transfer.jettonMaster.image?.blurhash}
-                                        width={40}
-                                        heigh={40}
-                                        borderRadius={40}
-                                    />
-                                </View>
                             </View>
-                            <View style={{
-                                marginLeft: 40 + 6,
-                                minHeight: 24,
-                                marginTop: 20, marginBottom: 30,
-                                justifyContent: 'center'
-                            }}>
-                                {!AppConfig.isTestnet && (
-                                    <PriceComponent
-                                        prefix={`${t('transfer.gasFee')} ${fromNano(amount)} TON (`}
-                                        suffix={')'}
-                                        amount={amount}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0,
-                                            marginLeft: 2
-                                        }}
-                                        textStyle={{
+                        )}
+
+                        <View style={{
+                            flexDirection: 'row',
+                        }}>
+                            <TransferToArrow
+                                style={{
+                                    transform: [{ rotate: '-90deg' }],
+                                    marginRight: 20
+                                }}
+                            />
+
+                            <View style={{ width: 126 }}>
+                                {(!!transfer.contact || !!transfer.known) && (
+                                    <>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={{
+                                                fontWeight: '700',
+                                                fontSize: 17,
+                                                color: Theme.textColor,
+                                                includeFontPadding: false,
+                                            }}
+                                                numberOfLines={1}
+                                            >
+                                                {`${transfer.contact?.name ?? transfer.known?.name}`}
+                                            </Text>
+                                        </View>
+                                        <Text style={{
+                                            fontWeight: '400',
+                                            fontSize: 14,
                                             color: '#858B93',
-                                            fontWeight: '400', fontSize: 14
-                                        }}
-                                    />
+                                            marginTop: 4,
+                                            includeFontPadding: false,
+                                        }}>
+                                            <AddressComponent
+                                                start={4}
+                                                end={4}
+                                                address={transfer.operation.address}
+                                            />
+                                        </Text>
+                                        {!transfer.message.addr.active && !transfer.message.stateInit && (
+                                            <>
+                                                <Pressable
+                                                    onPress={inactiveAlert}
+                                                    style={({ pressed }) => {
+                                                        return {
+                                                            alignSelf: 'flex-start',
+                                                            flexDirection: 'row',
+                                                            borderRadius: 6, borderWidth: 1,
+                                                            borderColor: '#FFC165',
+                                                            paddingHorizontal: 8, paddingVertical: 4,
+                                                            marginTop: 4,
+                                                            justifyContent: 'center', alignItems: 'center',
+                                                            opacity: pressed ? 0.3 : 1
+                                                        }
+                                                    }}
+                                                >
+                                                    <Text style={{
+                                                        fontSize: 14,
+                                                        fontWeight: '400',
+                                                        color: '#E19626'
+                                                    }}>
+                                                        {t('transfer.error.addressIsNotActive')}
+                                                    </Text>
+                                                    <Question style={{ marginLeft: 5 }} />
+                                                </Pressable>
+                                            </>
+                                        )}
+                                        {transfer.contact && (
+                                            <View style={{
+                                                alignSelf: 'flex-start',
+                                                borderRadius: 6, borderWidth: 1,
+                                                borderColor: '#DEDEDE',
+                                                paddingHorizontal: 8, paddingVertical: 4,
+                                            }}>
+                                                <Text>
+                                                    {t('transfer.contact')}
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </>
                                 )}
-                                {AppConfig.isTestnet && (
-                                    <Text style={{
-                                        color: '#858B93',
-                                        fontWeight: '400', fontSize: 14,
-                                        lineHeight: 16
-                                    }}>
-                                        {`${t('transfer.gasFee')} ${fromNano(amount)} TON`}
-                                    </Text>
+                                {!transfer.contact && !transfer.known && (
+                                    <>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 17,
+                                            color: Theme.textColor,
+                                            includeFontPadding: false,
+                                        }}>
+                                            <AddressComponent
+                                                start={4}
+                                                end={4}
+                                                address={transfer.operation.address}
+                                            />
+                                        </Text>
+                                        {!transfer.message.addr.active && !transfer.message.stateInit && (
+                                            <>
+                                                <Pressable
+                                                    onPress={inactiveAlert}
+                                                    style={({ pressed }) => {
+                                                        return {
+                                                            alignSelf: 'flex-start',
+                                                            flexDirection: 'row',
+                                                            borderRadius: 6, borderWidth: 1,
+                                                            borderColor: '#FFC165',
+                                                            paddingHorizontal: 8, paddingVertical: 4,
+                                                            marginTop: 4,
+                                                            justifyContent: 'center', alignItems: 'center',
+                                                            opacity: pressed ? 0.3 : 1
+                                                        }
+                                                    }}
+                                                >
+                                                    <Text style={{
+                                                        fontSize: 14,
+                                                        fontWeight: '400',
+                                                        color: '#E19626'
+                                                    }}>
+                                                        {t('transfer.error.addressIsNotActive')}
+                                                    </Text>
+                                                    <Question style={{ marginLeft: 5 }} />
+                                                </Pressable>
+                                            </>
+                                        )}
+                                    </>
                                 )}
-                                <View style={{
-                                    backgroundColor: Theme.item,
-                                    shadowColor: 'rgba(0, 0, 0, 0.25)',
-                                    shadowOffset: {
-                                        height: 1,
-                                        width: 0
-                                    },
-                                    shadowRadius: 3,
-                                    shadowOpacity: 1,
-                                    height: 24, width: 24,
-                                    borderRadius: 24,
-                                    position: 'absolute', top: 0, bottom: 0, left: -40,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                    <TonSignGas />
-                                </View>
                             </View>
-                        </>
-                    )}
-                    {(!!transfer.contact || !!transfer.known) && (
-                        <View style={{
-                            marginLeft: 40 + 6,
-                            minHeight: 40,
-                            justifyContent: 'center'
-                        }}>
-                            <View style={{ flexDirection: 'row' }}>
-                                <Text style={{
-                                    fontWeight: '700',
-                                    fontSize: 20,
-                                    color: Theme.textColor,
-                                    marginLeft: 2,
-                                }}>
-                                    {`${transfer.contact?.name ?? transfer.known?.name}`}
+                        </View>
+                    </View>
+                    {!!transfer.operation.comment && transfer.operation.comment.length > 0 && (
+                        <View style={{ alignItems: 'baseline' }}>
+                            <View style={{
+                                backgroundColor: Theme.background,
+                                padding: 10,
+                                borderRadius: 6,
+                                marginTop: 8,
+                                flex: 1,
+                                flexShrink: 1,
+                            }}>
+                                <Text>
+                                    {`💬 ${transfer.operation.comment}`}
                                 </Text>
-                                {transfer.known && (
-                                    <VerifiedIcon
-                                        width={20}
-                                        height={20}
-                                        style={{ alignSelf: 'center', marginLeft: 6 }}
-                                    />
-                                )}
-                            </View>
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 14,
-                                color: '#858B93',
-                                marginLeft: 2,
-                                marginTop: 4
-                            }}>
-                                <AddressComponent address={transfer.message.addr.address} />
-                            </Text>
-                            {!transfer.message.addr.active && !transfer.message.stateInit && (
-                                <>
-                                    <Pressable
-                                        onPress={inactiveAlert}
-                                        style={({ pressed }) => {
-                                            return {
-                                                alignSelf: 'flex-start',
-                                                flexDirection: 'row',
-                                                borderRadius: 6, borderWidth: 1,
-                                                borderColor: '#FFC165',
-                                                paddingHorizontal: 8, paddingVertical: 4,
-                                                marginTop: 4,
-                                                justifyContent: 'center', alignItems: 'center',
-                                                opacity: pressed ? 0.3 : 1
-                                            }
-                                        }}
-                                    >
-                                        <Text style={{
-                                            fontSize: 14,
-                                            fontWeight: '400',
-                                            color: '#E19626'
-                                        }}>
-                                            {t('transfer.error.addressIsNotActive')}
-                                        </Text>
-                                        <Question style={{ marginLeft: 5 }} />
-                                    </Pressable>
-                                </>
-                            )}
-                            {transfer.contact && (
-                                <>
-                                    <View style={{
-                                        position: 'absolute',
-                                        left: -48, top: 0, bottom: 0,
-                                        backgroundColor: '#EDA652',
-                                        height: 40, width: 40,
-                                        borderRadius: 40,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        marginBottom: 36
-                                    }}>
-                                        <Contact />
-                                    </View>
-                                    <View style={{
-                                        alignSelf: 'flex-start',
-                                        borderRadius: 6, borderWidth: 1,
-                                        borderColor: '#DEDEDE',
-                                        paddingHorizontal: 8, paddingVertical: 4,
-                                        marginTop: 4
-                                    }}>
-                                        <Text>
-                                            {t('transfer.contact')}
-                                        </Text>
-                                    </View>
-                                </>
-                            )}
-                            {!transfer.contact && (
-                                <View style={{
-                                    position: 'absolute',
-                                    left: -48, top: 0, bottom: 0,
-                                    height: 40, width: 40,
-                                }}>
-                                    <Avatar
-                                        address={friendlyTarget}
-                                        id={friendlyTarget}
-                                        size={40}
-                                        spam={transfer.spam}
-                                        dontShowVerified={true}
-                                    />
-                                </View>
-                            )}
-                        </View>
-                    )}
-                    {(!transfer.contact && !transfer.known) && (
-                        <View style={{
-                            marginLeft: 40 + 6,
-                            minHeight: 40,
-                            justifyContent: 'center'
-                        }}>
-                            <Text style={{
-                                fontWeight: '700',
-                                fontSize: 20,
-                                color: Theme.textColor,
-                                marginLeft: 2
-                            }}>
-                                <AddressComponent address={transfer.message.addr.address} />
-                            </Text>
-                            <View style={{
-                                position: 'absolute',
-                                left: -48, top: 0, bottom: 0,
-                                height: 40, width: 40,
-                            }}>
-                                <Avatar
-                                    address={friendlyTarget}
-                                    id={friendlyTarget}
-                                    size={40}
-                                    spam={transfer.spam}
-                                    dontShowVerified={true}
-                                />
-                            </View>
-                            {!transfer.message.addr.active && !transfer.message.stateInit && (
-                                <>
-                                    <Pressable
-                                        onPress={inactiveAlert}
-                                        style={({ pressed }) => {
-                                            return {
-                                                alignSelf: 'flex-start',
-                                                flexDirection: 'row',
-                                                borderRadius: 6, borderWidth: 1,
-                                                borderColor: '#FFC165',
-                                                paddingHorizontal: 8, paddingVertical: 4,
-                                                marginTop: 4,
-                                                justifyContent: 'center', alignItems: 'center',
-                                                opacity: pressed ? 0.3 : 1
-                                            }
-                                        }}
-                                    >
-                                        <Text style={{
-                                            fontSize: 14,
-                                            fontWeight: '400',
-                                            color: '#E19626'
-                                        }}>
-                                            {t('transfer.error.addressIsNotActive')}
-                                        </Text>
-                                        <Question style={{ marginLeft: 5 }} />
-                                    </Pressable>
-                                </>
-                            )}
-                        </View>
-                    )}
-                    {!transfer.jettonAmount && !!transfer.operation.op && (
-                        <View>
-                            <View style={{
-                                position: 'absolute',
-                                top: -2,
-                                bottom: 42,
-                                left: 17,
-                                width: 2,
-                                borderRadius: 2,
-                                backgroundColor: Theme.divider
-                            }} />
-                            <View style={{
-                                marginLeft: 40 + 6,
-                                justifyContent: 'center'
-                            }}>
-                                <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
-                                    <Text style={{
-                                        color: '#858B93',
-                                        fontWeight: '400', fontSize: 14,
-                                        lineHeight: 16
-                                    }}>
-                                        {t('transfer.smartContract')}
-                                    </Text>
-                                    <View style={{
-                                        backgroundColor: Theme.item,
-                                        shadowColor: 'rgba(0, 0, 0, 0.25)',
-                                        shadowOffset: {
-                                            height: 1,
-                                            width: 0
-                                        },
-                                        shadowRadius: 3,
-                                        shadowOpacity: 1,
-                                        height: 24, width: 24,
-                                        borderRadius: 24,
-                                        position: 'absolute', top: 0, bottom: 0, left: -42,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                        <WithStateInit />
-                                    </View>
-                                </View>
-                            </View>
-                            <View style={{
-                                marginLeft: 40 + 6,
-                                justifyContent: 'center'
-                            }}>
-                                <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 17,
-                                        color: Theme.textColor,
-                                    }}>
-                                        {transfer.operation.op}
-                                    </Text>
-                                </View>
-                                <View style={{
-                                    backgroundColor: '#60C75E',
-                                    height: 40, width: 40,
-                                    borderRadius: 40,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    position: 'absolute',
-                                    left: -48, top: 0, bottom: 0,
-                                }}>
-                                    {(transfer.parsedBody?.type === 'deposit' || transfer.parsedBody?.type === 'withdraw') && (
-                                        <Staking />
-                                    )}
-                                    {!(transfer.parsedBody?.type === 'deposit' || transfer.parsedBody?.type === 'withdraw') && (
-                                        <SmartContract />
-                                    )}
-                                </View>
                             </View>
                         </View>
                     )}
                 </View>
             </View>
-            <ItemGroup style={{ marginTop: 8 }}>
-                <ItemCollapsible title={t('transfer.moreDetails')}>
-                    <ItemAddress
-                        title={t('common.recepientAddress')}
-                        text={transfer.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        verified={!!transfer.known}
-                        contact={!!transfer.contact}
-                        secondary={transfer.known ? transfer.known.name : transfer.contact?.name ?? undefined}
-                    />
-                    {!!transfer.operation.op && (
-                        <>
-                            <ItemDivider />
-                            <ItemLarge title={t('transfer.purpose')} text={transfer.operation.op} />
-                        </>
-                    )}
-                    {!transfer.operation.comment && !transfer.operation.op && transfer.message.payload && (
-                        <>
-                            <ItemDivider />
-                            <ItemLarge title={t('transfer.unknown')} text={Cell.fromBoc(Buffer.from(transfer.message.payload, 'base64'))[0].hash().toString('base64')} />
-                        </>
-                    )}
-                    {!!transfer.jettonAmount && (
-                        <>
-                            <ItemDivider />
-                            <ItemLarge title={t('transfer.gasFee')} text={fromNano(transfer.message.amount) + ' TON'} />
-                        </>
-                    )}
-                </ItemCollapsible>
-            </ItemGroup>
-            {!!last && <View style={{ height: 16 }} />}
+            {!last && <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginBottom: 16 }} />}
         </>
     );
 });

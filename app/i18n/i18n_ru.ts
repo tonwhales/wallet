@@ -129,6 +129,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         smartContract: 'Смарт-контракт транзакция',
         txsSummary: 'Сводка транзакций',
         txsTotal: 'Общая сумма',
+        gasDetails: 'Детали комиссий',
+        jettonGas: 'Газ за отправку жетонов',
+        unusualJettonsGas: '⛽️ Необычно высокий газ за отправку жетонов',
+        unusualJettonsGasTitle: '⚠️ Газ за отправку жетонов {{amount}} TON',
+        unusualJettonsGasMessage: 'Комиссия за отправку жетонов выше чем обычно',
     },
     auth: {
         phoneNumber: 'Номер телефона',

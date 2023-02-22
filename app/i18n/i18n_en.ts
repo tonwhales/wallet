@@ -141,6 +141,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         smartContract: 'Smart contract transaction',
         txsSummary: 'Transactions summary',
         txsTotal: 'Total amount',
+        gasDetails: 'Gas details',
+        jettonGas: 'Gas for sending jettons',
+        unusualJettonsGas: '⛽️ Gas is higher than usual',
+        unusualJettonsGasTitle: '⚠️ The fee for sending jettons is {{amount}} TON',
+        unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
     },
     auth: {
         phoneVerify: 'Verify phone',

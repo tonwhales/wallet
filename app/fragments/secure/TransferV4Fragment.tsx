@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, Alert } from "react-native";
+import { Platform, Text, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
@@ -41,6 +41,15 @@ import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine
 import { TransferComponent } from '../../components/transactions/TransferComponent';
 import { ItemDivider } from '../../components/ItemDivider';
 import { Theme } from '../../Theme';
+import { PriceComponent } from '../../components/PriceComponent';
+import TonSignGas from '../../../assets/ic_transfer_gas.svg';
+import Question from '../../../assets/ic_question.svg';
+import TonSign from '../../../assets/ic_ton_sign.svg';
+import { WImage } from '../../components/WImage';
+import { ItemCollapsible } from '../../components/ItemCollapsible';
+import { usePrice } from '../../engine/PriceContext';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { ItemAddress } from '../../components/ItemAddress';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -77,6 +86,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
+    const [price, currency] = usePrice();
     const {
         text,
         order,
@@ -87,8 +97,13 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         totalAmount
     } = props;
 
-    const internals = React.useMemo(() => {
+    const { internals, totalJettons, gas } = React.useMemo(() => {
         const temp = [];
+        const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: BN, gas: BN }>();
+        let gas = {
+            total: new BN(0),
+            unusual: false
+        };
         for (const message of order.messages) {
             let body = message.payload ? parseBody(Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0]) : null;
             let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, message.metadata.interfaces) : null;
@@ -114,6 +129,27 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 }
             } catch (e) {
                 console.warn(e);
+            }
+
+            if (jettonAmount && jettonMaster && message.metadata.jettonWallet) {
+                const addr = message.metadata.jettonWallet?.master.toFriendly({ testOnly: AppConfig.isTestnet });
+                const value = totalJettons.get(addr);
+                if (!!value) {
+                    value.jettonAmount = value.jettonAmount.add(jettonAmount);
+                    totalJettons.set(addr, value);
+                } else {
+                    totalJettons.set(addr, {
+                        jettonMaster,
+                        jettonAmount,
+                        gas: toNano(fromNano(message.amount))
+                    });
+                }
+
+                gas.total = gas.total.add(toNano(fromNano(message.amount)));
+
+                if (toNano(fromNano(message.amount)).gt(toNano('0.2'))) {
+                    gas.unusual = true;
+                }
             }
 
             // Resolve operation
@@ -150,8 +186,14 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             });
         }
 
-        return temp;
+        return { internals: temp, totalJettons, gas };
     }, []);
+
+    const jettonsGasAlert = React.useCallback(() => {
+        Alert.alert(t('transfer.unusualJettonsGasTitle', { amount: fromNano(gas.total) }),
+            t('transfer.unusualJettonsGasMessage'),
+            [{ text: t('common.gotIt') }])
+    }, [gas]);
 
     // Tracking
     const success = React.useRef(false);
@@ -393,30 +435,153 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     </View>
                     <ItemGroup style={{ marginBottom: 16, marginTop: 30 }}>
                         <Text style={{
-                            fontWeight: '400',
-                            fontSize: 16,
+                            fontWeight: '700',
+                            fontSize: 20,
                             color: Theme.textColor,
                             marginHorizontal: 16,
                             marginVertical: 14,
                         }}>
                             {t('transfer.txsSummary')}
                         </Text>
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
-                        <ItemLarge
-                            title={t('transfer.txsTotal')}
-                            text={fromNano(totalAmount) + ' TON'}
-                        />
-                        <ItemDivider />
-                        {!!text && (
-                            <>
-                                <ItemLarge title={t('transfer.purpose')} text={text} />
-                                <ItemDivider />
-                            </>
+                        <View style={{
+                            minHeight: 40,
+                            flexDirection: 'row',
+                            marginHorizontal: 16,
+                        }}>
+                            <View style={{
+                                backgroundColor: Theme.accent,
+                                height: 20, width: 20,
+                                borderRadius: 20,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginTop: 2
+                            }}>
+                                <TonSign height={10} width={10} color={'white'} />
+                            </View>
+                            <View style={{ marginLeft: 12 }}>
+                                <Text style={{
+                                    fontWeight: '700',
+                                    fontSize: 20,
+                                    color: Theme.textColor,
+                                }}>
+                                    {fromNano(totalAmount) + ' TON'}
+                                </Text>
+                                <PriceComponent
+                                    prefix={'~'}
+                                    amount={totalAmount}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0,
+                                    }}
+                                    textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                />
+                            </View>
+                        </View>
+                        {totalJettons.size > 0 && (
+                            Array.from(totalJettons).map((value) => {
+                                return (
+                                    <View
+                                        key={value[0]}
+                                        style={{
+                                            minHeight: 40,
+                                            flexDirection: 'row',
+                                            marginHorizontal: 16,
+                                        }}>
+                                        <View style={{
+                                            backgroundColor: Theme.accent,
+                                            height: 20, width: 20,
+                                            borderRadius: 20,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginTop: 2
+                                        }}>
+                                            <WImage
+                                                src={value[1].jettonMaster.image?.preview256}
+                                                blurhash={value[1].jettonMaster.image?.blurhash}
+                                                width={20}
+                                                heigh={20}
+                                                borderRadius={20}
+                                            />
+                                        </View>
+                                        <View style={{ marginLeft: 12 }}>
+                                            <Text style={{
+                                                fontWeight: '700',
+                                                fontSize: 20,
+                                                color: Theme.textColor,
+                                                marginLeft: 2
+                                            }}>
+                                                {`${fromNano(value[1].jettonAmount)} ${value[1].jettonMaster.symbol}`}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )
+                            })
                         )}
-                        <ItemLarge
-                            title={t('transfer.feeTotalTitle')}
-                            text={fromNano(fees) + ' TON'}
-                        />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+                        <ItemCollapsible title={t('transfer.gasDetails')} hideDivider>
+                            {totalJettons.size > 0 && (
+                                <>
+                                    <View style={{ flexDirection: 'column', paddingHorizontal: 16, alignItems: 'flex-start' }}>
+                                        <View style={{ height: 30, flexDirection: 'row' }}>
+                                            <Text style={{
+                                                fontSize: 14,
+                                                fontWeight: '500',
+                                                color: Theme.textSecondary,
+                                                alignSelf: 'center',
+                                                flexGrow: 1, flexBasis: 0
+                                            }}>
+                                                {t('transfer.jettonGas')}
+                                            </Text>
+                                        </View>
+                                        <View style={{ flexDirection: 'column', paddingBottom: 4 }}>
+                                            <View style={{ paddingBottom: gas.unusual ? 0 : 6 }}>
+                                                <Text style={{
+                                                    fontSize: 16,
+                                                    color: gas.unusual ? '#E19626' : Theme.textColor,
+                                                    fontWeight: gas.unusual ? '700' : '400'
+                                                }}>
+                                                    {(!AppConfig.isTestnet && price)
+                                                        ? fromNano(gas.total) + ' TON (' + `${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)}`
+                                                        : fromNano(gas.total) + ' TON'
+                                                    }
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        {gas.unusual && (
+                                            <Pressable
+                                                onPress={jettonsGasAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        borderRadius: 6, borderWidth: 1,
+                                                        borderColor: '#FFC165',
+                                                        paddingHorizontal: 8, paddingVertical: 4,
+                                                        marginBottom: 16,
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        opacity: pressed ? 0.3 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '400',
+                                                    color: '#E19626'
+                                                }}>
+                                                    {t('transfer.unusualJettonsGas')}
+                                                </Text>
+                                                <Question style={{ marginLeft: 5 }} />
+                                            </Pressable>
+                                        )}
+                                    </View>
+                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+                                </>
+                            )}
+                            <ItemLarge
+                                title={t('transfer.feeTotalTitle')}
+                                text={fromNano(fees) + ' TON'}
+                            />
+                        </ItemCollapsible>
                     </ItemGroup>
                     <ItemGroup>
                         {internals.map((i, index) => {
@@ -430,6 +595,24 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 />
                             );
                         })}
+                    </ItemGroup>
+                    <ItemGroup style={{
+                        marginTop: 16
+                    }}>
+                        <ItemCollapsible title={t('transfer.moreDetails')}>
+                            {internals.map((i, index) => {
+                                return (
+                                    <>
+                                        <ItemAddress
+                                            key={'address' + index}
+                                            title={`#${index + 1}` + t('common.walletAddress')}
+                                            text={i.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                        />
+                                        {index < internals.length - 1 && (<ItemDivider />)}
+                                    </>
+                                );
+                            })}
+                        </ItemCollapsible>
                     </ItemGroup>
                     <View style={{ height: 56 }} />
                 </View>

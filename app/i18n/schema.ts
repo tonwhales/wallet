@@ -143,6 +143,11 @@ export type LocalizationSchema = {
         smartContract: string,
         txsSummary: string,
         txsTotal: string,
+        gasDetails: string,
+        jettonGas: string,
+        unusualJettonsGas: string,
+        unusualJettonsGasTitle: string,
+        unusualJettonsGasMessage: string,
     },
     auth: {
         phoneVerify: string,

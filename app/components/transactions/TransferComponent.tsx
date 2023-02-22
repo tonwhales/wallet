@@ -3,33 +3,17 @@ import { View, Text, Pressable, Alert } from "react-native";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 
-import TonSign from '../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
-import Contact from '../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import TonSignGas from '../../../assets/ic_transfer_gas.svg';
-import SignLock from '../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../assets/ic_sign_staking.svg';
 import Question from '../../../assets/ic_question.svg';
-import { WImage } from "../WImage";
-import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
+import { Address, fromNano, SupportedMessage, toNano } from "ton";
 import { AddressComponent } from "../AddressComponent";
-import { Avatar } from "../Avatar";
 import BN from "bn.js";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
 import { Operation } from "../../engine/transactions/types";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { AddressContact } from "../../engine/products/SettingsProduct";
 import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
-import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
-import { ItemGroup } from "../ItemGroup";
-import { ItemCollapsible } from "../ItemCollapsible";
-import { ItemAddress } from "../ItemAddress";
-import { ItemDivider } from "../ItemDivider";
-import { ItemLarge } from "../ItemLarge";
 
 export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     transfer: {
@@ -55,10 +39,9 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     },
     first?: boolean,
     last?: boolean,
-    index?: number,
+    index: number,
 }) => {
     const amount = toNano(fromNano(transfer.message.amount));
-    const friendlyTarget = transfer.message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
     const inactiveAlert = React.useCallback(() => {
         Alert.alert(t('transfer.error.addressIsNotActive'),
             t('transfer.error.addressIsNotActiveDescription'),
@@ -80,7 +63,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                     marginTop: 2,
                     includeFontPadding: false,
                 }}>
-                    {`# ${index}`}
+                    {`#${index + 1}`}
                 </Text>
                 <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
@@ -253,8 +236,6 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                 padding: 10,
                                 borderRadius: 6,
                                 marginTop: 8,
-                                flex: 1,
-                                flexShrink: 1,
                             }}>
                                 <Text>
                                     {`💬 ${transfer.operation.comment}`}

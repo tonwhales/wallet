@@ -96,7 +96,7 @@ export const connectItemReplyCodec = t.union([
 
 export const appConnectionCodec = t.union([
   t.type({
-    type: t.literal('remote'),
+    type: t.literal(TonConnectBridgeType.Remote),
     sessionKeyPair: t.type({
       publicKey: t.string,
       secretKey: t.string,
@@ -105,7 +105,7 @@ export const appConnectionCodec = t.union([
     replyItems: t.array(connectItemReplyCodec)
   }),
   t.type({
-    type: t.literal('injected'),
+    type: t.literal(TonConnectBridgeType.Injected),
     replyItems: t.array(connectItemReplyCodec)
   }),
 ]);

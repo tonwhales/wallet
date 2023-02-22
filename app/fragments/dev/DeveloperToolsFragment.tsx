@@ -12,6 +12,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
+import { Cell, CommentMessage } from 'ton';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -75,14 +76,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton
-                            title={"delet last ID"}
-                            hint={counterValue.toString()}
-                            onPress={() => {
-                                storage.delete('connect_last_event_id');
-                            }} />
                     </View>
                 </View>
             </View>

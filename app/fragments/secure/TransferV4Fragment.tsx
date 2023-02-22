@@ -429,7 +429,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 fontSize: 30,
                                 textAlign: 'center'
                             }}>
-                                {order.messages.length > 1 ? t('transfer.confirmManyTitle') : t('transfer.confirmTitle')}
+                                {order.messages.length > 1 ? t('transfer.confirmManyTitle', { count: order.messages.length }) : t('transfer.confirmTitle')}
                             </Text>
                         )}
                     </View>
@@ -453,8 +453,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 height: 20, width: 20,
                                 borderRadius: 20,
                                 justifyContent: 'center',
-                                alignItems: 'center',
-                                marginTop: 2
+                                alignItems: 'center'
                             }}>
                                 <TonSign height={10} width={10} color={'white'} />
                             </View>
@@ -467,7 +466,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     {fromNano(totalAmount) + ' TON'}
                                 </Text>
                                 <PriceComponent
-                                    prefix={'~'}
                                     amount={totalAmount}
                                     style={{
                                         backgroundColor: 'transparent',
@@ -486,6 +484,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             minHeight: 40,
                                             flexDirection: 'row',
                                             marginHorizontal: 16,
+                                            marginTop: 16
                                         }}>
                                         <View style={{
                                             backgroundColor: Theme.accent,
@@ -493,7 +492,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             borderRadius: 20,
                                             justifyContent: 'center',
                                             alignItems: 'center',
-                                            marginTop: 2
                                         }}>
                                             <WImage
                                                 src={value[1].jettonMaster.image?.preview256}
@@ -517,7 +515,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                 )
                             })
                         )}
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginTop: totalJettons.size > 0 ? 0 : 16 }} />
                         <ItemCollapsible title={t('transfer.gasDetails')} hideDivider>
                             {totalJettons.size > 0 && (
                                 <>
@@ -541,7 +539,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                     fontWeight: gas.unusual ? '700' : '400'
                                                 }}>
                                                     {(!AppConfig.isTestnet && price)
-                                                        ? fromNano(gas.total) + ' TON (' + `${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)}`
+                                                        ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
                                                         : fromNano(gas.total) + ' TON'
                                                     }
                                                 </Text>
@@ -574,7 +572,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             </Pressable>
                                         )}
                                     </View>
-                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginBottom: 6 }} />
                                 </>
                             )}
                             <ItemLarge

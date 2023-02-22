@@ -78,7 +78,6 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                     {`${fromNano(amount)} TON`}
                                 </Text>
                                 <PriceComponent
-                                    prefix={'~'}
                                     amount={amount}
                                     style={{
                                         backgroundColor: 'transparent',
@@ -162,7 +161,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                         fontWeight: '400',
                                                         color: '#E19626'
                                                     }}>
-                                                        {t('transfer.error.addressIsNotActive')}
+                                                        {t('transfer.addressNotActive')}
                                                     </Text>
                                                     <Question style={{ marginLeft: 5 }} />
                                                 </Pressable>
@@ -174,6 +173,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                 borderRadius: 6, borderWidth: 1,
                                                 borderColor: '#DEDEDE',
                                                 paddingHorizontal: 8, paddingVertical: 4,
+                                                marginTop: 8
                                             }}>
                                                 <Text>
                                                     {t('transfer.contact')}
@@ -207,7 +207,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                             borderRadius: 6, borderWidth: 1,
                                                             borderColor: '#FFC165',
                                                             paddingHorizontal: 8, paddingVertical: 4,
-                                                            marginTop: 4,
+                                                            marginTop: 6,
                                                             justifyContent: 'center', alignItems: 'center',
                                                             opacity: pressed ? 0.3 : 1
                                                         }
@@ -218,7 +218,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                         fontWeight: '400',
                                                         color: '#E19626'
                                                     }}>
-                                                        {t('transfer.error.addressIsNotActive')}
+                                                        {t('transfer.addressNotActive')}
                                                     </Text>
                                                     <Question style={{ marginLeft: 5 }} />
                                                 </Pressable>

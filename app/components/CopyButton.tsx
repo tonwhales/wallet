@@ -49,7 +49,7 @@ export const CopyButton = React.memo(({
                     duration: 350,
                     easing: EasingNode.bezier(0.25, 0.1, 0.25, 1),
                 }).start();
-            }, 250);
+            }, 1500);
         });
     }, [text]);
 

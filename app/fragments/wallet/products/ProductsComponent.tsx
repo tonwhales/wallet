@@ -1,6 +1,6 @@
 import BN from "bn.js"
-import React from "react"
-import { Alert, Pressable, Text, View } from "react-native"
+import React, { useLayoutEffect } from "react"
+import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
 import { ProductButton } from "./ProductButton"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
@@ -14,7 +14,8 @@ import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
-import { ZenPayProductButton } from "../../zenpay/components/ZenPayProductButton"
+import { AnimatedProductButton } from "./AnimatedProductButton"
+import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -41,7 +42,9 @@ export const ProductsComponent = React.memo(() => {
     let accounts: React.ReactElement[] = [];
     if (oldWalletsBalance.gt(new BN(0))) {
         accounts.push(
-            <ProductButton
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
                 key={'old-wallets'}
                 name={t('products.oldWallets.title')}
                 subtitle={t("products.oldWallets.subtitle")}
@@ -80,7 +83,9 @@ export const ProductsComponent = React.memo(() => {
     let apps: React.ReactElement[] = [];
     for (let e of extensions) {
         apps.push(
-            <ProductButton
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
                 key={e.key}
                 name={e.name}
                 subtitle={e.description ? e.description : e.url}
@@ -98,19 +103,16 @@ export const ProductsComponent = React.memo(() => {
     // Resolve products
     let products: React.ReactElement[] = [];
 
-    products.push(<StakingProductComponent key={'pool'} />);
-
-    if (AppConfig.isTestnet) {
-        cards.map((c) => {
-            products.push(<ZenPayProductButton engine={engine} key={c.id} card={c} />)
-        });
-        products.push(<ZenPayProductButton engine={engine} key={'zenpay-add'} />)
-    }
+    useLayoutEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [extensions, jettons, oldWalletsBalance, currentJob,]);
 
     return (
         <View style={{ paddingTop: 8 }}>
             {currentJob && currentJob.job.type === 'transaction' && (
-                <ProductButton
+                <AnimatedProductButton
+                    entering={FadeInUp}
+                    exiting={FadeOutDown}
                     name={t('products.transactionRequest.title')}
                     subtitle={t('products.transactionRequest.subtitle')}
                     icon={TransactionIcon}
@@ -134,7 +136,9 @@ export const ProductsComponent = React.memo(() => {
                 />
             )}
             {currentJob && currentJob.job.type === 'sign' && (
-                <ProductButton
+                <AnimatedProductButton
+                    entering={FadeInUp}
+                    exiting={FadeOutDown}
                     name={t('products.signatureRequest.title')}
                     subtitle={t('products.signatureRequest.subtitle')}
                     icon={SignIcon}

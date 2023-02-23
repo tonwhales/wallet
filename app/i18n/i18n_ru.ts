@@ -15,7 +15,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         balance: 'Баланс',
         walletAddress: 'Адрес кошелька',
         copy: 'Скопировать',
-        copied: 'Скопировано в буфер обмена',
+        copiedAlert: 'Скопировано в буфер обмена',
+        copied: 'Скопировано',
         share: 'Поделиться',
         send: 'Отправить',
         yes: 'Да',
@@ -39,8 +40,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Транзакция',
-        add: 'Добавить',
-        gotIt: 'Понятно'
+        gotIt: 'Понятно',
+        wallet: 'Кошелек'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -81,7 +82,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         history: 'История',
     },
     receive: {
-        title: 'Получить Ton',
+        title: 'Получить',
         subtitle: 'Поделитесь данной ссылкой, чтобы получить Ton',
         share: {
             title: 'My Tonhub Address'
@@ -215,8 +216,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             title: 'Стейкинг',
             balance: 'Баланс стейкинга',
             subtitle: {
-                join: 'Зарабатывайте на TON до 13,3%',
-                joined: 'Зарабатывайте на TON',
+                join: 'Зарабатывайте на TON до {{apy}}%',
+                joined: 'Зарабатывайте до {{apy}}%',
                 rewards: 'Расчетная доходность',
                 apy: '~13.3% годовых от вклада',
                 devPromo: 'Приумножайте тестовые монеты'
@@ -243,6 +244,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 teamBanner: 'Станьте членом нашей команды',
                 teamBannerLearnMore: 'Узнайте о нашей команде',
                 teamBannerDescription: 'Если вы не являетесь членом нашей команды или одним из топ 15-ти членов нашего клуба, ваши средства внесенные на счет, будут храниться на балансе стейкинг пула, но не будут участвовать в стейкинге',
+                epnPartners: 'ePN Partners',
+                epnPartnersDescription: 'Присоединяйтесь к более чем 200 000 вебмастеров, работающих с ePN, и получайте оплату в TON',
+                moreAboutEPN: 'Узнать больше о ePN',
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',

@@ -87,22 +87,6 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [navigation]);
 
-
-    const onReachedEnd = React.useMemo(() => {
-        let prev = account.next;
-        let called = false;
-        return () => {
-            if (called) {
-                return;
-            }
-            called = true;
-            if (prev) {
-                log('Reached end: ' + prev.lt);
-                engine.products.main.loadMore(prev.lt, prev.hash);
-            }
-        }
-    }, [account.next ? account.next.lt : null]);
-
     //
     // Animations
     //
@@ -129,15 +113,7 @@ function WalletComponent(props: { wallet: WalletState }) {
             titleOpacity.value = 1;
             smallCardY.value = Math.floor(cardHeight * 0.15 / 2);
         }
-
-        // Bottom reached
-        if (event.contentSize.height > 0) {
-            let bottomOffset = (event.contentSize.height - event.layoutMeasurement.height) - event.contentOffset.y;
-            if (bottomOffset < 2000) {
-                runOnJS(onReachedEnd)();
-            }
-        }
-    }, [cardHeight, onReachedEnd]);
+    }, [cardHeight]);
 
     const smallCardStyle = useAnimatedStyle(() => {
         return {
@@ -411,6 +387,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     />
                 )}
 
+                {/* Jettons, Extensions & other products */}
                 <ProductsComponent />
 
                 <View style={{ height: 56 + safeArea.bottom }} />

@@ -5,9 +5,6 @@ polyfillWebCrypto();
 
 // Navigation
 import 'react-native-gesture-handler';
-// import { enableFreeze, enableScreens } from 'react-native-screens';
-// enableScreens();
-// enableFreeze(false);
 
 // Storage
 import './app/storage/appState';
@@ -22,6 +19,7 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
 import { mixpanel } from './app/analytics/mixpanel';
+import * as SplashScreen from 'expo-splash-screen';
 
 changeNavBarColor('white');
 
@@ -32,6 +30,7 @@ if (__DEV__) {
   mixpanel.setLoggingEnabled(true);
 }
 
+SplashScreen.preventAutoHideAsync();
 function Boot() {
   return (
     <>

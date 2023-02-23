@@ -279,7 +279,9 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             status: 'pending',
             time: Math.floor(Date.now() / 1000),
             bounced: false,
-            prev: null
+            prev: null,
+            mentioned: [],
+            hash: msg.hash(),
         });
 
         // Reset stack to root

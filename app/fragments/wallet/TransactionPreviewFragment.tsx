@@ -32,6 +32,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
+import { copyText } from "../../utils/copyText";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -40,7 +41,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     let transaction = engine.products.main.useTransaction(params.transaction);
-    let transactionHash = engine.transactions.getHash(address, transaction.base.lt);
+    // let transactionHash = engine.transactions.getHash(address, transaction.base.lt);
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
@@ -80,19 +81,19 @@ export const TransactionPreviewFragment = fragment(() => {
         if (!transaction.base.lt) {
             return null;
         }
-        if (!transactionHash) {
+        if (!transaction.base.hash) {
             return null;
         }
         return transaction.base.lt +
             '_' +
-            transactionHash.toString('hex')
-    }, [transaction, transactionHash]);
+            transaction.base.hash.toString('hex')
+    }, [transaction]);
 
     const explorerLink = useMemo(() => {
         if (!transaction.base.lt) {
             return null;
         }
-        if (!transactionHash) {
+        if (!transaction.base.hash) {
             return null;
         }
         return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
@@ -126,15 +127,8 @@ export const TransactionPreviewFragment = fragment(() => {
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 
-    const onCopy = React.useCallback((body: string) => {
-        if (Platform.OS === 'android') {
-            Clipboard.setString(body);
-            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            return;
-        }
-        Clipboard.setString(body);
-        return;
+    const onCopy = React.useCallback((text: string) => {
+        copyText(text);
     }, []);
 
     const handleCommentAction = React.useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
@@ -399,7 +393,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
-                                    fontWeight: '500',
+                                    fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20
                                 }}

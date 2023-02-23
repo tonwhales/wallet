@@ -39,6 +39,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Transaction',
+        add: 'Add',
         gotIt: 'Got it',
         wallet: 'Wallet',
     },

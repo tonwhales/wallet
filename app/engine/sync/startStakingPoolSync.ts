@@ -85,11 +85,6 @@ export async function downloadStateDirectly(engine: Engine, address: Address) {
     return Cell.fromBoc(Buffer.from(data.account.state.data!, 'base64'))[0];
 }
 
-function parseLocked(src: Slice) {
-    let locked = src.readBit();
-    return locked;
-}
-
 export function startStakingPoolSync(member: Address, pool: Address, engine: Engine) {
     let key = `${member.toFriendly({ testOnly: AppConfig.isTestnet })}/staking/${pool.toFriendly({ testOnly: AppConfig.isTestnet })}`;
     let lite = engine.persistence.liteAccounts.item(pool);
@@ -112,14 +107,11 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         }
 
         // Fetch fresh state
-        const [statusResponse, paramsResponse, memberResponse, rawState] = await Promise.all([
+        const [statusResponse, paramsResponse, memberResponse] = await Promise.all([
             engine.client4.runMethod(parent.block, pool, 'get_staking_status'),
             engine.client4.runMethod(parent.block, pool, 'get_params'),
             engine.client4.runMethod(parent.block, pool, 'get_member', [{ type: 'slice', cell: beginCell().storeAddress(member).endCell() }]),
-            backoff('raw_state', () => downloadStateDirectly(engine, pool)),
         ]);
-
-        let locked = parseLocked(rawState.beginParse());
 
         // Parse state
         let statusParser = new TupleSlice4(statusResponse.result);
@@ -128,15 +120,17 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
             proxyStakeUntil: number,
             proxyStakeSent: BN,
             querySent: boolean,
-            unlocked: boolean,
-            ctxLocked: boolean
+            canUnlock: boolean,
+            locked: boolean,
+            proxyStakeLockFinal: boolean,
         } = {
             proxyStakeAt: statusParser.readNumber(),
             proxyStakeUntil: statusParser.readNumber(),
             proxyStakeSent: statusParser.readBigNumber(),
             querySent: statusParser.readBoolean(),
-            unlocked: statusParser.readBoolean(),
-            ctxLocked: statusParser.readBoolean()
+            canUnlock: statusParser.readBoolean(),
+            locked: statusParser.readBoolean(),
+            proxyStakeLockFinal: statusParser.readBoolean(),
         };
 
         // Parse params
@@ -184,7 +178,7 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
                 stakeUntil: status.proxyStakeUntil,
                 receiptPrice: params.receiptPrice,
                 poolFee: params.poolFee,
-                locked: locked
+                locked: status.locked
             }
         };
         item.update(() => newState);

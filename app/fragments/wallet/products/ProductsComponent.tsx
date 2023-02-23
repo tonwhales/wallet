@@ -1,7 +1,6 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
-import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
-import { ProductButton } from "./ProductButton"
+import { Alert, LayoutAnimation, Text, View } from "react-native"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
@@ -14,8 +13,9 @@ import { JettonProduct } from "./JettonProduct"
 import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
+import { ZenPayProductButton } from "../../zenpay/components/ZenPayProductButton"
 import { AnimatedProductButton } from "./AnimatedProductButton"
-import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -103,6 +103,14 @@ export const ProductsComponent = React.memo(() => {
     // Resolve products
     let products: React.ReactElement[] = [];
 
+    products.push(<StakingProductComponent key={'pool'} />);
+
+    if (AppConfig.isTestnet) {
+        cards.map((c) => {
+            products.push(<ZenPayProductButton engine={engine} key={c.id} card={c} />)
+        });
+        products.push(<ZenPayProductButton engine={engine} key={'zenpay-add'} />)
+    }
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [extensions, jettons, oldWalletsBalance, currentJob,]);

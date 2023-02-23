@@ -40,6 +40,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Транзакция',
+        add: 'Добавить',
         gotIt: 'Понятно',
         wallet: 'Кошелек'
     },

@@ -867,7 +867,6 @@ SPEC CHECKSUMS:
   react-native-context-menu-view: d3b3e77985d5b05674a70f8e7eafe404dfa5bbcc
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-mmkv: b5c7f9bc369eef2b8a2aa36e8a15949989fa823f
-  react-native-mobilesdk-module: 5029cdea73e6d62cd53ecaedb74a14bfb3e556f1
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
   react-native-skia: 3947424d5927ad64eb7cb76a26399cd45bb6d9b0
   react-native-webview: d33e2db8925d090871ffeb232dfa50cb3a727581

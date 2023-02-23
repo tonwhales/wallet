@@ -17,6 +17,7 @@ import { startConfigSync } from "./startConfigSync";
 import { startServerConfigSync } from "./startServerConfigSync";
 import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
+import { startZenPaySync } from "./startZenPaySync";
 import { startApySync } from "./startApySync";
 import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
 import { createTracer } from '../../utils/tracer';
@@ -63,13 +64,15 @@ export function startSync(engine: Engine) {
     });
     tracer.label('staking');
 
-    // APY
-    startApySync(engine);
-    tracer.label('APY');
-
-    // Account Balance
-    startAccountBalanceChartSync(engine);
-    tracer.label('balance chart');
+    // TODO: fix this when testnet will be ready
+    if (!AppConfig.isTestnet) {
+        // APY
+        startApySync(engine);
+        tracer.label('APY');
+        // Account Balance
+        startAccountBalanceChartSync(engine);
+        tracer.label('balance chart');
+    }
 
     //
     // Wallet Plugins
@@ -205,7 +208,15 @@ export function startSync(engine: Engine) {
         startAppMetadataSync(url, engine);
     });
     tracer.label('app metadata');
-
+    
+    //
+    // ZenPay Sync
+    //
+    
+    if (AppConfig.isTestnet) {
+        startZenPaySync(engine);
+        tracer.label('zen pay');
+    }
 
     tracer.report();
 }

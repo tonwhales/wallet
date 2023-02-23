@@ -22,6 +22,7 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
+import { ZenPayAccountStatus, ZenPayState } from "./corp/ZenPayProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
@@ -69,6 +70,9 @@ export class Persistence {
 
     readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
 
+    readonly zenPayStatus: PersistedCollection<Address, ZenPayAccountStatus>;
+    readonly zenPayState: PersistedCollection<Address, ZenPayState>;
+
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
             storage.clearAll();
@@ -115,6 +119,10 @@ export class Persistence {
 
         // SpamFilter
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
+
+        // ZenPay
+        this.zenPayStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: zenPayStatusCodec, engine });
+        this.zenPayState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: zenPayStateCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -290,6 +298,37 @@ const domainKeyCodec = t.type({
 const spamFilterCodec = t.type({
     minAmount: t.union([c.bignum, t.null]),
     dontShowComments: t.union([t.boolean, t.null])
+});
+
+const zenPayStatusCodec = t.union([
+    t.type({
+        state: t.literal('need-enrolment'),
+    }),
+    t.type({
+        state: t.literal('need-phone'),
+        token: t.string
+    }),
+    t.type({
+        state: t.literal('need-kyc'),
+        token: t.string
+    }),
+    t.type({
+        state: t.literal('ready'),
+        token: t.string
+    })
+]);
+
+const zenPayStateCodec = t.type({
+    accounts: t.array(t.type({
+        id: t.string,
+        address: t.string,
+        state: t.string,
+        balance: c.bignum,
+        type: t.union([t.literal('virtual'), t.literal('physical')]),
+        card: t.type({
+            lastFourDigits: t.union([t.string, t.undefined, t.null]),
+        }),
+    })),
 });
 
 const apyCodec = t.type({

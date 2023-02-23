@@ -41,6 +41,7 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         apy: string,
         tx: string,
+        add: string,
         gotIt: string,
         wallet: string
     },

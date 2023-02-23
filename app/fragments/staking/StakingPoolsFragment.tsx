@@ -76,6 +76,7 @@ function PoolComponent(props: {
     let requireSource: ImageRequireSource | undefined;
     let club: boolean | undefined;
     let team: boolean | undefined;
+    // TODO refactor this
     if (addr === 'EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB') {
         requireSource = require('../../../assets/ic_club_cosmos.png');
         club = true;
@@ -90,6 +91,14 @@ function PoolComponent(props: {
     }
     if (addr === 'EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM') {
         requireSource = require('../../../assets/known/ic_team_2.png');
+        team = true;
+    }
+    if (addr === 'EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN') {
+        requireSource = require('../../../assets/known/ic_epn_1.png');
+        team = true;
+    }
+    if (addr === 'EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN') {
+        requireSource = require('../../../assets/known/ic_epn_2.png');
         team = true;
     }
 
@@ -174,19 +183,9 @@ export const StakingPoolsFragment = fragment(() => {
     const items: React.ReactElement[] = [];
     const processed = new Set<string>();
 
-    const onJoinClub = useCallback(
-        () => {
-            openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club');
-        },
-        [],
-    );
-
-    const onJoinTeam = useCallback(
-        () => {
-            openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
-        },
-        [],
-    );
+    const onJoinClub = useCallback(() => openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club'), []);
+    const onJoinTeam = useCallback(() => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1'), []);
+    const onEPNMore = useCallback(() => openWithInApp('https://epn.bz/'), []);
 
 
     // Await config
@@ -324,6 +323,31 @@ export const StakingPoolsFragment = fragment(() => {
     let club = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('club') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
     let team = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('team') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
     let nominators = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('nominators') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+    let epn = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('epn') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+
+    if (epn.length > 0) {
+        items.push(
+            <Header
+                key={'epn-header'}
+                text={t('products.staking.pools.epnPartners')}
+                description={t('products.staking.pools.epnPartnersDescription')}
+                action={{
+                    title: t('products.staking.pools.moreAboutEPN'),
+                    onAction: onEPNMore
+                }}
+            />
+        );
+        for (let pool of epn) {
+            items.push(
+                <PoolComponent
+                    key={`epn-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={pool.address}
+                    balance={pool.balance}
+                    engine={engine}
+                />
+            );
+        }
+    }
 
     if (nominators.length > 0) {
         items.push(

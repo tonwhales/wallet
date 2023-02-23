@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { BN } from "bn.js";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -15,6 +15,13 @@ export const StakingProductComponent = React.memo(() => {
     const engine = useEngine();
     const staking = engine.products.whalesStakingPools.useStaking();
     const showJoin = staking.total.eq(new BN(0));
+
+    const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const apyWithFee = useMemo(() => {
+        if (!!apy) {
+            return (apy - apy * (5 / 100)).toFixed(2)
+        }
+    }, [apy]);
 
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
@@ -69,7 +76,7 @@ export const StakingProductComponent = React.memo(() => {
                             justifyContent: 'space-between',
                         }}>
                             <Text style={{ color: '#787F83', fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
-                                {t("products.staking.subtitle.joined")}
+                                {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                             </Text>
                             <PriceComponent
                                 amount={staking.total}
@@ -131,7 +138,7 @@ export const StakingProductComponent = React.memo(() => {
                             }}
                                 ellipsizeMode="tail"
                             >
-                                {AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join")}
+                                {AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
                             </Text>
                         </View>
                     </View>

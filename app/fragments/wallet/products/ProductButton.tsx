@@ -9,7 +9,7 @@ import { PriceComponent } from '../../../components/PriceComponent';
 import { WImage } from '../../../components/WImage';
 import Verified from '../../../../assets/ic_verified.svg';
 
-export function ProductButton(props: {
+export type ProductButtonProps = {
     name: string,
     subtitle: string,
     icon?: React.FC<SvgProps>,
@@ -24,7 +24,9 @@ export function ProductButton(props: {
     onLongPress?: () => void
     style?: StyleProp<ViewStyle>,
     known?: boolean
-}) {
+}
+
+export function ProductButton(props: ProductButtonProps) {
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
@@ -71,7 +73,12 @@ export function ProductButton(props: {
                     )}
                 </View>
                 <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginTop: 10,
+                        marginRight: 10
+                    }}>
                         <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
                             {props.name}
                         </Text>

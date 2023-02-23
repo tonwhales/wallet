@@ -5,6 +5,20 @@ import com.android.build.OutputFile
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.taskdefs.condition.Os
 
+def getPassword(String currentUser, String keyChain) {
+   def stdout = new ByteArrayOutputStream()
+   def stderr = new ByteArrayOutputStream()
+   exec {
+       commandLine 'security', '-q', 'find-generic-password', '-a', currentUser, '-s', keyChain, '-w'
+       standardOutput = stdout
+       errorOutput = stderr
+       ignoreExitValue true
+   }
+   //noinspection GroovyAssignabilityCheck
+      stdout.toString().trim()
+}
+
+
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
  * and bundleReleaseJsAndAssets).
@@ -141,6 +155,9 @@ def packageJson = packageSlurper.parse file('../../package.json')
 def packageVersion = packageJson.version
 def versionCodeValue = Integer.parseInt(file('../../VERSION_CODE').text)
 
+def username = System.properties['user.name']
+def keystorePass = getPassword(username, TONHUB_UPLOAD_STORE_PASSWORD)
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -273,6 +290,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+	    if (project.hasProperty('TONHUB_UPLOAD_STORE_FILE')) {
+                storeFile file(TONHUB_UPLOAD_STORE_FILE)
+                storePassword keystorePass
+                keyAlias TONHUB_UPLOAD_KEY_ALIAS
+                keyPassword keystorePass
+	    }
+	}
     }
     buildTypes {
         debug {
@@ -281,7 +306,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }

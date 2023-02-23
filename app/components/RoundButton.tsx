@@ -10,7 +10,7 @@ const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hit
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
 
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'disabled' | 'danger_zone';
+export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'secondary_contrast' | 'disabled' | 'danger_zone';
 const displays: { [key in RoundButtonDisplay]: {
     textColor: string,
     textPressed: string,
@@ -41,6 +41,15 @@ const displays: { [key in RoundButtonDisplay]: {
         backgroundColor: Theme.secondaryButton,
         borderColor: Theme.secondaryButton,
         textColor: Theme.secondaryButtonText,
+
+        backgroundPressedColor: Theme.selector,
+        borderPressedColor: Theme.selector,
+        textPressed: Theme.secondaryButtonText,
+    },
+    secondary_contrast: {
+        backgroundColor: Theme.secondaryButton,
+        borderColor: Theme.secondaryButton,
+        textColor: Theme.textColor,
 
         backgroundPressedColor: Theme.selector,
         borderPressedColor: Theme.selector,

@@ -96,8 +96,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         back
     } = props;
 
-    console.log({ payload: order.payload?.toBoc({ idx: false }).toString('base64'), target: order.target });
-
     // Resolve operation
     let body = order.payload ? parseBody(order.payload) : null;
     let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;

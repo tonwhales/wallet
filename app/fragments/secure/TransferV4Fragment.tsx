@@ -108,8 +108,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             let body = message.payload ? parseBody(Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0]) : null;
             let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, message.metadata.interfaces) : null;
 
-            console.log({ parsedBody });
-
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (message.metadata.jettonWallet) {

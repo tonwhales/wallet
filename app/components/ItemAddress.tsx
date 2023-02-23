@@ -19,7 +19,7 @@ export const ItemAddress = React.memo((props: {
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
             Clipboard.setString(body);
-            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
+            ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             return;
         }

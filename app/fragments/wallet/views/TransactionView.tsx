@@ -233,12 +233,17 @@ export function TransactionView(props: {
                         )}
                     </View>
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
+                        <View style={{ flexDirection: 'row', marginTop: 10, marginRight: 10 }}>
                             <View style={{
                                 flexDirection: 'row',
                                 flexGrow: 1, flexBasis: 0, marginRight: 16,
                             }}>
-                                <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
+                                <Text
+                                    style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
+                                    ellipsizeMode="tail"
+                                    numberOfLines={1}>
+                                    {op}
+                                </Text>
                                 {spam && (
                                     <View style={{
                                         borderColor: '#ADB6BE',
@@ -263,9 +268,12 @@ export function TransactionView(props: {
                                         color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
                                         fontWeight: '400',
                                         fontSize: 16,
-                                        marginRight: 2
+                                        marginRight: 2,
                                     }}>
-                                    <ValueComponent value={item.amount} decimals={item.kind === 'token' ? item.decimals : undefined} />
+                                    <ValueComponent
+                                        value={item.amount}
+                                        decimals={item.kind === 'token' ? item.decimals : undefined}
+                                    />
                                     {item.kind === 'token' ? ' ' + item.symbol : ''}
                                 </Text>
                             )}

@@ -1,4 +1,4 @@
-import { Canvas, RoundedRect, DiffRect, rrect, rect, Path, vec, LinearGradient } from '@shopify/react-native-skia';
+import { Canvas, RoundedRect, DiffRect, rrect, rect, Path } from '@shopify/react-native-skia';
 import * as React from 'react';
 import { View } from 'react-native';
 import { createQRMatrix } from './QRMatrix';
@@ -8,20 +8,20 @@ function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSi
     // Top left
     const topLeftOuter0 = rrect(rect(0, 0, dotSize * 7, dotSize * 7), 12, 12);
     const topLeftInner0 = rrect(rect(dotSize, dotSize, dotSize * 5, dotSize * 5), 7, 7);
-    items.push(<DiffRect inner={topLeftInner0} outer={topLeftOuter0} color="black" />)
-    items.push(<RoundedRect x={dotSize * 2} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
+    items.push(<DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color="black" />)
+    items.push(<RoundedRect key={'rr-top-left'} x={dotSize * 2} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
 
     // Top right
     const outer2 = rrect(rect((matrixSize - 7) * dotSize, 0, dotSize * 7, dotSize * 7), 12, 12);
     const inner2 = rrect(rect((matrixSize - 6) * dotSize, dotSize, dotSize * 5, dotSize * 5), 7, 7);
-    items.push(<DiffRect inner={inner2} outer={outer2} color="black" />);
-    items.push(<RoundedRect x={(matrixSize - 5) * dotSize} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
+    items.push(<DiffRect key={'dr-top-right'} inner={inner2} outer={outer2} color="black" />);
+    items.push(<RoundedRect key={'rr-top-right'} x={(matrixSize - 5) * dotSize} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
 
     // Bottom left
     const outer3 = rrect(rect(0, (matrixSize - 7) * dotSize, dotSize * 7, dotSize * 7), 12, 12);
     const inner3 = rrect(rect(dotSize, (matrixSize - 6) * dotSize, dotSize * 5, dotSize * 5), 7, 7);
-    items.push(<DiffRect inner={inner3} outer={outer3} color="black" />);
-    items.push(<RoundedRect x={dotSize * 2} y={(matrixSize - 5) * dotSize} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
+    items.push(<DiffRect key={'dr-bottom-left'} inner={inner3} outer={outer3} color="black" />);
+    items.push(<RoundedRect key={'rr-bottom-left'} x={dotSize * 2} y={(matrixSize - 5) * dotSize} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
 }
 
 function isCornerSquare(point: { x: number, y: number }, matrixSize: number): boolean {

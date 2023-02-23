@@ -183,19 +183,9 @@ export const StakingPoolsFragment = fragment(() => {
     const items: React.ReactElement[] = [];
     const processed = new Set<string>();
 
-    const onJoinClub = useCallback(
-        () => {
-            openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club');
-        },
-        [],
-    );
-
-    const onJoinTeam = useCallback(
-        () => {
-            openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
-        },
-        [],
-    );
+    const onJoinClub = useCallback(() => openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club'), []);
+    const onJoinTeam = useCallback(() => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1'), []);
+    const onEPNMore = useCallback(() => openWithInApp('https://epn.bz/'), []);
 
 
     // Await config
@@ -340,6 +330,11 @@ export const StakingPoolsFragment = fragment(() => {
             <Header
                 key={'epn-header'}
                 text={t('products.staking.pools.epnPartners')}
+                description={t('products.staking.pools.epnPartnersDescription')}
+                action={{
+                    title: t('products.staking.pools.moreAboutEPN'),
+                    onAction: onEPNMore
+                }}
             />
         );
         for (let pool of epn) {

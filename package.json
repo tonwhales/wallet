@@ -130,5 +130,6 @@
   "resolutions": {
     "react-native-safe-area-context": "4.2.5"
   },
-  "private": true
+  "private": true,
+  "packageManager": "yarn@1.22.19"
 }

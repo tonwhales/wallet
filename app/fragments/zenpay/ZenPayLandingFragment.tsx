@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, View, Text, Pressable, KeyboardAvoidingView } from 'react-native';
+import { ActivityIndicator, Platform, View, Text, Pressable, KeyboardAvoidingView, Alert } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,14 +10,17 @@ import { useEngine } from '../../engine/Engine';
 import { warn } from '../../utils/log';
 import { Theme } from '../../Theme';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { HeaderBackButton } from "@react-navigation/elements";
-import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
 import { StatusBar } from 'expo-status-bar';
+import { extractDomain } from '../../engine/utils/extractDomain';
+import { useParams } from '../../utils/useParams';
+import { ZenPayAppParams } from './ZenPayAppFragment';
 
 export const ZenPayLandingFragment = React.memo(() => {
     const webRef = React.useRef<WebView>(null);
+    const engine = useEngine();
     const navigation = useTypedNavigation();
     const pageTitle = t('products.zenPay.title');
+    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: ZenPayAppParams }>()
 
     //
     // View
@@ -62,12 +65,42 @@ export const ZenPayLandingFragment = React.memo(() => {
         }
 
         if (data.name === 'openEnrollment') {
-            navigation.goBack();
-            navigation.navigateZenPayEnrollment({
-                endpoint: zenPayUrl, callback: () => {
-                    navigation.navigateZenPay({ type: 'account' });
+            (async () => {
+                // Show loader
+                opacity.value = 1;
+                setLoaded(false);
+
+                try {
+                    const data = await engine.products.extensions.getAppData(endpoint);
+                    if (!data) {
+                        Alert.alert(t('auth.failed'));
+                        opacity.value = 0;
+                        setLoaded(true);
+                        return;
+                    }
+
+                    const domain = extractDomain(endpoint);
+                    const res = await engine.products.zenPay.enroll(domain);
+                    if (!res) {
+                        Alert.alert(t('auth.failed'));
+                        opacity.value = 0;
+                        setLoaded(true);
+                        return;
+                    }
+
+                    // Navigate to continue
+                    navigation.goBack();
+                    navigation.navigateZenPay(onEnrollType);
+
+                } catch (error) {
+                    opacity.value = 0;
+                    setLoaded(true);
+                    Alert.alert(t('auth.failed'));
+                    warn(error);
                 }
-            });
+
+            })();
+            return;
         }
         if (data.name === 'closeApp') {
             navigation.goBack();
@@ -142,7 +175,7 @@ export const ZenPayLandingFragment = React.memo(() => {
                 >
                     <WebView
                         ref={webRef}
-                        source={{ uri: zenPayUrl + '/about' }}
+                        source={{ uri: endpoint + '/about' }}
                         startInLoadingState={true}
                         style={{
                             backgroundColor: Theme.background,

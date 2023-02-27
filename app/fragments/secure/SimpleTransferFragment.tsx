@@ -293,7 +293,7 @@ export const SimpleTransferFragment = fragment(() => {
                     }).writeTo(inMsg);
                     let outMsg = new Cell();
                     intMessage.writeTo(outMsg);
-                    let local = estimateFees(config, inMsg, outMsg, accountState.storageStats);
+                    let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
                     setEstimation(local);
                 }
             });

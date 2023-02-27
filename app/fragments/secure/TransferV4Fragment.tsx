@@ -30,7 +30,7 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { estimateV4Fees } from '../../engine/estimate/estimateFees';
+import { estimateFees } from '../../engine/estimate/estimateFees';
 import { warn } from '../../utils/log';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import LottieView from 'lottie-react-native';
@@ -770,7 +770,7 @@ export const TransferV4Fragment = fragment(() => {
                 })
             }).writeTo(inMsg);
 
-            let fees = estimateV4Fees(netConfig!, inMsg, outMsgs, storageStats);
+            let fees = estimateFees(netConfig!, inMsg, outMsgs, storageStats);
 
             // Set state
             setLoadedProps({

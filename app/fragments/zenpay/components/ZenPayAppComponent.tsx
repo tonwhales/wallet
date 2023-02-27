@@ -345,13 +345,19 @@ export const ZenPayAppComponent = React.memo((
 
     const updateScrollEnabled = React.useCallback((url: string) => {
         if (
+
             url.indexOf('/auth/phone') !== -1
             || url.indexOf('/auth/code') !== -1
+            || url.indexOf('/auth/subscribe') !== -1
+            || url.indexOf('/auth/country-select') !== -1
+
             || url.indexOf('/pin') !== -1
             || url.indexOf('/deposit') !== -1
+            || url.indexOf('/transfer') !== -1
+            || url.indexOf('/limits') !== -1
+
             || url.indexOf('/create/delivery/address/country') !== -1
             || url.indexOf('/create/delivery/address/deliver-to') !== -1
-            || url.indexOf('/create/delivery/address') !== -1
         ) {
             setScrollEnabled(false);
         } else {

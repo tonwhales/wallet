@@ -15,6 +15,7 @@ import { QRCode } from "../../components/QRCode/QRCode";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import ShareIcon from '../../../assets/ic_share_address.svg';
 import { CopyButton } from "../../components/CopyButton";
+import { ShareButton } from "../../components/ShareButton";
 
 export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -91,15 +92,12 @@ export const ReceiveFragment = fragment(() => {
                         alignContent: 'stretch'
                     }}>
                         <CopyButton
-                            text={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                             style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
                         />
-                        <RoundButton
-                            title={t('common.share')}
-                            onPress={onShare}
+                        <ShareButton
+                            body={link}
                             style={{ flex: 2, alignSelf: 'stretch' }}
-                            display={'secondary_contrast'}
-                            icon={<ShareIcon width={15} height={24} />}
                         />
                     </View>
                 </View>

@@ -26,18 +26,18 @@ const size = {
 }
 
 export const CopyButton = React.memo(({
-    text,
+    body,
     style,
     disabled
 }: {
-    text: string,
+    body: string,
     style?: StyleProp<ViewStyle>,
     disabled?: boolean
 }) => {
     const doneOpacity = React.useMemo(() => new Animated.Value<number>(0), []);
 
     const onCopy = useCallback(() => {
-        copyText(text);
+        copyText(body);
         Animated.timing(doneOpacity, {
             toValue: 1,
             duration: 350,
@@ -51,7 +51,7 @@ export const CopyButton = React.memo(({
                 }).start();
             }, 1500);
         });
-    }, [text]);
+    }, [body]);
 
     return (
         <Pressable
@@ -73,35 +73,33 @@ export const CopyButton = React.memo(({
         >
             <View style={{
                 height: size.height - 2,
-                alignItems: 'center', justifyContent: 'center',
+                flexDirection: 'row',
+                justifyContent: 'center', alignItems: 'center',
                 minWidth: 64,
-                paddingHorizontal: 16,
             }}>
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <Animated.View style={[
-                        {
-                            marginRight: 10,
-                            opacity: doneOpacity.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [1, 0]
-                            })
-                        }]}>
-                        <CopyIcon
-                            width={18}
-                            height={20}
-                        />
-                    </Animated.View>
-                    <Animated.View style={[{
-                        marginTop: size.pad,
-                        opacity: doneOpacity.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [1, 0]
-                        })
-                    }]}>
+                <Animated.View style={[{
+                    opacity: doneOpacity.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 0]
+                    }),
+                    position: 'absolute',
+                    left: 0, right: 0, bottom: 0, top: 0,
+                    flexGrow: 1
+                }]}>
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexGrow: 1,
+                        paddingHorizontal: 16,
+                        backgroundColor: display.backgroundColor,
+                    }}>
+                        <View style={{ marginRight: 10 }}>
+                            <CopyIcon
+                                width={18}
+                                height={20}
+                            />
+                        </View>
                         <Text
                             style={[
                                 iOSUIKit.title3,
@@ -109,7 +107,8 @@ export const CopyButton = React.memo(({
                                     color: display.textColor,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
-                                    includeFontPadding: false
+                                    includeFontPadding: false,
+                                    flexShrink: 1
                                 }
                             ]}
                             numberOfLines={1}
@@ -117,44 +116,47 @@ export const CopyButton = React.memo(({
                         >
                             {t('common.copy')}
                         </Text>
-                    </Animated.View>
+                    </View>
+                </Animated.View>
 
-                    <Animated.View style={[{
-                        position: 'absolute',
-                        top: 0, bottom: 0, left: 0, right: 0,
-                        opacity: doneOpacity,
-                    }]}>
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: display.backgroundColor,
-                        }}>
-                            <View style={{ marginRight: 10 }}>
-                                <CopyIconSuccess width={18} height={20} />
-                            </View>
-                            <Text
-                                style={[
-                                    iOSUIKit.title3,
-                                    {
-                                        marginTop: size.pad,
-                                        opacity: 1,
-                                        color: display.textColor,
-                                        fontSize: size.fontSize,
-                                        fontWeight: '600',
-                                        includeFontPadding: false
-                                    }
-                                ]}
-                                numberOfLines={1}
-                                ellipsizeMode='tail'
-                            >
-                                {t('common.copied')}
-                            </Text>
+                <Animated.View style={[{
+                    position: 'absolute',
+                    left: 0, right: 0, bottom: 0, top: 0,
+                    flexGrow: 1,
+                    opacity: doneOpacity,
+                }]}>
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexGrow: 1,
+                        paddingHorizontal: 16,
+                        backgroundColor: display.backgroundColor,
+                    }}>
+                        <View style={{ marginRight: 10 }}>
+                            <CopyIconSuccess width={18} height={20} />
                         </View>
-                    </Animated.View>
-                </View>
+                        <Text
+                            style={[
+                                iOSUIKit.title3,
+                                {
+                                    marginTop: size.pad,
+                                    opacity: 1,
+                                    color: display.textColor,
+                                    fontSize: size.fontSize,
+                                    fontWeight: '600',
+                                    includeFontPadding: false,
+                                    flexShrink: 1
+                                }
+                            ]}
+                            numberOfLines={1}
+                            ellipsizeMode='tail'
+                        >
+                            {t('common.copied')}
+                        </Text>
+                    </View>
+                </Animated.View>
             </View>
         </Pressable>
     );
-
 });

@@ -99,8 +99,6 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
-    apps.push(<StakingProductComponent key={'pool'} />);
-
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [extensions, jettons, oldWalletsBalance, currentJob,]);
@@ -159,6 +157,10 @@ export const ProductsComponent = React.memo(() => {
                     }}
                 />
             )}
+
+            <View style={{ marginTop: 8 }}>
+                <StakingProductComponent key={'pool'} />
+            </View>
 
             {apps.length > 0 && (
                 <>

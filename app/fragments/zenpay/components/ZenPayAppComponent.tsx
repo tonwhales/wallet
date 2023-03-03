@@ -354,7 +354,6 @@ export const ZenPayAppComponent = React.memo((
             || url.indexOf('/pin') !== -1
             || url.indexOf('/deposit') !== -1
             || url.indexOf('/transfer') !== -1
-            || url.indexOf('/limits') !== -1
 
             || url.indexOf('/create/delivery/address/country') !== -1
             || url.indexOf('/create/delivery/address/deliver-to') !== -1

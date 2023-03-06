@@ -105,8 +105,8 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
       amount: toNano(fromNano(msg.amount)),
       target: msg.address,
       amountAll: false,
-      payload: msg.payload ? new CellMessage(Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0]) : null,
-      stateInit: msg.stateInit ? new CellMessage(Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0]) : null
+      payload: msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null,
+      stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
     }
   });
 

@@ -1,14 +1,15 @@
 import { AppRequest, ConnectEvent, CONNECT_EVENT_ERROR_CODES, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
 import { useCallback, useMemo, useState } from 'react';
 import { Engine } from '../Engine';
-import { checkProtocolVersionCapability, TonConnectInjectedBridge, verifyConnectRequest } from './TonConnect';
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from './config';
 import { useWebViewBridge } from './useWebViewBridge';
-import { ConnectEventError, SignRawParams, TonConnectBridgeType } from './types';
+import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from './types';
 import { TypedNavigation } from '../../utils/useTypedNavigation';
 import { TonConnectAuthResult } from '../../fragments/secure/TonConnectAuthenticateFragment';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
+import { checkProtocolVersionCapability, verifyConnectRequest } from './utils';
+import { Cell, CellMessage, fromNano, toNano } from 'ton';
 
 export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: TypedNavigation) {
   const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
@@ -167,10 +168,17 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
             }
 
             navigation.navigateTransfer({
-              type: 'batch',
               text: null,
               order: {
-                messages: params.messages,
+                messages: params.messages.map((msg) => {
+                  return {
+                    amount: toNano(fromNano(msg.amount)),
+                    target: msg.address,
+                    amountAll: false,
+                    payload: msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null,
+                    stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
+                  }
+                }),
                 app: app ? {
                   title: app.name,
                   domain: extractDomain(app.url),

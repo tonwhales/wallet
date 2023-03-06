@@ -136,7 +136,6 @@ export const ProductsComponent = React.memo(() => {
                     value={null}
                     onPress={() => {
                         navigation.navigateTransfer({
-                            type: 'batch',
                             text: null,
                             order: {
                                 messages: prepared.messages,

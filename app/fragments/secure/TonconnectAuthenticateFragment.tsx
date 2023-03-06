@@ -21,8 +21,7 @@ import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/TonConnect';
-import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto, TonProofItemReplySuccess } from '@tonconnect/protocol';
+import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
 import { AppManifest } from '../../engine/tonconnect/fetchManifest';
 import { ConnectReplyBuilder } from '../../engine/tonconnect/ConnectReplyBuilder';
 import { ConnectQrQuery, TonConnectBridgeType } from '../../engine/tonconnect/types';
@@ -30,6 +29,7 @@ import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';
 import { useParams } from '../../utils/useParams';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse';
+import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/utils';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -84,7 +84,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     }
 
                 } catch (error) {
-                    setState({ type: 'failed' });
+                    warn(error);
                 }
                 return;
             }
@@ -521,7 +521,7 @@ export type TonConnectAuthProps = {
 export const TonConnectAuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const props = useParams<TonConnectAuthProps>()
+    const props = useParams<TonConnectAuthProps>();
 
     React.useEffect(() => {
         return () => {

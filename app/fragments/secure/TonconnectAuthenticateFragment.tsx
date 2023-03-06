@@ -29,6 +29,7 @@ import { ConnectQrQuery, TonConnectBridgeType } from '../../engine/tonconnect/ty
 import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';
 import { useParams } from '../../utils/useParams';
 import { connectAnswer } from '../../engine/api/connectAnswer';
+import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -198,7 +199,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                 });
 
                 // Send connect response
-                engine.products.tonConnect.send({ response, sessionCrypto, clientSessionId: state.clientSessionId });
+                sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
                 // Save connection
                 engine.products.tonConnect.saveAppConnection(
@@ -517,7 +518,7 @@ export type TonConnectAuthProps = {
     callback: (result: TonConnectAuthResult) => void
 }
 
-export const TonconnectAuthenticateFragment = fragment(() => {
+export const TonConnectAuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const props = useParams<TonConnectAuthProps>()

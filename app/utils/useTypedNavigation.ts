@@ -6,7 +6,7 @@ import { Order } from '../fragments/secure/ops/Order';
 import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { SignRawMessage } from '../engine/tonconnect/types';
-import { TonConnectAuthProps } from '../fragments/secure/TonconnectAuthenticateFragment';
+import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 
 type Base = NavigationProp<ParamListBase>;
 

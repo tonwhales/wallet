@@ -6,7 +6,7 @@ import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from './config';
 import { useWebViewBridge } from './useWebViewBridge';
 import { ConnectEventError, SignRawParams, TonConnectBridgeType } from './types';
 import { TypedNavigation } from '../../utils/useTypedNavigation';
-import { TonConnectAuthResult } from '../../fragments/secure/TonconnectAuthenticateFragment';
+import { TonConnectAuthResult } from '../../fragments/secure/TonConnectAuthenticateFragment';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
 

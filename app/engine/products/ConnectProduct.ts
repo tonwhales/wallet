@@ -1,5 +1,4 @@
 import { Engine } from "../Engine";
-import axios from 'axios';
 import { createLogger, warn } from '../../utils/log';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
@@ -17,14 +16,15 @@ import { getCurrentAddress } from "../../storage/appState";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Cell, StateInit } from "ton";
 import { CloudValue } from "../cloud/CloudValue";
+import { sendTonConnectResponse } from "../api/sendTonConnectResponse";
 
 let logger = createLogger('tonconnect');
+
+export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
 
 export class ConnectProduct {
     readonly engine: Engine;
     private _destroyed: boolean;
-    private readonly bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
-    private readonly defaultTtl = 300;
 
     readonly #pendingRequestsSelector;
     readonly extensions: CloudValue<{ installed: { [key: string]: ConnectedApp } }>;
@@ -124,7 +124,7 @@ export class ConnectProduct {
         }
 
         const walletSessionIds = this.connections.map((item) => new SessionCrypto(item.sessionKeyPair).sessionId).join(',');
-        let url = `${this.bridgeUrl}/events?client_id=${walletSessionIds}`;
+        let url = `${bridgeUrl}/events?client_id=${walletSessionIds}`;
         const lastEventId = await this.getLastEventId();
 
         if (lastEventId) {
@@ -182,35 +182,6 @@ export class ConnectProduct {
 
     private async getLastEventId() {
         return storage.getString('connect_last_event_id');
-    }
-
-    async send<T extends RpcMethod>({
-        response,
-        sessionCrypto,
-        clientSessionId,
-        bridge,
-        ttl
-    }: {
-        response: WalletResponse<T> | ConnectEvent | DisconnectEvent,
-        sessionCrypto: SessionCrypto,
-        clientSessionId: string,
-        bridge?: string,
-        ttl?: number,
-    }): Promise<void> {
-        try {
-            // Form url with client session id
-            const url = `${bridge ?? this.bridgeUrl}/message?client_id=${sessionCrypto.sessionId}&to=${clientSessionId}&ttl=${ttl || this.defaultTtl}`;
-
-            // Encrypt response
-            const encodedResponse = sessionCrypto.encrypt(
-                JSON.stringify(response),
-                hexToByteArray(clientSessionId),
-            );
-
-            await axios.post(url, Base64.encode(encodedResponse), { headers: { 'Content-Type': 'text/plain' } });
-        } catch (e) {
-            warn(e);
-        }
     }
 
     async handleConnectDeeplink(query: ConnectQrQuery) {
@@ -459,7 +430,7 @@ export class ConnectProduct {
     sendDisconnectEvent(connection: ConnectedAppConnectionRemote) {
         const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
         const event: DisconnectEvent = { event: 'disconnect', payload: {} };
-        this.send({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
+        sendTonConnectResponse({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
     }
 
     async disconnect(url: string) {
@@ -523,7 +494,7 @@ export class ConnectProduct {
             );
 
             if (this.activeRequests[from]) {
-                await this.send({
+                await sendTonConnectResponse({
                     response: {
                         error: {
                             code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
@@ -542,7 +513,7 @@ export class ConnectProduct {
 
             const callback = (response: WalletResponse<RpcMethod>) => {
                 delete this.activeRequests[from];
-                this.send({ response, sessionCrypto, clientSessionId: from });
+                sendTonConnectResponse({ response, sessionCrypto, clientSessionId: from });
             }
 
             this.handleRequestFromRemoteBridge(request, from, callback, from);

@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { Cell } from 'ton';
 import { t } from '../../i18n/t';
 import { getTimeSec } from '../../utils/getTimeSec';
+import { sendTonConnectResponse } from '../api/sendTonConnectResponse';
 import { Engine } from '../Engine';
 import { SendTransactionError } from './TonConnect';
 import { SendTransactionRequest, SignRawParams, WebViewBridgeMessageType } from './types';
@@ -15,7 +16,7 @@ export const tonConnectTransactionCallback = (
   engine: Engine
 ) => {
   if (!ok) {
-      engine.products.tonConnect.send({
+    sendTonConnectResponse({
           response: new SendTransactionError(
               request.id,
               SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
@@ -28,7 +29,7 @@ export const tonConnectTransactionCallback = (
       return;
   }
 
-  engine.products.tonConnect.send({
+  sendTonConnectResponse({
       response: { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
       sessionCrypto,
       clientSessionId: request.from
@@ -54,7 +55,7 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
 
   if (!isValidRequest) {
       engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-      engine.products.tonConnect.send({
+      sendTonConnectResponse({
           response: {
               error: {
                   code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
@@ -71,7 +72,7 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
   const { valid_until } = params;
   if (valid_until < getTimeSec()) {
       engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-      engine.products.tonConnect.send({
+      sendTonConnectResponse({
           response: {
               error: {
                   code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,

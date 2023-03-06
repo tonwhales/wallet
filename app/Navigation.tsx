@@ -61,7 +61,7 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { TonconnectAuthenticateFragment } from './fragments/secure/TonconnectAuthenticateFragment';
+import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { TransferV4Fragment } from './fragments/secure/TransferV4Fragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
@@ -156,7 +156,7 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
-    modalScreen('TonconnectAuthenticate', TonconnectAuthenticateFragment),
+    modalScreen('TonconnectAuthenticate', TonConnectAuthenticateFragment),
     modalScreen('Install', InstallFragment),
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),

@@ -32,6 +32,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
+import { copyText } from "../../utils/copyText";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -126,15 +127,8 @@ export const TransactionPreviewFragment = fragment(() => {
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 
-    const onCopy = React.useCallback((body: string) => {
-        if (Platform.OS === 'android') {
-            Clipboard.setString(body);
-            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            return;
-        }
-        Clipboard.setString(body);
-        return;
+    const onCopy = React.useCallback((text: string) => {
+        copyText(text);
     }, []);
 
     const handleCommentAction = React.useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {

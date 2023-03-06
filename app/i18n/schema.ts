@@ -17,6 +17,7 @@ export type LocalizationSchema = {
         walletAddress: string,
         recepientAddress: string,
         copy: string,
+        copiedAlert: string,
         copied: string,
         share: string,
         send: string,
@@ -273,6 +274,8 @@ export type LocalizationSchema = {
                 teamBannerLearnMore: string,
                 teamBannerDescription: string,
                 epnPartners: string,
+                epnPartnersDescription: string,
+                moreAboutEPN: string,
             },
             transfer: {
                 stakingWarning: string,

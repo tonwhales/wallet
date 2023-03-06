@@ -101,6 +101,59 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
+    for (let e of tonconnectExtensions) {
+        apps.push(
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                key={e.key}
+                name={e.name}
+                subtitle={e.url}
+                image={e.image ?? undefined}
+                value={null}
+                onPress={() => {
+                    navigation.navigate('ConnectApp', { url: e.url });
+                }}
+                extension={true}
+                style={{ marginVertical: 4 }}
+            />
+        );
+    }
+
+    // Resolve tonconnect requests
+    let tonconnect: React.ReactElement[] = [];
+    for (let r of tonconnectRequests) {
+        const prepared = prepareTonConnectRequest(r, engine);
+        if (r.method === 'sendTransaction' && prepared) {
+            tonconnect.push(
+                <AnimatedProductButton
+                    key={r.from}
+                    entering={FadeInUp}
+                    exiting={FadeOutDown}
+                    name={t('products.transactionRequest.title')}
+                    subtitle={t('products.transactionRequest.subtitle')}
+                    icon={TransactionIcon}
+                    value={null}
+                    onPress={() => {
+                        navigation.navigateTransfer({
+                            type: 'batch',
+                            text: null,
+                            order: {
+                                messages: prepared.messages,
+                                app: (prepared.app && prepared.app.connectedApp) ? {
+                                    title: prepared.app.connectedApp.name,
+                                    domain: extractDomain(prepared.app.connectedApp.url),
+                                } : undefined
+                            },
+                            job: null,
+                            callback: (ok, result) => tonConnectTransactionCallback(ok, result, prepared.request, prepared.sessionCrypto, engine)
+                        })
+                    }}
+                />
+            );
+        }
+    }
+
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [extensions, jettons, oldWalletsBalance, currentJob, tonconnectRequests]);

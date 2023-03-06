@@ -1,13 +1,12 @@
 import { Engine } from "../Engine";
-import { createLogger, warn } from '../../utils/log';
-import EventSource, { MessageEvent } from 'react-native-sse';
+import { warn } from '../../utils/log';
+import { MessageEvent } from 'react-native-sse';
 import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
 import { AppRequest, Base64, ConnectEvent, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
 import { selector, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
 import { AppState } from 'react-native';
 import { AppManifest, fetchManifest } from '../tonconnect/fetchManifest';
-import { storage } from '../../storage/storage';
 import { extensionKey } from './ExtensionsProduct';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { tonConnectDeviceInfo } from "../tonconnect/config";
@@ -17,25 +16,20 @@ import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Cell, StateInit } from "ton";
 import { CloudValue } from "../cloud/CloudValue";
 import { sendTonConnectResponse } from "../api/sendTonConnectResponse";
-
-let logger = createLogger('tonconnect');
+import { TonConnect } from "../tonconnect/TonConnect";
 
 export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
 
-export class ConnectProduct {
-    readonly engine: Engine;
+export class ConnectProduct extends TonConnect {
     private _destroyed: boolean;
 
     readonly #pendingRequestsSelector;
     readonly extensions: CloudValue<{ installed: { [key: string]: ConnectedApp } }>;
     readonly pendingRequestsItem;
     readonly #extensionsSelector;
-    private eventSource: EventSource | null = null;
-    private connections: ConnectedAppConnectionRemote[] = [];
-    private activeRequests: { [from: string]: AppRequest<RpcMethod> } = {};
 
     constructor(engine: Engine) {
-        this.engine = engine;
+        super(engine);
         this._destroyed = false;
         this.extensions = this.engine.cloud.get('wallet.tonconnect.extensions.v1', (src) => { src.installed = {} });
         this.pendingRequestsItem = this.engine.persistence.connectDAppRequests.item();
@@ -99,57 +93,6 @@ export class ConnectProduct {
         }
     }
 
-    close() {
-        if (this.eventSource) {
-            this.eventSource.removeAllEventListeners();
-            this.eventSource.close();
-            this.eventSource = null;
-
-            logger.log('sse close');
-        }
-    }
-
-    async open(connections: ConnectedAppConnection[]) {
-        // Clear old connections
-        this.close();
-
-        this.connections = connections.filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
-
-        if (this.connections.length === 0) {
-            return;
-        }
-
-        const walletSessionIds = this.connections.map((item) => new SessionCrypto(item.sessionKeyPair).sessionId).join(',');
-        let url = `${bridgeUrl}/events?client_id=${walletSessionIds}`;
-        const lastEventId = await this.getLastEventId();
-
-        if (lastEventId) {
-            url += `&last_event_id=${lastEventId}`;
-        }
-
-        this.eventSource = new EventSource(url);
-
-        this.eventSource.addEventListener(
-            'message',
-            (event) => {
-                logger.log(`sse connect message: type ${event}`);
-                this.handleMessage(event as MessageEvent);
-            }
-        );
-
-        this.eventSource.addEventListener('open', () => {
-            logger.log('sse connect: opened');
-        });
-
-        this.eventSource.addEventListener('close', () => {
-            logger.log('sse connect: closed');
-        });
-
-        this.eventSource.addEventListener('error', (event) => {
-            warn('sse connect: error' + JSON.stringify(event));
-        });
-    }
-
     private _startSync() {
         const apps = Object.keys(this.extensions.value.installed);
         const connections: ConnectedAppConnection[] = []
@@ -158,37 +101,6 @@ export class ConnectProduct {
             connections.push(...(appConnections ?? []));
         }
         this.open(connections);
-    }
-
-    // 
-    // Events
-    // 
-
-    private async setLastEventId(lastEventId: string) {
-        storage.set('connect_last_event_id', lastEventId);
-    }
-
-    private async getLastEventId() {
-        return storage.getString('connect_last_event_id');
-    }
-
-    async handleConnectDeeplink(query: ConnectQrQuery) {
-        try {
-            const protocolVersion = Number(query.v);
-            const request = JSON.parse(decodeURIComponent(query.r)) as ConnectRequest;
-            const clientSessionId = query.id;
-
-            const manifest = await this.getConnectAppManifest(request.manifestUrl);
-
-            return ({
-                protocolVersion,
-                request,
-                clientSessionId,
-                manifest
-            });
-        } catch (err) {
-            logger.warn(err);
-        }
     }
 
     // 
@@ -290,7 +202,7 @@ export class ConnectProduct {
             return connection;
         }
 
-        logger.warn(`connection with clientId "${clientSessionId}" not found!`);
+        this.logger.warn(`connection with clientId "${clientSessionId}" not found!`);
         return;
     }
 
@@ -347,6 +259,25 @@ export class ConnectProduct {
     // 
     // Handlers
     // 
+
+    async handleConnectDeeplink(query: ConnectQrQuery) {
+        try {
+            const protocolVersion = Number(query.v);
+            const request = JSON.parse(decodeURIComponent(query.r)) as ConnectRequest;
+            const clientSessionId = query.id;
+
+            const manifest = await this.getConnectAppManifest(request.manifestUrl);
+
+            return ({
+                protocolVersion,
+                request,
+                clientSessionId,
+                manifest
+            });
+        } catch (err) {
+            this.logger.warn(err);
+        }
+    }
 
     async handleSendTransaction(tx: {
         request: AppRequest<'sendTransaction'>,
@@ -448,7 +379,8 @@ export class ConnectProduct {
         this.handleRequest({ request, connectedApp, callback, from });
     }
 
-    private async handleMessage(event: MessageEvent) {
+    async handleMessage(event: MessageEvent) {
+        super.handleMessage(event);
         try {
             if (event.lastEventId) {
                 this.setLastEventId(event.lastEventId);

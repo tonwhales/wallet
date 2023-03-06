@@ -1,12 +1,24 @@
-import { SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from '@tonconnect/protocol';
+import { ConnectRequest, SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from '@tonconnect/protocol';
 import { Alert } from 'react-native';
 import { Cell } from 'ton';
 import { t } from '../../i18n/t';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { sendTonConnectResponse } from '../api/sendTonConnectResponse';
 import { Engine } from '../Engine';
-import { SendTransactionError } from './TonConnect';
-import { SendTransactionRequest, SignRawParams, WebViewBridgeMessageType } from './types';
+import { MIN_PROTOCOL_VERSION } from './config';
+import { SendTransactionError, SendTransactionRequest, SignRawParams, WebViewBridgeMessageType } from './types';
+
+export function checkProtocolVersionCapability(protocolVersion: number) {
+  if (typeof protocolVersion !== 'number' || protocolVersion < MIN_PROTOCOL_VERSION) {
+    throw new Error(`Protocol version ${String(protocolVersion)} is not supported by the wallet app`);
+  }
+}
+
+export function verifyConnectRequest(request: ConnectRequest) {
+  if (!(request && request.manifestUrl && request.items?.length)) {
+    throw new Error('Wrong request data');
+  }
+}
 
 export const tonConnectTransactionCallback = (
   ok: boolean,

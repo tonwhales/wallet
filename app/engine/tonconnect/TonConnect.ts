@@ -1,47 +1,93 @@
-import { AppRequest, ConnectEvent, ConnectRequest, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse, } from '@tonconnect/protocol';
-import { MIN_PROTOCOL_VERSION } from './config';
+import { AppRequest, RpcMethod, SessionCrypto, } from '@tonconnect/protocol';
+import { storage } from '../../storage/storage';
+import { createLogger, warn } from '../../utils/log';
+import { Engine } from '../Engine';
+import { bridgeUrl } from '../products/ConnectProduct';
+import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './types';
+import EventSource, { MessageEvent } from 'react-native-sse';
 
-export function checkProtocolVersionCapability(protocolVersion: number) {
-  if (typeof protocolVersion !== 'number' || protocolVersion < MIN_PROTOCOL_VERSION) {
-    throw new Error(`Protocol version ${String(protocolVersion)} is not supported by the wallet app`);
+export class TonConnect {
+  readonly engine: Engine;
+  private eventSource: EventSource | null = null;
+  protected connections: ConnectedAppConnectionRemote[] = [];
+  protected logger = createLogger('tonconnect');
+  protected activeRequests: { [from: string]: AppRequest<RpcMethod> } = {};
+
+  constructor(engine: Engine) {
+    this.engine = engine;
   }
-}
 
-export function verifyConnectRequest(request: ConnectRequest) {
-  if (!(request && request.manifestUrl && request.items?.length)) {
-    throw new Error('Wrong request data');
+  // 
+  // Events
+  // 
+
+  protected async setLastEventId(lastEventId: string) {
+    storage.set('connect_last_event_id', lastEventId);
   }
-}
 
-export class SendTransactionError implements SendTransactionRpcResponseError {
-  id: SendTransactionRpcResponseError['id'];
-  error: SendTransactionRpcResponseError['error'];
-
-  constructor(
-    requestId: string,
-    code: SEND_TRANSACTION_ERROR_CODES,
-    message: string,
-    data?: any,
-  ) {
-    this.id = requestId;
-    this.error = {
-      code,
-      message,
-      data,
-    };
+  protected async getLastEventId() {
+    return storage.getString('connect_last_event_id');
   }
-}
 
-export interface TonConnectInjectedBridge {
-  deviceInfo: DeviceInfo;
-  protocolVersion: number;
-  isWalletBrowser: boolean;
-  connect(
-    protocolVersion: number,
-    message: ConnectRequest,
-    auto: boolean,
-  ): Promise<ConnectEvent>;
-  restoreConnection(): Promise<ConnectEvent>;
-  disconnect(): Promise<void>;
-  send<T extends RpcMethod>(message: AppRequest<T>): Promise<WalletResponse<T>>;
+  // 
+  // Event subscription
+  // 
+
+  close() {
+    if (this.eventSource) {
+      this.eventSource.removeAllEventListeners();
+      this.eventSource.close();
+      this.eventSource = null;
+
+      this.logger.log('sse close');
+    }
+  }
+
+  async open(connections: ConnectedAppConnection[]) {
+    // Clear old connections
+    this.close();
+
+    this.connections = connections.filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
+
+    if (this.connections.length === 0) {
+      return;
+    }
+
+    const walletSessionIds = this.connections.map((item) => new SessionCrypto(item.sessionKeyPair).sessionId).join(',');
+    let url = `${bridgeUrl}/events?client_id=${walletSessionIds}`;
+    const lastEventId = await this.getLastEventId();
+
+    if (lastEventId) {
+      url += `&last_event_id=${lastEventId}`;
+    }
+
+    this.eventSource = new EventSource(url);
+
+    this.eventSource.addEventListener(
+      'message',
+      (event) => {
+        this.handleMessage(event as MessageEvent);
+      }
+    );
+
+    this.eventSource.addEventListener('open', () => {
+      this.logger.log('sse connect: opened');
+    });
+
+    this.eventSource.addEventListener('close', () => {
+      this.logger.log('sse connect: closed');
+    });
+
+    this.eventSource.addEventListener('error', (event) => {
+      warn('sse connect: error' + JSON.stringify(event));
+    });
+  }
+
+  //
+  // Event handling (should be overriden in child classes)
+  //
+
+  protected async handleMessage(event: MessageEvent) {
+    this.logger.log(`sse connect message: type ${event}`);
+  }
 }

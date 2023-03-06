@@ -1,9 +1,6 @@
 import { RefObject } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
-import {
-  ConnectEventError as IConnectEventError,
-  CONNECT_EVENT_ERROR_CODES,
-} from '@tonconnect/protocol';
+import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
 import { CHAIN, ConnectItemReply, KeyPair } from '@tonconnect/protocol';
 import * as t from 'io-ts';
 import * as c from '../utils/codecs';
@@ -167,4 +164,37 @@ export class ConnectEventError implements IConnectEventError {
       message,
     };
   }
+}
+
+export class SendTransactionError implements SendTransactionRpcResponseError {
+  id: SendTransactionRpcResponseError['id'];
+  error: SendTransactionRpcResponseError['error'];
+
+  constructor(
+    requestId: string,
+    code: SEND_TRANSACTION_ERROR_CODES,
+    message: string,
+    data?: any,
+  ) {
+    this.id = requestId;
+    this.error = {
+      code,
+      message,
+      data,
+    };
+  }
+}
+
+export interface TonConnectInjectedBridge {
+  deviceInfo: DeviceInfo;
+  protocolVersion: number;
+  isWalletBrowser: boolean;
+  connect(
+    protocolVersion: number,
+    message: ConnectRequest,
+    auto: boolean,
+  ): Promise<ConnectEvent>;
+  restoreConnection(): Promise<ConnectEvent>;
+  disconnect(): Promise<void>;
+  send<T extends RpcMethod>(message: AppRequest<T>): Promise<WalletResponse<T>>;
 }

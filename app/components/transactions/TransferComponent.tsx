@@ -50,12 +50,15 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
 
     return (
         <>
-            <View style={{
-                flexDirection: 'row',
-                paddingHorizontal: 14,
-                marginBottom: last ? 20 : 16,
-                marginTop: first ? 16 : 0,
-            }}>
+            <View
+                key={`transfer-view-${index}`}
+                style={{
+                    flexDirection: 'row',
+                    paddingHorizontal: 14,
+                    marginBottom: last ? 20 : 16,
+                    marginTop: first ? 16 : 0,
+                }}
+            >
                 <Text style={{
                     color: Theme.textSubtitle,
                     fontSize: 14,
@@ -245,7 +248,18 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                     )}
                 </View>
             </View>
-            {!last && <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginBottom: 16 }} />}
+            {!last && (
+                <View
+                    key={`transfer-divider-${index}`}
+                    style={{
+                        height: 1,
+                        alignSelf: 'stretch',
+                        backgroundColor: Theme.divider,
+                        marginBottom: 16
+                    }}
+                />
+            )}
+
         </>
     );
 });

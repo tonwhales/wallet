@@ -107,7 +107,7 @@ export class TypedNavigation {
     }
 
     navigateConnectAuth(params: TonConnectAuthProps) {
-        this.navigate('TonconnectAuthenticate', params);
+        this.navigate('TonConnectAuthenticate', params);
     }
 }
 

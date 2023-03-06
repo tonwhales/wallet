@@ -153,7 +153,7 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
-    modalScreen('TonconnectAuthenticate', TonConnectAuthenticateFragment),
+    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment),
     modalScreen('Install', InstallFragment),
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),
@@ -334,13 +334,14 @@ export function useLinkNavigator() {
         if (resolved.type === 'transaction') {
             if (resolved.payload) {
                 navigation.navigateTransfer({
-                    type: 'single',
                     order: {
-                        target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                        amount: resolved.amount || new BN(0),
-                        amountAll: false,
-                        stateInit: resolved.stateInit,
-                        payload: resolved.payload,
+                        messages: [{
+                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            amount: resolved.amount || new BN(0),
+                            amountAll: false,
+                            stateInit: resolved.stateInit,
+                            payload: resolved.payload,
+                        }]
                     },
                     text: resolved.comment,
                     job: null,
@@ -365,7 +366,7 @@ export function useLinkNavigator() {
             });
         }
         if (resolved.type === 'tonconnect') {
-            navigation.navigate('TonconnectAuthenticate', { query: resolved.query, type: 'qr' });
+            navigation.navigate('TonConnectAuthenticate', { query: resolved.query, type: 'qr' });
         }
         if (resolved.type === 'install') {
             navigation.navigate('Install', {

@@ -9,7 +9,7 @@ import { TonConnectAuthResult } from '../../fragments/secure/TonConnectAuthentic
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
 import { checkProtocolVersionCapability, verifyConnectRequest } from './utils';
-import { Cell, CellMessage, fromNano, toNano } from 'ton';
+import { Cell, fromNano, toNano } from 'ton';
 
 export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: TypedNavigation) {
   const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);

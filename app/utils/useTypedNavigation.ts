@@ -2,10 +2,7 @@ import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
-import { Order } from '../fragments/secure/ops/Order';
-import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
-import { SignRawMessage } from '../engine/tonconnect/types';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 

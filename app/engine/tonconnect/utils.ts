@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { Cell, CellMessage, fromNano, toNano } from 'ton';
 import { t } from '../../i18n/t';
 import { getTimeSec } from '../../utils/getTimeSec';
+import { warn } from '../../utils/log';
 import { sendTonConnectResponse } from '../api/sendTonConnectResponse';
 import { Engine } from '../Engine';
 import { MIN_PROTOCOL_VERSION } from './config';
@@ -100,15 +101,21 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
 
   const app = engine.products.tonConnect.findConnectedAppByClientSessionId(request.from);
 
-  const messages = params.messages.map((msg) => {
-    return {
-      amount: toNano(fromNano(msg.amount)),
-      target: msg.address,
-      amountAll: false,
-      payload: msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null,
-      stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
+  const messages = [];
+  for (const message of params.messages) {
+    try {
+      const msg = {
+        amount: toNano(fromNano(message.amount)),
+        target: message.address,
+        amountAll: false,
+        payload: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0] : null,
+        stateInit: message.stateInit ? Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0] : null
+      }
+      messages.push(msg);
+    } catch (error) {
+      warn(error);
     }
-  });
+  }
 
   return {
     request,

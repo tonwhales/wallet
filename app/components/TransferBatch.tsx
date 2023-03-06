@@ -1,61 +1,44 @@
-import BN from 'bn.js';
-import { StatusBar } from 'expo-status-bar';
-import * as React from 'react';
-import { Platform, Text, View, Alert, Pressable } from "react-native";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { RoundButton } from '../../components/RoundButton';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { backoff } from '../../utils/time';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../engine/Engine';
-import { getCurrentAddress } from '../../storage/appState';
-import { AppConfig } from '../../AppConfig';
-import { fetchConfig } from '../../engine/api/fetchConfig';
-import { t } from '../../i18n/t';
-import { LocalizedResources } from '../../i18n/schema';
-import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
-import { fragment } from '../../fragment';
-import { ContractMetadata } from '../../engine/metadata/Metadata';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { ScrollView } from 'react-native-gesture-handler';
-import { ItemGroup } from '../../components/ItemGroup';
-import { ItemLarge } from '../../components/ItemLarge';
-import { CloseButton } from '../../components/CloseButton';
-import { parseBody } from '../../engine/transactions/parseWalletTransaction';
-import { useItem } from '../../engine/persistence/PersistedItem';
-import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
-import { resolveOperation } from '../../engine/transactions/resolveOperation';
-import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { estimateFees } from '../../engine/estimate/estimateFees';
-import { warn } from '../../utils/log';
-import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import BN from "bn.js";
+import React from "react";
+import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native";
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { MixpanelEvent, trackEvent } from "../analytics/mixpanel";
+import { AppConfig } from "../AppConfig";
+import { contractFromPublicKey } from "../engine/contractFromPublicKey";
+import { useEngine } from "../engine/Engine";
+import { ContractMetadata } from "../engine/metadata/Metadata";
+import { useItem } from "../engine/persistence/PersistedItem";
+import { usePrice } from "../engine/PriceContext";
+import { JettonMasterState } from "../engine/sync/startJettonMasterSync";
+import { parseMessageBody } from "../engine/transactions/parseMessageBody";
+import { parseBody } from "../engine/transactions/parseWalletTransaction";
+import { resolveOperation } from "../engine/transactions/resolveOperation";
+import { createWalletTransferV4, internalFromSignRawMessage } from "../engine/utils/createWalletTransferV4";
+import { LocalizedResources } from "../i18n/schema";
+import { t } from "../i18n/t";
+import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
+import { getCurrentAddress } from "../storage/appState";
+import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
+import { Theme } from "../Theme";
+import { warn } from "../utils/log";
+import { backoff } from "../utils/time";
+import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { ItemAddress } from "./ItemAddress";
+import { ItemCollapsible } from "./ItemCollapsible";
+import { ItemDivider } from "./ItemDivider";
+import { ItemGroup } from "./ItemGroup";
+import { ItemLarge } from "./ItemLarge";
+import { PriceComponent } from "./PriceComponent";
+import { RoundButton } from "./RoundButton";
+import { TransferComponent } from "./transactions/TransferComponent";
+import { WImage } from "./WImage";
+import Question from '../../assets/ic_question.svg';
+import TonSign from '../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
-import SignLock from '../../../assets/ic_sign_lock.svg';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
-import { SignRawMessage } from '../../engine/tonconnect/types';
-import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
-import { TransferComponent } from '../../components/transactions/TransferComponent';
-import { ItemDivider } from '../../components/ItemDivider';
-import { Theme } from '../../Theme';
-import { PriceComponent } from '../../components/PriceComponent';
-import TonSignGas from '../../../assets/ic_transfer_gas.svg';
-import Question from '../../../assets/ic_question.svg';
-import TonSign from '../../../assets/ic_ton_sign.svg';
-import { WImage } from '../../components/WImage';
-import { ItemCollapsible } from '../../components/ItemCollapsible';
-import { usePrice } from '../../engine/PriceContext';
-import { formatCurrency } from '../../utils/formatCurrency';
-import { ItemAddress } from '../../components/ItemAddress';
+import SignLock from '../../assets/ic_sign_lock.svg';
+import { formatCurrency } from "../utils/formatCurrency";
 
-export type ATextInputRef = {
-    focus: () => void;
-}
-
-type ConfirmLoadedProps = {
+type Props = {
     text: string | null,
     job: string | null,
     order: {
@@ -80,9 +63,9 @@ type ConfirmLoadedProps = {
     callback: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
     totalAmount: BN
-};
+}
 
-const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
+export const TransferBatch = React.memo((props: Props) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -416,7 +399,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
                         <LottieView
                             ref={anim}
-                            source={require('../../../assets/animations/sign.json')}
+                            source={require('../../assets/animations/sign.json')}
                             style={{ width: 120, height: 120 }}
                             autoPlay={false}
                             loop={false}
@@ -607,7 +590,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             title={`#${index + 1} ` + t('common.walletAddress')}
                                             text={i.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                         />
-                                        {index < internals.length - 1 && (<ItemDivider />)}
+                                        {index < internals.length - 1 && (<ItemDivider key={`div-${index}`} />)}
                                     </>
                                 );
                             })}
@@ -622,195 +605,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     action={doSend}
                 />
             </View>
-        </>
-    );
-});
-
-export const TransferV4Fragment = fragment(() => {
-    const params: {
-        text: string | null,
-        order: {
-            messages: SignRawMessage[],
-            app?: {
-                domain: string,
-                title: string
-            }
-        },
-        job: string | null,
-        back?: number,
-        callback?: ((ok: boolean, result: Cell | null) => void) | null
-    } = useRoute().params! as any;
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
-    const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
-
-    // Memmoize all parameters just in case
-    const from = React.useMemo(() => getCurrentAddress(), []);
-    const text = React.useMemo(() => params.text, []);
-    const order = React.useMemo(() => params.order, []);
-    const job = React.useMemo(() => params.job, []);
-    const callback = React.useMemo(() => params.callback, []);
-
-    // Auto-cancel job on unmount
-    React.useEffect(() => {
-        return () => {
-            if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
-            }
-            if (params && params.callback) {
-                params.callback(false, null);
-            }
-        }
-    }, []);
-
-    // Fetch all required parameters
-    const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
-    const netConfig = engine.products.config.useConfig();
-    React.useEffect(() => {
-        // Await data
-        if (!netConfig) {
-            return;
-        }
-
-        let exited = false;
-
-        backoff('transfer', async () => {
-            // Get contract
-            const contract = contractFromPublicKey(from.publicKey);
-
-            if (exited) {
-                return;
-            }
-
-            const block = await backoff('transfer', () => engine.client4.getLastBlock());
-            const config = await backoff('transfer', () => fetchConfig());
-
-            const outMsgs: Cell[] = [];
-            const storageStats = [];
-            const inMsgs: InternalMessage[] = [];
-            const messages = [];
-            let totalAmount = new BN(0);
-            for (let i = 0; i < order.messages.length; i++) {
-                const msg = internalFromSignRawMessage(order.messages[i]);
-                if (msg) {
-                    inMsgs.push(msg);
-                    // Fetch data
-                    const [metadata, state] = await Promise.all([
-                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, msg.to)),
-                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, msg.to))
-                    ]);
-
-                    storageStats.push(state!.account.storageStat);
-
-                    // Check if wallet is restricted
-                    let restricted = false;
-                    for (let r of config.wallets.restrict_send) {
-                        if (Address.parse(r).equals(msg.to)) {
-                            restricted = true;
-                            break;
-                        }
-                    }
-                    let outMsg = new Cell();
-                    msg.writeTo(outMsg);
-                    outMsgs.push(outMsg);
-                    totalAmount = totalAmount.add(msg.value);
-
-                    messages.push({
-                        ...order.messages[i],
-                        metadata,
-                        restricted,
-                        addr: {
-                            address: msg.to,
-                            balance: new BN(state.account.balance.coins, 10),
-                            active: state.account.state.type === 'active',
-                        },
-                    });
-                } else {
-                    Alert.alert(t('transfer.error.invalidTransaction'), undefined, [{
-                        text: t('common.back'),
-                        onPress: () => {
-                            if (params.back && params.back > 0) {
-                                for (let i = 0; i < params.back; i++) {
-                                    navigation.goBack();
-                                }
-                            } else {
-                                navigation.popToTop();
-                            }
-                        }
-                    }]);
-                    exited = true;
-                    if (params && params.job) {
-                        engine.products.apps.commitCommand(false, params.job, new Cell());
-                    }
-                    if (params && params.callback) {
-                        params.callback(false, null);
-                    }
-                    return;
-                }
-
-            }
-
-            // Create transfer
-            let transfer = await createWalletTransferV4({
-                seqno: account.seqno,
-                walletId: contract.source.walletId,
-                secretKey: null,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                messages: inMsgs
-            });
-
-            // Estimate fee
-            let inMsg = new Cell();
-            new ExternalMessage({
-                to: contract.address,
-                body: new CommonMessageInfo({
-                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                    body: new CellMessage(transfer)
-                })
-            }).writeTo(inMsg);
-
-            let fees = estimateFees(netConfig!, inMsg, outMsgs, storageStats);
-
-            // Set state
-            setLoadedProps({
-                order: { messages, app: order.app },
-                text,
-                job,
-                fees,
-                callback: callback ? callback : null,
-                back: params.back,
-                totalAmount,
-            });
-        });
-
-        return () => {
-            exited = true;
-        };
-    }, [netConfig]);
-
-    return (
-        <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.confirmTitle')} />
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
-                {!loadedProps && (
-                    <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-                        <LoadingIndicator simple={true} />
-                    </View>
-                )}
-                {!!loadedProps && <TransferLoaded {...loadedProps} />}
-            </View>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
         </>
     );
 });

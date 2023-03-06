@@ -213,6 +213,7 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Navigate to transaction confirmation
         navigation.navigateTransfer({
+            type: 'single',
             text: comment,
             order,
             job: params && params.job ? params.job : null,

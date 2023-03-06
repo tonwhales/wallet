@@ -166,7 +166,8 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
               return;
             }
 
-            navigation.navigateTransferV4({
+            navigation.navigateTransfer({
+              type: 'batch',
               text: null,
               order: {
                 messages: params.messages,

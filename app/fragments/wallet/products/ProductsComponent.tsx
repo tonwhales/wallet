@@ -137,7 +137,8 @@ export const ProductsComponent = React.memo(() => {
                     icon={TransactionIcon}
                     value={null}
                     onPress={() => {
-                        navigation.navigateTransferV4({
+                        navigation.navigateTransfer({
+                            type: 'batch',
                             text: null,
                             order: {
                                 messages: prepared.messages,
@@ -173,6 +174,7 @@ export const ProductsComponent = React.memo(() => {
                     onPress={() => {
                         if (currentJob.job.type === 'transaction') {
                             navigation.navigateTransfer({
+                                type: 'single',
                                 order: {
                                     target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
                                     amount: currentJob.job.amount,

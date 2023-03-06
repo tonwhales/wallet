@@ -50,6 +50,7 @@ export const HomeFragment = fragment(() => {
                                 }
                                 if (existing.job.job.payload) {
                                     navigation.navigateTransfer({
+                                        type: 'single',
                                         order: {
                                             target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
                                             amount: existing.job.job.amount,

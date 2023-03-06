@@ -66,6 +66,7 @@ export function useInjectEngine(domain: string, name: string) {
             // Navigation
             if (src.payload) {
                 navigation.navigateTransfer({
+                    type: 'single',
                     order: {
                         target: src.to.toFriendly({ testOnly: AppConfig.isTestnet }),
                         amount: src.value,

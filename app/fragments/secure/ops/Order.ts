@@ -1,6 +1,7 @@
 import BN from "bn.js";
 import { Address, beginCell, Cell, CommentMessage } from "ton";
 import { AppConfig } from "../../../AppConfig";
+import { SignRawMessage } from "../../../engine/tonconnect/types";
 
 export type Order = {
     target: string;
@@ -9,6 +10,14 @@ export type Order = {
     amountAll: boolean;
     payload: Cell | null;
     stateInit: Cell | null;
+    app?: {
+        domain: string,
+        title: string
+    }
+};
+
+export type BatchOrder = {
+    messages: SignRawMessage[],
     app?: {
         domain: string,
         title: string

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform, View, Image } from 'react-native';
+import { Platform, View } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -20,11 +20,10 @@ import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
-import { NavigationTheme, Theme } from './Theme';
+import { NavigationTheme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext, useEngine } from './engine/Engine';
+import { EngineContext } from './engine/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { EasingNode } from 'react-native-reanimated';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -63,7 +62,6 @@ import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGr
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
-import { TransferV4Fragment } from './fragments/secure/TransferV4Fragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
 
 const Stack = createNativeStackNavigator();
@@ -151,7 +149,6 @@ const navigation = [
     genericScreen('Terms', TermsFragment),
     modalScreen('Connections', ConnectionsFragment),
     modalScreen('Transfer', TransferFragment),
-    modalScreen('TransferV4', TransferV4Fragment),
     modalScreen('SimpleTransfer', SimpleTransferFragment),
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
@@ -337,6 +334,7 @@ export function useLinkNavigator() {
         if (resolved.type === 'transaction') {
             if (resolved.payload) {
                 navigation.navigateTransfer({
+                    type: 'single',
                     order: {
                         target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                         amount: resolved.amount || new BN(0),

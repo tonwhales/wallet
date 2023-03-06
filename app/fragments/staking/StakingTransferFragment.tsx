@@ -176,6 +176,7 @@ export const StakingTransferFragment = fragment(() => {
 
         // Navigate to TransferFragment
         navigation.navigateTransfer({
+            type: 'single',
             order: {
                 target: params.target.toFriendly({ testOnly: AppConfig.isTestnet }),
                 payload,

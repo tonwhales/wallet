@@ -7,6 +7,7 @@ import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { SignRawMessage } from '../engine/tonconnect/types';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
+import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -58,30 +59,8 @@ export class TypedNavigation {
         this.base.popToTop();
     }
 
-    navigateTransfer(tx: {
-        order: Order,
-        text: string | null,
-        job: string | null,
-        callback: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number
-    }) {
+    navigateTransfer(tx: TransferFragmentProps) {
         this.navigate('Transfer', tx);
-    }
-
-    navigateTransferV4(tx: {
-        text: string | null,
-        order: {
-            messages: SignRawMessage[],
-            app?: {
-                domain: string,
-                title: string
-            }
-        },
-        job: string | null,
-        back?: number,
-        callback?: ((ok: boolean, result: Cell | null) => void) | null
-    }) {
-        this.navigate('TransferV4', tx);
     }
 
     navigateStaking(params: StakingTransferParams) {

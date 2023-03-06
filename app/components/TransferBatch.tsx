@@ -50,9 +50,10 @@ type Props = {
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: string,
-            payload?: string | undefined,
-            stateInit?: string | undefined;
+            amount: BN,
+            amountAll: boolean,
+            payload: Cell | null,
+            stateInit: Cell | null,
         }[],
         app?: {
             domain: string,
@@ -88,7 +89,7 @@ export const TransferBatch = React.memo((props: Props) => {
             unusual: false
         };
         for (const message of order.messages) {
-            let body = message.payload ? parseBody(Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0]) : null;
+            let body = message.payload ? parseBody(message.payload) : null;
             let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, message.metadata.interfaces) : null;
 
             // Read jetton master
@@ -100,7 +101,7 @@ export const TransferBatch = React.memo((props: Props) => {
             let jettonAmount: BN | null = null;
             try {
                 if (jettonMaster && message.payload) {
-                    const temp = Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0];
+                    const temp = message.payload;
                     if (temp) {
                         const parsing = temp.beginParse();
                         parsing.readUint(32);
@@ -122,13 +123,13 @@ export const TransferBatch = React.memo((props: Props) => {
                     totalJettons.set(addr, {
                         jettonMaster,
                         jettonAmount,
-                        gas: toNano(fromNano(message.amount))
+                        gas: message.amount
                     });
                 }
 
-                gas.total = gas.total.add(toNano(fromNano(message.amount)));
+                gas.total = gas.total.add(message.amount);
 
-                if (toNano(fromNano(message.amount)).gt(toNano('0.2'))) {
+                if (message.amount.gt(toNano('0.2'))) {
                     gas.unusual = true;
                 }
             }
@@ -136,7 +137,7 @@ export const TransferBatch = React.memo((props: Props) => {
             // Resolve operation
             let operation = resolveOperation({
                 body: body,
-                amount: toNano(fromNano(message.amount)),
+                amount: message.amount,
                 account: message.addr.address,
                 metadata: message.metadata,
                 jettonMaster
@@ -243,9 +244,10 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Create message
             const msg = internalFromSignRawMessage({
-                address: i.message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: i.message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 amount: i.message.amount,
                 payload: i.message.payload,
+                amountAll: i.message.amountAll,
                 stateInit: i.message.stateInit
             }, bounce);
 

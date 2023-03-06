@@ -81,13 +81,13 @@ export const TransferSingle = React.memo((props: Props) => {
     } = props;
 
     // Resolve operation
-    let body = order.payload ? parseBody(order.payload) : null;
+    let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
     let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
-    let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+    let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target), metadata, jettonMaster });
     const jettonAmount = React.useMemo(() => {
         try {
-            if (jettonMaster && order.payload) {
-                const temp = order.payload;
+            if (jettonMaster && order.messages[0].payload) {
+                const temp = order.messages[0].payload;
                 if (temp) {
                     const parsing = temp.beginParse();
                     parsing.readUint(32);
@@ -106,7 +106,7 @@ export const TransferSingle = React.memo((props: Props) => {
     const success = React.useRef(false);
     React.useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { target: order.target, amount: order.amount.toString(10) });
+            trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) });
         }
     }, []);
 
@@ -159,11 +159,11 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Check amount
-        if (!order.amountAll && account.balance.lt(order.amount)) {
+        if (!order.messages[0].amountAll && account.balance.lt(order.messages[0].amount)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (!order.amountAll && order.amount.eq(new BN(0))) {
+        if (!order.messages[0].amountAll && order.messages[0].amount.eq(new BN(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -186,7 +186,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
         // Check bounce flag
         let bounce = true;
-        if (!target.active && !order.stateInit) {
+        if (!target.active && !order.messages[0].stateInit) {
             bounce = false;
         }
 
@@ -203,16 +203,16 @@ export const TransferSingle = React.memo((props: Props) => {
             seqno: account.seqno,
             walletId: contract.source.walletId,
             secretKey: walletKeys.keyPair.secretKey,
-            sendMode: order.amountAll
+            sendMode: order.messages[0].amountAll
                 ? SendMode.CARRRY_ALL_REMAINING_BALANCE
                 : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
             order: new InternalMessage({
                 to: target.address,
-                value: order.amount,
+                value: order.messages[0].amount,
                 bounce,
                 body: new CommonMessageInfo({
-                    stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
-                    body: order.payload ? new CellMessage(order.payload) : new CommentMessage(text || '')
+                    stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
+                    body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : new CommentMessage(text || '')
                 })
             })
         });
@@ -248,18 +248,18 @@ export const TransferSingle = React.memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { target: order.target, amount: order.amount.toString(10) });
+        trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) });
 
         // Register pending
         engine.products.main.registerPending({
             id: 'pending-' + account.seqno,
             lt: null,
             fees: fees,
-            amount: order.amount.mul(new BN(-1)),
+            amount: order.messages[0].amount.mul(new BN(-1)),
             address: target.address,
             seqno: account.seqno,
             kind: 'out',
-            body: order.payload ? { type: 'payload', cell: order.payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
+            body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
             status: 'pending',
             time: Math.floor(Date.now() / 1000),
             bounced: false,
@@ -383,11 +383,11 @@ export const TransferSingle = React.memo((props: Props) => {
                                             color: Theme.textColor,
                                             marginLeft: 2,
                                         }}>
-                                            {`${fromNano(order.amountAll ? account.balance : order.amount)} TON`}
+                                            {`${fromNano(order.messages[0].amountAll ? account.balance : order.messages[0].amount)} TON`}
                                         </Text>
                                         <PriceComponent
                                             prefix={'~'}
-                                            amount={order.amountAll ? account.balance : order.amount}
+                                            amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
                                             style={{
                                                 backgroundColor: 'transparent',
                                                 paddingHorizontal: 0,
@@ -513,9 +513,9 @@ export const TransferSingle = React.memo((props: Props) => {
                                     }}>
                                         {!AppConfig.isTestnet && (
                                             <PriceComponent
-                                                prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
+                                                prefix={`${t('transfer.gasFee')} ${fromNano(order.messages[0].amount)} TON (`}
                                                 suffix={')'}
-                                                amount={order.amountAll ? account.balance : order.amount}
+                                                amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
                                                 style={{
                                                     backgroundColor: 'transparent',
                                                     paddingHorizontal: 0,
@@ -533,7 +533,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
-                                                {`${t('transfer.gasFee')} ${fromNano(order.amount)} TON`}
+                                                {`${t('transfer.gasFee')} ${fromNano(order.messages[0].amount)} TON`}
                                             </Text>
                                         )}
                                         <View style={{
@@ -588,7 +588,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     }}>
                                         <AddressComponent address={operation.address} />
                                     </Text>
-                                    {!target.active && !order.stateInit && (
+                                    {!target.active && !order.messages[0].stateInit && (
                                         <>
                                             <Pressable
                                                 onPress={inactiveAlert}
@@ -687,7 +687,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             dontShowVerified={true}
                                         />
                                     </View>
-                                    {!target.active && !order.stateInit && (
+                                    {!target.active && !order.messages[0].stateInit && (
                                         <>
                                             <Pressable
                                                 onPress={inactiveAlert}
@@ -867,16 +867,16 @@ export const TransferSingle = React.memo((props: Props) => {
                                     <ItemLarge title={t('transfer.purpose')} text={text} />
                                 </>
                             )}
-                            {!operation.comment && !operation.op && order.payload && (
+                            {!operation.comment && !operation.op && order.messages[0].payload && (
                                 <>
                                     <ItemDivider />
-                                    <ItemLarge title={t('transfer.unknown')} text={order.payload.hash().toString('base64')} />
+                                    <ItemLarge title={t('transfer.unknown')} text={order.messages[0].payload.hash().toString('base64')} />
                                 </>
                             )}
                             {!!jettonAmount && (
                                 <>
                                     <ItemDivider />
-                                    <ItemLarge title={t('transfer.gasFee')} text={fromNano(order.amount) + ' TON'} />
+                                    <ItemLarge title={t('transfer.gasFee')} text={fromNano(order.messages[0].amount) + ' TON'} />
                                 </>
                             )}
                             <ItemDivider />

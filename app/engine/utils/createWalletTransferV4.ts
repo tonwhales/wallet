@@ -2,33 +2,31 @@ import BN from "bn.js";
 import { Address, beginCell, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, toNano } from "ton";
 import { sign } from "ton-crypto";
 import { Maybe } from "ton/dist/types";
-import { SignRawMessage } from "../tonconnect/types";
 
-export function internalFromSignRawMessage(message: SignRawMessage, bounce?: boolean): InternalMessage | null {
+export function internalFromSignRawMessage(message: {
+    target: string;
+    amount: BN;
+    amountAll: boolean;
+    payload: Cell | null;
+    stateInit: Cell | null;
+}, bounce?: boolean): InternalMessage | null {
     let to: Address;
     try {
-        to = Address.parse(message.address);
-    } catch (e) {
-        return null;
-    }
-
-    let value: BN
-    try {
-        value = toNano(fromNano(message.amount));
+        to = Address.parse(message.target);
     } catch (e) {
         return null;
     }
 
     return new InternalMessage({
         to,
-        value,
+        value: message.amount,
         bounce: bounce ?? true,
         body: new CommonMessageInfo({
             stateInit: message.stateInit
-                ? new CellMessage(Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0])
+                ? new CellMessage(message.stateInit)
                 : null,
             body: message.payload
-                ? new CellMessage(Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0])
+                ? new CellMessage(message.payload)
                 : new CommentMessage('')
         })
     })

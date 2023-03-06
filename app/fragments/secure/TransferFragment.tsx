@@ -17,7 +17,7 @@ import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { CloseButton } from '../../components/CloseButton';
-import { BatchOrder, Order } from './ops/Order';
+import { Order } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
@@ -31,14 +31,13 @@ export type ATextInputRef = {
     focus: () => void;
 }
 
-type TransferOrder = { type: 'single', order: Order } | { type: 'batch', order: BatchOrder }
-
 export type TransferFragmentProps = {
     text: string | null,
+    order: Order,
     job: string | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number
-} & TransferOrder;
+};
 
 export type ConfirmLoadedProps = {
     type: 'single',
@@ -71,9 +70,10 @@ export type ConfirmLoadedProps = {
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: string,
-            payload?: string | undefined,
-            stateInit?: string | undefined;
+            amount: BN,
+            amountAll: boolean,
+            payload: Cell | null,
+            stateInit: Cell | null,
         }[],
         app?: {
             domain: string,
@@ -103,13 +103,8 @@ export const TransferFragment = fragment(() => {
 
     // Memmoize all parameters just in case
     const from = React.useMemo(() => getCurrentAddress(), []);
-    const target = React.useMemo(() => {
-        if (params.type === 'single') {
-            return Address.parseFriendly(params.order.target);
-        }
-    }, []);
     const text = React.useMemo(() => params.text, []);
-    let order = React.useMemo(() => params.order, []);
+    const order = React.useMemo(() => params.order, []);
     const job = React.useMemo(() => params.job, []);
     const callback = React.useMemo(() => params.callback, []);
 
@@ -138,11 +133,12 @@ export const TransferFragment = fragment(() => {
         let exited = false;
 
         backoff('transfer', async () => {
+            // Get contract
+            const contract = contractFromPublicKey(from.publicKey);
 
-            // Signle transfer loading
-            if (params.type === 'single') {
-                order = order as Order;
-                // Confirm domain-resolved wallet address
+            if (order.messages.length === 1) {
+                const target = Address.parseFriendly(params.order.messages[0].target);
+
                 if (order.domain) {
                     try {
                         const resolvedDomainAddress = await resolveDomain(
@@ -175,17 +171,14 @@ export const TransferFragment = fragment(() => {
                     }
                 }
 
-                // Get contract
-                const contract = contractFromPublicKey(from.publicKey);
-
                 // Create transfer
                 let intMessage = new InternalMessage({
-                    to: target!.address,
-                    value: order.amount,
+                    to: target.address,
+                    value: order.messages[0].amount,
                     bounce: false,
                     body: new CommonMessageInfo({
-                        stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
-                        body: order.payload ? new CellMessage(order.payload) : new CommentMessage(text || '')
+                        stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
+                        body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : new CommentMessage(text || '')
                     })
                 });
                 let transfer = await contract.createTransfer({
@@ -205,8 +198,8 @@ export const TransferFragment = fragment(() => {
                     backoff('transfer', async () => {
                         let block = await backoff('transfer', () => engine.client4.getLastBlock());
                         return Promise.all([
-                            backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target!.address)),
-                            backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target!.address))
+                            backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target.address)),
+                            backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
                         ])
                     }),
                 ])
@@ -217,7 +210,7 @@ export const TransferFragment = fragment(() => {
                 // Check if wallet is restricted
                 let restricted = false;
                 for (let r of config.wallets.restrict_send) {
-                    if (Address.parse(r).equals(target!.address)) {
+                    if (Address.parse(r).equals(target.address)) {
                         restricted = true;
                         break;
                     }
@@ -247,8 +240,8 @@ export const TransferFragment = fragment(() => {
                     type: 'single',
                     restricted,
                     target: {
-                        isTestOnly: target!.isTestOnly,
-                        address: target!.address,
+                        isTestOnly: target.isTestOnly,
+                        address: target.address,
                         balance: new BN(state.account.balance.coins, 10),
                         active: state.account.state.type === 'active',
                         domain: order.domain
@@ -264,12 +257,6 @@ export const TransferFragment = fragment(() => {
                 });
                 return;
             }
-            
-            // Batch of transfers loading
-            order = order as BatchOrder;
-
-            // Get contract
-            const contract = contractFromPublicKey(from.publicKey);
 
             if (exited) {
                 return;

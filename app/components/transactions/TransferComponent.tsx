@@ -5,7 +5,7 @@ import { PriceComponent } from "../PriceComponent";
 
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Question from '../../../assets/ic_question.svg';
-import { Address, fromNano, SupportedMessage, toNano } from "ton";
+import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
 import { AddressComponent } from "../AddressComponent";
 import BN from "bn.js";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
@@ -25,9 +25,10 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: string,
-            payload?: string,
-            stateInit?: string,
+            amount: BN,
+            amountAll: boolean,
+            payload: Cell | null,
+            stateInit: Cell | null,
         },
         operation: Operation,
         parsedBody: SupportedMessage | null,
@@ -41,7 +42,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     last?: boolean,
     index: number,
 }) => {
-    const amount = toNano(fromNano(transfer.message.amount));
+    const amount = transfer.message.amount;
     const inactiveAlert = React.useCallback(() => {
         Alert.alert(t('transfer.error.addressIsNotActive'),
             t('transfer.error.addressIsNotActiveDescription'),

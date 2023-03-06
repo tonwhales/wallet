@@ -93,10 +93,6 @@ export class ConnectProduct {
         return true;
     }
 
-    async awaitReady() {
-        // Nothing to do
-    }
-
     destroy() {
         if (!this._destroyed) {
             this._destroyed = true;
@@ -164,17 +160,9 @@ export class ConnectProduct {
         this.open(connections);
     }
 
-    usePendingRequests() {
-        return useRecoilValue(this.#pendingRequestsSelector);
-    }
-
-    useExtensions() {
-        return useRecoilValue(this.#extensionsSelector);
-    }
-
-    getExtension(key: string) {
-        return this.extensions.value.installed[key];
-    }
+    // 
+    // Events
+    // 
 
     private async setLastEventId(lastEventId: string) {
         storage.set('connect_last_event_id', lastEventId);
@@ -190,7 +178,7 @@ export class ConnectProduct {
             const request = JSON.parse(decodeURIComponent(query.r)) as ConnectRequest;
             const clientSessionId = query.id;
 
-            const manifest = await this.getConnectAppData(request.manifestUrl);
+            const manifest = await this.getConnectAppManifest(request.manifestUrl);
 
             return ({
                 protocolVersion,
@@ -201,6 +189,109 @@ export class ConnectProduct {
         } catch (err) {
             logger.warn(err);
         }
+    }
+
+    // 
+    // App Manifests
+    // 
+
+    useAppManifest(url: string) {
+        return useRecoilValue(this.engine.persistence.connectDApps.item(extensionKey(url)).atom);
+    }
+
+    async getConnectAppManifest(url: string) {
+        let key = extensionKey(url);
+        const isPersisted = this.engine.persistence.connectManifests.item(key).value;
+        // fetch and add if does not exist
+        if (!isPersisted) {
+            try {
+                const appData = await fetchManifest(url);
+                if (appData) {
+                    this.updateConnectAppManifest(appData);
+                    this.engine.persistence.connectManifests.item(key).update(() => appData.url);
+                    return appData;
+                }
+            } catch (e) {
+                warn(e);
+                return null;
+            }
+            return null;
+        }
+        const stored = this.engine.persistence.connectDApps.item(isPersisted).value;
+
+        if (!stored) {
+            try {
+                const appData = await fetchManifest(url);
+                if (appData) {
+                    this.updateConnectAppManifest(appData);
+                    this.engine.persistence.connectManifests.item(key).update(() => appData.url);
+                    return appData;
+                }
+            } catch (e) {
+                warn(e);
+                return null;
+            }
+            return null;
+        }
+
+        return stored;
+    }
+
+    private updateConnectAppManifest(appData: AppManifest) {
+        let key = extensionKey(appData.url);
+        const app = this.engine.persistence.connectDApps.item(key);
+        app.update(() => appData);
+    }
+
+    // 
+    // Apps & Connections
+    // 
+
+    useExtensions() {
+        return useRecoilValue(this.#extensionsSelector);
+    }
+
+    getExtension(key: string) {
+        return this.extensions.value.installed[key];
+    }
+
+    findConnectedAppByClientSessionId(clientSessionId: string): { connectedApp: ConnectedApp | null; connection: ConnectedAppConnection | null } {
+        const connectedAppsList = Object.values(this.extensions.value.installed);
+        let connection: ConnectedAppConnection | null = null;
+
+        const connectedApp = connectedAppsList.find((app) => {
+            const connections = this.engine.persistence.connectAppConnections.item(extensionKey(app.url)).value;
+            return connections?.find((item) => {
+                if (item.type === TonConnectBridgeType.Remote && item.clientSessionId === clientSessionId) {
+                    connection = item;
+                    return true;
+                }
+
+                return false;
+            })
+        });
+
+        return { connectedApp: connectedApp ?? null, connection };
+    };
+
+    getConnectedAppByUrl(url: string): ConnectedApp | null {
+        const apps = Object.values(this.extensions.value.installed);
+        const fixedUrl = url.replace(/\/$/, '');
+
+        return apps.find((app) => fixedUrl.startsWith(app.url.replace(/\/$/, ''))) ?? null;
+    };
+
+    getConnectionByClientSessionId(clientSessionId: string): ConnectedAppConnectionRemote | undefined {
+        const connection = this.connections.find((item) => {
+            return item.clientSessionId === clientSessionId
+        });
+
+        if (!!connection) {
+            return connection;
+        }
+
+        logger.warn(`connection with clientId "${clientSessionId}" not found!`);
+        return;
     }
 
     saveAppConnection(
@@ -253,79 +344,9 @@ export class ConnectProduct {
         this._startSync();
     }
 
-    useAppManifest(url: string) {
-        return useRecoilValue(this.engine.persistence.connectDApps.item(extensionKey(url)).atom);
-    }
-
-    async getConnectAppData(url: string) {
-        let key = extensionKey(url);
-        const isPersisted = this.engine.persistence.connectManifests.item(key).value;
-        // fetch and add if does not exist
-        if (!isPersisted) {
-            try {
-                const appData = await fetchManifest(url);
-                if (appData) {
-                    this.updateConnectAppData(appData);
-                    this.engine.persistence.connectManifests.item(key).update(() => appData.url);
-                    return appData;
-                }
-            } catch (e) {
-                warn(e);
-                return null;
-            }
-            return null;
-        }
-        const stored = this.engine.persistence.connectDApps.item(isPersisted).value;
-
-        if (!stored) {
-            try {
-                const appData = await fetchManifest(url);
-                if (appData) {
-                    this.updateConnectAppData(appData);
-                    this.engine.persistence.connectManifests.item(key).update(() => appData.url);
-                    return appData;
-                }
-            } catch (e) {
-                warn(e);
-                return null;
-            }
-            return null;
-        }
-
-        return stored;
-    }
-
-    private updateConnectAppData(appData: AppManifest) {
-        let key = extensionKey(appData.url);
-        const app = this.engine.persistence.connectDApps.item(key);
-        app.update(() => appData);
-    }
-
-    findConnectedAppByClientSessionId(clientSessionId: string): { connectedApp: ConnectedApp | null; connection: ConnectedAppConnection | null } {
-        const connectedAppsList = Object.values(this.extensions.value.installed);
-        let connection: ConnectedAppConnection | null = null;
-
-        const connectedApp = connectedAppsList.find((app) => {
-            const connections = this.engine.persistence.connectAppConnections.item(extensionKey(app.url)).value;
-            return connections?.find((item) => {
-                if (item.type === TonConnectBridgeType.Remote && item.clientSessionId === clientSessionId) {
-                    connection = item;
-                    return true;
-                }
-
-                return false;
-            })
-        });
-
-        return { connectedApp: connectedApp ?? null, connection };
-    };
-
-    getConnectedAppByUrl(url: string): ConnectedApp | null {
-        const apps = Object.values(this.extensions.value.installed);
-        const fixedUrl = url.replace(/\/$/, '');
-
-        return apps.find((app) => fixedUrl.startsWith(app.url.replace(/\/$/, ''))) ?? null;
-    };
+    // 
+    // Handlers
+    // 
 
     async handleSendTransaction(tx: {
         request: AppRequest<'sendTransaction'>,
@@ -427,49 +448,6 @@ export class ConnectProduct {
         this.handleRequest({ request, connectedApp, callback, from });
     }
 
-    sendDisconnectEvent(connection: ConnectedAppConnectionRemote) {
-        const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
-        const event: DisconnectEvent = { event: 'disconnect', payload: {} };
-        sendTonConnectResponse({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
-    }
-
-    async disconnect(url: string) {
-        const connectedApp = this.getConnectedAppByUrl(url);
-
-        if (!connectedApp) {
-            return;
-        }
-
-        // Disconnect remote connections
-        const connections = this.engine.persistence.connectAppConnections.item(extensionKey(connectedApp.url)).value;
-        const remoteConnections = (connections ?? []).filter(
-            (connection) => connection.type === TonConnectBridgeType.Remote,
-        ) as ConnectedAppConnectionRemote[];
-        remoteConnections.forEach((connection) => this.sendDisconnectEvent(connection));
-
-        // Remove pending requests
-        remoteConnections.forEach((connection) => {
-            this.deleteActiveRemoteRequest(connection.clientSessionId);
-        });
-
-        // Remove app from cloud
-        this.removeConnectedApp(url);
-
-    }
-
-    getConnectionByClientSessionId(clientSessionId: string): ConnectedAppConnectionRemote | undefined {
-        const connection = this.connections.find((item) => {
-            return item.clientSessionId === clientSessionId
-        });
-
-        if (!!connection) {
-            return connection;
-        }
-
-        logger.warn(`connection with clientId "${clientSessionId}" not found!`);
-        return;
-    }
-
     private async handleMessage(event: MessageEvent) {
         try {
             if (event.lastEventId) {
@@ -522,6 +500,14 @@ export class ConnectProduct {
         }
     }
 
+    // 
+    // Pending requests
+    // 
+
+    usePendingRequests() {
+        return useRecoilValue(this.#pendingRequestsSelector);
+    }
+
     deleteActiveRemoteRequest(clientSessionId: string) {
         delete this.activeRequests[clientSessionId];
 
@@ -533,6 +519,40 @@ export class ConnectProduct {
             }
             return temp;
         });
+    }
+
+    // 
+    // Disconnect
+    // 
+
+    sendDisconnectEvent(connection: ConnectedAppConnectionRemote) {
+        const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
+        const event: DisconnectEvent = { event: 'disconnect', payload: {} };
+        sendTonConnectResponse({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
+    }
+
+    async disconnect(url: string) {
+        const connectedApp = this.getConnectedAppByUrl(url);
+
+        if (!connectedApp) {
+            return;
+        }
+
+        // Disconnect remote connections
+        const connections = this.engine.persistence.connectAppConnections.item(extensionKey(connectedApp.url)).value;
+        const remoteConnections = (connections ?? []).filter(
+            (connection) => connection.type === TonConnectBridgeType.Remote,
+        ) as ConnectedAppConnectionRemote[];
+        remoteConnections.forEach((connection) => this.sendDisconnectEvent(connection));
+
+        // Remove pending requests
+        remoteConnections.forEach((connection) => {
+            this.deleteActiveRemoteRequest(connection.clientSessionId);
+        });
+
+        // Remove app from cloud
+        this.removeConnectedApp(url);
+
     }
 
     // 

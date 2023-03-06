@@ -33,7 +33,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
           checkProtocolVersionCapability(protocolVersion);
           verifyConnectRequest(request);
 
-          const manifest = await engine.products.tonConnect.getConnectAppData(request.manifestUrl);
+          const manifest = await engine.products.tonConnect.getConnectAppManifest(request.manifestUrl);
 
           if (!manifest) {
             return new ConnectEventError(

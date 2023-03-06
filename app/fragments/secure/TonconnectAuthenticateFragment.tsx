@@ -92,7 +92,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             checkProtocolVersionCapability(connectProps.protocolVersion);
             verifyConnectRequest(connectProps.request);
 
-            const manifest = await engine.products.tonConnect.getConnectAppData(connectProps.request.manifestUrl);
+            const manifest = await engine.products.tonConnect.getConnectAppManifest(connectProps.request.manifestUrl);
 
             if (manifest) {
                 setState({

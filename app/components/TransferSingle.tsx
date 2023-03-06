@@ -586,7 +586,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         marginLeft: 2,
                                         marginTop: 4
                                     }}>
-                                        <AddressComponent address={target.address} />
+                                        <AddressComponent address={operation.address} />
                                     </Text>
                                     {!target.active && !order.stateInit && (
                                         <>
@@ -672,7 +672,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         color: Theme.textColor,
                                         marginLeft: 2
                                     }}>
-                                        <AddressComponent address={target.address} />
+                                        <AddressComponent address={operation.address} />
                                     </Text>
                                     <View style={{
                                         position: 'absolute',

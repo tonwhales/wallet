@@ -26,9 +26,10 @@ import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
 import { AppManifest, appManifestCodec } from "./tonconnect/fetchManifest";
-import { appConnectionCodec, ConnectedAppConnection, SendTransactionRequest, sendTransactionRpcRequestCodec, tonProofItemReplyErrorCodec } from "./tonconnect/types";
+import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/types";
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
+import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
 
 export class Persistence {
 
@@ -121,7 +122,7 @@ export class Persistence {
         // tonconnect
         this.connectDApps = new PersistedCollection({ storage, namespace: 'connectDApps', key: stringKey, codec: appManifestCodec, engine });
         this.connectManifests = new PersistedCollection({ storage, namespace: 'connectManifests', key: stringKey, codec: t.string, engine });
-        this.connectDAppRequests = new PersistedCollection({ storage, namespace: 'connectDAppRequests', key: voidKey, codec: t.array(sendTransactionRpcRequestCodec), engine });
+        this.connectDAppRequests = new PersistedCollection({ storage, namespace: 'connectDAppRequests', key: voidKey, codec: t.array(pendingSendTransactionRpcRequestCodec), engine });
         this.connectAppConnections = new PersistedCollection({ storage, namespace: 'connectConnectedApps', key: stringKey, codec: t.array(appConnectionCodec), engine });
 
         // Cloud

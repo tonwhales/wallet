@@ -1,9 +1,8 @@
 import { RefObject } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
 import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
-import { CHAIN, ConnectItemReply, KeyPair } from '@tonconnect/protocol';
+import { ConnectItemReply, KeyPair } from '@tonconnect/protocol';
 import * as t from 'io-ts';
-import * as c from '../utils/codecs';
 
 export enum CONNECT_ITEM_ERROR_CODES {
   UNKNOWN_ERROR = 0,
@@ -52,78 +51,12 @@ export type ConnectedAppConnection =
   | ConnectedAppConnectionRemote
   | ConnectedAppConnectionInjected;
 
-
-export const tonProofItemReplyErrorCodec = t.type({
-  name: t.literal('ton_proof'),
-  error: t.intersection([
-    t.type({
-      code: c.createEnumType<CONNECT_ITEM_ERROR_CODES>(CONNECT_ITEM_ERROR_CODES, 'CONNECT_ITEM_ERROR_CODES'),
-    }),
-    t.partial({
-      message: t.union([t.string, t.undefined]),
-    })
-  ])
-});
-
-export const tonProofItemReplyCodec = t.union([
-  t.type({
-    name: t.literal('ton_proof'),
-    proof: t.type({
-      timestamp: t.number,
-      domain: t.type({
-        lengthBytes: t.number,
-        value: t.string
-      }),
-      payload: t.string,
-      signature: t.string,
-    })
-  }),
-  tonProofItemReplyErrorCodec
-]);
-
-export const connectItemReplyCodec = t.union([
-  t.type({
-    name: t.literal('ton_addr'),
-    address: t.string,
-    network: c.createEnumType<CHAIN>(CHAIN, 'CHAIN'),
-    walletStateInit: t.string,
-  }),
-  tonProofItemReplyCodec,
-]);
-
-export const appConnectionCodec = t.union([
-  t.type({
-    type: t.literal(TonConnectBridgeType.Remote),
-    sessionKeyPair: t.type({
-      publicKey: t.string,
-      secretKey: t.string,
-    }),
-    clientSessionId: t.string,
-    replyItems: t.array(connectItemReplyCodec)
-  }),
-  t.type({
-    type: t.literal(TonConnectBridgeType.Injected),
-    replyItems: t.array(connectItemReplyCodec)
-  }),
-]);
-
 export type SendTransactionRequest = {
   method: 'sendTransaction',
   params: string[],
   id: string,
   from: string
 }
-
-export const sendTransactionRpcRequestCodec = t.type({
-  method: t.literal('sendTransaction'),
-  params: t.array(t.string),
-  id: t.string,
-  from: t.string
-});
-
-export const RpcRequestCodec = t.type({
-  sendTransaction: sendTransactionRpcRequestCodec
-});
 
 export type ConnectedApp = {
   date: number,

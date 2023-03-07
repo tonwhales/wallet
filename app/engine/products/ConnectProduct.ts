@@ -17,6 +17,7 @@ import { Cell, StateInit } from "ton";
 import { CloudValue } from "../cloud/CloudValue";
 import { sendTonConnectResponse } from "../api/sendTonConnectResponse";
 import { TonConnect } from "../tonconnect/TonConnect";
+import { transactionRpcRequestCodec } from "../tonconnect/codecs";
 
 export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
 
@@ -396,12 +397,18 @@ export class ConnectProduct extends TonConnect {
 
             const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
 
-            const request: AppRequest<RpcMethod> = JSON.parse(
-                sessionCrypto.decrypt(
-                    Base64.decode(message).toUint8Array(),
-                    hexToByteArray(from),
-                ),
+            const decryptedRequest = sessionCrypto.decrypt(
+                Base64.decode(message).toUint8Array(),
+                hexToByteArray(from),
             );
+
+            const parsed = JSON.parse(decryptedRequest);
+
+            if (!transactionRpcRequestCodec.is(parsed)) {
+                throw Error('Invalid request');
+            }
+
+            const request = parsed as AppRequest<RpcMethod>;
 
             if (this.activeRequests[from]) {
                 await sendTonConnectResponse({

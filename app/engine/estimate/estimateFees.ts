@@ -2,6 +2,13 @@ import { BN } from "bn.js";
 import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "ton";
 import { ConfigState } from "../sync/startConfigSync";
 
+const gasUsageByOutMsgs: { [key: number]: number } = {
+    1: 3308,
+    2: 3950,
+    3: 4592,
+    4: 5234
+}
+
 export function estimateFees(config: ConfigState, inMsg: Cell, outMsgs: Cell[], storageStats: ({
     lastPaid: number;
     duePayment: string | null;
@@ -36,7 +43,7 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsgs: Cell[], 
     let importFees = computeExternalMessageFees(config.workchain.message as any, inMsg);
 
     // Any transaction use this amount of gas
-    const gasUsed = 3308;
+    const gasUsed = gasUsageByOutMsgs[outMsgs.length];
     let gasFees = computeGasPrices(new BN(gasUsed), { flatLimit: config.workchain.gas.flatLimit, flatPrice: config.workchain.gas.flatGasPrice, price: config.workchain.gas.price });
 
 

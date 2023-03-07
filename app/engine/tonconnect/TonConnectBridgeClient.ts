@@ -6,7 +6,7 @@ import { bridgeUrl } from '../products/ConnectProduct';
 import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './types';
 import EventSource, { MessageEvent } from 'react-native-sse';
 
-export class TonConnect {
+export class TonConnectBridgeClient {
   readonly engine: Engine;
   private eventSource: EventSource | null = null;
   protected connections: ConnectedAppConnectionRemote[] = [];

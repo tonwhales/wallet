@@ -16,12 +16,12 @@ import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Cell, StateInit } from "ton";
 import { CloudValue } from "../cloud/CloudValue";
 import { sendTonConnectResponse } from "../api/sendTonConnectResponse";
-import { TonConnect } from "../tonconnect/TonConnect";
+import { TonConnectBridgeClient } from "../tonconnect/TonConnectBridgeClient";
 import { transactionRpcRequestCodec } from "../tonconnect/codecs";
 
 export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
 
-export class ConnectProduct extends TonConnect {
+export class ConnectProduct extends TonConnectBridgeClient {
     private _destroyed: boolean;
 
     readonly #pendingRequestsSelector;

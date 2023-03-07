@@ -38,8 +38,8 @@ export function extractZenPayQueryParams(url: string): {
                 }
             }
 
-            if (params.has(ZenPayQueryParams.LockardwareBackPress)) {
-                const queryValue = params.get(ZenPayQueryParams.LockardwareBackPress);
+            if (params.has(ZenPayQueryParams.HardwareBackPolicy)) {
+                const queryValue = params.get(ZenPayQueryParams.HardwareBackPolicy);
                 if (queryValue === 'back') {
                     hardwareBackPolicy = 'back';
                 }

@@ -2,6 +2,6 @@ export enum ZenPayQueryParams {
     LockScroll = 'lockScroll',
     CloseApp = 'closeApp',
     OpenEnrollment = 'openEnrollment',
-    LockardwareBackPress = 'lockHardwareBack',
+    HardwareBackPolicy = 'hardwareBackPolicy',
     OpenUrl = 'openUrl',
 }

@@ -219,7 +219,7 @@ export const TransferSingle = React.memo((props: Props) => {
                 })
             });
         } catch (e) {
-            warn(e);
+            warn('Failed to create transfer');
             return;
         }
 

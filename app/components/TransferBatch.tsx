@@ -287,7 +287,7 @@ export const TransferBatch = React.memo((props: Props) => {
                 messages
             });
         } catch (e) {
-            warn(e);
+            warn('Failed to create transfer');
             return;
         }
 

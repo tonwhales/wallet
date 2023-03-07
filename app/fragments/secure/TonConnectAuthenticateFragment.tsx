@@ -144,7 +144,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             try {
                 walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             } catch (e) {
-                warn(e);
+                warn('Failed to load wallet keys');
                 return;
             }
 
@@ -162,7 +162,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     stateInitStr,
                 );
             } catch (e) {
-                warn(e);
+                warn('Failed to create reply items');
                 return;
             }
 
@@ -235,8 +235,8 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
 
             // Should not happen
             setState({ type: 'failed' });
-        } catch (error) {
-            warn(error);
+        } catch (e) {
+            warn('Failed to approve');
             setState({ type: 'failed' });
         }
 

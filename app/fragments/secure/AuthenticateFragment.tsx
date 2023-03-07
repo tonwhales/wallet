@@ -117,7 +117,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         try {
             walletKeys = await loadWalletKeys(acc.secretKeyEnc);
         } catch (e) {
-            warn(e);
+            warn('Failed to load wallet keys');
             return;
         }
         let toSign = beginCell()

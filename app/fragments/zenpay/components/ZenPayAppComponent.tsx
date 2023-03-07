@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, View, Alert, KeyboardAvoidingView, BackHandler } from 'react-native';
+import { ActivityIndicator, Linking, Platform, View, KeyboardAvoidingView, BackHandler } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,7 +7,6 @@ import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from '
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
-import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../Navigation';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { AppConfig } from '../../../AppConfig';
@@ -18,10 +17,9 @@ import { createInjectSource, dispatchResponse } from '../../apps/components/inje
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { Theme } from '../../../Theme';
-import { AndroidToolbar } from '../../../components/AndroidToolbar';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { IOSToolbar } from './IOSToolbar';
+import { extractZenPayQueryParams } from '../utils';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -32,12 +30,8 @@ export const ZenPayAppComponent = React.memo((
     }
 ) => {
     const engine = useEngine();
-    const zenPayCards = engine.products.zenPay.useCards();
-    const [canGoBack, setCanGoBack] = React.useState(false);
+    const [hardwareBackPolicy, setHardwareBackPolicy] = React.useState<'back' | 'close'>('back');
     const [scrollEnabled, setScrollEnabled] = React.useState(true);
-    const [background, setBackground] = React.useState(Theme.background);
-    const [promptBeforeExit, setPromptBeforeExit] = React.useState(true);
-    const [pageTitle, setPageTitle] = React.useState(t('products.zenPay.title'));
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
 
@@ -47,33 +41,6 @@ export const ZenPayAppComponent = React.memo((
     const start = React.useMemo(() => {
         return Date.now();
     }, []);
-    const close = React.useCallback(() => {
-        // Handle extension back navigation
-        if (canGoBack) {
-            webRef.current?.goBack();
-            return true;
-        }
-
-        if (promptBeforeExit) {
-            Alert.alert(t('products.zenPay.confirm.title'), t('products.zenPay.confirm.message'), [{
-                text: t('common.close'),
-                style: 'destructive',
-                onPress: () => {
-                    engine.products.zenPay.doSync();
-                    navigation.goBack();
-                    trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
-                }
-            }, {
-                text: t('common.cancel'),
-            }]);
-            return true;
-        } else {
-            engine.products.zenPay.doSync();
-            navigation.goBack();
-            trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
-            return true;
-        }
-    }, [webRef, canGoBack, promptBeforeExit]);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
 
     //
@@ -206,146 +173,8 @@ export const ZenPayAppComponent = React.memo((
         })();
     }, []);
 
-    const updateCanGoBack = React.useCallback((url: string, canGoBack: boolean) => {
-        const cardAction = /\/card\/[a-z0-9]+\/confirm\?action=/;
-        if (cardAction.test(url)) {
-            setCanGoBack(canGoBack);
-            return;
-        }
-
-        const cardTransaction = /\/card\/[a-z0-9]+\/transaction\/[a-z0-9]+/;
-        if (cardTransaction.test(url)) {
-            setCanGoBack(canGoBack);
-            return;
-        }
-
-        const cardPin = /\/card\/[a-z0-9]+\/pin$/;
-        if (cardPin.test(url)) {
-            setCanGoBack(canGoBack);
-            return;
-        }
-
-        if (
-            url.indexOf('/auth/countrySelect') !== -1
-            || url.indexOf('/auth/phone') !== -1
-            || url.indexOf('/auth/code') !== -1
-            || url.endsWith('details')
-            || url.endsWith('deposit')
-            || url.endsWith('credentials')
-            || url.endsWith('limits')
-            || url.endsWith('transfer')
-            || url.endsWith('/create/design')
-            || url.endsWith('/create/address')
-            || url.endsWith('/create/details')
-            || url.endsWith('/create/confirm')
-            || url.endsWith('/create/delivery')
-            || url.endsWith('/pin')
-            || url.indexOf('/create/delivery/address/country') !== -1
-            || url.indexOf('/create/delivery/address/deliver-to') !== -1
-        ) {
-            setCanGoBack(canGoBack);
-        } else {
-            setCanGoBack(false);
-        }
-    }, []);
-
-    // 
-    // Page title
-    // 
-    const updatePateTitle = React.useCallback(
-        (url: string) => {
-
-            if (url.endsWith('/create')) {
-                setPageTitle(t('products.zenPay.pageTitles.card'));
-                return;
-            }
-
-            if (url.indexOf('/create/activation') !== -1) {
-                setPageTitle(t('products.zenPay.pageTitles.cardSmartContract'));
-                return;
-            }
-
-            if (url.indexOf('/create/congrats') !== -1) {
-                setPageTitle(t('products.zenPay.card.defaultTitle'));
-                return;
-            }
-
-            if (url.indexOf('/create/design') !== -1) {
-                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
-                return;
-            }
-            if (url.indexOf('/create/setup') !== -1) {
-                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
-                return;
-            }
-
-            if (url.indexOf('/create/address') !== -1) {
-                setPageTitle(t('products.zenPay.pageTitles.setUpCard'));
-                return;
-            }
-
-            const card = /\/card\/[a-z0-9]+/;
-            if (card.test(url)) {
-
-                let cardNumber: string | number | undefined | null = undefined;
-                const parts = url.split("/");
-                if (parts.length > 4) {
-                    const cardId = parts[4];
-                    const account = zenPayCards.find((c) => c.id === cardId);
-                    if (account) {
-                        cardNumber = account.card.lastFourDigits;
-                    }
-                }
-
-                const limits = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/limits$/;
-                if (limits.test(url)) {
-                    setPageTitle(cardNumber ? t('products.zenPay.pageTitles.cardLimits', { cardNumber }) : t('products.zenPay.pageTitles.cardLimitsDefault'));
-                    return;
-                }
-
-                const deposit = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/deposit$/;
-                if (deposit.test(url)) {
-                    setPageTitle(t('products.zenPay.pageTitles.cardDeposit'));
-                    return;
-                }
-
-                const details = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/details$/;
-                if (details.test(url)) {
-                    setPageTitle(t('products.zenPay.pageTitles.cardDetails'));
-                    return;
-                }
-
-                const credentials = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/credentials$/;
-                if (credentials.test(url)) {
-                    setPageTitle(t('products.zenPay.pageTitles.cardCredentials'));
-                    return;
-                }
-
-                const transfer = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/transfer$/;
-                if (transfer.test(url)) {
-                    setPageTitle(t('products.zenPay.pageTitles.transfer'));
-                    return;
-                }
-
-                const pin = /^https:\/\/next\.zenpay\.org\/card\/[a-z0-9]+\/pin$/;
-                if (pin.test(url)) {
-                    setPageTitle(t('products.zenPay.pageTitles.pin'));
-                    return;
-                }
-
-                setPageTitle(t('products.zenPay.pageTitles.card'));
-            } else if (url.indexOf('/auth') !== -1) {
-                setPageTitle(t('products.zenPay.title'));
-            } else {
-                setPageTitle(t('products.zenPay.pageTitles.general'));
-            }
-        },
-        [zenPayCards],
-    );
-
     const updateScrollEnabled = React.useCallback((url: string) => {
         if (
-
             url.indexOf('/auth/phone') !== -1
             || url.indexOf('/auth/code') !== -1
             || url.indexOf('/auth/subscribe') !== -1
@@ -364,46 +193,69 @@ export const ZenPayAppComponent = React.memo((
         }
     }, []);
 
-    const updatePromptBeforeExit = React.useCallback((url: string) => {
-        if (url.indexOf('/auth/countrySelect') !== -1
-            || url.indexOf('/auth/phone') !== -1
-            || url.indexOf('/auth/code') !== -1
-            || url.endsWith('auth')
-            || url.endsWith('create')
-            || url.endsWith('kyc')
-        ) {
-            setPromptBeforeExit(true);
-        } else {
-            setPromptBeforeExit(false);
+    const onCloseApp = React.useCallback(() => {
+        engine.products.zenPay.doSync();
+        navigation.goBack();
+        trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
+    }, []);
+
+    const safelyOpenUrl = React.useCallback((url: string) => {
+        try {
+            let pageDomain = extractDomain(url);
+            if (
+                pageDomain.endsWith('tonsandbox.com')
+                || pageDomain.endsWith('tonwhales.com')
+                || pageDomain.endsWith('tontestnet.com')
+                || pageDomain.endsWith('tonhub.com')
+            ) {
+                openWithInApp(url);
+                return;
+            }
+        } catch (e) {
+            warn(e);
         }
     }, []);
 
-    const updateBackground = React.useCallback((url: string) => {
-        if (url.indexOf('/create/about') !== -1) {
-            setBackground(Theme.item);
-        } else {
-            setBackground(Theme.background);
+    const onNavigation = React.useCallback((url: string) => {
+        const params = extractZenPayQueryParams(url);
+        if (params.closeApp) {
+            onCloseApp();
+            return;
+        }
+        setScrollEnabled(!params.lockScroll);
+        setHardwareBackPolicy(params.hardwareBackPolicy);
+        if (params.openUrl) {
+            safelyOpenUrl(params.openUrl);
         }
     }, []);
+
+    const onHardwareBackPress = React.useCallback(() => {
+        if (hardwareBackPolicy === 'back') {
+            if (webRef.current) {
+                webRef.current.goBack();
+            }
+            return true;
+        }
+        if (hardwareBackPolicy === 'close') {
+            navigation.goBack();
+            return true;
+        }
+        return false;
+    }, [hardwareBackPolicy]);
 
     React.useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', close);
+        BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
         return () => {
-            BackHandler.removeEventListener('hardwareBackPress', close);
+            BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
         }
-    }, [close]);
+    }, [onHardwareBackPress]);
 
     return (
         <>
-            <View style={{ backgroundColor: background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <AndroidToolbar pageTitle={pageTitle} onBack={close} />
-                <IOSToolbar canGoBack={canGoBack} pageTitle={pageTitle} onBack={close} />
+            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={{
-                        backgroundColor: Theme.background,
-                        flexGrow: 1,
-                    }}
+                    style={{ backgroundColor: Theme.background, flexGrow: 1 }}
                     keyboardVerticalOffset={
                         Platform.OS === 'ios'
                             ? (!scrollEnabled ? 42 : undefined)
@@ -426,34 +278,16 @@ export const ZenPayAppComponent = React.memo((
                         }}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                // Update canGoBack
-                                updateCanGoBack(event.nativeEvent.url, event.nativeEvent.canGoBack);
-
-                                // Update promptBeforeExit
-                                updatePromptBeforeExit(event.nativeEvent.url);
-
-                                // Page title 
-                                updatePateTitle(event.nativeEvent.url);
-
-                                // Background
-                                updateBackground(event.nativeEvent.url);
+                                // Searching for supported query
+                                onNavigation(event.nativeEvent.url);
                             }
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
-                            // Update canGoBack
-                            updateCanGoBack(event.url, event.canGoBack);
-
-                            // Update promptBeforeExit
-                            updatePromptBeforeExit(event.url)
-
-                            // Page title 
-                            updatePateTitle(event.url);
-
-                            // Background
-                            updateBackground(event.url);
-
-                            // Update scrollEnabled
+                            // Locking scroll
+                            //TODO: remove after query params are implemented on web side
                             updateScrollEnabled(event.url);
+                            // Searching for supported query
+                            onNavigation(event.url);
                         }}
                         scrollEnabled={scrollEnabled}
                         contentInset={{ top: 0, bottom: 0 }}

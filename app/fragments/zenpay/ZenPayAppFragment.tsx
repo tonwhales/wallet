@@ -31,7 +31,7 @@ export const ZenPayAppFragment = fragment(() => {
         return url
     }, [params, status]);
 
-    const needsEnrolment = useMemo(() => {
+    const needsEnrollment = useMemo(() => {
         try {
             let domain = extractDomain(zenPayUrl);
             if (!domain) {
@@ -51,10 +51,10 @@ export const ZenPayAppFragment = fragment(() => {
     }, [status]);
 
     React.useEffect(() => {
-        if (needsEnrolment) {
+        if (needsEnrollment) {
             navigation.goBack();
         }
-    }, [needsEnrolment]);
+    }, [needsEnrollment]);
 
     return (
         <View style={{

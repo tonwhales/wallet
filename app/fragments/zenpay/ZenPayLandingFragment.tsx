@@ -3,7 +3,7 @@ import { ActivityIndicator, Platform, View, Text, Pressable, KeyboardAvoidingVie
 import WebView from 'react-native-webview';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
+import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { useEngine } from '../../engine/Engine';
@@ -14,6 +14,8 @@ import { StatusBar } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { ZenPayAppParams } from './ZenPayAppFragment';
+import { ZenPayQueryParams } from './types';
+import { extractZenPayQueryParams } from './utils';
 
 export const ZenPayLandingFragment = React.memo(() => {
     const webRef = React.useRef<WebView>(null);
@@ -108,6 +110,52 @@ export const ZenPayLandingFragment = React.memo(() => {
         }
     }, []);
 
+    const onNavigation = React.useCallback((url: string) => {
+        const params = extractZenPayQueryParams(url);
+        if (params.closeApp) {
+            navigation.goBack();
+            return;
+        }
+        if (params.openEnrollment) {
+            (async () => {
+                // Show loader
+                opacity.value = 1;
+                setLoaded(false);
+
+                try {
+                    const data = await engine.products.extensions.getAppData(endpoint);
+                    if (!data) {
+                        Alert.alert(t('auth.failed'));
+                        opacity.value = 0;
+                        setLoaded(true);
+                        return;
+                    }
+
+                    const domain = extractDomain(endpoint);
+                    const res = await engine.products.zenPay.enroll(domain);
+                    if (!res) {
+                        Alert.alert(t('auth.failed'));
+                        opacity.value = 0;
+                        setLoaded(true);
+                        return;
+                    }
+
+                    // Navigate to continue
+                    navigation.goBack();
+                    navigation.navigateZenPay(onEnrollType);
+
+                } catch (error) {
+                    opacity.value = 0;
+                    setLoaded(true);
+                    Alert.alert(t('auth.failed'));
+                    warn(error);
+                }
+
+            })();
+            return;
+        }
+    }, []);
+
     return (
         <View style={{
             flex: 1,
@@ -187,6 +235,16 @@ export const ZenPayLandingFragment = React.memo(() => {
                             setLoaded(true);
                             opacity.value = 0;
                         }}
+                        onLoadProgress={(event) => {
+                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                // Searching for supported query
+                                onNavigation(event.nativeEvent.url);
+                            }
+                        }}
+                        onNavigationStateChange={(event: WebViewNavigation) => {
+                            // Searching for supported query
+                            onNavigation(event.url);
+                        }}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         allowFileAccessFromFileURLs={false}
@@ -207,3 +265,15 @@ export const ZenPayLandingFragment = React.memo(() => {
         </View>
     );
 });
+
+function safelyOpenUrl(openUrl: any) {
+    throw new Error('Function not implemented.');
+}
+function setHardwareBackPolicy(hardwareBackPolicy: any) {
+    throw new Error('Function not implemented.');
+}
+
+function setScrollEnabled(arg0: boolean) {
+    throw new Error('Function not implemented.');
+}
+

@@ -25,7 +25,7 @@ import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
-import { AppManifest, appManifestCodec } from "./tonconnect/fetchManifest";
+import { AppManifest, appManifestCodec } from "./api/fetchManifest";
 import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/types";
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";

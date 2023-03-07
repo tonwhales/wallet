@@ -22,7 +22,7 @@ import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
-import { AppManifest } from '../../engine/tonconnect/fetchManifest';
+import { AppManifest } from '../../engine/api/fetchManifest';
 import { ConnectReplyBuilder } from '../../engine/tonconnect/ConnectReplyBuilder';
 import { ConnectQrQuery, TonConnectBridgeType } from '../../engine/tonconnect/types';
 import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';

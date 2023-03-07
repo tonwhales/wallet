@@ -6,7 +6,7 @@ import { AppRequest, Base64, ConnectEvent, ConnectRequest, CONNECT_EVENT_ERROR_C
 import { selector, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
 import { AppState } from 'react-native';
-import { AppManifest, fetchManifest } from '../tonconnect/fetchManifest';
+import { AppManifest, fetchManifest } from '../api/fetchManifest';
 import { extensionKey } from './ExtensionsProduct';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { tonConnectDeviceInfo } from "../tonconnect/config";

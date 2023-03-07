@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { AppData } from "../engine/api/fetchAppData";
 import { useEngine } from "../engine/Engine";
-import { AppManifest } from "../engine/tonconnect/fetchManifest";
+import { AppManifest } from "../engine/api/fetchManifest";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";

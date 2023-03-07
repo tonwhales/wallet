@@ -13,7 +13,7 @@ import { AppConfig } from '../../AppConfig';
 import { Address } from 'ton';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
-import { AppManifest } from './fetchManifest';
+import { AppManifest } from '../api/fetchManifest';
 import { Int64LE } from 'int64-buffer';
 import { sha256_sync } from 'ton-crypto';
 

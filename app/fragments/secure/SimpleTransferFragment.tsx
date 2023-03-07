@@ -213,7 +213,6 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Navigate to transaction confirmation
         navigation.navigateTransfer({
-            type: 'single',
             text: comment,
             order,
             job: params && params.job ? params.job : null,
@@ -254,15 +253,15 @@ export const SimpleTransferFragment = fragment(() => {
                     });
                 } else {
                     intMessage = new InternalMessage({
-                        to: Address.parse(order.target),
-                        value: order.amount,
+                        to: Address.parse(order.messages[0].target),
+                        value: order.messages[0].amount,
                         bounce: false,
                         body: new CommonMessageInfo({
-                            stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
-                            body: order.payload ? new CellMessage(order.payload) : null
+                            stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
+                            body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : null
                         })
                     });
-                    if (order.amountAll) {
+                    if (order.messages[0].amountAll) {
                         sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
                     }
                 }

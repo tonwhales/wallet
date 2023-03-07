@@ -26,6 +26,7 @@ import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsR
 import { TransferSingle } from '../../components/TransferSingle';
 import { TransferBatch } from '../../components/TransferBatch';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
+import { AppConfig } from '../../AppConfig';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -137,7 +138,10 @@ export const TransferFragment = fragment(() => {
             const contract = contractFromPublicKey(from.publicKey);
 
             if (order.messages.length === 1) {
-                const target = Address.parseFriendly(params.order.messages[0].target);
+                console.log(params.order.messages[0].target);
+                let target = Address.parseFriendly(
+                    Address.parse(params.order.messages[0].target).toFriendly({ testOnly: AppConfig.isTestnet })
+                );
 
                 if (order.domain) {
                     try {

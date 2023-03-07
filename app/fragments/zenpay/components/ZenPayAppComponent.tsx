@@ -283,11 +283,11 @@ export const ZenPayAppComponent = React.memo((
                             }
                         }}
                         onNavigationStateChange={(event: WebViewNavigation) => {
+                            // Searching for supported query
+                            onNavigation(event.url);
                             // Locking scroll
                             //TODO: remove after query params are implemented on web side
                             updateScrollEnabled(event.url);
-                            // Searching for supported query
-                            onNavigation(event.url);
                         }}
                         scrollEnabled={scrollEnabled}
                         contentInset={{ top: 0, bottom: 0 }}

@@ -32,9 +32,9 @@ export const ConnectAppComponent = React.memo((props: {
     }, []);
     const close = React.useCallback(() => {
         navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start });
+        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'tonconnect' });
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain });
+    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' });
 
     //
     // View

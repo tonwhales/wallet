@@ -277,13 +277,19 @@ export const TransferBatch = React.memo((props: Props) => {
         }
 
         // Create transfer
-        let transfer = createWalletTransferV4({
-            seqno: account.seqno,
-            walletId: contract.source.walletId,
-            secretKey: walletKeys.keyPair.secretKey,
-            sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-            messages
-        });
+        let transfer: Cell;
+        try {
+            transfer = createWalletTransferV4({
+                seqno: account.seqno,
+                walletId: contract.source.walletId,
+                secretKey: walletKeys.keyPair.secretKey,
+                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                messages
+            });
+        } catch (e) {
+            warn(e);
+            return;
+        }
 
         // Create external message
         let extMessage = new ExternalMessage({

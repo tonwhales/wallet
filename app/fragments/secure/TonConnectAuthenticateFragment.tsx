@@ -154,11 +154,17 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             const stateInitStr = stateInitCell.toBoc({ idx: false }).toString('base64');
             const replyBuilder = new ConnectReplyBuilder(state.request, state.app);
 
-            const replyItems = replyBuilder.createReplyItems(
-                acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
-                Uint8Array.from(walletKeys.keyPair.secretKey),
-                stateInitStr,
-            );
+            let replyItems: ConnectItemReply[];
+            try {
+                replyItems = replyBuilder.createReplyItems(
+                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
+                    Uint8Array.from(walletKeys.keyPair.secretKey),
+                    stateInitStr,
+                );
+            } catch (e) {
+                warn(e);
+                return;
+            }
 
             if (connectProps.type === 'qr' && state.clientSessionId) {
                 const response = {

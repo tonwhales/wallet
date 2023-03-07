@@ -199,23 +199,29 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Create transfer
-        let transfer = await contract.createTransfer({
-            seqno: account.seqno,
-            walletId: contract.source.walletId,
-            secretKey: walletKeys.keyPair.secretKey,
-            sendMode: order.messages[0].amountAll
-                ? SendMode.CARRRY_ALL_REMAINING_BALANCE
-                : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-            order: new InternalMessage({
-                to: target.address,
-                value: order.messages[0].amount,
-                bounce,
-                body: new CommonMessageInfo({
-                    stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
-                    body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : new CommentMessage(text || '')
+        let transfer: Cell;
+        try {
+            transfer = await contract.createTransfer({
+                seqno: account.seqno,
+                walletId: contract.source.walletId,
+                secretKey: walletKeys.keyPair.secretKey,
+                sendMode: order.messages[0].amountAll
+                    ? SendMode.CARRRY_ALL_REMAINING_BALANCE
+                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                order: new InternalMessage({
+                    to: target.address,
+                    value: order.messages[0].amount,
+                    bounce,
+                    body: new CommonMessageInfo({
+                        stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
+                        body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : new CommentMessage(text || '')
+                    })
                 })
-            })
-        });
+            });
+        } catch (e) {
+            warn(e);
+            return;
+        }
 
         // Create external message
         let extMessage = new ExternalMessage({

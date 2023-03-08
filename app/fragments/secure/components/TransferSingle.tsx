@@ -2,47 +2,47 @@ import BN from "bn.js";
 import React from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from "ton";
-import { MixpanelEvent, trackEvent } from "../analytics/mixpanel";
-import { AppConfig } from "../AppConfig";
-import { contractFromPublicKey } from "../engine/contractFromPublicKey";
-import { useEngine } from "../engine/Engine";
-import { ContractMetadata } from "../engine/metadata/Metadata";
-import { useItem } from "../engine/persistence/PersistedItem";
-import { JettonMasterState } from "../engine/sync/startJettonMasterSync";
-import { parseMessageBody } from "../engine/transactions/parseMessageBody";
-import { parseBody } from "../engine/transactions/parseWalletTransaction";
-import { resolveOperation } from "../engine/transactions/resolveOperation";
-import { Order } from "../fragments/secure/ops/Order";
-import { LocalizedResources } from "../i18n/schema";
-import { t } from "../i18n/t";
-import { KnownWallet, KnownWallets } from "../secure/KnownWallets";
-import { getCurrentAddress } from "../storage/appState";
-import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
-import { warn } from "../utils/log";
-import { backoff } from "../utils/time";
-import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
+import { useEngine } from "../../../engine/Engine";
+import { ContractMetadata } from "../../../engine/metadata/Metadata";
+import { useItem } from "../../../engine/persistence/PersistedItem";
+import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
+import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
+import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
+import { resolveOperation } from "../../../engine/transactions/resolveOperation";
+import { Order } from "../../../fragments/secure/ops/Order";
+import { LocalizedResources } from "../../../i18n/schema";
+import { t } from "../../../i18n/t";
+import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
+import { getCurrentAddress } from "../../../storage/appState";
+import { loadWalletKeys, WalletKeys } from "../../../storage/walletKeys";
+import { warn } from "../../../utils/log";
+import { backoff } from "../../../utils/time";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { Theme } from "../Theme";
-import { AddressComponent } from "./AddressComponent";
-import { Avatar } from "./Avatar";
-import { ItemGroup } from "./ItemGroup";
-import { ItemCollapsible } from "./ItemCollapsible";
-import { ItemAddress } from "./ItemAddress";
-import { ItemDivider } from "./ItemDivider";
-import { ItemLarge } from "./ItemLarge";
-import { RoundButton } from "./RoundButton";
-import TonSign from '../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../assets/ic_transfer_to.svg';
-import Contact from '../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../assets/ic_verified.svg';
-import TonSignGas from '../../assets/ic_transfer_gas.svg';
-import SignLock from '../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../assets/ic_sign_contract.svg';
-import SmartContract from '../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../assets/ic_sign_staking.svg';
-import Question from '../../assets/ic_question.svg';
-import { PriceComponent } from "./PriceComponent";
-import { WImage } from "./WImage";
+import { Theme } from "../../../Theme";
+import TonSign from '../../../../assets/ic_ton_sign.svg';
+import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
+import Contact from '../../../../assets/ic_transfer_contact.svg';
+import VerifiedIcon from '../../../../assets/ic_verified.svg';
+import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
+import SignLock from '../../../../assets/ic_sign_lock.svg';
+import WithStateInit from '../../../../assets/ic_sign_contract.svg';
+import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
+import Staking from '../../../../assets/ic_sign_staking.svg';
+import Question from '../../../../assets/ic_question.svg';
+import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
+import { AppConfig } from "../../../AppConfig";
+import { PriceComponent } from "../../../components/PriceComponent";
+import { WImage } from "../../../components/WImage";
+import { AddressComponent } from "../../../components/AddressComponent";
+import { Avatar } from "../../../components/Avatar";
+import { ItemDivider } from "../../../components/ItemDivider";
+import { ItemLarge } from "../../../components/ItemLarge";
+import { ItemCollapsible } from "../../../components/ItemCollapsible";
+import { RoundButton } from "../../../components/RoundButton";
+import { ItemGroup } from "../../../components/ItemGroup";
+import { ItemAddress } from "../../../components/ItemAddress";
 
 type Props = {
     target: {
@@ -349,7 +349,7 @@ export const TransferSingle = React.memo((props: Props) => {
                     <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
                         <LottieView
                             ref={anim}
-                            source={require('../../assets/animations/sign.json')}
+                            source={require('../../../../assets/animations/sign.json')}
                             style={{ width: 120, height: 120 }}
                             autoPlay={false}
                             loop={false}

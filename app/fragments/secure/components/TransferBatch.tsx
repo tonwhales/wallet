@@ -32,10 +32,10 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { RoundButton } from "../../../components/RoundButton";
 import { TransferComponent } from "../../../components/transactions/TransferComponent";
 import { WImage } from "../../../components/WImage";
-import Question from '../../assets/ic_question.svg';
-import TonSign from '../../assets/ic_ton_sign.svg';
+import Question from '../../../../assets/ic_question.svg';
+import TonSign from '../../../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
-import SignLock from '../../assets/ic_sign_lock.svg';
+import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
 
 type Props = {
@@ -407,7 +407,7 @@ export const TransferBatch = React.memo((props: Props) => {
                     <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
                         <LottieView
                             ref={anim}
-                            source={require('../../assets/animations/sign.json')}
+                            source={require('../../../../assets/animations/sign.json')}
                             style={{ width: 120, height: 120 }}
                             autoPlay={false}
                             loop={false}

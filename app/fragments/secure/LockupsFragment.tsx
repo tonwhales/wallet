@@ -12,6 +12,7 @@ import { t } from "../../i18n/t";
 import { Ionicons } from '@expo/vector-icons';
 import { HeaderBackButton } from "@react-navigation/elements";
 import BN from "bn.js";
+import { LockupProductButton } from "../../LockupProductButton";
 
 export const LockupsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -31,15 +32,10 @@ export const LockupsFragment = fragment(() => {
         }
         let at = lockup.address.toFriendly({ testOnly: AppConfig.isTestnet });
         items.push(
-            <ProductButton
+            <LockupProductButton
                 key={lockup.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                name={t('products.lockups.wallet')}
-                subtitle={at.slice(0, 6) + '...' + at.slice(t.length - 8)}
-                requireSource={require('../../../assets/ic_wallet_2.png')}
+                address={lockup.address}
                 value={balance}
-                onPress={() => {
-                    navigation.navigate('LockupWallet', { address: lockup.address.toFriendly({ testOnly: AppConfig.isTestnet }) });
-                }}
             />
         );
     }
@@ -70,7 +66,7 @@ export const LockupsFragment = fragment(() => {
                         <Text style={[
                             { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
                         ]}>
-                            {t('products.lockups.title')}
+                            {t('products.lockups.title', { count: lockupWallets.length })}
                         </Text>
                     </View>
                     <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
@@ -110,7 +106,7 @@ export const LockupsFragment = fragment(() => {
                         <Text style={[
                             { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
                         ]}>
-                            {t('products.lockups.title')}
+                            {t('products.lockups.title', { count: lockupWallets.length })}
                         </Text>
                     </View>
                     <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />

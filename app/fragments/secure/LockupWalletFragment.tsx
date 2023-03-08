@@ -2,10 +2,10 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
 import React, { useMemo } from "react";
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, Platform, useWindowDimensions, Image, TouchableNativeFeedback } from "react-native";
+import { View, Text, Platform, useWindowDimensions, Image, TouchableNativeFeedback, TouchableHighlight } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, toNano } from "ton";
+import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -200,15 +200,6 @@ export const LockupWalletFragment = fragment(() => {
                         style={{ marginHorizontal: 22 }}
                     />
                     <View style={{ flexGrow: 1 }} />
-                    <Text style={{
-                        fontSize: 14,
-                        color: 'white',
-                        opacity: 0.8,
-                        marginTop: 12,
-                        marginLeft: 22
-                    }}>
-                        {t('products.lockups.liquidBalance')}
-                    </Text>
                     <View style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
@@ -216,21 +207,6 @@ export const LockupWalletFragment = fragment(() => {
                         paddingHorizontal: 22,
                         marginBottom: 22
                     }}>
-                        <View>
-                            <Text style={{
-                                fontSize: 22,
-                                color: 'white',
-                                marginRight: 8,
-                                fontWeight: '800',
-                                marginTop: 2
-                            }}>
-                                <ValueComponent
-                                    value={liquidBalance}
-                                    centFontStyle={{ fontSize: 16, fontWeight: '500', opacity: 0.55 }}
-                                />
-                            </Text>
-                            <PriceComponent amount={liquidBalance} />
-                        </View>
                         <WalletAddress
                             value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
                             address={target}
@@ -249,6 +225,37 @@ export const LockupWalletFragment = fragment(() => {
                         />
                     </View>
                 </Animated.View>
+
+                <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                        <TouchableHighlight
+                            onPress={() => navigation.navigate('Receive', { address })}
+                            underlayColor={Theme.selector}
+                            style={{ borderRadius: 14 }}
+                        >
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Image source={require('../../../assets/ic_receive.png')} />
+                                </View>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                    <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
+                        <TouchableHighlight
+                            // onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
+                            underlayColor={Theme.selector}
+                            style={{ borderRadius: 14 }}
+                        >
+                            <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Image source={require('../../../assets/ic_send.png')} />
+                                </View>
+                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                </View>
 
                 {!!walletState && (
                     <>

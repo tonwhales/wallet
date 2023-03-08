@@ -15,11 +15,24 @@ import { QRCode } from "../../components/QRCode/QRCode";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import ShareIcon from '../../../assets/ic_share_address.svg';
 import { CopyButton } from "../../components/CopyButton";
+import { useParams } from "../../utils/useParams";
+import { Address } from "ton";
 
 export const ReceiveFragment = fragment(() => {
+    const params = useParams<{ address?: string | null }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = React.useMemo(() => {
+        if (params.address) {
+            try {
+                return Address.parse(params.address);
+            } catch (error) {
+                navigation.goBack();
+                return getCurrentAddress().address 
+            }
+        }
+        return getCurrentAddress().address
+    }, []);
     const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
     const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
 

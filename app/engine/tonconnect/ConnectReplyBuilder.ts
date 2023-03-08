@@ -14,7 +14,6 @@ import { Address } from 'ton';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
 import { AppManifest } from '../api/fetchManifest';
-import { Int64LE } from 'int64-buffer';
 import { sha256_sync } from 'ton-crypto';
 
 export class ConnectReplyBuilder {
@@ -37,7 +36,8 @@ export class ConnectReplyBuilder {
     payload: string,
   ): TonProofItemReply {
     const timestamp = getTimeSec();
-    const timestampBuffer = new Int64LE(timestamp).toBuffer();
+    let timestampBuffer = Buffer.alloc(8);
+    timestampBuffer.writeBigInt64LE(BigInt(timestamp), 0);
 
     const domain = extractDomain(this.manifest.url);
     const domainBuffer = Buffer.from(domain);

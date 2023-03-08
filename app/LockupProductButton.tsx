@@ -20,6 +20,7 @@ export const LockupProductButton = React.memo(({ address, value }: { address: Ad
     return (
         <TouchableHighlight
             onPress={() => {
+                navigation.goBack();
                 navigation.navigate('LockupWallet', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) });
             }}
             underlayColor={Theme.selector}
@@ -27,7 +28,7 @@ export const LockupProductButton = React.memo(({ address, value }: { address: Ad
                 {
                     alignSelf: 'stretch', borderRadius: 14,
                     backgroundColor: Theme.item,
-                    marginHorizontal: 16, marginVertical: 8
+                    marginHorizontal: 16, marginVertical: 4
                 },
             ]}
         >
@@ -54,8 +55,9 @@ export const LockupProductButton = React.memo(({ address, value }: { address: Ad
                         <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
                             {t('products.lockups.totalBalance')}
                         </Text>
-                        <Text style={{ color: value.gte(new BN(0)) ? '#4FAE42' : '#FF0000', fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                        <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                             <ValueComponent value={value} />
+                            {' TON'}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
@@ -65,7 +67,7 @@ export const LockupProductButton = React.memo(({ address, value }: { address: Ad
                             numberOfLines={1}
                         >
                             <Text style={{ flexShrink: 1 }}>
-                                {friendly.slice(0, 6) + '...' + friendly.slice(friendly.length - 8)}
+                                {friendly.slice(0, 6) + '...' + friendly.slice(friendly.length - 4)}
                             </Text>
                         </Text>
                         <PriceComponent

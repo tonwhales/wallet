@@ -163,7 +163,7 @@ const navigation = [
     lockedModalScreen('Buy', NeocryptoFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    fullScreen('Lockups', LockupsFragment),
+    modalScreen('Lockups', LockupsFragment),
     fullScreen('LockupWallet', LockupWalletFragment),
     modalScreen('StakingGraph', StakingGraphFragment),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),

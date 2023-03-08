@@ -8,18 +8,6 @@ import { ValueComponent } from '../ValueComponent';
 import ProtectedIcon from '../../../assets/ic_sign_lock.svg';
 import BN from 'bn.js';
 
-// { lockup }: { lockup: { metadata: Lockup, address: Address } }
-// const balance = useMemo(() => {
-//     let temp = new BN(0);
-//     if (lockup.metadata.totalLockedValue) {
-//         temp = temp.add(lockup.metadata.totalLockedValue);
-//     }
-//     if (lockup.metadata.totalRestrictedValue) {
-//         temp = temp.add(lockup.metadata.totalRestrictedValue);
-//     }
-//     return temp;
-// }, [lockup]);
-
 export const LockupProductComponent = React.memo(({ balance }: { balance: BN }) => {
     const navigation = useTypedNavigation();
 
@@ -53,7 +41,7 @@ export const LockupProductComponent = React.memo(({ balance }: { balance: BN }) 
                             marginBottom: 3
                         }}>
                             <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
-                                {t('products.lockups.title')}
+                                {t('products.lockups.productTitle')}
                             </Text>
                             <Text style={{
                                 fontWeight: '400',
@@ -71,7 +59,7 @@ export const LockupProductComponent = React.memo(({ balance }: { balance: BN }) 
                             justifyContent: 'space-between',
                         }}>
                             <Text style={{ color: '#787F83', fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
-                                {"Description here"}
+                                {t('products.lockups.productSubtitle')}
                             </Text>
                             <PriceComponent
                                 amount={balance}

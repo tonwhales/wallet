@@ -358,6 +358,8 @@ export type LocalizationSchema = {
         },
         lockups: {
             title: string,
+            productTitle: string,
+            productSubtitle: string,
             wallet: string,
             totalBalance: string,
             liquidBalance: string,

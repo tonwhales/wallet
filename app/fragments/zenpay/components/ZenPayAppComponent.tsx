@@ -301,6 +301,7 @@ export const ZenPayAppComponent = React.memo((
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
                         hideKeyboardAccessoryView={true}
+                        bounces={false}
                     />
                 </KeyboardAvoidingView>
                 <Animated.View

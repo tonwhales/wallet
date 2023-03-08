@@ -369,6 +369,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             until: 'До {{date}}',
             unlocked: 'Разблокировано',
             unrestricted: 'Без ограничений',
+            stakingProductTitle: 'Ограниченные и ликвидные монеты'
         }
     },
     welcome: {

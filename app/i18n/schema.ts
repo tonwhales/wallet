@@ -370,6 +370,7 @@ export type LocalizationSchema = {
             until: string,
             unlocked: string,
             unrestricted: string,
+            stakingProductTitle: string
         }
     }
     welcome: {

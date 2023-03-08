@@ -35,12 +35,13 @@ export const ResctrictedButton = React.memo(({ value, until }: { value: BN, unti
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
-                        color: '#4FAE42'
+                        color: Theme.textColor
                     }}>
                         <ValueComponent
                             value={value}
                             precision={3}
                         />
+                        {' TON'}
                     </Text>
                     <PriceComponent
                         amount={value}

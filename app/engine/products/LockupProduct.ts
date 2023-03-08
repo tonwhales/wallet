@@ -1,9 +1,12 @@
 import BN from "bn.js";
-import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
+import { atomFamily, RecoilValueReadOnly, selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
+import { KnownPools } from "../../utils/KnownPools";
+import { WalletConfig } from "../api/fetchWalletConfig";
 import { Engine } from "../Engine";
 import { Lockup } from "../metadata/Metadata";
+import { useOptItem } from "../persistence/PersistedItem";
 import { LockupWalletState } from "../sync/startLockupWalletSync";
 
 export class LockupProduct {
@@ -11,9 +14,11 @@ export class LockupProduct {
     readonly engine: Engine;
     readonly #wallets: RecoilValueReadOnly<{ state: LockupWalletState, address: Address }[]>;
     readonly #balance: RecoilValueReadOnly<BN>;
+    readonly pools: Address[] = [];
 
     constructor(engine: Engine) {
         this.engine = engine;
+        this.pools = Object.keys(KnownPools).map((key) => Address.parse(key));
 
         // TODO: sync balances and metadata with Lockup state
 
@@ -59,6 +64,13 @@ export class LockupProduct {
                 return balance;
             }
         });
+    }
+
+    usePool(member: Address, pool?: Address) {
+        if (!pool) {
+            return null;
+        }
+        return useOptItem(this.engine.persistence.staking.item({ address: pool, target: member }));
     }
 
     useLockupWallets() {

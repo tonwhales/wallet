@@ -17,6 +17,7 @@ import { Address, fromNano, toNano } from "ton";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
+import { useParams } from "../../utils/useParams";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(
@@ -174,10 +175,16 @@ function Header(props: {
 }
 
 export const StakingPoolsFragment = fragment(() => {
+    const params = useParams<{ address: string }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const staking = engine.products.whalesStakingPools.useStaking();
+    const member = React.useMemo(() => {
+        if (params.address) {
+            return Address.parse(params.address);
+        }
+    }, []);
+    const staking = engine.products.whalesStakingPools.useStaking(member);
     const pools = staking.pools;
     const poolsWithStake = pools.filter((v) => v.balance.gtn(0));
     const items: React.ReactElement[] = [];

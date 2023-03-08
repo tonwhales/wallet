@@ -368,6 +368,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             until: 'Until {{date}}',
             unlocked: 'Unlocked',
             unrestricted: 'Unrestricted',
+            stakingProductTitle: 'Restricted & Liquid coins only'
         }
     },
     welcome: {

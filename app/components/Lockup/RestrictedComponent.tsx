@@ -1,16 +1,13 @@
 import BN from "bn.js";
 import React from "react";
 import { View, Text } from "react-native";
-import { fromNano } from "ton";
 import { LockupWalletState } from "../../engine/sync/startLockupWalletSync";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
-import { ItemGroup } from "../ItemGroup";
-import { ItemLarge } from "../ItemLarge";
 import { ResctrictedButton } from "./ResctrictedButton";
 
 export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalletState }) => {
-    const { views, restricted } = React.useMemo(() => {
+    const { views } = React.useMemo(() => {
         const views: any[] = [];
         let restricted = new BN(0);
         if (lockup.wallet?.restricted) {

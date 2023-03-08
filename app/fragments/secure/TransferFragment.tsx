@@ -24,7 +24,7 @@ import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from '../../utils/dns/dns';
 import { TransferSingle } from '../../components/TransferSingle';
-import { TransferBatch } from '../../components/TransferBatch';
+import { TransferBatch } from './components/TransferBatch';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
 import { AppConfig } from '../../AppConfig';
 

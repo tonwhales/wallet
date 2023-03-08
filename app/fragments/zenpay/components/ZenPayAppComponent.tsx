@@ -20,6 +20,8 @@ import { Theme } from '../../../Theme';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
+import { IOSToolbar } from './IOSToolbar';
+import { AndroidToolbar } from '../../../components/AndroidToolbar';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -308,6 +310,10 @@ export const ZenPayAppComponent = React.memo((
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}
                 >
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                        <IOSToolbar canGoBack={false} onBack={() => navigation.goBack()} />
+                    </View>
                     <ActivityIndicator size="small" color={Theme.accent} />
                 </Animated.View>
             </View>

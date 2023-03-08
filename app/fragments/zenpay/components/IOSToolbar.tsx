@@ -5,7 +5,7 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
 
-export const IOSToolbar = React.memo(({ pageTitle, canGoBack, onBack }: { pageTitle: string, canGoBack: boolean, onBack: () => void }) => {
+export const IOSToolbar = React.memo(({ pageTitle, canGoBack, onBack }: { pageTitle?: string, canGoBack: boolean, onBack: () => void }) => {
 
     if (Platform.OS !== 'ios') {
         return null;
@@ -57,7 +57,7 @@ export const IOSToolbar = React.memo(({ pageTitle, canGoBack, onBack }: { pageTi
                             fontSize: 17,
                             textAlign: 'center',
                         }}>
-                            {canGoBack ? t('common.back') : t('common.close')}
+                            {t('common.close')}
                         </Text>
                     </Pressable>
                 </Animated.View>

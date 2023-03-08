@@ -364,7 +364,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             lockedBalance: 'Locked Balance',
             restrictedBalance: 'Restricted Balance',
             lockedTitle: 'Locked',
-            restrictedTitle: 'Restricted',
+            restrictedTitle: '🔒 Restricted',
             until: 'Until {{date}}',
             unlocked: 'Unlocked',
             unrestricted: 'Unrestricted',
@@ -573,6 +573,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             address: 'TON address',
             transaction: 'TON transaction',
         }
+    },
+    timer: {
+        days: 'DAYS',
+        hours: 'HR',
+        minutes: 'MIN',
+        seconds: 'SEC',
     }
 };
 

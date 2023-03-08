@@ -365,7 +365,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             lockedBalance: 'Заблокированный баланс',
             restrictedBalance: 'Ограниченный баланс',
             lockedTitle: 'Заблокировано',
-            restrictedTitle: 'Ограничено',
+            restrictedTitle: '🔒 Ограничено',
             until: 'До {{date}}',
             unlocked: 'Разблокировано',
             unrestricted: 'Без ограничений',
@@ -574,6 +574,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             address: 'TON адрес',
             transaction: 'TON транзакция',
         }
+    },
+    timer: {
+        days: 'ДН',
+        hours: 'ЧАС',
+        minutes: 'МИН',
+        seconds: 'СЕК',
     }
 };
 

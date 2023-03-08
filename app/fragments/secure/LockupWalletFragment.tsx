@@ -259,7 +259,7 @@ export const LockupWalletFragment = fragment(() => {
 
                 {!!walletState && (
                     <>
-                        <LockedComponent lockup={walletState} />
+                        {/* <LockedComponent lockup={walletState} /> */}
                         <RestrictedComponent lockup={walletState} />
                     </>
                 )}

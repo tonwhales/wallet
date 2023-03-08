@@ -575,6 +575,12 @@ export type LocalizationSchema = {
             address: string,
             transaction: string
         }
+    },
+    timer: {
+        days: string,
+        hours: string,
+        minutes: string,
+        seconds: string,
     }
 };
 

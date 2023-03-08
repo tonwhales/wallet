@@ -7,6 +7,7 @@ import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
 import { ItemGroup } from "../ItemGroup";
 import { ItemLarge } from "../ItemLarge";
+import { ResctrictedButton } from "./ResctrictedButton";
 
 export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalletState }) => {
     const { views, restricted } = React.useMemo(() => {
@@ -20,14 +21,7 @@ export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalle
                     untilLabel = t('products.lockups.until', { date: formatDate(until) });
                     restricted = restricted.add(new BN(value));
                 }
-                views.push(
-                    <ItemGroup style={{ marginHorizontal: 16, marginBottom: 8 }}>
-                        <ItemLarge
-                            text={`${fromNano(value)} TON`}
-                            title={untilLabel}
-                        />
-                    </ItemGroup>
-                )
+                views.push(<ResctrictedButton until={until} value={value} />)
             });
         }
 
@@ -51,7 +45,7 @@ export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalle
                     marginVertical: 8
                 }}
             >
-                {t('products.lockups.restrictedTitle') + ': ' + fromNano(restricted.toString()) + ' TON'}
+                {t('products.lockups.restrictedTitle')}
             </Text>
             {views}
         </View>

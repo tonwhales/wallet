@@ -1,23 +1,20 @@
-import React, { lazy } from "react";
+import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import Clipboard from '@react-native-clipboard/clipboard';
-import { View, Platform, Share, Text, Image } from "react-native";
+import { View, Platform, Share, Text } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { Theme } from "../../Theme";
 import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { AppConfig } from "../../AppConfig";
-import { WalletAddress } from "../../components/WalletAddress";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
-import { Suspense } from "../../Suspense";
 import TonIcon from '../../../assets/ic_ton_account.svg';
-import CopyIcon from '../../../assets/ic_copy_address.svg';
 import ShareIcon from '../../../assets/ic_share_address.svg';
+import { CopyButton } from "../../components/CopyButton";
 
 export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -26,17 +23,13 @@ export const ReceiveFragment = fragment(() => {
     const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
     const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
 
-    const onCopy = React.useCallback(() => {
-        Clipboard.setString(link);
-    }, []);
-
     const onShare = React.useCallback(() => {
         if (Platform.OS === 'ios') {
             Share.share({ title: t('receive.share.title'), url: link });
         } else {
             Share.share({ title: t('receive.share.title'), message: link });
         }
-    }, []);
+    }, [link]);
 
     return (
         <View style={{
@@ -97,12 +90,9 @@ export const ReceiveFragment = fragment(() => {
                         justifyContent: 'space-evenly',
                         alignContent: 'stretch'
                     }}>
-                        <RoundButton
-                            title={t('common.copy')}
-                            onPress={onCopy}
+                        <CopyButton
+                            text={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                             style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
-                            display={'secondary_contrast'}
-                            icon={<CopyIcon width={18} height={20} />}
                         />
                         <RoundButton
                             title={t('common.share')}

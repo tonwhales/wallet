@@ -104,7 +104,7 @@ export const TransactionPreviewFragment = fragment(() => {
         return AppConfig.isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com'
             + '/share/tx/' +
             address.toFriendly({ testOnly: AppConfig.isTestnet }) +
-            '?txId=' + txId
+            '/' + transaction.base.lt + '_' + encodeURIComponent(transaction.base.hash.toString('base64'))
     }, [txId]);
 
     const contact = engine.products.settings.useContactAddress(operation.address);

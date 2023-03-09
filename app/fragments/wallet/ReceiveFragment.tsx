@@ -4,7 +4,6 @@ import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { View, Platform, Share, Text } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
-import { RoundButton } from "../../components/RoundButton";
 import { Theme } from "../../Theme";
 import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -13,7 +12,6 @@ import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
 import TonIcon from '../../../assets/ic_ton_account.svg';
-import ShareIcon from '../../../assets/ic_share_address.svg';
 import { CopyButton } from "../../components/CopyButton";
 import { ShareButton } from "../../components/ShareButton";
 
@@ -23,14 +21,6 @@ export const ReceiveFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
     const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
-
-    const onShare = React.useCallback(() => {
-        if (Platform.OS === 'ios') {
-            Share.share({ title: t('receive.share.title'), url: link });
-        } else {
-            Share.share({ title: t('receive.share.title'), message: link });
-        }
-    }, [link]);
 
     return (
         <View style={{
@@ -87,18 +77,13 @@ export const ReceiveFragment = fragment(() => {
                     </View>
 
                     <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-evenly',
-                        alignContent: 'stretch'
+                        justifyContent: 'center'
                     }}>
                         <CopyButton
                             body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
+                            style={{ marginBottom: 8 }}
                         />
-                        <ShareButton
-                            body={link}
-                            style={{ flex: 2, alignSelf: 'stretch' }}
-                        />
+                        <ShareButton body={link} />
                     </View>
                 </View>
             </View>

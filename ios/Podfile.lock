@@ -40,6 +40,8 @@ PODS:
     - ExpoModulesCore
   - ExpoWebBrowser (10.2.1):
     - ExpoModulesCore
+  - EXScreenCapture (5.1.1):
+    - ExpoModulesCore
   - EXSecureStore (11.2.0):
     - ExpoModulesCore
   - EXSplashScreen (0.15.1):
@@ -567,6 +569,7 @@ DEPENDENCIES:
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - ExpoRandom (from `../node_modules/expo-random/ios`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
+  - EXScreenCapture (from `../node_modules/expo-screen-capture/ios`)
   - EXSecureStore (from `../node_modules/expo-secure-store/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -694,6 +697,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-random/ios"
   ExpoWebBrowser:
     :path: "../node_modules/expo-web-browser/ios"
+  EXScreenCapture:
+    :path: "../node_modules/expo-screen-capture/ios"
   EXSecureStore:
     :path: "../node_modules/expo-secure-store/ios"
   EXSplashScreen:
@@ -823,6 +828,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
   ExpoRandom: 14df0976aa363a71a730ceb7655250f3047c0e42
   ExpoWebBrowser: 4b5f9633e5f169dc948587cb6d26d2d1d1406187
+  EXScreenCapture: d9284f4a6508c86d0d463805b93672397d18de0f
   EXSecureStore: aaae919d83aec2faf031e99398807edac0313285
   EXSplashScreen: 34f460788db8d682883871708dddbfac72095bb7
   FBLazyVector: a7a655862f6b09625d11c772296b01cd5164b648
@@ -903,6 +909,6 @@ SPEC CHECKSUMS:
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: dc9be593bc08e1cbdd9943dbc25c4260da558815
+PODFILE CHECKSUM: 6931899a96b5e49b4297ceffd6a028fd829cceb1
 
 COCOAPODS: 1.11.3

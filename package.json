@@ -55,6 +55,7 @@
     "expo-local-authentication": "~12.2.0",
     "expo-notifications": "~0.15.2",
     "expo-random": "~12.2.0",
+    "expo-screen-capture": "^5.1.1",
     "expo-secure-store": "~11.2.0",
     "expo-splash-screen": "~0.15.1",
     "expo-standard-web-crypto": "^1.2.0",

@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { View, Platform, Text, Image, Pressable, Alert, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
+import React, { useEffect, useMemo } from "react";
+import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share, PermissionsAndroid, Permission } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -7,7 +7,7 @@ import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano } from "ton";
+import { fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -19,20 +19,19 @@ import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-import { confirmAlert } from "../../utils/confirmAlert";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import ContactIcon from '../../../assets/ic_contacts.svg';
 import CopyIcon from '../../../assets/ic_copy.svg';
 import ExplorerIcon from '../../../assets/ic_explorer.svg';
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
-import Clipboard from '@react-native-clipboard/clipboard';
-import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { copyText } from "../../utils/copyText";
+import * as ScreenCapture from 'expo-screen-capture';
+import { warn } from "../../utils/log";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -41,7 +40,6 @@ export const TransactionPreviewFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     let transaction = engine.products.main.useTransaction(params.transaction);
-    // let transactionHash = engine.transactions.getHash(address, transaction.base.lt);
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
@@ -90,16 +88,23 @@ export const TransactionPreviewFragment = fragment(() => {
     }, [transaction]);
 
     const explorerLink = useMemo(() => {
-        if (!transaction.base.lt) {
-            return null;
-        }
-        if (!transaction.base.hash) {
+        if (!txId) {
             return null;
         }
         return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
             + '/explorer/address/' +
-            address.toFriendly() +
+            address.toFriendly({ testOnly: AppConfig.isTestnet }) +
             '/' + txId
+    }, [txId]);
+
+    const tonhubLink = useMemo(() => {
+        if (!txId) {
+            return null;
+        }
+        return AppConfig.isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com'
+            + '/share/tx/' +
+            address.toFriendly({ testOnly: AppConfig.isTestnet }) +
+            '?txId=' + txId
     }, [txId]);
 
     const contact = engine.products.settings.useContactAddress(operation.address);
@@ -144,6 +149,47 @@ export const TransactionPreviewFragment = fragment(() => {
             }
         }
     }, [operation, body]);
+
+    useEffect(() => {
+        let subscription: ScreenCapture.Subscription;
+        if (Platform.OS === 'android') {
+            (async () => {
+                try {
+                    const granted = await PermissionsAndroid.requestMultiple(
+                        [
+                            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                            'android.permission.READ_MEDIA_IMAGES' as Permission,
+                        ]
+                    );
+                    if (
+                        granted[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] === PermissionsAndroid.RESULTS.GRANTED
+                        || granted['android.permission.READ_MEDIA_IMAGES' as Permission] === PermissionsAndroid.RESULTS.GRANTED
+                    ) {
+                        subscription = ScreenCapture.addScreenshotListener(() => {
+                            if (!tonhubLink) {
+                                return;
+                            }
+                            Share.share({ title: t('txActions.share.transaction'), message: tonhubLink });
+                        });
+                    } else {
+                        warn('READ_MEDIA_IMAGES permission denied');
+                    }
+                } catch (err) {
+                    warn(err);
+                }
+            })();
+
+        } else {
+            subscription = ScreenCapture.addScreenshotListener(() => {
+                if (!tonhubLink) {
+                    return;
+                }
+                Share.share({ title: t('txActions.share.transaction'), url: tonhubLink });
+            });
+        }
+        return () => subscription.remove();
+    }, [tonhubLink]);
+
 
     return (
         <View style={{

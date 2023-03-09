@@ -22,6 +22,7 @@ import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
 import { IOSToolbar } from './IOSToolbar';
 import { AndroidToolbar } from '../../../components/AndroidToolbar';
+import { CloseButton } from '../../../components/CloseButton';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -312,8 +313,15 @@ export const ZenPayAppComponent = React.memo((
                 >
                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
                         <AndroidToolbar onBack={() => navigation.goBack()} />
-                        <IOSToolbar canGoBack={false} onBack={() => navigation.goBack()} />
                     </View>
+                    {Platform.OS === 'ios' && (
+                        <CloseButton
+                            style={{ position: 'absolute', top: 20, right: 10 }}
+                            onPress={() => {
+                                navigation.goBack();
+                            }}
+                        />
+                    )}
                     <ActivityIndicator size="small" color={Theme.accent} />
                 </Animated.View>
             </View>

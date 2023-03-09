@@ -20,6 +20,8 @@ import { t } from "../../i18n/t";
 import BN from "bn.js";
 import { RestrictedComponent } from "../../components/Lockup/RestrictedComponent";
 import { LocupStakingButton } from "../../components/Lockup/LocupStakingButton";
+import { LockupInfo } from "../../components/Lockup/LockupInfo";
+import { AvailableBalance } from "../../components/Lockup/AvailableBalance";
 
 export const LockupWalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -257,9 +259,15 @@ export const LockupWalletFragment = fragment(() => {
                     </View>
                 </View>
 
+                {!!walletState && (
+                    <AvailableBalance address={target} lockup={walletState} />
+                )}
                 <LocupStakingButton address={target} />
                 {!!walletState && (
-                    <RestrictedComponent lockup={walletState} />
+                    <>
+                        <RestrictedComponent lockup={walletState} />
+                        <LockupInfo lockup={walletState} address={target} />
+                    </>
                 )}
 
             </Animated.ScrollView >

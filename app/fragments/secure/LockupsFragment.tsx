@@ -8,7 +8,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import BN from "bn.js";
-import { LockupProductButton } from "../../LockupProductButton";
+import { LockupProductButton } from "./LockupProductButton";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { StatusBar } from "expo-status-bar";
 import { CloseButton } from "../../components/CloseButton";

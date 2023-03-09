@@ -156,12 +156,22 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         // Member
         let memberParser = new TupleSlice4(memberResponse.result);
         console.log({ key, memberResponse: JSON.stringify(memberResponse.result), pool: pool.toFriendly({ testOnly: AppConfig.isTestnet }) });
+
         let memberState: {
             balance: BN;
             pendingWithdraw: BN;
             pendingDeposit: BN;
             withdraw: BN;
-        } = {
+        }
+        if (memberResponse.result.length < 4) {
+            memberState = {
+                balance: new BN(0),
+                pendingDeposit: new BN(0),
+                pendingWithdraw: new BN(0),
+                withdraw: new BN(0)
+            };
+        }
+        memberState = {
             balance: memberParser.readBigNumber(),
             pendingDeposit: memberParser.readBigNumber(),
             pendingWithdraw: memberParser.readBigNumber(),

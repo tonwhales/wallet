@@ -1,34 +1,59 @@
-import BN from "bn.js";
 import React from "react"
-import { TouchableHighlight, View, Text, useWindowDimensions } from "react-native"
+import { TouchableHighlight, Text, View, useWindowDimensions } from "react-native";
 import { Address } from "ton";
-import { AppConfig } from "./AppConfig";
-import { PriceComponent } from "./components/PriceComponent";
-import { ValueComponent } from "./components/ValueComponent";
-import { t } from "./i18n/t";
-import { Theme } from "./Theme"
-import { useTypedNavigation } from "./utils/useTypedNavigation";
-import TonSign from '../assets/ic_ton_sign.svg';
-import LockupMark from '../assets/ic_lock_mark.svg';
+import { AppConfig } from "../../AppConfig";
+import { t } from "../../i18n/t";
+import { Theme } from "../../Theme";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { PriceComponent } from "../PriceComponent";
+import { ValueComponent } from "../ValueComponent";
+import TonSign from '../../../assets/ic_ton_sign.svg';
+import LockupMark from '../../../assets/ic_lock_mark.svg';
+import { LockupWalletState } from "../../engine/sync/startLockupWalletSync";
+import BN from "bn.js";
 
-export const LockupProductButton = React.memo(({ address, value }: { address: Address, value: BN }) => {
+export const AvailableBalance = React.memo(({ address, lockup }: { address: Address, lockup: LockupWalletState }) => {
+    const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
-    const navigation = useTypedNavigation();
     const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const liquid = React.useMemo(() => {
+        let balance = new BN(0);
+        balance = balance.add(lockup.balance);
+
+        if (lockup.wallet?.locked) {
+            Array.from(lockup.wallet.locked).forEach(([key, value]) => {
+                const until = parseInt(key);
+                if (until <= Date.now() / 1000) {
+                    balance = balance.add(new BN(value));
+                }
+            });
+        }
+
+        if (lockup.wallet?.restricted) {
+            Array.from(lockup.wallet.restricted).forEach(([key, value]) => {
+                const until = parseInt(key);
+                if (until <= Date.now() / 1000) {
+                    balance = balance.add(new BN(value));
+                }
+            });
+        }
+
+        return balance;
+    }, [lockup]);
 
     return (
         <TouchableHighlight
             onPress={() => {
                 navigation.goBack();
-                navigation.navigate('LockupWallet', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) });
+                navigation.navigate('LockupWallet', { address: friendly });
             }}
             underlayColor={Theme.selector}
             style={[
                 {
                     alignSelf: 'stretch', borderRadius: 14,
                     backgroundColor: Theme.item,
-                    marginHorizontal: 16, marginVertical: 4
+                    marginHorizontal: 16, marginTop: 8, marginBottom: 4
                 },
             ]}
         >
@@ -53,10 +78,10 @@ export const LockupProductButton = React.memo(({ address, value }: { address: Ad
                         marginRight: 10
                     }}>
                         <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
-                            {t('products.lockups.totalBalance')}
+                            {t('products.lockups.liquidBalance')}
                         </Text>
                         <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
-                            <ValueComponent value={value} />
+                            <ValueComponent value={liquid} />
                             {' TON'}
                         </Text>
                     </View>
@@ -71,7 +96,7 @@ export const LockupProductButton = React.memo(({ address, value }: { address: Ad
                             </Text>
                         </Text>
                         <PriceComponent
-                            amount={value}
+                            amount={liquid}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0, paddingVertical: 0,
@@ -85,5 +110,5 @@ export const LockupProductButton = React.memo(({ address, value }: { address: Ad
                 </View>
             </View>
         </TouchableHighlight>
-    )
-})
+    );
+});

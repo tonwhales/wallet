@@ -34,7 +34,7 @@ export const LocupStakingButton = React.memo(({ address }: { address: Address })
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
                 backgroundColor: Theme.item,
-                marginHorizontal: 16, marginVertical: 8
+                marginHorizontal: 16, marginVertical: 4
             }}
         >
             <View style={{

@@ -1,7 +1,6 @@
 import BN from "bn.js";
 import React from "react";
 import { Pressable, View, Text } from "react-native";
-import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
@@ -25,7 +24,7 @@ export const ResctrictedButton = React.memo(({ value, until }: { value: BN, unti
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                marginBottom: 3
+                marginBottom: 3, marginLeft: 6
             }}>
                 <Timer until={until} />
                 <View style={{

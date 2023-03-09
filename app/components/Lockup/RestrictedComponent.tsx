@@ -11,14 +11,14 @@ export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalle
         const views: any[] = [];
         let restricted = new BN(0);
         if (lockup.wallet?.restricted) {
-            Array.from(lockup.wallet.restricted).forEach(([key, value]) => {
+            Array.from(lockup.wallet.restricted).forEach(([key, value], index) => {
                 const until = parseInt(key);
                 let untilLabel = t('products.lockups.unrestricted');
                 if (until > Date.now() / 1000) {
                     untilLabel = t('products.lockups.until', { date: formatDate(until) });
                     restricted = restricted.add(new BN(value));
                 }
-                views.push(<ResctrictedButton until={until} value={value} />)
+                views.push(<ResctrictedButton key={`restriction-${index}`} until={until} value={value} />)
             });
         }
 
@@ -33,7 +33,7 @@ export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalle
     }
 
     return (
-        <View>
+        <View style={{ marginTop: 12 }}>
             <Text
                 style={{
                     fontSize: 18,

@@ -114,27 +114,27 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
+                        <ItemButton leftIconSource={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     {oldWalletsBalance.gt(new BN(0)) && (
                         <>
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton leftIcon={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
+                                <ItemButton leftIconSource={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
                             </View>
                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                         </>
                     )}
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_accounts.png')} title={t('products.accounts')} onPress={() => navigation.navigate('Accounts')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_accounts.png')} title={t('products.accounts')} onPress={() => navigation.navigate('Accounts')} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_filter.png')} title={t('settings.spamFilter')} onPress={() => navigation.navigate('SpamFilter')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_filter.png')} title={t('settings.spamFilter')} onPress={() => navigation.navigate('SpamFilter')} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_contacts.png')} title={t('contacts.title')} onPress={() => navigation.navigate('Contacts')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_contacts.png')} title={t('contacts.title')} onPress={() => navigation.navigate('Contacts')} />
                     </View>
                 </View>
 
@@ -147,7 +147,7 @@ export const SettingsFragment = fragment(() => {
                         alignItems: 'center',
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton leftIcon={require('../../assets/ic_ton_symbol.png')} title={t('settings.primaryCurrency')} onPress={() => navigation.navigate('Currency')} />
+                            <ItemButton leftIconSource={require('../../assets/ic_ton_symbol.png')} title={t('settings.primaryCurrency')} onPress={() => navigation.navigate('Currency')} />
                         </View>
                     </View>
                 )}
@@ -159,7 +159,7 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t('auth.name')} onPress={() => navigation.navigate('Connections')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_import.png')} title={t('auth.name')} onPress={() => navigation.navigate('Connections')} />
                     </View>
                 </View>
 
@@ -171,11 +171,11 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t('settings.termsOfService')} onPress={() => navigation.navigate('Terms')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_terms.png')} title={t('settings.termsOfService')} onPress={() => navigation.navigate('Terms')} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_privacy.png')} title={t('settings.privacyPolicy')} onPress={() => navigation.navigate('Privacy')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_privacy.png')} title={t('settings.privacyPolicy')} onPress={() => navigation.navigate('Privacy')} />
                     </View>
                 </View>
 
@@ -200,11 +200,11 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={() => navigation.navigate('Logout')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={() => navigation.navigate('Logout')} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_delete.png')} dangerZone title={t('deleteAccount.title')} onPress={() => navigation.navigate('DeleteAccount')} />
+                        <ItemButton leftIconSource={require('../../assets/ic_delete.png')} dangerZone title={t('deleteAccount.title')} onPress={() => navigation.navigate('DeleteAccount')} />
                     </View>
                 </View>
                 <View style={{ height: 52 + 8 + safeArea.bottom }} />

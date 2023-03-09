@@ -1,7 +1,7 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Image, ScrollView, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
+import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
@@ -12,7 +12,6 @@ import { Avatar } from "../components/Avatar";
 import { CloseButton } from "../components/CloseButton";
 import { ContactField } from "../components/Contacts/ContactField";
 import { Item } from "../components/Item";
-import { ItemButton } from "../components/ItemButton";
 import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";

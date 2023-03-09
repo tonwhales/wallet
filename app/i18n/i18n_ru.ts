@@ -361,7 +361,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             productSubtitle: 'Ваши Restricted монеты',
             wallet: 'Lockup кошелек',
             totalBalance: 'Общий баланс',
-            liquidBalance: 'Ликвидный баланс',
+            liquidBalance: 'Доступный остаток',
             lockedBalance: 'Заблокированный баланс',
             restrictedBalance: 'Ограниченный баланс',
             lockedTitle: 'Заблокировано',
@@ -369,7 +369,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             until: 'До {{date}}',
             unlocked: 'Разблокировано',
             unrestricted: 'Без ограничений',
-            stakingProductTitle: 'Ограниченные и ликвидные монеты'
+            stakingProductTitle: 'Ограниченные и ликвидные монеты',
+            otherInfo: 'Другая информация',
         }
     },
     welcome: {

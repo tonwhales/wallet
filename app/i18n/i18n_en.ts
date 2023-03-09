@@ -360,7 +360,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             productSubtitle: 'Your Restricted сoins',
             wallet: 'Lockup Wallet',
             totalBalance: 'Total Balance',
-            liquidBalance: 'Liquid Balance',
+            liquidBalance: 'Available Balance',
             lockedBalance: 'Locked Balance',
             restrictedBalance: 'Restricted Balance',
             lockedTitle: 'Locked',
@@ -368,7 +368,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             until: 'Until {{date}}',
             unlocked: 'Unlocked',
             unrestricted: 'Unrestricted',
-            stakingProductTitle: 'Restricted & Liquid coins only'
+            stakingProductTitle: 'Restricted & Liquid coins only',
+            otherInfo: 'Other info',
         }
     },
     welcome: {

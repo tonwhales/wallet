@@ -53,10 +53,10 @@ export const DeveloperToolsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
+                        <ItemButton leftIconSource={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
+                        <ItemButton leftIconSource={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />

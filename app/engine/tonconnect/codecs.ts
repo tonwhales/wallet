@@ -69,3 +69,18 @@ export const transactionRpcRequestCodec = t.type({
     params: t.tuple([t.string]),
     id: t.union([t.number, t.string])
 });
+
+export const connectItemCodec = t.union([
+    t.type({
+        name: t.literal('ton_proof'),
+        payload: t.string
+    }),
+    t.type({
+        name: t.literal('ton_addr')
+    })
+]);
+
+export const connectRequestCodec = t.type({
+    manifestUrl: t.string,
+    items: t.array(connectItemCodec)
+});

@@ -30,6 +30,6 @@ export async function sendTonConnectResponse<T extends RpcMethod>({
 
         await axios.post(url, Base64.encode(encodedResponse), { headers: { 'Content-Type': 'text/plain' } });
     } catch (e) {
-        warn(e);
+        warn('Failed to send TonConnect response');
     }
 }

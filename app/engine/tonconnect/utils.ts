@@ -9,6 +9,11 @@ import { Engine } from '../Engine';
 import { MIN_PROTOCOL_VERSION } from './config';
 import { SendTransactionError, SendTransactionRequest, SignRawParams, WebViewBridgeMessageType } from './types';
 
+export function isHexString(str: string): boolean {
+  const hexRegex = /^[0-9a-fA-F]+$/;
+  return hexRegex.test(str);
+}
+
 export function checkProtocolVersionCapability(protocolVersion: number) {
   if (typeof protocolVersion !== 'number' || protocolVersion < MIN_PROTOCOL_VERSION) {
     throw new Error(`Protocol version ${String(protocolVersion)} is not supported by the wallet app`);

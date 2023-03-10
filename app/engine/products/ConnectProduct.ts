@@ -17,7 +17,8 @@ import { Cell, StateInit } from "ton";
 import { CloudValue } from "../cloud/CloudValue";
 import { sendTonConnectResponse } from "../api/sendTonConnectResponse";
 import { TonConnectBridgeClient } from "../tonconnect/TonConnectBridgeClient";
-import { transactionRpcRequestCodec } from "../tonconnect/codecs";
+import { connectRequestCodec, transactionRpcRequestCodec } from "../tonconnect/codecs";
+import { isHexString } from "../tonconnect/utils";
 
 export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
 
@@ -125,7 +126,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
                     return appData;
                 }
             } catch (e) {
-                warn(e);
+                warn('Failed to fetch manifest');
                 return null;
             }
             return null;
@@ -141,7 +142,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
                     return appData;
                 }
             } catch (e) {
-                warn(e);
+                warn('Failed to unpdated manifest');
                 return null;
             }
             return null;
@@ -262,22 +263,27 @@ export class ConnectProduct extends TonConnectBridgeClient {
     // 
 
     async handleConnectDeeplink(query: ConnectQrQuery) {
-        try {
-            const protocolVersion = Number(query.v);
-            const request = JSON.parse(decodeURIComponent(query.r)) as ConnectRequest;
-            const clientSessionId = query.id;
+        const protocolVersion = Number(query.v);
+        const parsed = JSON.parse(decodeURIComponent(query.r));
 
-            const manifest = await this.getConnectAppManifest(request.manifestUrl);
-
-            return ({
-                protocolVersion,
-                request,
-                clientSessionId,
-                manifest
-            });
-        } catch (err) {
-            this.logger.warn(err);
+        if (!connectRequestCodec.is(parsed)) {
+            throw new Error('Invalid request');
         }
+        const request = parsed as ConnectRequest;
+
+        if (!isHexString(query.id)) {
+            throw new Error('Invalid clientSessionId');
+        }
+        const clientSessionId = query.id;
+
+        const manifest = await this.getConnectAppManifest(request.manifestUrl);
+
+        return ({
+            protocolVersion,
+            request,
+            clientSessionId,
+            manifest
+        });
     }
 
     async handleSendTransaction(tx: {
@@ -435,7 +441,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
 
             this.handleRequestFromRemoteBridge(request, from, callback, from);
         } catch (e) {
-            warn(e);
+            warn('Failed to handle message');
         }
     }
 
@@ -523,7 +529,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
                 stateInit.writeTo(initCell);
                 walletStateInit = initCell.toBoc({ idx: false }).toString('base64');
             } catch (err) {
-                warn(err);
+                warn('Failed to get wallet state init');
             }
 
             const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(

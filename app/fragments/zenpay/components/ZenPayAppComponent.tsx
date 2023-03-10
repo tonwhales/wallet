@@ -20,7 +20,6 @@ import { Theme } from '../../../Theme';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
-import { IOSToolbar } from './IOSToolbar';
 import { AndroidToolbar } from '../../../components/AndroidToolbar';
 import { CloseButton } from '../../../components/CloseButton';
 

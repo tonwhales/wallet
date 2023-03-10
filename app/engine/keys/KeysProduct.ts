@@ -37,7 +37,7 @@ export class KeysProduct {
             try {
                 walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             } catch (e) {
-                warn(e);
+                warn('Couldn\'n load wallet keys');
                 return false;
             }
         }

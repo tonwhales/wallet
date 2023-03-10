@@ -16,6 +16,7 @@ import { useParams } from '../../utils/useParams';
 import { ZenPayAppParams } from './ZenPayAppFragment';
 import { ZenPayQueryParams } from './types';
 import { extractZenPayQueryParams } from './utils';
+import { CloseButton } from '../../components/CloseButton';
 
 export const ZenPayLandingFragment = React.memo(() => {
     const webRef = React.useRef<WebView>(null);
@@ -164,56 +165,6 @@ export const ZenPayLandingFragment = React.memo(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <AndroidToolbar
-                    pageTitle={pageTitle}
-                    onBack={navigation.goBack}
-                />
-                {Platform.OS === 'ios' && (
-                    <>
-                        <View style={{
-                            width: '100%',
-                            flexDirection: 'row',
-                            paddingHorizontal: 15,
-                            marginVertical: 14,
-                            height: 42,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                            <Animated.View
-                                style={{
-                                    position: 'absolute',
-                                    top: 0, bottom: 0, left: 15, justifyContent: 'center'
-                                }}
-                                entering={FadeIn}
-                                exiting={FadeOut}
-                            >
-                                <Pressable
-                                    style={({ pressed }) => {
-                                        return ({
-                                            opacity: pressed ? 0.3 : 1,
-                                        });
-                                    }}
-                                    onPress={navigation.goBack}
-                                >
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 17,
-                                        textAlign: 'center',
-                                    }}>
-                                        {t('common.close')}
-                                    </Text>
-                                </Pressable>
-                            </Animated.View>
-                            <Text style={{
-                                fontWeight: '600',
-                                fontSize: 17,
-                                textAlign: 'center',
-                            }}>
-                                {pageTitle}
-                            </Text>
-                        </View>
-                    </>
-                )}
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
@@ -259,21 +210,20 @@ export const ZenPayLandingFragment = React.memo(() => {
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}
                 >
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                    </View>
+                    {Platform.OS === 'ios' && (
+                        <CloseButton
+                            style={{ position: 'absolute', top: 20, right: 10 }}
+                            onPress={() => {
+                                navigation.goBack();
+                            }}
+                        />
+                    )}
                     <ActivityIndicator size="small" color={Theme.accent} />
                 </Animated.View>
             </View>
         </View>
     );
 });
-
-function safelyOpenUrl(openUrl: any) {
-    throw new Error('Function not implemented.');
-}
-function setHardwareBackPolicy(hardwareBackPolicy: any) {
-    throw new Error('Function not implemented.');
-}
-
-function setScrollEnabled(arg0: boolean) {
-    throw new Error('Function not implemented.');
-}
-

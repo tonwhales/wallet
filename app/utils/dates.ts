@@ -20,7 +20,7 @@ export function formatDate(src: number, dateFormat?: string) {
     if (isThisYear(src * 1000)) {
         return format(src * 1000, dateFormat || 'd MMMM', { locale })
     }
-    return format(src * 1000, 'PPP', { locale })
+    return format(src * 1000, dateFormat || 'PPP', { locale })
 }
 
 export function formatTime(src: number) {

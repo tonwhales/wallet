@@ -9,7 +9,17 @@ import { formatDate } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ResctrictedButton } from "./ResctrictedButton";
 
-export const RestrictedComponent = React.memo(({ address, lockup }: { address: Address, lockup: LockupWalletState }) => {
+export const RestrictedComponent = React.memo(({
+    address,
+    lockup,
+    title,
+    withDate
+}: {
+    address: Address,
+    lockup: LockupWalletState,
+    title?: boolean,
+    withDate?: boolean
+}) => {
     const navigation = useTypedNavigation();
     const { views } = React.useMemo(() => {
         const views: any[] = [];
@@ -27,6 +37,7 @@ export const RestrictedComponent = React.memo(({ address, lockup }: { address: A
                         key={`restricted-${index}`}
                         until={until}
                         value={value}
+                        withDate={withDate}
                         onPress={() => {
                             navigation.navigate('LockupRestricked', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) });
                         }}
@@ -47,16 +58,18 @@ export const RestrictedComponent = React.memo(({ address, lockup }: { address: A
 
     return (
         <View style={{ marginTop: 12 }}>
-            <Text
-                style={{
-                    fontSize: 18,
-                    fontWeight: '700',
-                    marginHorizontal: 16,
-                    marginVertical: 8
-                }}
-            >
-                {t('products.lockups.restrictedTitle')}
-            </Text>
+            {title && (
+                <Text
+                    style={{
+                        fontSize: 18,
+                        fontWeight: '700',
+                        marginHorizontal: 16,
+                        marginVertical: 8
+                    }}
+                >
+                    {t('products.lockups.restrictedTitle')}
+                </Text>
+            )}
             {views}
         </View>
     );

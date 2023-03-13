@@ -82,6 +82,7 @@ export const LockupRestrictedFragment = fragment(() => {
                                 <RestrictedComponent
                                     address={target}
                                     lockup={walletState}
+                                    withDate
                                 />
                             </>
                         )}

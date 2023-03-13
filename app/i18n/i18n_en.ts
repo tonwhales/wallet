@@ -365,6 +365,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             restrictedBalance: 'Restricted Balance',
             restrictedBalanceDescription: 'These coins cannot be spent before the unlock date, but can be transferred to allowed wallet addresses',
             allowedWallets: 'Allowed wallets to send',
+            unlockDate: 'Unlock date',
             lockedTitle: 'Locked',
             restrictedTitle: '🔒 Restricted',
             until: 'Until {{date}}',

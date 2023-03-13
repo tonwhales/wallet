@@ -1,6 +1,6 @@
 import { ConnectRequest, SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from '@tonconnect/protocol';
 import { Alert } from 'react-native';
-import { Cell, CellMessage, fromNano, toNano } from 'ton';
+import { Cell, fromNano, toNano } from 'ton';
 import { t } from '../../i18n/t';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { warn } from '../../utils/log';
@@ -11,7 +11,7 @@ import { SendTransactionError, SendTransactionRequest, SignRawParams, WebViewBri
 
 export function isHexString(str: string): boolean {
   const hexRegex = /^[0-9a-fA-F]+$/;
-  return hexRegex.test(str);
+  return hexRegex.test(str) && str.length % 2 === 0;;
 }
 
 export function checkProtocolVersionCapability(protocolVersion: number) {

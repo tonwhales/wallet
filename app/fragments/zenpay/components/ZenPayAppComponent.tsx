@@ -33,7 +33,6 @@ export const ZenPayAppComponent = React.memo((
 ) => {
     const engine = useEngine();
     const [hardwareBackPolicy, setHardwareBackPolicy] = React.useState<'back' | 'close'>('back');
-    const [scrollEnabled, setScrollEnabled] = React.useState(true);
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
 
@@ -175,26 +174,6 @@ export const ZenPayAppComponent = React.memo((
         })();
     }, []);
 
-    const updateScrollEnabled = React.useCallback((url: string) => {
-        if (
-            url.indexOf('/auth/phone') !== -1
-            || url.indexOf('/auth/code') !== -1
-            || url.indexOf('/auth/subscribe') !== -1
-            || url.indexOf('/auth/country-select') !== -1
-
-            || url.indexOf('/pin') !== -1
-            || url.indexOf('/deposit') !== -1
-            || url.indexOf('/transfer') !== -1
-
-            || url.indexOf('/create/delivery/address/country') !== -1
-            || url.indexOf('/create/delivery/address/deliver-to') !== -1
-        ) {
-            setScrollEnabled(false);
-        } else {
-            setScrollEnabled(true);
-        }
-    }, []);
-
     const onCloseApp = React.useCallback(() => {
         engine.products.zenPay.doSync();
         navigation.goBack();
@@ -224,7 +203,6 @@ export const ZenPayAppComponent = React.memo((
             onCloseApp();
             return;
         }
-        setScrollEnabled(!params.lockScroll);
         setHardwareBackPolicy(params.hardwareBackPolicy);
         if (params.openUrl) {
             safelyOpenUrl(params.openUrl);
@@ -260,7 +238,7 @@ export const ZenPayAppComponent = React.memo((
                     style={{ backgroundColor: Theme.background, flexGrow: 1 }}
                     keyboardVerticalOffset={
                         Platform.OS === 'ios'
-                            ? (!scrollEnabled ? 42 : undefined)
+                            ? 42
                             : 8
                     }
                 >
@@ -287,11 +265,9 @@ export const ZenPayAppComponent = React.memo((
                         onNavigationStateChange={(event: WebViewNavigation) => {
                             // Searching for supported query
                             onNavigation(event.url);
-                            // Locking scroll
-                            //TODO: remove after query params are implemented on web side
-                            updateScrollEnabled(event.url);
                         }}
-                        scrollEnabled={scrollEnabled}
+                        // Locking scroll, it's handled within the Web App
+                        scrollEnabled={false}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         allowFileAccessFromFileURLs={false}

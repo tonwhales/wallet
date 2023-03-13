@@ -14,6 +14,7 @@ import { Address } from "ton";
 import { RestrictedComponent } from "../../components/Lockup/RestrictedComponent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AllowedAddresses } from "../../components/Lockup/AllowedAddresses";
+import { AndroidToolbar } from "../../components/AndroidToolbar";
 
 export const LockupRestrictedFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -33,6 +34,7 @@ export const LockupRestrictedFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1, flex: 1 }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <AndroidToolbar/>
             <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
                 <ScrollView>
                     <View style={{

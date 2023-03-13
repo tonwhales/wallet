@@ -65,6 +65,7 @@ import { Splash } from './components/Splash';
 import { LockupWalletFragment } from './fragments/lockups/LockupWalletFragment';
 import { LockupsFragment } from './fragments/lockups/LockupsFragment';
 import { LockupRestrictedFragment } from './fragments/lockups/LockupRestrictedFragment';
+import { IntegrityCheckFragment } from './fragments/lockups/IntegrityCheckFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -166,6 +167,7 @@ const navigation = [
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('Lockups', LockupsFragment),
     modalScreen('LockupRestricked', LockupRestrictedFragment),
+    modalScreen('IntegrityCheck', IntegrityCheckFragment),
     fullScreen('LockupWallet', LockupWalletFragment),
     modalScreen('StakingGraph', StakingGraphFragment),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),

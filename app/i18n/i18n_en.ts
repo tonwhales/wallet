@@ -373,6 +373,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             unrestricted: 'Unrestricted',
             stakingProductTitle: 'Restricted & Liquid coins only',
             otherInfo: 'Other info',
+            integrityCheck: 'Integrity Check',
+            integrityCheckSuccess: 'Integrity Check was successful',
+            integrityCheckSuccessDescription: 'Verification passed successfully. Your hash and the contract hash match and are fully verified',
+            integrityCheckFailed: 'Integrity Check failed',
+            integrityCheckFailedDescription: 'Verification failed. Your hash and the contract hash do not match and are not verified',
+            checkInExplorer: 'Check in Explorer',
+            configBackUp: 'Your config backup',
+            contractCodeHash: 'Contract Code hash'
         }
     },
     welcome: {

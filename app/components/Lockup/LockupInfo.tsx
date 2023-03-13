@@ -8,8 +8,11 @@ import { t } from "../../i18n/t"
 import { ItemDivider } from "../ItemDivider"
 import Chevron from '../../../assets/ic_ios_chevron_right.svg';
 import BN from "bn.js"
+import { AppConfig } from "../../AppConfig"
+import { useTypedNavigation } from "../../utils/useTypedNavigation"
 
 export const LockupInfo = React.memo(({ address, lockup }: { address: Address, lockup: LockupWalletState }) => {
+    const navigation = useTypedNavigation();
     const locked = React.useMemo(() => {
         let locked = new BN(0);
         if (lockup.wallet?.locked) {
@@ -61,7 +64,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                 />
                 <ItemDivider />
                 <ItemButton
-                    title="Integrity Check"
+                    title={t('products.lockups.integrityCheck')}
                     rightIcon={{
                         icon: Chevron,
                         color: '#000000',
@@ -70,6 +73,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                         style: { marginLeft: 16 }
                     }}
                     hint="✅"
+                    onPress={() => navigation.navigate('IntegrityCheck', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) })}
                 />
                 <ItemDivider />
                 <ItemButton

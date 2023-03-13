@@ -374,6 +374,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             unrestricted: 'Без ограничений',
             stakingProductTitle: 'Ограниченные и ликвидные монеты',
             otherInfo: 'Другая информация',
+            integrityCheck: 'Проверка целостности',
+            integrityCheckSuccess: 'Проверка целостности прошла успешно',
+            integrityCheckSuccessDescription: 'Проверка прошла успешно. Ваш хэш и хэш контракта совпадают и полностью проверены',
+            integrityCheckFailed: 'Проверка целостности не прошла',
+            integrityCheckFailedDescription: 'Проверка не прошла. Ваш хэш и хэш контракта не совпадают и не проверены',
+            checkInExplorer: 'Проверить в эксплорере',
+            configBackUp: 'Ваша резервная копия конфигурации',
+            contractCodeHash: 'Хэш кода контракта'
         }
     },
     welcome: {

@@ -24,6 +24,8 @@ export const ItemButton = React.memo((props: {
         width?: number,
         style?: StyleProp<ViewStyle>
     },
+    textColor?: string,
+    fontWeight?: 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900'
 }) => {
     return (
         <Pressable style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })} onPress={props.onPress}>
@@ -42,9 +44,10 @@ export const ItemButton = React.memo((props: {
                         style={{
                             fontSize: 17,
                             textAlignVertical: 'center',
-                            color: props.dangerZone ? "#FF0000" : Theme.textColor,
+                            color: props.dangerZone ? "#FF0000" : (props.textColor ?? Theme.textColor),
                             marginLeft: props.leftIconSource ? 13 : 0,
                             lineHeight: 24,
+                            fontWeight: props.fontWeight
                         }}
                         numberOfLines={1}
                         ellipsizeMode={'tail'}

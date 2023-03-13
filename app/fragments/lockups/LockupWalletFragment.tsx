@@ -270,7 +270,10 @@ export const LockupWalletFragment = fragment(() => {
                             lockup={walletState}
                             title
                         />
-                        <LockupInfo lockup={walletState} address={target} />
+                        <LockupInfo
+                            lockup={walletState}
+                            address={target}
+                        />
                     </>
                 )}
 

@@ -375,6 +375,14 @@ export type LocalizationSchema = {
             unrestricted: string,
             stakingProductTitle: string,
             otherInfo: string,
+            integrityCheck: string,
+            integrityCheckSuccess: string,
+            integrityCheckSuccessDescription: string,
+            integrityCheckFailed: string,
+            integrityCheckFailedDescription: string,
+            checkInExplorer: string,
+            configBackUp: string,
+            contractCodeHash: string
         }
     }
     welcome: {

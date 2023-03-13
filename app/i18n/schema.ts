@@ -365,6 +365,8 @@ export type LocalizationSchema = {
             liquidBalance: string,
             lockedBalance: string,
             restrictedBalance: string,
+            restrictedBalanceDescription: string,
+            allowedWallets: string,
             lockedTitle: string,
             restrictedTitle: string,
             until: string,

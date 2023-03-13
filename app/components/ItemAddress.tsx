@@ -14,7 +14,8 @@ export const ItemAddress = React.memo((props: {
     secondary?: string,
     verified?: boolean,
     contact?: boolean,
-    children?: any
+    children?: any,
+    rightAction?: any,
 }) => {
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
@@ -76,7 +77,10 @@ export const ItemAddress = React.memo((props: {
                 </View>
                 {!!props.text && (
                     <>
-                        <View style={{ flexGrow: 1 }} />
+                        <View style={{
+                            flexGrow: props.rightAction ? 0 : 1,
+                            marginRight: props.rightAction ? 8 : 0,
+                        }} />
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -92,6 +96,7 @@ export const ItemAddress = React.memo((props: {
                         </Pressable>
                     </>
                 )}
+                {props.rightAction}
             </View>
         </View>
     )

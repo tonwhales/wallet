@@ -62,8 +62,9 @@ import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { Splash } from './components/Splash';
-import { LockupsFragment } from './fragments/secure/LockupsFragment';
-import { LockupWalletFragment } from './fragments/secure/LockupWalletFragment';
+import { LockupWalletFragment } from './fragments/lockups/LockupWalletFragment';
+import { LockupsFragment } from './fragments/lockups/LockupsFragment';
+import { LockupRestrictedFragment } from './fragments/lockups/LockupRestrictedFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -164,6 +165,7 @@ const navigation = [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('Lockups', LockupsFragment),
+    modalScreen('LockupRestricked', LockupRestrictedFragment),
     fullScreen('LockupWallet', LockupWalletFragment),
     modalScreen('StakingGraph', StakingGraphFragment),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),

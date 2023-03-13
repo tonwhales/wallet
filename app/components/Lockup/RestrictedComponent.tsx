@@ -1,12 +1,13 @@
 import BN from "bn.js";
 import React from "react";
 import { View, Text } from "react-native";
+import { Address } from "ton";
 import { LockupWalletState } from "../../engine/sync/startLockupWalletSync";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
 import { ResctrictedButton } from "./ResctrictedButton";
 
-export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalletState }) => {
+export const RestrictedComponent = React.memo(({ address, lockup }: { address: Address, lockup: LockupWalletState }) => {
     const { views } = React.useMemo(() => {
         const views: any[] = [];
         let restricted = new BN(0);
@@ -18,7 +19,14 @@ export const RestrictedComponent = React.memo(({ lockup }: { lockup: LockupWalle
                     untilLabel = t('products.lockups.until', { date: formatDate(until) });
                     restricted = restricted.add(new BN(value));
                 }
-                views.push(<ResctrictedButton key={`restriction-${index}`} until={until} value={value} />)
+                views.push(
+                    <ResctrictedButton
+                        address={address}
+                        key={`restriction-${index}`}
+                        until={until}
+                        value={value}
+                    />
+                );
             });
         }
 

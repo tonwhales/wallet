@@ -29,7 +29,6 @@ export const LockupsFragment = fragment(() => {
         if (lockup.state.wallet?.totalRestrictedValue) {
             balance = balance.add(lockup.state.wallet.totalRestrictedValue);
         }
-        // let at = lockup.address.toFriendly({ testOnly: AppConfig.isTestnet });
         items.push(
             <LockupProductButton
                 key={lockup.address.toFriendly({ testOnly: AppConfig.isTestnet })}
@@ -73,7 +72,6 @@ export const LockupsFragment = fragment(() => {
                 }}
             >
                 <View style={{ flexGrow: 1 }}>
-
                     {items}
                     <View style={{ height: 24 }} />
                 </View>

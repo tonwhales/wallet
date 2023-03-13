@@ -2,24 +2,22 @@ import BN from "bn.js";
 import React from "react";
 import { Pressable, View, Text } from "react-native";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { Theme } from "../../Theme";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 import { Timer } from "./Timer";
 
 export const ResctrictedButton = React.memo(({
-    address,
     value,
-    until
+    until,
+    onPress,
+    withDate
 }: {
-    address: Address,
     value: BN,
-    until: number
+    until: number,
+    onPress?: () => void,
+    withDate?: boolean
 }) => {
-    const navigation = useTypedNavigation();
-
     return (
         <Pressable
             style={({ pressed }) => {
@@ -33,9 +31,7 @@ export const ResctrictedButton = React.memo(({
                     paddingVertical: 12
                 }];
             }}
-            onPress={() => {
-                navigation.navigate('LockupRestricked', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) });
-            }}
+            onPress={onPress}
         >
             <View style={{
                 flexDirection: 'row',

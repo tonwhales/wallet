@@ -2,12 +2,15 @@ import BN from "bn.js";
 import React from "react";
 import { View, Text } from "react-native";
 import { Address } from "ton";
+import { AppConfig } from "../../AppConfig";
 import { LockupWalletState } from "../../engine/sync/startLockupWalletSync";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ResctrictedButton } from "./ResctrictedButton";
 
 export const RestrictedComponent = React.memo(({ address, lockup }: { address: Address, lockup: LockupWalletState }) => {
+    const navigation = useTypedNavigation();
     const { views } = React.useMemo(() => {
         const views: any[] = [];
         let restricted = new BN(0);
@@ -21,10 +24,12 @@ export const RestrictedComponent = React.memo(({ address, lockup }: { address: A
                 }
                 views.push(
                     <ResctrictedButton
-                        address={address}
-                        key={`restriction-${index}`}
+                        key={`restricted-${index}`}
                         until={until}
                         value={value}
+                        onPress={() => {
+                            navigation.navigate('LockupRestricked', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) });
+                        }}
                     />
                 );
             });

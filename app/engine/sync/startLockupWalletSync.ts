@@ -5,20 +5,22 @@ import { Engine } from "../Engine";
 import { tryFetchLockup } from "../metadata/introspections/tryFetchLockup";
 import { startDependentSync } from "./utils/startDependentSync";
 
+export type LockupWallet = {
+    seqno: number;
+    subwalletId: number;
+    publicKey: Buffer;
+    configPublicKey: Buffer;
+    allowedDestinations: Address[];
+    totalLockedValue: BN;
+    locked: Map<string, BN> | null;
+    totalRestrictedValue: BN;
+    restricted: Map<string, BN> | null;
+}
+
 export type LockupWalletState = {
     block: number;
     balance: BN;
-    wallet: {
-        seqno: number;
-        subwalletId: number;
-        publicKey: Buffer;
-        configPublicKey: Buffer;
-        allowedDestinations: Address[];
-        totalLockedValue: BN;
-        locked: Map<string, BN> | null;
-        totalRestrictedValue: BN;
-        restricted: Map<string, BN> | null;
-    } | null
+    wallet: LockupWallet | null
 };
 
 export function startLockupWalletSync(address: Address, engine: Engine) {

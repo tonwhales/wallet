@@ -1,22 +1,19 @@
 import { StatusBar } from "expo-status-bar";
-import { Platform, View, Text, Image } from "react-native";
+import { Platform, View, Text } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { t } from "../../i18n/t";
 import { ScrollView } from "react-native-gesture-handler";
 import { ItemGroup } from "../../components/ItemGroup";
-import { ItemDivider } from "../../components/ItemDivider";
 import { useEngine } from "../../engine/Engine";
 import { Address } from "ton";
-import { ItemAddress } from "../../components/ItemAddress";
 import { RestrictedComponent } from "../../components/Lockup/RestrictedComponent";
-import { AppConfig } from "../../AppConfig";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Theme } from "../../Theme";
+import { AllowedAddresses } from "../../components/Lockup/AllowedAddresses";
 
 export const LockupRestrictedFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -80,45 +77,7 @@ export const LockupRestrictedFragment = fragment(() => {
                         {!!walletState && !!walletState.wallet && (
                             <>
                                 <ItemGroup style={{ marginHorizontal: 16 }}>
-                                    {walletState.wallet?.allowedDestinations.map((owner, index) => {
-                                        return (
-                                            <View key={`wallet-${index}`}>
-                                                <ItemAddress
-                                                    title={t('common.walletAddress')}
-                                                    text={owner.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                                    rightAction={
-                                                        <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                                            <View style={{
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-                                                                borderRadius: 14
-                                                            }}>
-                                                                <View style={{
-                                                                    backgroundColor: Theme.accent,
-                                                                    width: 30, height: 30,
-                                                                    borderRadius: 15,
-                                                                    alignItems: 'center', justifyContent: 'center'
-                                                                }}>
-                                                                    <Image source={require('../../../assets/ic_send.png')} />
-                                                                </View>
-                                                                <Text style={{
-                                                                    fontSize: 13,
-                                                                    color: Theme.accentText,
-                                                                    marginTop: 4,
-                                                                    fontWeight: '400'
-                                                                }}>
-                                                                    {t('wallet.actions.send')}
-                                                                </Text>
-                                                            </View>
-                                                        </View>
-                                                    }
-                                                />
-                                                {index < (walletState?.wallet?.allowedDestinations.length ?? 0) - 1 && (
-                                                    <ItemDivider />
-                                                )}
-                                            </View>
-                                        );
-                                    })}
+                                    <AllowedAddresses wallet={walletState.wallet} />
                                 </ItemGroup>
                                 <RestrictedComponent
                                     address={target}

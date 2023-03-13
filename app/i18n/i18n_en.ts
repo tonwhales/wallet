@@ -361,6 +361,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             wallet: 'Lockup Wallet',
             totalBalance: 'Total Balance',
             liquidBalance: 'Available Balance',
+            liquidBalanceSubtitle: 'Available (Liquid) Balance',
+            liquidBalanceDescription: 'You can Top up this balance, transfer from Lockup Wallet to other wallets and stake these TONs. \n \n Available balance (or liquid) is also used to pay transfer fees from Lockup.',
             lockedBalance: 'Locked Balance',
             lockedBalanceDescription: 'Typically, a locked balance is used to pay blockchain fees. These coins cannot be spent until unlocked date',
             restrictedBalance: 'Restricted Balance',
@@ -381,7 +383,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             integrityCheckFailedDescription: 'Verification failed. Your hash and the contract hash do not match and are not verified',
             checkInExplorer: 'Check in Explorer',
             configBackUp: 'Your config backup',
-            contractCodeHash: 'Contract Code hash'
+            contractCodeHash: 'Contract Code hash',
+            sendToMyWallet: 'To my main wallet',
+            sendToOtherWallet: 'To other wallet',
+            sendToOtherWalletDescription: 'Any wallet in TON',
         }
     },
     welcome: {

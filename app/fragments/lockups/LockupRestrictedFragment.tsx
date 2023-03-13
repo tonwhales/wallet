@@ -5,7 +5,7 @@ import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { t } from "../../i18n/t";
 import { ScrollView } from "react-native-gesture-handler";
 import { ItemGroup } from "../../components/ItemGroup";
@@ -20,7 +20,7 @@ export const LockupRestrictedFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const { address } = useParams<{ address: string }>();
-    const target = Address.parse(address);
+    const target = useMemo(() => Address.parse(address), []);
     const walletState = engine.products.lockup.useLockupWallet(target);
     const anim = useRef<LottieView>(null);
     const safeArea = useSafeAreaInsets();

@@ -23,7 +23,7 @@ export const LockupLockedFragment = fragment(() => {
     const engine = useEngine();
     const anim = useRef<LottieView>(null);
     const navigation = useTypedNavigation();
-    const target = Address.parse(address);
+    const target = useMemo(() => Address.parse(address), []);
     const walletState = engine.products.lockup.useLockupWallet(target);
 
     const views = useMemo(() => {

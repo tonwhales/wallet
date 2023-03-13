@@ -362,6 +362,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             wallet: 'Lockup кошелек',
             totalBalance: 'Общий баланс',
             liquidBalance: 'Доступный остаток',
+            liquidBalanceSubtitle: 'Доступный (Ликвидный) остаток',
+            liquidBalanceDescription: 'Вы можете пополнять этот баланс, переводить средства с кошелька Lockup на другие кошельки и отправлять в стейкинг. \n \n Доступный баланс также используется для оплаты комиссии за переводы с Lockup кошелька.',
             lockedBalance: 'Заблокированный баланс',
             lockedBalanceDescription: 'Как правило, заблокированный баланс используется для оплаты комиссий блокчейна. Эти монеты не могут быть выведены до даты разблокировки',
             restrictedBalance: 'Ограниченный баланс',
@@ -382,7 +384,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             integrityCheckFailedDescription: 'Проверка не прошла. Ваш хэш и хэш контракта не совпадают и не проверены',
             checkInExplorer: 'Проверить в эксплорере',
             configBackUp: 'Ваша резервная копия конфигурации',
-            contractCodeHash: 'Хэш кода контракта'
+            contractCodeHash: 'Хэш кода контракта',
+            sendToMyWallet: 'На мой основной кошелек',
+            sendToOtherWallet: 'На другой кошелек',
+            sendToOtherWalletDescription: 'На любой кошелек в TON',
         }
     },
     welcome: {

@@ -45,8 +45,7 @@ export const AvailableBalance = React.memo(({ address, lockup }: { address: Addr
     return (
         <TouchableHighlight
             onPress={() => {
-                navigation.goBack();
-                navigation.navigate('LockupWallet', { address: friendly });
+                navigation.navigate('LiquidBalance', { address: friendly });
             }}
             underlayColor={Theme.selector}
             style={[

@@ -363,6 +363,8 @@ export type LocalizationSchema = {
             wallet: string,
             totalBalance: string,
             liquidBalance: string,
+            liquidBalanceSubtitle: string,
+            liquidBalanceDescription: string,
             lockedBalance: string,
             lockedBalanceDescription: string,
             restrictedBalance: string,
@@ -383,7 +385,10 @@ export type LocalizationSchema = {
             integrityCheckFailedDescription: string,
             checkInExplorer: string,
             configBackUp: string,
-            contractCodeHash: string
+            contractCodeHash: string,
+            sendToMyWallet: string,
+            sendToOtherWallet: string,
+            sendToOtherWalletDescription: string,
         }
     }
     welcome: {

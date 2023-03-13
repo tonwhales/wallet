@@ -28,7 +28,7 @@ export const LockupWalletFragment = fragment(() => {
     const { address } = useParams<{ address: string }>();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const target = Address.parse(address);
+    const target = useMemo(() => Address.parse(address), []);
     const walletState = engine.products.lockup.useLockupWallet(target);
 
     const { totalBalance, liquidBalance } = useMemo(() => {

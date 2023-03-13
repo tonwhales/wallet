@@ -20,6 +20,7 @@ export const Theme = {
     secondaryButton: '#E5E5E7',
     secondaryButtonText: '#798287',
     success: '#4DC47D',
+    positiveBalance: '#4FAE42',
     dangerZone: '#FF0000',
     qrCode: '#303757',
     price: '#787F83'

@@ -98,12 +98,12 @@ export const LiquidBalanceFragment = fragment(() => {
                             {t('products.lockups.liquidBalanceDescription')}
                         </Text>
                     </View>
-                    <ItemGroup style={{ width: '100%', paddingTop: 14, marginTop: 30 }}>
+                    <ItemGroup style={{ width: '100%', marginTop: 30 }}>
                         <View style={{
                             flexDirection: 'row',
                             justifyContent: 'space-between',
-                            marginBottom: 7, marginLeft: 6,
-                            paddingHorizontal: 10,
+                            paddingHorizontal: 16,
+                            marginTop: 14, marginBottom: 17
                         }}>
                             <View style={{
                                 flexDirection: 'column',
@@ -113,7 +113,7 @@ export const LiquidBalanceFragment = fragment(() => {
                                 <Text style={{
                                     fontWeight: '600',
                                     fontSize: 16,
-                                    color: Theme.textColor
+                                    color: Theme.textColor,
                                 }}>
                                     {t('common.balance')}
                                 </Text>
@@ -133,7 +133,7 @@ export const LiquidBalanceFragment = fragment(() => {
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
-                                    color: Theme.textColor
+                                    color: Theme.positiveBalance
                                 }}>
                                     <ValueComponent
                                         value={liquid}
@@ -147,7 +147,7 @@ export const LiquidBalanceFragment = fragment(() => {
                                         backgroundColor: 'transparent',
                                         paddingHorizontal: 0, paddingVertical: 0,
                                         alignSelf: 'flex-end',
-                                        marginTop: 2, height: undefined,
+                                        marginTop: 5, height: undefined,
                                         minHeight: 14
                                     }}
                                     textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
@@ -181,15 +181,16 @@ export const LiquidBalanceFragment = fragment(() => {
                             <View style={{
                                 flexDirection: 'row',
                                 alignItems: 'center', justifyContent: 'space-between',
-                                paddingHorizontal: 16
+                                paddingHorizontal: 16, paddingVertical: 14
                             }}>
                                 <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                                    <View style={{ height: 30, flexDirection: 'row' }}>
+                                    <View style={{ flexDirection: 'row' }}>
                                         <Text style={{
                                             fontSize: 16, fontWeight: '500',
                                             color: Theme.textColor,
                                             alignSelf: 'center',
-                                            flexGrow: 1
+                                            flexGrow: 1, 
+                                            marginBottom: 6
                                         }}>
                                             {t('products.lockups.sendToMyWallet')}
                                         </Text>
@@ -197,7 +198,6 @@ export const LiquidBalanceFragment = fragment(() => {
                                     <View style={{
                                         flexDirection: 'row',
                                         alignItems: 'center', justifyContent: 'center',
-                                        paddingBottom: 14
                                     }}>
                                         <Text
                                             style={[
@@ -233,7 +233,6 @@ export const LiquidBalanceFragment = fragment(() => {
                                         <Text style={{
                                             fontSize: 13,
                                             color: Theme.accentText,
-                                            marginTop: 4,
                                             fontWeight: '400'
                                         }}>
                                             {t('wallet.actions.send')}
@@ -254,22 +253,22 @@ export const LiquidBalanceFragment = fragment(() => {
                             <View style={{
                                 flexDirection: 'row',
                                 alignItems: 'center', justifyContent: 'space-between',
-                                paddingHorizontal: 16
+                                paddingHorizontal: 16, paddingVertical: 14
                             }}>
                                 <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                                    <View style={{ height: 30, flexDirection: 'row' }}>
+                                    <View style={{ flexDirection: 'row' }}>
                                         <Text style={{
                                             fontSize: 16, fontWeight: '500',
                                             color: Theme.textColor,
-                                            alignSelf: 'center', flexGrow: 1
+                                            alignSelf: 'center', flexGrow: 1,
+                                            marginBottom: 6
                                         }}>
                                             {t('products.lockups.sendToOtherWallet')}
                                         </Text>
                                     </View>
                                     <View style={{
                                         flexDirection: 'row',
-                                        alignItems: 'center', justifyContent: 'center',
-                                        paddingBottom: 14
+                                        alignItems: 'center', justifyContent: 'center'
                                     }}>
                                         <Text
                                             style={[

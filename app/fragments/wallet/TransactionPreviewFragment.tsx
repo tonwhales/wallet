@@ -152,34 +152,7 @@ export const TransactionPreviewFragment = fragment(() => {
 
     useEffect(() => {
         let subscription: ScreenCapture.Subscription;
-        if (Platform.OS === 'android') {
-            (async () => {
-                try {
-                    const granted = await PermissionsAndroid.requestMultiple(
-                        [
-                            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                            'android.permission.READ_MEDIA_IMAGES' as Permission,
-                        ]
-                    );
-                    if (
-                        granted[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] === PermissionsAndroid.RESULTS.GRANTED
-                        || granted['android.permission.READ_MEDIA_IMAGES' as Permission] === PermissionsAndroid.RESULTS.GRANTED
-                    ) {
-                        subscription = ScreenCapture.addScreenshotListener(() => {
-                            if (!tonhubLink) {
-                                return;
-                            }
-                            Share.share({ title: t('txActions.share.transaction'), message: tonhubLink });
-                        });
-                    } else {
-                        warn('READ_MEDIA_IMAGES permission denied');
-                    }
-                } catch (err) {
-                    warn(err);
-                }
-            })();
-
-        } else {
+        if (Platform.OS === 'ios') {
             subscription = ScreenCapture.addScreenshotListener(() => {
                 if (!tonhubLink) {
                     return;
@@ -187,7 +160,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 Share.share({ title: t('txActions.share.transaction'), url: tonhubLink });
             });
         }
-        return () => subscription.remove();
+        return () => subscription?.remove();
     }, [tonhubLink]);
 
 

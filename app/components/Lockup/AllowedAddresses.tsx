@@ -25,7 +25,14 @@ export const AllowedAddresses = React.memo(({ wallet }: { wallet: LockupWallet }
             {wallet.allowedDestinations.map((owner, index) => {
                 const friendly = owner.toFriendly({ testOnly: AppConfig.isTestnet });
                 return (
-                    <View key={`wallet-${index}`}>
+                    <Pressable
+                        key={`wallet-${index}`}
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.3 : 1,
+                            }
+                        }}
+                    >
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
                             <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                                 <View style={{ height: 30, flexDirection: 'row' }}>
@@ -101,7 +108,7 @@ export const AllowedAddresses = React.memo(({ wallet }: { wallet: LockupWallet }
                         {index < (wallet.allowedDestinations.length ?? 0) - 1 && (
                             <ItemDivider />
                         )}
-                    </View>
+                    </Pressable>
                 );
             })}
         </>

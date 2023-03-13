@@ -24,7 +24,7 @@ export const ResctrictedButton = React.memo(({
         <Pressable
             style={({ pressed }) => {
                 return [{
-                    opacity: pressed ? 0.3 : 1,
+                    opacity: (pressed && !!onPress) ? 0.3 : 1,
                     marginHorizontal: 16,
                     marginBottom: 8,
                     backgroundColor: Theme.item,
@@ -40,7 +40,7 @@ export const ResctrictedButton = React.memo(({
                     <View style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
-                        marginBottom: 7, marginTop: 7, marginLeft: 6,
+                        marginBottom: 7, marginLeft: 6,
                         paddingHorizontal: 10,
                     }}>
                         <View style={{

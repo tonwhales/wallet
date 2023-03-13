@@ -38,9 +38,10 @@ export const RestrictedComponent = React.memo(({
                         until={until}
                         value={value}
                         withDate={withDate}
-                        onPress={() => {
-                            navigation.navigate('LockupRestricked', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) });
-                        }}
+                        onPress={withDate
+                            ? undefined
+                            : () => navigation.navigate('LockupRestricked', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) })
+                        }
                     />
                 );
             });

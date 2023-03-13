@@ -162,7 +162,15 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
             pendingDeposit: BN;
             withdraw: BN;
         }
-        if (memberResponse.result.length < 4) {
+
+        try {
+            memberState = {
+                balance: memberParser.readBigNumber(),
+                pendingDeposit: memberParser.readBigNumber(),
+                pendingWithdraw: memberParser.readBigNumber(),
+                withdraw: memberParser.readBigNumber()
+            }
+        } catch (error) {
             memberState = {
                 balance: new BN(0),
                 pendingDeposit: new BN(0),
@@ -170,12 +178,6 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
                 withdraw: new BN(0)
             };
         }
-        memberState = {
-            balance: memberParser.readBigNumber(),
-            pendingDeposit: memberParser.readBigNumber(),
-            pendingWithdraw: memberParser.readBigNumber(),
-            withdraw: memberParser.readBigNumber()
-        };
 
         // Update
         let newState: StakingPoolState = {

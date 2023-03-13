@@ -77,7 +77,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                 />
                 <ItemDivider />
                 <ItemButton
-                    title="Locked Balance"
+                    title={t('products.lockups.lockedBalance')}
                     rightIcon={{
                         icon: Chevron,
                         color: '#000000',
@@ -86,6 +86,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                         style: { marginLeft: 16 }
                     }}
                     hint={fromNano(locked) + ' TON'}
+                    onPress={() => navigation.navigate('LockupLocked', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) })}
                 />
                 <ItemDivider />
                 <ItemButton

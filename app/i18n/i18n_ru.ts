@@ -363,6 +363,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             totalBalance: 'Общий баланс',
             liquidBalance: 'Доступный остаток',
             lockedBalance: 'Заблокированный баланс',
+            lockedBalanceDescription: 'Как правило, заблокированный баланс используется для оплаты комиссий блокчейна. Эти монеты не могут быть выведены до даты разблокировки',
             restrictedBalance: 'Ограниченный баланс',
             restrictedBalanceDescription: 'Эти монеты не могут быть потрачены до даты разблокировки, но могут быть переведены на разрешенные адреса кошельков',
             allowedWallets: 'Разрешенные для отправки кошельки',

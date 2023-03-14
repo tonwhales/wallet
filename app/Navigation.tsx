@@ -62,6 +62,7 @@ import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { Splash } from './components/Splash';
+import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -173,6 +174,7 @@ const navigation = [
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
+    modalScreen('Assets', AssetsFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

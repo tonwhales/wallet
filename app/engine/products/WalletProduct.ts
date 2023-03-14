@@ -22,18 +22,20 @@ export type WalletState = {
     next: { lt: string, hash: string } | null;
 }
 
+export type JettonState = {
+    wallet: Address,
+    master: Address,
+    balance: BN,
+    name: string,
+    symbol: string,
+    description: string,
+    icon: string | null,
+    decimals: number | null,
+    disabled?: boolean
+}
+
 export type JettonsState = {
-    jettons: {
-        wallet: Address,
-        master: Address,
-        balance: BN,
-        name: string,
-        symbol: string,
-        description: string,
-        icon: string | null,
-        decimals: number | null,
-        disabled?: boolean
-    }[]
+    jettons: JettonState[]
 }
 
 export type PluginsState = {

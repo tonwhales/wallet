@@ -61,6 +61,7 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { Splash } from './components/Splash';
 
 const Stack = createNativeStackNavigator();

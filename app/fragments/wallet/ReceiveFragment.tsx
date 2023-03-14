@@ -2,7 +2,7 @@ import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Platform, Share, Text } from "react-native";
+import { View, Platform, Text } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
 import { useNavigation } from "@react-navigation/native";
@@ -11,6 +11,8 @@ import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
+import { useParams } from "../../utils/useParams";
+import { Address } from "ton";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import { CopyButton } from "../../components/CopyButton";
 import { ShareButton } from "../../components/ShareButton";
@@ -18,7 +20,13 @@ import { ShareButton } from "../../components/ShareButton";
 export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const params = useParams<{ addr?: string }>();
+    const address = React.useMemo(() => {
+        if (params.addr) {
+            return Address.parse(params.addr);
+        }
+        return getCurrentAddress().address;
+    }, [params]);
     const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
     const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
 

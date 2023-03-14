@@ -52,9 +52,10 @@ export const ConnectionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const extensions = engine.products.extensions.useExtensions();
+    const tonconnectApps = engine.products.tonConnect.useExtensions();
     let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
-    let disconnectApp = React.useCallback((url: string) => {
 
+    let disconnectApp = React.useCallback((url: string) => {
         let refs = getConnectionReferences();
         let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
         if (toRemove.length === 0) {
@@ -77,12 +78,23 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
+
     let removeExtension = React.useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
                 engine.products.extensions.removeExtension(key);
+            }
+        }]);
+    }, []);
+
+    let disconnectConnectApp = React.useCallback((key: string) => {
+        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
+            text: t('auth.revoke.action'),
+            style: 'destructive',
+            onPress: () => {
+                engine.products.tonConnect.disconnect(key);
             }
         }]);
     }, []);
@@ -209,7 +221,7 @@ export const ConnectionsFragment = fragment(() => {
                             />
                         </View>
                     ))}
-                    {apps.length > 0 && (
+                    {(apps.length > 0 || tonconnectApps.length > 0) && (
                         <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                             <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.connections')}</Text>
                         </View>
@@ -223,7 +235,18 @@ export const ConnectionsFragment = fragment(() => {
                             />
                         </View>
                     ))}
+                    {tonconnectApps.map((app) => (
+                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                            <ConnectedAppButton
+                                onRevoke={() => disconnectConnectApp(app.url)}
+                                url={app.url}
+                                name={app.name}
+                                tonconnect
+                            />
+                        </View>
+                    ))}
                 </View>
+                <View style={{ height: safeArea.bottom }} />
             </ScrollView>
             {Platform.OS === 'ios' && (
                 <CloseButton

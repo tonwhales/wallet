@@ -1,7 +1,6 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
-import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
-import { ProductButton } from "./ProductButton"
+import { Alert, LayoutAnimation, Text, View } from "react-native"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
@@ -15,7 +14,8 @@ import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
 import { AnimatedProductButton } from "./AnimatedProductButton"
-import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
 
 export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
@@ -24,6 +24,8 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
+    const tonconnectExtensions = engine.products.tonConnect.useExtensions();
+    const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);
         if (!domain) {
@@ -99,12 +101,65 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
+    for (let e of tonconnectExtensions) {
+        apps.push(
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                key={e.key}
+                name={e.name}
+                subtitle={e.url}
+                image={e.image ?? undefined}
+                value={null}
+                onPress={() => {
+                    navigation.navigate('ConnectApp', { url: e.url });
+                }}
+                extension={true}
+                style={{ marginVertical: 4 }}
+            />
+        );
+    }
+
+    // Resolve tonconnect requests
+    let tonconnect: React.ReactElement[] = [];
+    for (let r of tonconnectRequests) {
+        const prepared = prepareTonConnectRequest(r, engine);
+        if (r.method === 'sendTransaction' && prepared) {
+            tonconnect.push(
+                <AnimatedProductButton
+                    key={r.from}
+                    entering={FadeInUp}
+                    exiting={FadeOutDown}
+                    name={t('products.transactionRequest.title')}
+                    subtitle={t('products.transactionRequest.subtitle')}
+                    icon={TransactionIcon}
+                    value={null}
+                    onPress={() => {
+                        navigation.navigateTransfer({
+                            text: null,
+                            order: {
+                                messages: prepared.messages,
+                                app: (prepared.app && prepared.app.connectedApp) ? {
+                                    title: prepared.app.connectedApp.name,
+                                    domain: extractDomain(prepared.app.connectedApp.url),
+                                } : undefined
+                            },
+                            job: null,
+                            callback: (ok, result) => tonConnectTransactionCallback(ok, result, prepared.request, prepared.sessionCrypto, engine)
+                        })
+                    }}
+                />
+            );
+        }
+    }
+
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [extensions, jettons, oldWalletsBalance, currentJob,]);
+    }, [extensions, jettons, oldWalletsBalance, currentJob, tonconnectRequests]);
 
     return (
         <View style={{ paddingTop: 8 }}>
+            {tonconnect}
             {currentJob && currentJob.job.type === 'transaction' && (
                 <AnimatedProductButton
                     entering={FadeInUp}
@@ -117,11 +172,13 @@ export const ProductsComponent = React.memo(() => {
                         if (currentJob.job.type === 'transaction') {
                             navigation.navigateTransfer({
                                 order: {
-                                    target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    amount: currentJob.job.amount,
-                                    payload: currentJob.job.payload,
-                                    stateInit: currentJob.job.stateInit,
-                                    amountAll: false
+                                    messages: [{
+                                        target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                        amount: currentJob.job.amount,
+                                        payload: currentJob.job.payload,
+                                        stateInit: currentJob.job.stateInit,
+                                        amountAll: false
+                                    }]
                                 },
                                 job: currentJob.jobRaw,
                                 text: currentJob.job.text,

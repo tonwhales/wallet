@@ -16,6 +16,7 @@ export type LocalizationSchema = {
         balance: string,
         walletAddress: string,
         copy: string,
+        copiedAlert: string,
         copied: string,
         share: string,
         send: string,
@@ -40,9 +41,8 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         apy: string,
         tx: string,
-        add: string,
-        connect: string,
-        gotIt: string
+        gotIt: string,
+        wallet: string
     },
     syncStatus: {
         connecting: string,
@@ -256,6 +256,9 @@ export type LocalizationSchema = {
                 teamBanner: string,
                 teamBannerLearnMore: string,
                 teamBannerDescription: string,
+                epnPartners: string,
+                epnPartnersDescription: string,
+                moreAboutEPN: string,
             },
             transfer: {
                 stakingWarning: string,

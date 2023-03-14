@@ -14,7 +14,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         balance: 'Balance',
         walletAddress: 'Wallet address',
         copy: 'Copy',
-        copied: 'Copied to clipboard',
+        copiedAlert: 'Copied to clipboard',
+        copied: 'Copied',
         share: 'Share',
         send: 'Send',
         yes: 'Yes',
@@ -38,9 +39,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Transaction',
-        add: 'Add',
-        connect: 'Connect',
-        gotIt: 'Got it'
+        gotIt: 'Got it',
+        wallet: 'Wallet',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -95,7 +95,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         blockchainFee: 'Blockchain fee'
     },
     receive: {
-        title: 'Receive Ton',
+        title: 'Receive',
         subtitle: 'Share this link to receive Ton',
         share: {
             title: 'My Tonhub Address'
@@ -216,8 +216,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Staking',
             balance: 'Staking balance',
             subtitle: {
-                join: 'Earn up to 13.3% on your TONs',
-                joined: 'Earn up to 13.3%',
+                join: 'Earn up to {{apy}}% on your TONs',
+                joined: 'Earn up to {{apy}}%',
                 rewards: 'Estimated Interest',
                 apy: '~13.3 APY of the contribution',
                 devPromo: 'Multiply your test coins'
@@ -244,6 +244,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 teamBanner: 'Become our Team Member',
                 teamBannerLearnMore: 'Learn about our team',
                 teamBannerDescription: 'If you are not a part of our team or one of top 15 Club members your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
+                epnPartners: 'ePN Partners',
+                epnPartnersDescription: 'Join over 200,000 webmasters working with ePN and get paid in TON',
+                moreAboutEPN: 'More about ePN',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
@@ -404,7 +407,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     errors: {
         incorrectWords: {
             title: 'Incorrect words',
-            message: 'You have entered incorrect secret words. Please, double ckeck your input and try again.'
+            message: 'You have entered incorrect secret words. Please, double check your input and try again.'
         },
         secureStorageError: {
             title: 'Secure storage error',

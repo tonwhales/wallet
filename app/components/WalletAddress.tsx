@@ -10,6 +10,7 @@ import { useEngine } from "../engine/Engine";
 import { confirmAlert } from "../utils/confirmAlert";
 import { Address } from "ton";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { copyText } from "../utils/copyText";
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 6)
@@ -59,14 +60,8 @@ export const WalletAddress = React.memo((props: {
     }, [addressLink]);
 
     const onCopy = React.useCallback(() => {
-        if (Platform.OS === 'android') {
-            Clipboard.setString(props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            return;
-        }
-        Clipboard.setString(props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-        return;
+        const text = props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet });
+        copyText(text);
     }, [props.value, props.address]);
 
     const handleAction = useCallback(
@@ -149,11 +144,9 @@ export const WalletAddress = React.memo((props: {
                             style={[
                                 {
                                     fontSize: 16,
-                                    fontWeight: '700',
+                                    fontWeight: '400',
                                     textAlign: 'center',
                                     color: Theme.textColor,
-                                    fontVariant: ['tabular-nums'],
-                                    fontFamily: Platform.OS === 'ios' ? undefined : 'monospace'
                                 },
                                 props.textStyle
                             ]}
@@ -168,11 +161,9 @@ export const WalletAddress = React.memo((props: {
                             style={[
                                 {
                                     fontSize: 16,
-                                    fontWeight: '700',
+                                    fontWeight: '400',
                                     textAlign: 'center',
                                     color: Theme.textColor,
-                                    fontVariant: ['tabular-nums'],
-                                    fontFamily: Platform.OS === 'ios' ? undefined : 'monospace'
                                 },
                                 props.textStyle
                             ]}

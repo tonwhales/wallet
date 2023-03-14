@@ -204,6 +204,7 @@ export const ZenPayLandingFragment = React.memo(() => {
                         allowsInlineMediaPlayback={true}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
+                        scrollEnabled={false}
                     />
                 </KeyboardAvoidingView>
                 <Animated.View

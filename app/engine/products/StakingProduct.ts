@@ -5,6 +5,16 @@ import { KnownPools } from "../../utils/KnownPools";
 import { selector, useRecoilValue } from "recoil";
 import { AppConfig } from "../../AppConfig";
 import BN from "bn.js";
+import { WalletConfig } from "../api/fetchWalletConfig";
+
+export type StakingState = {
+    pools: {
+        address: Address;
+        balance: BN;
+    }[];
+    total: BN;
+    config: WalletConfig | null;
+}
 
 export class StakingPoolsProduct {
     readonly engine: Engine;
@@ -50,7 +60,7 @@ export class StakingPoolsProduct {
         this.apyAtom = this.engine.persistence.stakingApy.item().atom;
     }
 
-    useStaking() {
+    useStaking(): StakingState {
         return useRecoilValue(this.full);
     }
 

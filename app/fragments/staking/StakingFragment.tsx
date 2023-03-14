@@ -392,7 +392,6 @@ export const StakingFragment = fragment(() => {
                                         {t('products.staking.learnMore')}
                                     </Text>
                                 </Pressable>
-                                {/* TODO */}
                             </View>
                         </BlurView>
                         <View style={{

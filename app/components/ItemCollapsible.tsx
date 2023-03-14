@@ -6,7 +6,7 @@ import Chevron from '../../assets/ic_chevron_down.svg'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ItemDivider } from './ItemDivider';
 
-export const ItemCollapsible = React.memo(({ title, children }: { title?: string, children?: any }) => {
+export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { title?: string, children?: any, hideDivider?: boolean }) => {
     const [collapsed, setCollapsed] = useState(true);
 
     const rotation = useSharedValue(0);
@@ -59,7 +59,7 @@ export const ItemCollapsible = React.memo(({ title, children }: { title?: string
                 </Animated.View>
             </Pressable>
             <Collapsible collapsed={collapsed}>
-                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
+                {!hideDivider && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
                 {children}
             </Collapsible>
         </View>

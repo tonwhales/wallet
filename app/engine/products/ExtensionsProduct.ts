@@ -14,7 +14,7 @@ export type DomainSubkey = {
     secret: Buffer
 }
 
-function extensionKey(src: string) {
+export function extensionKey(src: string) {
     return toUrlSafe(sha256_sync(src.toLocaleLowerCase().trim()).toString('base64'));
 }
 

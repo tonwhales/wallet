@@ -2,9 +2,9 @@ import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
-import { Order } from '../fragments/secure/ops/Order';
-import { getConnectionReferences } from '../storage/appState';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
+import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -56,13 +56,7 @@ export class TypedNavigation {
         this.base.popToTop();
     }
 
-    navigateTransfer(tx: {
-        order: Order,
-        text: string | null,
-        job: string | null,
-        callback: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number
-    }) {
+    navigateTransfer(tx: TransferFragmentProps) {
         this.navigate('Transfer', tx);
     }
 
@@ -105,8 +99,12 @@ export class TypedNavigation {
         this.navigate('Review', params);
     }
 
-    navigateStakingCalculator(params: { target: Address}) {
+    navigateStakingCalculator(params: { target: Address }) {
         this.navigate('StakingCalculator', params);
+    }
+
+    navigateConnectAuth(params: TonConnectAuthProps) {
+        this.navigate('TonConnectAuthenticate', params);
     }
 }
 

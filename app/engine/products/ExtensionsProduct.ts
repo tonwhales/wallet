@@ -1,4 +1,4 @@
-import { selector, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
 import { AppData, fetchAppData } from "../api/fetchAppData";
 import { Engine } from "../Engine";
 import { warn } from "../../utils/log";
@@ -7,6 +7,18 @@ import { AppConfig } from "../../AppConfig";
 import { AppState } from "react-native";
 import { sha256_sync } from "ton-crypto";
 import { toUrlSafe } from "../../utils/toUrlSafe";
+
+export type Extension = {
+    key: string;
+    url: string;
+    name: string;
+    date: number;
+    image: {
+        blurhash: string;
+        url: string;
+    } | null;
+    description: string | null;
+}
 
 export type DomainSubkey = {
     time: number,
@@ -21,7 +33,7 @@ export function extensionKey(src: string) {
 export class ExtensionsProduct {
     readonly engine: Engine;
     readonly extensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string | null, image?: { url: string, blurhash: string } | null } } }>;
-    readonly #extensionsSelector;
+    readonly #extensionsSelector: RecoilValueReadOnly<Extension[]>;
 
     constructor(engine: Engine) {
         this.engine = engine;

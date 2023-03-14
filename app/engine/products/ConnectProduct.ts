@@ -1,9 +1,9 @@
 import { Engine } from "../Engine";
 import { warn } from '../../utils/log';
 import { MessageEvent } from 'react-native-sse';
-import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SignRawParams, TonConnectBridgeType } from '../tonconnect/types';
+import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SendTransactionRequest, SignRawParams, TonConnectBridgeType, TonConnectExtension } from '../tonconnect/types';
 import { AppRequest, Base64, ConnectEvent, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
-import { selector, useRecoilValue } from 'recoil';
+import { RecoilValueReadOnly, selector, useRecoilValue } from 'recoil';
 import { AppConfig } from '../../AppConfig';
 import { AppState } from 'react-native';
 import { AppManifest, fetchManifest } from '../api/fetchManifest';
@@ -25,10 +25,10 @@ export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
 export class ConnectProduct extends TonConnectBridgeClient {
     private _destroyed: boolean;
 
-    readonly #pendingRequestsSelector;
+    readonly #pendingRequestsSelector: RecoilValueReadOnly<SendTransactionRequest[]>;
     readonly extensions: CloudValue<{ installed: { [key: string]: ConnectedApp } }>;
     readonly pendingRequestsItem;
-    readonly #extensionsSelector;
+    readonly #extensionsSelector: RecoilValueReadOnly<TonConnectExtension[]>;
 
     constructor(engine: Engine) {
         super(engine);

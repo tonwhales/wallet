@@ -22,13 +22,18 @@ function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
 }
 
-export function TransactionView(props: { own: Address, tx: string, separator: boolean, engine: Engine, onPress: (src: string) => void }) {
+export function TransactionView(props: {
+    own: Address,
+    tx: string,
+    separator: boolean,
+    engine: Engine,
+    onPress: (src: string) => void
+}) {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
     const tx = props.engine.products.main.useTransaction(props.tx);
-    let transactionHash = props.engine.transactions.getHash(props.engine.address, tx.base.lt);
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -100,13 +105,13 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
         if (!tx.base.lt) {
             return null;
         }
-        if (!transactionHash) {
+        if (!tx.base.hash) {
             return null;
         }
         return tx.base.lt +
             '_' +
-            transactionHash.toString('hex')
-    }, [tx, transactionHash]);
+            tx.base.hash.toString('hex')
+    }, [tx]);
 
     const explorerTxLink = React.useMemo(() => {
         if (!txId) {
@@ -228,12 +233,17 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                         )}
                     </View>
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
+                        <View style={{ flexDirection: 'row', marginTop: 10, marginRight: 10 }}>
                             <View style={{
                                 flexDirection: 'row',
                                 flexGrow: 1, flexBasis: 0, marginRight: 16,
                             }}>
-                                <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
+                                <Text
+                                    style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
+                                    ellipsizeMode="tail"
+                                    numberOfLines={1}>
+                                    {op}
+                                </Text>
                                 {spam && (
                                     <View style={{
                                         borderColor: '#ADB6BE',
@@ -258,9 +268,12 @@ export function TransactionView(props: { own: Address, tx: string, separator: bo
                                         color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
                                         fontWeight: '400',
                                         fontSize: 16,
-                                        marginRight: 2
+                                        marginRight: 2,
                                     }}>
-                                    <ValueComponent value={item.amount} decimals={item.kind === 'token' ? item.decimals : undefined} />
+                                    <ValueComponent
+                                        value={item.amount}
+                                        decimals={item.kind === 'token' ? item.decimals : undefined}
+                                    />
                                     {item.kind === 'token' ? ' ' + item.symbol : ''}
                                 </Text>
                             )}

@@ -7,8 +7,12 @@ export type WalletKeys = {
 }
 
 export async function loadWalletKeys(secretKeyEnc: Buffer): Promise<WalletKeys> {
-    let plainText = await decryptData(secretKeyEnc);
-    let mnemonics = plainText.toString().split(' ');
-    let walletKey = await mnemonicToWalletKey(mnemonics);
-    return { keyPair: walletKey, mnemonics };
+    try {
+        let plainText = await decryptData(secretKeyEnc);
+        let mnemonics = plainText.toString().split(' ');
+        let walletKey = await mnemonicToWalletKey(mnemonics);
+        return { keyPair: walletKey, mnemonics };
+    } catch {
+        throw new Error('Unable to load wallet keys');
+    }
 }

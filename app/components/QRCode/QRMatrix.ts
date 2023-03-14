@@ -12,17 +12,15 @@ export class QRMatrix {
     }
 
     getPixel(x: number, y: number) {
-
-        // Alligners
-        // if (x < QR_BORDER && y < QR_BORDER) {
-        //     return false;
-        // }
-        // if (x >= this.size - QR_BORDER && y < QR_BORDER) {
-        //     return false;
-        // }
-        // if (x < QR_BORDER && y >= this.size - QR_BORDER) {
-        //     return false;
-        // }
+        if (x < QR_BORDER && y < QR_BORDER) {
+            return false;
+        }
+        if (x >= this.size - QR_BORDER && y < QR_BORDER) {
+            return false;
+        }
+        if (x < QR_BORDER && y >= this.size - QR_BORDER) {
+            return false;
+        }
 
         // Out of bounds
         if (x >= this.size || y >= this.size || x < 0 || y < 0) {

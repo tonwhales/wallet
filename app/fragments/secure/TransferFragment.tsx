@@ -279,7 +279,9 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             status: 'pending',
             time: Math.floor(Date.now() / 1000),
             bounced: false,
-            prev: null
+            prev: null,
+            mentioned: [],
+            hash: msg.hash(),
         });
 
         // Reset stack to root
@@ -600,7 +602,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         marginLeft: 2,
                                         marginTop: 4
                                     }}>
-                                        <AddressComponent address={target.address} />
+                                        <AddressComponent address={operation.address} />
                                     </Text>
                                     {!target.active && !order.stateInit && (
                                         <>
@@ -686,7 +688,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         color: Theme.textColor,
                                         marginLeft: 2
                                     }}>
-                                        <AddressComponent address={target.address} />
+                                        <AddressComponent address={operation.address} />
                                     </Text>
                                     <View style={{
                                         position: 'absolute',

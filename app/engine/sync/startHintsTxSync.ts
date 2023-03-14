@@ -39,20 +39,20 @@ export function startHintsTxSync(address: Address, engine: Engine) {
 
         let mentioned = new Set<string>();
         for (let t of account.transactions) {
-            let tx = engine.transactions.get(address, t);
-            if (!!tx && !(tx.lt.gte(min) && tx.lt.lte(max))) { // If not between [min, max]
-                if (tx.inMessage && tx.inMessage.info.src && Address.isAddress(tx.inMessage.info.src) && !tx.inMessage.info.src.equals(address)) {
-                    mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: AppConfig.isTestnet }));
+            let lt = new BN(t);
+            if (lt.lt(min) || lt.gt(max)) {
+                let tx = engine.transactions.get(address, t);
+                if (!tx) {
+                    continue;
                 }
-                for (let out of tx.outMessages) {
-                    if (out.info.dest && Address.isAddress(out.info.dest) && !out.info.dest.equals(address)) {
-                        mentioned.add(out.info.dest.toFriendly({ testOnly: AppConfig.isTestnet }));
-                    }
+
+                for (let m of tx.mentioned) {
+                    mentioned.add(m);
                 }
             }
         }
         for (let m of mentioned) {
-            logger.log(`${m}: founded new hints`);
+            logger.log(`${m}: found new hints`);
         }
 
         //
@@ -65,8 +65,8 @@ export function startHintsTxSync(address: Address, engine: Engine) {
         // Persist processed
         //
         if (account.transactions.length > 0) {
-            let first = engine.transactions.get(address, account.transactions[0])!.lt;
-            let last = engine.transactions.get(address, account.transactions[account.transactions.length - 1])!.lt;
+            let first = new BN(account.transactions[0]);
+            let last = new BN(account.transactions[account.transactions.length - 1]);
             cursor.update(() => ({ min: last, max: first }));
         }
     });

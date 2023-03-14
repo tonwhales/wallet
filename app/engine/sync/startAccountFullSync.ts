@@ -5,6 +5,7 @@ import { backoff } from '../../utils/time';
 import { AppConfig } from '../../AppConfig';
 import { createLogger, log } from '../../utils/log';
 import { startDependentSync } from "./utils/startDependentSync";
+import { parseWalletTransaction } from "../transactions/parseWalletTransaction";
 
 export type FullAccount = {
     balance: BN;
@@ -64,7 +65,8 @@ export function startAccountFullSync(address: Address, engine: Engine) {
 
             // Persist transactions
             for (let l of loadedTransactions) {
-                engine.transactions.set(address, l.lt.toString(10), l.data);
+                const parsed = parseWalletTransaction(l, (Cell.fromBoc(Buffer.from(l.data, 'base64'))[0]).hash(), address);
+                engine.transactions.set(address, l.lt.toString(10), parsed);
             }
 
             // Transaction ids

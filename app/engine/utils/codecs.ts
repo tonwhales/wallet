@@ -1,6 +1,6 @@
 import { failure, success, Type } from "io-ts"
 import * as t from 'io-ts';
-import { Address, Cell } from "ton"
+import { Address, AddressExternal, BitString, Cell } from "ton"
 import { AppConfig } from "../../AppConfig";
 import BN from "bn.js";
 
@@ -96,3 +96,34 @@ export class CellType extends Type<Cell, string, unknown> {
 }
 
 export const cell = new CellType();
+
+class AddressExternalType extends t.Type<AddressExternal, string, unknown> {
+    readonly _tag: 'AddressExternalType' = 'AddressExternalType';
+
+    constructor() {
+        super(
+            'AddressExternal',
+            (u): u is AddressExternal => u instanceof AddressExternal,
+            (u, c) => {
+                if (!t.string.validate(u, c)) {
+                    return failure(u, c);
+                }
+                try {
+                    const s = u as string;
+                    const bitString = BitString.alloc(s.length);
+                    for (let i = 0; i < s.length; i++) {
+                        bitString.writeBit(s[i] === '1');
+                    }
+                    return success(new AddressExternal(bitString));
+                } catch (error) {
+                    return t.failure(u, c);
+                }
+            },
+            (u) => {
+                return u.bits.toString();
+            }
+        )
+    }
+}
+
+export const addressExternal = new AddressExternalType();

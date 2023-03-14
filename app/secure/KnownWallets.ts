@@ -33,6 +33,8 @@ const Img_venera = require('../../assets/known/Img_venera.jpeg');
 
 const Img_Team_1 = require('../../assets/known/ic_team_1.png');
 const Img_Team_2 = require('../../assets/known/ic_team_2.png');
+const Img_ePN_1 = require('../../assets/known/ic_epn_1.png');
+const Img_ePN_2 = require('../../assets/known/ic_epn_2.png');
 
 const Img_MEXC = require('../../assets/known/ic_mexc.png');
 
@@ -209,6 +211,14 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             },
             ic: Img_Whales
         },
+        [Address.parse('EQBwnT1qpisCLHgRMH_B8Wid51tpqXLdoMQEuutSj65hFmNb').toFriendly()]: {
+            name: 'Infinity Mining Pool',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Whales
+        },
         [Address.parse('EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA').toFriendly()]: {
             name: 'Disintar.io',
             colors: {
@@ -353,6 +363,22 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
             colors: {
                 primary: '#16b979',
                 secondary: '#259D68'
+            },
+            ic: Img_MEXC
+        },
+        [Address.parse('EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN').toFriendly()]: {
+            name: 'ePN Partners #1',
+            colors: {
+                primary: '#ec557c',
+                secondary: '#E01447'
+            },
+            ic: Img_MEXC
+        },
+        [Address.parse('EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN').toFriendly()]: {
+            name: 'ePN Partners #2',
+            colors: {
+                primary: '#ec557c',
+                secondary: '#E01447'
             },
             ic: Img_MEXC
         },

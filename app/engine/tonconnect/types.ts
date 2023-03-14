@@ -58,6 +58,15 @@ export type SendTransactionRequest = {
   from: string
 }
 
+export type TonConnectExtension = {
+  key: string;
+  url: string;
+  name: string;
+  image: string | null;
+  termsOfUseUrl: string | null;
+  privacyPolicyUrl: string | null;
+}
+
 export type ConnectedApp = {
   date: number,
   name: string,

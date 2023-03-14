@@ -2,14 +2,24 @@ import { Engine } from "../Engine";
 import { Address } from "ton";
 import { useOptItem } from "../persistence/PersistedItem";
 import { KnownPools } from "../../utils/KnownPools";
-import { selector, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
 import { AppConfig } from "../../AppConfig";
 import BN from "bn.js";
+import { WalletConfig } from "../api/fetchWalletConfig";
+
+export type StakingState = {
+    pools: {
+        address: Address;
+        balance: BN;
+    }[];
+    total: BN;
+    config: WalletConfig | null;
+}
 
 export class StakingPoolsProduct {
     readonly engine: Engine;
     readonly pools: Address[] = [];
-    readonly full;
+    readonly full: RecoilValueReadOnly<StakingState>
     readonly apyAtom;
 
     constructor(engine: Engine) {

@@ -483,8 +483,6 @@ PODS:
     - React-Core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
-  - RNFlashList (1.4.0):
-    - React-Core
   - RNGestureHandler (2.5.0):
     - React-Core
   - RNInAppBrowser (3.6.3):
@@ -614,7 +612,6 @@ DEPENDENCIES:
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - RNFastImage (from `../node_modules/react-native-fast-image`)
-  - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
@@ -782,8 +779,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-picker/picker"
   RNFastImage:
     :path: "../node_modules/react-native-fast-image"
-  RNFlashList:
-    :path: "../node_modules/@shopify/flash-list"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNInAppBrowser:
@@ -891,7 +886,6 @@ SPEC CHECKSUMS:
   RNCClipboard: cc054ad1e8a33d2a74cd13e565588b4ca928d8fd
   RNCPicker: 0250e95ad170569a96f5b0555cdd5e65b9084dca
   RNFastImage: 1f2cab428712a4baaf78d6169eaec7f622556dd7
-  RNFlashList: 399bf6a0db68f594ad2c86aaff3ea39564f39f8a
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
   RNInAppBrowser: 3ff3a3b8f458aaf25aaee879d057352862edf357
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94

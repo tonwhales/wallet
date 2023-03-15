@@ -165,7 +165,7 @@ export const ProductsComponent = React.memo(() => {
 
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [extensions, jettons, oldWalletsBalance, currentJob,]);
+    }, [extensions, jettons, oldWalletsBalance, currentJob, tonconnectRequests]);
 
     return (
         <View style={{ paddingTop: 8 }}>

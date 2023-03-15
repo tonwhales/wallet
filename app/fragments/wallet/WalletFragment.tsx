@@ -387,6 +387,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     />
                 )}
 
+                {/* Jettons, Extensions & other products */}
                 <ProductsComponent />
 
                 <View style={{ height: 56 + safeArea.bottom }} />

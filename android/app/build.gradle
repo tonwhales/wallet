@@ -265,7 +265,7 @@ android {
             applicationId 'com.tonhub.wallet'
         }
         nettest {
-            applicationId 'com.sandbox.app.zenpay.demo'
+            applicationId 'com.tonhub.wallet.testnet'
         }
     }
 

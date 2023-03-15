@@ -34,7 +34,6 @@ import * as SplashScreen from 'expo-splash-screen';
 
 changeNavBarColor('white');
 
-console.disableYellowBox = true;
 
 mixpanel.init();
 if (__DEV__) {

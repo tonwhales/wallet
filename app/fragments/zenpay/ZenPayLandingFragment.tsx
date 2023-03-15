@@ -17,8 +17,9 @@ import { ZenPayAppParams } from './ZenPayAppFragment';
 import { ZenPayQueryParams } from './types';
 import { extractZenPayQueryParams } from './utils';
 import { CloseButton } from '../../components/CloseButton';
+import { fragment } from '../../fragment';
 
-export const ZenPayLandingFragment = React.memo(() => {
+export const ZenPayLandingFragment = fragment(() => {
     const webRef = React.useRef<WebView>(null);
     const engine = useEngine();
     const navigation = useTypedNavigation();

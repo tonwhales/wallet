@@ -63,16 +63,13 @@ export function startSync(engine: Engine) {
         startStakingPoolSync(key.target, key.address, engine);
     });
     tracer.label('staking');
-
-    // TODO: fix this when testnet will be ready
-    if (!AppConfig.isTestnet) {
-        // APY
-        startApySync(engine);
-        tracer.label('APY');
-        // Account Balance
-        startAccountBalanceChartSync(engine);
-        tracer.label('balance chart');
-    }
+    
+    // APY
+    startApySync(engine);
+    tracer.label('APY');
+    // Account Balance
+    startAccountBalanceChartSync(engine);
+    tracer.label('balance chart');
 
     //
     // Wallet Plugins

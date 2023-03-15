@@ -158,6 +158,7 @@ export const ZenPayAppComponent = React.memo((
             }
         }
         if (data.name === 'closeApp') {
+            engine.products.zenPay.doSync();
             navigation.goBack();
             return;
         }

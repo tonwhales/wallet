@@ -67,11 +67,13 @@ export function useInjectEngine(domain: string, name: string) {
             if (src.payload) {
                 navigation.navigateTransfer({
                     order: {
-                        target: src.to.toFriendly({ testOnly: AppConfig.isTestnet }),
-                        amount: src.value,
-                        amountAll: false,
-                        payload: src.payload,
-                        stateInit: src.stateInit ? src.stateInit : null,
+                        messages: [{
+                            target: src.to.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            amount: src.value,
+                            amountAll: false,
+                            payload: src.payload,
+                            stateInit: src.stateInit ? src.stateInit : null,
+                        }],
                         app: {
                             domain,
                             title: name

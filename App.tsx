@@ -3,6 +3,17 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 import { polyfillWebCrypto } from 'expo-standard-web-crypto';
 polyfillWebCrypto();
 
+// Set up an PRNG for nacl with expo-random
+import nacl from 'tweetnacl';
+import { getRandomBytes } from 'expo-random';
+nacl.setPRNG((x, n) => {
+  // Get n random bytes from expo-random
+  const randomBytes = getRandomBytes(n);
+
+  // Copy the random bytes into x
+  x.set(randomBytes);
+});
+
 // Navigation
 import 'react-native-gesture-handler';
 

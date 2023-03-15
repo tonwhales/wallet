@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import React from "react";
-import { Alert, View, Text, Pressable, ScrollView, Platform } from "react-native";
+import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
@@ -825,22 +825,41 @@ export const TransferSingle = React.memo((props: Props) => {
                                             </Text>
                                         </View>
                                     )}
-                                    <View style={{
-                                        backgroundColor: '#60C75E',
-                                        height: 40, width: 40,
-                                        borderRadius: 40,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'absolute',
-                                        left: -48, top: 0, bottom: 0,
-                                    }}>
-                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <Staking />
-                                        )}
-                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <SmartContract />
-                                        )}
-                                    </View>
+                                    {order?.app?.domain !== 'next.zenpay.org' && (
+                                        <View style={{
+                                            backgroundColor: '#60C75E',
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                        }}>
+                                            {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                                <Staking />
+                                            )}
+                                            {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                                <SmartContract />
+                                            )}
+                                        </View>
+                                    )}
+                                    {order?.app?.domain === 'next.zenpay.org' && (
+                                        <View style={{
+                                            height: 46, width: 34,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            position: 'absolute',
+                                            left: -46, top: 0, bottom: 0,
+                                            borderRadius: 6
+                                        }}>
+                                            <Image
+                                                style={{
+                                                    height: 46, width: 34,
+                                                }}
+                                                source={require('../../../../assets/ic_sign_card.png')}
+                                            />
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         )}

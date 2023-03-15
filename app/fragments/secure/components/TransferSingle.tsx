@@ -729,7 +729,7 @@ export const TransferSingle = React.memo((props: Props) => {
                             <View>
                                 <View style={{
                                     position: 'absolute',
-                                    top: -2,
+                                    top: 2,
                                     bottom: 42,
                                     left: 17,
                                     width: 2,

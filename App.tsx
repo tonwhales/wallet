@@ -34,7 +34,6 @@ import * as SplashScreen from 'expo-splash-screen';
 
 changeNavBarColor('white');
 
-
 mixpanel.init();
 if (__DEV__) {
   mixpanel.setLoggingEnabled(true);

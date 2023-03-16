@@ -1,10 +1,10 @@
 import { warn } from "../../utils/log";
-import { ZenPayQueryParams } from "./types";
+import { BackPolicy, ZenPayQueryParams } from "./types";
 
 export function extractZenPayQueryParams(url: string): {
     closeApp: boolean,
     openUrl: string | null,
-    hardwareBackPolicy: 'back' | 'close',
+    backPolicy: BackPolicy,
     openEnrollment: boolean,
 } {
     try {
@@ -12,7 +12,7 @@ export function extractZenPayQueryParams(url: string): {
         const params = new URLSearchParams(query);
         let closeApp = false;
         let openUrl = null;
-        let hardwareBackPolicy: 'back' | 'close' = 'close';
+        let backPolicy: BackPolicy = 'close';
         let openEnrollment = false;
 
             if (params.has(ZenPayQueryParams.CloseApp)) {
@@ -29,10 +29,10 @@ export function extractZenPayQueryParams(url: string): {
                 }
             }
 
-            if (params.has(ZenPayQueryParams.HardwareBackPolicy)) {
-                const queryValue = params.get(ZenPayQueryParams.HardwareBackPolicy);
+            if (params.has(ZenPayQueryParams.BackPolicy)) {
+                const queryValue = params.get(ZenPayQueryParams.BackPolicy);
                 if (queryValue === 'back') {
-                    hardwareBackPolicy = 'back';
+                    backPolicy = 'back';
                 }
             }
 
@@ -46,7 +46,7 @@ export function extractZenPayQueryParams(url: string): {
             return {
                 closeApp,
                 openUrl,
-                hardwareBackPolicy,
+                backPolicy: backPolicy,
                 openEnrollment,
             }
     } catch (error) {
@@ -54,7 +54,7 @@ export function extractZenPayQueryParams(url: string): {
         return {
             closeApp: false,
             openUrl: null,
-            hardwareBackPolicy: 'close',
+            backPolicy: 'close',
             openEnrollment: false,
         }
     }

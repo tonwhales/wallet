@@ -23,6 +23,7 @@ import { extractZenPayQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/AndroidToolbar';
 import { CloseButton } from '../../../components/CloseButton';
 import { BackPolicy } from '../types';
+import { getLocales } from 'react-native-localize';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -36,6 +37,8 @@ export const ZenPayAppComponent = React.memo((
     const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
+    const lang = getLocales()[0].languageCode;
+    const currency = engine.products.price.usePrimaryCurrency();
 
     // 
     // Track events
@@ -248,7 +251,7 @@ export const ZenPayAppComponent = React.memo((
                 >
                     <WebView
                         ref={webRef}
-                        source={{ uri: props.endpoint }}
+                        source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
                         startInLoadingState={true}
                         style={{
                             backgroundColor: Theme.background,

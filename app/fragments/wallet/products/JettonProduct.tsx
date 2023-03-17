@@ -9,7 +9,6 @@ import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { confirmJettonAction } from '../../AccountsFragment';
 import { AnimatedProductButton } from './AnimatedProductButton';
-import { ProductButton } from './ProductButton';
 
 export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
@@ -55,7 +54,15 @@ export const JettonProduct = React.memo((props: {
                     props.onPress();
                     return;
                 }
-                props.navigation.navigateSimpleTransfer({ amount: null, target: null, comment: null, jetton: props.jetton.wallet, stateInit: null, job: null, callback: null })
+                props.navigation.navigateSimpleTransfer({
+                    amount: null,
+                    target: null,
+                    comment: null,
+                    jetton: props.jetton.wallet,
+                    stateInit: null,
+                    job: null,
+                    callback: null
+                })
             }}
             onLongPress={props.onLongPress ? props.onLongPress : promptDisable}
             style={{ marginVertical: 4 }}

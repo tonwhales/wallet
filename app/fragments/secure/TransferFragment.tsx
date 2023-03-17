@@ -138,7 +138,6 @@ export const TransferFragment = fragment(() => {
             const contract = contractFromPublicKey(from.publicKey);
 
             if (order.messages.length === 1) {
-                console.log(params.order.messages[0].target);
                 let target = Address.parseFriendly(
                     Address.parse(params.order.messages[0].target).toFriendly({ testOnly: AppConfig.isTestnet })
                 );

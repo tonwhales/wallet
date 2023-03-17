@@ -148,6 +148,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unusualJettonsGasTitle: '⚠️ The fee for sending jettons is {{amount}} TON',
         unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
         addressNotActive: 'Not active',
+        wrongJettonTitle: '⚠️ Wrong jetton',
+        wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
+        notEnoughJettonsTitle: '⚠️ Not enough jettons',
+        notEnoughJettonsMessage: 'You are trying to send more jettons than you have',
     },
     auth: {
         phoneVerify: 'Verify phone',

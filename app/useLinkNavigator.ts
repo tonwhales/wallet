@@ -1,0 +1,88 @@
+import * as React from 'react';
+import { Alert } from 'react-native';
+import { Engine, useEngine } from './engine/Engine';
+import { t } from './i18n/t';
+import { useTypedNavigation } from './utils/useTypedNavigation';
+import { AppConfig } from './AppConfig';
+import { ResolvedUrl } from './utils/resolveUrl';
+import BN from 'bn.js';
+
+export function useLinkNavigator() {
+    const navigation = useTypedNavigation();
+    const engine = useEngine();
+
+    const handler = React.useCallback((resolved: ResolvedUrl) => {
+        if (resolved.type === 'transaction') {
+            if (resolved.payload) {
+                navigation.navigateTransfer({
+                    order: {
+                        messages: [{
+                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            amount: resolved.amount || new BN(0),
+                            amountAll: false,
+                            stateInit: resolved.stateInit,
+                            payload: resolved.payload,
+                        }]
+                    },
+                    text: resolved.comment,
+                    job: null,
+                    callback: null
+                });
+            } else {
+                navigation.navigateSimpleTransfer({
+                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    comment: resolved.comment,
+                    amount: resolved.amount,
+                    stateInit: resolved.stateInit,
+                    job: null,
+                    jetton: null,
+                    callback: null
+                });
+            }
+        }
+        if (resolved.type === 'jetton-transaction') {
+            const jettons = engine.products.main.getJettons().jettons;
+            const jetton = jettons.find((j) => {
+                return j.master.equals(resolved.jettonMaster);
+            });
+
+            if (!jetton) {
+                Alert.alert(t('transfer.wrongJettonTitle'), t('transfer.wrongJettonMessage'));
+                return;
+            }
+
+            if (jetton.balance.lt(resolved.amount ?? new BN(0))) {
+                Alert.alert(t('transfer.notEnoughJettonsTitle'), t('transfer.notEnoughJettonsMessage'));
+                return;
+            }
+
+            navigation.navigateSimpleTransfer({
+                target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                comment: resolved.comment,
+                amount: resolved.amount,
+                stateInit: null,
+                job: null,
+                jetton: jetton.wallet,
+                callback: null
+            });
+        }
+        if (resolved.type === 'connect') {
+            navigation.navigate('Authenticate', {
+                session: resolved.session,
+                endpoint: resolved.endpoint
+            });
+        }
+        if (resolved.type === 'tonconnect') {
+            navigation.navigate('TonConnectAuthenticate', { query: resolved.query, type: 'qr' });
+        }
+        if (resolved.type === 'install') {
+            navigation.navigate('Install', {
+                url: resolved.url,
+                title: resolved.customTitle,
+                image: resolved.customImage
+            });
+        }
+    }, []);
+
+    return handler;
+}

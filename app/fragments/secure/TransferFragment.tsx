@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
@@ -138,7 +138,6 @@ export const TransferFragment = fragment(() => {
             const contract = contractFromPublicKey(from.publicKey);
 
             if (order.messages.length === 1) {
-                console.log(params.order.messages[0].target);
                 let target = Address.parseFriendly(
                     Address.parse(params.order.messages[0].target).toFriendly({ testOnly: AppConfig.isTestnet })
                 );
@@ -223,7 +222,10 @@ export const TransferFragment = fragment(() => {
                 // Read jetton master
                 let jettonMaster: JettonMasterState | null = null;
                 if (metadata.jettonWallet) {
-                    jettonMaster = engine.persistence.jettonMasters.item(metadata.jettonWallet!.master).value;
+                    const stored = engine.persistence.jettonMasters.item(metadata.jettonWallet!.master).value;
+                    if (stored && !!stored.name && !!stored.symbol) {
+                        jettonMaster = stored;
+                    }
                 }
 
                 // Estimate fee

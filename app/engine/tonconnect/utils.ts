@@ -132,6 +132,7 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
 
 export const objectToInjection = (obj: Record<string, any>, timeout: number | null) => {
   const funcKeys = Object.keys(obj).filter((key) => typeof obj[key] === 'function');
+  const bridgeKey = 'tonhub';
 
   const funcs = funcKeys.reduce(
     (acc, funcName) => `${acc}${funcName}: (...args) => {
@@ -142,7 +143,7 @@ export const objectToInjection = (obj: Record<string, any>, timeout: number | nu
 
   return `
     (() => {
-      if (!window.tonkeeper) {
+      if (!window.${bridgeKey}) {
         window.rnPromises = {};
         window.rnEventListeners = [];
         window.invokeRnFunc = (name, args, resolve, reject) => {
@@ -190,7 +191,7 @@ export const objectToInjection = (obj: Record<string, any>, timeout: number | nu
           }
         };
       };
-      window.tonkeeper = {
+      window.${bridgeKey} = {
         tonconnect: Object.assign(
           ${JSON.stringify(obj)},
           {${funcs}},

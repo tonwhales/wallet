@@ -2,6 +2,7 @@ import { formatDuration } from "date-fns";
 import React, { useEffect, useState } from "react"
 import { StyleProp, Text, TextStyle } from "react-native"
 import { t } from "../i18n/t";
+import { Theme } from "../Theme";
 
 export function getDuration(seconds: number) {
     let left = seconds;
@@ -60,7 +61,7 @@ export const Countdown = React.memo(({ left, textStyle }: { left: number, textSt
 
     return (
         <Text style={[{
-            color: '#8E979D',
+            color: Theme.textSubtitle,
             fontSize: 13,
             fontVariant: ['tabular-nums']
         }, textStyle]}

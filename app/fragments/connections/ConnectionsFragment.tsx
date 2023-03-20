@@ -156,7 +156,7 @@ export const ConnectionsFragment = fragment(() => {
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: '#6D6D71',
+                        color: Theme.priceSecondary,
                     }}>
                         {t('auth.apps.description')}
                     </Text>
@@ -203,7 +203,7 @@ export const ConnectionsFragment = fragment(() => {
                 }}>
                     <Text style={{
                         fontSize: 16,
-                        color: '#6D6D71',
+                        color: Theme.priceSecondary,
                     }}>
                         {t('auth.apps.description')}
                     </Text>

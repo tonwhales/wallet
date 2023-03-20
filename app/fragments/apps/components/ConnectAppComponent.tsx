@@ -141,7 +141,7 @@ export const ConnectAppComponent = React.memo((props: {
                     top: 0.5, left: 0, right: 0,
                     height: 0.5,
                     width: '100%',
-                    backgroundColor: '#000',
+                    backgroundColor: Theme.headerDivider,
                     opacity: 0.08
                 }} />
             </View>

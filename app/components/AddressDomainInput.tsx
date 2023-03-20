@@ -14,6 +14,7 @@ import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsR
 import { useEngine } from "../engine/Engine"
 import { AppConfig } from "../AppConfig"
 import { AddressContact } from "../engine/products/SettingsProduct"
+import { Theme } from "../Theme"
 
 export const AddressDomainInput = React.memo(React.forwardRef(({
     style,
@@ -140,7 +141,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                     <Text style={{
                         fontWeight: '500',
                         fontSize: 12,
-                        color: '#7D858A',
+                        color: Theme.label,
                         alignSelf: 'flex-start',
                     }}>
                         {labelText ? labelText : t('transfer.sendTo')}
@@ -163,7 +164,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: '#858B93',
+                                color: Theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 {KnownWallets[target].name}
@@ -188,7 +189,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: '#858B93',
+                                color: Theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 {contact.name}
@@ -208,7 +209,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: '#858B93',
+                                color: Theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 <AddressComponent address={resolvedAddress} />
@@ -239,7 +240,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 backgroundColor={'#596080'}
                                 fullColor={null}
                                 loop={true}
-                                containerColor={'transparent'}
+                                containerColor={Theme.transparent}
                             />
                         </Animated.View>
                     )}

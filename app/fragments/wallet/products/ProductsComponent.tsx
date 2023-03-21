@@ -1,10 +1,6 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
-<<<<<<< HEAD
-import { ProductButton } from "./ProductButton"
-=======
->>>>>>> develop
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';

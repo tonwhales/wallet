@@ -16,6 +16,8 @@ import { Theme } from '../../Theme';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
+import { ProductButton } from '../wallet/products/ProductButton';
+import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 
 type Item = {
     key: string;
@@ -53,6 +55,7 @@ export const ConnectionsFragment = fragment(() => {
     const engine = useEngine();
     const extensions = engine.products.extensions.useExtensions();
     const tonconnectApps = engine.products.tonConnect.useExtensions();
+    const ledger = engine.products.settings.useLedger();
     let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
 
     let disconnectApp = React.useCallback((url: string) => {
@@ -99,6 +102,26 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
 
+    const toggleLedger = React.useCallback(() => {
+        if (!ledger) {
+            Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.add'), [{ text: t('common.cancel') }, {
+                text: t('common.add'),
+                onPress: () => {
+                    engine.products.settings.setLedger(true);
+                }
+            }]);
+            return;
+        }
+        Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
+            text: t('common.continue'),
+            style: 'destructive',
+            onPress: () => {
+                engine.products.settings.setLedger(false);
+            }
+        }]);
+        return;
+    }, [ledger]);
+
     // 
     // Lottie animation
     // 
@@ -111,7 +134,7 @@ export const ConnectionsFragment = fragment(() => {
         }
     }, []);
 
-    if (apps.length === 0 && extensions.length === 0) {
+    if (apps.length === 0 && extensions.length === 0 && tonconnectApps.length === 0 && !ledger) {
         return (
             <View style={{
                 flexGrow: 1,
@@ -160,6 +183,27 @@ export const ConnectionsFragment = fragment(() => {
                     }}>
                         {t('auth.apps.description')}
                     </Text>
+                    <View style={{
+                        position: 'absolute',
+                        bottom: safeArea.bottom + 16, left: 0, right: 0
+                    }}>
+                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
+                                {t('settings.experimental')}
+                            </Text>
+                        </View>
+                        <ProductButton
+                            name={t('hardwareWallet.title')}
+                            subtitle={t('hardwareWallet.description')}
+                            icon={HardwareWalletIcon}
+                            iconProps={{ width: 32, height: 32, color: 'black' }}
+                            iconViewStyle={{
+                                backgroundColor: 'transparent'
+                            }}
+                            value={null}
+                            onPress={toggleLedger}
+                        />
+                    </View>
                 </View>
                 {Platform.OS === 'ios' && (
                     <CloseButton
@@ -209,7 +253,7 @@ export const ConnectionsFragment = fragment(() => {
                     </Text>
                     {extensions.length > 0 && (
                         <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
-                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('connections.extensions')}</Text>
+                            <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
                         </View>
                     )}
                     {extensions.map((app) => (
@@ -246,6 +290,22 @@ export const ConnectionsFragment = fragment(() => {
                         </View>
                     ))}
                 </View>
+                <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                    <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
+                        {t('settings.experimental')}
+                    </Text>
+                </View>
+                <ProductButton
+                    name={t('hardwareWallet.title')}
+                    subtitle={t('hardwareWallet.description')}
+                    icon={HardwareWalletIcon}
+                    iconProps={{ width: 32, height: 32, color: 'black' }}
+                    iconViewStyle={{
+                        backgroundColor: 'transparent'
+                    }}
+                    value={null}
+                    onPress={toggleLedger}
+                />
                 <View style={{ height: safeArea.bottom }} />
             </ScrollView>
             {Platform.OS === 'ios' && (

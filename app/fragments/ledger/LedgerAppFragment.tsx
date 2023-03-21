@@ -1,15 +1,10 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
 import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
-import { useEngine } from "../../engine/Engine";
-import { startWalletV4Sync } from "../../engine/sync/startWalletV4Sync";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { warn } from "../../utils/log";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerApp } from "./components/LedgerApp";
 import { useTransport } from "./components/TransportContext";
@@ -21,19 +16,7 @@ export type LedgerAppParams = {
 export const LedgerAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
-    const { ledgerConnection, tonTransport, addr } = useTransport();
-
-    useEffect(() => {
-        try {
-            const parsed = Address.parse(addr!.address);
-            startWalletV4Sync(parsed, engine);
-        } catch (e) {
-            // Just in case
-            warn('Failed to parse address');
-            navigation.popToTop();
-        }
-    }, [addr, ledgerConnection, tonTransport]);
+    const { tonTransport, addr } = useTransport();
 
     return (
         <View style={{

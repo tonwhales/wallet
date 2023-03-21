@@ -1,4 +1,5 @@
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -16,7 +17,14 @@ export type LedgerAppParams = {
 export const LedgerAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const { tonTransport, addr } = useTransport();
+    const { tonTransport, addr, setAddr } = useTransport();
+
+    useEffect(() => {
+        return () => {
+            setAddr(null);
+        }
+    }, []);
+
 
     return (
         <View style={{

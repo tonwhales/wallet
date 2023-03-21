@@ -26,6 +26,7 @@ import { createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
+import { AndroidToolbar } from "../../components/AndroidToolbar";
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();
@@ -318,19 +319,23 @@ export const LedgerTransferFragment = fragment(() => {
 
     return (
         <View style={{
-            flexGrow: 1
+            flexGrow: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{
-                paddingTop: 17,
-                paddingBottom: 17
-            }}>
-                <Text style={{
-                    fontWeight: '600',
-                    fontSize: 17,
-                    textAlign: 'center'
-                }}>{t('transfer.title', { symbol: 'TON' })}</Text>
-            </View>
+            <AndroidToolbar pageTitle={t('transfer.title', { symbol: 'TON' })} />
+            {Platform.OS !== 'android' && (
+                <View style={{
+                    paddingTop: 17,
+                    paddingBottom: 17
+                }}>
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 17,
+                        textAlign: 'center'
+                    }}>{t('transfer.title', { symbol: 'TON' })}</Text>
+                </View>
+            )}
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
@@ -513,7 +518,8 @@ export const LedgerTransferFragment = fragment(() => {
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 style={{
                     marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom ?? 16
+                    marginBottom: safeArea.bottom + (Platform.OS === 'android' ? 16 : 0) ?? 16,
+
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >

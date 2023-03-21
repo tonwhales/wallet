@@ -36,12 +36,12 @@ changeNavBarColor('white');
 
 // Note that it is a bad practice to disable font scaling globally.
 // TODO: extend Text and TextInput components to support or lock font scaling.
-if ((Text as any).defaultProps === null) {
+if (!(Text as any).defaultProps) {
   (Text as any).defaultProps = {};
   (Text as any).defaultProps.allowFontScaling = false;
 }
 
-if ((TextInput as any).defaultProps === null) {
+if (!(TextInput as any).defaultProps) {
   (TextInput as any).defaultProps = {};
   (TextInput as any).defaultProps.allowFontScaling = false;
 }

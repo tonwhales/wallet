@@ -46,13 +46,9 @@ export function useLinkNavigator() {
                 return j.master.equals(resolved.jettonMaster);
             });
 
+            // TODO: try fetching jetton master on SimpleTransferFragment
             if (!jetton) {
                 Alert.alert(t('transfer.wrongJettonTitle'), t('transfer.wrongJettonMessage'));
-                return;
-            }
-
-            if (jetton.balance.lt(resolved.amount ?? new BN(0))) {
-                Alert.alert(t('transfer.notEnoughJettonsTitle'), t('transfer.notEnoughJettonsMessage'));
                 return;
             }
 

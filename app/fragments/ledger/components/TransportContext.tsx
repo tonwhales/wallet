@@ -40,7 +40,8 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
 
     const onSetLedgerConnecton = useCallback((connection: TypedTransport | null) => {
         if (!connection) {
-            ledgerConnection?.transport.off('disconnect', () => { });
+            ledgerConnection?.transport.off('disconnect', disconnectAlert);
+            ledgerConnection?.transport.off('onDeviceDisconnect', disconnectAlert);
             ledgerConnection?.transport.close();
         }
         setLedgerConnection(connection);

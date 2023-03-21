@@ -9,6 +9,7 @@ import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
 import { Theme } from "../../../Theme";
+import { warn } from "../../../utils/log";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
@@ -65,7 +66,7 @@ export const LedgerSelectAccount = React.memo(({ reset }: { reset: () => void })
                 setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
                 setSelected(undefined);
             } catch (e) {
-                console.warn(e);
+                warn(e);
                 reset();
                 setSelected(undefined);
             }
@@ -75,6 +76,7 @@ export const LedgerSelectAccount = React.memo(({ reset }: { reset: () => void })
 
     useEffect(() => {
         if (!!addr) {
+            navigation.goBack();
             navigation.navigateLedgerApp();
         }
     }, [addr]);

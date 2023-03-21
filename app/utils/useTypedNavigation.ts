@@ -3,8 +3,6 @@ import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@rea
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
-import { LedgerTransferParams } from '../fragments/ledger/LedgerTransferFragment';
-import { LedgerAppParams } from '../fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
@@ -106,8 +104,8 @@ export class TypedNavigation {
         this.navigate('Review', params);
     }
 
-    navigateLedgerTransfer(params: LedgerTransferParams) {
-        this.navigate('LedgerTransfer', params);
+    navigateLedgerTransfer() {
+        this.navigate('LedgerTransfer');
     }
 
     navigateLedgerSignTransfer(params: LedgerSignTransferParams) {
@@ -121,7 +119,7 @@ export class TypedNavigation {
     navigateLedgerApp() {
         this.navigate('LedgerApp');
     }
-    
+
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
     }

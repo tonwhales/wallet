@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Platform, View, Text, Alert } from "react-native";
+import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -9,6 +9,7 @@ import { useEngine } from "../../engine/Engine";
 import { startWalletV4Sync } from "../../engine/sync/startWalletV4Sync";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
+import { warn } from "../../utils/log";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerApp } from "./components/LedgerApp";
 import { useTransport } from "./components/TransportContext";
@@ -28,7 +29,9 @@ export const LedgerAppFragment = fragment(() => {
             const parsed = Address.parse(addr!.address);
             startWalletV4Sync(parsed, engine);
         } catch (e) {
-            console.warn(e)
+            // Just in case
+            warn('Failed to parse address');
+            navigation.popToTop();
         }
     }, [addr, ledgerConnection, tonTransport]);
 
@@ -57,7 +60,6 @@ export const LedgerAppFragment = fragment(() => {
                     transport={tonTransport}
                     account={addr.acc}
                     address={addr}
-                    engine={engine}
                 />
             )}
             {Platform.OS === 'ios' && (

@@ -1055,7 +1055,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             }).writeTo(inMsg);
             let outMsg = new Cell();
             intMessage.writeTo(outMsg);
-            let fees = estimateFees(netConfig!, inMsg, outMsg, state!.account.storageStat);
+            let fees = estimateFees(netConfig!, inMsg, [outMsg], [state!.account.storageStat]);
 
             // Set state
             setLoadedProps({

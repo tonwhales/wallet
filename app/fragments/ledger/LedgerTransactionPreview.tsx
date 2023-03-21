@@ -572,7 +572,16 @@ export const LedgerTransactionPreview = fragment(() => {
 
             while (!ended && next) {
                 // Get transactions
-                const loaded: { block: { workchain: number, seqno: number, shard: string, rootHash: string, fileHash: string, }, tx: Cell, }[] = await engine.client4.getAccountTransactions(address, next.lt, Buffer.from(next.hash, 'base64'));
+                const loaded: {
+                    block: {
+                        workchain: number,
+                        seqno: number,
+                        shard: string,
+                        rootHash: string,
+                        fileHash: string,
+                    },
+                    tx: Cell,
+                }[] = await engine.client4.getAccountTransactions(address, next.lt, Buffer.from(next.hash, 'base64'));
                 // Parse transactions
                 const preParsed = loaded.map((t) => parseTransaction(address.workChain, t.tx.beginParse()));
 
@@ -580,7 +589,7 @@ export const LedgerTransactionPreview = fragment(() => {
                 const tx = preParsed.findIndex((t) => t.inMessage?.raw.hash().toString('base64') === inHash);
 
                 if (tx !== -1) {
-                    let base = parseWalletTransaction(preParsed[tx]);
+                    let base = parseWalletTransaction(preParsed[tx], loaded[tx].tx.hash(), address);
 
                     // Metadata
                     let metadata: ContractMetadata | null = null;

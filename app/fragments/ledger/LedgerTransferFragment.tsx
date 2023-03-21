@@ -2,7 +2,7 @@ import { useKeyboard } from "@react-native-community/hooks";
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import React, { useMemo } from "react"
-import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard, Alert } from "react-native"
+import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard } from "react-native"
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock } from "teslabot";
@@ -23,19 +23,12 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { estimateFees } from "../../engine/estimate/estimateFees";
 import { createSimpleLedgerOrder } from "../secure/ops/Order";
-import { useParams } from "../../utils/useParams";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
-import { useLedgerWallet } from "./components/LedgerApp";
 import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
 
-export type LedgerTransferParams = { balance: BN | null }
-
 export const LedgerTransferFragment = fragment(() => {
-    const { ledgerConnection, tonTransport, addr } = useTransport();
-    const { balance } = useParams<LedgerTransferParams>();
-
-    const engine = useEngine();
+    const { addr } = useTransport();
     const address = useMemo(() => {
         if (addr) {
             try {
@@ -45,8 +38,9 @@ export const LedgerTransferFragment = fragment(() => {
             }
         }
     }, [addr]);
+    const engine = useEngine();
 
-    const accountV4State = useLedgerWallet(engine, address);
+    const accountV4State = engine.products.ledger.useLedgerWallet(address);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const config = engine.products.config.useConfig();
@@ -87,8 +81,8 @@ export const LedgerTransferFragment = fragment(() => {
             domain: domain,
             text: comment,
             payload: null,
-            amount: balance?.eq(value) ? toNano('0') : value,
-            amountAll: balance?.eq(value) ? true : false,
+            amount: accountV4State?.balance?.eq(value) ? toNano('0') : value,
+            amountAll: accountV4State?.balance?.eq(value) ? true : false,
             stateInit
         });
     }, [amount, target, domain, comment, stateInit]);
@@ -216,7 +210,7 @@ export const LedgerTransferFragment = fragment(() => {
                     }).writeTo(inMsg);
                     let outMsg = new Cell();
                     intMessage.writeTo(outMsg);
-                    let local = estimateFees(config, inMsg, outMsg, accountState.storageStat);
+                    let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStat]);
                     setEstimation(local);
                 }
             });
@@ -263,10 +257,10 @@ export const LedgerTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        if (balance) {
-            setAmount(fromNano(balance));
+        if (accountV4State?.balance) {
+            setAmount(fromNano(accountV4State?.balance ?? new BN(0)));
         }
-    }, [balance]);
+    }, [accountV4State?.balance]);
 
     //
     // Scroll state tracking
@@ -384,7 +378,7 @@ export const LedgerTransferFragment = fragment(() => {
                             color: '#6D6D71',
                             marginBottom: 5
                         }}>
-                            {fromNano(balance || new BN(0))} {'TON'}
+                            {fromNano(accountV4State?.balance ?? new BN(0))} {'TON'}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

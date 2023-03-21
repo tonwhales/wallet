@@ -15,6 +15,7 @@ export type LocalizationSchema = {
         cancel: string,
         balance: string,
         walletAddress: string,
+        recepientAddress: string,
         copy: string,
         copiedAlert: string,
         copied: string,
@@ -44,6 +45,7 @@ export type LocalizationSchema = {
         add: string,
         connect: string,
         gotIt: string,
+        error: string,
         wallet: string
     },
     syncStatus: {
@@ -120,19 +122,22 @@ export type LocalizationSchema = {
             addressIsForTestnet: string,
             addressCantReceive: string,
             addressIsNotActive: string
-            addressIsNotActiveDescription: string
+            addressIsNotActiveDescription: string,
+            invalidTransaction: string,
         },
         sendAll: string,
         scanQR: string,
         sendTo: string,
         fee: string,
         feeTitle: string,
+        feeTotalTitle: string,
         purpose: string,
         comment: string,
         commentRequired: string,
         commentLabel: string,
         checkComment: string,
         confirmTitle: string,
+        confirmManyTitle: string,
         unknown: string,
         moreDetails: string,
         gasFee: string,
@@ -140,6 +145,14 @@ export type LocalizationSchema = {
         firstTime: string,
         requestsToSign: string,
         smartContract: string,
+        txsSummary: string,
+        txsTotal: string,
+        gasDetails: string,
+        jettonGas: string,
+        unusualJettonsGas: string,
+        unusualJettonsGasTitle: string,
+        unusualJettonsGasMessage: string,
+        addressNotActive: string,
     },
     auth: {
         phoneVerify: string,
@@ -202,6 +215,11 @@ export type LocalizationSchema = {
         requestPermission: string
     },
     products: {
+        tonConnect: {
+            errors: {
+                connection: string
+            }
+        },
         accounts: string,
         services: string,
         oldWallets: {

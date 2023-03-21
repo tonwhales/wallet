@@ -4,6 +4,7 @@ import Url from 'url-parse';
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
+import { ConnectQrQuery } from "../engine/tonconnect/types";
 
 export type ResolvedUrl = {
     type: 'transaction',
@@ -21,6 +22,9 @@ export type ResolvedUrl = {
     url: string,
     customTitle: string | null,
     customImage: { url: string, blurhash: string } | null
+} | {
+    type: 'tonconnect',
+    query: ConnectQrQuery
 }
 
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
@@ -246,6 +250,19 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 customImage
             };
         }
+
+        // Tonconnect
+        if ((url.protocol.toLowerCase() === 'https:')
+            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
+            && (url.pathname.toLowerCase().indexOf('/ton-connect') !== -1)) {
+            if (!!url.query.r && !!url.query.v && !!url.query.id) {
+                return {
+                    type: 'tonconnect',
+                    query: url.query as unknown as ConnectQrQuery
+                };
+            }
+        }
+
     } catch (e) {
         // Ignore
         warn(e);

@@ -14,6 +14,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         cancel: 'Отменить',
         balance: 'Баланс',
         walletAddress: 'Адрес кошелька',
+        recepientAddress: 'Адрес получателя',
         copy: 'Скопировать',
         copiedAlert: 'Скопировано в буфер обмена',
         copied: 'Скопировано',
@@ -43,6 +44,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         add: 'Добавить',
         connect: 'Подключить',
         gotIt: 'Понятно',
+        error: 'Ошибка',
         wallet: 'Кошелек'
     },
     syncStatus: {
@@ -107,18 +109,21 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             addressCantReceive: 'Этот адрес не может принимать монеты',
             addressIsNotActive: 'У этого кошелька нет истории',
             addressIsNotActiveDescription: 'Это означает, что с данного адреса кошелька не было совершено ни одной транзакции',
+            invalidTransaction: 'Неверная транзакция',
         },
         sendAll: 'отправить все',
         scanQR: 'считать QR код',
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
         feeTitle: 'Комиссия сети',
+        feeTotalTitle: 'Полная комиссия сети',
         purpose: 'Цель транзакции',
         comment: 'Необязательное сообщение',
         commentRequired: 'Обязательный комментарий',
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',
         confirmTitle: 'Подтверждение транзакции',
+        confirmManyTitle: 'Подтверждение {{count}} транзакций',
         unknown: 'Неизвестная операция',
         moreDetails: 'Подробнее',
         gasFee: 'Gas комиссия',
@@ -126,6 +131,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         firstTime: 'Отправка первый раз',
         requestsToSign: '{{app}} запрашивает подпись транзакции',
         smartContract: 'Смарт-контракт транзакция',
+        txsSummary: 'Итого',
+        txsTotal: 'Общая сумма',
+        gasDetails: 'Детали комиссий',
+        jettonGas: 'Газ за отправку жетонов',
+        unusualJettonsGas: '⛽️ Необычно высокий газ за отправку жетонов',
+        unusualJettonsGasTitle: '⚠️ Газ за отправку жетонов {{amount}} TON',
+        unusualJettonsGasMessage: 'Комиссия за отправку жетонов выше чем обычно',
+        addressNotActive: 'Не активен',
     },
     auth: {
         phoneNumber: 'Номер телефона',
@@ -201,6 +214,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         requestPermission: 'Открыть настройки',
     },
     products: {
+        tonConnect: {
+            errors: {
+                connection: 'Ошибка соединения',
+            }
+        },
         accounts: 'Счета',
         services: 'Расширения',
         oldWallets: {

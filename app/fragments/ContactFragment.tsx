@@ -237,15 +237,10 @@ export const ContactFragment = fragment(() => {
                                 <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
                                     <TouchableHighlight
                                         onPress={() => {
-                                            navigation.navigateSimpleTransfer({
-                                                amount: null,
-                                                target: address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                                stateInit: null,
-                                                job: null,
-                                                comment: null,
-                                                jetton: null,
-                                                callback: null
-                                            });
+                                            navigation.navigate(
+                                                'Assets',
+                                                { target: address.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                            );
                                         }}
                                         underlayColor={Theme.selector}
                                         style={{ borderRadius: 14 }}

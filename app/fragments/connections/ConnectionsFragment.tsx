@@ -238,6 +238,16 @@ export const ConnectionsFragment = fragment(() => {
                             />
                         </View>
                     ))}
+                    {tonconnectApps.map((app) => (
+                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                            <ConnectedAppButton
+                                onRevoke={() => disconnectConnectApp(app.url)}
+                                url={app.url}
+                                name={app.name}
+                                tonconnect
+                            />
+                        </View>
+                    ))}
                 </View>
                 <View style={{ height: safeArea.bottom }} />
             </ScrollView>

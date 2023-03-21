@@ -133,6 +133,28 @@ export const ProductsComponent = React.memo(() => {
         );
     }
 
+    if (ledger) {
+        apps.push(
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                name={t('hardwareWallet.title')}
+                subtitle={t('hardwareWallet.description')}
+                icon={HardwareWalletIcon}
+                iconProps={{ width: 32, height: 32, color: 'black' }}
+                iconViewStyle={{
+                    backgroundColor: 'transparent'
+                }}
+                style={{ marginVertical: 4 }}
+                value={null}
+                onLongPress={removeLedger}
+                onPress={() => {
+                    navigation.navigate('Ledger');
+                }}
+            />
+        );
+    }
+
     // Resolve tonconnect requests
     let tonconnect: React.ReactElement[] = [];
     for (let r of tonconnectRequests) {
@@ -232,27 +254,11 @@ export const ProductsComponent = React.memo(() => {
                 <StakingProductComponent key={'pool'} />
             </View>
 
-            {apps.length > 0 && (
+            {(apps.length > 0) && (
                 <>
                     <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
                         <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
                     </View>
-                    {ledger && (
-                        <ProductButton
-                            name={t('hardwareWallet.title')}
-                            subtitle={t('hardwareWallet.description')}
-                            icon={HardwareWalletIcon}
-                            iconProps={{ width: 32, height: 32, color: 'black' }}
-                            iconViewStyle={{
-                                backgroundColor: 'transparent'
-                            }}
-                            value={null}
-                            onLongPress={removeLedger}
-                            onPress={() => {
-                                navigation.navigate('Ledger');
-                            }}
-                        />
-                    )}
                     {apps}
                 </>
             )}

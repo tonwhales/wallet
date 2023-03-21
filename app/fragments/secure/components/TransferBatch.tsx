@@ -37,6 +37,7 @@ import TonSign from '../../../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
+import { fromBNWithDecimals } from "../../../utils/withDecimals";
 
 type Props = {
     text: string | null,
@@ -500,7 +501,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                 color: Theme.textColor,
                                                 marginLeft: 2
                                             }}>
-                                                {`${fromNano(value[1].jettonAmount)} ${value[1].jettonMaster.symbol}`}
+                                                {`${fromBNWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
                                             </Text>
                                         </View>
                                     </View>

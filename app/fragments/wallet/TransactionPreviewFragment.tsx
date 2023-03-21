@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent } from "react-native";
+import React, { useEffect, useMemo } from "react";
+import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share, PermissionsAndroid, Permission } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -30,6 +30,8 @@ import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { copyText } from "../../utils/copyText";
+import * as ScreenCapture from 'expo-screen-capture';
+import { warn } from "../../utils/log";
 
 export const TransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -38,7 +40,6 @@ export const TransactionPreviewFragment = fragment(() => {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     let transaction = engine.products.main.useTransaction(params.transaction);
-    // let transactionHash = engine.transactions.getHash(address, transaction.base.lt);
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
@@ -87,16 +88,22 @@ export const TransactionPreviewFragment = fragment(() => {
     }, [transaction]);
 
     const explorerLink = useMemo(() => {
-        if (!transaction.base.lt) {
-            return null;
-        }
-        if (!transaction.base.hash) {
+        if (!txId) {
             return null;
         }
         return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
             + '/explorer/address/' +
-            address.toFriendly() +
+            address.toFriendly({ testOnly: AppConfig.isTestnet }) +
             '/' + txId
+    }, [txId]);
+
+    const tonhubLink = useMemo(() => {
+        if (!txId) {
+            return null;
+        }
+        return `${AppConfig.isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
+            + `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/`
+            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
     }, [txId]);
 
     const contact = engine.products.settings.useContactAddress(operation.address);
@@ -141,6 +148,20 @@ export const TransactionPreviewFragment = fragment(() => {
             }
         }
     }, [operation, body]);
+
+    useEffect(() => {
+        let subscription: ScreenCapture.Subscription;
+        if (Platform.OS === 'ios') {
+            subscription = ScreenCapture.addScreenshotListener(() => {
+                if (!tonhubLink) {
+                    return;
+                }
+                Share.share({ title: t('txActions.share.transaction'), url: tonhubLink });
+            });
+        }
+        return () => subscription?.remove();
+    }, [tonhubLink]);
+
 
     return (
         <View style={{

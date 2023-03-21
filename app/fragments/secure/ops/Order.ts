@@ -1,19 +1,20 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, CellMessage, CommentMessage } from "ton";
-import { TonPayloadFormat } from "ton-ledger";
+import { Address, beginCell, Cell, CommentMessage } from "ton";
 import { AppConfig } from "../../../AppConfig";
-import { resolveLedgerPayload } from "../../ledger/utils/resolveLedgerPayload";
+import { SignRawMessage } from "../../../engine/tonconnect/types";
 
 export type Order = {
-    target: string;
     domain?: string;
-    amount: BN;
-    amountAll: boolean;
-    payload: Cell | null;
-    stateInit: Cell | null;
+    messages: {
+        target: string;
+        amount: BN;
+        amountAll: boolean;
+        payload: Cell | null;
+        stateInit: Cell | null;
+    }[],
     app?: {
         domain: string,
-        title: string
+        title: string,
     }
 };
 
@@ -77,12 +78,14 @@ export function createOrder(args: {
 }) {
     return {
         type: 'final',
-        target: args.target,
+        messages: [{
+            target: args.target,
+            amount: args.amount,
+            amountAll: args.amountAll,
+            payload: args.payload,
+            stateInit: args.stateInit,
+        }],
         domain: args.domain,
-        amount: args.amount,
-        amountAll: args.amountAll,
-        payload: args.payload,
-        stateInit: args.stateInit,
         app: args.app
     };
 }

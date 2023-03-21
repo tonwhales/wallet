@@ -53,16 +53,13 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
     useEffect(() => {
         let sub: Subscription | null = null;
         if (ledgerConnection?.type === 'ble') {
-            ledgerConnection.transport.on('disconnect', () => {
-                disconnectAlert();
-            });
+            ledgerConnection.transport.on('disconnect', disconnectAlert);
 
             setTonTransport(new TonTransport(ledgerConnection.transport));
 
         } else if (ledgerConnection?.type === 'hid') {
-            ledgerConnection.transport.on('disconnect', () => {
-                disconnectAlert();
-            });
+            ledgerConnection.transport.on('disconnect', disconnectAlert);
+            ledgerConnection.transport.on('onDeviceDisconnect', disconnectAlert);
 
             sub = new Observable(TransportHID.listen).subscribe((e: any) => {
                 if (e.type === "remove") {
@@ -70,13 +67,11 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
                 }
             });
 
-            ledgerConnection.transport.on('onDeviceDisconnect', () => {
-                disconnectAlert();
-            });
-
             setTonTransport(new TonTransport(ledgerConnection.transport));
 
             return () => {
+                ledgerConnection.transport.off('disconnect', disconnectAlert);
+                ledgerConnection.transport.off('onDeviceDisconnect', disconnectAlert);
                 sub?.unsubscribe();
             }
         }

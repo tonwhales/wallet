@@ -136,6 +136,7 @@ export const ProductsComponent = React.memo(() => {
     if (ledger) {
         apps.push(
             <AnimatedProductButton
+                key={'ledger'}
                 entering={FadeInUp}
                 exiting={FadeOutDown}
                 name={t('hardwareWallet.title')}

@@ -101,6 +101,7 @@ export const ReceiveFragment = fragment(() => {
                                         heigh={42}
                                         borderRadius={21}
                                         style={{ marginRight: 10 }}
+                                        lockLoading
                                     />
                                 )}
                                 {!jetton && (
@@ -134,7 +135,11 @@ export const ReceiveFragment = fragment(() => {
                         </View>
                     </Pressable>
                     <View style={{ height: 240, marginBottom: 38, justifyContent: 'center', alignItems: 'center' }}>
-                        <QRCode data={link} size={Platform.OS === 'ios' ? 260 : 240} />
+                        <QRCode
+                            data={link}
+                            size={Platform.OS === 'ios' ? 260 : 240}
+                            icon={jetton?.data.image}
+                        />
                     </View>
 
                     <View style={{

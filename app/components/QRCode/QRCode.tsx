@@ -3,6 +3,8 @@ import * as React from 'react';
 import { LayoutAnimation, Platform, View } from 'react-native';
 import { createQRMatrix } from './QRMatrix';
 import Diamond from '../../../assets/id_diamond_qr.svg';
+import { ImagePreview } from '../../engine/api/fetchAppData';
+import { WImage } from '../WImage';
 
 function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSize: number, color?: string) {
     // Top left
@@ -63,7 +65,7 @@ function getRectPath(x: number, y: number, w: number, h: number, tlr: number, tr
         + ' Z';
 };
 
-export const QRCode = React.memo((props: { data: string, size: number, color?: string }) => {
+export const QRCode = React.memo((props: { data: string, size: number, color?: string, icon?: ImagePreview | null }) => {
     const matrix = createQRMatrix(props.data, 'quartile');
     const dotSize = Math.floor((props.size - 16) / matrix.size);
     const padding = Math.floor((props.size - dotSize * matrix.size) / 2);
@@ -146,7 +148,15 @@ export const QRCode = React.memo((props: { data: string, size: number, color?: s
                 top: 0, left: 0, bottom: 0, right: 0,
                 justifyContent: 'center', alignItems: 'center'
             }}>
-                <Diamond />
+                {!props.icon && <Diamond />}
+                {props.icon && <WImage
+                    src={props.icon?.preview256}
+                    blurhash={props.icon?.blurhash}
+                    width={60}
+                    heigh={60}
+                    borderRadius={8}
+                    lockLoading
+                />}
             </View>
         </View >
     );

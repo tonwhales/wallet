@@ -87,7 +87,7 @@ export const LedgerHID = React.memo(() => {
                 </View>
             )}
             {(!!tonTransport && screen === 'select-account') && (
-                <LedgerSelectAccount reset={() => setLedgerConnection(null)} />
+                <LedgerSelectAccount onReset={() => setLedgerConnection(null)} />
             )}
         </View>
     );

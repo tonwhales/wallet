@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, Image } from "react-native";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { View, Text, Image, LayoutAnimation } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
@@ -33,6 +33,10 @@ export const LedgerBle = React.memo(() => {
             setScreen('select-account');
         }
     }, [ledgerConnection, tonTransport]);
+
+    useLayoutEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [screen]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -97,14 +101,25 @@ export const LedgerBle = React.memo(() => {
                 </>
             )}
             {screen === 'scan' && (
-                <LedgerDeviceSelection onReset={() => setLedgerConnection(null)} onSelectDevice={onSelectDevice} />
+                <LedgerDeviceSelection
+                    onReset={() => {
+                        setLedgerConnection(null);
+                        setScreen(null);
+                    }}
+                    onSelectDevice={onSelectDevice}
+                />
             )}
 
             {(!!tonTransport && screen === 'select-account') && (
-                <LedgerSelectAccount reset={() => setLedgerConnection(null)} />
+                <LedgerSelectAccount
+                    onReset={() => {
+                        setLedgerConnection(null)
+                        setScreen(null);
+                    }}
+                />
             )}
 
-            {(!!tonTransport || addr) && !(tonTransport && addr !== null) && (
+            {!!ledgerConnection && (
                 <View style={{
                     flexDirection: 'row',
                     position: 'absolute',

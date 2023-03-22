@@ -17,7 +17,7 @@ import { useTransport } from "./TransportContext";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
-export const LedgerSelectAccount = React.memo(({ reset }: { reset: () => void }) => {
+export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => void }) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
@@ -56,7 +56,7 @@ export const LedgerSelectAccount = React.memo(({ reset }: { reset: () => void })
         (async (acc: LedgerAccount) => {
             if (!tonTransport) {
                 Alert.alert(t('hardwareWallet.errors.noDevice'));
-                reset();
+                onReset();
                 return;
             }
             setSelected(acc.i);
@@ -67,7 +67,7 @@ export const LedgerSelectAccount = React.memo(({ reset }: { reset: () => void })
                 setSelected(undefined);
             } catch (e) {
                 warn(e);
-                reset();
+                onReset();
                 setSelected(undefined);
             }
         }),

@@ -39,15 +39,10 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
     }, []);
 
     const onSetLedgerConnecton = useCallback((connection: TypedTransport | null) => {
-        if (!connection) {
-            ledgerConnection?.transport.off('disconnect', disconnectAlert);
-            ledgerConnection?.transport.off('onDeviceDisconnect', disconnectAlert);
-            ledgerConnection?.transport.close();
-        }
         setLedgerConnection(connection);
     }, []);
 
-    const disconnectAlert = useCallback(() => {
+    const onDisconnect = useCallback(() => {
         Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
             text: t('common.back'),
             onPress: () => {
@@ -69,41 +64,30 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
     useEffect(() => {
         let sub: Subscription | null = null;
         if (ledgerConnection?.type === 'ble') {
-            ledgerConnection.transport.on('disconnect', disconnectAlert);
+            ledgerConnection.transport.on('disconnect', onDisconnect);
 
             setTonTransport(new TonTransport(ledgerConnection.transport));
 
         } else if (ledgerConnection?.type === 'hid') {
-            ledgerConnection.transport.on('disconnect', disconnectAlert);
-            ledgerConnection.transport.on('onDeviceDisconnect', disconnectAlert);
+            ledgerConnection.transport.on('disconnect', onDisconnect);
+            ledgerConnection.transport.on('onDeviceDisconnect', onDisconnect);
 
             sub = new Observable(TransportHID.listen).subscribe((e: any) => {
                 if (e.type === "remove") {
-                    disconnectAlert();
+                    onDisconnect();
                 }
             });
 
             setTonTransport(new TonTransport(ledgerConnection.transport));
 
-            return () => {
-                ledgerConnection.transport.off('disconnect', disconnectAlert);
-                ledgerConnection.transport.off('onDeviceDisconnect', disconnectAlert);
-                sub?.unsubscribe();
-            }
+        }
+        return () => {
+            sub?.unsubscribe();
+            ledgerConnection?.transport.off('disconnect', onDisconnect);
+            ledgerConnection?.transport.off('onDeviceDisconnect', onDisconnect);
+            ledgerConnection?.transport.close();
         }
     }, [ledgerConnection]);
-
-    useEffect(() => {
-        return () => {
-            if (ledgerConnection) {
-                ledgerConnection.transport.off('disconnect', () => { });
-                ledgerConnection.transport.off('onDeviceDisconnect', () => { });
-                ledgerConnection.transport.close();
-                reset();
-            }
-        }
-    }, []);
-
 
     return (
         <TransportContext.Provider value={{ ledgerConnection, setLedgerConnection: onSetLedgerConnecton, tonTransport, addr, setAddr: onSetAddress }}>

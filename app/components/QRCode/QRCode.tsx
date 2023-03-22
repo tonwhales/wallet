@@ -1,27 +1,27 @@
-import { Canvas, RoundedRect, DiffRect, rrect, rect, Path } from '@shopify/react-native-skia';
+import { Canvas, RoundedRect, DiffRect, rrect, rect, Path, SkiaView } from '@shopify/react-native-skia';
 import * as React from 'react';
-import { View } from 'react-native';
+import { LayoutAnimation, Platform, View } from 'react-native';
 import { createQRMatrix } from './QRMatrix';
 import Diamond from '../../../assets/id_diamond_qr.svg';
 
-function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSize: number) {
+function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSize: number, color?: string) {
     // Top left
-    const topLeftOuter0 = rrect(rect(0, 0, dotSize * 7, dotSize * 7), 12, 12);
-    const topLeftInner0 = rrect(rect(dotSize, dotSize, dotSize * 5, dotSize * 5), 7, 7);
-    items.push(<DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color="black" />)
-    items.push(<RoundedRect key={'rr-top-left'} x={dotSize * 2} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
+    const topLeftOuter0 = rrect(rect(0, 0, dotSize * 7, dotSize * 7), 6, 6);
+    const topLeftInner0 = rrect(rect(dotSize, dotSize, dotSize * 5, dotSize * 5), 3, 3);
+    items.push(<DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={color ?? "black"} />)
+    items.push(<RoundedRect key={'rr-top-left'} x={dotSize * 2} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={3} color={color ?? "black"} />)
 
     // Top right
-    const outer2 = rrect(rect((matrixSize - 7) * dotSize, 0, dotSize * 7, dotSize * 7), 12, 12);
-    const inner2 = rrect(rect((matrixSize - 6) * dotSize, dotSize, dotSize * 5, dotSize * 5), 7, 7);
-    items.push(<DiffRect key={'dr-top-right'} inner={inner2} outer={outer2} color="black" />);
-    items.push(<RoundedRect key={'rr-top-right'} x={(matrixSize - 5) * dotSize} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
+    const outer2 = rrect(rect((matrixSize - 7) * dotSize, 0, dotSize * 7, dotSize * 7), 6, 6);
+    const inner2 = rrect(rect((matrixSize - 6) * dotSize, dotSize, dotSize * 5, dotSize * 5), 3, 3);
+    items.push(<DiffRect key={'dr-top-right'} inner={inner2} outer={outer2} color={color ?? "black"} />);
+    items.push(<RoundedRect key={'rr-top-right'} x={(matrixSize - 5) * dotSize} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={3} color={color ?? "black"} />)
 
     // Bottom left
-    const outer3 = rrect(rect(0, (matrixSize - 7) * dotSize, dotSize * 7, dotSize * 7), 12, 12);
-    const inner3 = rrect(rect(dotSize, (matrixSize - 6) * dotSize, dotSize * 5, dotSize * 5), 7, 7);
-    items.push(<DiffRect key={'dr-bottom-left'} inner={inner3} outer={outer3} color="black" />);
-    items.push(<RoundedRect key={'rr-bottom-left'} x={dotSize * 2} y={(matrixSize - 5) * dotSize} width={dotSize * 3} height={dotSize * 3} r={6.5} color="black" />)
+    const outer3 = rrect(rect(0, (matrixSize - 7) * dotSize, dotSize * 7, dotSize * 7), 6, 6);
+    const inner3 = rrect(rect(dotSize, (matrixSize - 6) * dotSize, dotSize * 5, dotSize * 5), 3, 3);
+    items.push(<DiffRect key={'dr-bottom-left'} inner={inner3} outer={outer3} color={color ?? "black"} />);
+    items.push(<RoundedRect key={'rr-bottom-left'} x={dotSize * 2} y={(matrixSize - 5) * dotSize} width={dotSize * 3} height={dotSize * 3} r={3} color={color ?? "black"} />)
 }
 
 function isCornerSquare(point: { x: number, y: number }, matrixSize: number): boolean {
@@ -63,10 +63,10 @@ function getRectPath(x: number, y: number, w: number, h: number, tlr: number, tr
         + ' Z';
 };
 
-export const QRCode = React.memo((props: { data: string, size: number }) => {
-    const matrix = createQRMatrix(props.data, 'medium');
-    const dotSize = Math.floor((props.size - 8 * 2) / matrix.size);
-    const padding = 7;
+export const QRCode = React.memo((props: { data: string, size: number, color?: string }) => {
+    const matrix = createQRMatrix(props.data, 'quartile');
+    const dotSize = Math.floor((props.size - 16) / matrix.size);
+    const padding = Math.floor((props.size - dotSize * matrix.size) / 2);
 
     const items: JSX.Element[] = [];
     for (let x = 0; x < matrix.size; x++) {
@@ -107,20 +107,26 @@ export const QRCode = React.memo((props: { data: string, size: number }) => {
                 const height = dotSize;
                 const width = dotSize;
 
-                const path = getRectPath(x * dotSize, y * dotSize, width, height, borderTopLeftRadius, borderTopRightRadius, borderBottomRightRadius, borderBottomLeftRadius)
+                const path = getRectPath(
+                    x * dotSize,
+                    y * dotSize,
+                    width, height,
+                    borderTopLeftRadius, borderTopRightRadius,
+                    borderBottomRightRadius, borderBottomLeftRadius
+                )
 
                 items.push(
                     <Path
                         key={`${x}-${y}`}
                         path={path}
-                        color={'black'}
+                        color={props.color ?? 'black'}
                     />
                 );
             }
         }
     }
 
-    addCornerFinderPatterns(items, dotSize, matrix.size);
+    addCornerFinderPatterns(items, dotSize, matrix.size, props.color);
 
     return (
         <View style={{
@@ -132,9 +138,7 @@ export const QRCode = React.memo((props: { data: string, size: number }) => {
             borderRadius: 20,
             borderColor: '#E7E7E7', borderWidth: 1
         }}>
-            <Canvas style={{
-                width: props.size, height: props.size,
-            }}>
+            <Canvas style={{ width: props.size, height: props.size }}>
                 {items}
             </Canvas>
             <View style={{

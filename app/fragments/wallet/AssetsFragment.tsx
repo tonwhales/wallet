@@ -9,16 +9,16 @@ import { useEngine } from "../../engine/Engine";
 import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AnimatedProductButton } from "./products/AnimatedProductButton";
 import { JettonProduct } from "./products/JettonProduct";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
+import { Address } from "ton";
 
 export const AssetsFragment = fragment(() => {
-    const { target } = useParams<{ target: string }>();
+    const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -35,7 +35,16 @@ export const AssetsFragment = fragment(() => {
             job: null,
             callback: null
         });
-    }, [])
+    }, []);
+
+    const onCallback = useCallback((address?: Address) => {
+        if (callback) {
+            setTimeout(() => {
+                navigation.goBack();
+                callback(address);
+            }, 10);
+        }
+    }, [callback]);
 
     return (
         <View style={{
@@ -72,6 +81,10 @@ export const AssetsFragment = fragment(() => {
                         icon={TonIcon}
                         value={account?.balance ?? new BN(0)}
                         onPress={() => {
+                            if (callback) {
+                                onCallback();
+                                return;
+                            }
                             navigation.navigateSimpleTransfer({
                                 amount: null,
                                 target: target,
@@ -92,7 +105,13 @@ export const AssetsFragment = fragment(() => {
                                 jetton={j}
                                 navigation={navigation}
                                 engine={engine}
-                                onPress={() => navigateToJettonTransfer(j)}
+                                onPress={() => {
+                                    if (callback) {
+                                        onCallback(j.master);
+                                        return;
+                                    }
+                                    navigateToJettonTransfer(j)
+                                }}
                             />
                         );
                     })}

@@ -265,6 +265,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 epnPartners: 'ePN Partners',
                 epnPartnersDescription: 'Присоединяйтесь к более чем 200 000 вебмастеров, работающих с ePN, и получайте оплату в TON',
                 moreAboutEPN: 'Узнать больше о ePN',
+                lockups: 'Локапы',
+                lockupsDescription: 'Позволяет владельцам крупных локапов в TON получать дополнительный доход',
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',

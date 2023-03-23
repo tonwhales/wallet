@@ -6,6 +6,7 @@ import { StakingTransferParams } from '../fragments/staking/StakingTransferFragm
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
+import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -69,20 +70,7 @@ export class TypedNavigation {
         this.navigate('StakingTransfer', params);
     }
 
-    navigateSimpleTransfer(tx: {
-        target: string | null,
-        comment: string | null,
-        amount: BN | null,
-        stateInit: Cell | null,
-        job: string | null,
-        jetton: Address | null,
-        callback: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number,
-        app?: {
-            domain: string,
-            title: string
-        }
-    }) {
+    navigateSimpleTransfer(tx: SimpleTransferParams) {
         this.navigate('SimpleTransfer', tx);
     }
 
@@ -104,8 +92,8 @@ export class TypedNavigation {
         this.navigate('Review', params);
     }
 
-    navigateLedgerTransfer() {
-        this.navigate('LedgerTransfer');
+    navigateLedgerTransfer(tx: SimpleTransferParams) {
+        this.navigate('LedgerTransfer', tx);
     }
 
     navigateLedgerSignTransfer(params: LedgerSignTransferParams) {

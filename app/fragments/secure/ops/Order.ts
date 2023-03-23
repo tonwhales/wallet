@@ -33,6 +33,55 @@ export type LedgerOrder = {
     }
 };
 
+
+export function createLedgerJettonOrder(args: {
+    wallet: Address,
+    target: string,
+    domain?: string,
+    responseTarget: Address,
+    text: string | null,
+    amount: BN,
+    tonAmount: BN,
+    txAmount: BN,
+    payload: Cell | null
+}): LedgerOrder {
+
+    // Resolve payload
+    let payload: Cell | null = null;
+    if (args.payload) {
+        payload = args.payload;
+    } else if (args.text) {
+        let c = new Cell();
+        new CommentMessage(args.text).writeTo(c);
+        payload = c;
+    }
+
+    // Create body
+    // transfer#f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
+    //              response_destination:MsgAddress custom_payload:(Maybe ^Cell)
+    //              forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
+    //              = InternalMsgBody;
+    const msg = beginCell()
+        .storeUint(0xf8a7ea5, 32)
+        .storeUint(0, 64)
+        .storeCoins(args.amount)
+        .storeAddress(Address.parse(args.target))
+        .storeAddress(args.responseTarget)
+        .storeRefMaybe(null)
+        .storeCoins(args.tonAmount)
+        .storeRefMaybe(payload)
+        .endCell();
+
+    return {
+        target: args.wallet.toFriendly({ testOnly: AppConfig.isTestnet }),
+        domain: args.domain,
+        amount: args.txAmount,
+        payload: { type: 'unsafe', message: new CellMessage(msg) },
+        amountAll: false,
+        stateInit: null,
+    }
+}
+
 export function createSimpleLedgerOrder(args: {
     target: string,
     domain?: string,

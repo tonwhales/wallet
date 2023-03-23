@@ -32,6 +32,7 @@ import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
+import { useParams } from '../../utils/useParams';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -39,22 +40,24 @@ const labelStyle: StyleProp<TextStyle> = {
     fontSize: 17
 };
 
+export type SimpleTransferParams = {
+    target?: string,
+    comment?: string | null,
+    amount?: BN | null,
+    stateInit?: Cell | null,
+    job?: string | null,
+    jetton?: Address | null,
+    callback?: ((ok: boolean, result: Cell | null) => void) | null,
+    back?: number,
+    app?: {
+        domain: string,
+        title: string
+    }
+}
+
 export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const params: {
-        target?: string,
-        comment?: string | null,
-        amount?: BN | null,
-        stateInit?: Cell | null,
-        job?: string | null,
-        jetton?: Address | null,
-        callback?: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number,
-        app?: {
-            domain: string,
-            title: string
-        }
-    } | undefined = useRoute().params;
+    const params: SimpleTransferParams | undefined = useParams();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();

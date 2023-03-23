@@ -7,6 +7,7 @@ import { NavigationTheme } from "../../Theme";
 import { TransportProvider } from "./components/TransportContext";
 import { HardwareWalletFragment } from "./HardwareWalletFragment";
 import { LedgerAppFragment } from "./LedgerAppFragment";
+import { LedgerAssetsFragment } from "./LedgerAssetsFragment";
 import { LedgerBleFragment } from "./LedgerBleFragment";
 import { LedgerHIDFragment } from "./LedgerHIDFragment";
 import { LedgerSignTransferFragment } from "./LedgerSignTransferFragment";
@@ -45,6 +46,7 @@ const ledgerNavigation = [
     modalScreen('LedgerTransfer', LedgerTransferFragment),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment),
     modalScreen('LedgerTransactionPreview', LedgerTransactionPreview),
+    modalScreen('LedgerAssets', LedgerAssetsFragment),
 ]
 
 export const LedgerRoot = fragment(() => {

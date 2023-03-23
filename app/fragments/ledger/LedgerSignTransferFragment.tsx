@@ -89,7 +89,7 @@ type ConfirmLoadedProps = {
 const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const account = engine.products.ledger.useAccount();
     const {
         restricted,
         target,
@@ -412,11 +412,11 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             color: Theme.textColor,
                                             marginLeft: 2,
                                         }}>
-                                            {`${fromNano(order.amountAll ? account.balance : order.amount)} TON`}
+                                            {`${fromNano(order.amountAll ? (account?.balance ?? new BN(0)) : order.amount)} TON`}
                                         </Text>
                                         <PriceComponent
                                             prefix={'~'}
-                                            amount={order.amountAll ? account.balance : order.amount}
+                                            amount={order.amountAll ? (account?.balance ?? new BN(0)) : order.amount}
                                             style={{
                                                 backgroundColor: 'transparent',
                                                 paddingHorizontal: 0,
@@ -544,7 +544,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <PriceComponent
                                                 prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
                                                 suffix={')'}
-                                                amount={order.amountAll ? account.balance : order.amount}
+                                                amount={order.amountAll ? (account?.balance ?? new BN(0)) : order.amount}
                                                 style={{
                                                     backgroundColor: 'transparent',
                                                     paddingHorizontal: 0,

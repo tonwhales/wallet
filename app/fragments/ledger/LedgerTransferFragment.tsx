@@ -22,11 +22,15 @@ import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { estimateFees } from "../../engine/estimate/estimateFees";
-import { createSimpleLedgerOrder } from "../secure/ops/Order";
+import { createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { useParams } from "../../utils/useParams";
+import { useItem } from "../../engine/persistence/PersistedItem";
+import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
+import { fromBNWithDecimals } from "../../utils/withDecimals";
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();
@@ -40,6 +44,7 @@ export const LedgerTransferFragment = fragment(() => {
         }
     }, [addr]);
     const engine = useEngine();
+    const params: SimpleTransferParams | undefined = useParams();
 
     const accountV4State = engine.products.ledger.useWallet(address);
     const safeArea = useSafeAreaInsets();
@@ -47,13 +52,25 @@ export const LedgerTransferFragment = fragment(() => {
     const config = engine.products.config.useConfig();
 
     // Input state
-    const [target, setTarget] = React.useState('');
+    const [target, setTarget] = React.useState(params?.target ?? '');
     const [addressDomainInput, setAddressDomainInput] = React.useState(target);
     const [domain, setDomain] = React.useState<string>();
-    const [comment, setComment] = React.useState('');
-    const [amount, setAmount] = React.useState('');
-
+    const [comment, setComment] = React.useState(params?.comment ?? '');
+    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
+    const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
+    const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
+    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
+    const balance = React.useMemo(() => {
+        let value;
+        if (jettonWallet) {
+            value = jettonWallet.balance;
+        } else {
+            value = accountV4State?.balance ?? new BN(0);
+        }
+        return value;
+    }, [jettonWallet, jettonMaster, accountV4State?.balance]);
+
     const [estimation, setEstimation] = React.useState<BN | null>(null);
 
     // Resolve order
@@ -74,6 +91,21 @@ export const LedgerTransferFragment = fragment(() => {
             address = parsed.address;
         } catch (e) {
             return null;
+        }
+
+         // Resolve jetton order
+         if (jettonWallet) {
+            return createLedgerJettonOrder({
+                wallet: params!.jetton!,
+                target: target,
+                domain: domain,
+                responseTarget: address,
+                text: comment,
+                amount: value,
+                tonAmount: toNano(0.1),
+                txAmount: toNano(0.2),
+                payload: null
+            });
         }
 
         // Resolve order
@@ -258,10 +290,8 @@ export const LedgerTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        if (accountV4State?.balance) {
-            setAmount(fromNano(accountV4State?.balance ?? new BN(0)));
-        }
-    }, [accountV4State?.balance]);
+        setAmount(jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
+    }, [balance, jettonWallet, jettonMaster]);
 
     //
     // Scroll state tracking
@@ -383,7 +413,7 @@ export const LedgerTransferFragment = fragment(() => {
                             color: '#6D6D71',
                             marginBottom: 5
                         }}>
-                            {fromNano(accountV4State?.balance ?? new BN(0))} {'TON'}
+                            {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

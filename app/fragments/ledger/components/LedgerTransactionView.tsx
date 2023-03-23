@@ -120,7 +120,7 @@ export function LedgerTransactionView(props: {
         if (!txId) {
             return null;
         }
-        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
+        return (AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
             operation.address.toFriendly() +
             '/' + txId
@@ -152,17 +152,17 @@ export function LedgerTransactionView(props: {
         navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
     }, []);
 
-    // const onRepeatTx = React.useCallback(() => {
-    //     navigation.navigateSimpleTransfer({
-    //         target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
-    //         comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
-    //         amount: tx.base.amount.neg(),
-    //         job: null,
-    //         stateInit: null,
-    //         jetton: null,
-    //         callback: null
-    //     })
-    // }, [tx, operation]);
+    const onRepeatTx = React.useCallback(() => {
+        navigation.navigateSimpleTransfer({
+            target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
+            comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
+            amount: tx.base.amount.neg(),
+            job: null,
+            stateInit: null,
+            jetton: null,
+            callback: null
+        });
+    }, [tx, operation]);
 
     const transactionActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
         { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },

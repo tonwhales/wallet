@@ -219,7 +219,7 @@ export const LedgerApp = React.memo((props: {
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight
-                            onPress={() => navigation.navigateLedgerTransfer()}
+                            onPress={() => navigation.navigate('LedgerAssets')}
                             underlayColor={Theme.selector} style={{ borderRadius: 14 }}
                         >
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>

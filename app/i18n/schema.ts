@@ -276,6 +276,8 @@ export type LocalizationSchema = {
                 epnPartners: string,
                 epnPartnersDescription: string,
                 moreAboutEPN: string,
+                lockups: string,
+                lockupsDescription: string,
             },
             transfer: {
                 stakingWarning: string,

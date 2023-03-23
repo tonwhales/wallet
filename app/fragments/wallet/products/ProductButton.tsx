@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
+import { ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { Theme } from '../../../Theme';
@@ -79,7 +79,17 @@ export function ProductButton(props: ProductButtonProps) {
                         marginTop: 10,
                         marginRight: 10
                     }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
+                        <Text
+                            style={{
+                                color: Theme.textColor,
+                                fontSize: 16,
+                                marginRight: 16,
+                                fontWeight: '600',
+                                flexShrink: 1
+                            }}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                        >
                             {props.name}
                         </Text>
                         {(!!props.value && typeof props.value !== 'string') && (
@@ -95,8 +105,8 @@ export function ProductButton(props: ProductButtonProps) {
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
                         <Text
-                            style={{ color: Theme.textSubtitle, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
-                            ellipsizeMode="tail"
+                            style={{ color: '#8E979D', fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
+                            ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
                             <Text style={{ flexShrink: 1 }}>

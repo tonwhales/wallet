@@ -29,7 +29,7 @@ import { createJettonOrder, createSimpleOrder } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
-import { useLinkNavigator } from '../../Navigation';
+import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 

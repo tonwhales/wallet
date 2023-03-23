@@ -136,6 +136,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         unusualJettonsGasTitle: '⚠️ Газ за отправку жетонов {{amount}} TON',
         unusualJettonsGasMessage: 'Комиссия за отправку жетонов выше чем обычно',
         addressNotActive: 'Не активен',
+        wrongJettonTitle: '⚠️ Неверный жетон',
+        wrongJettonMessage: 'Вы пытаетесь отправить жетон, которого у вас нет',
+        notEnoughJettonsTitle: '⚠️ Недостаточно жетонов',
+        notEnoughJettonsMessage: 'У вас недостаточно жетонов для отправки',
     },
     auth: {
         phoneNumber: 'Номер телефона',

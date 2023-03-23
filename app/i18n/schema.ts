@@ -150,6 +150,10 @@ export type LocalizationSchema = {
         unusualJettonsGasTitle: string,
         unusualJettonsGasMessage: string,
         addressNotActive: string,
+        wrongJettonTitle: string,
+        wrongJettonMessage: string,
+        notEnoughJettonsTitle: string,
+        notEnoughJettonsMessage: string,
     },
     auth: {
         phoneVerify: string,

@@ -41,7 +41,7 @@ export const LedgerTransferFragment = fragment(() => {
     }, [addr]);
     const engine = useEngine();
 
-    const accountV4State = engine.products.ledger.useLedgerWallet(address);
+    const accountV4State = engine.products.ledger.useWallet(address);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const config = engine.products.config.useConfig();

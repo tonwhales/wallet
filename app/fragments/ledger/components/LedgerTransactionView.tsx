@@ -17,19 +17,26 @@ import { Engine } from '../../../engine/Engine';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { LedgerWalletProduct } from '../../../engine/products/LedgerWalletProduct';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
 }
 
-export function LedgerTransactionView(props: { own: Address, tx: string, separator: boolean, ledgerWalletProduct: LedgerWalletProduct, onPress: (src: string) => void }) {
+export function LedgerTransactionView(props: {
+    own: Address,
+    tx: string,
+    separator: boolean,
+    engine: Engine,
+    onPress: (src: string) => void
+}) {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
-    const tx = props.ledgerWalletProduct.useTransaction(props.tx);
-    let transactionHash = props.ledgerWalletProduct.engine.transactions.getHash(props.own, tx.base.lt);
+    const tx = props.engine.products.ledger.useTransaction(props.tx);
+    if (!tx) {
+        return <></>;
+    }
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -62,7 +69,7 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
         }
     }
 
-    const contact = props.ledgerWalletProduct.engine.products.settings.useContactAddress(operation.address);
+    const contact = props.engine.products.settings.useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -77,10 +84,10 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
     const verified = !!tx.verified
         || !!KnownJettonMasters[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
-    const spamMinAmount = props.ledgerWalletProduct.engine.products.settings.useSpamMinAmount();
-    const isSpam = props.ledgerWalletProduct.engine.products.settings.useDenyAddress(operation.address);
+    const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
+    const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
 
-    let spam = props.ledgerWalletProduct.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+    let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
         || isSpam
         || (
             parsed.amount.abs().lt(spamMinAmount)
@@ -92,7 +99,7 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
     // 
     // Address actions
     // 
-    const settings = props.ledgerWalletProduct.engine.products.settings;
+    const settings = props.engine.products.settings;
 
     const addressLink = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
         + operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -101,13 +108,13 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
         if (!tx.base.lt) {
             return null;
         }
-        if (!transactionHash) {
+        if (!tx.base.hash) {
             return null;
         }
         return tx.base.lt +
             '_' +
-            transactionHash.toString('hex')
-    }, [tx, transactionHash]);
+            tx.base.hash.toString('hex')
+    }, [tx]);
 
     const explorerTxLink = React.useMemo(() => {
         if (!txId) {
@@ -145,17 +152,17 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
         navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
     }, []);
 
-    const onRepeatTx = React.useCallback(() => {
-        navigation.navigateSimpleTransfer({
-            target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
-            comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
-            amount: tx.base.amount.neg(),
-            job: null,
-            stateInit: null,
-            jetton: null,
-            callback: null
-        })
-    }, [tx, operation]);
+    // const onRepeatTx = React.useCallback(() => {
+    //     navigation.navigateSimpleTransfer({
+    //         target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
+    //         comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
+    //         amount: tx.base.amount.neg(),
+    //         job: null,
+    //         stateInit: null,
+    //         jetton: null,
+    //         callback: null
+    //     })
+    // }, [tx, operation]);
 
     const transactionActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
         { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
@@ -185,7 +192,7 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
                     break;
                 }
                 case t('txActions.txRepeat'): {
-                    onRepeatTx();
+                    // onRepeatTx();
                     break;
                 }
                 case t('txActions.txShare'): {
@@ -229,12 +236,17 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
                         )}
                     </View>
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
+                        <View style={{ flexDirection: 'row', marginTop: 10, marginRight: 10 }}>
                             <View style={{
                                 flexDirection: 'row',
                                 flexGrow: 1, flexBasis: 0, marginRight: 16,
                             }}>
-                                <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>{op}</Text>
+                                <Text
+                                    style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
+                                    ellipsizeMode="tail"
+                                    numberOfLines={1}>
+                                    {op}
+                                </Text>
                                 {spam && (
                                     <View style={{
                                         borderColor: '#ADB6BE',
@@ -250,16 +262,21 @@ export function LedgerTransactionView(props: { own: Address, tx: string, separat
                                 )}
                             </View>
                             {parsed.status === 'failed' ? (
-                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>failed</Text>
+                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                                    {t('tx.failed')}
+                                </Text>
                             ) : (
                                 <Text
                                     style={{
                                         color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
                                         fontWeight: '400',
                                         fontSize: 16,
-                                        marginRight: 2
+                                        marginRight: 2,
                                     }}>
-                                    <ValueComponent value={item.amount} decimals={item.kind === 'token' ? item.decimals : undefined} />
+                                    <ValueComponent
+                                        value={item.amount}
+                                        decimals={item.kind === 'token' ? item.decimals : undefined}
+                                    />
                                     {item.kind === 'token' ? ' ' + item.symbol : ''}
                                 </Text>
                             )}

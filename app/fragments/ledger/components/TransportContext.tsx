@@ -51,11 +51,12 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
         }]);
     }, []);
 
-    const onSetAddress = useCallback((address: LedgerAddress | null) => {
-        setAddr(address);
+    const onSetAddress = useCallback((selected: LedgerAddress | null) => {
+        setAddr(selected);
         try {
-            const parsed = Address.parse(addr!.address);
+            const parsed = Address.parse(selected!.address);
             startWalletV4Sync(parsed, engine);
+            engine.products.ledger.startSync(parsed);
         } catch (e) {
             warn('Failed to parse address');
         }

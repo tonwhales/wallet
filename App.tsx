@@ -23,7 +23,7 @@ import './app/storage/appState';
 // App
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, TextInput } from 'react-native';
 import { Theme } from './app/Theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
@@ -33,6 +33,18 @@ import { mixpanel } from './app/analytics/mixpanel';
 import * as SplashScreen from 'expo-splash-screen';
 
 changeNavBarColor('white');
+
+// Note that it is a bad practice to disable font scaling globally.
+// TODO: extend Text and TextInput components to support or lock font scaling.
+if (!(Text as any).defaultProps) {
+  (Text as any).defaultProps = {};
+  (Text as any).defaultProps.allowFontScaling = false;
+}
+
+if (!(TextInput as any).defaultProps) {
+  (TextInput as any).defaultProps = {};
+  (TextInput as any).defaultProps.allowFontScaling = false;
+}
 
 mixpanel.init();
 if (__DEV__) {

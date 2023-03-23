@@ -151,6 +151,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unusualJettonsGasTitle: '⚠️ The fee for sending jettons is {{amount}} TON',
         unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
         addressNotActive: 'Not active',
+        wrongJettonTitle: '⚠️ Wrong jetton',
+        wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
+        notEnoughJettonsTitle: '⚠️ Not enough jettons',
+        notEnoughJettonsMessage: 'You are trying to send more jettons than you have',
     },
     auth: {
         phoneVerify: 'Verify phone',
@@ -267,6 +271,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 epnPartners: 'ePN Partners',
                 epnPartnersDescription: 'Join over 200,000 webmasters working with ePN and get paid in TON',
                 moreAboutEPN: 'More about ePN',
+                lockups: 'Lockups Pool',
+                lockupsDescription: 'Allows holders of big lockups in TON to earn additional income',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

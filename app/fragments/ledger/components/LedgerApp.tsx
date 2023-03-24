@@ -129,12 +129,7 @@ export const LedgerApp = React.memo((props: {
     return (
         <View style={{ flexGrow: 1 }}>
             <ScrollView
-                contentContainerStyle={{
-                    flexGrow: 1,
-                    paddingTop: Platform.OS === 'android'
-                        ? safeArea.top + 44
-                        : undefined,
-                }}
+                contentContainerStyle={{ flexGrow: 1 }}
                 contentInset={{ bottom: 52 }}
                 contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
                 onScroll={onScroll}

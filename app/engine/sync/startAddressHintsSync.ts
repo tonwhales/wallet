@@ -11,7 +11,6 @@ export function startAddressHintsSync(address: Address, engine: Engine) {
     let sync = createEngineSync(key, engine, async () => {
         // Fetch hints
         let hints = await fetchHints(address);
-        console.log(`New hints sync for ${address.toFriendly({ testOnly: AppConfig.isTestnet })}`, { hints: hints.map((h) => h.toFriendly({ testOnly: AppConfig.isTestnet })) });
 
         // Request all hints
         requestAllHintsIfNeeded(hints, null, engine, address);

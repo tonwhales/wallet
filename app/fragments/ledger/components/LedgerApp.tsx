@@ -64,7 +64,7 @@ const WalletTransactions = React.memo((props: {
             <View
                 key="prev-loader"
                 style={{
-                    height: 64,
+                    height: 94,
                     alignSelf: 'stretch',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -75,7 +75,7 @@ const WalletTransactions = React.memo((props: {
         );
     } else {
         components.push(
-            <View key="footer" style={{ height: 64 }} />
+            <View key="footer" style={{ height: 94 }} />
         );
     }
 

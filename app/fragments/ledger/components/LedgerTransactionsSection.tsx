@@ -18,9 +18,7 @@ export const LedgerTransactionsSection = React.memo(({
     engine: Engine,
 }) => {
     const openTransactionFragment = React.useCallback((transaction: string) => {
-        // if (transaction) {
-        //     navigation.navigate('Transaction', { transaction: transaction });
-        // }
+        navigation.navigate('LedgerTransactionPreview', {transaction });
     }, [navigation]);
     return (
         <View>

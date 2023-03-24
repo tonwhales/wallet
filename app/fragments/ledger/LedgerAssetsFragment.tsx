@@ -85,6 +85,7 @@ export const LedgerAssetsFragment = fragment(() => {
                                 onCallback();
                                 return;
                             }
+                            navigation.goBack();
                             navigation.navigateLedgerTransfer({
                                 amount: null,
                                 target: target,
@@ -110,6 +111,7 @@ export const LedgerAssetsFragment = fragment(() => {
                                         onCallback(j.master);
                                         return;
                                     }
+                                    navigation.goBack();
                                     navigateToJettonTransfer(j)
                                 }}
                             />

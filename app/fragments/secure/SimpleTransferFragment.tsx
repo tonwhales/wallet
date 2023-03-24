@@ -41,7 +41,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 export type SimpleTransferParams = {
-    target?: string,
+    target?: string | null,
     comment?: string | null,
     amount?: BN | null,
     stateInit?: Cell | null,

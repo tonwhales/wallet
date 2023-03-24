@@ -121,6 +121,13 @@ export class LedgerProduct {
         return useRecoilValue(this.#atom);
     }
 
+    getWallet(address?: Address) {
+        if (!address) {
+            return null;
+        }
+        return this.engine.persistence.wallets.item(address).value;
+    }
+
     useJettons(address?: Address) {
         if (!address) {
             return null;
@@ -136,7 +143,6 @@ export class LedgerProduct {
     }
 
     startSync(address: Address) {
-        console.log(`Starting sync for ${address.toFriendly({ testOnly: AppConfig.isTestnet })}...`);
         this.startHintsSync(address);
         this.#atom = atom<WalletState | null>({
             key: 'wallet/' + address.toFriendly({ testOnly: AppConfig.isTestnet }),
@@ -144,96 +150,12 @@ export class LedgerProduct {
             dangerouslyAllowMutability: true
         });
 
-        // Loading transactions
-        this.engine.persistence.wallets.item(address).for((state) => {
-            // Resolve hasMore flag
-            let next: { lt: string, hash: string } | null = null;
-
-            const transactions: Transaction[] = [];
-
-            // Latest transaction
-            const last = this.engine.persistence.fullAccounts.item(address).value?.last;
-
-            if (last) {
-                let latest = this.engine.transactions.get(address, last.lt.toString(10));
-
-                if (!latest) {
-                    return;
-                }
-
-                // Push latest
-                transactions.push(latest);
-
-                // Set next
-                if (latest.prev) {
-                    next = { lt: latest.prev.lt, hash: latest.prev.hash };
-                }
-
-                let toLoad = this.#initialLoad ? 20 : state.transactions.length;
-
-                if (state.transactions.length <= 20) {
-                    toLoad = state.transactions.length - 1; // first 10 txs except for the latest
-                }
-
-                for (let i = 0; i < toLoad - 1; i++) {
-
-                    if (!next) {
-                        break;
-                    }
-
-                    let tx = this.engine.transactions.get(address, next.lt);
-
-                    if (!tx) {
-                        break;
-                    }
-
-                    transactions.push(tx);
-
-                    if (tx.prev) {
-                        next = { lt: tx.prev.lt, hash: tx.prev.hash };
-                    }
-                }
-            }
-
-            // Set initial tag
-            if (this.#initialLoad) {
-                this.#initialLoad = false;
-            }
-
-            // Resolve updated state
-            this.#state = {
-                balance: state.balance,
-                seqno: state.seqno,
-                transactions: [
-                    ...transactions.map((t) => {
-
-                        // Update
-                        if (!this.#txs.has(t.id)) {
-                            this.#txs.set(t.id, t);
-                        }
-
-                        return { id: t.id, time: t.time };
-                    })
-                ],
-                pending: [],
-                next
-            };
-
-            // Notify
-            this.engine.recoil.updater(this.#atom, this.#state);
-        });
-
-        // History
-        this.#history = createHistorySync(address, this.engine);
-
         this.#txsAtom = atomFamily<TransactionDescription, string>({
             key: 'wallet/' + address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/txs',
             default: selectorFamily({
                 key: 'wallet/' + address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/txs/default',
                 get: (id) => ({ get }) => {
-                    console.log('Resolving transaction ' + id);
                     let base = this.#txs.get(id);
-                    console.log({ base });
                     if (!base) {
                         throw Error('Invalid transaction #' + id);
                     }
@@ -292,7 +214,87 @@ export class LedgerProduct {
             dangerouslyAllowMutability: true
         });
 
-        console.log(this.#txs)
+        // Loading transactions
+        this.engine.persistence.wallets.item(address).for((state) => {
+            // Resolve hasMore flag
+            let next: { lt: string, hash: string } | null = null;
+
+            const transactions: Transaction[] = [];
+
+            // Latest transaction
+            const last = this.engine.persistence.fullAccounts.item(address).value?.last;
+
+            if (last) {
+                let latest = this.engine.transactions.get(address, last.lt.toString(10));
+
+                if (!latest) {
+                    return;
+                }
+
+                // Push latest
+                transactions.push(latest);
+
+                // Set next
+                if (latest.prev) {
+                    next = { lt: latest.prev.lt, hash: latest.prev.hash };
+                }
+
+                let toLoad = this.#initialLoad ? 40 : state.transactions.length;
+
+                if (state.transactions.length <= 40) {
+                    toLoad = state.transactions.length - 1; // first 40 txs except for the latest
+                }
+
+                for (let i = 0; i < toLoad - 1; i++) {
+
+                    if (!next) {
+                        break;
+                    }
+
+                    let tx = this.engine.transactions.get(address, next.lt);
+
+                    if (!tx) {
+                        break;
+                    }
+
+                    transactions.push(tx);
+
+                    if (tx.prev) {
+                        next = { lt: tx.prev.lt, hash: tx.prev.hash };
+                    }
+                }
+            }
+
+            // Set initial tag
+            if (this.#initialLoad) {
+                this.#initialLoad = false;
+            }
+
+            // Resolve updated state
+            this.#state = {
+                balance: state.balance,
+                seqno: state.seqno,
+                transactions: [
+                    ...transactions.map((t) => {
+
+                        // Update
+                        if (!this.#txs.has(t.id)) {
+                            this.#txs.set(t.id, t);
+                        }
+
+                        return { id: t.id, time: t.time };
+                    })
+                ],
+                pending: [],
+                next
+            };
+
+            // Notify
+            this.engine.recoil.updater(this.#atom, this.#state);
+        });
+
+        // History
+        this.#history = createHistorySync(address, this.engine);
     }
 
     loadMoreFromStorage(address: Address, nextTx: Transaction) {
@@ -311,7 +313,7 @@ export class LedgerProduct {
         // Resolve updated state
         if (this.#state) {
 
-            for (let i = 0; i < 20 - 1; i++) {
+            for (let i = 0; i < 40 - 1; i++) {
 
                 // Stop if no previous
                 if (!next) {
@@ -360,7 +362,7 @@ export class LedgerProduct {
     }
 
     loadMore = (address: Address, lt: string, hash: string) => {
-        let tx = this.engine.transactions.get(this.engine.address, lt);
+        let tx = this.engine.transactions.get(address, lt);
         // If found in storage 
         if (tx) {
             this.loadMoreFromStorage(address, tx);
@@ -380,7 +382,6 @@ export class LedgerProduct {
     }
 
     startHintsSync(address: Address) {
-        console.log(`Starting hints sync for ${address.toFriendly({ testOnly: AppConfig.isTestnet })}...`);
         startAddressHintsSync(address, this.engine);
         startHintsTxSync(address, this.engine, address);
 

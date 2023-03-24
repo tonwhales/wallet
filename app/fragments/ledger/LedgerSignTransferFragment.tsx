@@ -228,8 +228,6 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             let msg = new Cell();
             extMessage.writeTo(msg);
 
-            const inHash = msg.hash().toString('base64');
-
             // Transfer
             await backoff('ledger-transfer', async () => {
                 try {
@@ -246,13 +244,13 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     if (!account.account.last) {
                         return;
                     }
+                    const latestStr = engine.products.ledger.getWallet(contract.address)?.transactions[0];
                     const lastBlock = await engine.client4.getLastBlock();
                     const lite = await engine.client4.getAccountLite(lastBlock.last.seqno, contract.address);
 
-                    if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt ?? '0', 10))) {
+                    if (new BN(account.account.last.lt, 10).lt(new BN(latestStr ?? '0', 10))) {
                         setTransferState('sent');
                         navigation.goBack();
-                        navigation.navigate('LedgerTransactionPreview', { inHash });
                         return;
                     }
 

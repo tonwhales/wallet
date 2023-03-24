@@ -523,144 +523,20 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
     )
 })
 
-export const LedgerTransactionPreview = fragment(() => {
+export const LedgerTransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
+    const params = useParams<{ transaction: string }>();
     const { addr } = useTransport();
-    const navigation = useTypedNavigation();
-    const { inHash } = useParams<{ inHash: string }>();
     const address = React.useMemo(() => {
-        if (addr) {
-            try {
-                return Address.parse(addr.address);
-            } catch (error) {
-                navigation.goBack();
-            }
-        }
+        return Address.parse(addr!.address);
     }, []);
-    const [loadedTx, setLoadedTx] = useState<{ tx: TransactionDescription, hash: string }>()
+    const transaction = engine.products.ledger.useTransaction(params.transaction);
+    const navigation = useTypedNavigation();
 
-    React.useEffect(() => {
-        let ended = false;
-        (async () => {
-            if (!address) {
-                return;
-            }
-
-            if (ended) {
-                return;
-            }
-
-            let next: { lt: BN, hash: string } | undefined;
-
-            // Get latest tx
-            const lastBlock = await engine.client4.getLastBlock();
-            const acc = (await engine.client4.getAccountLite(lastBlock.last.seqno, address)).account;
-
-            if (!acc.last) {
-                ended = true;
-                Alert.alert(t('hardwareWallet.errors.transactionNotFound'), undefined, [{
-                    text: t('common.back'),
-                    onPress: () => {
-                        navigation.goBack();
-                    }
-                }]);
-                return;
-            }
-
-            next = { lt: new BN(acc.last.lt), hash: acc.last.hash };
-
-            while (!ended && next) {
-                // Get transactions
-                const loaded: {
-                    block: {
-                        workchain: number,
-                        seqno: number,
-                        shard: string,
-                        rootHash: string,
-                        fileHash: string,
-                    },
-                    tx: Cell,
-                }[] = await engine.client4.getAccountTransactions(address, next.lt, Buffer.from(next.hash, 'base64'));
-                // Parse transactions
-                const preParsed = loaded.map((t) => parseTransaction(address.workChain, t.tx.beginParse()));
-
-                // Find transaction by inMessage hash
-                const tx = preParsed.findIndex((t) => t.inMessage?.raw.hash().toString('base64') === inHash);
-
-                if (tx !== -1) {
-                    let base = parseWalletTransaction(preParsed[tx], loaded[tx].tx.hash(), address);
-
-                    // Metadata
-                    let metadata: ContractMetadata | null = null;
-                    if (base.address) {
-                        metadata = engine.persistence.metadata.item(base.address).value;
-                    }
-
-                    // Jetton master
-                    let masterMetadata: JettonMasterState | null = null;
-                    if (metadata && metadata.jettonWallet) {
-                        masterMetadata = engine.persistence.jettonMasters.item(metadata.jettonWallet.master).value;
-                    } else if (metadata && metadata.jettonMaster && base.address) {
-                        masterMetadata = engine.persistence.jettonMasters.item(base.address).value;
-                    }
-
-                    // Operation
-                    let operation = resolveOperation({ body: base.body, amount: base.amount, account: base.address || engine.address, metadata, jettonMaster: masterMetadata });
-
-                    // Icon
-                    let icon: string | null = null;
-                    if (operation.image) {
-                        let downloaded = engine.persistence.downloads.item(operation.image).value;
-                        if (downloaded) {
-                            icon = FileSystem.cacheDirectory + downloaded;
-                        }
-                    }
-
-                    let verified: boolean | null = null;
-                    if (
-                        !!metadata?.jettonWallet
-                        && !!KnownJettonMasters[metadata.jettonWallet.master.toFriendly({ testOnly: AppConfig.isTestnet })]
-                    ) {
-                        verified = true;
-                    }
-
-                    const hash = loaded[tx].tx.hash().toString('hex');
-
-
-                    ended = true;
-                    setLoadedTx({
-                        tx: {
-                            base,
-                            metadata,
-                            masterMetadata,
-                            operation,
-                            icon,
-                            verified
-                        },
-                        hash
-                    });
-                }
-
-                // Read previous transaction
-                if (preParsed.length > 0) {
-                    const lastTx = preParsed[preParsed.length - 1];
-                    if (!lastTx.prevTransaction.lt.eq(new BN(0))) {
-                        next = { lt: lastTx.prevTransaction.lt, hash: lastTx.prevTransaction.hash.toString('base64') };
-                    } else {
-                        // No more transactions
-                        ended = true;
-                        Alert.alert(t('hardwareWallet.errors.transactionNotFound'), undefined, [{
-                            text: t('common.back'),
-                            onPress: () => {
-                                navigation.goBack();
-                            }
-                        }]);
-                    }
-                }
-            }
-        })();
-    }, []);
+    if (!transaction) {
+        navigation.goBack();
+    }
 
     return (
         <View style={{
@@ -669,19 +545,19 @@ export const LedgerTransactionPreview = fragment(() => {
             backgroundColor: Theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
-            {!loadedTx && (
+            {!transaction && (
                 <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} />
             )}
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {loadedTx && address && (
+            {transaction && address && (
                 <LoadedTransaction
-                    transaction={loadedTx.tx}
-                    transactionHash={loadedTx.hash}
+                    transaction={transaction}
+                    transactionHash={transaction.base?.hash.toString('base64')}
                     engine={engine}
                     address={address}
                 />
             )}
-            {!loadedTx && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
+            {!transaction && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

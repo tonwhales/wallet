@@ -16,6 +16,7 @@ import { JettonMasterState } from "../sync/startJettonMasterSync";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { startHintsTxSync } from "../sync/startHintsTxSync";
+import { startJettonWalletSync } from "../sync/startJettonWalletSync";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
@@ -23,6 +24,7 @@ export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
 export class LedgerProduct {
     readonly engine: Engine;
     #hintsStarted = new Set<string>();
+    #jettonWalletsStarted = new Set<string>();
     #jettonsSelector;
     #state: WalletState | null = null;
     #atom: RecoilState<WalletState | null> | null = null;
@@ -38,12 +40,12 @@ export class LedgerProduct {
             get: (address) => ({ get }) => {
                 const owner = Address.parse(address);
                 // Load known jettons
-                let knownJettons = get(engine.persistence.knownAccountJettons.item(owner).atom) || [];
+                let knownJettons = get(this.engine.persistence.knownAccountJettons.item(owner).atom) || [];
 
                 // Load wallets
                 let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
                 for (let w of knownJettons) {
-                    let jw = get(engine.persistence.jettonWallets.item(w).atom);
+                    let jw = get(this.engine.persistence.jettonWallets.item(w).atom);
                     if (jw && jw.master) {
                         jettonWallets.push({ wallet: w, balance: jw.balance, master: jw.master });
                     }
@@ -62,7 +64,7 @@ export class LedgerProduct {
                     disabled?: boolean
                 }[] = [];
                 for (let w of jettonWallets) {
-                    let jm = get(engine.persistence.jettonMasters.item(w.master).atom);
+                    let jm = get(this.engine.persistence.jettonMasters.item(w.master).atom);
 
                     if (jm && !jm.description) {
                         jm.description = `$${jm.symbol} ${t('jetton.token')}`;
@@ -75,9 +77,9 @@ export class LedgerProduct {
                         if (jm.image) {
                             let downloaded;
                             if (typeof jm.image === 'string') {
-                                downloaded = get(engine.persistence.downloads.item(jm.image).atom);
+                                downloaded = get(this.engine.persistence.downloads.item(jm.image).atom);
                             } else {
-                                downloaded = get(engine.persistence.downloads.item(jm.image.preview256).atom);
+                                downloaded = get(this.engine.persistence.downloads.item(jm.image.preview256).atom);
                             }
                             if (downloaded) {
                                 icon = FileSystem.cacheDirectory + downloaded;
@@ -137,7 +139,6 @@ export class LedgerProduct {
     }
 
     startSync(address: Address) {
-        this.startHintsSync(address);
         this.#atom = atom<WalletState | null>({
             key: 'wallet/' + address.toFriendly({ testOnly: AppConfig.isTestnet }),
             default: null,
@@ -289,6 +290,27 @@ export class LedgerProduct {
 
         // History
         this.#history = createHistorySync(address, this.engine);
+
+        // Hints
+        this.startHintsSync(address);
+
+        //
+        // Jetton Wallets
+        //
+        this.engine.persistence.knownAccountJettons.item(address).for((e) => {
+            for (let addr of e) {
+                this.startJettonWallet(addr);
+            }
+        });
+    }
+
+    startJettonWallet(address: Address) {
+        let k = address.toFriendly({ testOnly: AppConfig.isTestnet });
+        if (this.#jettonWalletsStarted.has(k)) {
+            return;
+        }
+        this.#jettonWalletsStarted.add(k);
+        startJettonWalletSync(address, this.engine);
     }
 
     loadMoreFromStorage(address: Address, nextTx: Transaction) {
@@ -375,13 +397,13 @@ export class LedgerProduct {
         startHintSync(address, engine, owner);
     }
 
-    startHintsSync(address: Address) {
-        startAddressHintsSync(address, this.engine);
-        startHintsTxSync(address, this.engine, address);
+    startHintsSync(owner: Address) {
+        startAddressHintsSync(owner, this.engine);
+        startHintsTxSync(owner, this.engine, owner);
 
-        this.engine.persistence.accountHints.item(address).for((e) => {
+        this.engine.persistence.accountHints.item(owner).for((e) => {
             for (let addr of e) {
-                this.startHints(addr, this.engine, address);
+                this.startHints(addr, this.engine, owner);
             }
         });
     }

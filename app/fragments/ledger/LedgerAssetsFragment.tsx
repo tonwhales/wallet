@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,13 +16,17 @@ import BN from "bn.js";
 import { Address } from "ton";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
+import { useTransport } from "./components/TransportContext";
+import { AppConfig } from "../../AppConfig";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const jettons = engine.products.ledger.useJettons()?.jettons ?? [];
+    const { addr } = useTransport();
+    const address = useMemo(() => Address.parse(addr!.address), [addr]);
+    const jettons = engine.products.ledger.useJettons(address)?.jettons ?? [];
     const account = engine.products.ledger.useAccount();
 
     const navigateToJettonTransfer = useCallback((jetton: JettonState) => {

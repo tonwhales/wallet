@@ -1,9 +1,7 @@
-import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { NavigationTheme } from "../../Theme";
 import { TransportProvider } from "./components/TransportContext";
 import { HardwareWalletFragment } from "./HardwareWalletFragment";
 import { LedgerAppFragment } from "./LedgerAppFragment";

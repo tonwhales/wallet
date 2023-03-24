@@ -40,9 +40,6 @@ export class LedgerProduct {
                 // Load known jettons
                 let knownJettons = get(engine.persistence.knownAccountJettons.item(owner).atom) || [];
 
-                // Load disabled jeetons
-                let disabledJettons = get(engine.persistence.disabledJettons.item(owner).atom) || [];
-
                 // Load wallets
                 let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
                 for (let w of knownJettons) {
@@ -87,8 +84,6 @@ export class LedgerProduct {
                             }
                         }
 
-                        const disabled = !!disabledJettons.find((m) => m.equals(w.master));
-
                         jettonWalletsWithMasters.push({
                             ...w,
                             name: jm.name,
@@ -96,7 +91,6 @@ export class LedgerProduct {
                             description: jm.description,
                             icon,
                             decimals: jm.decimals,
-                            disabled
                         });
                     }
                 }

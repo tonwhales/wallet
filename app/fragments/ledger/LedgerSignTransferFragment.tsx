@@ -197,7 +197,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             try {
                 signed = await transport.signTransaction(path, {
                     to: address!,
-                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                    sendMode: order.amountAll
+                        ? SendMode.CARRRY_ALL_REMAINING_BALANCE : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
                     amount: value!,
                     seqno: accountSeqno,
                     timeout: Math.floor(Date.now() / 1e3) + 60000,

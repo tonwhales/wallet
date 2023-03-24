@@ -153,7 +153,7 @@ export function LedgerTransactionView(props: {
     }, []);
 
     const onRepeatTx = React.useCallback(() => {
-        navigation.navigateSimpleTransfer({
+        navigation.navigateLedgerTransfer({
             target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
             comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
             amount: tx.base.amount.neg(),
@@ -192,7 +192,7 @@ export function LedgerTransactionView(props: {
                     break;
                 }
                 case t('txActions.txRepeat'): {
-                    // onRepeatTx();
+                    onRepeatTx();
                     break;
                 }
                 case t('txActions.txShare'): {

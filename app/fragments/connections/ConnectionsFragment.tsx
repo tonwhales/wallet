@@ -305,7 +305,13 @@ export const ConnectionsFragment = fragment(() => {
                             backgroundColor: 'transparent'
                         }}
                         value={null}
-                        onPress={() => navigation.navigate('Ledger')}
+                        onPress={() => {
+                            if (!ledger) {
+                                toggleLedger();
+                                return;
+                            }
+                            navigation.navigate('Ledger')
+                        }}
                         onLongPress={toggleLedger}
                     />
                 </View>

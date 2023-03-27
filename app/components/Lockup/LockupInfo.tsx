@@ -107,8 +107,8 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                     }}
                     hint={'Telegram'}
                 />
-                <ItemDivider />
                 {/* TODO: Add config backup */}
+                {/* <ItemDivider /> */}
                 {/* <ItemButton
                     title="Your config backup"
                     rightIcon={{

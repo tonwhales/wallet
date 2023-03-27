@@ -11,7 +11,7 @@ import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
-export const zenPayUrl = 'https://next.zenpay.org';
+export const zenPayUrl = 'https://stage.zenpay.org';
 
 export type ZenPayAccountStatus =
     | {

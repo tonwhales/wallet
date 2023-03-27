@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import React from "react";
-import { Alert, View, Text, Pressable, ScrollView, Platform } from "react-native";
+import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
@@ -43,7 +43,9 @@ import { ItemCollapsible } from "../../../components/ItemCollapsible";
 import { RoundButton } from "../../../components/RoundButton";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
-import { fromBNWithDecimals, toBNWithDecimals } from "../../../utils/withDecimals";
+import { fromBNWithDecimals } from "../../../utils/withDecimals";
+import { extractDomain } from "../../../engine/utils/extractDomain";
+import { zenPayUrl } from "../../../engine/corp/ZenPayProduct";
 
 type Props = {
     target: {
@@ -827,7 +829,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             </Text>
                                         </View>
                                     )}
-                                    {order?.app?.domain !== 'next.zenpay.org' && (
+                                    {order?.app?.domain !== extractDomain(zenPayUrl) && (
                                         <View style={{
                                             backgroundColor: '#60C75E',
                                             height: 40, width: 40,
@@ -845,7 +847,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             )}
                                         </View>
                                     )}
-                                    {order?.app?.domain === 'next.zenpay.org' && (
+                                    {order?.app?.domain === extractDomain(zenPayUrl) && (
                                         <View style={{
                                             height: 46, width: 34,
                                             justifyContent: 'center',

@@ -2,7 +2,7 @@ import { Engine } from "../Engine";
 import { Address } from "ton";
 import { useOptItem } from "../persistence/PersistedItem";
 import { KnownPools } from "../../utils/KnownPools";
-import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, selector, useRecoilValue,  atomFamily, selectorFamily } from "recoil";
 import { AppConfig } from "../../AppConfig";
 import BN from "bn.js";
 import { WalletConfig } from "../api/fetchWalletConfig";
@@ -19,6 +19,7 @@ export type StakingState = {
 export class StakingPoolsProduct {
     readonly engine: Engine;
     readonly pools: Address[] = [];
+    readonly #fullAddress;
     readonly full: RecoilValueReadOnly<StakingState>
     readonly apyAtom;
 
@@ -57,7 +58,7 @@ export class StakingPoolsProduct {
             },
             dangerouslyAllowMutability: true
         });
-        this.#fullAddress = atomFamily<StakingFull, string>({
+        this.#fullAddress = atomFamily<StakingState, string>({
             key: 'staking/' + this.engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/full',
             default: selectorFamily({
                 key: 'staking/' + this.engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/full/address',

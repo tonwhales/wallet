@@ -15,6 +15,7 @@ import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { LockupProductComponent } from '../../../components/Lockup/LockupProductComponent'
 import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
 
 export const ProductsComponent = React.memo(() => {

@@ -59,6 +59,12 @@ import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGr
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
+import { LockupWalletFragment } from './fragments/lockups/LockupWalletFragment';
+import { LockupsFragment } from './fragments/lockups/LockupsFragment';
+import { LockupRestrictedFragment } from './fragments/lockups/LockupRestrictedFragment';
+import { IntegrityCheckFragment } from './fragments/lockups/IntegrityCheckFragment';
+import { LockupLockedFragment } from './fragments/lockups/LockupLockedFragment';
+import { LiquidBalanceFragment } from './fragments/lockups/LiquidBalanceFragment';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
 

@@ -30,6 +30,7 @@ import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/typ
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
+import { LockupWalletState } from "./sync/startLockupWalletSync";
 
 export class Persistence {
 

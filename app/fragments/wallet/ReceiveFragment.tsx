@@ -2,10 +2,9 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Platform, Share, Text, Pressable } from "react-native";
+import { View, Platform, Text, Pressable } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
 import { Theme } from "../../Theme";
-import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
@@ -13,6 +12,7 @@ import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import { CopyButton } from "../../components/CopyButton";
+import { useParams } from "../../utils/useParams";
 import { ShareButton } from "../../components/ShareButton";
 import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { Address } from "ton";
@@ -24,9 +24,19 @@ import { WImage } from "../../components/WImage";
 export const ReceiveFragment = fragment(() => {
     const params = useParams<{ address?: string | null }>();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
     const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = React.useMemo(() => {
+        if (params.address) {
+            try {
+                return Address.parse(params.address);
+            } catch (error) {
+                navigation.goBack();
+                return getCurrentAddress().address
+            }
+        }
+        return getCurrentAddress().address
+    }, []);
+    const engine = useEngine();
     const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
     const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
 
@@ -78,11 +88,13 @@ export const ReceiveFragment = fragment(() => {
                     <Pressable
                         style={({ pressed }) => {
                             return {
-                                opacity: pressed ? 0.3 : 1,
+                                opacity: (!params.address && pressed) ? 0.3 : 1,
                             }
                         }}
                         onPress={() => {
-                            navigation.navigate('Assets', { callback: onAssetSelected })
+                            if (!params.address) {
+                                navigation.navigate('Assets', { callback: onAssetSelected })
+                            }
                         }}
                     >
                         <View style={{

@@ -153,4 +153,4 @@ export class EnumType<A> extends t.Type<A> {
   }
   
   // simple helper function
-export const createEnumType = <T>(e: object, name?: string) => new EnumType<T>(e, name)
+  export const createEnumType = <T>(e: object, name?: string) => new EnumType<T>(e, name)

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, View, Text, Pressable, KeyboardAvoidingView, Alert } from 'react-native';
+import { ActivityIndicator, Platform, View, KeyboardAvoidingView, Alert } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -14,17 +14,17 @@ import { StatusBar } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { ZenPayAppParams } from './ZenPayAppFragment';
-import { ZenPayQueryParams } from './types';
 import { extractZenPayQueryParams } from './utils';
 import { CloseButton } from '../../components/CloseButton';
-import { fragment } from '../../fragment';
+import { getLocales } from 'react-native-localize';
 
 export const ZenPayLandingFragment = fragment(() => {
     const webRef = React.useRef<WebView>(null);
     const engine = useEngine();
     const navigation = useTypedNavigation();
-    const pageTitle = t('products.zenPay.title');
-    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: ZenPayAppParams }>()
+    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: ZenPayAppParams }>();
+    const lang = getLocales()[0].languageCode;
+    const currency = engine.products.price.usePrimaryCurrency();
 
     //
     // View
@@ -175,7 +175,7 @@ export const ZenPayLandingFragment = fragment(() => {
                 >
                     <WebView
                         ref={webRef}
-                        source={{ uri: endpoint + '/about' }}
+                        source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
                         startInLoadingState={true}
                         style={{
                             backgroundColor: Theme.background,

@@ -22,6 +22,8 @@ import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/AndroidToolbar';
 import { CloseButton } from '../../../components/CloseButton';
+import { BackPolicy } from '../types';
+import { getLocales } from 'react-native-localize';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -32,9 +34,11 @@ export const ZenPayAppComponent = React.memo((
     }
 ) => {
     const engine = useEngine();
-    const [hardwareBackPolicy, setHardwareBackPolicy] = React.useState<'back' | 'close'>('back');
+    const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
+    const lang = getLocales()[0].languageCode;
+    const currency = engine.products.price.usePrimaryCurrency();
 
     // 
     // Track events
@@ -204,25 +208,28 @@ export const ZenPayAppComponent = React.memo((
             onCloseApp();
             return;
         }
-        setHardwareBackPolicy(params.hardwareBackPolicy);
+        setBackPolicy(params.backPolicy);
         if (params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
     }, []);
 
     const onHardwareBackPress = React.useCallback(() => {
-        if (hardwareBackPolicy === 'back') {
+        if (backPolicy === 'lock') {
+            return true;
+        }
+        if (backPolicy === 'back') {
             if (webRef.current) {
                 webRef.current.goBack();
             }
             return true;
         }
-        if (hardwareBackPolicy === 'close') {
+        if (backPolicy === 'close') {
             navigation.goBack();
             return true;
         }
         return false;
-    }, [hardwareBackPolicy]);
+    }, [backPolicy]);
 
     React.useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
@@ -245,7 +252,7 @@ export const ZenPayAppComponent = React.memo((
                 >
                     <WebView
                         ref={webRef}
-                        source={{ uri: props.endpoint }}
+                        source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
                         startInLoadingState={true}
                         style={{
                             backgroundColor: Theme.background,

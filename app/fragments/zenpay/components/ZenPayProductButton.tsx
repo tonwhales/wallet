@@ -89,11 +89,6 @@ export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPay
                         </Text>
                     )}
                     {!card && (
-                        <Text style={{ color: 'white', fontWeight: '700', fontSize: 10, marginHorizontal: 4, marginTop: 2 }} numberOfLines={2}>
-                            {'Zen Pay'}
-                        </Text>
-                    )}
-                    {!card && (
                         <Image source={require('../../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                     {card && card.type === 'virtual' && (

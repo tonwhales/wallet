@@ -3,7 +3,7 @@ import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
-import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoilValue, selectorFamily } from "recoil";
+import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoilValue, selectorFamily, useRecoilCallback } from "recoil";
 import * as FileSystem from 'expo-file-system';
 import { ContractMetadata } from "../metadata/Metadata";
 import { JettonMasterState } from "../sync/startJettonMasterSync";
@@ -425,6 +425,51 @@ export class WalletProduct {
 
     useAccount() {
         return useRecoilValue(this.#atom);
+    }
+
+    getJettons() {
+        let knownJettons = this.engine.persistence.knownAccountJettons.item(this.engine.address).value;
+        let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
+        for (let w of knownJettons ?? []) {
+            let jw = this.engine.persistence.jettonWallets.item(w).value;
+            if (jw && jw.master) {
+                jettonWallets.push({ wallet: w, balance: jw.balance, master: jw.master });
+            }
+        }
+
+        // Load masters
+        let jettonWalletsWithMasters: {
+            wallet: Address,
+            master: Address,
+            balance: BN,
+            name: string,
+            symbol: string,
+            description: string,
+            icon: string | null,
+            decimals: number | null,
+            disabled?: boolean
+        }[] = [];
+        for (let w of jettonWallets) {
+            let jm = this.engine.persistence.jettonMasters.item(w.master).value;
+
+            if (jm && !jm.description) {
+                jm.description = `$${jm.symbol} ${t('jetton.token')}`;
+            }
+
+            if (jm && jm.name && jm.symbol && jm.description) {
+                jettonWalletsWithMasters.push({
+                    ...w,
+                    name: jm.name,
+                    symbol: jm.symbol,
+                    description: jm.description,
+                    icon: null,
+                    decimals: jm.decimals,
+                    disabled: false
+                });
+            }
+        }
+
+        return { jettons: jettonWalletsWithMasters }
     }
 
     useJettons() {

@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react";
-import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from "ton";
+import { Alert, View, Text, Pressable, ScrollView, Platform } from "react-native";
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
@@ -43,6 +43,7 @@ import { ItemCollapsible } from "../../../components/ItemCollapsible";
 import { RoundButton } from "../../../components/RoundButton";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
+import { fromBNWithDecimals, toBNWithDecimals } from "../../../utils/withDecimals";
 
 type Props = {
     target: {
@@ -92,7 +93,8 @@ export const TransferSingle = React.memo((props: Props) => {
                     const parsing = temp.beginParse();
                     parsing.readUint(32);
                     parsing.readUint(64);
-                    return parsing.readCoins();
+                    const unformatted = parsing.readCoins();
+                    return fromBNWithDecimals(unformatted, jettonMaster.decimals);
                 }
             }
         } catch (e) {
@@ -478,7 +480,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             color: Theme.textColor,
                                             marginLeft: 2
                                         }}>
-                                            {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
+                                            {`${jettonAmount} ${jettonMaster.symbol}`}
                                         </Text>
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{

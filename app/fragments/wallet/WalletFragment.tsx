@@ -25,7 +25,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { log } from '../../utils/log';
 import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
-import { useLinkNavigator } from '../../Navigation';
+import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
 

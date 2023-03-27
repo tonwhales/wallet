@@ -35,6 +35,8 @@ const Img_Team_1 = require('../../assets/known/ic_team_1.png');
 const Img_Team_2 = require('../../assets/known/ic_team_2.png');
 const Img_ePN_1 = require('../../assets/known/ic_epn_1.png');
 const Img_ePN_2 = require('../../assets/known/ic_epn_2.png');
+const Img_Lockups_1 = require('../../assets/known/ic_lockups_1.png');
+const Img_Lockups_2 = require('../../assets/known/ic_lockups_2.png');
 
 const Img_MEXC = require('../../assets/known/ic_mexc.png');
 
@@ -372,7 +374,7 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 primary: '#ec557c',
                 secondary: '#E01447'
             },
-            ic: Img_MEXC
+            ic: Img_ePN_1
         },
         [Address.parse('EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN').toFriendly()]: {
             name: 'ePN Partners #2',
@@ -380,7 +382,23 @@ export const KnownWallets: { [key: string]: KnownWallet } = AppConfig.isTestnet
                 primary: '#ec557c',
                 secondary: '#E01447'
             },
-            ic: Img_MEXC
+            ic: Img_ePN_2
+        },
+        [Address.parse('EQDhGXtbR6ejNQucRcoyzwiaF2Ke-5T8reptsiuZ_mLockup').toFriendly()]: {
+            name: 'Lockups #1',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Lockups_1
+        },
+        [Address.parse('EQDg5ThqQ1t9eriIv2HkH6XUiUs_Wd4YmXZeGpnPzwLockup').toFriendly()]: {
+            name: 'Lockups #2',
+            colors: {
+                primary: '#65C6FF',
+                secondary: '#DEEFFC'
+            },
+            ic: Img_Lockups_2
         },
     }
 

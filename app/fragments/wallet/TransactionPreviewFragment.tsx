@@ -101,10 +101,9 @@ export const TransactionPreviewFragment = fragment(() => {
         if (!txId) {
             return null;
         }
-        return AppConfig.isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com'
-            + '/share/tx/' +
-            address.toFriendly({ testOnly: AppConfig.isTestnet }) +
-            '/' + transaction.base.lt + '_' + encodeURIComponent(transaction.base.hash.toString('base64'))
+        return `${AppConfig.isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
+            + `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/`
+            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
     }, [txId]);
 
     const contact = engine.products.settings.useContactAddress(operation.address);

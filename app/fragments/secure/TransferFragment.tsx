@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, parseSupportedMessage, resolveKnownInterface, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
@@ -27,6 +27,8 @@ import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
 import { AppConfig } from '../../AppConfig';
+import { parseBody } from '../../engine/transactions/parseWalletTransaction';
+import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -138,7 +140,6 @@ export const TransferFragment = fragment(() => {
             const contract = contractFromPublicKey(from.publicKey);
 
             if (order.messages.length === 1) {
-                console.log(params.order.messages[0].target);
                 let target = Address.parseFriendly(
                     Address.parse(params.order.messages[0].target).toFriendly({ testOnly: AppConfig.isTestnet })
                 );
@@ -223,7 +224,23 @@ export const TransferFragment = fragment(() => {
                 // Read jetton master
                 let jettonMaster: JettonMasterState | null = null;
                 if (metadata.jettonWallet) {
-                    jettonMaster = engine.persistence.jettonMasters.item(metadata.jettonWallet!.master).value;
+                    let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
+                    if (body && body.type === 'payload') {
+                        const temp = order.messages[0].payload;
+                        let sc = temp?.beginParse();
+                        if (sc) {
+                            if (sc.remaining > 32) {
+                                let op = sc.readUintNumber(32);
+                                // Jetton transfer op
+                                if (op === 0xf8a7ea5) {
+                                    jettonMaster = engine
+                                        .persistence
+                                        .jettonMasters
+                                        .item(metadata.jettonWallet!.master).value;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Estimate fee

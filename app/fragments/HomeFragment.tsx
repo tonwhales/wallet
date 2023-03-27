@@ -16,7 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
-import { useLinkNavigator } from '../Navigation';
+import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
@@ -51,11 +51,13 @@ export const HomeFragment = fragment(() => {
                                 if (existing.job.job.payload) {
                                     navigation.navigateTransfer({
                                         order: {
-                                            target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                            amount: existing.job.job.amount,
-                                            amountAll: false,
-                                            payload: existing.job.job.payload,
-                                            stateInit: existing.job.job.stateInit,
+                                            messages: [{
+                                                target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                                amount: existing.job.job.amount,
+                                                amountAll: false,
+                                                payload: existing.job.job.payload,
+                                                stateInit: existing.job.job.stateInit,
+                                            }]
                                         },
                                         text: existing.job.job.text,
                                         job: existing.raw,

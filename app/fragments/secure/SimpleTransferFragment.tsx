@@ -29,7 +29,7 @@ import { createJettonOrder, createSimpleOrder } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
-import { useLinkNavigator } from '../../Navigation';
+import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 
@@ -253,15 +253,15 @@ export const SimpleTransferFragment = fragment(() => {
                     });
                 } else {
                     intMessage = new InternalMessage({
-                        to: Address.parse(order.target),
-                        value: order.amount,
+                        to: Address.parse(order.messages[0].target),
+                        value: order.messages[0].amount,
                         bounce: false,
                         body: new CommonMessageInfo({
-                            stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
-                            body: order.payload ? new CellMessage(order.payload) : null
+                            stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
+                            body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : null
                         })
                     });
-                    if (order.amountAll) {
+                    if (order.messages[0].amountAll) {
                         sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
                     }
                 }
@@ -293,7 +293,7 @@ export const SimpleTransferFragment = fragment(() => {
                     }).writeTo(inMsg);
                     let outMsg = new Cell();
                     intMessage.writeTo(outMsg);
-                    let local = estimateFees(config, inMsg, outMsg, accountState.storageStats);
+                    let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
                     setEstimation(local);
                 }
             });

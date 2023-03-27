@@ -1,24 +1,40 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
+import { AppData } from "../engine/api/fetchAppData";
 import { useEngine } from "../engine/Engine";
+import { AppManifest } from "../engine/api/fetchManifest";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { t } from "../i18n/t";
 import { Theme } from "../Theme";
 import { WImage } from "./WImage";
 
+type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
+
 export const ConnectedAppButton = React.memo((
     {
         name,
         url,
+        tonconnect,
         onRevoke
     }: {
         name: string,
         url: string,
-        onRevoke?: () => void
+        tonconnect?: boolean,
+        onRevoke?: () => void,
     }
 ) => {
     const engine = useEngine();
-    const app = engine.products.extensions.useAppData(url);
+    const appData = engine.products.extensions.useAppData(url);
+    const appManifest = engine.products.tonConnect.useAppManifest(url);
+    let app: AppInfo = useMemo(() => {
+        if (appData) {
+            return { ...appData, type: 'app-data' };
+        } else if (appManifest && tonconnect) {
+            return { ...appManifest, type: 'app-manifest' };
+        } else {
+            return null;
+        }
+    }, [appData, appManifest, tonconnect]);
 
     return (
         <View style={{
@@ -30,8 +46,8 @@ export const ConnectedAppButton = React.memo((
             <WImage
                 heigh={42}
                 width={42}
-                src={app?.image?.preview256}
-                blurhash={app?.image?.blurhash}
+                src={app?.type === 'app-data' ? app?.image?.preview256 : app?.iconUrl}
+                blurhash={app?.type === 'app-data' ? app?.image?.blurhash : undefined}
                 style={{ marginRight: 10 }}
                 borderRadius={8}
             />

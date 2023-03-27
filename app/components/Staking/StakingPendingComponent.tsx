@@ -175,7 +175,6 @@ export const StakingPendingComponent = React.memo((
                             onPress={() => {
                                 navigation.navigateStaking({
                                         target: target,
-                                        comment: 'Withdraw',
                                         amount: member.withdraw,
                                         lockAmount: true,
                                         lockAddress: true,

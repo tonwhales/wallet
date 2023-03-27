@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { selector, selectorFamily, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
@@ -12,8 +12,8 @@ const version = 1;
 export type AddressContact = { name: string, fields?: { key: string, value: string | null | undefined }[] | null };
 export class SettingsProduct {
     readonly engine: Engine;
-    readonly #minAmountSelector;
-    readonly #dontShowCommentsSelector;
+    readonly #minAmountSelector: RecoilValueReadOnly<BN>;
+    readonly #dontShowCommentsSelector: RecoilValueReadOnly<boolean>;
     readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact }, fields: { [key: string]: string } }>
     readonly #denyAddressSelector;
     readonly #contactSelector;

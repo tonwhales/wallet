@@ -12,6 +12,7 @@ export const WImage = React.memo((props: {
     width: number,
     borderRadius: number,
     style?: StyleProp<ViewStyle>,
+    lockLoading?: boolean
 }) => {
 
     const [loading, setLoading] = React.useState(false);
@@ -33,7 +34,7 @@ export const WImage = React.memo((props: {
                     onLoadStart={() => setLoading(true)}
                     onLoadEnd={() => setLoading(false)}
                 />
-                {loading && (
+                {loading && !props.lockLoading && (
                     <Animated.View
                         entering={FadeIn}
                         exiting={FadeOut}

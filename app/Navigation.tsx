@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform, View, Image } from 'react-native';
+import { Platform, View } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
@@ -20,11 +20,10 @@ import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
-import { NavigationTheme, Theme } from './Theme';
+import { NavigationTheme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext, useEngine } from './engine/Engine';
+import { EngineContext } from './engine/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { EasingNode } from 'react-native-reanimated';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -44,10 +43,7 @@ import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/InstallFragment';
-import { useTypedNavigation } from './utils/useTypedNavigation';
 import { AppConfig } from './AppConfig';
-import { ResolvedUrl } from './utils/resolveUrl';
-import BN from 'bn.js';
 import { mixpanel } from './analytics/mixpanel';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
@@ -61,13 +57,10 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
-import { LockupWalletFragment } from './fragments/lockups/LockupWalletFragment';
-import { LockupsFragment } from './fragments/lockups/LockupsFragment';
-import { LockupRestrictedFragment } from './fragments/lockups/LockupRestrictedFragment';
-import { IntegrityCheckFragment } from './fragments/lockups/IntegrityCheckFragment';
-import { LockupLockedFragment } from './fragments/lockups/LockupLockedFragment';
-import { LiquidBalanceFragment } from './fragments/lockups/LiquidBalanceFragment';
+import { AssetsFragment } from './fragments/wallet/AssetsFragment';
+import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -158,6 +151,7 @@ const navigation = [
     modalScreen('Receive', ReceiveFragment),
     modalScreen('Transaction', TransactionPreviewFragment),
     modalScreen('Authenticate', AuthenticateFragment),
+    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment),
     modalScreen('Install', InstallFragment),
     modalScreen('Sign', SignFragment),
     modalScreen('Migration', MigrationFragment),
@@ -185,10 +179,17 @@ const navigation = [
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
+    modalScreen('Assets', AssetsFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}
         component={AppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />,
+    <Stack.Screen
+        key={`genericScreen-connect-App`}
+        name={'ConnectApp'}
+        component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
     />
 ];
@@ -331,50 +332,3 @@ export const Navigation = React.memo(() => {
     );
 });
 
-export function useLinkNavigator() {
-    const navigation = useTypedNavigation();
-
-    const handler = React.useCallback((resolved: ResolvedUrl) => {
-        if (resolved.type === 'transaction') {
-            if (resolved.payload) {
-                navigation.navigateTransfer({
-                    order: {
-                        target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                        amount: resolved.amount || new BN(0),
-                        amountAll: false,
-                        stateInit: resolved.stateInit,
-                        payload: resolved.payload,
-                    },
-                    text: resolved.comment,
-                    job: null,
-                    callback: null
-                });
-            } else {
-                navigation.navigateSimpleTransfer({
-                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    comment: resolved.comment,
-                    amount: resolved.amount,
-                    stateInit: resolved.stateInit,
-                    job: null,
-                    jetton: null,
-                    callback: null
-                });
-            }
-        }
-        if (resolved.type === 'connect') {
-            navigation.navigate('Authenticate', {
-                session: resolved.session,
-                endpoint: resolved.endpoint
-            });
-        }
-        if (resolved.type === 'install') {
-            navigation.navigate('Install', {
-                url: resolved.url,
-                title: resolved.customTitle,
-                image: resolved.customImage
-            });
-        }
-    }, []);
-
-    return handler;
-}

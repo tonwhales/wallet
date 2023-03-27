@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Platform, Share, Text } from "react-native";
+import { View, Platform, Share, Text, Pressable } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
-import { RoundButton } from "../../components/RoundButton";
 import { Theme } from "../../Theme";
 import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
@@ -13,36 +12,44 @@ import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
 import TonIcon from '../../../assets/ic_ton_account.svg';
-import ShareIcon from '../../../assets/ic_share_address.svg';
 import { CopyButton } from "../../components/CopyButton";
-import { useParams } from "../../utils/useParams";
+import { ShareButton } from "../../components/ShareButton";
+import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { Address } from "ton";
+import Chevron from '../../../assets/ic_chevron_forward.svg';
+import { useEngine } from "../../engine/Engine";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { WImage } from "../../components/WImage";
 
 export const ReceiveFragment = fragment(() => {
     const params = useParams<{ address?: string | null }>();
     const safeArea = useSafeAreaInsets();
-    const navigation = useNavigation();
-    const address = React.useMemo(() => {
-        if (params.address) {
-            try {
-                return Address.parse(params.address);
-            } catch (error) {
-                navigation.goBack();
-                return getCurrentAddress().address 
+    const engine = useEngine();
+    const navigation = useTypedNavigation();
+    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
+
+    const onAssetSelected = useCallback((address?: Address) => {
+        if (address) {
+            const data = engine.persistence.jettonMasters.item(address).value;
+            if (data) {
+                setJetton({ master: address, data });
+                return;
             }
         }
-        return getCurrentAddress().address
+        setJetton(null);
     }, []);
-    const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
-    const link = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/') + address.toFriendly({ testOnly: AppConfig.isTestnet });
 
-    const onShare = React.useCallback(() => {
-        if (Platform.OS === 'ios') {
-            Share.share({ title: t('receive.share.title'), url: link });
-        } else {
-            Share.share({ title: t('receive.share.title'), message: link });
+    const link = useMemo(() => {
+        if (jetton) {
+            return `https://${AppConfig.isTestnet ? 'test.' : ''}tonhub.com/transfer`
+                + `/${address.toFriendly({ testOnly: AppConfig.isTestnet })}`
+                + `?jetton=${jetton.master.toFriendly({ testOnly: AppConfig.isTestnet })}`
         }
-    }, [link]);
+        return `https://${AppConfig.isTestnet ? 'test.' : ''}tonhub.com/transfer`
+            + `/${address.toFriendly({ testOnly: AppConfig.isTestnet })}`
+    }, [jetton]);
 
     return (
         <View style={{
@@ -68,52 +75,82 @@ export const ReceiveFragment = fragment(() => {
                     marginHorizontal: 16, padding: 14,
                     minHeight: 358
                 }}>
-                    <View style={{ marginBottom: 40, flexDirection: 'row' }}>
-                        <TonIcon width={42} height={42} style={{ marginRight: 10 }} />
-                        <View style={{ justifyContent: 'space-between' }}>
-                            <Text style={{
-                                fontSize: 16,
-                                color: Theme.textColor, fontWeight: '600',
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.3 : 1,
+                            }
+                        }}
+                        onPress={() => {
+                            navigation.navigate('Assets', { callback: onAssetSelected })
+                        }}
+                    >
+                        <View style={{
+                            marginBottom: 40,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            <View style={{
+                                flexDirection: 'row',
                             }}>
-                                {`TON ${t('common.wallet')}`}
-                            </Text>
-                            <Text
-                                style={{
-                                    fontSize: 14,
-                                    fontWeight: '400',
-                                    color: Theme.price,
-                                }}
-                                selectable={false}
-                                ellipsizeMode={'middle'}
-                            >
-                                {
-                                    friendly.slice(0, 6)
-                                    + '...'
-                                    + friendly.slice(friendly.length - 6)
-                                }
-                            </Text>
+                                {!!jetton && (
+                                    <WImage
+                                        src={jetton.data.image?.preview256}
+                                        blurhash={jetton.data.image?.blurhash}
+                                        width={42}
+                                        heigh={42}
+                                        borderRadius={21}
+                                        style={{ marginRight: 10 }}
+                                        lockLoading
+                                    />
+                                )}
+                                {!jetton && (
+                                    <TonIcon width={42} height={42} style={{ marginRight: 10 }} />
+                                )}
+                                <View style={{ justifyContent: 'space-between' }}>
+                                    <Text style={{
+                                        fontSize: 16,
+                                        color: Theme.textColor, fontWeight: '600',
+                                    }}>
+                                        {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 14,
+                                            fontWeight: '400',
+                                            color: Theme.price,
+                                        }}
+                                        selectable={false}
+                                        ellipsizeMode={'middle'}
+                                    >
+                                        {
+                                            friendly.slice(0, 6)
+                                            + '...'
+                                            + friendly.slice(friendly.length - 6)
+                                        }
+                                    </Text>
+                                </View>
+                            </View>
+                            <Chevron />
                         </View>
-                    </View>
+                    </Pressable>
                     <View style={{ height: 240, marginBottom: 38, justifyContent: 'center', alignItems: 'center' }}>
-                        <QRCode data={link} size={240} />
+                        <QRCode
+                            data={link}
+                            size={Platform.OS === 'ios' ? 260 : 240}
+                            icon={jetton?.data.image}
+                        />
                     </View>
 
                     <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-evenly',
-                        alignContent: 'stretch'
+                        justifyContent: 'center'
                     }}>
                         <CopyButton
-                            text={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            style={{ flex: 2, marginRight: 16, alignSelf: 'stretch' }}
+                            body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            style={{ marginBottom: 8 }}
                         />
-                        <RoundButton
-                            title={t('common.share')}
-                            onPress={onShare}
-                            style={{ flex: 2, alignSelf: 'stretch' }}
-                            display={'secondary_contrast'}
-                            icon={<ShareIcon width={15} height={24} />}
-                        />
+                        <ShareButton body={link} />
                     </View>
                 </View>
             </View>

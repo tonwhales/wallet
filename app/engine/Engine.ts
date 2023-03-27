@@ -19,7 +19,7 @@ import { Cloud } from './cloud/Cloud';
 import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
 import { KeysProduct } from './keys/KeysProduct';
-import { LockupProduct } from './products/LockupProduct';
+import { ConnectProduct } from './products/ConnectProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -52,7 +52,7 @@ export class Engine {
         extensions: ExtensionsProduct,
         settings: SettingsProduct,
         keys: KeysProduct,
-        lockup: LockupProduct,
+        tonConnect: ConnectProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -101,7 +101,7 @@ export class Engine {
             extensions: new ExtensionsProduct(this),
             settings: new SettingsProduct(this),
             keys: new KeysProduct(this),
-            lockup: new LockupProduct(this)
+            tonConnect: new ConnectProduct(this)
         };
 
         //

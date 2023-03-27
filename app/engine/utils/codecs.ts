@@ -128,39 +128,29 @@ class AddressExternalType extends t.Type<AddressExternal, string, unknown> {
 
 export const addressExternal = new AddressExternalType();
 
-class MapStringBnType extends t.Type<Map<string, BN>, string, unknown> {
-    readonly _tag: 'MapType' = 'MapType';
-
-    constructor() {
-        super(
-            'Map',
-            (u): u is Map<string, BN> => u instanceof Map,
-            (u, c) => {
-                if (!t.string.validate(u, c)) {
-                    return failure(u, c);
-                }
-                try {
-                    const s = u as string;
-                    const map = new Map<string, BN>();
-                    const parts = s.split(',');
-                    for (const part of parts) {
-                        const [key, value] = part.split(':');
-                        map.set(key, new BN(value, 10));
-                    }
-                    return success(map);
-                } catch (error) {
-                    return t.failure(u, c);
-                }
-            },
-            (u) => {
-                const parts = [];
-                for (const [key, value] of u.entries()) {
-                    parts.push(`${key}:${value.toString(10)}`);
-                }
-                return parts.join(',');
-            }
-        )
+export class EnumType<A> extends t.Type<A> {
+    public readonly _tag: 'EnumType' = 'EnumType'
+    public enumObject!: object
+    public constructor(e: object, name?: string) {
+      super(
+        name || 'enum',
+        (u): u is A => {
+          if (!Object.values(this.enumObject).find((v) => v === u)) {
+            return false
+          }
+          // enum reverse mapping check
+          if (typeof (this.enumObject as any)[u as string] === 'number') {
+            return false
+          }
+  
+          return true
+        },
+        (u, c) => (this.is(u) ? t.success(u) : t.failure(u, c)),
+        t.identity,
+      )
+      this.enumObject = e
     }
-}
-
-export const mapStringBn = new MapStringBnType();
+  }
+  
+  // simple helper function
+  export const createEnumType = <T>(e: object, name?: string) => new EnumType<T>(e, name)

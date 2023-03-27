@@ -412,6 +412,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             sendToMyWallet: 'На мой основной кошелек',
             sendToOtherWallet: 'На другой кошелек',
             sendToOtherWalletDescription: 'На любой кошелек в TON',
+            verifier: 'Верификатор смарт-контрактов',
+            lockupSmartContract: 'Локап смарт-контракт',
+            otcDeskSupport: 'Служба поддержки ОТС'
         }
     },
     welcome: {

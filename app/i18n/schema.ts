@@ -413,6 +413,9 @@ export type LocalizationSchema = {
             sendToMyWallet: string,
             sendToOtherWallet: string,
             sendToOtherWalletDescription: string,
+            verifier: string,
+            lockupSmartContract: string,
+            otcDeskSupport: string,
         }
     }
     welcome: {

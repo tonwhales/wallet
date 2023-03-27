@@ -10,6 +10,7 @@ import Chevron from '../../../assets/ic_ios_chevron_right.svg';
 import BN from "bn.js"
 import { AppConfig } from "../../AppConfig"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
+import { openWithInApp } from "../../utils/openWithInApp"
 
 export const LockupInfo = React.memo(({ address, lockup }: { address: Address, lockup: LockupWalletState }) => {
     const navigation = useTypedNavigation();
@@ -41,7 +42,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
             </Text>
             <ItemGroup style={{ marginHorizontal: 16 }}>
                 <ItemButton
-                    title="Lockup Smart Contract"
+                    title={t('products.lockups.lockupSmartContract')}
                     rightIcon={{
                         icon: Chevron,
                         color: '#000000',
@@ -50,16 +51,22 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                         style: { marginLeft: 16 }
                     }}
                     hint={'GitHub'}
+                    onPress={() => {
+                        openWithInApp('https://github.com/ton-blockchain/lockup-wallet-contract/tree/main/universal')
+                    }}
                 />
                 <ItemDivider />
                 <ItemButton
-                    title="Smart Contract Verifier"
+                    title={t('products.lockups.verifier')}
                     rightIcon={{
                         icon: Chevron,
                         color: '#000000',
                         height: 12,
                         width: 7,
                         style: { marginLeft: 16 }
+                    }}
+                    onPress={() => {
+                        openWithInApp(`https://tonwhales.com/explorer/address/${address.toFriendly({ testOnly: AppConfig.isTestnet })}/code`)
                     }}
                 />
                 <ItemDivider />
@@ -90,7 +97,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                 />
                 <ItemDivider />
                 <ItemButton
-                    title="OTC Desk Support"
+                    title={t('products.lockups.otcDeskSupport')}
                     rightIcon={{
                         icon: Chevron,
                         color: '#000000',
@@ -101,7 +108,8 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                     hint={'Telegram'}
                 />
                 <ItemDivider />
-                <ItemButton
+                {/* TODO: Add config backup */}
+                {/* <ItemButton
                     title="Your config backup"
                     rightIcon={{
                         icon: Chevron,
@@ -111,7 +119,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                         style: { marginLeft: 16 }
                     }}
                     hint={'Telegram'}
-                />
+                /> */}
             </ItemGroup>
         </>
     )

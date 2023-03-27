@@ -411,6 +411,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             sendToMyWallet: 'To my main wallet',
             sendToOtherWallet: 'To other wallet',
             sendToOtherWalletDescription: 'Any wallet in TON',
+            verifier: 'Smart Contract Verifier',
+            lockupSmartContract: 'Lockup Smart Contract',
+            otcDeskSupport: 'OTC Desk Support'
         }
     },
     welcome: {

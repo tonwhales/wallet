@@ -155,9 +155,11 @@ export const LiquidBalanceFragment = fragment(() => {
                             </View>
                         </View>
                     </ItemGroup>
-
                 </View>
-                <View style={{ width: '100%' }}>
+                {/* 
+                    //TODO add send button with new lockups version
+                 */}
+                {/* <View style={{ width: '100%' }}>
                     <Text
                         style={{
                             fontSize: 18,
@@ -174,9 +176,7 @@ export const LiquidBalanceFragment = fragment(() => {
                             style={({ pressed }) => {
                                 return { opacity: pressed ? 0.3 : 1 }
                             }}
-                            onPress={() => {
-                                // TODO: navigate to transfer with payload
-                            }}
+                            onPress={() => {}}
                         >
                             <View style={{
                                 flexDirection: 'row',
@@ -189,7 +189,7 @@ export const LiquidBalanceFragment = fragment(() => {
                                             fontSize: 16, fontWeight: '500',
                                             color: Theme.textColor,
                                             alignSelf: 'center',
-                                            flexGrow: 1, 
+                                            flexGrow: 1,
                                             marginBottom: 6
                                         }}>
                                             {t('products.lockups.sendToMyWallet')}
@@ -246,9 +246,7 @@ export const LiquidBalanceFragment = fragment(() => {
                             style={({ pressed }) => {
                                 return { opacity: pressed ? 0.3 : 1 }
                             }}
-                            onPress={() => {
-                                // TODO: navigate to transfer with payload
-                            }}
+                            onPress={() => { }}
                         >
                             <View style={{
                                 flexDirection: 'row',
@@ -312,7 +310,7 @@ export const LiquidBalanceFragment = fragment(() => {
                             </View>
                         </Pressable>
                     </ItemGroup>
-                </View>
+                </View> */}
                 {Platform.OS === 'ios' && (
                     <CloseButton
                         style={{ position: 'absolute', top: 12, right: 10 }}

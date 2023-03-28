@@ -80,7 +80,10 @@ export const AllowedAddresses = React.memo(({ wallet }: { wallet: LockupWallet }
                                     </Pressable>
                                 </View>
                             </View>
-                            <View style={{ alignItems: 'flex-end' }}>
+                            {/* 
+                                // TODO: add send with new lockups version
+                             */}
+                            {/* <View style={{ alignItems: 'flex-end' }}>
                                 <View style={{
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -103,7 +106,7 @@ export const AllowedAddresses = React.memo(({ wallet }: { wallet: LockupWallet }
                                         {t('wallet.actions.send')}
                                     </Text>
                                 </View>
-                            </View>
+                            </View> */}
                         </View>
                         {index < (wallet.allowedDestinations.length ?? 0) - 1 && (
                             <ItemDivider />

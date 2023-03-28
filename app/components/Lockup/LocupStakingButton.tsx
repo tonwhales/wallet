@@ -14,22 +14,19 @@ import { AppConfig } from "../../AppConfig";
 export const LocupStakingButton = React.memo(({ address }: { address: Address }) => {
     const engine = useEngine();
     const navigation = useTypedNavigation();
-    console.log('lockup staking button', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) })
     const staking = engine.products.whalesStakingPools.useStaking(address);;
-
-    const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
-    const apyWithFee = useMemo(() => {
-        if (!!apy) {
-            return (apy - apy * (5 / 100)).toFixed(2)
-        }
-    }, [apy]);
-
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
     return (
         <TouchableHighlight
-            onPress={() => navigation.navigate('StakingPools')}
+            onPress={() => navigation.navigate(
+                'StakingPools',
+                {
+                    fromLockup: true,
+                    address: address.toFriendly({ testOnly: AppConfig.isTestnet })
+                }
+            )}
             underlayColor={Theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,

@@ -105,6 +105,13 @@ export class StakingPoolsProduct {
         return useRecoilValue(this.full);
     }
 
+    useWalletConfig(address?: Address) {
+        if (address) {
+            return useRecoilValue(this.engine.persistence.walletConfig.item(address).atom);
+        }
+        return null;
+    }
+
     useStakingApy() {
         return useRecoilValue(this.apyAtom);
     }

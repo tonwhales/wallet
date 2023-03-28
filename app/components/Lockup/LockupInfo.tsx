@@ -95,7 +95,10 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                     hint={fromNano(locked) + ' TON'}
                     onPress={() => navigation.navigate('LockupLocked', { address: address.toFriendly({ testOnly: AppConfig.isTestnet }) })}
                 />
-                <ItemDivider />
+                {/* 
+                    // TODO: re-add after OTC desk is ready
+                */}
+                {/* <ItemDivider />
                 <ItemButton
                     title={t('products.lockups.otcDeskSupport')}
                     rightIcon={{
@@ -106,8 +109,7 @@ export const LockupInfo = React.memo(({ address, lockup }: { address: Address, l
                         style: { marginLeft: 16 }
                     }}
                     hint={'Telegram'}
-                />
-                {/* TODO: Add config backup */}
+                /> */}
                 {/* <ItemDivider /> */}
                 {/* <ItemButton
                     title="Your config backup"

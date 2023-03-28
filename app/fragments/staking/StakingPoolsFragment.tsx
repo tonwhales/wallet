@@ -59,7 +59,9 @@ function PoolComponent(props: {
     address: Address,
     balance: BN,
     restricted?: boolean,
-    engine: Engine
+    engine: Engine,
+    member?: Address,
+    lockup?: boolean
 }) {
     const navigation = useTypedNavigation();
     const addr = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
@@ -93,6 +95,9 @@ function PoolComponent(props: {
                 requireSource={requireSource}
                 value={props.balance.gt(new BN(0)) ? props.balance : ''}
                 onPress={() => {
+                    if (props.lockup) {
+                        return;
+                    }
                     if (club && props.restricted) {
                         clubAlert(navigation, addr);
                         return;
@@ -155,7 +160,7 @@ function Header(props: {
 }
 
 export const StakingPoolsFragment = fragment(() => {
-    const params = useParams<{ address: string }>();
+    const params = useParams<{ address: string, fromLockup?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -165,6 +170,7 @@ export const StakingPoolsFragment = fragment(() => {
         }
     }, []);
     const staking = engine.products.whalesStakingPools.useStaking(member);
+    const walletConfig = engine.products.whalesStakingPools.useWalletConfig(member);
     const pools = staking.pools;
     const poolsWithStake = pools.filter((v) => v.balance.gtn(0));
     const items: React.ReactElement[] = [];
@@ -176,7 +182,7 @@ export const StakingPoolsFragment = fragment(() => {
 
 
     // Await config
-    if (!staking.config) {
+    if (!walletConfig) {
         return (
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 {Platform.OS === 'ios' && (
@@ -277,6 +283,8 @@ export const StakingPoolsFragment = fragment(() => {
                     address={p.address}
                     balance={p.balance}
                     engine={engine}
+                    member={member}
+                    lockup={params.fromLockup}
                 />
             );
             processed.add(p.address.toFriendly({ testOnly: AppConfig.isTestnet }));
@@ -284,7 +292,7 @@ export const StakingPoolsFragment = fragment(() => {
     }
 
     // Recommended
-    let recommended = pools.find((v) => v.address.equals(Address.parse(staking.config!.recommended)));
+    let recommended = pools.find((v) => v.address.equals(Address.parse(walletConfig!.recommended)));
 
     if (recommended && !processed.has(recommended.address.toFriendly({ testOnly: AppConfig.isTestnet }))) {
         items.push(
@@ -299,12 +307,14 @@ export const StakingPoolsFragment = fragment(() => {
                 address={recommended.address}
                 balance={recommended.balance}
                 engine={engine}
+                member={member}
+                lockup={params.fromLockup}
             />
         );
     }
 
     let available = useMemo(() => {
-        return pools.filter((v) => !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })) && !!staking.config!.pools.find((v2) => Address.parse(v2).equals(v.address)))
+        return pools.filter((v) => !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })) && !!walletConfig!.pools.find((v2) => Address.parse(v2).equals(v.address)))
     }, [processed]);
 
     let club = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('club') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
@@ -332,6 +342,8 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    member={member}
+                    lockup={params.fromLockup}
                 />
             );
         }
@@ -352,6 +364,8 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    member={member}
+                    lockup={params.fromLockup}
                 />
             );
         }
@@ -376,6 +390,8 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    member={member}
+                    lockup={params.fromLockup}
                 />
             );
         }
@@ -396,6 +412,8 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    member={member}
+                    lockup={params.fromLockup}
                 />
             );
         }
@@ -420,6 +438,8 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    member={member}
+                    lockup={params.fromLockup}
                 />
             );
         }

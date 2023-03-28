@@ -1,26 +1,24 @@
 import BN from "bn.js";
-import { atomFamily, RecoilValueReadOnly, selector, selectorFamily, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
 import { KnownPools } from "../../utils/KnownPools";
-import { WalletConfig } from "../api/fetchWalletConfig";
+import { fetchWalletConfig } from "../api/fetchWalletConfig";
 import { Engine } from "../Engine";
-import { Lockup } from "../metadata/Metadata";
 import { useOptItem } from "../persistence/PersistedItem";
 import { LockupWalletState } from "../sync/startLockupWalletSync";
+import { InvalidateSync } from "../utils/InvalidateSync";
 
 export class LockupProduct {
-
     readonly engine: Engine;
     readonly #wallets: RecoilValueReadOnly<{ state: LockupWalletState, address: Address }[]>;
     readonly #balance: RecoilValueReadOnly<BN>;
     readonly pools: Address[] = [];
+    private _watched: Set<string> = new Set();
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.pools = Object.keys(KnownPools).map((key) => Address.parse(key));
-
-        // TODO: sync balances and metadata with Lockup state
 
         this.#wallets = selector({
             key: 'lockups/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/wallets',
@@ -64,6 +62,18 @@ export class LockupProduct {
                 return balance;
             }
         });
+
+        this.engine.persistence.knownAccountLockups.item(this.engine.address).for((lockups) => {
+            lockups.forEach((lockup) => {
+                if (this._watched.has(lockup.toFriendly({ testOnly: AppConfig.isTestnet }))) {
+                    return;
+                }
+
+                this._watched.add(lockup.toFriendly({ testOnly: AppConfig.isTestnet }));
+                this.watchLockup(lockup)
+            });
+        });
+
     }
 
     usePool(member: Address, pool?: Address) {
@@ -83,5 +93,28 @@ export class LockupProduct {
 
     useLockupWallet(address: Address) {
         return useRecoilValue(this.engine.persistence.lockupWallets.item(address).atom);
+    }
+
+    watchLockup(address: Address) {
+        let ended = false;
+        const invalidateSync = new InvalidateSync(
+            `lockup/config/${address.toFriendly({ testOnly: AppConfig.isTestnet })}`,
+            async () => {
+                let config = await fetchWalletConfig(address);
+                if (ended) {
+                    return;
+                }
+                this.engine.persistence.walletConfig.setValue(address, config);
+            });
+        // Query every 15 seconds
+        const timer = setInterval(() => {
+            invalidateSync.invalidate();
+        }, 15 * 1000);
+        return () => {
+            if (!ended) {
+                ended = true;
+                clearInterval(timer);
+            }
+        }
     }
 }

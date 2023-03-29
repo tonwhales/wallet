@@ -246,7 +246,7 @@ export const ConnectionsFragment = fragment(() => {
                         </View>
                     ))}
                 </View>
-                <View style={{ height: safeArea.bottom }} />
+                <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
             </ScrollView>
             {Platform.OS === 'ios' && (
                 <CloseButton

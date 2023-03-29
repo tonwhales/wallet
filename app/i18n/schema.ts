@@ -150,6 +150,10 @@ export type LocalizationSchema = {
         unusualJettonsGasTitle: string,
         unusualJettonsGasMessage: string,
         addressNotActive: string,
+        wrongJettonTitle: string,
+        wrongJettonMessage: string,
+        notEnoughJettonsTitle: string,
+        notEnoughJettonsMessage: string,
     },
     auth: {
         phoneVerify: string,
@@ -276,6 +280,8 @@ export type LocalizationSchema = {
                 epnPartners: string,
                 epnPartnersDescription: string,
                 moreAboutEPN: string,
+                lockups: string,
+                lockupsDescription: string,
             },
             transfer: {
                 stakingWarning: string,

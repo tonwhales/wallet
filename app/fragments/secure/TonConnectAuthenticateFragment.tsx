@@ -84,7 +84,6 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     }
 
                 } catch (e) {
-                    console.log(e);
                     warn('Failed to handle deeplink');
                 }
                 return;

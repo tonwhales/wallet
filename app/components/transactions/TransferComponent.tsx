@@ -14,6 +14,7 @@ import { KnownWallet } from "../../secure/KnownWallets";
 import { AddressContact } from "../../engine/products/SettingsProduct";
 import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { t } from "../../i18n/t";
+import { fromBNWithDecimals } from "../../utils/withDecimals";
 
 export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     transfer: {
@@ -100,7 +101,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                     color: Theme.textColor,
                                     includeFontPadding: false,
                                 }}>
-                                    {`${fromNano(transfer.jettonAmount)} ${transfer.jettonMaster.symbol}`}
+                                    {`${fromBNWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
                                 </Text>
                             </View>
                         )}

@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
-import { useLinkNavigator } from '../../../Navigation';
+import { useLinkNavigator } from "../../../useLinkNavigator";
 import { AppConfig } from '../../../AppConfig';
 import { useEngine } from '../../../engine/Engine';
 import { protectNavigation } from './protect/protectNavigation';

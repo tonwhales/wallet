@@ -6,11 +6,14 @@ import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/Passcode/PasscodeSetup";
 import { fragment } from "../../../fragment"
 import { t } from "../../../i18n/t";
+import { getCurrentAddress } from "../../../storage/appState";
+import { loadWalletKeys } from "../../../storage/walletKeys";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
 export const PasscodeSetupFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+
 
     return (
         <View style={{
@@ -18,25 +21,14 @@ export const PasscodeSetupFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('security.passcodeSettings.setupTitle')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('security.passcodeSettings.setupTitle')}
-                    </Text>
-                </View>
-            )}
             <KeyboardAvoidingView
                 style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                <PasscodeSetup />
+                <PasscodeSetup onReady={async () => {
+                    const acc = getCurrentAddress();
+                    await loadWalletKeys(acc.secretKeyEnc);
+                }} />
             </KeyboardAvoidingView>
             {Platform.OS === 'ios' && (
                 <CloseButton

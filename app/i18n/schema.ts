@@ -506,6 +506,14 @@ export type LocalizationSchema = {
         blockConfirm: string,
         description: string
     },
+    security: {
+        title: string,
+        passcodeSettings: {
+            setupTitle: string,
+            confirmTitle: string,
+            changeTitle: string,
+        }
+    },
     report: {
         title: string,
         scam: string,

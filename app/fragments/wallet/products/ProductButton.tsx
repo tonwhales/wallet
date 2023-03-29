@@ -105,7 +105,7 @@ export function ProductButton(props: ProductButtonProps) {
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
                         <Text
-                            style={{ color: Theme.textSubtitle, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
+                            style={{ color: '#8E979D', fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >

@@ -63,7 +63,7 @@ export const SettingsFragment = fragment(() => {
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: '#000',
+                        backgroundColor: Theme.headerDivider,
                         opacity: 0.08
                     }} />
                 </BlurView>
@@ -88,7 +88,7 @@ export const SettingsFragment = fragment(() => {
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: '#000',
+                        backgroundColor: Theme.headerDivider,
                         opacity: 0.08
                     }} />
                 </View>
@@ -194,7 +194,7 @@ export const SettingsFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 4, marginTop: 8,
-                    backgroundColor: 'white',
+                    backgroundColor: Theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

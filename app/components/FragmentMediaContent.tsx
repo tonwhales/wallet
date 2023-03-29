@@ -57,7 +57,7 @@ export const FragmentMediaContent = React.memo((props: {
             {(props.text && props.text.length > 0) && (
                 <Text style={{
                     textAlign: 'center',
-                    color: '#8E979D',
+                    color: Theme.textSubtitle,
                     fontSize: 14,
                     marginTop: 14,
                     flexShrink: 1,

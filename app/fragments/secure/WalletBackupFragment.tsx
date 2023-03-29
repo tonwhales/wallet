@@ -60,7 +60,7 @@ export const WalletBackupFragment = systemFragment(() => {
     if (!mnemonics) {
         return (
             <Animated.View
-                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: 'white' }}
+                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: Theme.item }}
                 exiting={FadeOutDown}
                 key={"loader"}
             >
@@ -87,14 +87,14 @@ export const WalletBackupFragment = systemFragment(() => {
 
     return (
         <Animated.View
-            style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? safeArea.top : undefined, }}
+            style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined, }}
             exiting={FadeIn}
             key={"content"}
         >
             <AndroidToolbar />
             <ScrollView alwaysBounceVertical={false} style={{ width: '100%' }}>
                 <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 17 }}>{t('backup.title')}</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: '#6D6D71' }}>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: Theme.priceSecondary }}>
                     {t('backup.subtitle')}
                 </Text>
                 <View style={{

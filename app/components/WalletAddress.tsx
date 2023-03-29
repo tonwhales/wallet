@@ -116,7 +116,7 @@ export const WalletAddress = React.memo((props: {
             ]}
             onPress={handleAction}
             style={props.style}
-            previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : 'transparent'}
+            previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : Theme.transparent}
         >
             <View>
                 {props.elipsise && (

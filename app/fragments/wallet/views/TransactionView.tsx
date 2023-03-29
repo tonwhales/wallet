@@ -246,7 +246,7 @@ export function TransactionView(props: {
                                 </Text>
                                 {spam && (
                                     <View style={{
-                                        borderColor: '#ADB6BE',
+                                        borderColor: Theme.textSecondaryBorder,
                                         borderWidth: 1,
                                         justifyContent: 'center',
                                         alignItems: 'center',
@@ -259,13 +259,13 @@ export function TransactionView(props: {
                                 )}
                             </View>
                             {parsed.status === 'failed' ? (
-                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                                <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                                     {t('tx.failed')}
                                 </Text>
                             ) : (
                                 <Text
                                     style={{
-                                        color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
+                                        color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : Theme.pricePositive : Theme.priceNegative,
                                         fontWeight: '400',
                                         fontSize: 16,
                                         marginRight: 2,

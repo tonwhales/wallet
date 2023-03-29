@@ -13,7 +13,7 @@ export const ProfileComponent = React.memo((props: { address: Address }) => {
         <View style={{
             marginBottom: 16,
             marginTop: 16,
-            backgroundColor: "white",
+            backgroundColor: Theme.item,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',

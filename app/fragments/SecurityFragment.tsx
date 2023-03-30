@@ -7,6 +7,7 @@ import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
+import { PasscodeState, passcodeStateKey } from "../storage/secureStorage"
 import { storage } from "../storage/storage"
 import { Theme } from "../Theme"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
@@ -14,11 +15,9 @@ import { useTypedNavigation } from "../utils/useTypedNavigation"
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    let passcodeState = storage.getString('passcode-state');
+    let passcodeState = storage.getString(passcodeStateKey);
 
-    useFocusEffect(() => {
-        passcodeState = storage.getString('passcode-state');
-    });
+    useFocusEffect(() => { passcodeState = storage.getString(passcodeStateKey) });
 
     return (
         <View style={{
@@ -57,7 +56,7 @@ export const SecurityFragment = fragment(() => {
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    {passcodeState === 'set' && (
+                    {passcodeState === PasscodeState.Set && (
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton
                                 leftIcon={require('../../assets/ic_passcode.png')}
@@ -66,7 +65,7 @@ export const SecurityFragment = fragment(() => {
                             />
                         </View>
                     )}
-                    {passcodeState !== 'set' && (
+                    {(!passcodeState || passcodeState === PasscodeState.NotSet) && (
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton
                                 leftIcon={require('../../assets/ic_passcode.png')}

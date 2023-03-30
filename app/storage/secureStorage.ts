@@ -4,6 +4,13 @@ import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
+import pbkdf2 from 'react-native-fast-pbkdf2';
+
+export const passcodeStateKey = 'passcode-state';
+export enum PasscodeState {
+    NotSet = 'not-set',
+    Set = 'set',
+}
 
 export function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'key-store' {
     let kind = storage.getString('ton-storage-kind');
@@ -150,4 +157,48 @@ export async function decryptData(data: Buffer) {
         throw Error('Unable to decrypt data');
     }
     return res;
+}
+
+export async function generateKeyFromPasscode(pass: string) {
+    if (typeof pass !== 'string') {
+        throw Error('Invalid password');
+    }
+
+    const salt = (await getSecureRandomBytes(32)).toString('hex');
+    const iterations = 100000;
+    const keyLength = 32; // 256 bits
+
+    const derivedKey = await pbkdf2.derive(
+        pass,
+        salt,
+        iterations,
+        keyLength,
+        'sha-256'
+    );
+
+    return Buffer.from(derivedKey, 'base64');
+}
+
+export async function encryptWithPasscode(pass: string, data: Buffer) {
+    const key = await generateKeyFromPasscode(pass);
+    const nonce = await getSecureRandomBytes(24);
+    const sealed = sealBox(data, nonce, key);
+    return Buffer.concat([nonce, sealed]);
+}
+
+export async function doDecryptWithPasscode(pass: string, data: Buffer) {
+    const key = await generateKeyFromPasscode(pass);
+    let nonce = data.slice(0, 24);
+    let cypherData = data.slice(24);
+    let res = openBox(cypherData, nonce, key);
+    if (!res) {
+        throw Error('Unable to decrypt data');
+    }
+    return res;
+}
+
+export async function encryptAndStoreWithPasscode(pass: string, data: Buffer) {
+    const encrypted = await encryptWithPasscode(pass, data);
+    storage.set(passcodeStateKey, PasscodeState.Set);
+    storage.set('ton-passcode-enc-key', encrypted.toString('base64'));
 }

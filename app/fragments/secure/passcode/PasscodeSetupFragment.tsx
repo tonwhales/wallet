@@ -1,18 +1,31 @@
 import { StatusBar } from "expo-status-bar";
-import { KeyboardAvoidingView, Platform, View, Text } from "react-native"
+import { useCallback } from "react";
+import { KeyboardAvoidingView, Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../../components/AndroidToolbar";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/Passcode/PasscodeSetup";
 import { fragment } from "../../../fragment"
-import { t } from "../../../i18n/t";
 import { getCurrentAddress } from "../../../storage/appState";
+import { encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
+import { storage } from "../../../storage/storage";
 import { loadWalletKeys } from "../../../storage/walletKeys";
+import { useParams } from "../../../utils/useParams";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
 export const PasscodeSetupFragment = fragment(() => {
+    const { initial } = useParams<{ initial?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+
+    const onPasscodeConfirmed = useCallback(async (passcode: string) => {
+        if (initial) {
+            // navigation.navigate('Home');
+        } else {
+            const acc = getCurrentAddress();
+            let keys = await loadWalletKeys(acc.secretKeyEnc);
+            encryptAndStoreWithPasscode(passcode, Buffer.from(keys.mnemonics.join(' ')));
+        }
+    }, []);
 
 
     return (
@@ -25,10 +38,7 @@ export const PasscodeSetupFragment = fragment(() => {
                 style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                <PasscodeSetup onReady={async () => {
-                    const acc = getCurrentAddress();
-                    await loadWalletKeys(acc.secretKeyEnc);
-                }} />
+                <PasscodeSetup onReady={onPasscodeConfirmed} />
             </KeyboardAvoidingView>
             {Platform.OS === 'ios' && (
                 <CloseButton

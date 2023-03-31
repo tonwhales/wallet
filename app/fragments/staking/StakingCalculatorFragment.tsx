@@ -106,7 +106,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: '#8E979D',
+                                color: Theme.textSubtitle,
                             }}>
                                 {t('common.amount')}
                             </Text>
@@ -124,7 +124,7 @@ export const StakingCalculatorFragment = fragment(() => {
                                     placeholder={'0'}
                                     keyboardType={'numeric'}
                                     textAlign={'left'}
-                                    style={{ paddingHorizontal: 0, backgroundColor: 'transparent', marginTop: 4, flexShrink: 1 }}
+                                    style={{ paddingHorizontal: 0, backgroundColor: Theme.transparent, marginTop: 4, flexShrink: 1 }}
                                     inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
                                     fontWeight={'800'}
                                     fontSize={30}
@@ -139,10 +139,10 @@ export const StakingCalculatorFragment = fragment(() => {
                             <PriceComponent
                                 amount={parseAmountToValidBN(amount)}
                                 style={{
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0
                                 }}
-                                textStyle={{ color: '#6D6D71', fontWeight: '400' }}
+                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
                             />
                         </View>
                     </View>

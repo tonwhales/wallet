@@ -37,7 +37,7 @@ export const DeveloperToolsFragment = fragment(() => {
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: "white",
+                    backgroundColor: Theme.item,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',

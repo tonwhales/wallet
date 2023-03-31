@@ -22,20 +22,20 @@ const displays: { [key in RoundButtonDisplay]: {
     default: {
         backgroundColor: Theme.accent,
         borderColor: Theme.accent,
-        textColor: '#fff',
+        textColor: Theme.item,
 
         backgroundPressedColor: Theme.accentDark,
         borderPressedColor: Theme.accentDark,
-        textPressed: '#fff',
+        textPressed: Theme.item,
     },
     disabled: {
-        backgroundColor: '#9EA6AB',
-        borderColor: '#9EA6AB',
-        textColor: '#fff',
+        backgroundColor: Theme.disabled,
+        borderColor: Theme.disabled,
+        textColor: Theme.item,
 
         backgroundPressedColor: Theme.accentDark,
         borderPressedColor: Theme.accentDark,
-        textPressed: '#fff',
+        textPressed: Theme.item,
     },
     secondary: {
         backgroundColor: Theme.secondaryButton,
@@ -56,22 +56,22 @@ const displays: { [key in RoundButtonDisplay]: {
         textPressed: Theme.secondaryButtonText,
     },
     pro: {
-        backgroundColor: 'black',
-        borderColor: 'black',
-        textColor: '#fff',
+        backgroundColor: Theme.textColor,
+        borderColor: Theme.textColor,
+        textColor: Theme.item,
 
-        backgroundPressedColor: 'rgba(0,0,0,0.3)',
-        borderPressedColor: 'rgba(0,0,0,0.3)',
-        textPressed: '#fff',
+        backgroundPressedColor: Theme.pressedRoundButton,
+        borderPressedColor: Theme.pressedRoundButton,
+        textPressed: Theme.item,
     },
     telegram: {
-        backgroundColor: '#59ADE7',
-        borderColor: '#59ADE7',
-        textColor: '#fff',
+        backgroundColor: Theme.telegram,
+        borderColor: Theme.telegram,
+        textColor: Theme.item,
 
-        backgroundPressedColor: 'rgba(0,0,0,0.3)',
-        borderPressedColor: 'rgba(0,0,0,0.3)',
-        textPressed: '#fff',
+        backgroundPressedColor: Theme.pressedRoundButton,
+        borderPressedColor: Theme.pressedRoundButton,
+        textPressed: Theme.item,
     },
     outline: {
         backgroundColor: Theme.background,
@@ -83,8 +83,8 @@ const displays: { [key in RoundButtonDisplay]: {
         textPressed: Theme.accent,
     },
     inverted: {
-        backgroundColor: 'white',
-        borderColor: 'white',
+        backgroundColor: Theme.item,
+        borderColor: Theme.item,
         textColor: Theme.accent,
 
         backgroundPressedColor: Theme.divider,
@@ -92,8 +92,8 @@ const displays: { [key in RoundButtonDisplay]: {
         textPressed: Theme.accent,
     },
     text: {
-        backgroundColor: 'transparent',
-        borderColor: 'transparent',
+        backgroundColor: Theme.transparent,
+        borderColor: Theme.transparent,
         textColor: Theme.accentText,
 
         backgroundPressedColor: Theme.divider,
@@ -101,8 +101,8 @@ const displays: { [key in RoundButtonDisplay]: {
         textPressed: Theme.accent,
     },
     danger_zone: {
-        backgroundColor: 'white',
-        borderColor: 'white',
+        backgroundColor: Theme.item,
+        borderColor: Theme.item,
         textColor: Theme.dangerZone,
 
         backgroundPressedColor: Theme.divider,

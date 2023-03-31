@@ -25,7 +25,7 @@ export const DevStorageFragment = fragment(() => {
         <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16 }}>
             <View style={{
                 marginBottom: 16, marginTop: 17,
-                backgroundColor: "white",
+                backgroundColor: Theme.item,
                 borderRadius: 14,
                 justifyContent: 'center',
                 alignItems: 'center',

@@ -32,7 +32,7 @@ export const WelcomeFragment = systemFragment(() => {
         <View style={{
             alignItems: 'center', justifyContent: 'center',
             flexGrow: 1,
-            backgroundColor: 'white'
+            backgroundColor: Theme.item
         }}>
             <StatusBar style='dark' />
             <View style={{

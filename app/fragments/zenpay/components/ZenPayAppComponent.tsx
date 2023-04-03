@@ -7,7 +7,6 @@ import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from '
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
-import { useLinkNavigator } from '../../../Navigation';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { AppConfig } from '../../../AppConfig';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
@@ -24,6 +23,7 @@ import { AndroidToolbar } from '../../../components/AndroidToolbar';
 import { CloseButton } from '../../../components/CloseButton';
 import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
+import { useLinkNavigator } from '../../../useLinkNavigator';
 
 export const ZenPayAppComponent = React.memo((
     props: {

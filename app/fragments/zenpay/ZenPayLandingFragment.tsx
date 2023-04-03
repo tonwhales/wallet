@@ -17,6 +17,7 @@ import { ZenPayAppParams } from './ZenPayAppFragment';
 import { extractZenPayQueryParams } from './utils';
 import { CloseButton } from '../../components/CloseButton';
 import { getLocales } from 'react-native-localize';
+import { fragment } from '../../fragment';
 
 export const ZenPayLandingFragment = fragment(() => {
     const webRef = React.useRef<WebView>(null);

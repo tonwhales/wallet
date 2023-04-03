@@ -88,7 +88,7 @@ export class ZenPayProduct {
             // Check zenpay token cloud value
             // 
 
-            let existing = await this.engine.cloud.readKey('zenpay-token');
+            let existing = await this.engine.cloud.readKey('zenpay-jwt');
             if (existing && existing.toString().length > 0) {
                 return true;
             } else {
@@ -106,7 +106,7 @@ export class ZenPayProduct {
                     signature: signed.signature,
                     subkey: signed.subkey
                 });
-                await this.engine.cloud.update('zenpay-token', () => Buffer.from(token));
+                await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(token));
             }
 
             return true;
@@ -183,7 +183,7 @@ export class ZenPayProduct {
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
-                const existing = await this.engine.cloud.readKey('zenpay-token');
+                const existing = await this.engine.cloud.readKey('zenpay-jwt');
                 if (existing && existing.toString().length > 0) {
                     targetStatus.update((src) => {
                         if (!src || src.state === 'need-enrolment') {
@@ -213,7 +213,7 @@ export class ZenPayProduct {
 
                     // Clear token if no-ref
                     if (state.state === 'no-ref') {
-                        await this.engine.cloud.update('zenpay-token', () => Buffer.from(''));
+                        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
                         this.stopWatching();
                         this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
                             return null;

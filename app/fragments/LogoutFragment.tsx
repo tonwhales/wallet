@@ -21,6 +21,7 @@ export function clearZenPay(engine: Engine) {
     engine.persistence.domainKeys.setValue(zenPayDomain, null);
     engine.persistence.zenPayState.setValue(engine.address, null);
     engine.products.zenPay.stopWatching();
+    engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
 }
 
 export const LogoutFragment = fragment(() => {

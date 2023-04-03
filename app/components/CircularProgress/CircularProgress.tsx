@@ -1,5 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import { View, Animated, StyleSheet, Easing, StyleProp, ViewStyle } from 'react-native';
+import { Theme } from '../../Theme';
 
 export const easeOutQuart = Easing.bezier(0.25, 1, 0.5, 1);
 export const defaultDuration = 7.5 * 1000;
@@ -169,7 +170,7 @@ const generateStyles = ({
     width,
     color,
     backgroundColor,
-    containerColor = 'transparent',
+    containerColor = Theme.transparent,
 }: {
     size: number,
     width: number,

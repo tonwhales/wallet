@@ -35,6 +35,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>$(BUNDLE_TC_SCHEMA)</string>
 				<string>$(BUNDLE_LINK_SCHEMA)</string>
 			</array>
 		</dict>

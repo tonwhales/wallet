@@ -4,6 +4,7 @@ import { usePrice } from "../engine/PriceContext";
 import TonIcon from '../../assets/ton_icon.svg';
 import { AppConfig } from "../AppConfig";
 import { formatCurrency } from "../utils/formatCurrency";
+import { Theme } from "../Theme";
 
 export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle> }) => {
     const [price, currency] = usePrice();
@@ -26,13 +27,13 @@ export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle
             <View style={{
                 position: 'absolute',
                 top: 0, bottom: 0, left: 0, right: 0,
-                backgroundColor: 'white',
+                backgroundColor: Theme.item,
                 opacity: 0.1,
                 borderRadius: 8
             }} />
             <TonIcon height={12} width={12} />
             <Text style={[{
-                color: 'white',
+                color: Theme.item,
                 fontSize: 14, fontWeight: '600',
                 textAlign: "center",
                 lineHeight: 16,

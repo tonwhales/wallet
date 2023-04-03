@@ -276,7 +276,7 @@ export const DeleteAccountFragment = fragment(() => {
 
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: "white",
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -298,7 +298,7 @@ export const DeleteAccountFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: '#7D858A',
+                                        color: Theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.sendTo')}
@@ -321,7 +321,7 @@ export const DeleteAccountFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: '#858B93',
+                                                color: Theme.labelSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {KnownWallets[targetAddressInput].name}
@@ -334,7 +334,7 @@ export const DeleteAccountFragment = fragment(() => {
                             autoCorrect={false}
                             autoComplete={'off'}
                             style={{
-                                backgroundColor: 'transparent',
+                                backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}

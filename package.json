@@ -65,6 +65,7 @@
     "fast-html-parser": "^1.0.1",
     "fp-ts": "^2.12.1",
     "i18next": "^21.6.5",
+    "int64-buffer": "^1.0.1",
     "io-ts": "^2.2.16",
     "is-valid-domain": "^0.1.6",
     "jest": "^26.6.3",

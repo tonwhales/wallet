@@ -114,7 +114,7 @@ export const SpamFilterFragment = fragment(() => {
                 }}>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: "white",
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         paddingVertical: 10,
@@ -130,7 +130,7 @@ export const SpamFilterFragment = fragment(() => {
                             preventDefaultValuePadding
                             blurOnSubmit={false}
                             style={{
-                                backgroundColor: 'transparent',
+                                backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 paddingVertical: 0,
                                 marginHorizontal: 16
@@ -146,7 +146,7 @@ export const SpamFilterFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: '#7D858A',
+                                        color: Theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('spamFilter.minAmount')}
@@ -157,7 +157,7 @@ export const SpamFilterFragment = fragment(() => {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: '#7D858A',
+                            color: Theme.label,
                             alignSelf: 'flex-start',
                             marginTop: 8,
                             marginHorizontal: 16
@@ -195,7 +195,7 @@ export const SpamFilterFragment = fragment(() => {
                                 </Text>
                                 <Text style={{
                                     fontSize: 16,
-                                    color: '#6D6D71',
+                                    color: Theme.priceSecondary,
                                     marginVertical: 8,
                                 }}>
                                     {t('spamFilter.description')}

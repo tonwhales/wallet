@@ -7,8 +7,6 @@ export async function openWithInApp(link: string) {
             const result = await InAppBrowser.open(link, {
                 // iOS Properties
                 dismissButtonStyle: 'cancel',
-                // preferredBarTintColor: '#453AA4',
-                // preferredControlTintColor: 'white',
                 readerMode: false,
                 animated: true,
                 modalPresentationStyle: 'pageSheet',
@@ -32,7 +30,6 @@ export async function openWithInApp(link: string) {
                     endExit: 'slide_out_right'
                 },
             })
-            // Alert.alert(JSON.stringify(result))
         }
         else Linking.openURL(link)
     } catch (error: any) {

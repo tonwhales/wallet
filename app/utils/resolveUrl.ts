@@ -319,6 +319,15 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 };
             }
         }
+        // Tonconnect
+        if (url.protocol.toLowerCase() === 'tc:') {
+            if (!!url.query.r && !!url.query.v && !!url.query.id) {
+                return {
+                    type: 'tonconnect',
+                    query: url.query as unknown as ConnectQrQuery
+                };
+            }
+        }
 
     } catch (e) {
         // Ignore

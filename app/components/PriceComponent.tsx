@@ -39,7 +39,7 @@ export const PriceComponent = React.memo((
             paddingVertical: 4, paddingHorizontal: 8
         }, style]}>
             <Text style={[{
-                color: 'white',
+                color: Theme.item,
                 fontSize: 14, fontWeight: '600',
                 textAlign: "center",
                 lineHeight: 16

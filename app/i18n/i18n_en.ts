@@ -169,7 +169,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         failed: 'Invalid URL',
         completed: 'This authentication request already completed',
         authorized: 'Authorization request approved',
-        authorizedDescription: 'Now you can get back the the app.',
+        authorizedDescription: 'Now you can get back the app.',
         noApps: 'No connected apps',
         name: 'Connected apps',
         yourWallet: 'Your wallet',

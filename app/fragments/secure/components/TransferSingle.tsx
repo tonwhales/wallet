@@ -333,7 +333,7 @@ export const TransferSingle = React.memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: '#858B93'
+                            color: Theme.labelSecondary
                         }}>
                             {order.app.domain}
                         </Text>
@@ -399,7 +399,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             prefix={'~'}
                                             amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
                                             style={{
-                                                backgroundColor: 'transparent',
+                                                backgroundColor: Theme.transparent,
                                                 paddingHorizontal: 0,
                                                 marginLeft: 2
                                             }}
@@ -527,19 +527,19 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 suffix={')'}
                                                 amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
                                                 style={{
-                                                    backgroundColor: 'transparent',
+                                                    backgroundColor: Theme.transparent,
                                                     paddingHorizontal: 0,
                                                     marginLeft: 2
                                                 }}
                                                 textStyle={{
-                                                    color: '#858B93',
+                                                    color: Theme.labelSecondary,
                                                     fontWeight: '400', fontSize: 14
                                                 }}
                                             />
                                         )}
                                         {AppConfig.isTestnet && (
                                             <Text style={{
-                                                color: '#858B93',
+                                                color: Theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
@@ -592,7 +592,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 14,
-                                        color: '#858B93',
+                                        color: Theme.labelSecondary,
                                         marginLeft: 2,
                                         marginTop: 4
                                     }}>
@@ -607,7 +607,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: '#FFC165',
+                                                        borderColor: Theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -618,7 +618,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: '#E19626'
+                                                    color: Theme.warningSecondary
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -631,7 +631,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <View style={{
                                                 position: 'absolute',
                                                 left: -48, top: 0, bottom: 0,
-                                                backgroundColor: '#EDA652',
+                                                backgroundColor: Theme.contactIcon,
                                                 height: 40, width: 40,
                                                 borderRadius: 40,
                                                 justifyContent: 'center',
@@ -643,7 +643,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <View style={{
                                                 alignSelf: 'flex-start',
                                                 borderRadius: 6, borderWidth: 1,
-                                                borderColor: '#DEDEDE',
+                                                borderColor: Theme.contactBorder,
                                                 paddingHorizontal: 8, paddingVertical: 4,
                                                 marginTop: 4
                                             }}>
@@ -706,7 +706,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: '#FFC165',
+                                                        borderColor: Theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -717,7 +717,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: '#E19626'
+                                                    color: Theme.warningSecondary
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -747,7 +747,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     {!!operation.op && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: '#858B93',
+                                                color: Theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
@@ -775,7 +775,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     {!operation.comment && !operation.op && !!text && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: '#858B93',
+                                                color: Theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
@@ -829,41 +829,22 @@ export const TransferSingle = React.memo((props: Props) => {
                                             </Text>
                                         </View>
                                     )}
-                                    {order?.app?.domain !== extractDomain(zenPayUrl) && (
-                                        <View style={{
-                                            backgroundColor: '#60C75E',
-                                            height: 40, width: 40,
-                                            borderRadius: 40,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            position: 'absolute',
-                                            left: -48, top: 0, bottom: 0,
-                                        }}>
-                                            {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                                <Staking />
-                                            )}
-                                            {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                                <SmartContract />
-                                            )}
-                                        </View>
-                                    )}
-                                    {order?.app?.domain === extractDomain(zenPayUrl) && (
-                                        <View style={{
-                                            height: 46, width: 34,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            position: 'absolute',
-                                            left: -46, top: 0, bottom: 0,
-                                            borderRadius: 6
-                                        }}>
-                                            <Image
-                                                style={{
-                                                    height: 46, width: 34,
-                                                }}
-                                                source={require('../../../../assets/ic_sign_card.png')}
-                                            />
-                                        </View>
-                                    )}
+                                    <View style={{
+                                        backgroundColor: Theme.operationIcon,
+                                        height: 40, width: 40,
+                                        borderRadius: 40,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        position: 'absolute',
+                                        left: -48, top: 0, bottom: 0,
+                                    }}>
+                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            <Staking />
+                                        )}
+                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            <SmartContract />
+                                        )}
+                                    </View>
                                 </View>
                             </View>
                         )}

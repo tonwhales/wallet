@@ -6,6 +6,10 @@ export async function fetchAccountState(token: string) {
         'https://' + zenPayEndpoint + '/account/state',
         { token }
     );
+
+    if (res.status === 401) {
+        return null;
+    }
     
     if (!res.data.ok) {
         throw Error('Failed to fetch card token');

@@ -135,6 +135,21 @@ export class ZenPayProduct {
             try {
                 let listRes = await fetchCardList(token);
 
+                // Clear token on 401 unauthorized response
+                if (listRes === null) {
+                    await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+                    this.stopWatching();
+                    this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
+                        return null;
+                    });
+                    targetAccounts.update((src) => {
+                        return {
+                            accounts: []
+                        };
+                    });
+                    return;
+                }
+
                 if (!listRes) {
                     targetAccounts.update((src) => {
                         return {
@@ -209,10 +224,20 @@ export class ZenPayProduct {
                 const token = status.token;
 
                 if (token && token.length > 0) {
-                    let state = await fetchAccountState(token);
+                    let account = await fetchAccountState(token);
+
+                    // Clear token on 401 unauthorized response
+                    if (account === null) {
+                        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+                        this.stopWatching();
+                        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
+                            return null;
+                        });
+                        return;
+                    }
 
                     // Clear token if no-ref
-                    if (state.state === 'no-ref') {
+                    if (account.state === 'no-ref') {
                         await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
                         this.stopWatching();
                         this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
@@ -221,20 +246,20 @@ export class ZenPayProduct {
                     }
 
                     targetStatus.update((src) => {
-                        if (state.state === 'no-ref') {
+                        if (account?.state === 'no-ref') {
                             return { state: 'need-enrolment' };
                         }
-                        if (state.state === 'need-phone') {
+                        if (account?.state === 'need-phone') {
                             if (src!.state !== 'need-phone') {
                                 return { state: 'need-phone', token: token };
                             }
                         }
-                        if (state.state === 'need-kyc') {
+                        if (account?.state === 'need-kyc') {
                             if (src!.state !== 'need-kyc') {
                                 return { state: 'need-kyc', token: token };
                             }
                         }
-                        if (state.state === 'ok') {
+                        if (account?.state === 'ok') {
                             if (src!.state !== 'ready') {
                                 return { state: 'ready', token: token };
                             }

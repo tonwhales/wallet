@@ -2,68 +2,33 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "31.0.0"
+        buildToolsVersion = "33.0.0"
         minSdkVersion = 24
         compileSdkVersion = 33
         targetSdkVersion = 33
         kotlinVersion = "1.6.21"
-        ndkVersion = "24.0.8215888"
+        ndkVersion = "23.1.7779620"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.4")
+        classpath('com.android.tools.build:gradle:7.4.2')
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
-        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.gms:google-services:4.3.15'
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("de.undercouch:gradle-download-task:4.1.2")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
-}
 
-def REACT_NATIVE_VERSION = new File(['node', '--print',"JSON.parse(require('fs').readFileSync(require.resolve('react-native/package.json'), 'utf-8')).version"].execute(null, rootDir).text.trim())
-
-allprojects {
-    repositories {
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url(new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../android"))
-        }
-        maven {
-            // Android JSC is installed from npm
-            url(new File(["node", "--print", "require.resolve('jsc-android/package.json')"].execute(null, rootDir).text.trim(), "../dist"))
-        }
-        maven {
-            // Sumsub repo
-            url "https://maven.sumsub.com/repository/maven-public/"
-        }
-
-
-        google()
-        maven { url 'https://www.jitpack.io' }
-        mavenCentral {
-            // We don't want to fetch react-native from Maven Central as there are
-            // older versions over there.
-            content {
-                excludeGroup "com.facebook.react"
-            }
-        }
-        jcenter() // Some library in react-native-fast-animations
-
-        configurations.all {
-            resolutionStrategy {
-                // Remove this override in 0.66, as a proper fix is included in react-native itself.
-                force "com.facebook.react:react-native:" + REACT_NATIVE_VERSION
-
-                eachDependency {
-                    if ((requested.group == "org.jetbrains.kotlin") && (requested.name.startsWith("kotlin-stdlib"))) {
-                        useVersion("1.6.0")
-                    }
-                }
-            }
+    allprojects {
+        repositories {
+            google()
+            mavenCentral()
+            mavenLocal()
+            jcenter()
         }
     }
 }

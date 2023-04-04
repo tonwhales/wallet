@@ -12,9 +12,6 @@ export function useNumericKeyboardHeight() {
         if (Platform.isTV) {
             return 0;
         }
-        if (Platform.isTVOS) {
-            return 0;
-        }
 
         let dimensions = useDimensions();
         if (dimensions.screen.height <= 667) {

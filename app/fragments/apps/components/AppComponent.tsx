@@ -22,6 +22,7 @@ import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
+import { Theme } from '../../../Theme';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,

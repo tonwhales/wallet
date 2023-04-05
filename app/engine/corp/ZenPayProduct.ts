@@ -8,10 +8,12 @@ import { fetchCardList } from "../api/zenpay/fetchCardList";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
+import { storage } from "../../storage/storage";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
 export const zenPayUrl = 'https://next.zenpay.org';
+const currenTokentVersion = 1;
 
 export type ZenPayAccountStatus =
     | {
@@ -70,7 +72,11 @@ export class ZenPayProduct {
                 let state: ZenPayState = get(this.engine.persistence.zenPayState.item(engine.address).atom) || { accounts: [] };
                 return state;
             }
-        })
+        });
+
+        if (storage.getNumber('zenpay-token-version') !== currenTokentVersion) {
+            this.cleanup();
+        }
     }
 
     async enroll(domain: string) {

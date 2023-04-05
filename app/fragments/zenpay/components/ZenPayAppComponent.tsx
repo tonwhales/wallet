@@ -305,7 +305,7 @@ export const ZenPayAppComponent = React.memo((
                             </Text>
                         </Pressable>
                     )}
-                    <ActivityIndicator size="small" color={Theme.accent} />
+                    <ActivityIndicator size="small" color={'#43A4EB'} />
                 </Animated.View>
             </View>
         </>

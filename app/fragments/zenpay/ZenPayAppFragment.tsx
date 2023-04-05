@@ -60,7 +60,7 @@ export const ZenPayAppFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: Theme.background
+            backgroundColor: Theme.item
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 

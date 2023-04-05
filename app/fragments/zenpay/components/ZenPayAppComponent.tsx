@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, View, KeyboardAvoidingView, BackHandler } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -21,9 +20,9 @@ import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/AndroidToolbar';
-import { CloseButton } from '../../../components/CloseButton';
 import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
+import { t } from '../../../i18n/t';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -51,7 +50,6 @@ export const ZenPayAppComponent = React.memo((
     //
     // View
     //
-    const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
@@ -61,7 +59,7 @@ export const ZenPayAppComponent = React.memo((
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: Theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -239,10 +237,10 @@ export const ZenPayAppComponent = React.memo((
 
     return (
         <>
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={{ backgroundColor: Theme.background, flexGrow: 1 }}
+                    style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                     keyboardVerticalOffset={
                         Platform.OS === 'ios'
                             ? 42
@@ -254,7 +252,7 @@ export const ZenPayAppComponent = React.memo((
                         source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
                         startInLoadingState={true}
                         style={{
-                            backgroundColor: Theme.background,
+                            backgroundColor: Theme.item,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -297,12 +295,15 @@ export const ZenPayAppComponent = React.memo((
                         <AndroidToolbar onBack={() => navigation.goBack()} />
                     </View>
                     {Platform.OS === 'ios' && (
-                        <CloseButton
-                            style={{ position: 'absolute', top: 20, right: 10 }}
+                        <Pressable
+                            style={{ position: 'absolute', top: 22, right: 16 }}
                             onPress={() => {
                                 navigation.goBack();
-                            }}
-                        />
+                            }} >
+                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                                {t('common.close')}
+                            </Text>
+                        </Pressable>
                     )}
                     <ActivityIndicator size="small" color={Theme.accent} />
                 </Animated.View>

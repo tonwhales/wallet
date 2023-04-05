@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, View, KeyboardAvoidingView, Alert } from 'react-native';
+import { ActivityIndicator, Platform, Text, View, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,6 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { ZenPayAppParams } from './ZenPayAppFragment';
 import { extractZenPayQueryParams } from './utils';
-import { CloseButton } from '../../components/CloseButton';
 import { getLocales } from 'react-native-localize';
 
 export const ZenPayLandingFragment = React.memo(() => {
@@ -39,7 +38,7 @@ export const ZenPayLandingFragment = React.memo(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: Theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -55,7 +54,7 @@ export const ZenPayLandingFragment = React.memo(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: Theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(authOpacity.value, { duration: 300 }),
@@ -158,7 +157,7 @@ export const ZenPayLandingFragment = React.memo(() => {
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
-                        backgroundColor: Theme.background,
+                        backgroundColor: Theme.item,
                         flexGrow: 1,
                     }}
                 >
@@ -167,7 +166,7 @@ export const ZenPayLandingFragment = React.memo(() => {
                         source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
                         startInLoadingState={true}
                         style={{
-                            backgroundColor: Theme.background,
+                            backgroundColor: Theme.item,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -205,14 +204,17 @@ export const ZenPayLandingFragment = React.memo(() => {
                         <AndroidToolbar onBack={() => navigation.goBack()} />
                     </View>
                     {Platform.OS === 'ios' && (
-                        <CloseButton
-                            style={{ position: 'absolute', top: 20, right: 10 }}
+                        <Pressable
+                            style={{ position: 'absolute', top: 22, right: 16 }}
                             onPress={() => {
                                 navigation.goBack();
-                            }}
-                        />
+                            }} >
+                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                                {t('common.close')}
+                            </Text>
+                        </Pressable>
                     )}
-                    <ActivityIndicator size="small" color={Theme.accent} />
+                    <ActivityIndicator size="small" color={'#43A4EB'} />
                 </Animated.View>
                 <Animated.View
                     style={animatedAuthStyles}
@@ -222,14 +224,17 @@ export const ZenPayLandingFragment = React.memo(() => {
                         <AndroidToolbar onBack={() => navigation.goBack()} />
                     </View>
                     {Platform.OS === 'ios' && (
-                        <CloseButton
-                            style={{ position: 'absolute', top: 20, right: 10 }}
+                        <Pressable
+                            style={{ position: 'absolute', top: 22, right: 16 }}
                             onPress={() => {
                                 navigation.goBack();
-                            }}
-                        />
+                            }} >
+                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                                {t('common.close')}
+                            </Text>
+                        </Pressable>
                     )}
-                    <ActivityIndicator size="small" color={Theme.accent} />
+                    <ActivityIndicator size="small" color={'#43A4EB'} />
                 </Animated.View>
             </View>
         </View>

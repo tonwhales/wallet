@@ -46,6 +46,63 @@ export const ZenPayLandingFragment = React.memo(() => {
         };
     });
 
+    let [auth, setAuth] = React.useState(false);
+    const authOpacity = useSharedValue(0);
+    const animatedAuthStyles = useAnimatedStyle(() => {
+        return {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: Theme.background,
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: withTiming(authOpacity.value, { duration: 300 }),
+        };
+    });
+
+    const onEnroll = React.useCallback(async () => {
+        if (auth) {
+            return;
+        }
+        // Show loader
+        authOpacity.value = 1;
+        setAuth(true);
+
+        try {
+            const data = await engine.products.extensions.getAppData(endpoint);
+            if (!data) {
+                Alert.alert(t('auth.failed'));
+                authOpacity.value = 0;
+                setAuth(false);
+                return;
+            }
+
+            const domain = extractDomain(endpoint);
+            const res = await engine.products.zenPay.enroll(domain);
+            if (!res) {
+                Alert.alert(t('auth.failed'));
+                authOpacity.value = 0;
+                setAuth(false)
+                return;
+            }
+
+            // Navigate to continue
+            navigation.goBack();
+            navigation.navigateZenPay(onEnrollType);
+
+            authOpacity.value = 0;
+            setAuth(false);
+
+        } catch (error) {
+            authOpacity.value = 0;
+            setAuth(false);
+            Alert.alert(t('auth.failed'));
+            warn(error);
+        }
+    }, [auth]);
+
     //
     // Navigation
     //
@@ -69,48 +126,14 @@ export const ZenPayLandingFragment = React.memo(() => {
         }
 
         if (data.name === 'openEnrollment') {
-            (async () => {
-                // Show loader
-                opacity.value = 1;
-                setLoaded(false);
-
-                try {
-                    const data = await engine.products.extensions.getAppData(endpoint);
-                    if (!data) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    const domain = extractDomain(endpoint);
-                    const res = await engine.products.zenPay.enroll(domain);
-                    if (!res) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    // Navigate to continue
-                    navigation.goBack();
-                    navigation.navigateZenPay(onEnrollType);
-
-                } catch (error) {
-                    opacity.value = 0;
-                    setLoaded(true);
-                    Alert.alert(t('auth.failed'));
-                    warn(error);
-                }
-
-            })();
+            onEnroll();
             return;
         }
         if (data.name === 'closeApp') {
             navigation.goBack();
             return;
         }
-    }, []);
+    }, [onEnroll]);
 
     const onNavigation = React.useCallback((url: string) => {
         const params = extractZenPayQueryParams(url);
@@ -119,44 +142,10 @@ export const ZenPayLandingFragment = React.memo(() => {
             return;
         }
         if (params.openEnrollment) {
-            (async () => {
-                // Show loader
-                opacity.value = 1;
-                setLoaded(false);
-
-                try {
-                    const data = await engine.products.extensions.getAppData(endpoint);
-                    if (!data) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    const domain = extractDomain(endpoint);
-                    const res = await engine.products.zenPay.enroll(domain);
-                    if (!res) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    // Navigate to continue
-                    navigation.goBack();
-                    navigation.navigateZenPay(onEnrollType);
-
-                } catch (error) {
-                    opacity.value = 0;
-                    setLoaded(true);
-                    Alert.alert(t('auth.failed'));
-                    warn(error);
-                }
-
-            })();
+            onEnroll();
             return;
         }
-    }, []);
+    }, [onEnroll]);
 
     return (
         <View style={{
@@ -211,6 +200,23 @@ export const ZenPayLandingFragment = React.memo(() => {
                 <Animated.View
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}
+                >
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                    </View>
+                    {Platform.OS === 'ios' && (
+                        <CloseButton
+                            style={{ position: 'absolute', top: 20, right: 10 }}
+                            onPress={() => {
+                                navigation.goBack();
+                            }}
+                        />
+                    )}
+                    <ActivityIndicator size="small" color={Theme.accent} />
+                </Animated.View>
+                <Animated.View
+                    style={animatedAuthStyles}
+                    pointerEvents={!auth ? 'none' : 'box-none'}
                 >
                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
                         <AndroidToolbar onBack={() => navigation.goBack()} />

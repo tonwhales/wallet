@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, View, KeyboardAvoidingView, Alert } from 'react-native';
+import { ActivityIndicator, Platform, Text, View, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,6 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { ZenPayAppParams } from './ZenPayAppFragment';
 import { extractZenPayQueryParams } from './utils';
-import { CloseButton } from '../../components/CloseButton';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 
@@ -40,12 +39,69 @@ export const ZenPayLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: Theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
         };
     });
+
+    let [auth, setAuth] = React.useState(false);
+    const authOpacity = useSharedValue(0);
+    const animatedAuthStyles = useAnimatedStyle(() => {
+        return {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: Theme.item,
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: withTiming(authOpacity.value, { duration: 300 }),
+        };
+    });
+
+    const onEnroll = React.useCallback(async () => {
+        if (auth) {
+            return;
+        }
+        // Show loader
+        authOpacity.value = 1;
+        setAuth(true);
+
+        try {
+            const data = await engine.products.extensions.getAppData(endpoint);
+            if (!data) {
+                Alert.alert(t('auth.failed'));
+                authOpacity.value = 0;
+                setAuth(false);
+                return;
+            }
+
+            const domain = extractDomain(endpoint);
+            const res = await engine.products.zenPay.enroll(domain);
+            if (!res) {
+                Alert.alert(t('auth.failed'));
+                authOpacity.value = 0;
+                setAuth(false)
+                return;
+            }
+
+            // Navigate to continue
+            navigation.goBack();
+            navigation.navigateZenPay(onEnrollType);
+
+            authOpacity.value = 0;
+            setAuth(false);
+
+        } catch (error) {
+            authOpacity.value = 0;
+            setAuth(false);
+            Alert.alert(t('auth.failed'));
+            warn(error);
+        }
+    }, [auth]);
 
     //
     // Navigation
@@ -70,48 +126,14 @@ export const ZenPayLandingFragment = fragment(() => {
         }
 
         if (data.name === 'openEnrollment') {
-            (async () => {
-                // Show loader
-                opacity.value = 1;
-                setLoaded(false);
-
-                try {
-                    const data = await engine.products.extensions.getAppData(endpoint);
-                    if (!data) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    const domain = extractDomain(endpoint);
-                    const res = await engine.products.zenPay.enroll(domain);
-                    if (!res) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    // Navigate to continue
-                    navigation.goBack();
-                    navigation.navigateZenPay(onEnrollType);
-
-                } catch (error) {
-                    opacity.value = 0;
-                    setLoaded(true);
-                    Alert.alert(t('auth.failed'));
-                    warn(error);
-                }
-
-            })();
+            onEnroll();
             return;
         }
         if (data.name === 'closeApp') {
             navigation.goBack();
             return;
         }
-    }, []);
+    }, [onEnroll]);
 
     const onNavigation = React.useCallback((url: string) => {
         const params = extractZenPayQueryParams(url);
@@ -120,44 +142,10 @@ export const ZenPayLandingFragment = fragment(() => {
             return;
         }
         if (params.openEnrollment) {
-            (async () => {
-                // Show loader
-                opacity.value = 1;
-                setLoaded(false);
-
-                try {
-                    const data = await engine.products.extensions.getAppData(endpoint);
-                    if (!data) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    const domain = extractDomain(endpoint);
-                    const res = await engine.products.zenPay.enroll(domain);
-                    if (!res) {
-                        Alert.alert(t('auth.failed'));
-                        opacity.value = 0;
-                        setLoaded(true);
-                        return;
-                    }
-
-                    // Navigate to continue
-                    navigation.goBack();
-                    navigation.navigateZenPay(onEnrollType);
-
-                } catch (error) {
-                    opacity.value = 0;
-                    setLoaded(true);
-                    Alert.alert(t('auth.failed'));
-                    warn(error);
-                }
-
-            })();
+            onEnroll();
             return;
         }
-    }, []);
+    }, [onEnroll]);
 
     return (
         <View style={{
@@ -170,7 +158,7 @@ export const ZenPayLandingFragment = fragment(() => {
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
-                        backgroundColor: Theme.background,
+                        backgroundColor: Theme.item,
                         flexGrow: 1,
                     }}
                 >
@@ -179,7 +167,7 @@ export const ZenPayLandingFragment = fragment(() => {
                         source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
                         startInLoadingState={true}
                         style={{
-                            backgroundColor: Theme.background,
+                            backgroundColor: Theme.item,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -217,14 +205,37 @@ export const ZenPayLandingFragment = fragment(() => {
                         <AndroidToolbar onBack={() => navigation.goBack()} />
                     </View>
                     {Platform.OS === 'ios' && (
-                        <CloseButton
-                            style={{ position: 'absolute', top: 20, right: 10 }}
+                        <Pressable
+                            style={{ position: 'absolute', top: 22, right: 16 }}
                             onPress={() => {
                                 navigation.goBack();
-                            }}
-                        />
+                            }} >
+                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                                {t('common.close')}
+                            </Text>
+                        </Pressable>
                     )}
-                    <ActivityIndicator size="small" color={Theme.accent} />
+                    <ActivityIndicator size="small" color={'#43A4EB'} />
+                </Animated.View>
+                <Animated.View
+                    style={animatedAuthStyles}
+                    pointerEvents={!auth ? 'none' : 'box-none'}
+                >
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                    </View>
+                    {Platform.OS === 'ios' && (
+                        <Pressable
+                            style={{ position: 'absolute', top: 22, right: 16 }}
+                            onPress={() => {
+                                navigation.goBack();
+                            }} >
+                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                                {t('common.close')}
+                            </Text>
+                        </Pressable>
+                    )}
+                    <ActivityIndicator size="small" color={'#43A4EB'} />
                 </Animated.View>
             </View>
         </View>

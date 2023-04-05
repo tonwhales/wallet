@@ -137,16 +137,7 @@ export class ZenPayProduct {
 
                 // Clear token on 401 unauthorized response
                 if (listRes === null) {
-                    await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
-                    this.stopWatching();
-                    this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
-                        return null;
-                    });
-                    targetAccounts.update((src) => {
-                        return {
-                            accounts: []
-                        };
-                    });
+                    this.cleanup();
                     return;
                 }
 
@@ -191,6 +182,15 @@ export class ZenPayProduct {
         });
     }
 
+    async cleanup() {
+        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+        this.stopWatching();
+        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
+            return null;
+        });
+        this.engine.persistence.zenPayStatus.item(this.engine.address).update((src) => null);
+    }
+
     async doSync() {
         await this.#lock.inLock(async () => {
             let targetStatus = this.engine.persistence.zenPayStatus.item(this.engine.address);
@@ -228,11 +228,7 @@ export class ZenPayProduct {
 
                     // Clear token on 401 unauthorized response
                     if (account === null) {
-                        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
-                        this.stopWatching();
-                        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
-                            return null;
-                        });
+                        this.cleanup();
                         return;
                     }
 

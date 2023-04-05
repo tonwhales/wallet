@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, View } from "react-native";
+import { Alert, Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { Theme } from "../../Theme";
 import { Item } from '../../components/Item';
@@ -13,6 +13,11 @@ import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { Cell, CommentMessage } from 'ton';
+import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
+import { t } from '../../i18n/t';
+import { extractDomain } from '../../engine/utils/extractDomain';
+import { warn } from '../../utils/log';
+import { clearZenPay } from '../LogoutFragment';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -77,6 +82,45 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item
+                            title={"AccountStatus"}
+                            hint={JSON.stringify(status.state)}
+                            onPress={() => {
+                                (async () => {
+                                    try {
+                                        console.log('here1');
+                                        clearZenPay(engine);
+                                        engine.persistence.zenPayStatus.item(engine.address).update((src) => null);
+                                        console.log('here2');
+                                        console.log('here3');
+
+
+                                        const data = await engine.products.extensions.getAppData(zenPayUrl);
+                                        if (!data) {
+                                            Alert.alert(t('auth.failed'));
+                                            return;
+                                        }
+                                        console.log('here4');
+
+                                        const domain = extractDomain(zenPayUrl);
+                                        console.log('here5');
+                                        const res = await engine.products.zenPay.enroll(domain);
+                                        if (!res) {
+                                            Alert.alert(t('auth.failed'));
+                                            return;
+                                        }
+                                        console.log('here6', { res });
+
+                                    } catch (error) {
+                                        Alert.alert(t('auth.failed'));
+                                        warn(error);
+                                    }
+                                })();
+                            }}
+                        />
                     </View>
                 </View>
             </View>

@@ -8,10 +8,12 @@ import { fetchCardList } from "../api/zenpay/fetchCardList";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
+import { storage } from "../../storage/storage";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
-export const zenPayUrl = 'https://stage.zenpay.org';
+export const zenPayUrl = 'https://next.zenpay.org';
+const currenTokentVersion = 1;
 
 export type ZenPayAccountStatus =
     | {
@@ -70,7 +72,11 @@ export class ZenPayProduct {
                 let state: ZenPayState = get(this.engine.persistence.zenPayState.item(engine.address).atom) || { accounts: [] };
                 return state;
             }
-        })
+        });
+
+        if (storage.getNumber('zenpay-token-version') !== currenTokentVersion) {
+            this.cleanup();
+        }
     }
 
     async enroll(domain: string) {
@@ -137,16 +143,7 @@ export class ZenPayProduct {
 
                 // Clear token on 401 unauthorized response
                 if (listRes === null) {
-                    await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
-                    this.stopWatching();
-                    this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
-                        return null;
-                    });
-                    targetAccounts.update((src) => {
-                        return {
-                            accounts: []
-                        };
-                    });
+                    this.cleanup();
                     return;
                 }
 
@@ -191,6 +188,15 @@ export class ZenPayProduct {
         });
     }
 
+    async cleanup() {
+        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+        this.stopWatching();
+        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
+            return null;
+        });
+        this.engine.persistence.zenPayStatus.item(this.engine.address).update((src) => null);
+    }
+
     async doSync() {
         await this.#lock.inLock(async () => {
             let targetStatus = this.engine.persistence.zenPayStatus.item(this.engine.address);
@@ -228,11 +234,7 @@ export class ZenPayProduct {
 
                     // Clear token on 401 unauthorized response
                     if (account === null) {
-                        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
-                        this.stopWatching();
-                        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
-                            return null;
-                        });
+                        this.cleanup();
                         return;
                     }
 

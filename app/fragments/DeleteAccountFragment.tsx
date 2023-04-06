@@ -28,6 +28,7 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
+import { clearZenPay } from "./LogoutFragment";
 
 const tresuresAddress = Address.parse(
     AppConfig.isTestnet
@@ -200,6 +201,7 @@ export const DeleteAccountFragment = fragment(() => {
                         ended = true;
                         setTimeout(() => {
                             storage.clearAll();
+                            clearZenPay(engine);
                             mixpanel.reset(); // Clear super properties and generates a new random distinctId
                             trackEvent(MixpanelEvent.Reset);
                             mixpanel.flush();

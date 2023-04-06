@@ -40,6 +40,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Transaction',
+        add: 'Add',
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',
@@ -166,7 +167,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
         action: 'Allow',
         expired: 'This authentication request already expired',
-        failed: 'Invalid URL',
+        failed: 'Authentication failed',
         completed: 'This authentication request already completed',
         authorized: 'Authorization request approved',
         authorizedDescription: 'Now you can get back the app.',
@@ -378,6 +379,43 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Are you sure about the unstaking?'
             }
         },
+        zenPay: {
+            title: 'Tonhub Bank card',
+            pageTitles: {
+                general: 'Tonhub Cards',
+                card: 'Tonhub Card',
+                cardDetails: 'Card Details',
+                cardCredentials: 'Card Details',
+                cardLimits: '*{{cardNumber}} Card Limits',
+                cardLimitsDefault: 'Card Limits',
+                cardDeposit: 'Top Up TON',
+                transfer: 'Transfer',
+                cardSmartContract: 'Card Smart Contract',
+                setUpCard: 'Set up the card',
+                pin: 'Change PIN',
+            },
+            card: {
+                title: 'Tonhub Card *{{cardNumber}}',
+                defaultSubtitle: 'TON to EUR (0% fee)',
+                defaultTitle: 'Tonhub Bank Card',
+                type: {
+                    physical: 'Physical Card',
+                    virtual: 'Virtual',
+                }
+            },
+            confirm: {
+                title: 'Are you sure you want to close this screen?',
+                message: 'This action will discard all of your changes'
+            },
+            enroll: {
+                poweredBy: 'Based on TON, powered by ZenPay',
+                description_1: 'Only you manage the smart-contract',
+                description_2: 'No one except you has access to your funds',
+                description_3: 'You truly own your money',
+                moreInfo: 'More about ZenPay Card',
+                buttonSub: 'KYC and card issue takes ~5 min'
+            }
+        }
     },
     welcome: {
         title: 'Tonhub',
@@ -460,8 +498,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         doNotShow: 'Do not show it again for Neocrypto',
         termsAndPrivacy: 'I have read and agree to the ',
         confirm: {
-            title: 'Are you sure want to close this form?',
-            message: 'This will discard all of you changes'
+            title: 'Are you sure you want to close this form?',
+            message: 'This action will discard all of your changes'
         },
     },
     known: {

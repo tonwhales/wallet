@@ -84,7 +84,6 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     }
 
                 } catch (e) {
-                    console.log(e);
                     warn('Failed to handle deeplink');
                 }
                 return;
@@ -411,7 +410,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                         borderRadius: 16,
                         overflow: 'hidden',
                         marginBottom: 8,
-                        backgroundColor: 'white'
+                        backgroundColor: Theme.item
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}
@@ -422,7 +421,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                             borderRadius: 10,
                             borderWidth: 0.5,
                             borderColor: 'black',
-                            backgroundColor: 'transparent',
+                            backgroundColor: Theme.transparent,
                             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                             opacity: 0.06
                         }} />

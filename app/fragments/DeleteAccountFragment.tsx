@@ -28,6 +28,7 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
+import { clearZenPay } from "./LogoutFragment";
 
 const tresuresAddress = Address.parse(
     AppConfig.isTestnet
@@ -200,6 +201,7 @@ export const DeleteAccountFragment = fragment(() => {
                         ended = true;
                         setTimeout(() => {
                             storage.clearAll();
+                            clearZenPay(engine);
                             mixpanel.reset(); // Clear super properties and generates a new random distinctId
                             trackEvent(MixpanelEvent.Reset);
                             mixpanel.flush();
@@ -274,7 +276,7 @@ export const DeleteAccountFragment = fragment(() => {
 
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: "white",
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -296,7 +298,7 @@ export const DeleteAccountFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: '#7D858A',
+                                        color: Theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.sendTo')}
@@ -319,7 +321,7 @@ export const DeleteAccountFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: '#858B93',
+                                                color: Theme.labelSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {KnownWallets[targetAddressInput].name}
@@ -332,7 +334,7 @@ export const DeleteAccountFragment = fragment(() => {
                             autoCorrect={false}
                             autoComplete={'off'}
                             style={{
-                                backgroundColor: 'transparent',
+                                backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}

@@ -42,6 +42,7 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         apy: string,
         tx: string,
+        add: string,
         gotIt: string,
         error: string,
         wallet: string
@@ -150,6 +151,10 @@ export type LocalizationSchema = {
         unusualJettonsGasTitle: string,
         unusualJettonsGasMessage: string,
         addressNotActive: string,
+        wrongJettonTitle: string,
+        wrongJettonMessage: string,
+        notEnoughJettonsTitle: string,
+        notEnoughJettonsMessage: string,
     },
     auth: {
         phoneVerify: string,
@@ -276,6 +281,8 @@ export type LocalizationSchema = {
                 epnPartners: string,
                 epnPartnersDescription: string,
                 moreAboutEPN: string,
+                lockups: string,
+                lockupsDescription: string,
             },
             transfer: {
                 stakingWarning: string,
@@ -374,6 +381,43 @@ export type LocalizationSchema = {
                 message: string
             }
         },
+        zenPay: {
+            title: string,
+            pageTitles: {
+                general: string,
+                card: string,
+                cardDetails: string,
+                cardCredentials: string,
+                cardLimits: string,
+                cardLimitsDefault: string,
+                cardDeposit: string,
+                transfer: string,
+                cardSmartContract: string,
+                setUpCard: string,
+                pin: string
+            },
+            card: {
+                title: string,
+                defaultSubtitle: string,
+                defaultTitle: string,
+                type: {
+                    physical: string,
+                    virtual: string,
+                }
+            },
+            confirm: {
+                title: string,
+                message: string,
+            },
+            enroll: {
+                poweredBy: string,
+                description_1: string,
+                description_2: string,
+                description_3: string,
+                moreInfo: string,
+                buttonSub: string
+            }
+        }
     }
     welcome: {
         title: string,

@@ -41,6 +41,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         privacyPolicy: 'Privacy\u00A0Policy',
         apy: 'APY',
         tx: 'Транзакция',
+        add: 'Добавить',
         gotIt: 'Понятно',
         error: 'Ошибка',
         wallet: 'Кошелек'
@@ -136,6 +137,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         unusualJettonsGasTitle: '⚠️ Газ за отправку жетонов {{amount}} TON',
         unusualJettonsGasMessage: 'Комиссия за отправку жетонов выше чем обычно',
         addressNotActive: 'Не активен',
+        wrongJettonTitle: '⚠️ Неверный жетон',
+        wrongJettonMessage: 'Вы пытаетесь отправить жетон, которого у вас нет',
+        notEnoughJettonsTitle: '⚠️ Недостаточно жетонов',
+        notEnoughJettonsMessage: 'У вас недостаточно жетонов для отправки',
     },
     auth: {
         phoneNumber: 'Номер телефона',
@@ -150,7 +155,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         hint: 'Никакие средства не будут переведены и приложение не сможет получить доступ к вашим монетам.',
         action: 'Разрешить',
         expired: 'Этот запрос на авторизацию уже истек',
-        failed: 'Неправильная ссылка',
+        failed: 'Ошибка при авторизации',
         completed: 'Этот запрос на авторизацию уже подтвержден',
         authorizedDescription: 'Теперь вы можете вернуться в приложение.',
         authorized: 'Запрос на авторизацию подтвержден',
@@ -265,6 +270,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 epnPartners: 'ePN Partners',
                 epnPartnersDescription: 'Присоединяйтесь к более чем 200 000 вебмастеров, работающих с ePN, и получайте оплату в TON',
                 moreAboutEPN: 'Узнать больше о ePN',
+                lockups: 'Локапы',
+                lockupsDescription: 'Позволяет владельцам крупных локапов в TON получать дополнительный доход',
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
@@ -373,6 +380,43 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: "Уверены, что хотите вывести?"
             }
         },
+        zenPay: {
+            title: 'Tonhub Bank card',
+            pageTitles: {
+                general: 'Tonhub Cards',
+                card: 'Tonhub Card',
+                cardDetails: 'Детали карты',
+                cardCredentials: 'Данные карты',
+                cardLimits: '*{{cardNumber}} Лимиты карты',
+                cardLimitsDefault: 'Лимиты карты',
+                cardDeposit: 'Пополнить TON',
+                transfer: 'Перевод',
+                cardSmartContract: 'Смарт-контракт карты',
+                setUpCard: 'Настройка карты',
+                pin: 'Смена PIN-кода',
+            },
+            card: {
+                title: 'Tonhub Card *{{cardNumber}}',
+                defaultSubtitle: 'TON в EUR (комиссия 0%)',
+                defaultTitle: 'Tonhub Bank Card',
+                type: {
+                    physical: 'Физическая карта',
+                    virtual: 'Виртуальная',
+                }
+            },
+            confirm: {
+                title: 'Вы уверены, что хотите закрыть этот экран?',
+                message: 'Это отменит все ваши изменения'
+            },
+            enroll: {
+                poweredBy: 'Based on TON, powered by ZenPay',
+                description_1: 'Только вы управляете смарт-контрактом',
+                description_2: 'Никто, кроме вас, не имеет доступа к вашим средствам',
+                description_3: 'Вы действительно владеете своими деньгами',
+                moreInfo: 'Подробнее о ZenPay Card',
+                buttonSub: 'KYC и выпуск карты занимает ~5 минут'
+            }
+        }
     },
     welcome: {
         title: 'Tonhub',

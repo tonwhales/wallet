@@ -92,7 +92,7 @@ export const ContactsFragment = fragment(() => {
             views.push(
                 <View
                     key={'s-' + s.title}
-                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }}
+                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: Theme.item, overflow: 'hidden' }}
                     collapsable={false}
                 >
                     {s.items.map((t, i) => <TransactionView
@@ -171,7 +171,7 @@ export const ContactsFragment = fragment(() => {
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: '#6D6D71'
+                            color: Theme.priceSecondary
                         }}>
                             {t('contacts.description')}
                         </Text>
@@ -230,7 +230,7 @@ export const ContactsFragment = fragment(() => {
                                         onTargetChange={setTarget}
                                         onDomainChange={setDomain}
                                         style={{
-                                            backgroundColor: 'transparent',
+                                            backgroundColor: Theme.transparent,
                                             paddingHorizontal: 0,
                                             marginHorizontal: 16,
                                         }}
@@ -257,7 +257,7 @@ export const ContactsFragment = fragment(() => {
                                     onTargetChange={setTarget}
                                     onDomainChange={setDomain}
                                     style={{
-                                        backgroundColor: 'transparent',
+                                        backgroundColor: Theme.transparent,
                                         paddingHorizontal: 0,
                                         marginHorizontal: 16,
                                     }}

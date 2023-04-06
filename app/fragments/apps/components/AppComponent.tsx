@@ -7,7 +7,7 @@ import { DomainSubkey } from '../../../engine/products/ExtensionsProduct';
 import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
-import { useLinkNavigator } from '../../../Navigation';
+import { useLinkNavigator } from "../../../useLinkNavigator";
 import { warn } from '../../../utils/log';
 import { createInjectSource, dispatchResponse } from './inject/createInjectSource';
 import { useInjectEngine } from './inject/useInjectEngine';
@@ -22,6 +22,7 @@ import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
+import { Theme } from '../../../Theme';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -261,7 +262,7 @@ export const AppComponent = React.memo((props: {
                     top: 0.5, left: 0, right: 0,
                     height: 0.5,
                     width: '100%',
-                    backgroundColor: '#000',
+                    backgroundColor: Theme.headerDivider,
                     opacity: 0.08
                 }} />
             </View>

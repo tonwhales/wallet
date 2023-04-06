@@ -60,7 +60,7 @@ export const AutocompleteView = React.memo((props: {
         <View
             style={{
                 height: height,
-                backgroundColor: 'white',
+                backgroundColor: Theme.item,
                 flexDirection: 'row',
                 alignSelf: 'stretch',
                 alignItems: 'stretch',

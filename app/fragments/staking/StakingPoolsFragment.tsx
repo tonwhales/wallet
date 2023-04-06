@@ -73,33 +73,13 @@ function PoolComponent(props: {
         }
     }, [apy, poolFee]);
 
-    let requireSource: ImageRequireSource | undefined;
+    let requireSource = KnownPools[addr].requireSource;
     let club: boolean | undefined;
-    let team: boolean | undefined;
-    // TODO refactor this
-    if (addr === 'EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB') {
-        requireSource = require('../../../assets/ic_club_cosmos.png');
+    if (
+        addr === 'EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB'
+        || addr === 'EQA_cc5tIQ4haNbMVFUD1d0bNRt17S7wgWEqfP_xEaTACLUB'
+    ) {
         club = true;
-    }
-    if (addr === 'EQA_cc5tIQ4haNbMVFUD1d0bNRt17S7wgWEqfP_xEaTACLUB') {
-        requireSource = require('../../../assets/ic_club_robot.png');
-        club = true;
-    }
-    if (addr === 'EQCOj4wEjXUR59Kq0KeXUJouY5iAcujkmwJGsYX7qPnITEAM') {
-        requireSource = require('../../../assets/known/ic_team_1.png');
-        team = true;
-    }
-    if (addr === 'EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM') {
-        requireSource = require('../../../assets/known/ic_team_2.png');
-        team = true;
-    }
-    if (addr === 'EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN') {
-        requireSource = require('../../../assets/known/ic_epn_1.png');
-        team = true;
-    }
-    if (addr === 'EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN') {
-        requireSource = require('../../../assets/known/ic_epn_2.png');
-        team = true;
     }
 
     return (
@@ -224,7 +204,7 @@ export const StakingPoolsFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: '#000',
+                            backgroundColor: Theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </BlurView>
@@ -264,7 +244,7 @@ export const StakingPoolsFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: '#000',
+                            backgroundColor: Theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View>
@@ -324,6 +304,7 @@ export const StakingPoolsFragment = fragment(() => {
     let team = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('team') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
     let nominators = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('nominators') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
     let epn = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('epn') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+    let lockups = pools.filter((v) => KnownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('lockup') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
 
     if (epn.length > 0) {
         items.push(
@@ -393,6 +374,26 @@ export const StakingPoolsFragment = fragment(() => {
         }
     }
 
+    if (lockups.length > 0) {
+        items.push(
+            <Header
+                key={'lockups-header'}
+                text={t('products.staking.pools.lockups')}
+                description={t('products.staking.pools.lockupsDescription')}
+            />
+        );
+        for (let pool of lockups) {
+            items.push(
+                <PoolComponent
+                    key={`lockup-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={pool.address}
+                    balance={pool.balance}
+                    engine={engine}
+                />
+            );
+        }
+    }
+
     if (team.length > 0) {
         items.push(
             <Header
@@ -451,7 +452,7 @@ export const StakingPoolsFragment = fragment(() => {
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: '#000',
+                        backgroundColor: Theme.headerDivider,
                         opacity: 0.08
                     }} />
                 </BlurView>
@@ -491,7 +492,7 @@ export const StakingPoolsFragment = fragment(() => {
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: '#000',
+                        backgroundColor: Theme.headerDivider,
                         opacity: 0.08
                     }} />
                 </View>

@@ -16,7 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
-import { useLinkNavigator } from '../Navigation';
+import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
@@ -185,7 +185,7 @@ export const HomeFragment = fragment(() => {
                         height: 52 + safeArea.bottom,
                         paddingBottom: safeArea.bottom, paddingHorizontal: 16,
                         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        backgroundColor: 'white'
+                        backgroundColor: Theme.item
                     }}>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
@@ -224,7 +224,7 @@ export const HomeFragment = fragment(() => {
                         top: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: '#000',
+                        backgroundColor: Theme.headerDivider,
                         opacity: 0.08
                     }}
                 />

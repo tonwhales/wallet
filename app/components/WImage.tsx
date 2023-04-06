@@ -3,6 +3,7 @@ import { Image, ImageRequireSource, StyleProp, View, ViewStyle } from 'react-nat
 import { resolveLink } from '../utils/resolveLink';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Blurhash } from 'react-native-blurhash';
+import { Theme } from '../Theme';
 
 export const WImage = React.memo((props: {
     src?: string | null | undefined,
@@ -12,6 +13,7 @@ export const WImage = React.memo((props: {
     width: number,
     borderRadius: number,
     style?: StyleProp<ViewStyle>,
+    lockLoading?: boolean
 }) => {
 
     const [loading, setLoading] = React.useState(false);
@@ -23,7 +25,7 @@ export const WImage = React.memo((props: {
             <View style={[{
                 width: props.width, height: props.heigh,
                 overflow: 'hidden',
-                backgroundColor: 'white',
+                backgroundColor: Theme.item,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
@@ -33,7 +35,7 @@ export const WImage = React.memo((props: {
                     onLoadStart={() => setLoading(true)}
                     onLoadEnd={() => setLoading(false)}
                 />
-                {loading && (
+                {loading && !props.lockLoading && (
                     <Animated.View
                         entering={FadeIn}
                         exiting={FadeOut}
@@ -54,7 +56,7 @@ export const WImage = React.memo((props: {
                 <View style={{
                     borderWidth: 0.5,
                     borderColor: 'black',
-                    backgroundColor: 'transparent',
+                    backgroundColor: Theme.transparent,
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     opacity: 0.06,
                     borderRadius: props.borderRadius
@@ -68,7 +70,7 @@ export const WImage = React.memo((props: {
             <View style={[{
                 width: props.width, height: props.heigh,
                 overflow: 'hidden',
-                backgroundColor: 'white',
+                backgroundColor: Theme.item,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
@@ -97,7 +99,7 @@ export const WImage = React.memo((props: {
                 <View style={{
                     borderWidth: 0.5,
                     borderColor: 'black',
-                    backgroundColor: 'transparent',
+                    backgroundColor: Theme.transparent,
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     opacity: 0.06,
                     borderRadius: props.borderRadius
@@ -111,7 +113,7 @@ export const WImage = React.memo((props: {
             <View style={[{
                 width: props.heigh, height: props.heigh,
                 overflow: 'hidden',
-                backgroundColor: 'white',
+                backgroundColor: Theme.item,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
@@ -122,7 +124,7 @@ export const WImage = React.memo((props: {
                 <View style={{
                     borderWidth: 0.5,
                     borderColor: 'black',
-                    backgroundColor: 'transparent',
+                    backgroundColor: Theme.transparent,
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     opacity: 0.06,
                     borderRadius: props.borderRadius
@@ -135,7 +137,7 @@ export const WImage = React.memo((props: {
         <View style={[{
             width: props.heigh, height: props.heigh,
             overflow: 'hidden',
-            backgroundColor: 'white',
+            backgroundColor: Theme.item,
             borderRadius: props.borderRadius
         }, props.style]}>
             <Image
@@ -146,7 +148,7 @@ export const WImage = React.memo((props: {
             <View style={{
                 borderWidth: 0.5,
                 borderColor: 'black',
-                backgroundColor: 'transparent',
+                backgroundColor: Theme.transparent,
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                 opacity: 0.06,
                 borderRadius: props.borderRadius

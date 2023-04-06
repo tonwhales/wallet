@@ -25,7 +25,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { log } from '../../utils/log';
 import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
-import { useLinkNavigator } from '../../Navigation';
+import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
 
@@ -45,7 +45,7 @@ const PendingTxs = React.memo((props: {
                 return (
                     <View
                         key={'tx-view' + t}
-                        style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: 'white', overflow: 'hidden' }}
+                        style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: Theme.item, overflow: 'hidden' }}
                         collapsable={false}
                     >
                         <TransactionView
@@ -257,7 +257,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 backgroundColor={'#596080'}
                                 fullColor={null}
                                 loop={true}
-                                containerColor={'transparent'}
+                                containerColor={Theme.transparent}
                             />
                         )}
                         <Text style={{
@@ -331,7 +331,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     {
                         !AppConfig.isTestnet && (
-                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
                                 <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                         <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
@@ -343,7 +343,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             </View>
                         )
                     }
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
@@ -353,7 +353,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             </View>
                         </TouchableHighlight>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: Theme.item, borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
@@ -476,7 +476,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: '#000',
+                            backgroundColor: Theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View >
@@ -560,7 +560,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: '#000',
+                            backgroundColor: Theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View>

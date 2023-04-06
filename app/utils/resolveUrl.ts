@@ -14,6 +14,12 @@ export type ResolvedUrl = {
     payload: Cell | null,
     stateInit: Cell | null,
 } | {
+    type: 'jetton-transaction',
+    address: Address,
+    jettonMaster: Address,
+    comment: string | null,
+    amount: BN | null
+} | {
     type: 'connect',
     session: string,
     endpoint: string | null
@@ -56,6 +62,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             let amount: BN | null = null;
             let payload: Cell | null = null;
             let stateInit: Cell | null = null;
+            let jettonMaster: Address | null = null;
             if (url.query) {
                 for (let key in url.query) {
                     if (key.toLowerCase() === 'text') {
@@ -70,6 +77,22 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                     if (key.toLowerCase() === 'init') {
                         stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
                     }
+                    if (key.toLowerCase() === 'jetton') {
+                        try {
+                            jettonMaster = Address.parseFriendly(url.query[key]!).address;
+                        } catch (e) {
+                            warn('Invalid jetton master address');
+                        }
+                    }
+                }
+            }
+            if (jettonMaster) {
+                return {
+                    type: 'jetton-transaction',
+                    address,
+                    jettonMaster,
+                    comment,
+                    amount
                 }
             }
             return {
@@ -109,6 +132,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             let amount: BN | null = null;
             let payload: Cell | null = null;
             let stateInit: Cell | null = null;
+            let jettonMaster: Address | null = null;
             if (url.query) {
                 for (let key in url.query) {
                     if (key.toLowerCase() === 'text') {
@@ -123,6 +147,22 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                     if (key.toLowerCase() === 'init') {
                         stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
                     }
+                    if (key.toLowerCase() === 'jetton') {
+                        try {
+                            jettonMaster = Address.parseFriendly(url.query[key]!).address;
+                        } catch (e) {
+                            warn('Invalid jetton master address');
+                        }
+                    }
+                }
+            }
+            if (jettonMaster) {
+                return {
+                    type: 'jetton-transaction',
+                    address,
+                    jettonMaster,
+                    comment,
+                    amount
                 }
             }
             return {
@@ -144,6 +184,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             let amount: BN | null = null;
             let payload: Cell | null = null;
             let stateInit: Cell | null = null;
+            let jettonMaster: Address | null = null;
             if (url.query) {
                 for (let key in url.query) {
                     if (key.toLowerCase() === 'text') {
@@ -158,6 +199,22 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                     if (key.toLowerCase() === 'init') {
                         stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
                     }
+                    if (key.toLowerCase() === 'jetton') {
+                        try {
+                            jettonMaster = Address.parseFriendly(url.query[key]!).address;
+                        } catch (e) {
+                            warn('Invalid jetton master address');
+                        }
+                    }
+                }
+            }
+            if (jettonMaster) {
+                return {
+                    type: 'jetton-transaction',
+                    address,
+                    jettonMaster,
+                    comment,
+                    amount
                 }
             }
             return {
@@ -255,6 +312,15 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         if ((url.protocol.toLowerCase() === 'https:')
             && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().indexOf('/ton-connect') !== -1)) {
+            if (!!url.query.r && !!url.query.v && !!url.query.id) {
+                return {
+                    type: 'tonconnect',
+                    query: url.query as unknown as ConnectQrQuery
+                };
+            }
+        }
+        // Tonconnect
+        if (url.protocol.toLowerCase() === 'tc:') {
             if (!!url.query.r && !!url.query.v && !!url.query.id) {
                 return {
                     type: 'tonconnect',

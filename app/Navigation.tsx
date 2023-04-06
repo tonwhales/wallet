@@ -43,10 +43,7 @@ import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/InstallFragment';
-import { useTypedNavigation } from './utils/useTypedNavigation';
 import { AppConfig } from './AppConfig';
-import { ResolvedUrl } from './utils/resolveUrl';
-import BN from 'bn.js';
 import { mixpanel } from './analytics/mixpanel';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
@@ -60,6 +57,9 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
+import { ZenPayEnrollmentFragment } from './fragments/zenpay/ZenPayEnrollmentFragment';
+import { ZenPayLandingFragment } from './fragments/zenpay/ZenPayLandingFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
@@ -176,6 +176,9 @@ const navigation = [
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
+    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment),
+    modalScreen('ZenPayLanding', ZenPayLandingFragment),
+    lockedModalScreen('ZenPay', ZenPayAppFragment),
     modalScreen('Assets', AssetsFragment),
     <Stack.Screen
         key={`genericScreen-App`}
@@ -329,55 +332,3 @@ export const Navigation = React.memo(() => {
     );
 });
 
-export function useLinkNavigator() {
-    const navigation = useTypedNavigation();
-
-    const handler = React.useCallback((resolved: ResolvedUrl) => {
-        if (resolved.type === 'transaction') {
-            if (resolved.payload) {
-                navigation.navigateTransfer({
-                    order: {
-                        messages: [{
-                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            amount: resolved.amount || new BN(0),
-                            amountAll: false,
-                            stateInit: resolved.stateInit,
-                            payload: resolved.payload,
-                        }]
-                    },
-                    text: resolved.comment,
-                    job: null,
-                    callback: null
-                });
-            } else {
-                navigation.navigateSimpleTransfer({
-                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    comment: resolved.comment,
-                    amount: resolved.amount,
-                    stateInit: resolved.stateInit,
-                    job: null,
-                    jetton: null,
-                    callback: null
-                });
-            }
-        }
-        if (resolved.type === 'connect') {
-            navigation.navigate('Authenticate', {
-                session: resolved.session,
-                endpoint: resolved.endpoint
-            });
-        }
-        if (resolved.type === 'tonconnect') {
-            navigation.navigate('TonConnectAuthenticate', { query: resolved.query, type: 'qr' });
-        }
-        if (resolved.type === 'install') {
-            navigation.navigate('Install', {
-                url: resolved.url,
-                title: resolved.customTitle,
-                image: resolved.customImage
-            });
-        }
-    }, []);
-
-    return handler;
-}

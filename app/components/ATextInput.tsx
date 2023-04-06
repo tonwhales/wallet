@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
+import { Theme } from '../Theme';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -168,7 +169,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                                 fontSize: 17,
                                 fontWeight: '400',
                                 alignSelf: 'center',
-                                color: '#9D9FA3',
+                                color: Theme.placeholder,
                             }}
                         >
                             {props.prefix}
@@ -193,7 +194,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                         textAlign={props.textAlign}
                         autoFocus={props.autoFocus}
                         placeholder={props.placeholder}
-                        placeholderTextColor="#9D9FA3"
+                        placeholderTextColor={Theme.placeholder}
                         autoCapitalize={props.autoCapitalize}
                         autoCorrect={props.autoCorrect}
                         keyboardType={props.keyboardType}

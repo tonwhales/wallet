@@ -583,6 +583,19 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             address: 'TON адрес',
             transaction: 'TON транзакция',
         }
+    },
+    integrations: {
+        title: 'Купить/Продать TON',
+        transak: {
+            title: 'Transak',
+            tagline: 'Making web3 applications accessible',
+            description: 'Доступны 160 криптовалют на 75+ блокчейнах через карты, банковские переводы и другие способы оплаты в 150 странах мира',
+            doNotShow: 'Больше не показывать для Transak',
+        },
+        neocrypto: {
+            title: 'Neocrypto',
+            tagline: 'Покупайте TON с помощью карты',
+        }
     }
 };
 

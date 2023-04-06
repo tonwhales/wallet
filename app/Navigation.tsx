@@ -61,6 +61,8 @@ import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAut
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
+import { IntegrationsListFragment } from './fragments/integrations/IntegrationsListFragment';
+import { TransakFragment } from './fragments/integrations/TransakFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -158,7 +160,9 @@ const navigation = [
     lockedModalScreen('Scanner', ScannerFragment),
     genericScreen('DeveloperTools', DeveloperToolsFragment),
     genericScreen('DeveloperToolsStorage', DevStorageFragment),
-    lockedModalScreen('Buy', NeocryptoFragment),
+    lockedModalScreen('Neocrypto', NeocryptoFragment),
+    lockedModalScreen('Transak', TransakFragment),
+    modalScreen('IntegrationsList', IntegrationsListFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingGraph', StakingGraphFragment),

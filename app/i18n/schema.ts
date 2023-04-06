@@ -584,6 +584,19 @@ export type LocalizationSchema = {
             address: string,
             transaction: string
         }
+    },
+    integrations: {
+        title: string,
+        transak: {
+            title: string,
+            tagline: string,
+            description: string,
+            doNotShow: string
+        },
+        neocrypto: {
+            title: string,
+            tagline: string,
+        }
     }
 };
 

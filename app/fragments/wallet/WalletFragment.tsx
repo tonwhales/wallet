@@ -170,7 +170,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     const onOpenBuy = React.useCallback(
         () => {
-            navigation.navigate('Buy');
+            navigation.navigate('IntegrationsList');
         },
         [],
     );

@@ -16,9 +16,9 @@ import { Theme } from "../../Theme";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import TransakLogo from '../../../assets/ic_transak_logo.svg'
 
-const Logo = require('../../../assets/known/neocrypto_logo.png');
-export const skipLegalNeocrypto = 'skip_legal_neocrypto';
+export const skipLegalTransak = 'skip_legal_transak';
 
 export const ConfirmLegal = React.memo((
     {
@@ -29,10 +29,10 @@ export const ConfirmLegal = React.memo((
 ) => {
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(false);
-    const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
+    const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalTransak));
 
-    const privacy = 'https://neocrypto.net/privacypolicy.html';
-    const terms = 'https://neocrypto.net/terms.html';
+    const privacy = 'https://transak.com/privacy-policy';
+    const terms = 'https://transak.com/terms-of-service';
 
     const onDoNotShowToggle = useCallback((newVal) => {
         setDoNotShow(newVal);
@@ -53,7 +53,7 @@ export const ConfirmLegal = React.memo((
 
     const onOpen = useCallback(() => {
         if (accepted) {
-            storage.set(skipLegalNeocrypto, doNotShow || false);
+            storage.set(skipLegalTransak, doNotShow || false);
             onOpenBuy();
         }
     }, [accepted, doNotShow]);
@@ -67,30 +67,18 @@ export const ConfirmLegal = React.memo((
             >
                 <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ flexGrow: 1 }} />
-                    <Image
-                        style={{
-                            width: 100,
-                            height: 100,
-                            overflow: 'hidden'
-                        }}
-                        source={Logo}
-                    />
-                    <Text style={{
-                        fontWeight: '800',
-                        fontSize: 24,
-                        textAlign: 'center',
-                        color: Theme.textColor,
-                        marginTop: 16,
-                        marginHorizontal: 24
+                    <View style={{
+                        height: 200,
+                        width: 300,
                     }}>
-                        {t('neocrypto.title')}
-                    </Text>
+                        <TransakLogo />
+                    </View>
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
                         marginTop: 24,
                     }}>
-                        {t('neocrypto.description')}
+                        {t('integrations.transak.description')}
                     </Text>
                     <View style={{ flexGrow: 1 }} />
                     <View style={{
@@ -124,7 +112,7 @@ export const ConfirmLegal = React.memo((
                         <CheckBox
                             checked={doNotShow}
                             onToggle={onDoNotShowToggle}
-                            text={t('neocrypto.doNotShow')}
+                            text={t('integrations.transak.doNotShow')}
                             style={{
                                 marginTop: 16
                             }}
@@ -143,7 +131,9 @@ export const ConfirmLegal = React.memo((
     );
 });
 
-export const NeocryptoFragment = fragment(() => {
+const tonwhalesTransakApiKey = 'b4fae368-42b9-409a-bb12-a2654b8372b1';
+
+export const TransakFragment = fragment(() => {
 
     if (AppConfig.isTestnet) {
         return (
@@ -155,35 +145,26 @@ export const NeocryptoFragment = fragment(() => {
                 <Text style={{
                     color: Theme.textColor
                 }}>
-                    {'Neocrypto service availible only on mainnet'}
+                    {'Transak service availible only on mainnet'}
                 </Text>
             </View>
         );
     }
-
-    const params = useParams<{
-        amount?: string,
-        fix_amount?: 'true' | 'false'
-    }>();
+    
     const address = getCurrentAddress();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const [accepted, setAccepted] = useState(storage.getBoolean(skipLegalNeocrypto));
+    const [accepted, setAccepted] = useState(storage.getBoolean(skipLegalTransak));
     const [loading, setloading] = useState(false);
 
-    const wref = React.useRef<WebView>(null);
-
     const queryParams = useMemo(() => new URLSearchParams({
-        partner: 'tonhub',
-        address: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-        cur_from: 'USD',
-        cur_to: 'TON',
-        fix_cur_to: 'true',
-        fix_address: 'true',
-        ...params
-    }), [params]);
+        apiKey: tonwhalesTransakApiKey,
+        themeColor: Theme.accent,
+        cryptoCurrencyCode: 'TON',
+        walletAddressaddress: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+    }), []);
 
-    const main = `https://neocrypto.net/tonhub.html?${queryParams.toString()}`;
+    const main = `https://global-stg.transak.com?${queryParams.toString()}`;
 
     const onOpenBuy = useCallback(() => {
         setAccepted(true);
@@ -192,7 +173,7 @@ export const NeocryptoFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            backgroundColor: Theme.background,
+            backgroundColor: Theme.item,
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
@@ -203,7 +184,7 @@ export const NeocryptoFragment = fragment(() => {
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         {Platform.OS === 'ios' && (
                             <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, lineHeight: 32 }}>
-                                {'Neorcypto'}
+                                {t('integrations.transak.title')}
                             </Text>
                         )}
                     </View>
@@ -211,7 +192,7 @@ export const NeocryptoFragment = fragment(() => {
                 </>
             )}
             {accepted && (
-                <View style={{ flexGrow: 1 }}>
+                <View style={{ flexGrow: 1, paddingTop: 50, paddingBottom: 56 }}>
                     <WebView
                         source={{ uri: main }}
                         onLoadStart={() => setloading(true)}

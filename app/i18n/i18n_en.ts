@@ -582,6 +582,19 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             address: 'TON address',
             transaction: 'TON transaction',
         }
+    },
+    integrations: {
+        title: 'Buy/Sell TON',
+        transak: {
+            title: 'Transak',
+            tagline: 'Making web3 applications accessible',
+            description: 'Available across 160 cryptocurrencies on 75+ blockchains via cards, bank transfers and other payment methods in 150 countries',
+            doNotShow: 'Do not show it again for Transak',
+        }, 
+        neocrypto: {
+            title: 'Neocrypto',
+            tagline: 'Buy TON with credit card',
+        }
     }
 };
 

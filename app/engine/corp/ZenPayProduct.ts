@@ -77,6 +77,7 @@ export class ZenPayProduct {
         if (storage.getNumber('zenpay-token-version') !== currenTokentVersion) {
             this.cleanup();
         }
+        storage.set('zenpay-token-version', currenTokentVersion);
     }
 
     async enroll(domain: string) {

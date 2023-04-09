@@ -549,6 +549,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             setupTitle: 'Установить код доступа',
             confirmTitle: 'Подтвердить код доступа',
             changeTitle: 'Изменить код доступа',
+            error: 'Коды не совпадают',
+            tryAgain: 'Ещё раз',
+            success: 'Код доступа установлен',
+            enterNew: 'Введите новый код',
+            confirmNew: 'Подтвердите новый код',
+            enterCurrent: 'Введите текущий код',
         }
     },
     report: {

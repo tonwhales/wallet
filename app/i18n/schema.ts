@@ -550,6 +550,12 @@ export type LocalizationSchema = {
             setupTitle: string,
             confirmTitle: string,
             changeTitle: string,
+            error: string,
+            tryAgain: string,
+            success: string,
+            enterNew: string,
+            confirmNew: string,
+            enterCurrent: string,
         }
     },
     report: {

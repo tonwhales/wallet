@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useReducer } from "react";
 import { Platform, View, Text } from "react-native";
-import Animated, { FadeIn, FadeOut, SlideInRight, SlideOutLeft } from "react-native-reanimated";
+import Animated, { FadeIn, SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { Theme } from "../../Theme";
 import { warn } from "../../utils/log";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AndroidToolbar } from "../AndroidToolbar";
-import { LoadingIndicator } from "../LoadingIndicator";
 import { RoundButton } from "../RoundButton";
 import { PasscodeInput } from "./PasscodeInput";
 
@@ -17,7 +16,7 @@ type ScreenState = {
     input: string,
 };
 
-function reduceSTeps() {
+function reduceSteps() {
     return (state: ScreenState, action: Action): ScreenState => {
         switch (action.type) {
             case 're-enter':
@@ -59,7 +58,7 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
         }
     }, [onReady]);
 
-    const [state, dispatch] = useReducer(reduceSTeps(), { step: 'input', input: '' });
+    const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
 
     useEffect(() => {
         if (state.step === 'loading') {
@@ -74,8 +73,6 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
             })();
         }
     }, [state.step, state.input, onSuccess]);
-
-    console.log({ step: state.step });
 
     return (
         <View style={{ flexGrow: 1 }}>

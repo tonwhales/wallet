@@ -7,7 +7,6 @@ import { PasscodeSetup } from "../../../components/Passcode/PasscodeSetup";
 import { fragment } from "../../../fragment"
 import { getCurrentAddress } from "../../../storage/appState";
 import { encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
-import { storage } from "../../../storage/storage";
 import { loadWalletKeys } from "../../../storage/walletKeys";
 import { useParams } from "../../../utils/useParams";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -26,7 +25,6 @@ export const PasscodeSetupFragment = fragment(() => {
             encryptAndStoreWithPasscode(passcode, Buffer.from(keys.mnemonics.join(' ')));
         }
     }, []);
-
 
     return (
         <View style={{

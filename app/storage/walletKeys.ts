@@ -26,7 +26,6 @@ export async function loadWalletKeysWithPassword(password: string): Promise<Wall
         let walletKey = await mnemonicToWalletKey(mnemonics);
         return { keyPair: walletKey, mnemonics };
     } catch (e) {
-        console.warn(e);
         throw new Error('Unable to load wallet keys');
     }
 }

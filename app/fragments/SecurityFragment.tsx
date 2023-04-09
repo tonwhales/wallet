@@ -11,13 +11,14 @@ import { PasscodeState, passcodeStateKey } from "../storage/secureStorage"
 import { storage } from "../storage/storage"
 import { Theme } from "../Theme"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
+import { useState } from "react"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    let passcodeState = storage.getString(passcodeStateKey);
+    const [passcodeState, setpasscodeState] = useState(storage.getString(passcodeStateKey));
 
-    useFocusEffect(() => { passcodeState = storage.getString(passcodeStateKey) });
+    useFocusEffect(() => { setpasscodeState(storage.getString(passcodeStateKey)) });
 
     return (
         <View style={{

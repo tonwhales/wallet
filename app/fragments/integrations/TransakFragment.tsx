@@ -17,6 +17,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TransakLogo from '../../../assets/ic_transak_logo.svg'
+import { useEngine } from "../../engine/Engine";
 
 export const skipLegalTransak = 'skip_legal_transak';
 
@@ -134,6 +135,8 @@ export const ConfirmLegal = React.memo((
 const tonwhalesTransakApiKey = 'b4fae368-42b9-409a-bb12-a2654b8372b1';
 
 export const TransakFragment = fragment(() => {
+    const engine = useEngine();
+    const primaryCurrency = engine.products.price.usePrimaryCurrency();
 
     if (AppConfig.isTestnet) {
         return (
@@ -150,7 +153,7 @@ export const TransakFragment = fragment(() => {
             </View>
         );
     }
-    
+
     const address = getCurrentAddress();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -161,7 +164,9 @@ export const TransakFragment = fragment(() => {
         apiKey: tonwhalesTransakApiKey,
         themeColor: Theme.accent,
         cryptoCurrencyCode: 'TON',
-        walletAddressaddress: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+        walletAddressaddress: address.address.toString(),
+        // fiatCurrency: primaryCurrency // TODO: add when Transak will support any cyrrency -> TON pair 
+        hideMenu: 'true',
     }), []);
 
     const main = `https://global-stg.transak.com?${queryParams.toString()}`;
@@ -192,7 +197,7 @@ export const TransakFragment = fragment(() => {
                 </>
             )}
             {accepted && (
-                <View style={{ flexGrow: 1, paddingTop: 50, paddingBottom: 56 }}>
+                <View style={{ flexGrow: 1, paddingTop: 8, paddingBottom: 32 }}>
                     <WebView
                         source={{ uri: main }}
                         onLoadStart={() => setloading(true)}

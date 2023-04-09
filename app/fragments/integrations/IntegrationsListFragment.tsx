@@ -41,12 +41,15 @@ export const IntegrationsListFragment = fragment(() => {
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     borderRadius: 14,
-                    paddingHorizontal: 8
+                    paddingHorizontal: 16
                 }}>
                     <Pressable
                         style={({ pressed }) => {
                             return {
                                 opacity: pressed ? 0.5 : 1,
+                                backgroundColor: Theme.item,
+                                borderRadius: 16,
+                                marginBottom: 8
                             }
                         }}
                         onPress={() => {
@@ -83,6 +86,8 @@ export const IntegrationsListFragment = fragment(() => {
                         style={({ pressed }) => {
                             return {
                                 opacity: pressed ? 0.5 : 1,
+                                backgroundColor: Theme.item,
+                                borderRadius: 16
                             }
                         }}
                         onPress={() => {

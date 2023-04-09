@@ -6,6 +6,9 @@ export function protectNavigation(url: string, app: string) {
     if (!appDomain || !pageDomain) {
         return false;
     }
+    if (pageDomain.endsWith('.sumsub.com')) {
+        return true
+    }
     if (pageDomain.endsWith('.' + appDomain)) {
         return true;
     }

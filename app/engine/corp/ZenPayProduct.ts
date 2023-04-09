@@ -13,7 +13,7 @@ import { storage } from "../../storage/storage";
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
 export const zenPayUrl = 'https://stage.zenpay.org';
-const currenTokentVersion = 1;
+const currenTokenVersion = 1;
 
 export type ZenPayAccountStatus =
     | {
@@ -74,10 +74,10 @@ export class ZenPayProduct {
             }
         });
 
-        if (storage.getNumber('zenpay-token-version') !== currenTokentVersion) {
+        if (storage.getNumber('zenpay-token-version') !== currenTokenVersion) {
             this.cleanup();
         }
-        storage.set('zenpay-token-version', currenTokentVersion);
+        storage.set('zenpay-token-version', currenTokenVersion);
     }
 
     async enroll(domain: string) {

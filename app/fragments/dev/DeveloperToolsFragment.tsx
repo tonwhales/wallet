@@ -12,7 +12,6 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { Cell, CommentMessage } from 'ton';
 import { clearZenPay } from '../LogoutFragment';
 
 export const DeveloperToolsFragment = fragment(() => {

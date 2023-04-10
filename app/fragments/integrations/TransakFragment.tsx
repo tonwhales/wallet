@@ -164,7 +164,7 @@ export const TransakFragment = fragment(() => {
         apiKey: tonwhalesTransakApiKey,
         themeColor: Theme.accent,
         cryptoCurrencyCode: 'TON',
-        walletAddressaddress: address.address.toString(),
+        walletAddress: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
         // fiatCurrency: primaryCurrency // TODO: add when Transak will support any cyrrency -> TON pair 
         hideMenu: 'true',
     }), []);

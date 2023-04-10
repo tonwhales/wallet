@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { StyleProp, View, ViewStyle } from "react-native";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { NativeSyntheticEvent, Platform, StyleProp, TextInputKeyPressEventData, View, ViewStyle } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { PasscodeSteps } from "./PasscodeSteps";
 
@@ -16,17 +16,19 @@ export const PasscodeInput = React.memo((
     const [error, setError] = useState<boolean>(false);
     const tref = useRef<TextInput>(null);
 
-    useEffect(() => {
-        tref.current?.focus();
-    }, []);
-
-    const onTextChange = useCallback((newVal: string) => {
-        if (newVal.length > 6) return;
-        setPasscode(newVal);
-        if (newVal.length === 6) {
-            onEntered(newVal);
+    const onKeyPress = useCallback((e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+        const { key } = e.nativeEvent;
+        if (key === 'Backspace') {
+            setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
+        } else if (/\d/.test(key) && passcode.length < 6) {
+            setPasscode((prevPasscode) => {
+                if ((prevPasscode + key).length === 6) {
+                    onEntered(prevPasscode + key);
+                }
+                return prevPasscode + key
+            });
         }
-    }, []);
+    }, [passcode]);
 
     return (
         <View>
@@ -37,11 +39,13 @@ export const PasscodeInput = React.memo((
                     width: 0,
                     height: 0,
                 }}
-                value={passcode}
-                onChangeText={onTextChange}
+                value={passcode ?? ''}
+                defaultValue={''}
+                onKeyPress={onKeyPress}
                 autoComplete='off'
                 autoCorrect={false}
-                keyboardType={'number-pad'}
+                keyboardType={Platform.OS !== 'ios' ? 'numeric' : 'number-pad'}
+                secureTextEntry={Platform.OS === 'android'}
                 autoCapitalize="none"
                 autoFocus={true}
                 selectionColor={'transparent'}
@@ -51,7 +55,7 @@ export const PasscodeInput = React.memo((
                     passLen: passcode.length,
                     error: error,
                 }}
-                // emoji
+                emoji
             />
         </View>
     );

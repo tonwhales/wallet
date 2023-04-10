@@ -1,5 +1,5 @@
 import { KeyPair, mnemonicToWalletKey } from "ton-crypto";
-import { decryptData, doDecryptWithPasscode } from "./secureStorage";
+import { decryptData, doDecryptWithPasscode, passcodeEncKey, passcodeSaltKey } from "./secureStorage";
 import { storage } from "./storage";
 
 export type WalletKeys = {
@@ -20,8 +20,12 @@ export async function loadWalletKeys(secretKeyEnc: Buffer): Promise<WalletKeys> 
 
 export async function loadWalletKeysWithPassword(password: string): Promise<WalletKeys> {
     try {
-        let secretKeyEnc = Buffer.from(storage.getString('ton-passcode-enc-key') || '', 'base64');
-        let plainText = await doDecryptWithPasscode(password, secretKeyEnc);
+        let secretKeyEnc = Buffer.from(storage.getString(passcodeEncKey)!, 'base64');
+        let salt = storage.getString(passcodeSaltKey);
+        if (!salt) {
+            throw new Error('Unable to load wallet keys');
+        }
+        let plainText = await doDecryptWithPasscode(password, salt, secretKeyEnc);
         let mnemonics = plainText.toString().split(' ');
         let walletKey = await mnemonicToWalletKey(mnemonics);
         return { keyPair: walletKey, mnemonics };

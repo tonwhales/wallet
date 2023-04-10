@@ -74,7 +74,7 @@ export const PasscodeChange = React.memo(() => {
                     <PasscodeInput onEntered={async (pass) => {
                         try {
                             const keys = await loadWalletKeysWithPassword(pass);
-                            encryptAndStoreWithPasscode(state.input, Buffer.from(keys.mnemonics.join(' ')));
+                            await encryptAndStoreWithPasscode(state.input, Buffer.from(keys.mnemonics.join(' ')));
                             dispatch({ type: 'success' });
                         } catch (e) {
                             dispatch({ type: 'error' });
@@ -104,7 +104,10 @@ export const PasscodeChange = React.memo(() => {
             )}
 
             {state.step === 'input' && (
-                <Animated.View exiting={SlideOutLeft}>
+                <Animated.View
+                    exiting={SlideOutLeft}
+                    entering={SlideInRight}
+                >
                     <Text style={{
                         fontWeight: '600',
                         fontSize: 17, marginBottom: 16,
@@ -119,7 +122,10 @@ export const PasscodeChange = React.memo(() => {
             )}
 
             {state.step === 're-enter' && (
-                <Animated.View entering={SlideInRight}>
+                <Animated.View
+                    exiting={SlideOutLeft}
+                    entering={SlideInRight}
+                >
                     <Text style={{
                         fontWeight: '600',
                         fontSize: 17, marginBottom: 16,

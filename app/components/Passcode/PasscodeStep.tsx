@@ -55,7 +55,7 @@ export const PasscodeStep = React.memo((
                         width: size,
                         height: size,
                         borderRadius: emoji ? 0 : size / 2,
-                        backgroundColor: emoji ? 'white' : '#666',
+                        backgroundColor: emoji ? Theme.background : '#666',
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}

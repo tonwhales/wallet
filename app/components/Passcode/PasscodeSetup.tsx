@@ -99,6 +99,13 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
             }}>
                 {state.step === 'input' && (
                     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 17, marginBottom: 16,
+                            textAlign: 'center'
+                        }}>
+                            {t('security.passcodeSettings.enterNew')}
+                        </Text>
                         <PasscodeInput onEntered={(pass) => {
                             dispatch({
                                 type: 're-enter',
@@ -110,6 +117,13 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
 
                 {state.step === 're-enter' && (
                     <Animated.View exiting={SlideOutLeft} entering={SlideInRight}>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 17, marginBottom: 16,
+                            textAlign: 'center'
+                        }}>
+                            {t('security.passcodeSettings.confirmNew')}
+                        </Text>
                         <PasscodeInput onEntered={(pass) => {
                             if (pass !== state.input) {
                                 dispatch({ type: 'error' });

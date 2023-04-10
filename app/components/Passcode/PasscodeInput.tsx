@@ -55,7 +55,7 @@ export const PasscodeInput = React.memo((
                     passLen: passcode.length,
                     error: error,
                 }}
-                emoji
+            // emoji
             />
         </View>
     );

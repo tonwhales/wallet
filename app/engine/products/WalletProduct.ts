@@ -81,10 +81,10 @@ export class WalletProduct {
 
         this.disabledJettons = engine.cloud.get('jettons-disabled', (src) => { src.disabled = {} });
         if (!storage.getBoolean('disabled-jettons-migration')) {
-            let disabledJettons = engine.persistence.disabledJettons.item(engine.address).value || [];
-            if (disabledJettons.length) {
+            let prevDisabled = engine.persistence.disabledJettons.item(engine.address).value || [];
+            if (prevDisabled.length) {
                 this.disabledJettons.update((src) => {
-                    for (let m of disabledJettons) {
+                    for (let m of prevDisabled) {
                         src.disabled[m.toFriendly({ testOnly: AppConfig.isTestnet })] = { reason: 'disabled' };
                     }
                 });

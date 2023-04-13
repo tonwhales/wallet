@@ -4,6 +4,6 @@
 
 #import <Expo/Expo.h>
 
-@interface AppDelegate : RCTAppDelegate
+@interface AppDelegate : EXAppDelegateWrapper
 
 @end

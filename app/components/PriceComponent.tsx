@@ -24,7 +24,7 @@ export const PriceComponent = React.memo((
 ) => {
     const [price, currency] = usePrice();
 
-    if (!price || AppConfig.isTestnet) {
+    if (!price) {
         return <></>;
     }
 

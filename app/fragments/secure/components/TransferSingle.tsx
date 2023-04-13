@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import React from "react";
-import { Alert, View, Text, Pressable, ScrollView, Platform } from "react-native";
+import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
@@ -43,7 +43,9 @@ import { ItemCollapsible } from "../../../components/ItemCollapsible";
 import { RoundButton } from "../../../components/RoundButton";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
-import { fromBNWithDecimals, toBNWithDecimals } from "../../../utils/withDecimals";
+import { fromBNWithDecimals } from "../../../utils/withDecimals";
+import { extractDomain } from "../../../engine/utils/extractDomain";
+import { zenPayUrl } from "../../../engine/corp/ZenPayProduct";
 
 type Props = {
     target: {
@@ -731,7 +733,7 @@ export const TransferSingle = React.memo((props: Props) => {
                             <View>
                                 <View style={{
                                     position: 'absolute',
-                                    top: -2,
+                                    top: 2,
                                     bottom: 42,
                                     left: 17,
                                     width: 2,
@@ -827,26 +829,44 @@ export const TransferSingle = React.memo((props: Props) => {
                                             </Text>
                                         </View>
                                     )}
-                                    <View style={{
-                                        backgroundColor: Theme.operationIcon,
-                                        height: 40, width: 40,
-                                        borderRadius: 40,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'absolute',
-                                        left: -48, top: 0, bottom: 0,
-                                    }}>
-                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <Staking />
-                                        )}
-                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <SmartContract />
-                                        )}
-                                    </View>
+                                    {order?.app?.domain !== extractDomain(zenPayUrl) && (
+                                        <View style={{
+                                            backgroundColor: Theme.operationIcon,
+                                            height: 40, width: 40,
+                                            borderRadius: 40,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            position: 'absolute',
+                                            left: -48, top: 0, bottom: 0,
+                                        }}>
+                                            {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                                <Staking />
+                                            )}
+                                            {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                                <SmartContract />
+                                            )}
+                                        </View>
+                                    )}
+                                    {order?.app?.domain === extractDomain(zenPayUrl) && (
+                                        <View style={{
+                                            height: 46, width: 34,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            position: 'absolute',
+                                            left: -46, top: 0, bottom: 0,
+                                            borderRadius: 6
+                                        }}>
+                                            <Image
+                                                style={{
+                                                    height: 46, width: 34,
+                                                }}
+                                                source={require('../../../../assets/ic_sign_card.png')}
+                                            />
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         )}
-
                     </View>
                     <ItemGroup>
                         <ItemCollapsible title={t('transfer.moreDetails')}>

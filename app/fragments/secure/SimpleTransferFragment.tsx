@@ -29,7 +29,7 @@ import { createJettonOrder, createSimpleOrder } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
-import { useLinkNavigator } from '../../Navigation';
+import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 
@@ -358,7 +358,12 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : container.height, true);
+        if (Platform.OS !== 'android' && container) {
+            scrollTo(scrollRef, 0, container.height, true);
+        }
+        if (Platform.OS === 'android') {
+            scrollTo(scrollRef, 0, 400, true);
+        }
         return;
 
     }, []);
@@ -416,7 +421,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                     <View style={{
                         marginBottom: 16,
-                        backgroundColor: "white",
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -431,7 +436,7 @@ export const SimpleTransferFragment = fragment(() => {
                             placeholder={'0'}
                             keyboardType={'numeric'}
                             textAlign={'center'}
-                            style={{ backgroundColor: 'transparent' }}
+                            style={{ backgroundColor: Theme.transparent }}
                             fontWeight={'800'}
                             fontSize={30}
                             preventDefaultHeight
@@ -442,21 +447,21 @@ export const SimpleTransferFragment = fragment(() => {
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 16,
-                            color: '#6D6D71',
+                            color: Theme.priceSecondary,
                             marginBottom: 5
                         }}>
                             {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
                             <Pressable
                                 onPress={onAddAll}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
                                             ? Theme.selector
-                                            : 'white',
+                                            : Theme.item,
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -469,14 +474,14 @@ export const SimpleTransferFragment = fragment(() => {
                                 </View>
                             </Pressable>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
                             <Pressable
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
                                             ? Theme.selector
-                                            : 'white',
+                                            : Theme.item,
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -492,7 +497,7 @@ export const SimpleTransferFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: "white",
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -507,7 +512,7 @@ export const SimpleTransferFragment = fragment(() => {
                             onTargetChange={setTarget}
                             onDomainChange={setDomain}
                             style={{
-                                backgroundColor: 'transparent',
+                                backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
@@ -525,7 +530,7 @@ export const SimpleTransferFragment = fragment(() => {
                             placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
                             keyboardType="default"
                             autoCapitalize="sentences"
-                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
+                            style={{ backgroundColor: Theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
                             preventDefaultHeight
                             multiline
                             label={
@@ -539,7 +544,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: '#7D858A',
+                                        color: Theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.commentLabel')}
@@ -562,7 +567,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: '#858B93',
+                                                color: Theme.labelSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {t('transfer.checkComment')}
@@ -573,7 +578,7 @@ export const SimpleTransferFragment = fragment(() => {
                             }
                         />
                     </View>
-                    <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
+                    <Text style={{ color: Theme.priceSecondary, marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView

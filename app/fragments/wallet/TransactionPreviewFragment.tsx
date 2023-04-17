@@ -101,10 +101,9 @@ export const TransactionPreviewFragment = fragment(() => {
         if (!txId) {
             return null;
         }
-        return AppConfig.isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com'
-            + '/share/tx/' +
-            address.toFriendly({ testOnly: AppConfig.isTestnet }) +
-            '/' + transaction.base.lt + '_' + encodeURIComponent(transaction.base.hash.toString('base64'))
+        return `${AppConfig.isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
+            + `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/`
+            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
     }, [txId]);
 
     const contact = engine.products.settings.useContactAddress(operation.address);
@@ -185,7 +184,7 @@ export const TransactionPreviewFragment = fragment(() => {
             </Text>
             {spam && (
                 <View style={{
-                    borderColor: '#ADB6BE',
+                    borderColor: Theme.textSecondaryBorder,
                     borderWidth: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -226,7 +225,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         />
                     </View>
                     {transaction.base.status === 'failed' ? (
-                        <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                        <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
                     ) : (
@@ -236,7 +235,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     color: item.amount.gte(new BN(0))
                                         ? spam
                                             ? Theme.textColor
-                                            : '#4FAE42'
+                                            : Theme.pricePositive
                                         : '#000000',
                                     fontWeight: '800',
                                     fontSize: 36,
@@ -255,7 +254,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{
-                                        backgroundColor: 'transparent',
+                                        backgroundColor: Theme.transparent,
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
@@ -504,7 +503,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <PriceComponent
                                 amount={transaction.base.fees}
                                 style={{
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0,
                                     paddingVertical: 0,
                                     justifyContent: 'center',

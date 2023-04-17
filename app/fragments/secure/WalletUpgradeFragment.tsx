@@ -23,7 +23,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
         navigation.navigate('WalletBackup', { back: true });
     }, []);
     return (
-        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
+        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
             <AndroidToolbar pageTitle={t('secure.upgradeTitle')} />
             <View style={{ flexGrow: 1 }} />
             <FragmentMediaContent
@@ -32,7 +32,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: '#8E979D',
+                    color: Theme.textSubtitle,
                     fontSize: 16,
                     marginTop: 14,
                 }}>

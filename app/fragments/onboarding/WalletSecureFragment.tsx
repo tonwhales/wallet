@@ -173,7 +173,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: 'white',
+            backgroundColor: Theme.item,
             justifyContent: 'center',
             alignContent: 'center'
         }}>

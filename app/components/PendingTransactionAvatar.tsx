@@ -93,7 +93,7 @@ export const PendingTransactionAvatar = React.memo(({
                 backgroundColor={progressParams.backgroundColor}
                 fullColor={null}
                 loop={true}
-                containerColor={'transparent'}
+                containerColor={Theme.transparent}
             />
         </View>
     )

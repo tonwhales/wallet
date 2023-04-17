@@ -21,7 +21,7 @@ export const WalletCreatedFragment = systemFragment(() => {
             flexGrow: 1,
             flexDirection: 'column',
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: 'white',
+            backgroundColor: Theme.item,
             paddingHorizontal: 16,
         }}>
             <View style={{ flexGrow: 1 }} />
@@ -38,7 +38,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         marginTop: 20,
                         marginVertical: 16,
                         borderRadius: 14,
-                        backgroundColor: '#F2F2F6',
+                        backgroundColor: Theme.background,
                         paddingHorizontal: 16,
                         paddingVertical: 15
                     }}
@@ -55,7 +55,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={loose ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={loose ? Theme.accent : '#B6B6BF'}
+                            color={loose ? Theme.accent : Theme.unchecked}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -78,7 +78,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={share ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={share ? Theme.accent : '#B6B6BF'}
+                            color={share ? Theme.accent : Theme.unchecked}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -100,7 +100,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={responsibility ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={responsibility ? Theme.accent : '#B6B6BF'}
+                            color={responsibility ? Theme.accent : Theme.unchecked}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1

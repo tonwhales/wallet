@@ -153,7 +153,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             style={{ width: 192, height: 192 }}
                         />
                     </Pressable>
-                    <Text style={{ fontSize: 16, color: '#7D858A' }}>
+                    <Text style={{ fontSize: 16, color: Theme.label }}>
                         {t('wallet.empty.message')}
                     </Text>
                     <RoundButton
@@ -211,7 +211,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: '#000',
+                            backgroundColor: Theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View >
@@ -246,7 +246,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: '#000',
+                            backgroundColor: Theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View>

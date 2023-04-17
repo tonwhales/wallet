@@ -10,7 +10,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		30BE35001B1AC551EB2FE5E9 /* libPods-WhalesApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A41DC65AC4D0FA622D63374 /* libPods-WhalesApp.a */; };
+		2D6354CDC4A7E280E7BF3230 /* libPods-WhalesApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1529D86D934BE5ED49739048 /* libPods-WhalesApp.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C762080E00418A2C2D1ECABB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B1193B29FEA7474B5BF2AE /* ExpoModulesProvider.swift */; };
@@ -25,17 +25,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = wallet/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = wallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = wallet/main.m; sourceTree = "<group>"; };
-		288921B06F60144D2EEF6BD5 /* Pods-WhalesApp.debug testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug testnet.xcconfig"; sourceTree = "<group>"; };
-		2DA025F7D1CC346FE41EC0AC /* Pods-WhalesApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug.xcconfig"; sourceTree = "<group>"; };
-		6C2E3173556A471DD304B334 /* Pods-wallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-wallet.debug.xcconfig"; path = "Target Support Files/Pods-wallet/Pods-wallet.debug.xcconfig"; sourceTree = "<group>"; };
+		1529D86D934BE5ED49739048 /* libPods-WhalesApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WhalesApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		33D099BAD493E6B8DCAD880E /* Pods-WhalesApp.release testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release testnet.xcconfig"; sourceTree = "<group>"; };
+		49F08C898A54C5907E6E5283 /* Pods-WhalesApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release.xcconfig"; sourceTree = "<group>"; };
+		6E4E496F259840BEC9B8691F /* Pods-WhalesApp.debug testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug testnet.xcconfig"; sourceTree = "<group>"; };
 		78B1193B29FEA7474B5BF2AE /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-WhalesApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		7A4D352CD337FB3A3BF06240 /* Pods-wallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-wallet.release.xcconfig"; path = "Target Support Files/Pods-wallet/Pods-wallet.release.xcconfig"; sourceTree = "<group>"; };
-		8A41DC65AC4D0FA622D63374 /* libPods-WhalesApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WhalesApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9087C8FB77D8AA4F4EECA1D3 /* Pods-WhalesApp.release testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release testnet.xcconfig"; sourceTree = "<group>"; };
+		9C085B0E3F9EE201D2ADA305 /* Pods-WhalesApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = wallet/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		DC64924E023A488BB8022B0F /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "wallet/noop-file.swift"; sourceTree = "<group>"; };
-		DE2C3FD8B78129F6D6359E29 /* Pods-WhalesApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release.xcconfig"; sourceTree = "<group>"; };
 		DEE01086D4764A1A9A279A1C /* wallet-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "wallet-Bridging-Header.h"; path = "wallet/wallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -45,7 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30BE35001B1AC551EB2FE5E9 /* libPods-WhalesApp.a in Frameworks */,
+				2D6354CDC4A7E280E7BF3230 /* libPods-WhalesApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,7 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				8A41DC65AC4D0FA622D63374 /* libPods-WhalesApp.a */,
+				1529D86D934BE5ED49739048 /* libPods-WhalesApp.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -128,12 +126,10 @@
 		D65327D7A22EEC0BE12398D9 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				6C2E3173556A471DD304B334 /* Pods-wallet.debug.xcconfig */,
-				7A4D352CD337FB3A3BF06240 /* Pods-wallet.release.xcconfig */,
-				2DA025F7D1CC346FE41EC0AC /* Pods-WhalesApp.debug.xcconfig */,
-				DE2C3FD8B78129F6D6359E29 /* Pods-WhalesApp.release.xcconfig */,
-				288921B06F60144D2EEF6BD5 /* Pods-WhalesApp.debug testnet.xcconfig */,
-				9087C8FB77D8AA4F4EECA1D3 /* Pods-WhalesApp.release testnet.xcconfig */,
+				9C085B0E3F9EE201D2ADA305 /* Pods-WhalesApp.debug.xcconfig */,
+				6E4E496F259840BEC9B8691F /* Pods-WhalesApp.debug testnet.xcconfig */,
+				49F08C898A54C5907E6E5283 /* Pods-WhalesApp.release.xcconfig */,
+				33D099BAD493E6B8DCAD880E /* Pods-WhalesApp.release testnet.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -153,14 +149,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "WhalesApp" */;
 			buildPhases = (
-				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
+				D833B9D7619C5BD949745815 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				5DA15885E3E47258E15EB952 /* [CP] Embed Pods Frameworks */,
+				F344FCFCDC3B58AD0E2BBF41 /* [CP] Embed Pods Frameworks */,
+				87960AB7C7C2076833CE626C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -232,7 +228,27 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\n`node --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n";
 		};
-		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
+		87960AB7C7C2076833CE626C /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D833B9D7619C5BD949745815 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -254,42 +270,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5DA15885E3E47258E15EB952 /* [CP] Embed Pods Frameworks */ = {
+		F344FCFCDC3B58AD0E2BBF41 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/hermes.framework/hermes",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-Glog/glog.framework/glog",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/double-conversion.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/glog.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -330,11 +332,12 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2DA025F7D1CC346FE41EC0AC /* Pods-WhalesApp.debug.xcconfig */;
+			baseConfigurationReference = 9C085B0E3F9EE201D2ADA305 /* Pods-WhalesApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
+				BUNDLE_TC_SCHEMA = tc;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -369,11 +372,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE2C3FD8B78129F6D6359E29 /* Pods-WhalesApp.release.xcconfig */;
+			baseConfigurationReference = 49F08C898A54C5907E6E5283 /* Pods-WhalesApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
+				BUNDLE_TC_SCHEMA = tc;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -405,7 +409,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -451,9 +455,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
-				LIBRARY_SEARCH_PATHS = "\"$(inherited)\"";
+				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -463,7 +468,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -502,8 +507,9 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
-				LIBRARY_SEARCH_PATHS = "\"$(inherited)\"";
+				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -514,7 +520,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -560,20 +566,22 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
-				LIBRARY_SEARCH_PATHS = "\"$(inherited)\"";
+				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 			};
 			name = "Debug Testnet";
 		};
 		AA25CAE527A7F3A100F732A6 /* Debug Testnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 288921B06F60144D2EEF6BD5 /* Pods-WhalesApp.debug testnet.xcconfig */;
+			baseConfigurationReference = 6E4E496F259840BEC9B8691F /* Pods-WhalesApp.debug testnet.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
+				BUNDLE_TC_SCHEMA = "tc-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -611,7 +619,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -650,8 +658,9 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
-				LIBRARY_SEARCH_PATHS = "\"$(inherited)\"";
+				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -659,11 +668,12 @@
 		};
 		AA25CAE727A7F3A700F732A6 /* Release Testnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9087C8FB77D8AA4F4EECA1D3 /* Pods-WhalesApp.release testnet.xcconfig */;
+			baseConfigurationReference = 33D099BAD493E6B8DCAD880E /* Pods-WhalesApp.release testnet.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
+				BUNDLE_TC_SCHEMA = "tc-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";

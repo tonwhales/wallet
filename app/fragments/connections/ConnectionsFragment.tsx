@@ -156,7 +156,7 @@ export const ConnectionsFragment = fragment(() => {
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: '#6D6D71',
+                        color: Theme.priceSecondary,
                     }}>
                         {t('auth.apps.description')}
                     </Text>
@@ -203,7 +203,7 @@ export const ConnectionsFragment = fragment(() => {
                 }}>
                     <Text style={{
                         fontSize: 16,
-                        color: '#6D6D71',
+                        color: Theme.priceSecondary,
                     }}>
                         {t('auth.apps.description')}
                     </Text>
@@ -246,7 +246,7 @@ export const ConnectionsFragment = fragment(() => {
                         </View>
                     ))}
                 </View>
-                <View style={{ height: safeArea.bottom }} />
+                <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
             </ScrollView>
             {Platform.OS === 'ios' && (
                 <CloseButton

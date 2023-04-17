@@ -34,7 +34,7 @@ export const ConfirmLegal = React.memo((
     const privacy = 'https://neocrypto.net/privacypolicy.html';
     const terms = 'https://neocrypto.net/terms.html';
 
-    const onDoNotShowToggle = useCallback((newVal) => {
+    const onDoNotShowToggle = useCallback((newVal: boolean) => {
         setDoNotShow(newVal);
     }, []);
 
@@ -106,14 +106,14 @@ export const ConfirmLegal = React.memo((
                                     {t('neocrypto.termsAndPrivacy')}
 
                                     <Text
-                                        style={{ color: '#42A3EB' }}
+                                        style={{ color: Theme.linkText }}
                                         onPress={openTerms}
                                     >
                                         {t('legal.termsOfService')}
                                     </Text>
                                     {' ' + t('common.and') + ' '}
                                     <Text
-                                        style={{ color: '#42A3EB' }}
+                                        style={{ color: Theme.linkText }}
                                         onPress={openPrivacy}
                                     >
                                         {t('legal.privacyPolicy')}

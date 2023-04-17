@@ -37,6 +37,7 @@ import TonSign from '../../../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
+import { fromBNWithDecimals } from "../../../utils/withDecimals";
 
 type Props = {
     text: string | null,
@@ -387,7 +388,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: '#858B93'
+                            color: Theme.labelSecondary
                         }}>
                             {order.app.domain}
                         </Text>
@@ -459,7 +460,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             <PriceComponent
                                 amount={totalAmount}
                                 style={{
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0,
                                     marginLeft: 48, marginTop: 4
                                 }}
@@ -500,7 +501,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                 color: Theme.textColor,
                                                 marginLeft: 2
                                             }}>
-                                                {`${fromNano(value[1].jettonAmount)} ${value[1].jettonMaster.symbol}`}
+                                                {`${fromBNWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
                                             </Text>
                                         </View>
                                     </View>
@@ -527,7 +528,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <View style={{ paddingBottom: gas.unusual ? 0 : 6 }}>
                                                 <Text style={{
                                                     fontSize: 16,
-                                                    color: gas.unusual ? '#E19626' : Theme.textColor,
+                                                    color: gas.unusual ? Theme.warningSecondary : Theme.textColor,
                                                     fontWeight: gas.unusual ? '700' : '400'
                                                 }}>
                                                     {(!AppConfig.isTestnet && price)
@@ -545,7 +546,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: '#FFC165',
+                                                        borderColor: Theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginBottom: 16,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -556,7 +557,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: '#E19626'
+                                                    color: Theme.warningSecondary
                                                 }}>
                                                     {t('transfer.unusualJettonsGas')}
                                                 </Text>

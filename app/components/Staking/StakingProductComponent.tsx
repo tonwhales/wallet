@@ -62,7 +62,7 @@ export const StakingProductComponent = React.memo(() => {
                                 fontWeight: '400',
                                 fontSize: 16,
                                 color: staking.total && staking.total.gt(new BN(0))
-                                    ? '#4FAE42'
+                                    ? Theme.pricePositive
                                     : Theme.textColor
                             }}>
                                 <ValueComponent
@@ -75,19 +75,19 @@ export const StakingProductComponent = React.memo(() => {
                             flexDirection: 'row',
                             justifyContent: 'space-between',
                         }}>
-                            <Text style={{ color: '#787F83', fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
+                            <Text style={{ color: Theme.price, fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
                                 {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                             </Text>
                             <PriceComponent
                                 amount={staking.total}
                                 style={{
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0, paddingVertical: 0,
                                     alignSelf: 'flex-end',
                                     marginTop: 2, height: undefined,
                                     minHeight: fontScaleNormal ? 14 : undefined
                                 }}
-                                textStyle={{ color: '#8E979D', fontWeight: '400', fontSize: 12 }}
+                                textStyle={{ color: Theme.textSubtitle, fontWeight: '400', fontSize: 12 }}
                             />
                         </View>
                     </View>
@@ -133,7 +133,7 @@ export const StakingProductComponent = React.memo(() => {
                                 {t('products.staking.title')}
                             </Text>
                             <Text style={{
-                                color: '#787F83', fontSize: 13,
+                                color: Theme.price, fontSize: 13,
                                 fontWeight: '400',
                             }}
                                 ellipsizeMode="tail"

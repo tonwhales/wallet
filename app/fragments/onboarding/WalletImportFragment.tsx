@@ -124,7 +124,7 @@ const WordInput = React.memo(React.forwardRef((props: {
                         fontSize: 16, width: 40,
                         paddingVertical: 16,
                         textAlign: 'right',
-                        color: !isWrong ? '#8E979D' : '#FF274E',
+                        color: !isWrong ? Theme.textSubtitle : '#FF274E',
                     }}
                     onPress={() => {
                         tref.current?.focus();
@@ -249,6 +249,10 @@ function WalletWordsComponent(props: {
         let measured = measure(ref);
         let scroll = translationY.value;
 
+        if (!container || !measured) {
+            return;
+        }
+
         let containerHeight = Platform.OS === 'ios' ? (container.height - keyboardHeight.value) : container.height;
         let relativeTop = measured.pageY - container.pageY;
         let relativeBottom = containerHeight - (relativeTop + measured.height);
@@ -359,7 +363,7 @@ function WalletWordsComponent(props: {
                         {t('import.subtitle')}
                     </Text>
                     <View style={{
-                        backgroundColor: 'white',
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         width: '100%',
                     }}>
@@ -407,7 +411,7 @@ export const WalletImportFragment = systemFragment(() => {
         if (!state) {
             navigation.setOptions({ headerStyle: { backgroundColor: Theme.background } });
         } else {
-            navigation.setOptions({ headerStyle: { backgroundColor: 'white' } });
+            navigation.setOptions({ headerStyle: { backgroundColor: Theme.item } });
         }
     }, [navigation, state]);
 

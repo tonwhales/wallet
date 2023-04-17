@@ -39,7 +39,7 @@ export const ConnectedAppButton = React.memo((
     return (
         <View style={{
             height: 62, borderRadius: 14,
-            backgroundColor: 'white', flexDirection: 'row',
+            backgroundColor: Theme.item, flexDirection: 'row',
             alignItems: 'center',
             padding: 10
         }}>
@@ -76,7 +76,7 @@ export const ConnectedAppButton = React.memo((
                 {!!url && (
                     <Text style={{
                         fontSize: 16,
-                        color: '#787F83',
+                        color: Theme.price,
                         fontWeight: '400',
                     }}
                         numberOfLines={1}
@@ -101,7 +101,7 @@ export const ConnectedAppButton = React.memo((
                 <Text
                     style={{
                         fontWeight: '500',
-                        color: '#CF3535',
+                        color: Theme.delete,
                         fontSize: 16
                     }}
                 >

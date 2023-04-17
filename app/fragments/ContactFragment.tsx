@@ -148,7 +148,12 @@ export const ContactFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : container.height, true);
+        if (Platform.OS !== 'android' && container) {
+            scrollTo(scrollRef, 0, container.height, true);
+        }
+        if (Platform.OS === 'android') {
+            scrollTo(scrollRef, 0, 400, true);
+        }
         return;
 
     }, []);
@@ -234,7 +239,7 @@ export const ContactFragment = fragment(() => {
                         </View>
                         {!editing && (
                             <View style={{ flexDirection: 'row', marginTop: 17 }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: Theme.item, borderRadius: 14 }}>
                                     <TouchableHighlight
                                         onPress={() => {
                                             navigation.navigate(
@@ -258,7 +263,7 @@ export const ContactFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: "white",
+                        backgroundColor: Theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -289,7 +294,7 @@ export const ContactFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: '#7D858A',
+                                        color: Theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('contacts.name')}
@@ -300,7 +305,7 @@ export const ContactFragment = fragment(() => {
                             autoCorrect={false}
                             autoComplete={'off'}
                             style={{
-                                backgroundColor: 'transparent',
+                                backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}

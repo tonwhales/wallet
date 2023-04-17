@@ -3,11 +3,11 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 import { polyfillWebCrypto } from 'expo-standard-web-crypto';
 polyfillWebCrypto();
 
-// Set up an PRNG for nacl with expo-random
+// Set up an PRNG for nacl with expo-crypto
 import nacl from 'tweetnacl';
-import { getRandomBytes } from 'expo-random';
+import { getRandomBytes } from 'expo-crypto'
 nacl.setPRNG((x, n) => {
-  // Get n random bytes from expo-random
+  // Get n random bytes from expo-crypto
   const randomBytes = getRandomBytes(n);
 
   // Copy the random bytes into x
@@ -23,7 +23,7 @@ import './app/storage/appState';
 // App
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, TextInput } from 'react-native';
 import { Theme } from './app/Theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
@@ -34,7 +34,17 @@ import * as SplashScreen from 'expo-splash-screen';
 
 changeNavBarColor('white');
 
-console.disableYellowBox = true;
+// Note that it is a bad practice to disable font scaling globally.
+// TODO: extend Text and TextInput components to support or lock font scaling.
+if (!(Text as any).defaultProps) {
+  (Text as any).defaultProps = {};
+  (Text as any).defaultProps.allowFontScaling = false;
+}
+
+if (!(TextInput as any).defaultProps) {
+  (TextInput as any).defaultProps = {};
+  (TextInput as any).defaultProps.allowFontScaling = false;
+}
 
 mixpanel.init();
 if (__DEV__) {

@@ -16,8 +16,9 @@ import { useParams } from '../../utils/useParams';
 import { ZenPayAppParams } from './ZenPayAppFragment';
 import { extractZenPayQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
+import { fragment } from '../../fragment';
 
-export const ZenPayLandingFragment = React.memo(() => {
+export const ZenPayLandingFragment = fragment(() => {
     const webRef = React.useRef<WebView>(null);
     const engine = useEngine();
     const navigation = useTypedNavigation();

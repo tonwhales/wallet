@@ -192,12 +192,14 @@ PODS:
   - MMKV (1.2.15):
     - MMKVCore (~> 1.2.15)
   - MMKVCore (1.2.15)
+  - MultiplatformBleAdapter (0.1.9)
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
     - nanopb/encode (= 2.30909.0)
   - nanopb/decode (2.30909.0)
   - nanopb/encode (2.30909.0)
-  - OpenSSL-Universal (1.1.1100)
+  - Permission-Camera (3.6.1):
+    - RNPermissions
   - PromisesObjC (2.2.0)
   - RCT-Folly (2021.07.22.00):
     - boost
@@ -238,6 +240,47 @@ PODS:
   - React-Codegen (0.71.4):
     - FBReactNativeSpec
     - hermes-engine
+    - RCT-Folly (= 2021.06.28.00-v2)
+    - RCT-Folly/Futures (= 2021.06.28.00-v2)
+    - React-cxxreact (= 0.68.2)
+    - React-jsi (= 0.68.2)
+    - React-jsiexecutor (= 0.68.2)
+    - React-jsinspector (= 0.68.2)
+    - React-perflogger (= 0.68.2)
+  - React-jsi (0.68.2):
+    - boost (= 1.76.0)
+    - DoubleConversion
+    - glog
+    - RCT-Folly (= 2021.06.28.00-v2)
+    - React-jsi/Default (= 0.68.2)
+  - React-jsi/Default (0.68.2):
+    - boost (= 1.76.0)
+    - DoubleConversion
+    - glog
+    - RCT-Folly (= 2021.06.28.00-v2)
+  - React-jsiexecutor (0.68.2):
+    - DoubleConversion
+    - glog
+    - RCT-Folly (= 2021.06.28.00-v2)
+    - React-cxxreact (= 0.68.2)
+    - React-jsi (= 0.68.2)
+    - React-perflogger (= 0.68.2)
+  - React-jsinspector (0.68.2)
+  - React-logger (0.68.2):
+    - glog
+  - react-native-ble-plx (2.0.3):
+    - MultiplatformBleAdapter (= 0.1.9)
+    - React-Core
+  - react-native-blurhash (1.1.10):
+    - React-Core
+  - react-native-context-menu-view (1.6.0):
+    - React
+  - react-native-fast-pbkdf2 (0.3.1):
+    - React-Core
+  - react-native-mmkv (2.4.1):
+    - MMKV (>= 1.2.13)
+    - React-Core
+  - react-native-safe-area-context (4.2.5):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -596,7 +639,9 @@ PODS:
     - React-Core
   - RNLocalize (2.2.6):
     - React-Core
-  - RNReanimated (2.14.4):
+  - RNPermissions (3.6.1):
+    - React-Core
+  - RNReanimated (2.8.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -701,7 +746,7 @@ DEPENDENCIES:
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
-  - OpenSSL-Universal (= 1.1.1100)
+  - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -718,6 +763,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - react-native-blurhash (from `../node_modules/react-native-blurhash`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
@@ -745,6 +791,7 @@ DEPENDENCIES:
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -781,6 +828,7 @@ SPEC REPOS:
     - MLKitVision
     - MMKV
     - MMKVCore
+    - MultiplatformBleAdapter
     - nanopb
     - OpenSSL-Universal
     - PromisesObjC
@@ -845,6 +893,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/lottie-react-native"
   MixpanelReactNative:
     :path: "../node_modules/mixpanel-react-native"
+  Permission-Camera:
+    :path: "../node_modules/react-native-permissions/ios/Camera"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -873,6 +923,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-ble-plx:
+    :path: "../node_modules/react-native-ble-plx"
   react-native-blurhash:
     :path: "../node_modules/react-native-blurhash"
   react-native-context-menu-view:
@@ -927,6 +979,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-keychain"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -995,53 +1049,55 @@ SPEC CHECKSUMS:
   MLKitVision: 8baa5f46ee3352614169b85250574fde38c36f49
   MMKV: 7f34558bbb5a33b0eaefae2de4b6a20a2ffdad6f
   MMKVCore: ddf41b9d9262f058419f9ba7598719af56c02cd3
+  MultiplatformBleAdapter: 5a6a897b006764392f9cef785e4360f54fb9477d
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
-  OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
+  Permission-Camera: bf6791b17c7f614b6826019fcfdcc286d3a107f6
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
-  RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
-  RCTRequired: 5a024fdf458fa8c0d82fc262e76f982d4dcdecdd
-  RCTTypeSafety: b6c253064466411c6810b45f66bc1e43ce0c54ba
-  React: 715292db5bd46989419445a5547954b25d2090f0
-  React-callinvoker: 105392d1179058585b564d35b4592fe1c46d6fba
-  React-Codegen: b75333b93d835afce84b73472927cccaef2c9f8c
-  React-Core: 88838ed1724c64905fc6c0811d752828a92e395b
-  React-CoreModules: cd238b4bb8dc8529ccc8b34ceae7267b04ce1882
-  React-cxxreact: 291bfab79d8098dc5ebab98f62e6bdfe81b3955a
-  React-hermes: b1e67e9a81c71745704950516f40ee804349641c
-  React-jsi: c9d5b563a6af6bb57034a82c2b0d39d0a7483bdc
-  React-jsiexecutor: d6b7fa9260aa3cb40afee0507e3bc1d17ecaa6f2
-  React-jsinspector: 1f51e775819199d3fe9410e69ee8d4c4161c7b06
-  React-logger: 0d58569ec51d30d1792c5e86a8e3b78d24b582c6
+  RCT-Folly: 4d8508a426467c48885f1151029bc15fa5d7b3b8
+  RCTRequired: 3e917ea5377751094f38145fdece525aa90545a0
+  RCTTypeSafety: c43c072a4bd60feb49a9570b0517892b4305c45e
+  React: 176dd882de001854ced260fad41bb68a31aa4bd0
+  React-callinvoker: c2864d1818d6e64928d2faf774a3800dfc38fe1f
+  React-Codegen: 98b6f97f0a7abf7d67e4ce435c77c05b7a95cf05
+  React-Core: fdaa2916b1c893f39f02cff0476d1fb0cab1e352
+  React-CoreModules: fd8705b80699ec36c2cdd635c2ce9d874b9cfdfc
+  React-cxxreact: 1832d971f7b0cb2c7b943dc0ec962762c90c906e
+  React-hermes: 14e0ea3ce4b44bb3ac7663d96d0e3e28857f7b62
+  React-jsi: 72af715135abe8c3f0dcf3b2548b71d048b69a7e
+  React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
+  React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
+  React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
+  react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-blurhash: add4df9a937b4e021a24bc67a0714f13e0bd40b7
   react-native-context-menu-view: a54a97ead7e44b0671a8c2b48ac70b9e4e2a19fb
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
-  react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
-  react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
-  react-native-skia: 9313b8213e95466ef784158190aac26ee6990b82
-  react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
-  React-perflogger: 0bb0522a12e058f6eb69d888bc16f40c16c4b907
-  React-RCTActionSheet: bfd675a10f06a18728ea15d82082d48f228a213a
-  React-RCTAnimation: 2fa220b2052ec75b733112aca39143d34546a941
-  React-RCTAppDelegate: 8564f93c1d9274e95e3b0c746d08a87ff5a621b2
-  React-RCTBlob: d0336111f46301ae8aba2e161817e451aad72dd6
-  React-RCTImage: fec592c46edb7c12a9cde08780bdb4a688416c62
-  React-RCTLinking: 14eccac5d2a3b34b89dbfa29e8ef6219a153fe2d
-  React-RCTNetwork: 1fbce92e772e39ca3687a2ebb854501ff6226dd7
-  React-RCTSettings: 1abea36c9bb16d9979df6c4b42e2ea281b4bbcc5
-  React-RCTText: 15355c41561a9f43dfd23616d0a0dd40ba05ed61
-  React-RCTVibration: ad17efcfb2fa8f6bfd8ac0cf48d96668b8b28e0b
-  React-runtimeexecutor: 8fa50b38df6b992c76537993a2b0553d3b088004
-  ReactCommon: b49a4b00ca6d181ff74b17c12b2d59ac4add0bde
-  RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
-  RNCPicker: 0bf8ef8f7800524f32d2bb2a8bcadd53eda0ecd1
-  RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
-  RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
-  RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
-  RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
-  RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
-  RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
-  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
-  RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
+  react-native-mmkv: b5c7f9bc369eef2b8a2aa36e8a15949989fa823f
+  react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
+  react-native-skia: 3947424d5927ad64eb7cb76a26399cd45bb6d9b0
+  react-native-webview: d33e2db8925d090871ffeb232dfa50cb3a727581
+  React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
+  React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
+  React-RCTAnimation: bc9440a1c37b06ae9ebbb532d244f607805c6034
+  React-RCTBlob: a1295c8e183756d7ef30ba6e8f8144dfe8a19215
+  React-RCTImage: a30d1ee09b1334067fbb6f30789aae2d7ac150c9
+  React-RCTLinking: ffc6d5b88d1cb9aca13c54c2ec6507fbf07f2ac4
+  React-RCTNetwork: f807a2facab6cf5cf36d592e634611de9cf12d81
+  React-RCTSettings: 861806819226ed8332e6a8f90df2951a34bb3e7f
+  React-RCTText: f3fb464cc41a50fc7a1aba4deeb76a9ad8282cb9
+  React-RCTVibration: 79040b92bfa9c3c2d2cb4f57e981164ec7ab9374
+  React-runtimeexecutor: b960b687d2dfef0d3761fbb187e01812ebab8b23
+  ReactCommon: 095366164a276d91ea704ce53cb03825c487a3f2
+  RNCClipboard: cc054ad1e8a33d2a74cd13e565588b4ca928d8fd
+  RNCPicker: 0250e95ad170569a96f5b0555cdd5e65b9084dca
+  RNFastImage: 1f2cab428712a4baaf78d6169eaec7f622556dd7
+  RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
+  RNInAppBrowser: 3ff3a3b8f458aaf25aaee879d057352862edf357
+  RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
+  RNLocalize: f567ea0e35116a641cdffe6683b0d212d568f32a
+  RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
+  RNReanimated: 64573e25e078ae6bec03b891586d50b9ec284393
+  RNScreens: 4d83613b50b74ed277026375dc0810893b0c347f
+  RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
@@ -1051,6 +1107,6 @@ SPEC CHECKSUMS:
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: 0fe80d640fa69b4bae94aeff5f8d03ad9d30f199
+PODFILE CHECKSUM: a7f6cbf2c92352bc0d979e782e33cb1340c65f89
 
 COCOAPODS: 1.12.0

@@ -14,7 +14,7 @@ export type TxHints = {
 const ZERO = new BN('0');
 const logger = createLogger('hints');
 
-export function startHintsTxSync(address: Address, engine: Engine) {
+export function startHintsTxSync(address: Address, engine: Engine, own?: Address) {
     let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/hints/tx`;
     let account = engine.persistence.fullAccounts.item(address);
     let cursor = engine.persistence.scannerState.item(address);
@@ -59,7 +59,7 @@ export function startHintsTxSync(address: Address, engine: Engine) {
         // Request hints
         //
 
-        requestAllHintsIfNeeded(Array.from(mentioned).map((v) => Address.parse(v)), account.block, engine);
+        requestAllHintsIfNeeded(Array.from(mentioned).map((v) => Address.parse(v)), account.block, engine, own);
 
         //
         // Persist processed

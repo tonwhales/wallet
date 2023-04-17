@@ -1,5 +1,6 @@
 import { Address } from "ton";
 import { Engine } from "../Engine";
+import { AppConfig } from "../../AppConfig";
 
 function addToSetArray(src: Address[] | null, value: Address) {
     if (!src) {
@@ -26,7 +27,7 @@ function removeFromSetArray(src: Address[] | null, value: Address) {
     }
 }
 
-function mergeSetArrays(src: Address[] | null, dst: Address[]) {
+export function mergeSetArrays(src: Address[] | null, dst: Address[]) {
 
     // Return destination if no source
     if (!src) {
@@ -65,14 +66,14 @@ export function registerKnownJettonWallet(engine: Engine, owner: Address, wallet
     itm.update((src) => addToSetArray(src, wallet));
 }
 
-export function markJettonDisabled(engine: Engine, owner: Address, master: Address) {
-    let itm = engine.persistence.disabledJettons.item(owner);
-    itm.update((src) => addToSetArray(src, master));
+export function markJettonDisabled(engine: Engine, master: Address) {
+    let itm = engine.cloud.get<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    itm.update((src) => src.disabled[master.toFriendly({ testOnly: AppConfig.isTestnet })] = { reason: 'disabled' });
 }
 
-export function markJettonActive(engine: Engine, owner: Address, master: Address) {
-    let itm = engine.persistence.disabledJettons.item(owner);
-    itm.update((src) => removeFromSetArray(src, master));
+export function markJettonActive(engine: Engine, master: Address) {
+    let itm = engine.cloud.get<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    itm.update((src) => delete src.disabled[master.toFriendly({ testOnly: AppConfig.isTestnet })]);
 }
 
 export function requestHintsIfNeeded(address: Address, seqno: number | null, engine: Engine) {
@@ -86,7 +87,7 @@ export function requestHintsIfNeeded(address: Address, seqno: number | null, eng
     engine.persistence.accountHints.item(engine.address).update((src) => addToSetArray(src, address));
 }
 
-export function requestAllHintsIfNeeded(addresses: Address[], seqno: number | null, engine: Engine) {
+export function requestAllHintsIfNeeded(addresses: Address[], seqno: number | null, engine: Engine, own?: Address) {
 
     // Ignore on empty input
     if (addresses.length === 0) {
@@ -101,8 +102,8 @@ export function requestAllHintsIfNeeded(addresses: Address[], seqno: number | nu
     }
 
     // Register account hints
-    let merged = mergeSetArrays(engine.persistence.accountHints.item(engine.address).value, addresses);
+    let merged = mergeSetArrays(engine.persistence.accountHints.item(own ?? engine.address).value, addresses);
     if (merged.added.length > 0) {
-        engine.persistence.accountHints.item(engine.address).update((src) => merged.res);
+        engine.persistence.accountHints.item(own ?? engine.address).update((src) => merged.res);
     }
 }

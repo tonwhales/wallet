@@ -78,7 +78,7 @@ async function getStakingMemberMonthlyChart(client4: TonClient4, address: Addres
 export async function downloadStateDirectly(engine: Engine, address: Address) {
     let last = await engine.client4.getLastBlock();
     let data = await engine.client4.getAccount(last.last.seqno, address);
-
+    
     if (data.account.state.type !== 'active') {
         throw Error('Invalid state');
     }

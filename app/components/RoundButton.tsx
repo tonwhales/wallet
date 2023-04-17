@@ -122,7 +122,8 @@ export const RoundButton = React.memo((props: {
     onPress?: () => void,
     action?: () => Promise<any>,
     iconImage?: ImageSourcePropType
-    icon?: any
+    icon?: any,
+    loadingStatus?: string
 }) => {
     const [loading, setLoading] = React.useState(false);
     const doLoading = props.loading !== undefined ? props.loading : loading;
@@ -167,8 +168,25 @@ export const RoundButton = React.memo((props: {
         >
             {(p) => (
                 <View style={{ height: size.height - 2, alignItems: 'center', justifyContent: 'center', minWidth: 64, paddingHorizontal: 16, }}>
-                    {doLoading && (
+                    {doLoading && !props.loadingStatus && (
                         <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, top: 0, alignItems: 'center', justifyContent: 'center' }}>
+                            <ActivityIndicator color={p.pressed ? display.textPressed : display.textColor} size='small' />
+                        </View>
+                    )}
+                    {doLoading && props.loadingStatus && (
+                        <View style={{
+                            position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
+                            alignItems: 'center', justifyContent: 'center',
+                            flexDirection: 'row',
+                        }}>
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 16,
+                                color: p.pressed ? display.textPressed : display.textColor,
+                                marginRight: 8
+                            }}>
+                                {props.loadingStatus}
+                            </Text>
                             <ActivityIndicator color={p.pressed ? display.textPressed : display.textColor} size='small' />
                         </View>
                     )}

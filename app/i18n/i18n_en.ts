@@ -651,6 +651,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             confirmOnLedger: 'Confirm via Ledger',
             sending: 'Awaiting transaction',
             sent: 'Transaction sent',
+            mainAddress: 'Main address',
         },
         confirm: {
             add: 'Are you sure want to add this app?',

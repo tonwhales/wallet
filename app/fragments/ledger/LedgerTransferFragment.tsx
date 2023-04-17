@@ -482,6 +482,7 @@ export const LedgerTransferFragment = fragment(() => {
                             isKnown={isKnown}
                             onSubmit={onSubmit}
                             contact={contact}
+                            showToMainAddress
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
                         <ATextInput
@@ -568,6 +569,7 @@ export const LedgerTransferFragment = fragment(() => {
                     <RoundButton
                         title={t('common.confirm')}
                         action={doSend}
+                        disabled={!order}
                         style={{
                             flex: 1,
                             marginLeft: 4

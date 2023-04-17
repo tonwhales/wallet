@@ -652,6 +652,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             confirmOnLedger: 'Подтвердите на Ledger',
             sending: 'Ожидание транзакции',
             sent: 'Транзакция отправлена',
+            mainAddress: 'Основной адрес',
         },
         confirm: {
             add: 'Вы уверены, что хотите добавить это приложение?',

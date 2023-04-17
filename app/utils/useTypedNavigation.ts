@@ -3,6 +3,7 @@ import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@rea
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { ZenPayAppParams } from '../fragments/zenpay/ZenPayAppFragment';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
@@ -102,6 +103,10 @@ export class TypedNavigation {
 
     navigateStakingCalculator(params: { target: Address }) {
         this.navigate('StakingCalculator', params);
+    }
+
+    navigateLedgerApp() {
+        this.navigate('LedgerApp');
     }
 
     navigateZenPayEnrollment(params: { endpoint: string, callback: () => void }) {

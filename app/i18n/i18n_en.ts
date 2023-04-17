@@ -41,6 +41,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         apy: 'APY',
         tx: 'Transaction',
         add: 'Add',
+        connect: 'Connect',
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',

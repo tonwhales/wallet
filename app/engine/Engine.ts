@@ -54,8 +54,9 @@ export class Engine {
         extensions: ExtensionsProduct,
         settings: SettingsProduct,
         keys: KeysProduct,
+        tonConnect: ConnectProduct,
+        ledger: LedgerProduct,
         zenPay: ZenPayProduct,
-        tonConnect: ConnectProduct
     };
     readonly transactions: Transactions;
     readonly model: Model;
@@ -104,8 +105,9 @@ export class Engine {
             extensions: new ExtensionsProduct(this),
             settings: new SettingsProduct(this),
             keys: new KeysProduct(this),
+            tonConnect: new ConnectProduct(this),
+            ledger: new LedgerProduct(this),
             zenPay: new ZenPayProduct(this),
-            tonConnect: new ConnectProduct(this)
         };
 
         //

@@ -43,6 +43,7 @@ export type LocalizationSchema = {
         apy: string,
         tx: string,
         add: string,
+        connect: string,
         gotIt: string,
         error: string,
         wallet: string

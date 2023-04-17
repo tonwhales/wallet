@@ -1,6 +1,6 @@
 // Crypto
 global.Buffer = global.Buffer || require('buffer').Buffer;
-import { polyfillWebCrypto } from 'expo-standard-web-crypto';
+import { polyfillWebCrypto } from './app/utils/expo-standart-web-crypto/polyfillWebCrypto';
 polyfillWebCrypto();
 
 // Set up an PRNG for nacl with expo-crypto

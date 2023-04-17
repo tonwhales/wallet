@@ -4364,13 +4364,6 @@ expo-notifications@~0.18.1:
     fs-extra "^9.1.0"
     uuid "^3.4.0"
 
-expo-random@^13.1.1:
-  version "13.1.1"
-  resolved "https://registry.yarnpkg.com/expo-random/-/expo-random-13.1.1.tgz#15e781911d5db4fbcee75e26ac109bc2523fe00c"
-  integrity sha512-+KkhGp7xW45GvMRzlcSOzvDwzTgyXo6C84GaG4GI43rOdECBQ2lGUJ12st39OtfZm1lORNskpi66DjnuJ73g9w==
-  dependencies:
-    base64-js "^1.3.0"
-
 expo-screen-capture@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/expo-screen-capture/-/expo-screen-capture-5.1.1.tgz#4a1d540f85721403fc58017142dfbebe3a05ff45"
@@ -4396,11 +4389,6 @@ expo-splash-screen@~0.18.1:
   dependencies:
     "@expo/configure-splash-screen" "^0.6.0"
     "@expo/prebuild-config" "6.0.0"
-
-expo-standard-web-crypto@^1.2.0:
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/expo-standard-web-crypto/-/expo-standard-web-crypto-1.4.3.tgz#471941bb9188940d8185130ef18f1d8d1026aac4"
-  integrity sha512-5gUM16C7+hk+2qNSYAFtTdyqqwz8FBkAk2zs+3Rjv5UoxLpTY7jhRTCYpKhTMELIJxSNzD/2h2k7sp2qczZ0QA==
 
 expo-status-bar@~1.4.4:
   version "1.4.4"

@@ -44,7 +44,7 @@ export const TransactionsSection = React.memo(({
                 style={{
                     marginHorizontal: 16,
                     borderRadius: 14,
-                    backgroundColor: 'white',
+                    backgroundColor: Theme.item,
                     overflow: 'hidden'
                 }}
                 collapsable={false}

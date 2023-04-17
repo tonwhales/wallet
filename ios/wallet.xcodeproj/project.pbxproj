@@ -261,12 +261,10 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IdensicMobileSDK/Core/IdensicMobileSDK.framework/IdensicMobileSDK",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IdensicMobileSDK.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -337,6 +335,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
+				BUNDLE_TC_SCHEMA = tc;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -349,7 +348,7 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = wallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
@@ -376,6 +375,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
+				BUNDLE_TC_SCHEMA = tc;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -383,7 +383,7 @@
 				CURRENT_PROJECT_VERSION = 44;
 				DEVELOPMENT_TEAM = 4CFQ3FG324;
 				INFOPLIST_FILE = wallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
@@ -576,6 +576,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
+				BUNDLE_TC_SCHEMA = "tc-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -588,7 +589,7 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = wallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
@@ -666,6 +667,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
+				BUNDLE_TC_SCHEMA = "tc-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -673,7 +675,7 @@
 				CURRENT_PROJECT_VERSION = 44;
 				DEVELOPMENT_TEAM = 4CFQ3FG324;
 				INFOPLIST_FILE = wallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (

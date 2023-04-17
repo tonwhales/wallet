@@ -18,7 +18,7 @@ export const Item = React.memo((props: { title?: string, hint?: string, onPress?
 
 export const ItemSwitch = React.memo((props: { title?: string, value: boolean, onChange: (value: boolean) => void }) => {
     return (
-        <View style={{ height: 44, paddingHorizontal: 16, backgroundColor: 'white', alignItems: 'center', flexDirection: 'row' }}>
+        <View style={{ height: 44, paddingHorizontal: 16, backgroundColor: Theme.item, alignItems: 'center', flexDirection: 'row' }}>
             <Text style={{ fontSize: 18, color: Theme.textColor, flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
             <Switch
                 // trackColor={Theme.accent}

@@ -175,7 +175,6 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             }
         }
 
-        // Tokeeper url support for QR
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
             && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
@@ -312,6 +311,15 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         if ((url.protocol.toLowerCase() === 'https:')
             && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().indexOf('/ton-connect') !== -1)) {
+            if (!!url.query.r && !!url.query.v && !!url.query.id) {
+                return {
+                    type: 'tonconnect',
+                    query: url.query as unknown as ConnectQrQuery
+                };
+            }
+        }
+        // Tonconnect
+        if (url.protocol.toLowerCase() === 'tc:') {
             if (!!url.query.r && !!url.query.v && !!url.query.id) {
                 return {
                     type: 'tonconnect',

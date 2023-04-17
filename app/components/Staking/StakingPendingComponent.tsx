@@ -48,7 +48,7 @@ export const StakingPendingComponent = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: 'white',
+            backgroundColor: Theme.item,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
@@ -64,7 +64,7 @@ export const StakingPendingComponent = React.memo((
                 }}>
                     <Text style={{
                         fontSize: 16,
-                        color: '#7D858A'
+                        color: Theme.label
                     }}>
                         {t('products.staking.pending.deposit')}
                     </Text>
@@ -79,11 +79,11 @@ export const StakingPendingComponent = React.memo((
                         <PriceComponent
                             amount={member.pendingDeposit}
                             style={{
-                                backgroundColor: 'transparent',
+                                backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 alignSelf: 'flex-end'
                             }}
-                            textStyle={{ color: '#6D6D71', fontWeight: '400' }} />
+                            textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }} />
                     </View>
                 </View>)}
             {member.pendingWithdraw.gtn(0) && (
@@ -102,7 +102,7 @@ export const StakingPendingComponent = React.memo((
                     }}>
                         <Text style={{
                             fontSize: 16,
-                            color: '#7D858A'
+                            color: Theme.label
                         }}>
                             {t('products.staking.pending.withdraw')}
                         </Text>
@@ -117,11 +117,11 @@ export const StakingPendingComponent = React.memo((
                             <PriceComponent
                                 amount={member.pendingWithdraw}
                                 style={{
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0,
                                     alignSelf: 'flex-end'
                                 }}
-                                textStyle={{ color: '#6D6D71', fontWeight: '400' }} />
+                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }} />
                         </View>
                     </View>
                 </>
@@ -143,7 +143,7 @@ export const StakingPendingComponent = React.memo((
                     }}>
                         <Text style={{
                             fontSize: 16,
-                            color: '#7D858A'
+                            color: Theme.label
                         }}>
                             {t('products.staking.withdrawStatus.ready')}
                         </Text>
@@ -151,18 +151,18 @@ export const StakingPendingComponent = React.memo((
                             <Text style={{
                                 fontWeight: '600',
                                 fontSize: 16,
-                                color: '#4FAE42'
+                                color: Theme.pricePositive
                             }}>
                                 {parseFloat(parseFloat(fromNano(member.withdraw)).toFixed(3)) + ' ' + 'TON'}
                             </Text>
                             <PriceComponent
                                 amount={member.withdraw}
                                 style={{
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0,
                                     alignSelf: 'flex-end'
                                 }}
-                                textStyle={{ color: '#6D6D71', fontWeight: '400' }} />
+                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }} />
                         </View>
                     </View>
                     <View style={{

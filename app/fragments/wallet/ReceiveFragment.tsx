@@ -76,7 +76,7 @@ export const ReceiveFragment = fragment(() => {
             <View style={{ padding: 16, width: '100%' }}>
                 <View style={{
                     justifyContent: 'center',
-                    backgroundColor: 'white', borderRadius: 20,
+                    backgroundColor: Theme.item, borderRadius: 20,
                     marginHorizontal: 16, padding: 14,
                     minHeight: 358
                 }}>

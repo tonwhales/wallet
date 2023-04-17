@@ -10,6 +10,7 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
+import { Theme } from '../../Theme';
 
 export const WalletCreateFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -40,7 +41,7 @@ export const WalletCreateFragment = systemFragment(() => {
             {!state && (
                 <Animated.View
                     style={{
-                        flexGrow: 1, backgroundColor: 'white',
+                        flexGrow: 1, backgroundColor: Theme.item,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key="loading"
@@ -61,7 +62,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center',
-                        flexGrow: 1, backgroundColor: 'white',
+                        flexGrow: 1, backgroundColor: Theme.item,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0
                     }}
                     key="content"

@@ -48,14 +48,14 @@ export const AccountsFragment = fragment(() => {
     const promptDisable = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(true, symbol);
-            if (c) markJettonDisabled(engine, engine.address, master);
+            if (c) markJettonDisabled(engine, master);
         },
         [],
     );
     const promptActive = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(false, symbol);
-            if (c) markJettonActive(engine, engine.address, master);
+            if (c) markJettonActive(engine, master);
         },
         [],
     );
@@ -117,7 +117,7 @@ export const AccountsFragment = fragment(() => {
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: '#6D6D71'
+                        color: Theme.priceSecondary
                     }}
                     >
                         {t('accounts.description')}
@@ -137,7 +137,7 @@ export const AccountsFragment = fragment(() => {
                                 <Text style={{
                                     marginHorizontal: 16,
                                     fontSize: 16,
-                                    color: '#6D6D71'
+                                    color: Theme.priceSecondary
                                 }}
                                 >
                                     {t('accounts.description')}

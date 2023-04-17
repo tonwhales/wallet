@@ -13,6 +13,8 @@ import { resolveOperation } from "../transactions/resolveOperation";
 import { PluginState } from "../sync/startPluginSync";
 import { t } from "../../i18n/t";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
+import { CloudValue } from "../cloud/CloudValue";
+import { storage } from "../../storage/storage";
 
 export type WalletState = {
     balance: BN;
@@ -55,6 +57,7 @@ export class WalletProduct {
 
     readonly engine: Engine;
     readonly address: Address;
+    readonly disabledJettons: CloudValue<{ disabled: { [key: string]: { reason: string } } }>
 
     // State
     #state: WalletState | null = null;
@@ -75,6 +78,20 @@ export class WalletProduct {
             default: null,
             dangerouslyAllowMutability: true
         });
+
+        this.disabledJettons = engine.cloud.get('jettons-disabled', (src) => { src.disabled = {} });
+        if (!storage.getBoolean('disabled-jettons-migration')) {
+            let prevDisabled = engine.persistence.disabledJettons.item(engine.address).value || [];
+            if (prevDisabled.length) {
+                this.disabledJettons.update((src) => {
+                    for (let m of prevDisabled) {
+                        src.disabled[m.toFriendly({ testOnly: AppConfig.isTestnet })] = { reason: 'disabled' };
+                    }
+                });
+            }
+            storage.set('disabled-jettons-migration', true);
+        }
+
         this.#jettons = selector({
             key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/jettons',
             get: ({ get }) => {
@@ -83,8 +100,7 @@ export class WalletProduct {
                 let knownJettons = get(engine.persistence.knownAccountJettons.item(engine.address).atom) || [];
 
                 // Load disabled jeetons
-                let disabledJettons = get(engine.persistence.disabledJettons.item(engine.address).atom) || [];
-
+                let disabledJettons = Object.keys(get(this.disabledJettons.atom).disabled)
                 // Load wallets
                 let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
                 for (let w of knownJettons) {
@@ -129,7 +145,7 @@ export class WalletProduct {
                             }
                         }
 
-                        const disabled = !!disabledJettons.find((m) => m.equals(w.master));
+                        const disabled = !!disabledJettons.find((m) => m === w.master.toFriendly({ testOnly: AppConfig.isTestnet }));
 
                         jettonWalletsWithMasters.push({
                             ...w,

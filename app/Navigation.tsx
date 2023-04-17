@@ -57,7 +57,9 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { LedgerRoot } from './fragments/ledger/LedgerRoot';
+import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
+import { ZenPayEnrollmentFragment } from './fragments/zenpay/ZenPayEnrollmentFragment';
+import { ZenPayLandingFragment } from './fragments/zenpay/ZenPayLandingFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
@@ -175,6 +177,9 @@ const navigation = [
     modalScreen('Contacts', ContactsFragment),
     modalScreen('Ledger', LedgerRoot),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
+    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment),
+    modalScreen('ZenPayLanding', ZenPayLandingFragment),
+    lockedModalScreen('ZenPay', ZenPayAppFragment),
     modalScreen('Assets', AssetsFragment),
     <Stack.Screen
         key={`genericScreen-App`}

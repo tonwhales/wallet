@@ -22,9 +22,15 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
             },
             props.style
         ]}>
-            {(navigation.canGoBack() || props.onBack) && (
+            {(navigation.canGoBack() || !!props.onBack) && (
                 <TouchableNativeFeedback
-                    onPress={props.onBack ?? navigation.goBack}
+                    onPress={() => {
+                        if (props.onBack) {
+                            props.onBack();
+                        } else {
+                            navigation.goBack();
+                        }
+                    }}
                     background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                 >
                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>

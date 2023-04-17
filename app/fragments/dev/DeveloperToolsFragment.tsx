@@ -13,6 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { Cell, CommentMessage } from 'ton';
+import { clearZenPay } from '../LogoutFragment';
 
 export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -23,6 +24,7 @@ export const DeveloperToolsFragment = fragment(() => {
     }, [])
     const resetCache = React.useCallback(() => {
         storagePersistence.clearAll();
+        clearZenPay(engine);
         reboot();
     }, []);
 
@@ -46,7 +48,7 @@ export const DeveloperToolsFragment = fragment(() => {
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: "white",
+                    backgroundColor: Theme.item,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',

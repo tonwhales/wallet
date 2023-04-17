@@ -118,7 +118,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 2,
                     marginHorizontal: 16,
-                    backgroundColor: "white",
+                    backgroundColor: Theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -128,7 +128,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                         onValueChange={setReview}
                         keyboardType="default"
                         autoCapitalize="sentences"
-                        style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
+                        style={{ backgroundColor: Theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
                         preventDefaultHeight
                         multiline
                         label={
@@ -142,7 +142,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
-                                    color: '#7D858A',
+                                    color: Theme.label,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('review.review')}

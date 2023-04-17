@@ -2654,11 +2654,6 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@sumsub/react-native-mobilesdk-module@^1.19.7":
-  version "1.19.7"
-  resolved "https://registry.yarnpkg.com/@sumsub/react-native-mobilesdk-module/-/react-native-mobilesdk-module-1.19.7.tgz#c504fa8ba8058edc213b2531a3b393c9a1887417"
-  integrity sha512-DLgPYJaDWR1G6obl00MUGzzICaQGEMMNVXjsJpj+Lv4zJcDY7nc3S1YnjFsH/7mPxvJF6ozbAxkieoLHTv1lNg==
-
 "@svgr/babel-plugin-add-jsx-attribute@^6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-6.0.0.tgz#bd6d1ff32a31b82b601e73672a789cc41e84fe18"
@@ -5878,6 +5873,11 @@ inline-style-prefixer@^6.0.0:
   integrity sha512-AsqazZ8KcRzJ9YPN1wMH2aNM7lkWQ8tSPrW5uDk1ziYwiAPWSZnUsC7lfZq+BDqLqz0B4Pho5wscWcJzVvRzDQ==
   dependencies:
     css-in-js-utils "^2.0.0"
+
+int64-buffer@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/int64-buffer/-/int64-buffer-1.0.1.tgz#c78d841b444cadf036cd04f8683696c740f15dca"
+  integrity sha512-+3azY4pXrjAupJHU1V9uGERWlhoqNswJNji6aD/02xac7oxol508AsMC5lxKhEqyZeDFy3enq5OGWXF4u75hiw==
 
 internal-ip@4.3.0:
   version "4.3.0"

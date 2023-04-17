@@ -6,6 +6,7 @@ export function extractZenPayQueryParams(url: string): {
     openUrl: string | null,
     backPolicy: BackPolicy,
     openEnrollment: boolean,
+    showKeyboardAccessoryView: boolean,
 } {
     try {
         const query = url.split('?')[1];
@@ -14,6 +15,7 @@ export function extractZenPayQueryParams(url: string): {
         let openUrl = null;
         let backPolicy: BackPolicy = 'close';
         let openEnrollment = false;
+        let showKeyboardAccessoryView = false;
 
             if (params.has(ZenPayQueryParams.CloseApp)) {
                 const queryValue = params.get(ZenPayQueryParams.CloseApp);
@@ -43,11 +45,19 @@ export function extractZenPayQueryParams(url: string): {
                 }
             }
 
+            if (params.has(ZenPayQueryParams.ShowKeyboardAccessoryView)) {
+                const queryValue = params.get(ZenPayQueryParams.ShowKeyboardAccessoryView);
+                if (queryValue === 'true') {
+                    showKeyboardAccessoryView = true;
+                }
+            }
+
             return {
                 closeApp,
                 openUrl,
                 backPolicy: backPolicy,
                 openEnrollment,
+                showKeyboardAccessoryView,
             }
     } catch (error) {
         warn(error);
@@ -56,6 +66,7 @@ export function extractZenPayQueryParams(url: string): {
             openUrl: null,
             backPolicy: 'close',
             openEnrollment: false,
+            showKeyboardAccessoryView: false,
         }
     }
 }

@@ -34,6 +34,7 @@ export const ZenPayAppComponent = React.memo((
 ) => {
     const engine = useEngine();
     const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
+    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
@@ -205,6 +206,7 @@ export const ZenPayAppComponent = React.memo((
             onCloseApp();
             return;
         }
+        setHideKeyboardAccessoryView(!params.showKeyboardAccessoryView);
         setBackPolicy(params.backPolicy);
         if (params.openUrl) {
             safelyOpenUrl(params.openUrl);
@@ -283,7 +285,7 @@ export const ZenPayAppComponent = React.memo((
                         onShouldStartLoadWithRequest={loadWithRequest}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={true}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
                     />
                 </KeyboardAvoidingView>

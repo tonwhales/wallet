@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -237,6 +237,18 @@ export const ZenPayAppComponent = React.memo((
         }
     }, [onHardwareBackPress]);
 
+    const onContentProcessDidTerminate = React.useCallback(() => {
+        webRef.current?.reload();
+    }, []);
+
+    React.useEffect(() => {
+        // Adding onAppFocus listener in case of content process termination events not firing
+        const sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+        return () => {
+            sub.remove();
+        }
+    }, []);
+
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -283,6 +295,10 @@ export const ZenPayAppComponent = React.memo((
                         allowsInlineMediaPlayback={true}
                         injectedJavaScriptBeforeContentLoaded={injectSource}
                         onShouldStartLoadWithRequest={loadWithRequest}
+                        // In case of iOS blank WebView
+                        onContentProcessDidTerminate={onContentProcessDidTerminate}
+                        // In case of Android blank WebView
+                        onRenderProcessGone={onContentProcessDidTerminate}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}

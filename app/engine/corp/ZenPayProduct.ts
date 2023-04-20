@@ -12,7 +12,7 @@ import { fetchCards } from "../api/zenpay/fetchCards";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
-export const zenPayUrl = 'https://next.zenpay.org';
+export const zenPayUrl = storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org';
 const currenTokenVersion = 1;
 
 export type ZenPayAccountStatus =

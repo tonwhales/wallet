@@ -65,60 +65,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test Whales"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.tonwhales.com/tools/x' : 'https://tonwhales.com/tools/x' })} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test Scaleton"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.scaleton.io' : 'https://scaleton.io' })} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test Gems"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://getgems.io' : 'https://getgems.io' })} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Cloud Counter"} hint={counterValue.toString()} onPress={() => counter.update((src) => src.counter.increment())} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
-                    </View>
-
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item
-                            title={"AccountStatus"}
-                            hint={JSON.stringify(status.state)}
-                            onPress={() => {
-                                (async () => {
-                                    try {
-                                        console.log('here1');
-                                        clearZenPay(engine);
-                                        engine.persistence.zenPayStatus.item(engine.address).update((src) => null);
-                                        console.log('here2');
-                                        console.log('here3');
-
-
-                                        const data = await engine.products.extensions.getAppData(zenPayUrl);
-                                        if (!data) {
-                                            Alert.alert(t('auth.failed'));
-                                            return;
-                                        }
-                                        console.log('here4');
-
-                                        const domain = extractDomain(zenPayUrl);
-                                        console.log('here5');
-                                        const res = await engine.products.zenPay.enroll(domain);
-                                        if (!res) {
-                                            Alert.alert(t('auth.failed'));
-                                            return;
-                                        }
-                                        console.log('here6', { res });
-
-                                    } catch (error) {
-                                        Alert.alert(t('auth.failed'));
-                                        warn(error);
-                                    }
-                                })();
-                            }}
-                        />
-                    </View>
                 </View>
             </View>
         </View>

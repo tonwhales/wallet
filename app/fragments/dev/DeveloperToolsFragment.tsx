@@ -2,17 +2,14 @@ import * as React from 'react';
 import { Alert, Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { Theme } from "../../Theme";
-import { Item } from '../../components/Item';
-import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storage, storagePersistence } from '../../storage/storage';
+import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { Cell, CommentMessage } from 'ton';
 import { clearZenPay } from '../LogoutFragment';
 
 export const DeveloperToolsFragment = fragment(() => {
@@ -29,16 +26,6 @@ export const DeveloperToolsFragment = fragment(() => {
     }, []);
 
     const engine = useEngine();
-    const counter = React.useMemo(() => engine.cloud.counter('counter.sample'), []);
-    const counterValue = counter.use().counter;
-    const status = engine.products.zenPay.useStatus();
-
-    // const isTestNet = useTestnet();
-    // const switchNetwork = React.useCallback(() => {
-    //     let state = (getAppState())!;
-    //     setAppState({ ...state, testnet: !state.testnet });
-    //     reboot();
-    // }, []);
     return (
         <View style={{
             flex: 1,

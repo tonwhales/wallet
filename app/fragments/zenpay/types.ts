@@ -4,6 +4,7 @@ export enum ZenPayQueryParams {
     OpenEnrollment = 'openEnrollment',
     BackPolicy = 'backPolicy',
     OpenUrl = 'openUrl',
+    ShowKeyboardAccessoryView = 'showKAV',
 }
 
 export type BackPolicy = 'back' | 'close' | 'lock';

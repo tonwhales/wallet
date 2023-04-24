@@ -4,16 +4,16 @@ import { AsyncLock } from "teslabot";
 import { AppConfig } from "../../AppConfig";
 import { fetchAccountState } from "../api/zenpay/fetchAccountState";
 import { fetchAccountToken } from "../api/zenpay/fetchAccountToken";
-import { fetchCardList } from "../api/zenpay/fetchCardList";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 import { storage } from "../../storage/storage";
+import { fetchCards } from "../api/zenpay/fetchCards";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
 export const zenPayUrl = 'https://stage.zenpay.org';
-const currenTokentVersion = 1;
+const currenTokenVersion = 1;
 
 export type ZenPayAccountStatus =
     | {
@@ -74,10 +74,10 @@ export class ZenPayProduct {
             }
         });
 
-        if (storage.getNumber('zenpay-token-version') !== currenTokentVersion) {
+        if (storage.getNumber('zenpay-token-version') !== currenTokenVersion) {
             this.cleanup();
         }
-        storage.set('zenpay-token-version', currenTokentVersion);
+        storage.set('zenpay-token-version', currenTokenVersion);
     }
 
     async enroll(domain: string) {
@@ -140,7 +140,7 @@ export class ZenPayProduct {
         if (status.state === 'ready') {
             const token = status.token;
             try {
-                let listRes = await fetchCardList(token);
+                let listRes = await fetchCards(this.engine.address);
 
                 // Clear token on 401 unauthorized response
                 if (listRes === null) {

@@ -22,6 +22,7 @@ export const ZenPayLandingFragment = fragment(() => {
     const webRef = React.useRef<WebView>(null);
     const engine = useEngine();
     const navigation = useTypedNavigation();
+    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: ZenPayAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
@@ -141,6 +142,7 @@ export const ZenPayLandingFragment = fragment(() => {
             navigation.goBack();
             return;
         }
+        setHideKeyboardAccessoryView(!params.showKeyboardAccessoryView);
         if (params.openEnrollment) {
             onEnroll();
             return;
@@ -195,6 +197,7 @@ export const ZenPayLandingFragment = fragment(() => {
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
                         scrollEnabled={false}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                     />
                 </KeyboardAvoidingView>
                 <Animated.View

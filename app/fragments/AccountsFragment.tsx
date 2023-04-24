@@ -48,14 +48,14 @@ export const AccountsFragment = fragment(() => {
     const promptDisable = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(true, symbol);
-            if (c) markJettonDisabled(engine, engine.address, master);
+            if (c) markJettonDisabled(engine, master);
         },
         [],
     );
     const promptActive = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(false, symbol);
-            if (c) markJettonActive(engine, engine.address, master);
+            if (c) markJettonActive(engine, master);
         },
         [],
     );

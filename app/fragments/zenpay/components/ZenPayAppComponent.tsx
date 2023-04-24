@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -34,6 +34,7 @@ export const ZenPayAppComponent = React.memo((
 ) => {
     const engine = useEngine();
     const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
+    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
@@ -205,6 +206,7 @@ export const ZenPayAppComponent = React.memo((
             onCloseApp();
             return;
         }
+        setHideKeyboardAccessoryView(!params.showKeyboardAccessoryView);
         setBackPolicy(params.backPolicy);
         if (params.openUrl) {
             safelyOpenUrl(params.openUrl);
@@ -234,6 +236,18 @@ export const ZenPayAppComponent = React.memo((
             BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
         }
     }, [onHardwareBackPress]);
+
+    const onContentProcessDidTerminate = React.useCallback(() => {
+        webRef.current?.reload();
+    }, []);
+
+    React.useEffect(() => {
+        // Adding onAppFocus listener in case of content process termination events not firing
+        const sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+        return () => {
+            sub.remove();
+        }
+    }, []);
 
     return (
         <>
@@ -281,9 +295,13 @@ export const ZenPayAppComponent = React.memo((
                         allowsInlineMediaPlayback={true}
                         injectedJavaScriptBeforeContentLoaded={injectSource}
                         onShouldStartLoadWithRequest={loadWithRequest}
+                        // In case of iOS blank WebView
+                        onContentProcessDidTerminate={onContentProcessDidTerminate}
+                        // In case of Android blank WebView
+                        onRenderProcessGone={onContentProcessDidTerminate}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={true}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
                     />
                 </KeyboardAvoidingView>

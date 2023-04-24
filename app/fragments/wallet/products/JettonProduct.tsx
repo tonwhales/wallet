@@ -33,7 +33,7 @@ export const JettonProduct = React.memo((props: {
     const promptDisable = React.useCallback(
         async () => {
             const c = await confirmJettonAction(true, props.jetton.symbol);
-            if (c) markJettonDisabled(props.engine, props.engine.address, props.jetton.master);
+            if (c) markJettonDisabled(props.engine, props.jetton.master);
         },
         [],
     );

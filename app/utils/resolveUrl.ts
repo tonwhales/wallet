@@ -175,7 +175,6 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             }
         }
 
-        // Tokeeper url support for QR
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
             && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {

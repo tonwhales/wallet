@@ -82,6 +82,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
         // Refresh on app load
         AppState.addEventListener('change', () => {
             this.extensions.invalidate();
+            this._startSync();
         });
     }
 

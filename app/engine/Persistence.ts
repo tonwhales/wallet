@@ -34,7 +34,7 @@ import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./ton
 
 export class Persistence {
 
-    readonly version: number = 14;
+    readonly version: number = 15;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -228,7 +228,7 @@ const metadataCodec = t.type({
     jettonMaster: t.union([t.undefined, t.type({
         totalSupply: c.bignum,
         mintalbe: t.boolean,
-        owner: c.address,
+        owner: t.union([c.address, t.null]),
         content: t.union([t.undefined, contentSourceCodec])
     })])
 });

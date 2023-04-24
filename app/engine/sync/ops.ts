@@ -1,5 +1,6 @@
 import { Address } from "ton";
 import { Engine } from "../Engine";
+import { AppConfig } from "../../AppConfig";
 
 function addToSetArray(src: Address[] | null, value: Address) {
     if (!src) {
@@ -65,14 +66,14 @@ export function registerKnownJettonWallet(engine: Engine, owner: Address, wallet
     itm.update((src) => addToSetArray(src, wallet));
 }
 
-export function markJettonDisabled(engine: Engine, owner: Address, master: Address) {
-    let itm = engine.persistence.disabledJettons.item(owner);
-    itm.update((src) => addToSetArray(src, master));
+export function markJettonDisabled(engine: Engine, master: Address) {
+    let itm = engine.cloud.get<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    itm.update((src) => src.disabled[master.toFriendly({ testOnly: AppConfig.isTestnet })] = { reason: 'disabled' });
 }
 
-export function markJettonActive(engine: Engine, owner: Address, master: Address) {
-    let itm = engine.persistence.disabledJettons.item(owner);
-    itm.update((src) => removeFromSetArray(src, master));
+export function markJettonActive(engine: Engine, master: Address) {
+    let itm = engine.cloud.get<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    itm.update((src) => delete src.disabled[master.toFriendly({ testOnly: AppConfig.isTestnet })]);
 }
 
 export function requestHintsIfNeeded(address: Address, seqno: number | null, engine: Engine) {

@@ -5,7 +5,7 @@ import { avatarColors, avatarImages } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
 import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
-import { Theme } from "../Theme";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 const Color = require('color');
 
@@ -18,6 +18,7 @@ export const PendingTransactionAvatar = React.memo(({
     avatarId: string,
     address?: string
 }) => {
+    const { Theme } = useAppConfig();
     const ref = useRef<CircularProgress>(null);
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];

@@ -6,7 +6,6 @@ import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, fromNano, toNano } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
@@ -14,17 +13,18 @@ import { useEngine } from "../../engine/Engine";
 import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
 import { formatDate } from "../../utils/dates";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { KnownPools } from "../../utils/KnownPools";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
 export const StakingGraphFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ pool: string }>();

@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Platform, View } from "react-native";
+import { Alert, Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
-import { Theme } from "../../Theme";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
 import { storagePersistence } from '../../storage/storage';
@@ -11,8 +10,10 @@ import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const DeveloperToolsFragment = fragment(() => {
+    const { Theme, AppConfig, setNetwork } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
@@ -26,6 +27,27 @@ export const DeveloperToolsFragment = fragment(() => {
     }, []);
 
     const engine = useEngine();
+
+    const switchNetwork = React.useCallback(
+        () => {
+            Alert.alert(
+                `Switching to ${AppConfig.isTestnet ? 'Mainnet' : 'Testnet'}`,
+                'Are you sure you want to switch networks?',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Switch',
+                        onPress: () => setNetwork(!AppConfig.isTestnet),
+                    }
+                ]
+            );
+        },
+        [AppConfig.isTestnet],
+    );
+
     return (
         <View style={{
             flex: 1,
@@ -51,6 +73,9 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Network"} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                     </View>
                 </View>
             </View>

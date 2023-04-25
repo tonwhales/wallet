@@ -20,7 +20,6 @@ import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { Theme } from "../../../Theme";
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
 import Contact from '../../../../assets/ic_transfer_contact.svg';
@@ -32,7 +31,6 @@ import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
 import Staking from '../../../../assets/ic_sign_staking.svg';
 import Question from '../../../../assets/ic_question.svg';
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
-import { AppConfig } from "../../../AppConfig";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { WImage } from "../../../components/WImage";
 import { AddressComponent } from "../../../components/AddressComponent";
@@ -46,6 +44,7 @@ import { ItemAddress } from "../../../components/ItemAddress";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { zenPayUrl } from "../../../engine/corp/ZenPayProduct";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 type Props = {
     target: {
@@ -67,6 +66,7 @@ type Props = {
 }
 
 export const TransferSingle = React.memo((props: Props) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -110,7 +110,7 @@ export const TransferSingle = React.memo((props: Props) => {
     const success = React.useRef(false);
     React.useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) });
+            trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
         }
     }, []);
 
@@ -258,7 +258,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) });
+        trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
 
         // Register pending
         engine.products.main.registerPending({

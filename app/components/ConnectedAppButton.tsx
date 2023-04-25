@@ -5,8 +5,8 @@ import { useEngine } from "../engine/Engine";
 import { AppManifest } from "../engine/api/fetchManifest";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { WImage } from "./WImage";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
@@ -23,6 +23,7 @@ export const ConnectedAppButton = React.memo((
         onRevoke?: () => void,
     }
 ) => {
+    const { Theme } = useAppConfig();
     const engine = useEngine();
     const appData = engine.products.extensions.useAppData(url);
     const appManifest = engine.products.tonConnect.useAppManifest(url);

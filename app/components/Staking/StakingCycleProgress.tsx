@@ -1,10 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle } from "react-native"
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { AppConfig } from "../../AppConfig";
-import { Theme } from "../../Theme";
-
-export const stakingCycle = AppConfig.isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const StakingCycleProgress = React.memo((
     {
@@ -21,6 +18,8 @@ export const StakingCycleProgress = React.memo((
         reverse?: boolean
     }
 ) => {
+    const { Theme, AppConfig } = useAppConfig();
+    const stakingCycle = AppConfig.isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
     const progress = 100 - Math.floor((left * 100) / (full ? full : stakingCycle));
     const ref = useRef<Animated.View>(null);
     const scale = useSharedValue(0);

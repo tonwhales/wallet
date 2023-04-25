@@ -6,7 +6,6 @@ import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableN
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, toNano } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
@@ -14,7 +13,6 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { getCurrentAddress } from "../../storage/appState";
 import { useEngine } from "../../engine/Engine";
-import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
 import { StakingCycle } from "../../components/Staking/StakingCycle";
@@ -29,8 +27,10 @@ import { KnownPools } from "../../utils/KnownPools";
 import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const StakingFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Platform, Pressable, Text, ToastAndroid, View } from 'react-native';
-import { Theme } from '../Theme';
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import ContactIcon from '../../assets/ic_contacts.svg';
 import CopyIcon from '../../assets/ic_copy.svg';
 import { t } from '../i18n/t';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const ItemAddress = React.memo((props: {
     title: string,
@@ -16,6 +16,7 @@ export const ItemAddress = React.memo((props: {
     contact?: boolean,
     children?: any
 }) => {
+    const { Theme } = useAppConfig();
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
             Clipboard.setString(body);

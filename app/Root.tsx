@@ -4,6 +4,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { RecoilRoot } from 'recoil';
 import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
+import { AppConfigContextProvider } from './utils/AppConfigContext';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);
@@ -18,9 +19,11 @@ export const Root = React.memo(() => {
             entering={FadeIn}
         >
             <RebootContext.Provider value={reboot}>
-                <RecoilRoot>
-                    <Navigation />
-                </RecoilRoot>
+                <AppConfigContextProvider>
+                    <RecoilRoot>
+                        <Navigation />
+                    </RecoilRoot>
+                </AppConfigContextProvider>
             </RebootContext.Provider>
         </Animated.View>
     );

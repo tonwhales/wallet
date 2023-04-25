@@ -11,12 +11,13 @@ import { RoundButton } from '../../components/RoundButton';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
-import { Theme } from '../../Theme';
 import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 

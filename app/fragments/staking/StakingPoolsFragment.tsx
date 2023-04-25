@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, ImageRequireSource, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppConfig } from "../../AppConfig";
 import { Engine, useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { KnownPools } from "../../utils/KnownPools";
@@ -9,7 +8,6 @@ import { ProductButton } from "../wallet/products/ProductButton";
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from "expo-blur";
-import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { Ionicons } from '@expo/vector-icons';
 import { HeaderBackButton } from "@react-navigation/elements";
@@ -17,6 +15,7 @@ import { Address, fromNano, toNano } from "ton";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(
@@ -60,6 +59,7 @@ function PoolComponent(props: {
     restricted?: boolean,
     engine: Engine
 }) {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const addr = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
     const pool = props.engine.products.whalesStakingPools.usePool(props.address);
@@ -112,6 +112,7 @@ function Header(props: {
     description?: string,
     action?: { title: string, onAction: () => void }
 }) {
+    const { Theme } = useAppConfig();
     return (
         <View style={{ marginBottom: 10 }}>
             <ItemHeader title={props.text} style={{ paddingVertical: undefined, marginTop: 11, height: undefined }} />
@@ -154,6 +155,7 @@ function Header(props: {
 }
 
 export const StakingPoolsFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();

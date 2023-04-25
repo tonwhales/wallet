@@ -8,10 +8,10 @@ import { useEngine } from "../engine/Engine";
 import { CurrencySymbols, PrimaryCurrency } from "../engine/products/PriceProduct";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import CheckMark from '../../assets/ic_check_mark.svg';
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -19,6 +19,7 @@ export const CurrencyFragment = fragment(() => {
     const engine = useEngine();
     const priceProduct = engine.products.price;
     const currency = priceProduct.usePrimaryCurrency();
+    const { Theme } = useAppConfig();
 
     const onCurrency = useCallback(
         async (code: string) => {

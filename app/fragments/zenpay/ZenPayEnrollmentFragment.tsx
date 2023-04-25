@@ -10,8 +10,6 @@ import { backoff } from '../../utils/time';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getCurrentAddress } from '../../storage/appState';
-import { AppConfig } from '../../AppConfig';
-import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
 import SuccessIcon from '../../../assets/ic_success.svg';
 import ChainIcon from '../../../assets/ic_chain.svg';
@@ -22,6 +20,7 @@ import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { CheckBox } from '../../components/CheckBox';
 import { extractDomain } from '../../engine/utils/extractDomain';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -35,6 +34,7 @@ type SignState = { type: 'loading' }
     | { type: 'failed' }
 
 const SignStateLoader = React.memo((props: { endpoint: string, callback: () => void }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });

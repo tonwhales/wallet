@@ -2,12 +2,10 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { Image, NativeSyntheticEvent, Platform, Share, Text, ToastAndroid, useWindowDimensions, View } from 'react-native';
 import { Address } from 'ton';
-import { Theme } from '../../../Theme';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/AddressComponent';
 import { TouchableHighlight } from 'react-native';
-import { AppConfig } from '../../../AppConfig';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { KnownJettonMasters, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
@@ -17,6 +15,7 @@ import { Engine } from '../../../engine/Engine';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
+import { useAppConfig } from '../../../utils/AppConfigContext';
 
 function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly })})`
@@ -29,6 +28,7 @@ export function TransactionView(props: {
     engine: Engine,
     onPress: (src: string) => void
 }) {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;

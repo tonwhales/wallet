@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { View, Text, StyleProp, ViewStyle } from "react-native"
-import { AppConfig } from "../../AppConfig"
 import { t } from "../../i18n/t"
-import { Theme } from "../../Theme"
 import { Countdown } from "../Countdown"
 import { StakingCycleProgress } from "./StakingCycleProgress"
+import { useAppConfig } from "../../utils/AppConfigContext"
 
 export const StakingCycle = React.memo((
     {
@@ -19,6 +18,7 @@ export const StakingCycle = React.memo((
         locked: boolean
     }
 ) => {
+    const { Theme } = useAppConfig();
     const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
 
     useEffect(() => {

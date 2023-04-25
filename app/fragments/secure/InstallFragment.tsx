@@ -9,8 +9,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getCurrentAddress } from '../../storage/appState';
-import { AppConfig } from '../../AppConfig';
-import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
 import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
@@ -19,6 +17,7 @@ import { useEngine } from '../../engine/Engine';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -27,6 +26,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 const SignStateLoader = React.memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
@@ -55,7 +55,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
 
         // Track installation
         success.current = true;
-        trackEvent(MixpanelEvent.AppInstall, { url: props.url, domain: domain });
+        trackEvent(MixpanelEvent.AppInstall, { url: props.url, domain: domain }, AppConfig.isTestnet);
 
         // Navigate
         navigation.goBack();
@@ -64,7 +64,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
     React.useEffect(() => {
         if (!success.current) {
             let domain = extractDomain(props.url);
-            trackEvent(MixpanelEvent.AppInstallCancel, { url: props.url, domain: domain });
+            trackEvent(MixpanelEvent.AppInstallCancel, { url: props.url, domain: domain }, AppConfig.isTestnet);
         }
     }, []);
 

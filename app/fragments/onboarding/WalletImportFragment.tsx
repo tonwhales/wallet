@@ -10,13 +10,13 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const wordsTrie = WordsListTrie();
 
@@ -37,6 +37,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     onFocus: (index: number) => void,
     onSubmit: (index: number, value: string) => void,
 }, ref: React.ForwardedRef<WordInputRef>) => {
+    const { Theme } = useAppConfig();
 
     //
     // Internal state
@@ -168,6 +169,7 @@ function WalletWordsComponent(props: {
         deviceEncryption: DeviceEncryption
     }) => void
 }) {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
 
@@ -396,6 +398,7 @@ function WalletWordsComponent(props: {
 }
 
 export const WalletImportFragment = systemFragment(() => {
+    const { Theme } = useAppConfig();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption

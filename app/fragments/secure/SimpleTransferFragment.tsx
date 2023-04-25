@@ -10,7 +10,6 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
-import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
@@ -19,9 +18,7 @@ import { useRoute } from '@react-navigation/native';
 import { useEngine } from '../../engine/Engine';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
-import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
-import VerifiedIcon from '../../../assets/ic_verified.svg';
 import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
@@ -32,6 +29,7 @@ import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -40,6 +38,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 export const SimpleTransferFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const params: {
         target?: string,
@@ -303,7 +302,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [order, account.seqno, config, accountState, comment]);
 
-    const linkNavigator = useLinkNavigator();
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src, AppConfig.isTestnet);
         if (res && res.type === 'transaction') {

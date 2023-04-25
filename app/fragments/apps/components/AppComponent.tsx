@@ -11,7 +11,6 @@ import { useLinkNavigator } from "../../../useLinkNavigator";
 import { warn } from '../../../utils/log';
 import { createInjectSource, dispatchResponse } from './inject/createInjectSource';
 import { useInjectEngine } from './inject/useInjectEngine';
-import { AppConfig } from '../../../AppConfig';
 import { useEngine } from '../../../engine/Engine';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { protectNavigation } from './protect/protectNavigation';
@@ -22,7 +21,7 @@ import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
-import { Theme } from '../../../Theme';
+import { useAppConfig } from '../../../utils/AppConfigContext';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -32,7 +31,7 @@ export const AppComponent = React.memo((props: {
     title: string,
     domainKey: DomainSubkey
 }) => {
-
+    const { Theme, AppConfig } = useAppConfig();
     // 
     // Track events
     // 
@@ -43,9 +42,9 @@ export const AppComponent = React.memo((props: {
     }, []);
     const close = React.useCallback(() => {
         navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'ton-x' });
+        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'ton-x' }, AppConfig.isTestnet);
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'ton-x' });
+    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'ton-x' }, AppConfig.isTestnet);
 
     // 
     // Actions menu
@@ -103,7 +102,7 @@ export const AppComponent = React.memo((props: {
     // Navigation
     //
 
-    const linkNavigator = useLinkNavigator();
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;

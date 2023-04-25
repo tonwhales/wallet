@@ -5,8 +5,7 @@ import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-n
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "ton";
-import { mixpanel, MixpanelEvent, trackEvent } from "../analytics/mixpanel";
-import { AppConfig } from "../AppConfig";
+import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
@@ -22,21 +21,21 @@ import { KnownWallets } from "../secure/KnownWallets";
 import { getCurrentAddress } from "../storage/appState";
 import { storage } from "../storage/storage";
 import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
-import { Theme } from "../Theme";
 import { useReboot } from "../utils/RebootContext";
 import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
 import { clearZenPay } from "./LogoutFragment";
-
-const tresuresAddress = Address.parse(
-    AppConfig.isTestnet
-        ? 'kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1'
-        : 'EQCt2mgAsbnGFKRhlLjiJvScCYbe4lqEHRMvIs-IR7T-1J6p'
-);
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export const DeleteAccountFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
+    const tresuresAddress = Address.parse(
+        AppConfig.isTestnet
+            ? 'kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1'
+            : 'EQCt2mgAsbnGFKRhlLjiJvScCYbe4lqEHRMvIs-IR7T-1J6p'
+    );
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
@@ -202,9 +201,9 @@ export const DeleteAccountFragment = fragment(() => {
                         setTimeout(() => {
                             storage.clearAll();
                             clearZenPay(engine);
-                            mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                            trackEvent(MixpanelEvent.Reset);
-                            mixpanel.flush();
+                            mixpanelReset(AppConfig.isTestnet); // Clear super properties and generates a new random distinctId
+                            trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
+                            mixpanelFlush(AppConfig.isTestnet);
                             reboot();
                         }, 2000);
                         break;

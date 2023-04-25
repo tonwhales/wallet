@@ -11,6 +11,7 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import * as Application from 'expo-application';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -74,9 +75,17 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Network"} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
-                    </View>
+
+                    {!(
+                        Application.applicationId === 'com.tonhub.app.testnet' ||
+                        Application.applicationId === 'com.tonhub.app.debug.testnet' ||
+                        Application.applicationId === 'com.tonhub.wallet.testnet' ||
+                        Application.applicationId === 'com.tonhub.wallet.testnet.debug'
+                    ) && (
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton title={"Network"} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                            </View>
+                        )}
                 </View>
             </View>
         </View>

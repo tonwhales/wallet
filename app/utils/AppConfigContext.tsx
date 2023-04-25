@@ -3,7 +3,6 @@ import * as Application from 'expo-application';
 import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import { useReboot } from './RebootContext';
-import { clearZenPay } from '../fragments/LogoutFragment';
 
 export const isTestnetKey = 'isTestnet';
 

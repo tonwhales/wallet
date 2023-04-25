@@ -330,7 +330,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     {
-                        !AppConfig.isTestnet && (
+                        (!AppConfig.isTestnet && Platform.OS === 'android') && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
                                 <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>

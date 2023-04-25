@@ -40,7 +40,7 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
     // Parsing
     let totalSupply: BN;
     let mintalbe: boolean;
-    let owner: Address;
+    let owner: Address | null;
     let content: ContentSource | null;
     try {
 
@@ -48,9 +48,10 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
         mintalbe = !walletData.result[1].value.eq(new BN(0));
         let _owner = walletData.result[2].cell.beginParse().readAddress();
         if (!_owner) {
-            return null;
+            owner = null;
+        } else {
+            owner = _owner;
         }
-        owner = _owner;
 
         let cs = walletData.result[3].cell.beginParse();
         let kind = cs.readUintNumber(8);

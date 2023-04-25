@@ -21,7 +21,7 @@ export function createEngine(args: { address: Address, publicKey: Buffer, utilit
             main: 'https://testnet.tonhubapi.com',
             estimate: 'https://connect.tonhubapi.com/net/testnet/estimate',
             sender: 'https://connect.tonhubapi.com/net/testnet/send',
-        }),
+        }, args.isTestnet),
         { updater: args.recoilUpdater },
         args.isTestnet
     );

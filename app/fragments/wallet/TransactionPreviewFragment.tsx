@@ -67,7 +67,7 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     let body: Body | null = null;
     if (transaction.base.body?.type === 'payload') {
@@ -109,8 +109,8 @@ export const TransactionPreviewFragment = fragment(() => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyAddress]) {
-        known = KnownWallets[friendlyAddress];
+    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
+        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -126,7 +126,7 @@ export const TransactionPreviewFragment = fragment(() => {
         || (
             transaction.base.amount.abs().lt(spamMinAmount)
             && transaction.base.body?.type === 'comment'
-            && !KnownWallets[friendlyAddress]
+            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 

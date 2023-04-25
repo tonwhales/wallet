@@ -18,13 +18,13 @@ export const PendingTransactionAvatar = React.memo(({
     avatarId: string,
     address?: string
 }) => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const ref = useRef<CircularProgress>(null);
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
 
     let size = Math.floor(42 * 0.6);
-    let known = address ? KnownWallets[address] : undefined;
+    let known = address ? KnownWallets(AppConfig.isTestnet)[address] : undefined;
     let lighter = Color(color).lighten(0.4).hex();
     let darker = Color(color).lighten(0.2).hex();
 

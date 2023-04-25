@@ -1,6 +1,5 @@
 import { Address } from "ton";
 import { Engine } from "../Engine";
-import { AppConfig } from "../../AppConfig";
 
 function addToSetArray(src: Address[] | null, value: Address) {
     if (!src) {
@@ -68,12 +67,12 @@ export function registerKnownJettonWallet(engine: Engine, owner: Address, wallet
 
 export function markJettonDisabled(engine: Engine, master: Address) {
     let itm = engine.cloud.get<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
-    itm.update((src) => src.disabled[master.toFriendly({ testOnly: AppConfig.isTestnet })] = { reason: 'disabled' });
+    itm.update((src) => src.disabled[master.toFriendly({ testOnly: engine.isTestnet })] = { reason: 'disabled' });
 }
 
 export function markJettonActive(engine: Engine, master: Address) {
     let itm = engine.cloud.get<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
-    itm.update((src) => delete src.disabled[master.toFriendly({ testOnly: AppConfig.isTestnet })]);
+    itm.update((src) => delete src.disabled[master.toFriendly({ testOnly: engine.isTestnet })]);
 }
 
 export function requestHintsIfNeeded(address: Address, seqno: number | null, engine: Engine) {

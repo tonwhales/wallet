@@ -44,7 +44,7 @@ export const DeleteAccountFragment = fragment(() => {
     const addr = useMemo(() => getCurrentAddress(), []);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
-    const isKnown: boolean = !!KnownWallets[targetAddressInput];
+    const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
 
     const onDeletetAccount = React.useCallback(() => {
         let ended = false;
@@ -75,7 +75,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has nfts
             try {
-                const nftsConnection = await fetchNfts(addr.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                const nftsConnection = await fetchNfts(addr.address.toFriendly({ testOnly: AppConfig.isTestnet }), AppConfig.isTestnet);
                 if (nftsConnection.items && nftsConnection.items.length > 0) {
                     Alert.alert(t('deleteAccount.error.hasNfts'));
                     ended = true;
@@ -323,7 +323,7 @@ export const DeleteAccountFragment = fragment(() => {
                                                 color: Theme.labelSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
-                                                {KnownWallets[targetAddressInput].name}
+                                                {KnownWallets(AppConfig.isTestnet)[targetAddressInput].name}
                                             </Text>
                                         </Animated.View>
                                     )}

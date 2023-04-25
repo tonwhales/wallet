@@ -52,7 +52,7 @@ export const AppComponent = React.memo((props: {
 
     const onShare = React.useCallback(
         () => {
-            const link = generateAppLink(props.endpoint, props.title);
+            const link = generateAppLink(props.endpoint, props.title, AppConfig.isTestnet);
             if (Platform.OS === 'ios') {
                 Share.share({ title: t('receive.share.title'), url: link });
             } else {
@@ -158,7 +158,7 @@ export const AppComponent = React.memo((props: {
             }
         });
     }, []);
-    const injectionEngine = useInjectEngine(domain, props.title);
+    const injectionEngine = useInjectEngine(domain, props.title, AppConfig.isTestnet);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 

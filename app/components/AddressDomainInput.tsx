@@ -167,7 +167,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 color: Theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
-                                {KnownWallets[target].name}
+                                {KnownWallets(AppConfig.isTestnet)[target].name}
                             </Text>
                         </Animated.View>
                     )}

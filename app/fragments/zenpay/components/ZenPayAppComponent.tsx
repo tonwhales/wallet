@@ -124,7 +124,7 @@ export const ZenPayAppComponent = React.memo((
             }
         });
     }, []);
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title);
+    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, AppConfig.isTestnet);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 

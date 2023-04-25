@@ -222,7 +222,7 @@ export const Navigation = React.memo(() => {
     }, []);
 
     const initial = React.useMemo(() => {
-        const onboarding = resolveOnboarding(engine);
+        const onboarding = resolveOnboarding(engine, AppConfig.isTestnet);
 
         if (onboarding === 'backup') {
             return 'WalletCreated';
@@ -266,7 +266,7 @@ export const Navigation = React.memo(() => {
                         if (ended) {
                             return;
                         }
-                        await registerPushToken(token, state.addresses.map((v) => v.address));
+                        await registerPushToken(token, state.addresses.map((v) => v.address), AppConfig.isTestnet);
                     });
                 }
             }

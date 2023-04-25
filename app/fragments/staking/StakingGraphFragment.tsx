@@ -33,7 +33,7 @@ export const StakingGraphFragment = fragment(() => {
     const pool = engine.products.whalesStakingPools.usePool(target);
     const member = pool?.member;
     const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
-    const knownPool = KnownPools[params.pool];
+    const knownPool = KnownPools(AppConfig.isTestnet)[params.pool];
 
     const points: GraphPoint[] = (stakingChart?.chart || []).map((p) => {
         return {

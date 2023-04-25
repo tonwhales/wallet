@@ -130,7 +130,7 @@ export const SimpleTransferFragment = fragment(() => {
                 tonAmount: toNano(0.1),
                 txAmount: toNano(0.2),
                 payload: null
-            });
+            }, AppConfig.isTestnet);
         }
 
         // Resolve order
@@ -382,7 +382,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, []);
 
-    const isKnown: boolean = !!KnownWallets[target];
+    const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[target];
     const contact = engine.products.settings.useContact(target);
 
     return (

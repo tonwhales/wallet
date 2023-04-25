@@ -1,5 +1,4 @@
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 import { tryFetchJettonMaster } from "../metadata/introspections/tryFetchJettonMaster";
@@ -28,7 +27,7 @@ function safeTrim(src: string, length: number) {
 }
 
 export function startJettonMasterSync(address: Address, engine: Engine) {
-    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/jetton/master`;
+    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/jetton/master`;
     let master = engine.persistence.jettonMasters.item(address);
     let sync = createEngineSync(key, engine, async () => {
         // Check if has value and is lates version
@@ -57,7 +56,7 @@ export function startJettonMasterSync(address: Address, engine: Engine) {
         let masterInfo = await tryFetchJettonMaster(engine.client4, block.last.seqno, address);
         if (masterInfo && masterInfo.content) {
             // Fetch content
-            const content = await fetchJettonMasterContent(address);
+            const content = await fetchJettonMasterContent(address, engine.isTestnet);
             if (content) {
                 res = { ...res, ...content };
             }

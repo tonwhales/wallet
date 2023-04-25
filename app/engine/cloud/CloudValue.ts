@@ -3,7 +3,6 @@ import { InvalidateSync } from "../utils/InvalidateSync";
 import { Cloud } from "./Cloud";
 import { createLogger } from '../../utils/log';
 import { atom, RecoilState, useRecoilValue } from 'recoil';
-import { AppConfig } from '../../AppConfig';
 import { AutomergeValue } from './AutomergeValue';
 
 export interface CloudValue<T> {
@@ -46,7 +45,7 @@ export class CloudValue<T> extends EventEmitter {
 
         // Atom
         this.atom = atom({
-            key: 'cloud/' + cloud.engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/' + key,
+            key: 'cloud/' + cloud.engine.address.toFriendly({ testOnly: this.#cloud.engine.isTestnet }) + '/' + key,
             dangerouslyAllowMutability: true,
             default: this.#value.getDoc() as T
         });

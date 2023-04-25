@@ -16,7 +16,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
@@ -29,7 +29,7 @@ export const WalletBackupFragment = systemFragment(() => {
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address);
+        markAddressSecured(address.address, AppConfig.isTestnet);
         if (back) {
             navigation.goBack();
         } else {

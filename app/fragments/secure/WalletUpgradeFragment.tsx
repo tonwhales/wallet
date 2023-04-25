@@ -12,12 +12,12 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const WalletUpgradeFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
     const navigation = useTypedNavigation();
     const onUpgrade = React.useCallback(async () => {
-        await doUpgrade();
+        await doUpgrade(AppConfig.isTestnet);
         reboot();
     }, []);
     const onBackup = React.useCallback(() => {

@@ -147,8 +147,8 @@ export const TransferBatch = React.memo((props: Props) => {
             const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
             const friendlyTarget = message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
             let known: KnownWallet | undefined = undefined;
-            if (KnownWallets[friendlyTarget]) {
-                known = KnownWallets[friendlyTarget];
+            if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
+                known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
             } else if (operation.title) {
                 known = { name: operation.title };
             } else if (!!contact) { // Resolve contact known wallet

@@ -160,6 +160,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
                     Uint8Array.from(walletKeys.keyPair.secretKey),
                     stateInitStr,
+                    AppConfig.isTestnet
                 );
             } catch (e) {
                 warn('Failed to create reply items');

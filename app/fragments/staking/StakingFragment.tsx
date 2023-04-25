@@ -44,10 +44,10 @@ export const StakingFragment = fragment(() => {
     const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
 
     let type: 'club' | 'team' | 'nominators' = useMemo(() => {
-        if (KnownPools[params.pool].name.toLowerCase().includes('club')) {
+        if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
             return 'club';
         }
-        if (KnownPools[params.pool].name.toLowerCase().includes('team')) {
+        if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('team')) {
             return 'team';
         }
         return 'nominators'

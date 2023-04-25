@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as Application from 'expo-application';
-import { storage } from '../storage/storage';
+import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import { useReboot } from './RebootContext';
+import { clearZenPay } from '../fragments/LogoutFragment';
 
 export const isTestnetKey = 'isTestnet';
 
@@ -178,6 +179,7 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
             ...AppConfig,
             isTestnet,
         });
+        storagePersistence.clearAll();
         reboot();
     };
 

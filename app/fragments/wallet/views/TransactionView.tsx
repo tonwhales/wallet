@@ -17,8 +17,8 @@ import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 
-function knownAddressLabel(wallet: KnownWallet, friendly?: string) {
-    return wallet.name + ` (${shortAddress({ friendly })})`
+function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
+    return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
 }
 
 export function TransactionView(props: {
@@ -70,8 +70,8 @@ export function TransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyAddress]) {
-        known = KnownWallets[friendlyAddress];
+    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
+        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -79,7 +79,7 @@ export function TransactionView(props: {
     }
 
     const verified = !!tx.verified
-        || !!KnownJettonMasters[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
     const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
@@ -89,7 +89,7 @@ export function TransactionView(props: {
         || (
             parsed.amount.abs().lt(spamMinAmount)
             && tx.base.body?.type === 'comment'
-            && !KnownWallets[friendlyAddress]
+            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
             && !AppConfig.isTestnet
         ) && tx.base.kind !== 'out';
 
@@ -284,7 +284,7 @@ export function TransactionView(props: {
                                 ellipsizeMode="middle"
                                 numberOfLines={1}
                             >
-                                {known ? knownAddressLabel(known, friendlyAddress) : <AddressComponent address={operation.address} />}
+                                {known ? knownAddressLabel(known, AppConfig.isTestnet, friendlyAddress) : <AddressComponent address={operation.address} />}
                             </Text>
                             {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                             <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>

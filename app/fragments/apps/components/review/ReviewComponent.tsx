@@ -69,7 +69,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
         (async () => {
             setLoading(true);
             try {
-                const reviewRes = await fetchExtensionReview(engine.address, url);
+                const reviewRes = await fetchExtensionReview(engine.address, url, engine.isTestnet);
                 if (reviewRes) {
                     setRating(reviewRes.rating);
                     if (reviewRes.comment) setReview(reviewRes.comment.text);

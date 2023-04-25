@@ -120,8 +120,8 @@ export const TransferSingle = React.memo((props: Props) => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyTarget]) {
-        known = KnownWallets[friendlyTarget];
+    if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
+        known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet

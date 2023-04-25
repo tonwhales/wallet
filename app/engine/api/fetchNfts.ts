@@ -1,5 +1,4 @@
 import axios from "axios";
-import { AppConfig } from "../../AppConfig";
 import { isLeft } from "fp-ts/lib/Either";
 import * as t from 'io-ts';
 
@@ -118,8 +117,8 @@ const nftItemConnectionCodec = t.type({
     cursor: t.union([t.string, t.undefined, t.null])
 })
 
-export async function fetchNfts(address: string, first = 10, after?: string) {
-    if (AppConfig.isTestnet) {
+export async function fetchNfts(address: string, isTestnet: boolean, first = 10, after?: string) {
+    if (isTestnet) {
         return { items: [], cursor: undefined };
     }
     const res = await axios.get(`https://connect.tonhubapi.com/nfts/${address}?first=${first}${after ? `&after=${after}` : ''}`);

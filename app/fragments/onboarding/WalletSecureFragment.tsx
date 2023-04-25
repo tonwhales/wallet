@@ -17,7 +17,7 @@ import { deriveUtilityKey } from '../../storage/utilityKeys';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
@@ -66,11 +66,11 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                         }
                     ],
                     selected: state.addresses.length
-                });
+                }, AppConfig.isTestnet);
 
                 // Persist secured flag
                 if (props.import) {
-                    markAddressSecured(contract.address);
+                    markAddressSecured(contract.address, AppConfig.isTestnet);
                 }
 
                 // Navigate next

@@ -146,16 +146,7 @@ export const AppConfigContext = React.createContext<{
 
 export const AppConfigContextProvider = React.memo((props: { children: React.ReactNode }) => {
     const reboot = useReboot();
-    const [AppConfig, setAppConfig] = React.useState({
-        version: Application.nativeApplicationVersion,
-        isTestnet: (
-            Application.applicationId === 'com.tonhub.app.testnet' ||
-            Application.applicationId === 'com.tonhub.app.debug.testnet' ||
-            Application.applicationId === 'com.tonhub.wallet.testnet' ||
-            Application.applicationId === 'com.tonhub.wallet.testnet.debug' ||
-            storage.getBoolean(isTestnetKey) === true
-        ),
-    });
+    const [AppConfig, setAppConfig] = React.useState(initialAppConfig);
 
     const Theme = {
         ...initialTheme,

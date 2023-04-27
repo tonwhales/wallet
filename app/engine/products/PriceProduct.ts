@@ -4,8 +4,7 @@ import { backoff } from "../../utils/time";
 import React from "react";
 import { fetchPrice } from "../api/fetchPrice";
 import { watchPrice } from "../api/watchPrice";
-import { selector, useRecoilValue } from "recoil";
-import { AppConfig } from "../../AppConfig";
+import { useRecoilValue } from "recoil";
 import { CloudValue } from "../cloud/CloudValue";
 
 export const PrimaryCurrency: { [key: string]: string } = {

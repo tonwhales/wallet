@@ -1,22 +1,12 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { Pressable, StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import CopyIcon from '../../assets/ic_copy_address.svg';
 import CopyIconSuccess from '../../assets/ic_copy_address_success.svg';
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { copyText } from "../utils/copyText";
 import { iOSUIKit } from 'react-native-typography';
 import Animated, { EasingNode } from "react-native-reanimated";
-
-const display = {
-    backgroundColor: Theme.secondaryButton,
-    borderColor: Theme.secondaryButton,
-    textColor: Theme.textColor,
-
-    backgroundPressedColor: Theme.selector,
-    borderPressedColor: Theme.selector,
-    textPressed: Theme.secondaryButtonText
-}
+import { useAppConfig } from "../utils/AppConfigContext";
 
 const size = {
     height: 56,
@@ -34,6 +24,16 @@ export const CopyButton = React.memo(({
     style?: StyleProp<ViewStyle>,
     disabled?: boolean
 }) => {
+    const { Theme } = useAppConfig();
+    const display = {
+        backgroundColor: Theme.secondaryButton,
+        borderColor: Theme.secondaryButton,
+        textColor: Theme.textColor,
+    
+        backgroundPressedColor: Theme.selector,
+        borderPressedColor: Theme.selector,
+        textPressed: Theme.secondaryButtonText
+    }
     const doneOpacity = React.useMemo(() => new Animated.Value<number>(0), []);
 
     const onCopy = useCallback(() => {

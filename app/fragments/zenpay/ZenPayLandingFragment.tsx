@@ -8,7 +8,6 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { useEngine } from '../../engine/Engine';
 import { warn } from '../../utils/log';
-import { Theme } from '../../Theme';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { StatusBar } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
@@ -17,8 +16,10 @@ import { ZenPayAppParams } from './ZenPayAppFragment';
 import { extractZenPayQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const ZenPayLandingFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const webRef = React.useRef<WebView>(null);
     const engine = useEngine();
     const navigation = useTypedNavigation();

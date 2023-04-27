@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Image, Platform, Pressable, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
-import { AppConfig } from "../../AppConfig";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CheckBox } from "../../components/CheckBox";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -12,10 +11,10 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { getCurrentAddress } from "../../storage/appState";
 import { storage } from "../../storage/storage";
-import { Theme } from "../../Theme";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 const Logo = require('../../../assets/known/neocrypto_logo.png');
 export const skipLegalNeocrypto = 'skip_legal_neocrypto';
@@ -27,6 +26,7 @@ export const ConfirmLegal = React.memo((
         onOpenBuy: () => void
     }
 ) => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(false);
     const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
@@ -144,6 +144,7 @@ export const ConfirmLegal = React.memo((
 });
 
 export const NeocryptoFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
 
     if (AppConfig.isTestnet) {
         return (

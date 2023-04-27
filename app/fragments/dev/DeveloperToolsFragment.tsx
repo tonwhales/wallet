@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Alert, Platform, View, Text } from "react-native";
+import { Alert, Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
-import { Theme } from "../../Theme";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
 import { storage, storagePersistence } from '../../storage/storage';
@@ -11,11 +10,11 @@ import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
-import { warn } from '../../utils/log';
-import { ATextInput } from '../../components/ATextInput';
-import { RoundButton } from '../../components/RoundButton';
+import { useAppConfig } from '../../utils/AppConfigContext';
+import * as Application from 'expo-application';
 
 export const DeveloperToolsFragment = fragment(() => {
+    const { Theme, AppConfig, setNetwork } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
@@ -30,20 +29,24 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const engine = useEngine();
 
-    const [zenPayAppUrl, setZenPayAppUrl] = React.useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
-
-    const onUrlSet = React.useCallback(
-        (link: string) => {
-            let url: URL
-            try {
-                url = new URL(link);
-                setZenPayAppUrl(url.toString());
-            } catch (e) {
-                warn(e)
-                setZenPayAppUrl('');
-            }
+    const switchNetwork = React.useCallback(
+        () => {
+            Alert.alert(
+                `Switching to ${AppConfig.isTestnet ? 'Mainnet' : 'Testnet'}`,
+                'Are you sure you want to switch networks?',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Switch',
+                        onPress: () => setNetwork(!AppConfig.isTestnet),
+                    }
+                ]
+            );
         },
-        [],
+        [AppConfig.isTestnet],
     );
 
     return (
@@ -72,54 +75,17 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ATextInput
-                            blurOnSubmit={false}
-                            value={zenPayAppUrl}
-                            onValueChange={onUrlSet}
-                            placeholder={'ZenPay App URL'}
-                            keyboardType={'default'}
-                            preventDefaultHeight
-                            editable={true}
-                            enabled={true}
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: Theme.label,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {'ZenPay App URL'}
-                                    </Text>
-                                </View>
-                            }
-                            multiline
-                            autoCorrect={false}
-                            autoComplete={'off'}
-                            style={{
-                                backgroundColor: Theme.transparent,
-                                paddingHorizontal: 0,
-                                minHeight: 72,
-                                marginHorizontal: 16,
-                            }}
-                        />
-                        <RoundButton
-                            title={'Apply URL'}
-                            onPress={() => {
-                                storage.set('zenpay-app-url', zenPayAppUrl);
-                                Alert.alert('Success', 'ZenPay App URL has been updated, now restart the app to apply changes.');
-                            }}
-                            display={'default'}
-                            style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
-                        />
-                    </View>
+
+                    {!(
+                        Application.applicationId === 'com.tonhub.app.testnet' ||
+                        Application.applicationId === 'com.tonhub.app.debug.testnet' ||
+                        Application.applicationId === 'com.tonhub.wallet.testnet' ||
+                        Application.applicationId === 'com.tonhub.wallet.testnet.debug'
+                    ) && (
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton title={"Network"} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                            </View>
+                        )}
                 </View>
             </View>
         </View>

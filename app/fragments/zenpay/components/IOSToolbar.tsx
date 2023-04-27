@@ -3,9 +3,10 @@ import { Platform, View, Text, Pressable } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { t } from "../../../i18n/t";
-import { Theme } from "../../../Theme";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const IOSToolbar = React.memo(({ pageTitle, canGoBack, onBack }: { pageTitle?: string, canGoBack: boolean, onBack: () => void }) => {
+    const { Theme } = useAppConfig();
 
     if (Platform.OS !== 'ios') {
         return null;

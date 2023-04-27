@@ -10,9 +10,10 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { Theme } from '../../Theme';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const WalletCreateFragment = systemFragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<{
         mnemonics: string,

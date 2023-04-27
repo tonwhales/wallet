@@ -8,13 +8,13 @@ import { fragment } from "../../fragment";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { getCurrentAddress } from "../../storage/appState";
 import { BlurView } from 'expo-blur';
-import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { Address } from "ton";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -113,7 +113,7 @@ const WalletTransactions = React.memo((props: {
 });
 
 function TransactionsComponent(props: { wallet: WalletState }) {
-    // Dependencies
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();

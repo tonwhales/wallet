@@ -7,20 +7,20 @@ import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from "../../../useLinkNavigator";
-import { AppConfig } from '../../../AppConfig';
 import { useEngine } from '../../../engine/Engine';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { Theme } from '../../../Theme';
 import { useDAppBridge } from '../../../engine/tonconnect/useInjectConnectEngine';
+import { useAppConfig } from '../../../utils/AppConfigContext';
 
 export const ConnectAppComponent = React.memo((props: {
     endpoint: string,
     title: string,
 }) => {
+    const { Theme, AppConfig } = useAppConfig();
 
     // 
     // Track events
@@ -32,9 +32,9 @@ export const ConnectAppComponent = React.memo((props: {
     }, []);
     const close = React.useCallback(() => {
         navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'tonconnect' });
+        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'tonconnect' }, AppConfig.isTestnet);
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' });
+    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' }, AppConfig.isTestnet);
 
     //
     // View
@@ -62,7 +62,7 @@ export const ConnectAppComponent = React.memo((props: {
     // Navigation
     //
 
-    const linkNavigator = useLinkNavigator();
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;

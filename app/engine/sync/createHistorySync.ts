@@ -1,7 +1,6 @@
 import BN from "bn.js";
 import { SyncValue } from "teslabot";
 import { Address, Cell, parseTransaction } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { createLogger } from "../../utils/log";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
@@ -52,7 +51,7 @@ export function createHistorySync(address: Address, engine: Engine) {
             loadedTransactions.push(tx.lt.toString(10));
 
             // Persist transaction
-            const parsed = parseWalletTransaction(tx, Cell.fromBoc(Buffer.from(data, 'base64'))[0].hash(), address);
+            const parsed = parseWalletTransaction(tx, Cell.fromBoc(Buffer.from(data, 'base64'))[0].hash(), address, engine.isTestnet);
             engine.transactions.set(address, tx.lt.toString(10), parsed);
         }
 
@@ -66,7 +65,7 @@ export function createHistorySync(address: Address, engine: Engine) {
         }
 
         // Apply history
-        logger.log(`${address.toFriendly({ testOnly: AppConfig.isTestnet })}: Apply history state`);
+        logger.log(`${address.toFriendly({ testOnly: engine.isTestnet })}: Apply history state`);
         item.update((src) => {
             if (!src) {
                 throw Error('Internal error');

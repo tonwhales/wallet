@@ -1,14 +1,13 @@
 import React, { useCallback, useMemo } from "react";
 import { NativeSyntheticEvent, Platform, Share, StyleProp, Text, TextProps, TextStyle, View, ViewStyle } from "react-native";
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
-import { AppConfig } from "../AppConfig";
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { useEngine } from "../engine/Engine";
 import { confirmAlert } from "../utils/confirmAlert";
 import { Address } from "ton";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { copyText } from "../utils/copyText";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 6)
@@ -28,6 +27,7 @@ export const WalletAddress = React.memo((props: {
     lockActions?: boolean,
     previewBackgroundColor?: string
 }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const navigation = useTypedNavigation();
     const settings = engine.products.settings;

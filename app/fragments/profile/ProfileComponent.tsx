@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import { Address } from 'ton';
-import { AppConfig } from '../../AppConfig';
 import { AddressComponent } from '../../components/AddressComponent';
 import { Avatar } from '../../components/Avatar';
 import { ItemButton } from '../../components/ItemButton';
-import { t } from '../../i18n/t';
-import { Theme } from '../../Theme';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const ProfileComponent = React.memo((props: { address: Address }) => {
+    const { Theme, AppConfig } = useAppConfig();
     return (
         <View style={{
             marginBottom: 16,

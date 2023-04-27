@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { Alert } from 'react-native';
-import { Engine, useEngine } from './engine/Engine';
+import { useEngine } from './engine/Engine';
 import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
-import { AppConfig } from './AppConfig';
 import { ResolvedUrl } from './utils/resolveUrl';
 import BN from 'bn.js';
 
-export function useLinkNavigator() {
+export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();
     const engine = useEngine();
 
@@ -17,7 +16,7 @@ export function useLinkNavigator() {
                 navigation.navigateTransfer({
                     order: {
                         messages: [{
-                            target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            target: resolved.address.toFriendly({ testOnly: isTestnet }),
                             amount: resolved.amount || new BN(0),
                             amountAll: false,
                             stateInit: resolved.stateInit,
@@ -30,7 +29,7 @@ export function useLinkNavigator() {
                 });
             } else {
                 navigation.navigateSimpleTransfer({
-                    target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    target: resolved.address.toFriendly({ testOnly: isTestnet }),
                     comment: resolved.comment,
                     amount: resolved.amount,
                     stateInit: resolved.stateInit,
@@ -53,7 +52,7 @@ export function useLinkNavigator() {
             }
 
             navigation.navigateSimpleTransfer({
-                target: resolved.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: resolved.address.toFriendly({ testOnly: isTestnet }),
                 comment: resolved.comment,
                 amount: resolved.amount,
                 stateInit: null,

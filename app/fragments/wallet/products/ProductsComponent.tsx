@@ -7,11 +7,9 @@ import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
-import { AppConfig } from "../../../AppConfig"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
 import { JettonProduct } from "./JettonProduct"
-import { Theme } from "../../../Theme"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
@@ -19,8 +17,10 @@ import { ZenPayProductButton } from "../../zenpay/components/ZenPayProductButton
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const ProductsComponent = React.memo(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();

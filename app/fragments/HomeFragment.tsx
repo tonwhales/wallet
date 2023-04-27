@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { fragment } from "../fragment";
-import { Theme } from '../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WalletFragment } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
@@ -10,7 +9,6 @@ import { BlurView } from 'expo-blur';
 import { CachedLinking } from '../utils/CachedLinking';
 import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
-import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
 import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
@@ -20,14 +18,16 @@ import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
+    const { Theme, AppConfig } = useAppConfig();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const engine = useEngine();
-    const linkNavigator = useLinkNavigator();
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
 
     // Subscribe for links
     React.useEffect(() => {
@@ -109,11 +109,11 @@ export const HomeFragment = fragment(() => {
     }, []);
 
     if (tab === 0) {
-        useTrackScreen('Wallet');
+        useTrackScreen('Wallet', AppConfig.isTestnet);
     } else if (tab === 1) {
-        useTrackScreen('Transactions');
+        useTrackScreen('Transactions', AppConfig.isTestnet);
     } else if (tab === 2) {
-        useTrackScreen('Settings');
+        useTrackScreen('Settings', AppConfig.isTestnet);
     }
 
     return (

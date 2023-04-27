@@ -1,9 +1,5 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, CellMessage, CommentMessage } from "ton";
-import { TonPayloadFormat } from "ton-ledger";
-import { AppConfig } from "../../../AppConfig";
-import { resolveLedgerPayload } from "../../ledger/utils/resolveLedgerPayload";
-import { SignRawMessage } from "../../../engine/tonconnect/types";
+import { Address, beginCell, Cell, CommentMessage } from "ton";
 
 export type Order = {
     domain?: string;
@@ -186,7 +182,7 @@ export function createJettonOrder(args: {
     tonAmount: BN,
     txAmount: BN,
     payload: Cell | null
-}): Order {
+}, isTestnet: boolean): Order {
 
     // Resolve payload
     let payload: Cell | null = null;
@@ -216,7 +212,7 @@ export function createJettonOrder(args: {
 
 
     return createOrder({
-        target: args.wallet.toFriendly({ testOnly: AppConfig.isTestnet }),
+        target: args.wallet.toFriendly({ testOnly: isTestnet }),
         domain: args.domain,
         payload: msg,
         amount: args.txAmount,

@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { CloseButton } from "../../components/CloseButton";
-import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { fromNano } from "ton";
@@ -12,7 +11,6 @@ import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
@@ -31,8 +29,10 @@ import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const TransactionPreviewFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const params = useParams<{ transaction: string }>();
@@ -67,7 +67,7 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     let body: Body | null = null;
     if (transaction.base.body?.type === 'payload') {
@@ -109,8 +109,8 @@ export const TransactionPreviewFragment = fragment(() => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyAddress]) {
-        known = KnownWallets[friendlyAddress];
+    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
+        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -126,7 +126,7 @@ export const TransactionPreviewFragment = fragment(() => {
         || (
             transaction.base.amount.abs().lt(spamMinAmount)
             && transaction.base.body?.type === 'comment'
-            && !KnownWallets[friendlyAddress]
+            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 

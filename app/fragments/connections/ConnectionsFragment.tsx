@@ -12,12 +12,10 @@ import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
-import { Theme } from '../../Theme';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
-import { ProductButton } from '../wallet/products/ProductButton';
-import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 type Item = {
     key: string;
@@ -50,6 +48,7 @@ function groupItems(items: Item[]): GroupedItems[] {
 }
 
 export const ConnectionsFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();

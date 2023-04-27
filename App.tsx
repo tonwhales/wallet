@@ -24,13 +24,13 @@ import './app/storage/appState';
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput } from 'react-native';
-import { Theme } from './app/Theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
-import { mixpanel } from './app/analytics/mixpanel';
 import * as SplashScreen from 'expo-splash-screen';
+import { Mixpanel } from 'mixpanel-react-native';
+import { initialAppConfig } from './app/utils/AppConfigContext';
 
 changeNavBarColor('white');
 
@@ -44,11 +44,6 @@ if (!(Text as any).defaultProps) {
 if (!(TextInput as any).defaultProps) {
   (TextInput as any).defaultProps = {};
   (TextInput as any).defaultProps.allowFontScaling = false;
-}
-
-mixpanel.init();
-if (__DEV__) {
-  mixpanel.setLoggingEnabled(true);
 }
 
 SplashScreen.preventAutoHideAsync();
@@ -76,7 +71,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     flexDirection: 'column',
-    backgroundColor: Theme.background,
+    backgroundColor: '#F2F2F6',
     alignItems: 'stretch',
     justifyContent: 'center',
   },

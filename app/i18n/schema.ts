@@ -666,7 +666,10 @@ export type LocalizationSchema = {
             lostConnection: string,
             transactionNotFound: string,
             transactionRejected: string,
-            transferFailed: string
+            transferFailed: string,
+            searchErrorTitle: string,
+            bluetoothPermission: string,
+            locationPermission: string,
         },
         moreAbout: string
     }

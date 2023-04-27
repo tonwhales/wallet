@@ -14,39 +14,41 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const [scan, setScan] = useState<{ type: 'ongoing' } | { type: 'completed', success: boolean }>();
+    const [searchSession, setSearchSession] = useState(0);
     const [devices, setDevices] = useState([]);
 
     const onDeviceSelect = useCallback(async (device: any) => {
         await onSelectDevice(device);
     }, []);
 
+    const onScan = useCallback(() => {
+        setScan({ type: 'ongoing' });
+        return new Observable(TransportBLE.listen).subscribe({
+            complete: () => {
+                setScan({ type: 'completed', success: true });
+            },
+            next: e => {
+                if (e.type === "add") {
+                    const device = e.descriptor;
+                    setDevices((prev) => {
+                        if (prev.some((i: any) => i.id === device.id)) {
+                            return prev;
+                        }
+                        return devices.concat(device);
+                    });
+                }
+                // NB there is no "remove" case in BLE.
+            },
+            error: error => {
+                setScan({ type: 'completed', success: false });
+            }
+        });
+    }, []);
+
     useEffect(() => {
         let powerSub: Subscription;
         let sub: Subscription;
         (async () => {
-            const scan = async () => {
-                setScan({ type: 'ongoing' });
-                sub = new Observable(TransportBLE.listen).subscribe({
-                    complete: () => {
-                        setScan({ type: 'completed', success: true });
-                    },
-                    next: e => {
-                        if (e.type === "add") {
-                            const device = e.descriptor;
-                            setDevices((prev) => {
-                                if (prev.some((i: any) => i.id === device.id)) {
-                                    return prev;
-                                }
-                                return devices.concat(device);
-                            });
-                        }
-                        // NB there is no "remove" case in BLE.
-                    },
-                    error: error => {
-                        setScan({ type: 'completed', success: false });
-                    }
-                });
-            }
             if (Platform.OS === "android" && Platform.Version >= 23) {
                 const checkCoarse = await checkMultiple([PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION]);
 
@@ -55,6 +57,15 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                     const requestLocation = await requestMultiple([PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION, PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION]);
                     if (requestLocation[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== 'granted'
                         || requestLocation[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== 'granted') {
+                        Alert.alert(
+                            t('hardwareWallet.errors.searchErrorTitle'),
+                            t('hardwareWallet.errors.locationPermission'),
+                            [{
+                                text: t('common.close'),
+                                onPress: onReset
+                            }]
+                        );
+                        setScan({ type: 'completed', success: false });
                         return;
                     }
                 }
@@ -72,10 +83,20 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                     ]);
                     if (resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] !== 'granted'
                         || resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] !== 'granted') {
+                        Alert.alert(
+                            t('hardwareWallet.errors.searchErrorTitle'),
+                            t('hardwareWallet.errors.bluetoothPermission'),
+                            [{
+                                text: t('common.close'),
+                                onPress: onReset
+                            }]
+                        );
+                        setScan({ type: 'completed', success: false });
                         return;
                     }
                 }
             }
+
             let previousAvailable = false;
             powerSub = new Observable(TransportBLE.observeState).subscribe((e: any) => {
                 if (e.type === 'PoweredOff') {
@@ -91,18 +112,19 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                         if (sub) sub.unsubscribe();
                         setDevices([]);
                         setScan(undefined);
-                        scan()
+                        sub = onScan();
                     }
                 }
             });
 
-            scan();
+            sub = onScan();
+
         })();
         return () => {
             if (sub) sub.unsubscribe();
             if (powerSub) powerSub.unsubscribe();
         }
-    }, []);
+    }, [searchSession]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -118,6 +140,15 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                     </Text>
                     {scan.type === 'ongoing' && (
                         <LoadingIndicator simple />
+                    )}
+                    {scan.type === 'completed' && !scan.success && (
+                        <RoundButton
+                            title={t('common.search')}
+                            display={'default'}
+                            size={'normal'}
+                            style={{ flexShrink: 1 }}
+                            onPress={() => { setSearchSession(searchSession + 1) }}
+                        />
                     )}
                 </View>
             )}

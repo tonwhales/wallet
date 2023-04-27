@@ -666,6 +666,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             transactionNotFound: 'Транзакция не найдена',
             transactionRejected: 'Транзакция отклонена',
             transferFailed: 'Ошибка отправки транзакции',
+            searchErrorTitle: 'Ошибка поиска устройств',
+            bluetoothPermission: 'Пожалуйста, предоставьте разрешение на использование Bluetooth',
+            locationPermission: 'Пожалуйста, предоставьте разрешение на использование геолокации',
         },
         moreAbout: 'Подробнее о Ledger'
     }

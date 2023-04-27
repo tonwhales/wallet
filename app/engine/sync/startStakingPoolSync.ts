@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, fromNano, Slice, TonClient4, TupleSlice4 } from "ton";
+import { Address, beginCell, Cell, TonClient4, TupleSlice4 } from "ton";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { startDependentSync } from "./utils/startDependentSync";
@@ -77,7 +77,7 @@ async function getStakingMemberMonthlyChart(client4: TonClient4, address: Addres
 export async function downloadStateDirectly(engine: Engine, address: Address) {
     let last = await engine.client4.getLastBlock();
     let data = await engine.client4.getAccount(last.last.seqno, address);
-    
+
     if (data.account.state.type !== 'active') {
         throw Error('Invalid state');
     }
@@ -181,11 +181,6 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
             }
         };
         item.update(() => newState);
-
-        // TODO: Fix when testnet is updated to be able to fetch chart data
-        if (AppConfig.isTestnet) {
-            return;
-        }
 
         if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
             return;

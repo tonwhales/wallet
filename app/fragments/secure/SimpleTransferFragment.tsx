@@ -14,7 +14,6 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useRoute } from '@react-navigation/native';
 import { useEngine } from '../../engine/Engine';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
@@ -30,6 +29,7 @@ import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useParams } from '../../utils/useParams';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

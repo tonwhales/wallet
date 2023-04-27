@@ -2,9 +2,9 @@ import React from "react";
 import { View, Text } from "react-native";
 import { Address } from "ton";
 import { Engine } from "../../../engine/Engine";
-import { Theme } from "../../../Theme";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerTransactionView } from "./LedgerTransactionView";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const LedgerTransactionsSection = React.memo(({
     section,
@@ -17,8 +17,9 @@ export const LedgerTransactionsSection = React.memo(({
     address: Address,
     engine: Engine,
 }) => {
+    const { Theme } = useAppConfig();
     const openTransactionFragment = React.useCallback((transaction: string) => {
-        navigation.navigate('LedgerTransactionPreview', {transaction });
+        navigation.navigate('LedgerTransactionPreview', { transaction });
     }, [navigation]);
     return (
         <View>

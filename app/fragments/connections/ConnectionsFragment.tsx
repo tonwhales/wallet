@@ -16,6 +16,8 @@ import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { ProductButton } from '../wallet/products/ProductButton';
+import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 
 type Item = {
     key: string;

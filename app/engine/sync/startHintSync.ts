@@ -15,7 +15,7 @@ export type HintProcessingState = {
     seqno: number;
 };
 
-export function startHintSync(address: Address, engine: Engine) {
+export function startHintSync(address: Address, engine: Engine, own?: Address) {
     let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/hint`;
     let hint = engine.persistence.hintState.item(address);
     let request = engine.persistence.hintRequest.item(address);

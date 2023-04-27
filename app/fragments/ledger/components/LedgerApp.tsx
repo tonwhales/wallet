@@ -3,17 +3,16 @@ import { View, Text, Image, useWindowDimensions, TouchableHighlight, NativeSynth
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, toNano } from "ton";
 import { TonTransport } from "ton-ledger";
-import { AppConfig } from "../../../AppConfig";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { WalletAddress } from "../../../components/WalletAddress";
 import { Engine, useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
-import { Theme } from "../../../Theme";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerTransactionsSection } from "./LedgerTransactionsSection";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -93,6 +92,7 @@ export const LedgerApp = React.memo((props: {
     account: number,
     address: { address: string, publicKey: Buffer },
 }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const engine = useEngine();

@@ -4,20 +4,20 @@ import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { AppConfig } from "../../../AppConfig";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
-import { Theme } from "../../../Theme";
 import { warn } from "../../../utils/log";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
 import { useTransport } from "./TransportContext";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
 export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => void }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
@@ -35,7 +35,7 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
             const seqno = (await engine.client4.getLastBlock()).last.seqno;
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
-                    const path = pathFromAccountNumber(i);
+                    const path = pathFromAccountNumber(i, AppConfig.isTestnet);
                     const addr = await tonTransport.getAddress(path, { testOnly: AppConfig.isTestnet });
                     try {
                         const address = Address.parse(addr.address);
@@ -60,7 +60,7 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
                 return;
             }
             setSelected(acc.i);
-            let path = pathFromAccountNumber(acc.i);
+            let path = pathFromAccountNumber(acc.i, AppConfig.isTestnet);
             try {
                 await tonTransport.validateAddress(path, { testOnly: AppConfig.isTestnet });
                 setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });

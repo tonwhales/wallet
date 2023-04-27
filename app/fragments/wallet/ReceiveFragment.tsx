@@ -18,6 +18,7 @@ import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { useEngine } from "../../engine/Engine";
 import { WImage } from "../../components/WImage";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();

@@ -1,17 +1,15 @@
-import React, { useMemo, useState } from "react";
-import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSyntheticEvent, Alert } from "react-native";
+import React, { useMemo } from "react";
+import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { CloseButton } from "../../components/CloseButton";
-import { Theme } from "../../Theme";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { Address, Cell, fromNano, parseTransaction } from "ton";
+import { Address, fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AppConfig } from "../../AppConfig";
 import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
@@ -27,18 +25,16 @@ import { PriceComponent } from "../../components/PriceComponent";
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
-import { parseBody, parseWalletTransaction } from "../../engine/transactions/parseWalletTransaction";
+import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { TransactionDescription } from "../../engine/products/WalletProduct";
 import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { ContractMetadata } from "../../engine/metadata/Metadata";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
-import { resolveOperation } from "../../engine/transactions/resolveOperation";
-import * as FileSystem from 'expo-file-system';
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, address }: { transaction: TransactionDescription, transactionHash: string, engine: Engine, address: Address }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     let operation = transaction.operation;
@@ -69,7 +65,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     let body: Body | null = null;
     if (transaction.base.body?.type === 'payload') {
@@ -105,8 +101,8 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyAddress]) {
-        known = KnownWallets[friendlyAddress];
+    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
+        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -122,7 +118,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
         || (
             transaction.base.amount.abs().lt(spamMinAmount)
             && transaction.base.body?.type === 'comment'
-            && !KnownWallets[friendlyAddress]
+            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 
@@ -524,6 +520,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
 })
 
 export const LedgerTransactionPreviewFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const params = useParams<{ transaction: string }>();

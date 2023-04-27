@@ -25,7 +25,6 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
-import { LocalizedResources } from '../../i18n/schema';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {

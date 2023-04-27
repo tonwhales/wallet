@@ -13,7 +13,7 @@ export type TxHints = {
 const ZERO = new BN('0');
 const logger = createLogger('hints');
 
-export function startHintsTxSync(address: Address, engine: Engine) {
+export function startHintsTxSync(address: Address, engine: Engine, own?: Address) {
     let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/hints/tx`;
     let account = engine.persistence.fullAccounts.item(address);
     let cursor = engine.persistence.scannerState.item(address);

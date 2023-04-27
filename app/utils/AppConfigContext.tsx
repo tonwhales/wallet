@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Application from 'expo-application';
 import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
-import { useReboot } from './RebootContext';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 export const isTestnetKey = 'isTestnet';
 
@@ -145,7 +145,10 @@ export const AppConfigContext = React.createContext<{
 });
 
 export const AppConfigContextProvider = React.memo((props: { children: React.ReactNode }) => {
-    const reboot = useReboot();
+    const [sessionId, setSessionId] = React.useState(0);
+    const reboot = React.useCallback(() => {
+        setSessionId((s) => s + 1);
+    }, [setSessionId]);
     const [AppConfig, setAppConfig] = React.useState(initialAppConfig);
 
     const Theme = {
@@ -177,7 +180,14 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
 
     return (
         <AppConfigContext.Provider value={{ AppConfig, setNetwork, Theme, NavigationTheme }}>
-            {props.children}
+            <Animated.View
+                key={'session-' + sessionId}
+                style={{ flexGrow: 1, flexBasis: 0, flexDirection: 'column', alignItems: 'stretch' }}
+                exiting={FadeOut}
+                entering={FadeIn}
+            >
+                {props.children}
+            </Animated.View>
         </AppConfigContext.Provider>
     );
 });

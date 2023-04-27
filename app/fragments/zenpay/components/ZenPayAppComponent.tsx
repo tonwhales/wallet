@@ -21,7 +21,7 @@ import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
-import { useAppConfig } from '../../../utils/AppConfigContext';
+import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -255,14 +255,8 @@ export const ZenPayAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                <AnotherKeyboardAvoidingView
                     style={{ backgroundColor: Theme.item, flexGrow: 1 }}
-                    keyboardVerticalOffset={
-                        Platform.OS === 'ios'
-                            ? 42
-                            : 8
-                    }
                 >
                     <WebView
                         ref={webRef}
@@ -307,7 +301,7 @@ export const ZenPayAppComponent = React.memo((
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
                     />
-                </KeyboardAvoidingView>
+                </AnotherKeyboardAvoidingView>
                 <Animated.View
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}

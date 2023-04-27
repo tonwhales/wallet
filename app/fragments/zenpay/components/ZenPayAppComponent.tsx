@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -243,9 +243,12 @@ export const ZenPayAppComponent = React.memo((
 
     React.useEffect(() => {
         // Adding onAppFocus listener in case of content process termination events not firing
-        const sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+        let sub: NativeEventSubscription | null = null;
+        if (Platform.OS === 'ios') {
+            sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+        }
         return () => {
-            sub.remove();
+            sub?.remove();
         }
     }, []);
 

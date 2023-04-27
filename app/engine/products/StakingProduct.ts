@@ -23,7 +23,7 @@ export class StakingPoolsProduct {
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.pools = Object.keys(KnownPools).map((key) => Address.parse(key));
+        this.pools = Object.keys(KnownPools(this.engine.isTestnet)).map((key) => Address.parse(key));
         this.full = selector({
             key: 'staking/' + this.engine.address.toFriendly({ testOnly: this.engine.isTestnet }),
             get: ({ get }) => {

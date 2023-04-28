@@ -13,7 +13,7 @@ import { fetchCards } from "../api/zenpay/fetchCards";
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
 export const zenPayUrl = 'https://stage.zenpay.org';
-const currenTokenVersion = 1;
+const currentTokenVersion = 1;
 
 export type ZenPayAccountStatus =
     | {
@@ -74,10 +74,10 @@ export class ZenPayProduct {
             }
         });
 
-        if (storage.getNumber('zenpay-token-version') !== currenTokenVersion) {
+        if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
             this.cleanup();
         }
-        storage.set('zenpay-token-version', currenTokenVersion);
+        storage.set('zenpay-token-version', currentTokenVersion);
     }
 
     async enroll(domain: string) {
@@ -136,43 +136,39 @@ export class ZenPayProduct {
     // Update accounts
     async syncAccounts() {
         let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
-        let status: ZenPayAccountStatus = this.engine.persistence.zenPayStatus.item(this.engine.address).value || { state: 'need-enrolment' };
-        if (status.state === 'ready') {
-            const token = status.token;
-            try {
-                let listRes = await fetchCards(this.engine.address);
+        try {
+            let listRes = await fetchCards(this.engine.address);
 
-                // Clear token on 401 unauthorized response
-                if (listRes === null) {
-                    this.cleanup();
-                    return;
-                }
+            // Clear token on 401 unauthorized response
+            if (listRes === null) {
+                this.cleanup();
+                return;
+            }
 
-                if (!listRes) {
-                    targetAccounts.update((src) => {
-                        return {
-                            accounts: []
-                        };
-                    });
-                    return;
-                }
-
+            if (!listRes) {
                 targetAccounts.update((src) => {
                     return {
-                        accounts: listRes!.map((account) => ({
-                            id: account.id,
-                            address: account.address,
-                            state: account.state,
-                            balance: new BN(account.balance),
-                            card: account.card,
-                            type: 'virtual'
-                        }))
+                        accounts: []
                     };
                 });
-
-            } catch (e) {
-                console.warn(e);
+                return;
             }
+
+            targetAccounts.update((src) => {
+                return {
+                    accounts: listRes!.map((account) => ({
+                        id: account.id,
+                        address: account.address,
+                        state: account.state,
+                        balance: new BN(account.balance),
+                        card: account.card,
+                        type: 'virtual'
+                    }))
+                };
+            });
+
+        } catch (e) {
+            console.warn(e);
         }
     }
 
@@ -277,9 +273,7 @@ export class ZenPayProduct {
             }
 
             // Initial sync
-            if (targetStatus.value?.state === 'ready') {
-                await this.syncAccounts();
-            }
+            await this.syncAccounts();
 
             // Start watcher if ready
             if (targetStatus.value?.state === 'ready' && !this.watcher) {

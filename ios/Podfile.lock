@@ -946,27 +946,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-<<<<<<< HEAD
-  boost: 57d2868c099736d80fcd648bf211b4431e51a558
-  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
-  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
-  EXApplication: d8f53a7eee90a870a75656280e8d4b85726ea903
-  EXBarCodeScanner: 8e23fae8d267dbef9f04817833a494200f1fce35
-  EXConstants: f348da07e21b23d2b085e270d7b74f282df1a7d9
-  EXFileSystem: 844e86ca9b5375486ecc4ef06d3838d5597d895d
-  EXFont: 6ea3800df746be7233208d80fe379b8ed74f4272
-  EXImageLoader: fd053169a8ee932dd83bf1fe5487a50c26d27c2b
-  EXNotifications: dd628737af60fc8cc62dccebacd326b0fbbc0dcb
-  Expo: b04d142a2b477a391b47c62d179c1a9e1140e6ad
-  ExpoBlur: fac3c6318fdf409dd5740afd3313b2bd52a35bac
-  ExpoCrypto: 477dfe89c81527b376f2c344ca1d2a01244b243c
-  ExpoDevice: e0bebf68f978b3d353377ce42e73c20c0a070215
-  ExpoHaptics: 5156bc5160d8e04c170dd6e645a71154951a2ad9
-  ExpoKeepAwake: 69f5f627670d62318410392d03e0b5db0f85759a
-  ExpoLocalAuthentication: b870b7a8df5e15b8b0be042185a2bb7764093096
-  ExpoModulesCore: 6e0259511f4c4341b6b8357db393624df2280828
-  ExpoWebBrowser: 033d34c478d9986da2f1679729041423837626e0
-=======
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
   EXApplication: d6562af1204162e0ac46d341a7d4e5dc720b33de
@@ -985,7 +964,6 @@ SPEC CHECKSUMS:
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
   ExpoRandom: 14df0976aa363a71a730ceb7655250f3047c0e42
   ExpoWebBrowser: 4b5f9633e5f169dc948587cb6d26d2d1d1406187
->>>>>>> develop
   EXScreenCapture: d9284f4a6508c86d0d463805b93672397d18de0f
   EXSecureStore: e8923258361cc406d0401af380f12bd05b2b720f
   EXSplashScreen: cd7fb052dff5ba8311d5c2455ecbebffe1b7a8ca

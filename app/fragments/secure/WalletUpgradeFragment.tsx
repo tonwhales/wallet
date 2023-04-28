@@ -9,14 +9,15 @@ import { systemFragment } from "../../systemFragment";
 import { doUpgrade } from "../../storage/appState";
 import { useReboot } from "../../utils/RebootContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Theme } from "../../Theme";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const WalletUpgradeFragment = systemFragment(() => {
-    const safeArea = useSafeAreaInsets();;
+    const { Theme, AppConfig } = useAppConfig();
+    const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
     const navigation = useTypedNavigation();
     const onUpgrade = React.useCallback(async () => {
-        await doUpgrade();
+        await doUpgrade(AppConfig.isTestnet);
         reboot();
     }, []);
     const onBackup = React.useCallback(() => {

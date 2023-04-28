@@ -1,21 +1,19 @@
-import { useRoute } from "@react-navigation/native";
-import React, { useCallback, useEffect, useState } from "react"
-import { View, Text, ScrollView, ActivityIndicator, Alert } from "react-native"
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import React, { useCallback, useState } from "react"
+import { View, Text, ScrollView, Alert } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppConfig } from "../../../../AppConfig";
 import { ATextInput } from "../../../../components/ATextInput";
 import { RoundButton } from "../../../../components/RoundButton";
 import { postExtensionReport } from "../../../../engine/api/reviews";
 import { useEngine } from "../../../../engine/Engine";
 import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
-import { Theme } from "../../../../Theme";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { Picker } from '@react-native-picker/picker';
+import { useAppConfig } from "../../../../utils/AppConfigContext";
 
 export const ReportComponent = React.memo(({ url }: { url: string }) => {
     const engine = useEngine();
+    const { Theme, AppConfig } = useAppConfig();
     const appData = engine.products.extensions.useAppData(url);
     const safeArea = useSafeAreaInsets();
     const address = React.useMemo(() => getCurrentAddress().address, []);

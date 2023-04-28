@@ -2,7 +2,6 @@ import axios from "axios";
 import * as t from "io-ts";
 import { zenPayEndpoint } from "../../corp/ZenPayProduct";
 import { Address } from "ton";
-import { AppConfig } from "../../../AppConfig";
 
 export const cardListCodec = t.union([
   t.type({
@@ -26,13 +25,13 @@ export const cardListCodec = t.union([
   }),
 ]);
 
-export async function fetchCards(address: Address) {
+export async function fetchCards(address: Address, isTestnet: boolean) {
   let res = await axios.post(
     'https://' + zenPayEndpoint + '/public/cards',
     {
       walletKind: 'tonhub',
-      network: AppConfig.isTestnet ? 'ton:testnet' : 'ton:mainnet',
-      address: address.toFriendly({ testOnly: AppConfig.isTestnet })
+      network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
+      address: address.toFriendly({ testOnly: isTestnet })
     },
     {
       headers: {

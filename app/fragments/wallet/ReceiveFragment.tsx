@@ -2,12 +2,9 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Platform, Share, Text, Pressable } from "react-native";
+import { View, Platform, Text, Pressable } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
-import { Theme } from "../../Theme";
-import { useNavigation } from "@react-navigation/native";
 import { AndroidToolbar } from "../../components/AndroidToolbar";
-import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
@@ -20,8 +17,10 @@ import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { WImage } from "../../components/WImage";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const ReceiveFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const navigation = useTypedNavigation();

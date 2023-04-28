@@ -12,10 +12,8 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { AppConfig } from '../../AppConfig';
 import { beginCell, Cell, safeSign } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
 import SuccessIcon from '../../../assets/ic_success.svg';
@@ -31,6 +29,7 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import Url from 'url-parse';
 import isValid from 'is-valid-domain';
 import { connectAnswer } from '../../engine/api/connectAnswer';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -46,6 +45,7 @@ type SignState = { type: 'loading' }
     | { type: 'failed' }
 
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
@@ -164,7 +164,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             });
 
             // Track
-            trackEvent(MixpanelEvent.Connect, { url, name });
+            trackEvent(MixpanelEvent.Connect, { url, name }, AppConfig.isTestnet);
 
             // Exit if already exited screen
             if (!active.current) {
@@ -238,7 +238,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             );
 
             // Track installation
-            trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain });
+            trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain }, AppConfig.isTestnet);
 
             // Navigate
             navigation.goBack();

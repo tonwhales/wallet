@@ -11,10 +11,8 @@ import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
-import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useEngine } from '../../engine/Engine';
-import { AppConfig } from '../../AppConfig';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
@@ -28,6 +26,7 @@ import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
 import { LocalizedResources } from '../../i18n/schema';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -66,6 +65,7 @@ export function actionTitle(action?: TransferAction) {
 }
 
 export const StakingTransferFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
     const engine = useEngine();

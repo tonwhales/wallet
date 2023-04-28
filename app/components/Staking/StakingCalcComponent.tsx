@@ -5,11 +5,11 @@ import { fromNano, toNano } from "ton";
 import { useEngine } from "../../engine/Engine";
 import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
 import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
 import { bnIsLess } from "../../utils/bnComparison";
 import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const StakingCalcComponent = React.memo((
     {
@@ -28,6 +28,7 @@ export const StakingCalcComponent = React.memo((
         } | null,
         pool: StakingPoolState
     }) => {
+    const { Theme } = useAppConfig();
     const engine = useEngine();
     const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
     const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;

@@ -4,7 +4,6 @@ import { MessageEvent } from 'react-native-sse';
 import { ConnectedApp, ConnectedAppConnection, ConnectedAppConnectionRemote, ConnectEventError, ConnectQrQuery, SendTransactionRequest, SignRawParams, TonConnectBridgeType, TonConnectExtension } from '../tonconnect/types';
 import { AppRequest, Base64, ConnectEvent, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DisconnectEvent, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
 import { RecoilValueReadOnly, selector, useRecoilValue } from 'recoil';
-import { AppConfig } from '../../AppConfig';
 import { AppState } from 'react-native';
 import { AppManifest, fetchManifest } from '../api/fetchManifest';
 import { extensionKey } from './ExtensionsProduct';
@@ -44,7 +43,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
             dangerouslyAllowMutability: true
         });
         this.#extensionsSelector = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/tonconnect/extensions',
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/tonconnect/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
                 let res: {
@@ -534,8 +533,9 @@ export class ConnectProduct extends TonConnectBridgeClient {
             }
 
             const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(
-                acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
+                acc.address.toFriendly({ testOnly: this.engine.isTestnet, urlSafe: true, bounceable: true }),
                 walletStateInit,
+                this.engine.isTestnet
             );
 
             return {

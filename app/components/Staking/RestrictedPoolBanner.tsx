@@ -1,12 +1,12 @@
 import React, { useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
-import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { WImage } from "../WImage";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team' }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const onLearMore = useCallback(
         () => {
             if (type === 'club') {

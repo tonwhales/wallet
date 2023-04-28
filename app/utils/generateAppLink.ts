@@ -1,8 +1,7 @@
 import { beginCell } from "ton";
-import { AppConfig } from "../AppConfig";
 import { toUrlSafe } from "./toUrlSafe";
 
-export function generateAppLink(src: string, customTitle: string | null) {
+export function generateAppLink(src: string, customTitle: string | null, isTestnet: boolean) {
 
     let builder = beginCell()
         .storeRef(beginCell()
@@ -22,6 +21,6 @@ export function generateAppLink(src: string, customTitle: string | null) {
             .storeBit(false);
     }
 
-    return 'https://' + (AppConfig.isTestnet ? 'test.' : '') + 'tonhub.com/app/'
+    return 'https://' + (isTestnet ? 'test.' : '') + 'tonhub.com/app/'
         + toUrlSafe(builder.endCell().toBoc({ idx: false }).toString('base64'));
 }

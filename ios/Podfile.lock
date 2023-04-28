@@ -13,7 +13,7 @@ PODS:
     - ExpoModulesCore
   - EXFileSystem (15.2.2):
     - ExpoModulesCore
-  - EXFont (11.1.1):
+  - EXDevice (4.2.0):
     - ExpoModulesCore
   - EXFileSystem (14.0.0):
     - ExpoModulesCore

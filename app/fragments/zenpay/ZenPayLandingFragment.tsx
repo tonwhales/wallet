@@ -22,6 +22,7 @@ export const ZenPayLandingFragment = fragment(() => {
     const webRef = React.useRef<WebView>(null);
     const engine = useEngine();
     const navigation = useTypedNavigation();
+    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: ZenPayAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
@@ -141,6 +142,7 @@ export const ZenPayLandingFragment = fragment(() => {
             navigation.goBack();
             return;
         }
+        setHideKeyboardAccessoryView(!params.showKeyboardAccessoryView);
         if (params.openEnrollment) {
             onEnroll();
             return;
@@ -195,6 +197,7 @@ export const ZenPayLandingFragment = fragment(() => {
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
                         scrollEnabled={false}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                     />
                 </KeyboardAvoidingView>
                 <Animated.View
@@ -202,7 +205,7 @@ export const ZenPayLandingFragment = fragment(() => {
                     pointerEvents={loaded ? 'none' : 'box-none'}
                 >
                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                        <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
                     </View>
                     {Platform.OS === 'ios' && (
                         <Pressable
@@ -210,12 +213,12 @@ export const ZenPayLandingFragment = fragment(() => {
                             onPress={() => {
                                 navigation.goBack();
                             }} >
-                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
                                 {t('common.close')}
                             </Text>
                         </Pressable>
                     )}
-                    <ActivityIndicator size="small" color={'#43A4EB'} />
+                    <ActivityIndicator size="small" color={'#564CE2'} />
                 </Animated.View>
                 <Animated.View
                     style={animatedAuthStyles}
@@ -230,12 +233,12 @@ export const ZenPayLandingFragment = fragment(() => {
                             onPress={() => {
                                 navigation.goBack();
                             }} >
-                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
                                 {t('common.close')}
                             </Text>
                         </Pressable>
                     )}
-                    <ActivityIndicator size="small" color={'#43A4EB'} />
+                    <ActivityIndicator size="small" color={'#564CE2'} />
                 </Animated.View>
             </View>
         </View>

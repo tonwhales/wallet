@@ -1,12 +1,8 @@
-import axios from "axios";
 import { Address } from "ton";
 import { AppConfig } from "../../AppConfig";
-import { warn } from "../../utils/log";
-import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 import { tryFetchJettonMaster } from "../metadata/introspections/tryFetchJettonMaster";
-import { resolveLink } from "../../utils/resolveLink";
 import { ImagePreview } from "../api/fetchAppData";
 import { fetchJettonMasterContent } from "../metadata/fetchJettonMasterContent";
 

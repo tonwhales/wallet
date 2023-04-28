@@ -34,7 +34,7 @@ export const ConfirmLegal = React.memo((
     const privacy = 'https://neocrypto.net/privacypolicy.html';
     const terms = 'https://neocrypto.net/terms.html';
 
-    const onDoNotShowToggle = useCallback((newVal) => {
+    const onDoNotShowToggle = useCallback((newVal: boolean) => {
         setDoNotShow(newVal);
     }, []);
 

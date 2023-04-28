@@ -7,14 +7,12 @@ import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
-import { AppConfig } from '../../../AppConfig';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
 import { useEngine } from '../../../engine/Engine';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
-import { Theme } from '../../../Theme';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
@@ -23,7 +21,7 @@ import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
-import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
+import { useAppConfig } from '../../../utils/AppConfigContext';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -33,6 +31,7 @@ export const ZenPayAppComponent = React.memo((
         endpoint: string
     }
 ) => {
+    const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
@@ -47,7 +46,7 @@ export const ZenPayAppComponent = React.memo((
     const start = React.useMemo(() => {
         return Date.now();
     }, []);
-    useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type });
+    useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type }, AppConfig.isTestnet);
 
     //
     // View
@@ -71,7 +70,7 @@ export const ZenPayAppComponent = React.memo((
     //
     // Navigation
     //
-    const linkNavigator = useLinkNavigator();
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
@@ -125,7 +124,7 @@ export const ZenPayAppComponent = React.memo((
             }
         });
     }, []);
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title);
+    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, AppConfig.isTestnet);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -181,7 +180,7 @@ export const ZenPayAppComponent = React.memo((
     const onCloseApp = React.useCallback(() => {
         engine.products.zenPay.doSync();
         navigation.goBack();
-        trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start });
+        trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
     }, []);
 
     const safelyOpenUrl = React.useCallback((url: string) => {

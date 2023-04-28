@@ -2,8 +2,6 @@ import * as React from 'react';
 import { Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { Theme } from "../../Theme";
-import { Item } from '../../components/Item';
-import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
 import { storagePersistence } from '../../storage/storage';
@@ -28,7 +26,6 @@ export const DeveloperToolsFragment = fragment(() => {
     }, []);
 
     const engine = useEngine();
-
     return (
         <View style={{
             flex: 1,
@@ -53,10 +50,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_privacy.png')} title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                        <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
                 </View>
             </View>

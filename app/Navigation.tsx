@@ -61,6 +61,9 @@ import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAut
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
+import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetupFragment';
+import { SecurityFragment } from './fragments/SecurityFragment';
+import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 

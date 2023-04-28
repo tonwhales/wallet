@@ -135,17 +135,8 @@ export class ZenPayProduct {
     // Update accounts
     async syncAccounts() {
         let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
-        let status: ZenPayAccountStatus = this.engine.persistence.zenPayStatus.item(this.engine.address).value || { state: 'need-enrolment' };
-        if (status.state === 'ready') {
-            const token = status.token;
-            try {
-                let listRes = await fetchCards(this.engine.address, this.engine.isTestnet);
-
-                // Clear token on 401 unauthorized response
-                if (listRes === null) {
-                    this.cleanup();
-                    return;
-                }
+        try {
+            let listRes = await fetchCards(this.engine.address, this.engine.isTestnet);
 
             // Clear token on 401 unauthorized response
             if (listRes === null) {

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -21,6 +21,7 @@ import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
+import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 
 export const ZenPayAppComponent = React.memo((

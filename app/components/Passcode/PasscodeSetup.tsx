@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useReducer } from "react";
 import { Platform, View, Text } from "react-native";
 import Animated, { FadeIn, SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { t } from "../../i18n/t";
-import { Theme } from "../../Theme";
 import { warn } from "../../utils/log";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AndroidToolbar } from "../AndroidToolbar";
 import { RoundButton } from "../RoundButton";
 import { PasscodeInput } from "./PasscodeInput";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'error' } | { type: 'success' } | { type: 'loading' };
 type Step = 'input' | 're-enter' | 'success' | 'error' | 'loading';
@@ -52,6 +52,7 @@ function reduceSteps() {
 
 export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string) => Promise<void> }) => {
     const navigation = useTypedNavigation();
+    const { Theme } = useAppConfig();
     const onSuccess = useCallback(async (pass: string) => {
         if (onReady) {
             await onReady(pass);

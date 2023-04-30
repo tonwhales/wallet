@@ -9,11 +9,12 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { PasscodeState, passcodeStateKey } from "../storage/secureStorage"
 import { storage } from "../storage/storage"
-import { Theme } from "../Theme"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useState } from "react"
+import { useAppConfig } from "../utils/AppConfigContext"
 
 export const SecurityFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [passcodeState, setpasscodeState] = useState(storage.getString(passcodeStateKey));

@@ -3,11 +3,11 @@ import { View, Text } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "./PasscodeInput";
 import { loadWalletKeysWithPassword } from "../../storage/walletKeys";
-import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { RoundButton } from "../RoundButton";
 import { encryptAndStoreWithPasscode } from "../../storage/secureStorage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 type Action = { type: 're-enter' | 'input' | 'auth', input: string }
     | { type: 'error' }
@@ -54,6 +54,7 @@ function reduceSteps() {
 }
 
 export const PasscodeChange = React.memo(() => {
+    const { Theme } = useAppConfig();
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
     const navigation = useTypedNavigation();
 

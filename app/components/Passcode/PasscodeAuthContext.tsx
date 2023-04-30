@@ -1,16 +1,17 @@
 import React, { useCallback, useState } from 'react';
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { KeyboardAvoidingView, Platform, Text } from 'react-native';
 import { WalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
 import { PasscodeInput } from './PasscodeInput';
 import { t } from '../../i18n/t';
 import { storage } from '../../storage/storage';
 import { PasscodeState, passcodeStateKey } from '../../storage/secureStorage';
-import { Theme } from '../../Theme';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const PasscodeAuthContext = React.createContext<{ authenticate: () => Promise<WalletKeys> } | null>(null);
 
 export const PasscodeAuthContextProvider = React.memo((props: { children?: any }) => {
+    const { Theme } = useAppConfig();
     const [promise, setPromise] = useState<{ resolve: (keys: WalletKeys) => void, reject: () => void } | null>(null);
 
     const authenticate = useCallback(() => {

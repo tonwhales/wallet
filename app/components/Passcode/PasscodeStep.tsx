@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import { Text, View } from "react-native";
 import Animated, { BounceIn, BounceOut } from "react-native-reanimated";
-import { Theme } from "../../Theme";
 import { emojis } from "../../utils/emojis";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 const getRandomEmoji = () => {
     const randomIndex = Math.floor(Math.random() * emojis.length);
@@ -26,6 +26,7 @@ export const PasscodeStep = React.memo((
         fontSize?: number,
     }
 ) => {
+    const { Theme } = useAppConfig();
     const size = emoji ? 32 : dotSize;
     const rndmEmoji = useMemo(() => {
         if (!emoji) return '';

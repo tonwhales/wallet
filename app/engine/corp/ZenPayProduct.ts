@@ -136,7 +136,7 @@ export class ZenPayProduct {
     async syncAccounts() {
         let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
         try {
-            let listRes = await fetchCards(this.engine.address);
+            let listRes = await fetchCards(this.engine.address, this.engine.isTestnet);
 
             // Clear token on 401 unauthorized response
             if (listRes === null) {

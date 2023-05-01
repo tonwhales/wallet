@@ -21,6 +21,7 @@ import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
+import { useAppConfig } from '../../../utils/AppConfigContext';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 
 export const ZenPayAppComponent = React.memo((

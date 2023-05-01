@@ -4,6 +4,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import Animated, { EasingNode } from "react-native-reanimated";
 
 export const Splash = React.memo(({ hide }: { hide: boolean }) => {
+    SplashScreen.hideAsync();
+    return null;
     const [visible, setVisible] = React.useState(true);
     const splashOpacity = React.useMemo(() => new Animated.Value<number>(1), []);
 

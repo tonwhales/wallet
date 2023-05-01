@@ -2,6 +2,9 @@ package com.tonhub.wallet;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -12,6 +15,7 @@ import com.facebook.react.bridge.JSIModuleProvider;
 import com.facebook.react.bridge.JSIModuleSpec;
 import com.facebook.react.bridge.JSIModuleType;
 import com.facebook.react.bridge.JavaScriptContextHolder;
+import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.UIManager;
 import com.facebook.react.fabric.ComponentFactory;
@@ -19,6 +23,7 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
+import com.tonhub.wallet.modules.navbarcolor.NavigationBarColorPackage;
 import com.tonhub.wallet.modules.store.KeyStorePackage;
 
 import java.util.ArrayList;
@@ -47,12 +52,28 @@ public class MainApplicationReactNativeHost extends ReactNativeHost {
         // Packages that cannot be autolinked yet can be added manually here, for example:
         //     packages.add(new MyReactNativePackage());
         packages.add(new KeyStorePackage());
+        packages.add(new NavigationBarColorPackage());
         // TurboModules must also be loaded here providing a valid TurboReactPackage implementation:
         //     packages.add(new TurboReactPackage() { ... });
         // If you have custom Fabric Components, their ViewManagers should also be loaded here
         // inside a ReactPackage.
         return packages;
     }
+
+    @Nullable
+    @Override
+    protected JavaScriptExecutorFactory getJavaScriptExecutorFactory() {
+        return new HermesExecutorFactory();
+    }
+
+    //    @Override
+//    protected boolean isNewArchEnabled() {
+//        return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
+//    }
+//    @Override
+//    protected Boolean isHermesEnabled() {
+//        return BuildConfig.IS_HERMES_ENABLED;
+//    }
 
     @Override
     protected String getJSMainModuleName() {

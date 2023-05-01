@@ -7,10 +7,12 @@ import expo.modules.ReactNativeHostWrapper;
 
 import androidx.annotation.NonNull;
 
+import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
@@ -51,6 +53,11 @@ public class MainApplication extends Application implements ReactApplication {
                 @Override
                 protected Boolean isHermesEnabled() {
                     return BuildConfig.IS_HERMES_ENABLED;
+                }
+
+                @Override
+                protected JavaScriptExecutorFactory getJavaScriptExecutorFactory() {
+                    return new HermesExecutorFactory();
                 }
             }));
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -21,7 +21,7 @@ import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
-import { useAppConfig } from '../../../utils/AppConfigContext';
+import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -243,23 +243,20 @@ export const ZenPayAppComponent = React.memo((
 
     React.useEffect(() => {
         // Adding onAppFocus listener in case of content process termination events not firing
-        const sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+        let sub: NativeEventSubscription | null = null;
+        if (Platform.OS === 'ios') {
+            sub = AppState.addEventListener('change', onContentProcessDidTerminate);
+        }
         return () => {
-            sub.remove();
+            sub?.remove();
         }
     }, []);
 
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                <AnotherKeyboardAvoidingView
                     style={{ backgroundColor: Theme.item, flexGrow: 1 }}
-                    keyboardVerticalOffset={
-                        Platform.OS === 'ios'
-                            ? 42
-                            : 8
-                    }
                 >
                     <WebView
                         ref={webRef}
@@ -304,13 +301,13 @@ export const ZenPayAppComponent = React.memo((
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
                     />
-                </KeyboardAvoidingView>
+                </AnotherKeyboardAvoidingView>
                 <Animated.View
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}
                 >
                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                        <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
                     </View>
                     {Platform.OS === 'ios' && (
                         <Pressable
@@ -318,12 +315,12 @@ export const ZenPayAppComponent = React.memo((
                             onPress={() => {
                                 navigation.goBack();
                             }} >
-                            <Text style={{ color: '#43A4EB', fontWeight: '500', fontSize: 17 }}>
+                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
                                 {t('common.close')}
                             </Text>
                         </Pressable>
                     )}
-                    <ActivityIndicator size="small" color={'#43A4EB'} />
+                    <ActivityIndicator size="small" color={'#564CE2'} />
                 </Animated.View>
             </View>
         </>

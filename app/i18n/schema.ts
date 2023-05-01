@@ -438,7 +438,9 @@ export type LocalizationSchema = {
     },
     import: {
         title: string,
-        subtitle: string
+        subtitle: string,
+        fullSeedPlaceholder: string,
+        fullSeedPaste: string
     },
     secure: {
         title: string,

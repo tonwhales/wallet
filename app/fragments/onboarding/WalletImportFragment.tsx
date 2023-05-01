@@ -17,8 +17,9 @@ import { WordsListTrie } from '../../utils/wordsListTrie';
 import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
+import { SeedInput } from '../../components/SeedInput';
 
-const wordsTrie = WordsListTrie();
+export const wordsTrie = WordsListTrie();
 
 type WordInputRef = {
     focus: () => void;
@@ -185,6 +186,7 @@ function WalletWordsComponent(props: {
     }, []);
 
     // Words and suggestions
+    const [fullSeed, setFullSeed] = React.useState('');
     const [words, setWords] = React.useState<string[]>([
         '', '', '', '', '', '', '', '',
         '', '', '', '', '', '', '', '',
@@ -249,9 +251,13 @@ function WalletWordsComponent(props: {
         let measured = measure(ref);
         let scroll = translationY.value;
 
-        let containerHeight = Platform.OS === 'ios' ? (container.height - keyboardHeight.value) : container.height;
-        let relativeTop = measured.pageY - container.pageY;
-        let relativeBottom = containerHeight - (relativeTop + measured.height);
+        let containerHeight = container?.height
+            ? Platform.OS === 'ios'
+                ? (container.height - keyboardHeight.value)
+                : container.height
+            : 0;
+        let relativeTop = (measured?.pageY ?? 0) - (container?.pageY ?? 0);
+        let relativeBottom = containerHeight - (relativeTop + (measured?.height ?? 0));
 
         // If one of the last
         if (index > 20) {
@@ -365,6 +371,25 @@ function WalletWordsComponent(props: {
                     }}>
                         {wordComponents}
                     </View>
+                    <Text style={{
+                        alignSelf: 'center', textAlign: 'center',
+                        marginTop: 16,
+                        marginBottom: 8,
+                        marginHorizontal: 37,
+                        fontWeight: '400', fontSize: 16,
+                        color: 'rgba(109, 109, 113, 1)'
+                    }}>
+                        {t('import.fullSeedPaste')}
+                    </Text>
+                    <SeedInput
+                        value={fullSeed}
+                        setValue={(src: string) => {
+                            
+                        }}
+                        onSubmit={(value: string) => {
+
+                        }}
+                    />
                     <RoundButton
                         title={t('common.continue')}
                         action={onSubmitEnd}

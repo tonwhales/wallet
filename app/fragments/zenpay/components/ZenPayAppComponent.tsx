@@ -246,7 +246,7 @@ export const ZenPayAppComponent = React.memo((
         // Adding onAppFocus listener in case of content process termination events not firing
         let sub: NativeEventSubscription | null = null;
         if (Platform.OS === 'ios') {
-            sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+            sub = AppState.addEventListener('change', onContentProcessDidTerminate);
         }
         return () => {
             sub?.remove();

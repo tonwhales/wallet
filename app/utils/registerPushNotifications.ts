@@ -4,14 +4,23 @@ import axios from 'axios';
 import { Address } from 'ton';
 import { AppConfig } from '../AppConfig';
 import { getAppInstanceKeyPair } from '../storage/appState';
+import { Platform } from 'react-native';
 
 export const registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
+        if (Platform.OS === 'android') {
+            await Notifications.getNotificationChannelsAsync();
+            await Notifications.setNotificationChannelAsync('default', {
+                name: 'Default',
+                importance: Notifications.AndroidImportance.DEFAULT,
+            });
+        }
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
         if (existingStatus !== 'granted') {
             const { status } = await Notifications.requestPermissionsAsync();
             finalStatus = status;
+            const res = await Notifications.requestPermissionsAsync();
         }
         if (finalStatus !== 'granted') {
             return null;

@@ -249,6 +249,10 @@ function WalletWordsComponent(props: {
         let measured = measure(ref);
         let scroll = translationY.value;
 
+        if (!container || !measured) {
+            return;
+        }
+
         let containerHeight = Platform.OS === 'ios' ? (container.height - keyboardHeight.value) : container.height;
         let relativeTop = measured.pageY - container.pageY;
         let relativeBottom = containerHeight - (relativeTop + measured.height);

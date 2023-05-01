@@ -2,6 +2,8 @@ package com.tonhub.wallet;
 
 import android.app.Application;
 import android.content.res.Configuration;
+import expo.modules.ApplicationLifecycleDispatcher;
+import expo.modules.ReactNativeHostWrapper;
 
 import androidx.annotation.NonNull;
 
@@ -9,15 +11,13 @@ import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.config.ReactFeatureFlags;
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import android.content.Context;
 import com.facebook.react.ReactInstanceManager;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
-import expo.modules.ApplicationLifecycleDispatcher;
-import expo.modules.ReactNativeHostWrapper;
 
 import com.tonhub.wallet.modules.navbarcolor.NavigationBarColorPackage;
 import com.tonhub.wallet.modules.store.KeyStorePackage;
@@ -25,7 +25,7 @@ import com.tonhub.wallet.modules.store.KeyStorePackage;
 public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
             this,
-            new ReactNativeHost(this) {
+            new ReactNativeHostWrapper(this, new DefaultReactNativeHost(this) {
                 @Override
                 public boolean getUseDeveloperSupport() {
                     return BuildConfig.DEBUG;
@@ -35,8 +35,6 @@ public class MainApplication extends Application implements ReactApplication {
                 protected List<ReactPackage> getPackages() {
                     @SuppressWarnings("UnnecessaryLocalVariable")
                     List<ReactPackage> packages = new PackageList(this).getPackages();
-                    // Packages that cannot be autolinked yet can be added manually here, for example:
-                    // packages.add(new MyReactNativePackage());
                     packages.add(new KeyStorePackage());
                     packages.add(new NavigationBarColorPackage());
                     return packages;
@@ -46,26 +44,32 @@ public class MainApplication extends Application implements ReactApplication {
                 protected String getJSMainModuleName() {
                     return "index";
                 }
-            });
+                @Override
+                protected boolean isNewArchEnabled() {
+                    return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
+                }
+                @Override
+                protected Boolean isHermesEnabled() {
+                    return BuildConfig.IS_HERMES_ENABLED;
+                }
+            }));
 
-    private final ReactNativeHost mNewArchitectureNativeHost = new MainApplicationReactNativeHost(this);
+//    private final ReactNativeHost mNewArchitectureNativeHost = new MainApplicationReactNativeHost(this);
+
 
     @Override
     public ReactNativeHost getReactNativeHost() {
-        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            return mNewArchitectureNativeHost;
-        } else {
-            return mReactNativeHost;
-        }
+        return mReactNativeHost;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        // If you opted-in for the New Architecture, we enable the TurboModule system
-        ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
         SoLoader.init(this, /* native exopackage */ false);
-        initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+            // If you opted-in for the New Architecture, we load the native entry point for this app.
+            DefaultNewArchitectureEntryPoint.load();
+        }
         ApplicationLifecycleDispatcher.onApplicationCreate(this);
     }
 

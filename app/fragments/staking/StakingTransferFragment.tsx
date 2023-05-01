@@ -218,7 +218,12 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : container.height, true);
+        if (Platform.OS !== 'android' && container) {
+            scrollTo(scrollRef, 0, container.height, true);
+        }
+        if (Platform.OS === 'android') {
+            scrollTo(scrollRef, 0, 400, true);
+        }
         return;
 
     }, []);

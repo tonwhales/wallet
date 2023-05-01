@@ -1,13 +1,13 @@
 // Crypto
 global.Buffer = global.Buffer || require('buffer').Buffer;
-import { polyfillWebCrypto } from 'expo-standard-web-crypto';
+import { polyfillWebCrypto } from './app/utils/expo-standart-web-crypto/polyfillWebCrypto';
 polyfillWebCrypto();
 
-// Set up an PRNG for nacl with expo-random
+// Set up an PRNG for nacl with expo-crypto
 import nacl from 'tweetnacl';
-import { getRandomBytes } from 'expo-random';
+import { getRandomBytes } from 'expo-crypto'
 nacl.setPRNG((x, n) => {
-  // Get n random bytes from expo-random
+  // Get n random bytes from expo-crypto
   const randomBytes = getRandomBytes(n);
 
   // Copy the random bytes into x

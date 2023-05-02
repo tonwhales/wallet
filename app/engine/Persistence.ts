@@ -1,6 +1,5 @@
 import { MMKV } from "react-native-mmkv";
 import { Address } from "ton";
-import { AppConfig } from "../AppConfig";
 import { PersistedCollection } from "./persistence/PersistedCollection";
 import * as t from 'io-ts';
 import * as c from './utils/codecs';
@@ -87,32 +86,42 @@ export class Persistence {
             storage.clearAll();
             storage.set('storage-version', this.version);
         }
+
+        // Key formats
+        const addressKey = (src: Address) => src.toFriendly({ testOnly: engine.isTestnet });
+        const addressWithTargetKey = (src: { address: Address, target: Address }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.target.toFriendly({ testOnly: engine.isTestnet });
+        const transactionKey = (src: { address: Address, lt: BN }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.lt.toString(10);
+        const keyedAddressKey = (src: { address: Address, key: string }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.key;
+        const voidKey = (src: void) => 'void';
+        const stringKey = (src: string) => Buffer.from(src).toString('base64');
+
+
         this.liteAccounts = new PersistedCollection({ storage, namespace: 'liteAccounts', key: addressKey, codec: liteAccountCodec, engine });
         this.fullAccounts = new PersistedCollection({ storage, namespace: 'fullAccounts', key: addressKey, codec: fullAccountCodec, engine });
-        this.wallets = new PersistedCollection({ storage, namespace: 'wallets', key: addressKey, codec: walletCodec, engine });
-        this.parsedTransactions = new PersistedCollection({ storage, namespace: 'parsedTransactions', key: transactionKey, codec: walletTransactionCodec, engine });
+        this.wallets = new PersistedCollection({ storage, namespace: 'wallets', key: addressKey, codec: walletCodec(engine.isTestnet), engine });
+        this.parsedTransactions = new PersistedCollection({ storage, namespace: 'parsedTransactions', key: transactionKey, codec: walletTransactionCodec(engine.isTestnet), engine });
         this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
         this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
         this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });
-        this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec, engine });
+        this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec(engine.isTestnet), engine });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata, engine });
-        this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec, engine });
+        this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec(engine.isTestnet), engine });
         this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string, engine });
 
         // Hints
         this.hintState = new PersistedCollection({ storage, namespace: 'hintState', key: addressKey, codec: hintProcessingState, engine });
         this.hintRequest = new PersistedCollection({ storage, namespace: 'hintRequest', key: addressKey, codec: t.number, engine });
-        this.accountHints = new PersistedCollection({ storage, namespace: 'hintsAccount', key: addressKey, codec: t.array(c.address), engine });
+        this.accountHints = new PersistedCollection({ storage, namespace: 'hintsAccount', key: addressKey, codec: t.array(c.address(engine.isTestnet)), engine });
         this.scannerState = new PersistedCollection({ storage, namespace: 'hintsScanner', key: addressKey, codec: hintScannerCodec, engine });
 
         // Jettons
-        this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec, engine });
+        this.jettonWallets = new PersistedCollection({ storage, namespace: 'jettonWallets', key: addressKey, codec: jettonWalletCodec(engine.isTestnet), engine });
         this.jettonMasters = new PersistedCollection({ storage, namespace: 'jettonMasters', key: addressKey, codec: jettonMasterCodec, engine });
-        this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address), engine });
-        this.disabledJettons = new PersistedCollection({ storage, namespace: 'disabledJettons', key: addressKey, codec: t.array(c.address), engine });
-        this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address), engine });
+        this.knownJettons = new PersistedCollection({ storage, namespace: 'knownJettons', key: voidKey, codec: t.array(c.address(engine.isTestnet)), engine });
+        this.disabledJettons = new PersistedCollection({ storage, namespace: 'disabledJettons', key: addressKey, codec: t.array(c.address(engine.isTestnet)), engine });
+        this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address(engine.isTestnet)), engine });
 
         // Configs
         this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
@@ -145,14 +154,6 @@ export class Persistence {
     }
 }
 
-// Key formats
-const addressKey = (src: Address) => src.toFriendly({ testOnly: AppConfig.isTestnet });
-const addressWithTargetKey = (src: { address: Address, target: Address }) => src.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '::' + src.target.toFriendly({ testOnly: AppConfig.isTestnet });
-const transactionKey = (src: { address: Address, lt: BN }) => src.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '::' + src.lt.toString(10);
-const keyedAddressKey = (src: { address: Address, key: string }) => src.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '::' + src.key;
-const voidKey = (src: void) => 'void';
-const stringKey = (src: string) => Buffer.from(src).toString('base64');
-
 // Codecs
 const liteAccountCodec = t.type({
     balance: c.bignum,
@@ -176,11 +177,11 @@ const fullAccountCodec = t.type({
     transactionsCursor: t.union([t.null, t.type({ lt: c.bignum, hash: t.string })]),
     transactions: t.array(t.string)
 });
-const walletCodec = t.type({
+const walletCodec = (isTestnet: boolean) => t.type({
     seqno: t.number,
     block: t.number,
     balance: c.bignum,
-    plugins: t.array(c.address),
+    plugins: t.array(c.address(isTestnet)),
     transactions: t.array(t.string)
 });
 const priceCodec = t.type({
@@ -217,31 +218,31 @@ const contentSourceCodec = t.union([
         type: t.literal('onchain'),
     })
 ]);
-const metadataCodec = t.type({
+const metadataCodec = (isTestnet: boolean) => t.type({
     seqno: t.number,
     interfaces: t.array(t.string),
     jettonWallet: t.union([t.undefined, t.type({
         balance: c.bignum,
-        owner: c.address,
-        master: c.address,
+        owner: c.address(isTestnet),
+        master: c.address(isTestnet),
     })]),
     jettonMaster: t.union([t.undefined, t.type({
         totalSupply: c.bignum,
         mintalbe: t.boolean,
-        owner: t.union([c.address, t.null]),
+        owner: t.union([c.address(isTestnet), t.null]),
         content: t.union([t.undefined, contentSourceCodec])
     })])
 });
 
 const codecPendingMetadata = t.record(t.string, t.number);
 
-const pluginStateCodec = t.union([t.type({
+const pluginStateCodec = (isTestnet: boolean) => t.union([t.type({
     type: t.literal('unknown'),
 }), t.type({
     type: t.literal('legacy-subscription'),
     state: t.type({
-        wallet: c.address,
-        beneficiary: c.address,
+        wallet: c.address(isTestnet),
+        beneficiary: c.address(isTestnet),
         amount: c.bignum,
         period: t.number,
         startAt: t.number,
@@ -253,9 +254,9 @@ const pluginStateCodec = t.union([t.type({
     })
 })]);
 
-const jettonWalletCodec = t.type({
+const jettonWalletCodec = (isTestnet: boolean) => t.type({
     block: t.number,
-    master: t.union([t.null, c.address]),
+    master: t.union([t.null, c.address(isTestnet)]),
     balance: c.bignum
 });
 

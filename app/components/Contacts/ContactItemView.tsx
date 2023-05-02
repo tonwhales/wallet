@@ -2,12 +2,13 @@ import React, { useCallback, useMemo } from "react";
 import { TouchableHighlight, useWindowDimensions, View, Text } from "react-native";
 import { Address } from "ton";
 import { AddressContact } from "../../engine/products/SettingsProduct";
-import { Theme } from "../../Theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const ContactItemView = React.memo(({ addr, contact }: { addr: string, contact: AddressContact }) => {
+    const { Theme } = useAppConfig();
     const address = useMemo(() => Address.parse(addr), [addr])
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;

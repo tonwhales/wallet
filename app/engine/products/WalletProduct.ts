@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
 import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoilValue, selectorFamily, useRecoilCallback } from "recoil";
@@ -74,7 +73,7 @@ export class WalletProduct {
         this.engine = engine;
         this.address = engine.address;
         this.#atom = atom<WalletState | null>({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }),
             default: null,
             dangerouslyAllowMutability: true
         });
@@ -85,7 +84,7 @@ export class WalletProduct {
             if (prevDisabled.length) {
                 this.disabledJettons.update((src) => {
                     for (let m of prevDisabled) {
-                        src.disabled[m.toFriendly({ testOnly: AppConfig.isTestnet })] = { reason: 'disabled' };
+                        src.disabled[m.toFriendly({ testOnly: this.engine.isTestnet })] = { reason: 'disabled' };
                     }
                 });
             }
@@ -93,7 +92,7 @@ export class WalletProduct {
         }
 
         this.#jettons = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/jettons',
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/jettons',
             get: ({ get }) => {
 
                 // Load known jettons
@@ -145,7 +144,7 @@ export class WalletProduct {
                             }
                         }
 
-                        const disabled = !!disabledJettons.find((m) => m === w.master.toFriendly({ testOnly: AppConfig.isTestnet }));
+                        const disabled = !!disabledJettons.find((m) => m === w.master.toFriendly({ testOnly: this.engine.isTestnet }));
 
                         jettonWalletsWithMasters.push({
                             ...w,
@@ -164,9 +163,9 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         });
         this.#txsAtom = atomFamily<TransactionDescription, string>({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/txs',
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs',
             default: selectorFamily({
-                key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/txs/default',
+                key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs/default',
                 get: (id) => ({ get }) => {
                     let base = this.#txs.get(id);
                     if (!base) {
@@ -202,7 +201,7 @@ export class WalletProduct {
                     let verified: boolean | null = null;
                     if (
                         !!metadata?.jettonWallet
-                        && !!KnownJettonMasters[metadata.jettonWallet.master.toFriendly({ testOnly: AppConfig.isTestnet })]
+                        && !!KnownJettonMasters(this.engine.isTestnet)[metadata.jettonWallet.master.toFriendly({ testOnly: this.engine.isTestnet })]
                     ) {
                         verified = true;
                     }
@@ -310,7 +309,7 @@ export class WalletProduct {
 
         // Plugins
         this.#plugins = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/plugins',
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/plugins',
             get: ({ get }) => {
                 // Load wallet
                 let wallet = get(engine.persistence.wallets.item(engine.address).atom);

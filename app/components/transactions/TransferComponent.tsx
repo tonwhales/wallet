@@ -1,8 +1,6 @@
 import React from "react"
 import { View, Text, Pressable, Alert } from "react-native";
-import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
-
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Question from '../../../assets/ic_question.svg';
 import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
@@ -15,6 +13,7 @@ import { AddressContact } from "../../engine/products/SettingsProduct";
 import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { t } from "../../i18n/t";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     transfer: {
@@ -43,6 +42,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     last?: boolean,
     index: number,
 }) => {
+    const { Theme } = useAppConfig();
     const amount = transfer.message.amount;
     const inactiveAlert = React.useCallback(() => {
         Alert.alert(t('transfer.error.addressIsNotActive'),

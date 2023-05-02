@@ -4,13 +4,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
-import { Theme } from '../../Theme';
-import { AppConfig } from '../../AppConfig';
 import { isTermsAccepted } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const WelcomeFragment = systemFragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const onImportPressed = React.useCallback(() => {

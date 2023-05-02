@@ -9,10 +9,10 @@ import { useEngine } from "../engine/Engine";
 import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { JettonProduct } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -37,6 +37,7 @@ export async function confirmJettonAction(disable: boolean, symbol: string) {
 }
 
 export const AccountsFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();

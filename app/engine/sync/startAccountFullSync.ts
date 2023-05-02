@@ -2,8 +2,7 @@ import BN from "bn.js";
 import { Address, Cell, parseTransaction } from "ton";
 import { Engine } from "../Engine";
 import { backoff } from '../../utils/time';
-import { AppConfig } from '../../AppConfig';
-import { createLogger, log } from '../../utils/log';
+import { createLogger } from '../../utils/log';
 import { startDependentSync } from "./utils/startDependentSync";
 import { parseWalletTransaction } from "../transactions/parseWalletTransaction";
 
@@ -17,7 +16,7 @@ export type FullAccount = {
 }
 const logger = createLogger('account');
 export function startAccountFullSync(address: Address, engine: Engine) {
-    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/account/full`;
+    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/account/full`;
     let lite = engine.persistence.liteAccounts.item(address);
     let full = engine.persistence.fullAccounts.item(address);
 
@@ -65,7 +64,7 @@ export function startAccountFullSync(address: Address, engine: Engine) {
 
             // Persist transactions
             for (let l of loadedTransactions) {
-                const parsed = parseWalletTransaction(l, (Cell.fromBoc(Buffer.from(l.data, 'base64'))[0]).hash(), address);
+                const parsed = parseWalletTransaction(l, (Cell.fromBoc(Buffer.from(l.data, 'base64'))[0]).hash(), address, engine.isTestnet);
                 engine.transactions.set(address, l.lt.toString(10), parsed);
             }
 

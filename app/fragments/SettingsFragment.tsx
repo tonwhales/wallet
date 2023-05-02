@@ -1,21 +1,19 @@
 import * as React from 'react';
-import { Alert, View, Text, Platform, Pressable, ActionSheetIOS } from 'react-native';
+import { View, Text, Platform, Pressable } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
-import { Theme } from '../Theme';
-import { storage } from '../storage/storage';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
-import { useReboot } from '../utils/RebootContext';
-import { AppConfig } from '../AppConfig';
 import { t } from '../i18n/t';
 import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const SettingsFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();

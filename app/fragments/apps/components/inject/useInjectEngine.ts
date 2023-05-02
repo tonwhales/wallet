@@ -1,14 +1,13 @@
 import * as React from 'react';
 import * as t from 'io-ts';
 import { InjectEngine } from './InjectEngine';
-import { AppConfig } from '../../../../AppConfig';
 import * as c from '../../../../engine/utils/codecs';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
 import { Cell, Slice } from 'ton';
 
-const transCodec = t.type({
+const transCodec = (isTestnet: boolean) => t.type({
     network: t.union([t.literal('testnet'), t.literal('mainnet')]),
-    to: c.address,
+    to: c.address(isTestnet),
     value: c.bignum,
     stateInit: t.union([c.cell, t.null, t.undefined]),
     text: t.union([t.string, t.null, t.undefined]),
@@ -41,17 +40,17 @@ function parseString(slice: Slice) {
     return res;
 }
 
-export function useInjectEngine(domain: string, name: string) {
+export function useInjectEngine(domain: string, name: string, isTestnet: boolean) {
     const navigation = useTypedNavigation();
     return React.useMemo(() => {
         const inj = new InjectEngine();
-        inj.registerMethod('tx', transCodec, transactionResponse, async (src) => {
+        inj.registerMethod('tx', transCodec(isTestnet), transactionResponse, async (src) => {
 
             // Check network
-            if (AppConfig.isTestnet && src.network !== 'testnet') {
+            if (isTestnet && src.network !== 'testnet') {
                 throw Error('Invalid network');
             }
-            if (!AppConfig.isTestnet && src.network !== 'mainnet') {
+            if (!isTestnet && src.network !== 'mainnet') {
                 throw Error('Invalid network');
             }
 
@@ -68,7 +67,7 @@ export function useInjectEngine(domain: string, name: string) {
                 navigation.navigateTransfer({
                     order: {
                         messages: [{
-                            target: src.to.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            target: src.to.toFriendly({ testOnly: isTestnet }),
                             amount: src.value,
                             amountAll: false,
                             payload: src.payload,
@@ -86,7 +85,7 @@ export function useInjectEngine(domain: string, name: string) {
                 });
             } else {
                 navigation.navigateSimpleTransfer({
-                    target: src.to.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    target: src.to.toFriendly({ testOnly: isTestnet }),
                     amount: src.value,
                     stateInit: src.stateInit ? src.stateInit : null,
                     comment: src.text ? src.text : null,
@@ -106,10 +105,10 @@ export function useInjectEngine(domain: string, name: string) {
         inj.registerMethod('sign', signCodec, signResponseCodec, async (src) => {
 
             // Check network
-            if (AppConfig.isTestnet && src.network !== 'testnet') {
+            if (isTestnet && src.network !== 'testnet') {
                 throw Error('Invalid network');
             }
-            if (!AppConfig.isTestnet && src.network !== 'mainnet') {
+            if (!isTestnet && src.network !== 'mainnet') {
                 throw Error('Invalid network');
             }
 

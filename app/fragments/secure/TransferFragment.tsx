@@ -26,9 +26,9 @@ import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsR
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
-import { AppConfig } from '../../AppConfig';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -98,6 +98,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 });
 
 export const TransferFragment = fragment(() => {
+    const { AppConfig } = useAppConfig();
     const params: TransferFragmentProps = useRoute().params! as any;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));

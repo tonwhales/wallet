@@ -453,7 +453,7 @@ PODS:
   - React-jsinspector (0.71.4)
   - React-logger (0.71.4):
     - glog
-  - react-native-another-keyboard-avoiding-view (0.1.2):
+  - react-native-another-keyboard-avoiding-view (0.1.3):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-ble-plx (2.0.3):
@@ -1038,7 +1038,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: d6b7fa9260aa3cb40afee0507e3bc1d17ecaa6f2
   React-jsinspector: 1f51e775819199d3fe9410e69ee8d4c4161c7b06
   React-logger: 0d58569ec51d30d1792c5e86a8e3b78d24b582c6
-  react-native-another-keyboard-avoiding-view: 761af6c01d942ec4638dd1bfb6a484ca9bca9702
+  react-native-another-keyboard-avoiding-view: 99c2c648a74654f10c2fc54169da8d7cb9d69bcc
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-blurhash: add4df9a937b4e021a24bc67a0714f13e0bd40b7
   react-native-context-menu-view: a54a97ead7e44b0671a8c2b48ac70b9e4e2a19fb

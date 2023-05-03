@@ -12,9 +12,8 @@ import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
 import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from "../utils/dns/dns"
 import { useEngine } from "../engine/Engine"
-import { AppConfig } from "../AppConfig"
 import { AddressContact } from "../engine/products/SettingsProduct"
-import { Theme } from "../Theme"
+import { useAppConfig } from "../utils/AppConfigContext"
 
 export const AddressDomainInput = React.memo(React.forwardRef(({
     style,
@@ -48,6 +47,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     showToMainAddress?: boolean,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
+    const { Theme, AppConfig } = useAppConfig();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
 
@@ -170,7 +170,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 color: Theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
-                                {KnownWallets[target].name}
+                                {KnownWallets(AppConfig.isTestnet)[target].name}
                             </Text>
                         </Animated.View>
                     )}

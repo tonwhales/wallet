@@ -20,7 +20,6 @@ import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
-import { NavigationTheme } from './Theme';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EngineContext } from './engine/Engine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,8 +42,6 @@ import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/InstallFragment';
-import { AppConfig } from './AppConfig';
-import { mixpanel } from './analytics/mixpanel';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
@@ -65,6 +62,8 @@ import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAut
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
+import { useAppConfig } from './utils/AppConfigContext';
+import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 
 const Stack = createNativeStackNavigator();
 
@@ -198,6 +197,7 @@ const navigation = [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
+    const { AppConfig, NavigationTheme } = useAppConfig();
 
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
 
@@ -207,10 +207,10 @@ export const Navigation = React.memo(() => {
             const ex = state.addresses[state.selected];
 
             // Identify user profile by address
-            mixpanel.identify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            mixpanel.flush();
+            mixpanelIdentify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            mixpanelFlush(AppConfig.isTestnet);
 
-            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater });
+            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater, isTestnet: AppConfig.isTestnet });
         } else {
             return null;
         }
@@ -224,7 +224,7 @@ export const Navigation = React.memo(() => {
     }, []);
 
     const initial = React.useMemo(() => {
-        const onboarding = resolveOnboarding(engine);
+        const onboarding = resolveOnboarding(engine, AppConfig.isTestnet);
 
         if (onboarding === 'backup') {
             return 'WalletCreated';
@@ -268,7 +268,7 @@ export const Navigation = React.memo(() => {
                         if (ended) {
                             return;
                         }
-                        await registerPushToken(token, state.addresses.map((v) => v.address));
+                        await registerPushToken(token, state.addresses.map((v) => v.address), AppConfig.isTestnet);
                     });
                 }
             }

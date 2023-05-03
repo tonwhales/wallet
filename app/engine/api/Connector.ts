@@ -1,7 +1,6 @@
 import BN from "bn.js";
-import { Address, Cell, Contract, TonClient } from "ton";
+import { Address, TonClient } from "ton";
 import axios from "axios";
-import { AppConfig } from "../../AppConfig";
 
 export interface ConnectorAccountState {
     balance: BN;
@@ -30,15 +29,15 @@ export interface Connector {
 export function createSimpleConnector(endpoints: {
     main: string,
     estimate: string,
-    sender: string
-}): Connector {
+    sender: string,
+}, isTestnet: boolean): Connector {
 
     // Client
     const client = new TonClient({ endpoint: endpoints.main + '/jsonRPC' });
 
     // Fetch transactions
     const fetchTransactions: (address: Address, from: { lt: string, hash: string }) => Promise<ConnectorTransaction[]> = async (address, from) => {
-        let res = await axios.get(endpoints.main + '/getTransactions?address=' + address.toFriendly({ testOnly: AppConfig.isTestnet }) + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'), { timeout: 15000 });
+        let res = await axios.get(endpoints.main + '/getTransactions?address=' + address.toFriendly({ testOnly: isTestnet }) + '&limit=' + 20 + '&lt=' + from.lt + '&hash=' + Buffer.from(from.hash, 'base64').toString('hex'), { timeout: 15000 });
         if (!res.data.ok) {
             throw Error('Server error');
         }

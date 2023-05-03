@@ -3,7 +3,6 @@ import React from "react";
 import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native";
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
-import { AppConfig } from "../../../AppConfig";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
@@ -19,7 +18,6 @@ import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
 import { loadWalletKeys, WalletKeys } from "../../../storage/walletKeys";
-import { Theme } from "../../../Theme";
 import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -38,6 +36,7 @@ import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 type Props = {
     text: string | null,
@@ -68,6 +67,7 @@ type Props = {
 }
 
 export const TransferBatch = React.memo((props: Props) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -147,8 +147,8 @@ export const TransferBatch = React.memo((props: Props) => {
             const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
             const friendlyTarget = message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
             let known: KnownWallet | undefined = undefined;
-            if (KnownWallets[friendlyTarget]) {
-                known = KnownWallets[friendlyTarget];
+            if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
+                known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
             } else if (operation.title) {
                 known = { name: operation.title };
             } else if (!!contact) { // Resolve contact known wallet
@@ -182,7 +182,7 @@ export const TransferBatch = React.memo((props: Props) => {
     const success = React.useRef(false);
     React.useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { order });
+            trackEvent(MixpanelEvent.TransferCancel, { order }, AppConfig.isTestnet);
         }
     }, []);
 
@@ -323,7 +323,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { order });
+        trackEvent(MixpanelEvent.Transfer, { order }, AppConfig.isTestnet);
 
         // Register pending
         engine.products.main.registerPending({

@@ -7,9 +7,9 @@ import { ZenPayCard, zenPayUrl } from "../../../engine/corp/ZenPayProduct";
 import { Engine } from "../../../engine/Engine";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
-import { Theme } from "../../../Theme";
 import { avatarHash } from "../../../utils/avatarHash";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 const colorsMap = [
     ['#EA7509', '#E9A904'],
@@ -19,6 +19,7 @@ const colorsMap = [
 ];
 
 export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPayCard, engine: Engine }) => {
+    const { Theme } = useAppConfig();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;

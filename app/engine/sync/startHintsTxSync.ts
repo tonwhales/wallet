@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { createLogger } from "../../utils/log";
 import { Engine } from "../Engine";
 import { requestAllHintsIfNeeded } from "./ops";
@@ -14,8 +13,8 @@ export type TxHints = {
 const ZERO = new BN('0');
 const logger = createLogger('hints');
 
-export function startHintsTxSync(address: Address, engine: Engine, own?: Address) {
-    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/hints/tx`;
+export function startHintsTxSync(address: Address, engine: Engine) {
+    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/hints/tx`;
     let account = engine.persistence.fullAccounts.item(address);
     let cursor = engine.persistence.scannerState.item(address);
 

@@ -5,11 +5,12 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import React, { useState } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
-import { Theme } from "../../Theme";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const WalletCreatedFragment = systemFragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [loose, setLoose] = useState(false);

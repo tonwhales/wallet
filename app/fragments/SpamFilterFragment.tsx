@@ -12,11 +12,11 @@ import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { ProductButton } from "./wallet/products/ProductButton";
 import SpamIcon from '../../assets/known/spam_icon.svg';
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
@@ -24,6 +24,7 @@ export type SpamFilterConfig = {
 }
 
 export const SpamFilterFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();

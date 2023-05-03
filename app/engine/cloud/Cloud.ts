@@ -1,15 +1,14 @@
 import axios from 'axios';
 import { beginCell, safeSign } from 'ton';
 import { deriveSymmetricPath, getSecureRandomBytes, keyPairFromSeed, openBox, sealBox, sha256_sync } from 'ton-crypto';
-import { AppConfig } from '../../AppConfig';
 import { Engine } from '../Engine';
 import * as t from 'io-ts';
 import { CloudValue } from './CloudValue';
 import * as Automerge from 'automerge';
 
-async function deriveContentKey(utilityKey: Buffer, contentId: string) {
-    let signKey = await deriveSymmetricPath(utilityKey, [AppConfig.isTestnet ? 'sandbox' : 'mainnet', 'content', contentId, 'sign']);
-    let encryptKey = await deriveSymmetricPath(utilityKey, [AppConfig.isTestnet ? 'sandbox' : 'mainnet', 'content', contentId, 'encrypt']);
+async function deriveContentKey(utilityKey: Buffer, contentId: string, isTestnet: boolean) {
+    let signKey = await deriveSymmetricPath(utilityKey, [isTestnet ? 'sandbox' : 'mainnet', 'content', contentId, 'sign']);
+    let encryptKey = await deriveSymmetricPath(utilityKey, [isTestnet ? 'sandbox' : 'mainnet', 'content', contentId, 'encrypt']);
     let signing = keyPairFromSeed(signKey);
     return {
         signKey: signing,
@@ -79,7 +78,7 @@ export class Cloud {
     async #requestRead(key: string): Promise<{ seq: number, value: Buffer | null }> {
 
         // Prepare
-        let keys = await deriveContentKey(this.#utilityKey, key);
+        let keys = await deriveContentKey(this.#utilityKey, key, this.engine.isTestnet);
         let time = Math.floor(Date.now() / 1000) + 60;
         let toSign = beginCell()
             .storeBuffer(keys.signKey.publicKey)
@@ -113,7 +112,7 @@ export class Cloud {
     async #requestWrite(key: string, seq: number, value: Buffer): Promise<{ updated: boolean, current: { seq: number, value: Buffer | null } }> {
 
         // Encrypt
-        let keys = await deriveContentKey(this.#utilityKey, key);
+        let keys = await deriveContentKey(this.#utilityKey, key, this.engine.isTestnet);
         let nonce = await getSecureRandomBytes(24);
         let data = sealBox(value, nonce, keys.encryption);
         let encrypted = Buffer.concat([nonce, data]);

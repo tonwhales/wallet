@@ -3,7 +3,6 @@ import { Image, LayoutAnimation, Platform, Pressable, Text, useWindowDimensions,
 import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from './views/TransactionView';
-import { Theme } from '../../Theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { ValueComponent } from '../../components/ValueComponent';
@@ -13,7 +12,6 @@ import Animated, { Easing, FadeInUp, FadeOutDown, runOnJS, useAnimatedScrollHand
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { AppConfig } from '../../AppConfig';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -22,12 +20,12 @@ import { fragment } from '../../fragment';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { log } from '../../utils/log';
 import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -36,6 +34,7 @@ const PendingTxs = React.memo((props: {
     engine: Engine,
     onPress: (tx: string) => void
 }) => {
+    const { Theme } = useAppConfig();
     return (
         <>
             <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
@@ -64,8 +63,7 @@ const PendingTxs = React.memo((props: {
 });
 
 function WalletComponent(props: { wallet: WalletState }) {
-
-    // Dependencies
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
@@ -155,7 +153,7 @@ function WalletComponent(props: { wallet: WalletState }) {
             }),
         };
     }, []);
-    const linkNavigator = useLinkNavigator();
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
 
     const onQRCodeRead = (src: string) => {
         try {
@@ -330,7 +328,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     {
-                        !AppConfig.isTestnet && (
+                        (!AppConfig.isTestnet && Platform.OS === 'android') && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
                                 <TouchableHighlight onPress={onOpenBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>

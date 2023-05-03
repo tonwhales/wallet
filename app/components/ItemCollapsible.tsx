@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, View, Text } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import { Theme } from '../Theme';
 import Chevron from '../../assets/ic_chevron_down.svg'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { ItemDivider } from './ItemDivider';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { title?: string, children?: any, hideDivider?: boolean }) => {
+    const { Theme } = useAppConfig();
     const [collapsed, setCollapsed] = useState(true);
 
     const rotation = useSharedValue(0);

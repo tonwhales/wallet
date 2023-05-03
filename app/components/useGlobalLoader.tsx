@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ActivityIndicator, Animated, Keyboard, Platform, View } from 'react-native';
-import { Theme } from '../Theme';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 const GlobalLoaderContext = React.createContext<{ show: () => () => void } | null>(null);
 
@@ -13,6 +13,7 @@ export function useGlobalLoader() {
 }
 
 export const GlobalLoaderProvider = React.memo((props: { children?: any }) => {
+    const { Theme } = useAppConfig();
     const [visible, setVisible] = React.useState(false);
 
     const backgroundOpacity = React.useMemo(() => new Animated.Value(0), []);

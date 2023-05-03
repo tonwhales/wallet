@@ -2,18 +2,18 @@ import React, { useCallback, useEffect, useState } from "react"
 import { View, Text, ScrollView, ActivityIndicator, Alert } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppConfig } from "../../../../AppConfig";
 import { ATextInput } from "../../../../components/ATextInput";
 import { RoundButton } from "../../../../components/RoundButton";
 import { fetchExtensionReview, postExtensionReview } from "../../../../engine/api/reviews";
 import { useEngine } from "../../../../engine/Engine";
 import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
-import { Theme } from "../../../../Theme";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { StarRating } from "./StarRating";
+import { useAppConfig } from "../../../../utils/AppConfigContext";
 
 export const ReviewComponent = React.memo(({ url }: { url: string }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const appData = engine.products.extensions.useAppData(url);
     const safeArea = useSafeAreaInsets();
@@ -69,7 +69,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
         (async () => {
             setLoading(true);
             try {
-                const reviewRes = await fetchExtensionReview(engine.address, url);
+                const reviewRes = await fetchExtensionReview(engine.address, url, engine.isTestnet);
                 if (reviewRes) {
                     setRating(reviewRes.rating);
                     if (reviewRes.comment) setReview(reviewRes.comment.text);

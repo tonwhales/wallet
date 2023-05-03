@@ -3,7 +3,6 @@ import { Address } from "ton";
 import { useOptItem } from "../persistence/PersistedItem";
 import { KnownPools } from "../../utils/KnownPools";
 import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
-import { AppConfig } from "../../AppConfig";
 import BN from "bn.js";
 import { WalletConfig } from "../api/fetchWalletConfig";
 
@@ -24,9 +23,9 @@ export class StakingPoolsProduct {
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.pools = Object.keys(KnownPools).map((key) => Address.parse(key));
+        this.pools = Object.keys(KnownPools(this.engine.isTestnet)).map((key) => Address.parse(key));
         this.full = selector({
-            key: 'staking/' + this.engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            key: 'staking/' + this.engine.address.toFriendly({ testOnly: this.engine.isTestnet }),
             get: ({ get }) => {
                 let pools: { address: Address, balance: BN }[] = [];
                 let total = new BN(0);

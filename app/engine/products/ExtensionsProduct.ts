@@ -3,7 +3,6 @@ import { AppData, fetchAppData } from "../api/fetchAppData";
 import { Engine } from "../Engine";
 import { warn } from "../../utils/log";
 import { CloudValue } from "../cloud/CloudValue";
-import { AppConfig } from "../../AppConfig";
 import { AppState } from "react-native";
 import { sha256_sync } from "ton-crypto";
 import { toUrlSafe } from "../../utils/toUrlSafe";
@@ -39,7 +38,7 @@ export class ExtensionsProduct {
         this.engine = engine;
         this.extensions = this.engine.cloud.get('wallet.extensions.v2', (src) => { src.installed = {} });
         this.#extensionsSelector = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/extensions',
+            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
                 let res: {

@@ -1,9 +1,7 @@
 import BN from "bn.js";
 import { RecoilValueReadOnly, selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
-import { storagePersistence } from "../../storage/storage";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
 
@@ -89,7 +87,7 @@ export class SettingsProduct {
     }
 
     useDenyAddress(address: Address) {
-        return useRecoilValue(this.#denyAddressSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })));
+        return useRecoilValue(this.#denyAddressSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
     }
 
     useSpamfilter(): { minAmount: BN, dontShowComments: boolean } {
@@ -131,7 +129,7 @@ export class SettingsProduct {
     }
 
     useContactAddress(address: Address) {
-        return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: AppConfig.isTestnet })));
+        return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
     }
 
     useContact(address: string) {
@@ -140,45 +138,45 @@ export class SettingsProduct {
 
     setContact(address: Address, contact: AddressContact) {
         this.addressBook.update((doc) => {
-            if (!doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })]) {
-                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })] = {
+            if (!doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })]) {
+                doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })] = {
                     name: contact.name,
                     fields: contact.fields
                 }
                 return;
             }
 
-            doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].name = contact.name;
+            doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].name = contact.name;
 
-            if (!doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields) {
-                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = [];
+            if (!doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields) {
+                doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields = [];
             }
 
             if (!!contact.fields) {
                 for (let i = 0; i < contact.fields.length; i++) {
-                    doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields![i] = contact.fields![i];
+                    doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields![i] = contact.fields![i];
                 }
             } else {
-                doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })].fields = [];
+                doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields = [];
             }
         });
     }
 
     removeContact(address: Address) {
         this.addressBook.update((doc) => {
-            delete doc.contacts[address.toFriendly({ testOnly: AppConfig.isTestnet })];
+            delete doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })];
         });
     }
 
     addToDenyList(address: Address) {
         this.addressBook.update((doc) => {
-            doc.denyList[address.toFriendly({ testOnly: AppConfig.isTestnet })] = { reason: 'spam' };
+            doc.denyList[address.toFriendly({ testOnly: this.engine.isTestnet })] = { reason: 'spam' };
         });
     }
 
     removeFromDenyList(address: Address) {
         this.addressBook.update((doc) => {
-            delete doc.denyList[address.toFriendly({ testOnly: AppConfig.isTestnet })]
+            delete doc.denyList[address.toFriendly({ testOnly: this.engine.isTestnet })]
         });
     }
 

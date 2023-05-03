@@ -1,8 +1,9 @@
 import { ActivityIndicator, StyleProp, View, ViewStyle } from "react-native";
 import LottieView from 'lottie-react-native';
-import { Theme } from "../Theme";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export function LoadingIndicator(props: { simple?: boolean, style?: StyleProp<ViewStyle> | undefined; }) {
+    const { Theme } = useAppConfig();
     if (props.simple) {
         return <ActivityIndicator style={props.style} color={Theme.accent} />
     }

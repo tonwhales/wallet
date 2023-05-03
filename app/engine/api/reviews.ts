@@ -1,6 +1,5 @@
 import axios from "axios";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
 import * as t from 'io-ts';
 
 export type CommentInput = {
@@ -54,8 +53,8 @@ const reportCodec = t.type({
     })
 });
 
-export async function fetchExtensionReview(address: Address, url: string) {
-    let res = await axios.get('https://connect.tonhubapi.com/apps/reviews' + `?url=${encodeURIComponent(url)}&address=${address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true })}`, { timeout: 5000 });
+export async function fetchExtensionReview(address: Address, url: string, isTestnet: boolean) {
+    let res = await axios.get('https://connect.tonhubapi.com/apps/reviews' + `?url=${encodeURIComponent(url)}&address=${address.toFriendly({ testOnly: isTestnet, urlSafe: true })}`, { timeout: 5000 });
 
     if (!reviewCodec.is(res.data)) {
         throw Error('Error fetching a review');

@@ -2,7 +2,6 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { Address } from 'ton';
-import { AppConfig } from '../../../AppConfig';
 import { Engine } from '../../../engine/Engine';
 import { markJettonDisabled } from '../../../engine/sync/ops';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
@@ -28,7 +27,7 @@ export const JettonProduct = React.memo((props: {
 }) => {
     let balance = props.jetton.balance;
 
-    const isKnown = !!KnownJettonMasters[props.jetton.master.toFriendly({ testOnly: AppConfig.isTestnet })];
+    const isKnown = !!KnownJettonMasters(props.engine.isTestnet)[props.jetton.master.toFriendly({ testOnly: props.engine.isTestnet })];
 
     const promptDisable = React.useCallback(
         async () => {

@@ -10,7 +10,7 @@ export type JettonWallet = {
 export type JettonMaster = {
     totalSupply: BN;
     mintalbe: boolean;
-    owner: Address;
+    owner: Address | null;
     content: ContentSource | undefined;
 }
 

@@ -1,21 +1,20 @@
 import * as React from 'react';
-import { Platform, View } from "react-native";
+import { Alert, Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
-import { Theme } from "../../Theme";
-import { Item } from '../../components/Item';
-import { AppConfig } from '../../AppConfig';
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storage, storagePersistence } from '../../storage/storage';
+import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { Cell, CommentMessage } from 'ton';
 import { clearZenPay } from '../LogoutFragment';
+import { useAppConfig } from '../../utils/AppConfigContext';
+import * as Application from 'expo-application';
 
 export const DeveloperToolsFragment = fragment(() => {
+    const { Theme, AppConfig, setNetwork } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
@@ -29,15 +28,27 @@ export const DeveloperToolsFragment = fragment(() => {
     }, []);
 
     const engine = useEngine();
-    const counter = React.useMemo(() => engine.cloud.counter('counter.sample'), []);
-    const counterValue = counter.use().counter;
 
-    // const isTestNet = useTestnet();
-    // const switchNetwork = React.useCallback(() => {
-    //     let state = (getAppState())!;
-    //     setAppState({ ...state, testnet: !state.testnet });
-    //     reboot();
-    // }, []);
+    const switchNetwork = React.useCallback(
+        () => {
+            Alert.alert(
+                `Switching to ${AppConfig.isTestnet ? 'Mainnet' : 'Testnet'}`,
+                'Are you sure you want to switch networks?',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Switch',
+                        onPress: () => setNetwork(!AppConfig.isTestnet),
+                    }
+                ]
+            );
+        },
+        [AppConfig.isTestnet],
+    );
+
     return (
         <View style={{
             flex: 1,
@@ -64,21 +75,17 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test Whales"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.tonwhales.com/tools/x' : 'https://tonwhales.com/tools/x' })} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test Scaleton"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://sandbox.scaleton.io' : 'https://scaleton.io' })} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test Gems"} onPress={() => navigation.navigate('Install', { url: AppConfig.isTestnet ? 'https://getgems.io' : 'https://getgems.io' })} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Cloud Counter"} hint={counterValue.toString()} onPress={() => counter.update((src) => src.counter.increment())} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Version"} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
-                    </View>
+
+                    {!(
+                        Application.applicationId === 'com.tonhub.app.testnet' ||
+                        Application.applicationId === 'com.tonhub.app.debug.testnet' ||
+                        Application.applicationId === 'com.tonhub.wallet.testnet' ||
+                        Application.applicationId === 'com.tonhub.wallet.testnet.debug'
+                    ) && (
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton title={"Network"} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                            </View>
+                        )}
                 </View>
             </View>
         </View>

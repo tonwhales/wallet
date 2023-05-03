@@ -1,5 +1,6 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, CommentMessage } from "ton";
+import { Address, beginCell, Cell, CellMessage, CommentMessage } from "ton";
+import { TonPayloadFormat } from "ton-ledger";
 
 export type Order = {
     domain?: string;
@@ -40,7 +41,7 @@ export function createLedgerJettonOrder(args: {
     tonAmount: BN,
     txAmount: BN,
     payload: Cell | null
-}): LedgerOrder {
+}, isTestnet: boolean): LedgerOrder {
 
     // Resolve payload
     let payload: Cell | null = null;
@@ -69,7 +70,7 @@ export function createLedgerJettonOrder(args: {
         .endCell();
 
     return {
-        target: args.wallet.toFriendly({ testOnly: AppConfig.isTestnet }),
+        target: args.wallet.toFriendly({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
         payload: { type: 'unsafe', message: new CellMessage(msg) },

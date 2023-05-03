@@ -19,7 +19,6 @@
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		0BD2E5CA4A439018840EE489 /* Pods-WhalesApp.debug testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug testnet.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Tonhub [d].app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tonhub [d].app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = wallet/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = wallet/AppDelegate.mm; sourceTree = "<group>"; };
@@ -34,12 +33,9 @@
 		930433C3BB0055628F88F21E /* Pods-WhalesApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = wallet/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C2BC9C2AB9D6F38512A8A13B /* Pods-WhalesApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug.xcconfig"; sourceTree = "<group>"; };
-		D9295E16BCD7314C6064CDA8 /* libPods-WhalesApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WhalesApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC64924E023A488BB8022B0F /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "wallet/noop-file.swift"; sourceTree = "<group>"; };
 		DEE01086D4764A1A9A279A1C /* wallet-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "wallet-Bridging-Header.h"; path = "wallet/wallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		FFF507717809704D6B1615A5 /* Pods-WhalesApp.release testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release testnet.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

@@ -17,6 +17,7 @@ import { Address } from "ton";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { useEngine } from "../../engine/Engine";
 import { WImage } from "../../components/WImage";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const ReceiveFragment = fragment(() => {

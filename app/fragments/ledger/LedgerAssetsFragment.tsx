@@ -17,7 +17,6 @@ import { Address } from "ton";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
-import { AppConfig } from "../../AppConfig";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();

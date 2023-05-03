@@ -5,13 +5,11 @@ import { Platform, Text, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { Theme } from '../../Theme';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
 import { useEngine } from '../../engine/Engine';
-import { AppConfig } from '../../AppConfig';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
@@ -58,6 +56,7 @@ import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
 import { useTransport } from './components/TransportContext';
 import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -87,6 +86,7 @@ type ConfirmLoadedProps = {
 };
 
 const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const account = engine.products.ledger.useAccount();
@@ -130,7 +130,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     }, [order]);
 
     // Resolve operation
-    let path = pathFromAccountNumber(addr.acc);
+    let path = pathFromAccountNumber(addr.acc, AppConfig.isTestnet);
 
     // Tracking
     const success = React.useRef(false);
@@ -146,8 +146,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets[friendlyTarget]) {
-        known = KnownWallets[friendlyTarget];
+    if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
+        known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }

@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock } from "teslabot";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { WalletV4Source } from "ton-contracts";
-import { AppConfig } from "../../AppConfig";
 import { AddressDomainInput } from "../../components/AddressDomainInput";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
@@ -16,13 +15,12 @@ import { RoundButton } from "../../components/RoundButton";
 import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { Theme } from "../../Theme";
 import { resolveUrl } from "../../utils/resolveUrl";
 import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { estimateFees } from "../../engine/estimate/estimateFees";
-import { createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
+import { createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
@@ -31,9 +29,11 @@ import { useParams } from "../../utils/useParams";
 import { useItem } from "../../engine/persistence/PersistedItem";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();
+    const { Theme, AppConfig } = useAppConfig();
     const address = useMemo(() => {
         if (addr) {
             try {
@@ -93,8 +93,8 @@ export const LedgerTransferFragment = fragment(() => {
             return null;
         }
 
-         // Resolve jetton order
-         if (jettonWallet) {
+        // Resolve jetton order
+        if (jettonWallet) {
             return createLedgerJettonOrder({
                 wallet: params!.jetton!,
                 target: target,
@@ -105,7 +105,7 @@ export const LedgerTransferFragment = fragment(() => {
                 tonAmount: toNano(0.1),
                 txAmount: toNano(0.2),
                 payload: null
-            });
+            }, AppConfig.isTestnet);
         }
 
         // Resolve order
@@ -319,7 +319,7 @@ export const LedgerTransferFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : container.height, true);
+        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : (container?.height ?? 0), true);
         return;
 
     }, []);
@@ -344,7 +344,7 @@ export const LedgerTransferFragment = fragment(() => {
         }
     }, []);
 
-    const isKnown: boolean = !!KnownWallets[target];
+    const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[target];
     const contact = engine.products.settings.useContact(target);
 
     return (

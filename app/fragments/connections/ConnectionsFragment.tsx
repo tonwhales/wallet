@@ -50,7 +50,7 @@ function groupItems(items: Item[]): GroupedItems[] {
 }
 
 export const ConnectionsFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -135,94 +135,12 @@ export const ConnectionsFragment = fragment(() => {
         }
     }, []);
 
-    if (apps.length === 0 && extensions.length === 0 && tonconnectApps.length === 0 && !ledger) {
-        return (
-            <View style={{
-                flexGrow: 1,
-                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            }}>
-                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                {Platform.OS === 'ios' && (
-                    <View style={{
-                        marginTop: 17,
-                        height: 32
-                    }}>
-                        <Text style={[{
-                            fontWeight: '600',
-                            fontSize: 17
-                        }, { textAlign: 'center' }]}>{t('auth.apps.title')}</Text>
-                    </View>
-                )}
-                <View style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    paddingHorizontal: 16
-                }}>
-                    <LottieView
-                        ref={anim}
-                        source={require('../../../assets/animations/empty.json')}
-                        autoPlay={true}
-                        loop={true}
-                        style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
-                    />
-                    <Text style={{
-                        fontSize: 18,
-                        fontWeight: '700',
-                        marginHorizontal: 8,
-                        marginBottom: 8,
-                        textAlign: 'center',
-                        color: Theme.textColor,
-                    }}
-                    >
-                        {t('auth.noApps')}
-                    </Text>
-                    <Text style={{
-                        fontSize: 16,
-                        color: Theme.priceSecondary,
-                    }}>
-                        {t('auth.apps.description')}
-                    </Text>
-                    <View style={{
-                        position: 'absolute',
-                        bottom: safeArea.bottom + 16, left: 0, right: 0
-                    }}>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                            <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
-                                {t('settings.experimental')}
-                            </Text>
-                        </View>
-                        <ProductButton
-                            name={t('hardwareWallet.title')}
-                            subtitle={t('hardwareWallet.description')}
-                            icon={HardwareWalletIcon}
-                            iconProps={{ width: 32, height: 32, color: 'black' }}
-                            iconViewStyle={{
-                                backgroundColor: 'transparent'
-                            }}
-                            value={null}
-                            onPress={toggleLedger}
-                        />
-                    </View>
-                </View>
-                {Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => { navigation.goBack() }}
-                    />
-                )}
-                <AndroidToolbar pageTitle={t('auth.apps.title')} />
-            </View>
-        );
-    }
-
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar />
             {Platform.OS === 'ios' && (
                 <View style={{
                     marginTop: 17,
@@ -237,87 +155,154 @@ export const ConnectionsFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <ScrollView style={{ flexGrow: 1 }}>
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    marginHorizontal: 16,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <Text style={{
-                        fontSize: 16,
-                        color: Theme.priceSecondary,
+            {(
+                apps.length === 0
+                && extensions.length === 0
+                && tonconnectApps.length === 0
+                && !ledger
+            ) && (
+                    <View style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        paddingHorizontal: 16
                     }}>
-                        {t('auth.apps.description')}
-                    </Text>
-                    {extensions.length > 0 && (
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
-                            <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
-                        </View>
-                    )}
-                    {extensions.map((app) => (
-                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
-                            <ConnectedAppButton
-                                onRevoke={() => removeExtension(app.key)}
-                                url={app.url}
-                                name={app.name}
-                            />
-                        </View>
-                    ))}
-                    {(apps.length > 0 || tonconnectApps.length > 0) && (
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
-                            <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.connections')}</Text>
-                        </View>
-                    )}
-                    {apps.map((app) => (
-                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
-                            <ConnectedAppButton
-                                onRevoke={() => disconnectApp(app.url)}
-                                url={app.url}
-                                name={app.name}
-                            />
-                        </View>
-                    ))}
-                    {tonconnectApps.map((app) => (
-                        <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
-                            <ConnectedAppButton
-                                onRevoke={() => disconnectConnectApp(app.url)}
-                                url={app.url}
-                                name={app.name}
-                                tonconnect
-                            />
-                        </View>
-                    ))}
-                </View>
-                <View style={{ width: '100%' }}>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
-                            {t('settings.experimental')}
+                        <LottieView
+                            ref={anim}
+                            source={require('../../../assets/animations/empty.json')}
+                            autoPlay={true}
+                            loop={true}
+                            style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
+                        />
+                        <Text style={{
+                            fontSize: 18,
+                            fontWeight: '700',
+                            marginHorizontal: 8,
+                            marginBottom: 8,
+                            textAlign: 'center',
+                            color: Theme.textColor,
+                        }}
+                        >
+                            {t('auth.noApps')}
                         </Text>
+                        <Text style={{
+                            fontSize: 16,
+                            color: Theme.priceSecondary,
+                        }}>
+                            {t('auth.apps.description')}
+                        </Text>
+                        <View style={{
+                            position: 'absolute',
+                            bottom: safeArea.bottom + 16, left: 0, right: 0
+                        }}>
+                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
+                                    {t('settings.experimental')}
+                                </Text>
+                            </View>
+                            <ProductButton
+                                name={t('hardwareWallet.title')}
+                                subtitle={t('hardwareWallet.description')}
+                                icon={HardwareWalletIcon}
+                                iconProps={{ width: 32, height: 32, color: 'black' }}
+                                iconViewStyle={{
+                                    backgroundColor: 'transparent'
+                                }}
+                                value={null}
+                                onPress={toggleLedger}
+                            />
+                        </View>
                     </View>
-                    <ProductButton
-                        name={t('hardwareWallet.title')}
-                        subtitle={t('hardwareWallet.description')}
-                        icon={HardwareWalletIcon}
-                        iconProps={{ width: 32, height: 32, color: 'black' }}
-                        iconViewStyle={{
-                            backgroundColor: 'transparent'
-                        }}
-                        value={null}
-                        onPress={() => {
-                            if (!ledger) {
-                                toggleLedger();
-                                return;
-                            }
-                            navigation.navigate('Ledger')
-                        }}
-                        onLongPress={toggleLedger}
-                    />
-                </View>
-                <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
-            </ScrollView>
+                )}
+            {!(
+                apps.length === 0
+                && extensions.length === 0
+                && tonconnectApps.length === 0
+                && !ledger
+            ) && (
+                    <ScrollView style={{ flexGrow: 1 }}>
+                        <View style={{
+                            marginBottom: 16, marginTop: 17,
+                            marginHorizontal: 16,
+                            borderRadius: 14,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexShrink: 1,
+                        }}>
+                            <Text style={{
+                                fontSize: 16,
+                                color: Theme.textSubtitle,
+                            }}>
+                                {t('auth.apps.description')}
+                            </Text>
+                            {extensions.length > 0 && (
+                                <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                                    <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
+                                </View>
+                            )}
+                            {extensions.map((app) => (
+                                <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                                    <ConnectedAppButton
+                                        onRevoke={() => removeExtension(app.key)}
+                                        url={app.url}
+                                        name={app.name}
+                                    />
+                                </View>
+                            ))}
+                            {(apps.length > 0 || tonconnectApps.length > 0) && (
+                                <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                                    <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.connections')}</Text>
+                                </View>
+                            )}
+                            {apps.map((app) => (
+                                <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                                    <ConnectedAppButton
+                                        onRevoke={() => disconnectApp(app.url)}
+                                        url={app.url}
+                                        name={app.name}
+                                    />
+                                </View>
+                            ))}
+                            {tonconnectApps.map((app) => (
+                                <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                                    <ConnectedAppButton
+                                        onRevoke={() => disconnectConnectApp(app.url)}
+                                        url={app.url}
+                                        name={app.name}
+                                        tonconnect
+                                    />
+                                </View>
+                            ))}
+                        </View>
+                        <View style={{ width: '100%' }}>
+                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
+                                    {t('settings.experimental')}
+                                </Text>
+                            </View>
+                            <ProductButton
+                                name={t('hardwareWallet.title')}
+                                subtitle={t('hardwareWallet.description')}
+                                icon={HardwareWalletIcon}
+                                iconProps={{ width: 32, height: 32, color: 'black' }}
+                                iconViewStyle={{
+                                    backgroundColor: 'transparent'
+                                }}
+                                value={null}
+                                onPress={() => {
+                                    if (!ledger) {
+                                        toggleLedger();
+                                        return;
+                                    }
+                                    navigation.navigate('Ledger')
+                                }}
+                                onLongPress={toggleLedger}
+                            />
+                        </View>
+                        <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
+                    </ScrollView>
+                )}
+            <AndroidToolbar pageTitle={t('auth.apps.title')} />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

@@ -3,11 +3,12 @@ import { View, Text, Image } from "react-native";
 import TransportHID from "@ledgerhq/react-native-hid";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
-import { Theme } from "../../../Theme";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
 import { useTransport } from "./TransportContext";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const LedgerHID = React.memo(() => {
+    const { Theme } = useAppConfig();
     const [started, setStarted] = React.useState(false);
     const { setLedgerConnection, tonTransport } = useTransport();
     const [screen, setScreen] = useState<'select-account' | null>(null);

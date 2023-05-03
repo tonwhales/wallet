@@ -4,13 +4,14 @@ import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
-import { Theme } from "../../../Theme";
 import { LedgerDeviceSelection } from "./LedgerDeviceSelection";
 import { LedgerDevice } from "./BleDevice";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
 import { useTransport } from "./TransportContext";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const LedgerBle = React.memo(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const { ledgerConnection, setLedgerConnection, tonTransport, addr } = useTransport();
     const [screen, setScreen] = useState<'scan' | 'select-account' | null>(null);

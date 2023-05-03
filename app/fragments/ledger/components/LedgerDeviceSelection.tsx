@@ -2,15 +2,16 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { Observable, Subscription } from "rxjs";
-import { Theme } from "../../../Theme";
 import { t } from "../../../i18n/t";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { BleDevice } from "./BleDevice";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { onSelectDevice: (device: any) => Promise<void>, onReset: () => void }) => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const [scan, setScan] = useState<{ type: 'ongoing' } | { type: 'completed', success: boolean }>();
     const [devices, setDevices] = useState([]);

@@ -7,12 +7,13 @@ import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Theme } from "../../Theme";
 import { RoundButton } from "../../components/RoundButton";
 import LedgerIcon from '../../../assets/ic_ledger.svg';
 import { openWithInApp } from "../../utils/openWithInApp";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const HardwareWalletFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 

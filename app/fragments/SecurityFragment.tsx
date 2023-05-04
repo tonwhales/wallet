@@ -1,4 +1,3 @@
-import { useFocusEffect } from "@react-navigation/native"
 import { StatusBar } from "expo-status-bar"
 import { Platform, View, Text, ScrollView } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -7,19 +6,18 @@ import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
-import { PasscodeState, passcodeStateKey } from "../storage/secureStorage"
-import { storage } from "../storage/storage"
+import { PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useState } from "react"
 import { useAppConfig } from "../utils/AppConfigContext"
+import { useEngine } from "../engine/Engine"
 
 export const SecurityFragment = fragment(() => {
+    const engine = useEngine();
+    const settings = engine.products.settings;
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const [passcodeState, setpasscodeState] = useState(storage.getString(passcodeStateKey));
-
-    useFocusEffect(() => { setpasscodeState(storage.getString(passcodeStateKey)) });
+    const passcodeState = settings.usePasscodeState();
 
     return (
         <View style={{

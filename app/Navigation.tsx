@@ -22,7 +22,6 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EngineContext } from './engine/Engine';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -200,7 +199,6 @@ const navigation = [
 ];
 
 export const Navigation = React.memo(() => {
-    const safeArea = useSafeAreaInsets();
     const { AppConfig, NavigationTheme } = useAppConfig();
 
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));

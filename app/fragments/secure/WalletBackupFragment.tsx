@@ -9,10 +9,11 @@ import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
-import { EngineContext } from '../../engine/Engine';
+import { EngineContext, useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { PasscodeState } from '../../storage/secureStorage';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -23,7 +24,9 @@ export const WalletBackupFragment = systemFragment(() => {
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
-    const engine = React.useContext(EngineContext)!
+    const engine = useEngine();
+    const settings = engine.products.settings;
+    const passcodeState = settings.usePasscodeState();
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
@@ -33,6 +36,10 @@ export const WalletBackupFragment = systemFragment(() => {
         if (back) {
             navigation.goBack();
         } else {
+            if (passcodeState !== PasscodeState.Set) {
+                navigation.navigateAndReplaceAll('PasscodeSetup', { initial: true });
+                return;
+            }
             if (engine && !engine.ready) {
                 navigation.navigateAndReplaceAll('Sync');
             } else {

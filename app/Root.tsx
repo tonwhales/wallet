@@ -4,7 +4,6 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { RecoilRoot } from 'recoil';
 import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
-import { PasscodeAuthContextProvider } from './components/Passcode/PasscodeAuthContext';
 import { AppConfigContextProvider } from './utils/AppConfigContext';
 
 export const Root = React.memo(() => {
@@ -22,9 +21,7 @@ export const Root = React.memo(() => {
             <RebootContext.Provider value={reboot}>
                 <AppConfigContextProvider>
                     <RecoilRoot>
-                        <PasscodeAuthContextProvider>
-                            <Navigation />
-                        </PasscodeAuthContextProvider>
+                        <Navigation />
                     </RecoilRoot>
                 </AppConfigContextProvider>
             </RebootContext.Provider>

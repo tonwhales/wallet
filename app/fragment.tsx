@@ -6,6 +6,7 @@ import { PriceLoader } from './engine/PriceContext';
 import { useRoute } from '@react-navigation/native';
 import { useTrackScreen } from './analytics/mixpanel';
 import { useAppConfig } from './utils/AppConfigContext';
+import { PasscodeAuthContextProvider } from './components/Passcode/PasscodeAuthContext';
 
 export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?: boolean): React.ComponentType<T> {
     return React.memo((props) => {
@@ -21,19 +22,23 @@ export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?:
         if (ctx) {
             return (
                 <GlobalLoaderProvider>
-                    <PriceLoader>
-                        <Component {...props} />
-                    </PriceLoader>
+                    <PasscodeAuthContextProvider>
+                        <PriceLoader>
+                            <Component {...props} />
+                        </PriceLoader>
+                    </PasscodeAuthContextProvider>
                 </GlobalLoaderProvider>
             );
         }
         return (
             <GlobalLoaderProvider>
-                <PriceLoader>
-                    <Host>
-                        <Component {...props} />
-                    </Host>
-                </PriceLoader>
+                <PasscodeAuthContextProvider>
+                    <PriceLoader>
+                        <Host>
+                            <Component {...props} />
+                        </Host>
+                    </PriceLoader>
+                </PasscodeAuthContextProvider>
             </GlobalLoaderProvider>
         );
     });

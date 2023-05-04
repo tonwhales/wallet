@@ -4,25 +4,28 @@ import { KeyboardAvoidingView, Platform, Text } from 'react-native';
 import { WalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
 import { PasscodeInput } from './PasscodeInput';
 import { t } from '../../i18n/t';
-import { storage } from '../../storage/storage';
-import { PasscodeState, passcodeStateKey } from '../../storage/secureStorage';
+import { PasscodeState } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useEngine } from '../../engine/Engine';
 
 export const PasscodeAuthContext = React.createContext<{ authenticate: () => Promise<WalletKeys> } | null>(null);
 
 export const PasscodeAuthContextProvider = React.memo((props: { children?: any }) => {
+    const engine = useEngine();
+    const settings = engine.products.settings;
+    const passcodeState = settings.usePasscodeState();
     const { Theme } = useAppConfig();
     const [promise, setPromise] = useState<{ resolve: (keys: WalletKeys) => void, reject: () => void } | null>(null);
 
     const authenticate = useCallback(() => {
         setPromise(null);
         return new Promise<WalletKeys>((resolve, reject) => {
-            if (storage.getString(passcodeStateKey) !== PasscodeState.Set) {
+            if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
             setPromise({ resolve, reject });
         });
-    }, []);
+    }, [passcodeState]);
 
     return (
         <PasscodeAuthContext.Provider value={{ authenticate }}>

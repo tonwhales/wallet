@@ -9,7 +9,7 @@ function WordComponent(props: {
     text: string | null,
     highlight?: boolean,
     onSelected: (value: string) => void
-    Theme: ThemeType
+    theme: ThemeType
 }) {
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, flexDirection: 'column', alignSelf: 'stretch' }}>
@@ -29,7 +29,7 @@ function WordComponent(props: {
                     borderRadius: 8,
                     flexGrow: 1,
                     flexBasis: 0,
-                    backgroundColor: props.text && props.highlight ? props.Theme.divider : undefined
+                    backgroundColor: props.text && props.highlight ? props.theme.divider : undefined
                 }}>
                     <Text style={{ fontSize: 16 }}>
                         {props.text}
@@ -82,11 +82,11 @@ export const AutocompleteView = React.memo((props: {
                 // paddingVertical: 4,
             }}
         >
-            <WordComponent Theme={Theme} text={word0} onSelected={props.onSelected} />
+            <WordComponent theme={Theme} text={word0} onSelected={props.onSelected} />
             <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4, marginVertical: 8 }} />
-            <WordComponent Theme={Theme} text={word1} onSelected={props.onSelected} highlight={true} />
+            <WordComponent theme={Theme} text={word1} onSelected={props.onSelected} highlight={true} />
             <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4, marginVertical: 8 }} />
-            <WordComponent Theme={Theme} text={word2} onSelected={props.onSelected} />
+            <WordComponent theme={Theme} text={word2} onSelected={props.onSelected} />
         </View>
     );
 });

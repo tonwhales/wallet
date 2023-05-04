@@ -30,7 +30,6 @@ import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/typ
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
-import { initialAppConfig } from "../utils/AppConfigContext";
 
 export class Persistence {
 
@@ -90,7 +89,7 @@ export class Persistence {
 
         // Key formats
         const addressKey = (src: Address) => src.toFriendly({ testOnly: engine.isTestnet });
-        const addressWithTargetKey = (src: { address: Address, target: Address }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.target.toFriendly({ testOnly: initialAppConfig.isTestnet });
+        const addressWithTargetKey = (src: { address: Address, target: Address }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.target.toFriendly({ testOnly: engine.isTestnet });
         const transactionKey = (src: { address: Address, lt: BN }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.lt.toString(10);
         const keyedAddressKey = (src: { address: Address, key: string }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.key;
         const voidKey = (src: void) => 'void';

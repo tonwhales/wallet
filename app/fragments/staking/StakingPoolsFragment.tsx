@@ -17,6 +17,12 @@ import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
+export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup';
+
+export function filterPools(pools: { address: Address, balance: BN }[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
+    return pools.filter((v) => KnownPools(isTestnet)[v.address.toFriendly({ testOnly: isTestnet })].name.toLowerCase().includes(type) && !processed.has(v.address.toFriendly({ testOnly: isTestnet })));
+}
+
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(
         t('products.staking.pools.restrictedTitle'),
@@ -299,17 +305,11 @@ export const StakingPoolsFragment = fragment(() => {
         );
     }
 
-    let available = useMemo(() => {
-        return pools.filter((v) => !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })) && !!staking.config!.pools.find((v2) => Address.parse(v2).equals(v.address)))
-    }, [processed]);
-
-    const knownPools = KnownPools(AppConfig.isTestnet);
-
-    let club = pools.filter((v) => knownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('club') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
-    let team = pools.filter((v) => knownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('team') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
-    let nominators = pools.filter((v) => knownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('nominators') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
-    let epn = pools.filter((v) => knownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('epn') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
-    let lockups = pools.filter((v) => knownPools[v.address.toFriendly({ testOnly: AppConfig.isTestnet })].name.toLowerCase().includes('lockup') && !processed.has(v.address.toFriendly({ testOnly: AppConfig.isTestnet })));
+    let club = filterPools(pools, 'club', processed, AppConfig.isTestnet);
+    let team = filterPools(pools, 'team', processed, AppConfig.isTestnet);
+    let nominators = filterPools(pools, 'nominators', processed, AppConfig.isTestnet);
+    let epn = filterPools(pools, 'epn', processed, AppConfig.isTestnet);
+    let lockups = filterPools(pools, 'lockup', processed, AppConfig.isTestnet);
 
     if (epn.length > 0) {
         items.push(

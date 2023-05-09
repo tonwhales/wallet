@@ -623,6 +623,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             address: 'TON адрес',
             transaction: 'TON транзакция',
         }
+    },
+    devTools: {
+        switchNetwork: 'Сеть',
+        switchNetworkAlertTitle: 'Переключить на {{network}} сеть',
+        switchNetworkAlertMessage: 'Вы уверены что хотите переключить сеть?',
+        switchNetworkAlertAction: 'Переключить',
+        copySeed: 'Скопировать сид фразу из 24 слов',
+        copySeedAlertTitle: 'Скопировать сид фразу из 24 слов',
+        copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
+        copySeedAlertAction: 'Скопировать',
     }
 };
 

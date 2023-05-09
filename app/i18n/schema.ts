@@ -624,6 +624,16 @@ export type LocalizationSchema = {
             address: string,
             transaction: string
         }
+    },
+    devTools: {
+        switchNetwork: string,
+        switchNetworkAlertTitle: string,
+        switchNetworkAlertMessage: string,
+        switchNetworkAlertAction: string,
+        copySeed: string,
+        copySeedAlertTitle: string,
+        copySeedAlertMessage: string,
+        copySeedAlertAction: string,
     }
 };
 

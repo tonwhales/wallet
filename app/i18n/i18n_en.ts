@@ -622,6 +622,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             address: 'TON address',
             transaction: 'TON transaction',
         }
+    },
+    devTools: {
+        switchNetwork: 'Network',
+        switchNetworkAlertTitle: 'Switching to {{network}} network',
+        switchNetworkAlertMessage: 'Are you sure you want to switch networks?',
+        switchNetworkAlertAction: 'Switch',
+        copySeed: 'Copy 24 words seed phrase',
+        copySeedAlertTitle: 'Coping 24 words seed phrase to clipboard',
+        copySeedAlertMessage: 'WARNING ⚠️ Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.',
+        copySeedAlertAction: 'Copy',
     }
 };
 

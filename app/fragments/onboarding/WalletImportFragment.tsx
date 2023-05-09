@@ -10,14 +10,13 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { SeedInput } from '../../components/SeedInput';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const wordsTrie = WordsListTrie();
 
@@ -38,6 +37,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     onFocus: (index: number) => void,
     onSubmit: (index: number, value: string) => void,
 }, ref: React.ForwardedRef<WordInputRef>) => {
+    const { Theme } = useAppConfig();
 
     //
     // Internal state
@@ -169,6 +169,7 @@ function WalletWordsComponent(props: {
         deviceEncryption: DeviceEncryption
     }) => void
 }) {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
 
@@ -251,13 +252,13 @@ function WalletWordsComponent(props: {
         let measured = measure(ref);
         let scroll = translationY.value;
 
-        let containerHeight = container?.height
-            ? Platform.OS === 'ios'
-                ? (container.height - keyboardHeight.value)
-                : container.height
-            : 0;
-        let relativeTop = (measured?.pageY ?? 0) - (container?.pageY ?? 0);
-        let relativeBottom = containerHeight - (relativeTop + (measured?.height ?? 0));
+        if (!container || !measured) {
+            return;
+        }
+
+        let containerHeight = Platform.OS === 'ios' ? (container.height - keyboardHeight.value) : container.height;
+        let relativeTop = measured.pageY - container.pageY;
+        let relativeBottom = containerHeight - (relativeTop + measured.height);
 
         // If one of the last
         if (index > 20) {
@@ -421,6 +422,7 @@ function WalletWordsComponent(props: {
 }
 
 export const WalletImportFragment = systemFragment(() => {
+    const { Theme } = useAppConfig();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption

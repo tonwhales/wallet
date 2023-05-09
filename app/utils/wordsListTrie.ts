@@ -41,6 +41,7 @@ export class Trie {
 
     insert(word: string) {
         var node = this.root;
+        this.allWords.add(word);
 
         // loop trough every character in the word
         for (var i = 0; i < word.length; i++) {

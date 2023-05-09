@@ -4,10 +4,9 @@ import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, w
 import * as Haptics from 'expo-haptics';
 import { WordInputRef, wordsTrie } from "../fragments/onboarding/WalletImportFragment";
 import { t } from "../i18n/t";
-import { useAppConfig } from "../utils/AppConfigContext";
 
 function normalize(src: string) {
-    return (src ?? '').toLocaleLowerCase();
+    return (src ?? '').trim().toLocaleLowerCase();
 }
 
 function checkWords(src: string) {

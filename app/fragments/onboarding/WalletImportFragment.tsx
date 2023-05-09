@@ -89,7 +89,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     // Update wrong state on blur (should we shake in case of failure?)
     const onBlur = React.useCallback(() => {
         const normalized = normalize(props.value);
-        setIsWrong(normalized.length > 0 && wordsTrie.contains(normalized));
+        setIsWrong(normalized.length > 0 && !wordsTrie.contains(normalized));
     }, [props.value]);
 
     // Handle submit (enter press) action

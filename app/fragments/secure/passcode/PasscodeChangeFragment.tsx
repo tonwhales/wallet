@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, View, Text } from "react-native"
-import { PasscodeChange } from "../../../components/Passcode/PasscodeChange";
+import { PasscodeChange } from "../../../components/secure/PasscodeChange";
 import { fragment } from "../../../fragment"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";

@@ -2,12 +2,12 @@ import React from "react"
 import { StyleProp, View, Text, ViewStyle } from "react-native"
 import { usePrice } from "../engine/PriceContext";
 import TonIcon from '../../assets/ton_icon.svg';
-import { AppConfig } from "../AppConfig";
 import { formatCurrency } from "../utils/formatCurrency";
-import { Theme } from "../Theme";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle> }) => {
     const [price, currency] = usePrice();
+    const { Theme, AppConfig } = useAppConfig();
 
     if (!price || AppConfig.isTestnet) {
         return <></>;

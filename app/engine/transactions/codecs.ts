@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { failure, success, Type } from "io-ts"
+import { failure, success } from "io-ts"
 import { RawTransaction } from 'ton';
 import * as c from '../utils/codecs';
 
@@ -139,13 +139,13 @@ export const rawTransactionDescriptionCodec = t.union([
     tickTockTransactionDescriptionCodec
 ]);
 
-export const internalCommonMessageInfoCodec = t.type({
+export const internalCommonMessageInfoCodec = (isTestnet: boolean) => t.type({
     type: t.literal('internal'),
     ihrDisabled: t.boolean,
     bounce: t.boolean,
     bounced: t.boolean,
-    src: c.address,
-    dest: c.address,
+    src: c.address(isTestnet),
+    dest: c.address(isTestnet),
     value: rawCurreencyCollectionCodec,
     ihrFee: c.bignum,
     fwdFee: c.bignum,
@@ -153,25 +153,25 @@ export const internalCommonMessageInfoCodec = t.type({
     createdAt: t.number
 });
 
-export const externalOutCommonMessageInfoCodec = t.type({
+export const externalOutCommonMessageInfoCodec = (isTestnet: boolean) => t.type({
     type: t.literal('external-out'),
-    src: c.address,
+    src: c.address(isTestnet),
     dest: t.union([c.addressExternal, t.null]),
     createdLt: c.bignum,
     createdAt: t.number
 });
 
-export const externalInCommonMessageInfoCodec = t.type({
+export const externalInCommonMessageInfoCodec = (isTestnet: boolean) => t.type({
     type: t.literal('external-in'),
     src: t.union([c.addressExternal, t.null]),
-    dest: c.address,
+    dest: c.address(isTestnet),
     importFee: c.bignum
 });
 
-export const rawCommonMessageInfoCodec = t.union([
-    internalCommonMessageInfoCodec,
-    externalOutCommonMessageInfoCodec,
-    externalInCommonMessageInfoCodec
+export const rawCommonMessageInfoCodec = (isTestnet: boolean) => t.union([
+    internalCommonMessageInfoCodec(isTestnet),
+    externalOutCommonMessageInfoCodec(isTestnet),
+    externalInCommonMessageInfoCodec(isTestnet)
 ]);
 
 export const rawTickTockCodec = t.type({
@@ -187,15 +187,15 @@ export const rawStateInitCodec = t.type({
     raw: c.cell
 });
 
-export const rawMessageCodec = t.type({
+export const rawMessageCodec = (isTestnet: boolean) => t.type({
     raw: c.cell,
-    info: rawCommonMessageInfoCodec,
+    info: rawCommonMessageInfoCodec(isTestnet),
     init: t.union([rawStateInitCodec, t.null]),
     body: c.cell
 });
 
-export const rawTransactionCodec = t.type({
-    address: c.address,
+export const rawTransactionCodec = (isTestnet: boolean) => t.type({
+    address: c.address(isTestnet),
     lt: c.bignum,
     prevTransaction: t.type({
         lt: c.bignum,
@@ -208,8 +208,8 @@ export const rawTransactionCodec = t.type({
     fees: rawCurreencyCollectionCodec,
     update: rawHashUpdateCodec,
     description: rawTransactionDescriptionCodec,
-    inMessage: rawMessageCodec,
-    outMessages: t.array(rawMessageCodec)
+    inMessage: rawMessageCodec(isTestnet),
+    outMessages: t.array(rawMessageCodec(isTestnet))
 });
 
 export const bodyCodec = t.union([
@@ -223,12 +223,12 @@ export const bodyCodec = t.union([
     })
 ]);
 
-export const walletTransactionCodec = t.type({
+export const walletTransactionCodec = (isTestnet: boolean) => t.type({
     id: t.string,
     lt: t.union([t.string, t.null]),
     fees: c.bignum,
     amount: c.bignum,
-    address: t.union([c.address, t.null]),
+    address: t.union([c.address(isTestnet), t.null]),
     seqno: t.union([t.number, t.null]),
     kind: t.union([t.literal('out'), t.literal('in')]),
     body: t.union([bodyCodec, t.null]),
@@ -246,28 +246,28 @@ export const walletTransactionCodec = t.type({
 class RawTransactionType extends t.Type<RawTransaction, string, unknown> {
     readonly _tag: 'RawTransactionType' = 'RawTransactionType';
 
-    constructor() {
+    constructor(isTestnet: boolean) {
         super(
             'RawTransaction',
-            (u): u is RawTransaction => rawTransactionCodec.is(u),
+            (u): u is RawTransaction => rawTransactionCodec(isTestnet).is(u),
             (u, c) => {
                 if (!t.string.validate(u, c)) {
                     return failure(u, c);
                 }
                 try {
                     const s = u as string;
-                    const tx = rawTransactionCodec.decode(s) as any as RawTransaction;
+                    const tx = rawTransactionCodec(isTestnet).decode(s) as any as RawTransaction;
                     return success(tx);
                 } catch (error) {
                     return t.failure(u, c);
                 }
             },
             (u) => {
-                return JSON.stringify(rawTransactionCodec.encode(u as any));
+                return JSON.stringify(rawTransactionCodec(isTestnet).encode(u as any));
             }
         );
     }
 }
 
-export const rawTransaction = new RawTransactionType();
+export const rawTransaction = (isTestnet: boolean) => new RawTransactionType(isTestnet);
 

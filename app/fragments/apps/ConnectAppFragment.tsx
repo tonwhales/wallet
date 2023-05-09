@@ -6,10 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { useEngine } from '../../engine/Engine';
 import { ConnectAppComponent } from './components/ConnectAppComponent';
-import { Theme } from '../../Theme';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const ConnectAppFragment = fragment(() => {
     const engine = useEngine();
+    const { Theme } = useAppConfig();
     const url = (useRoute().params as any).url as string;
     const appData = engine.products.tonConnect.useAppManifest(url);
     const safeArea = useSafeAreaInsets();

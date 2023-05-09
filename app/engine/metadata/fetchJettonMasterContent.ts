@@ -1,6 +1,5 @@
 import axios from "axios";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
 import * as t from 'io-ts';
 import { imagePreview } from "../api/fetchAppData";
 import { isLeft } from "fp-ts/lib/Either";
@@ -15,9 +14,9 @@ const contentCodec = t.type({
     image: t.union([imagePreview, t.null])
 });
 
-export async function fetchJettonMasterContent(address: Address) {
+export async function fetchJettonMasterContent(address: Address, isTestnet: boolean) {
     const res = await axios.get(
-        `https://connect.tonhubapi.com/jettons/metadata?address=${address.toFriendly({ testOnly: AppConfig.isTestnet })}`,
+        `https://connect.tonhubapi.com/jettons/metadata?address=${address.toFriendly({ testOnly: isTestnet })}`,
         { timeout: 5000 }
     );
 

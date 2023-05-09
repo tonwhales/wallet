@@ -1,7 +1,6 @@
 import BN from "bn.js";
 import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
-import { AppConfig } from "../../AppConfig";
 import { fetchAccountState } from "../api/zenpay/fetchAccountState";
 import { fetchAccountToken } from "../api/zenpay/fetchAccountToken";
 import { contractFromPublicKey } from "../contractFromPublicKey";
@@ -57,7 +56,7 @@ export class ZenPayProduct {
     constructor(engine: Engine) {
         this.engine = engine;
         this.#status = selector<ZenPayAccountStatus>({
-            key: 'zenpay/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/status',
+            key: 'zenpay/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',
             get: ({ get }) => {
                 // Check status
                 let status: ZenPayAccountStatus = get(this.engine.persistence.zenPayStatus.item(engine.address).atom) || { state: 'need-enrolment' };
@@ -66,7 +65,7 @@ export class ZenPayProduct {
             }
         });
         this.#accountsState = selector<ZenPayState>({
-            key: 'zenpay/' + engine.address.toFriendly({ testOnly: AppConfig.isTestnet }) + '/state',
+            key: 'zenpay/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/state',
             get: ({ get }) => {
                 // Get state
                 let state: ZenPayState = get(this.engine.persistence.zenPayState.item(engine.address).atom) || { accounts: [] };
@@ -106,13 +105,13 @@ export class ZenPayProduct {
                 let contract = contractFromPublicKey(this.engine.publicKey);
                 let signed = this.engine.products.keys.createDomainSignature(domain);
                 let token = await fetchAccountToken({
-                    address: contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    address: contract.address.toFriendly({ testOnly: this.engine.isTestnet }),
                     walletConfig: contract.source.backup(),
                     walletType: contract.source.type,
                     time: signed.time,
                     signature: signed.signature,
                     subkey: signed.subkey
-                });
+                }, this.engine.isTestnet);
                 await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(token));
             }
 
@@ -137,7 +136,7 @@ export class ZenPayProduct {
     async syncAccounts() {
         let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
         try {
-            let listRes = await fetchCards(this.engine.address);
+            let listRes = await fetchCards(this.engine.address, this.engine.isTestnet);
 
             // Clear token on 401 unauthorized response
             if (listRes === null) {

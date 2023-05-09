@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { mixpanel, MixpanelEvent, trackEvent } from "../analytics/mixpanel";
+import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
@@ -12,9 +12,9 @@ import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { storage } from "../storage/storage";
-import { Theme } from "../Theme";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export function clearZenPay(engine: Engine) {
     const zenPayDomain = extractDomain(zenPayUrl);
@@ -25,6 +25,7 @@ export function clearZenPay(engine: Engine) {
 }
 
 export const LogoutFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
@@ -44,9 +45,9 @@ export const LogoutFragment = fragment(() => {
                     if (buttonIndex === 1) {
                         storage.clearAll();
                         clearZenPay(engine);
-                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset);
-                        mixpanel.flush();
+                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
+                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
+                        mixpanelFlush(AppConfig.isTestnet);
                         reboot();
                     }
                 }
@@ -59,9 +60,9 @@ export const LogoutFragment = fragment(() => {
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
                         storage.clearAll();
                         clearZenPay(engine);
-                        mixpanel.reset(); // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset);
-                        mixpanel.flush();
+                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
+                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
+                        mixpanelFlush(AppConfig.isTestnet);
                         reboot();
                     }
                 }, { text: t('common.cancel') }])

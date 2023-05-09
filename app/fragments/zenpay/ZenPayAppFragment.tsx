@@ -5,17 +5,18 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEngine } from '../../engine/Engine';
 import { ZenPayAppComponent } from './components/ZenPayAppComponent';
-import { Theme } from '../../Theme';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
 export const ZenPayAppFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const engine = useEngine();
     const params = useParams<ZenPayAppParams>();
     const safeArea = useSafeAreaInsets();

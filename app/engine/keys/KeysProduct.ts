@@ -1,6 +1,5 @@
 import { beginCell, safeSign } from "ton";
 import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
-import { AppConfig } from "../../AppConfig";
 import { getCurrentAddress } from "../../storage/appState";
 import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
 import { warn } from "../../utils/log";

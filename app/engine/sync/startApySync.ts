@@ -6,7 +6,7 @@ import { createEngineSync } from "../utils/createEngineSync";
 export function startApySync(engine: Engine) {
     // Sync
     let sync = createEngineSync('stakingApy', engine, async () => {
-        let data = await fetchApy();
+        let data = await fetchApy(engine.isTestnet);
         engine.persistence.stakingApy.item().update(() => data);
     });
 

@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import { Address, beginCell, Cell, fromNano, Slice, TonClient4, TupleSlice4 } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { startDependentSync } from "./utils/startDependentSync";
@@ -86,7 +85,7 @@ export async function downloadStateDirectly(engine: Engine, address: Address) {
 }
 
 export function startStakingPoolSync(member: Address, pool: Address, engine: Engine) {
-    let key = `${member.toFriendly({ testOnly: AppConfig.isTestnet })}/staking/${pool.toFriendly({ testOnly: AppConfig.isTestnet })}`;
+    let key = `${member.toFriendly({ testOnly: engine.isTestnet })}/staking/${pool.toFriendly({ testOnly: engine.isTestnet })}`;
     let lite = engine.persistence.liteAccounts.item(pool);
     let item = engine.persistence.staking.item({ address: pool, target: member });
     let chartItem = engine.persistence.stakingChart.item({ address: pool, target: member });

@@ -2,10 +2,9 @@ import BN from "bn.js"
 import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "ton"
-import { AppConfig } from "../AppConfig"
 import { usePrice } from "../engine/PriceContext"
-import { Theme } from "../Theme"
 import { formatCurrency } from "../utils/formatCurrency"
+import { useAppConfig } from "../utils/AppConfigContext"
 
 export const PriceComponent = React.memo((
     {
@@ -22,6 +21,7 @@ export const PriceComponent = React.memo((
         suffix?: string
     }
 ) => {
+    const { Theme } = useAppConfig();
     const [price, currency] = usePrice();
 
     if (!price) {

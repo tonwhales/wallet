@@ -3,7 +3,7 @@ import { Image, ImageRequireSource, StyleProp, View, ViewStyle } from 'react-nat
 import { resolveLink } from '../utils/resolveLink';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Blurhash } from 'react-native-blurhash';
-import { Theme } from '../Theme';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const WImage = React.memo((props: {
     src?: string | null | undefined,
@@ -15,7 +15,7 @@ export const WImage = React.memo((props: {
     style?: StyleProp<ViewStyle>,
     lockLoading?: boolean
 }) => {
-
+    const { Theme } = useAppConfig();
     const [loading, setLoading] = React.useState(false);
     let url = props.src ? resolveLink(props.src) : null;
     let blurhash = url && props.blurhash ? props.blurhash : null;

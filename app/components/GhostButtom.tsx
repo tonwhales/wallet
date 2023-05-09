@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Theme } from '../Theme';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 
 export function GhostButton(props: { onClick: () => void, icon?: any, text: string, loading?: boolean }) {
+    const { Theme } = useAppConfig();
     return (
         <TouchableOpacity onPress={props.onClick}>
             <View

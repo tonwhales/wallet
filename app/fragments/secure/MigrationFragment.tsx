@@ -11,10 +11,8 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { AppConfig } from '../../AppConfig';
 import { getCurrentAddress } from '../../storage/appState';
 import { ValueComponent } from '../../components/ValueComponent';
-import { Theme } from '../../Theme';
 import { WalletAddress } from '../../components/WalletAddress';
 import { CloseButton } from '../../components/CloseButton';
 import LottieView from 'lottie-react-native';
@@ -23,6 +21,7 @@ import { t } from '../../i18n/t';
 import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -31,6 +30,7 @@ function ellipsiseAddress(src: string) {
 }
 
 const MigrationProcessFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
@@ -119,6 +119,7 @@ const MigrationProcessFragment = fragment(() => {
 });
 
 export const MigrationFragment = systemFragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
     const navigation = useTypedNavigation();

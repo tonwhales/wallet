@@ -1,27 +1,25 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Image, ScrollView, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
+import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { AppConfig } from "../AppConfig";
 import { AndroidToolbar } from "../components/AndroidToolbar";
 import { ATextInput, ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
 import { CloseButton } from "../components/CloseButton";
 import { ContactField } from "../components/Contacts/ContactField";
 import { Item } from "../components/Item";
-import { ItemButton } from "../components/ItemButton";
 import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { confirmAlert } from "../utils/confirmAlert";
 import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -31,6 +29,7 @@ const requiredFields = [
 export const ContactFragment = fragment(() => {
     const params = useParams<{ address: string }>();
     const navigation = useTypedNavigation();
+    const { Theme, AppConfig } = useAppConfig();
 
     try {
         Address.parse(params.address);
@@ -148,7 +147,12 @@ export const ContactFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : container.height, true);
+        if (Platform.OS !== 'android' && container) {
+            scrollTo(scrollRef, 0, container.height, true);
+        }
+        if (Platform.OS === 'android') {
+            scrollTo(scrollRef, 0, 400, true);
+        }
         return;
 
     }, []);

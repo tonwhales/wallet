@@ -1,13 +1,13 @@
 import React from "react";
-import { View, Text, TextInput } from "react-native";
+import { TextInput, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
-import { wordsTrie } from "../fragments/onboarding/WalletImportFragment";
-import { Theme } from "../Theme";
+import { WordInputRef, wordsTrie } from "../fragments/onboarding/WalletImportFragment";
 import { t } from "../i18n/t";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 function normalize(src: string) {
-    return src.toLocaleLowerCase();
+    return (src ?? '').toLocaleLowerCase();
 }
 
 function checkWords(src: string) {
@@ -15,14 +15,23 @@ function checkWords(src: string) {
     return words.every(word => wordsTrie.contains(word));
 }
 
-export const SeedInput = React.memo((props: {
+export const SeedInput = React.memo(React.forwardRef((props: {
     value: string,
     autoFocus?: boolean,
     setValue: (src: string) => void,
     onSubmit: (value: string) => void,
-}) => {
-    // const { Theme } = useAppConfig();
+    onFocus: () => void,
+    innerRef: React.RefObject<View>,
+}, ref: React.ForwardedRef<WordInputRef>) => {
+
     const [isWrong, setIsWrong] = React.useState(false);
+
+    const tref = React.useRef<TextInput>(null);
+    React.useImperativeHandle(ref, () => ({
+        focus: () => {
+            tref.current!.focus();
+        }
+    }));
 
     //
     // Shake
@@ -67,29 +76,34 @@ export const SeedInput = React.memo((props: {
 
     return (
         <Animated.View style={style}>
-            <TextInput
-                style={{
-                    paddingVertical: 16,
-                    marginLeft: -16,
-                    paddingLeft: 26,
-                    paddingRight: 48,
-                    flexGrow: 1,
-                    fontSize: 16,
-                    color: !isWrong ? '#000' : '#FF274E'
-                }}
-                value={props.value}
-                onChangeText={onTextChange}
-                placeholder={t('import.fullSeedPlaceholder')}
-                onBlur={onBlur}
-                returnKeyType="next"
-                autoComplete='off'
-                autoCorrect={false}
-                keyboardType="ascii-capable"
-                autoCapitalize="none"
-                onSubmitEditing={onSubmit}
-                blurOnSubmit={false}
-                autoFocus={props.autoFocus}
-            />
+            <View ref={props.innerRef} style={{ flexDirection: 'row' }} collapsable={false}>
+                <TextInput
+                    ref={tref}
+                    numberOfLines={1}
+                    style={{
+                        paddingVertical: 16,
+                        marginLeft: -8,
+                        paddingLeft: 26,
+                        paddingRight: 48,
+                        flexGrow: 1,
+                        fontSize: 16,
+                        color: !isWrong ? '#000' : '#FF274E',
+                    }}
+                    value={props.value}
+                    onChangeText={onTextChange}
+                    placeholder={t('import.fullSeedPlaceholder')}
+                    onBlur={onBlur}
+                    returnKeyType={'done'}
+                    autoComplete={'off'}
+                    autoCorrect={false}
+                    keyboardType={'ascii-capable'}
+                    autoCapitalize={'none'}
+                    onSubmitEditing={onSubmit}
+                    blurOnSubmit={false}
+                    autoFocus={props.autoFocus}
+                    onFocus={props.onFocus}
+                />
+            </View>
         </Animated.View>
     )
-});
+}));

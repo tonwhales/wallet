@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -12,9 +12,11 @@ import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
+import { warn } from '../../utils/log';
+import { RoundButton } from '../../components/RoundButton';
+import { ATextInput } from '../../components/ATextInput';
 import { t } from '../../i18n/t';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
-import { warn } from '../../utils/log';
 import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
@@ -55,6 +57,19 @@ export const DeveloperToolsFragment = fragment(() => {
         },
         [AppConfig.isTestnet],
     );
+
+    const [zenPayAppUrl, setZenPayAppUrl] = React.useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
+
+    const onUrlSet = React.useCallback((link: string) => {
+        let url: URL
+        try {
+            url = new URL(link);
+            setZenPayAppUrl(url.toString());
+        } catch (e) {
+            warn(e)
+            setZenPayAppUrl('');
+        }
+    }, []);
 
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;

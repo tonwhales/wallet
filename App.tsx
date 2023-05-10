@@ -29,8 +29,6 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
 import * as SplashScreen from 'expo-splash-screen';
-import { Mixpanel } from 'mixpanel-react-native';
-import { initialAppConfig } from './app/utils/AppConfigContext';
 
 changeNavBarColor('white');
 

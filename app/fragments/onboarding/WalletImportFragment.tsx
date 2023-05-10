@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, InputAccessoryView, Platform, Text, View } from "react-native";
+import { Alert, InputAccessoryView, Platform, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,15 +16,17 @@ import { WordsListTrie } from '../../utils/wordsListTrie';
 import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
+import { SeedInput } from '../../components/SeedInput';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
-const wordsTrie = WordsListTrie();
+export const wordsTrie = WordsListTrie();
 
-type WordInputRef = {
+export type WordInputRef = {
     focus: () => void;
 }
 
 function normalize(src: string) {
+    if (!src) return '';
     return src.trim().toLocaleLowerCase();
 }
 
@@ -87,7 +89,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     // Update wrong state on blur (should we shake in case of failure?)
     const onBlur = React.useCallback(() => {
         const normalized = normalize(props.value);
-        setIsWrong(normalized.length > 0 && wordsTrie.contains(normalized));
+        setIsWrong(normalized.length > 0 && !wordsTrie.contains(normalized));
     }, [props.value]);
 
     // Handle submit (enter press) action
@@ -133,31 +135,62 @@ const WordInput = React.memo(React.forwardRef((props: {
                 >
                     {(props.index + 1)}.
                 </Text>
-                <TextInput
-                    ref={tref}
-                    style={{
-                        paddingVertical: 16,
-                        marginLeft: -16,
-                        paddingLeft: 26,
-                        paddingRight: 48,
-                        flexGrow: 1,
-                        fontSize: 16,
-                        color: !isWrong ? '#000' : '#FF274E'
-                    }}
-                    value={props.value}
-                    onChangeText={onTextChange}
-                    onBlur={onBlur}
-                    returnKeyType="next"
-                    autoComplete='off'
-                    autoCorrect={false}
-                    keyboardType="ascii-capable"
-                    autoCapitalize="none"
-                    onFocus={onFocus}
-                    onSubmitEditing={onSubmit}
-                    blurOnSubmit={false}
-                    inputAccessoryViewID={'suggestions'}
-                    autoFocus={props.autoFocus}
-                />
+                {Platform.OS === 'android' && (
+                    <TouchableOpacity onPress={tref.current?.focus} activeOpacity={1} >
+                        <TextInput
+                            ref={tref}
+                            style={{
+                                paddingVertical: 16,
+                                marginLeft: -16,
+                                paddingLeft: 26,
+                                paddingRight: 48,
+                                flexGrow: 1,
+                                fontSize: 16,
+                                color: !isWrong ? '#000' : '#FF274E'
+                            }}
+                            value={props.value}
+                            onChangeText={onTextChange}
+                            onBlur={onBlur}
+                            returnKeyType="next"
+                            autoComplete='off'
+                            autoCorrect={false}
+                            keyboardType="ascii-capable"
+                            autoCapitalize="none"
+                            onFocus={onFocus}
+                            onSubmitEditing={onSubmit}
+                            blurOnSubmit={false}
+                            inputAccessoryViewID={'suggestions'}
+                            autoFocus={props.autoFocus}
+                        />
+                    </TouchableOpacity>
+                )}
+                {Platform.OS !== 'android' && (
+                    <TextInput
+                        ref={tref}
+                        style={{
+                            paddingVertical: 16,
+                            marginLeft: -16,
+                            paddingLeft: 26,
+                            paddingRight: 48,
+                            flexGrow: 1,
+                            fontSize: 16,
+                            color: !isWrong ? '#000' : '#FF274E'
+                        }}
+                        value={props.value}
+                        onChangeText={onTextChange}
+                        onBlur={onBlur}
+                        returnKeyType="next"
+                        autoComplete='off'
+                        autoCorrect={false}
+                        keyboardType="ascii-capable"
+                        autoCapitalize="none"
+                        onFocus={onFocus}
+                        onSubmitEditing={onSubmit}
+                        blurOnSubmit={false}
+                        inputAccessoryViewID={'suggestions'}
+                        autoFocus={props.autoFocus}
+                    />
+                )}
             </View>
         </Animated.View>
     )
@@ -175,18 +208,19 @@ function WalletWordsComponent(props: {
 
     // References to all fields
     const animatedRefs: React.RefObject<View>[] = [];
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 25; i++) {
         animatedRefs.push(useAnimatedRef());
     }
     const refs = React.useMemo(() => {
         let r: React.RefObject<WordInputRef>[] = [];
-        for (let i = 0; i < 24; i++) {
+        for (let i = 0; i < 25; i++) {
             r.push(React.createRef());
         }
         return r;
     }, []);
 
     // Words and suggestions
+    const [fullSeed, setFullSeed] = React.useState('');
     const [words, setWords] = React.useState<string[]>([
         '', '', '', '', '', '', '', '',
         '', '', '', '', '', '', '', '',
@@ -194,6 +228,9 @@ function WalletWordsComponent(props: {
     ]);
     const [selectedWord, setSelectedWord] = React.useState(0);
     const suggestions = React.useMemo(() => {
+        if (selectedWord === 24) {
+            return [];
+        }
         let w = normalize(words[selectedWord]);
         return (w.length > 0)
             ? wordsTrie.find(w)
@@ -206,6 +243,17 @@ function WalletWordsComponent(props: {
     //     wordsRef.current = words;
     // }, [words]);
     const onSubmitEnd = React.useCallback(async () => {
+        if (fullSeed.length !== 0) {
+            const fullSeedWords = fullSeed.split(' ').map((v) => v.toLowerCase().trim());
+            const isValidFull = await mnemonicValidate(fullSeedWords);
+            if (!isValidFull) {
+                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                return;
+            }
+            const deviceEncryption = await getDeviceEncryption();
+            props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
+            return;
+        }
         let wordsLocal = wordsRef.current;
         let normalized = wordsLocal.map((v) => v.toLowerCase().trim());
         let isValid = await mnemonicValidate(normalized);
@@ -215,7 +263,7 @@ function WalletWordsComponent(props: {
         }
         const deviceEncryption = await getDeviceEncryption();
         props.onComplete({ mnemonics: normalized.join(' '), deviceEncryption });
-    }, []);
+    }, [fullSeed]);
 
     //
     // Scroll state tracking
@@ -286,6 +334,14 @@ function WalletWordsComponent(props: {
     const onFocus = React.useCallback((index: number) => {
         runOnUI(scrollToInput)(index);
         setSelectedWord(index);
+    }, []);
+
+    const onSeedFocus = React.useCallback(() => {
+        runOnUI(scrollToInput)(24);
+        setTimeout(() => {
+            setSelectedWord(24);
+        }, 600); // Wait for scroll animation to finish (hacky), 
+        // so wierd bug with scrolling to bottom inputs starting from 20th
     }, []);
 
     const onSetValue = React.useCallback((index: number, value: string) => {
@@ -370,6 +426,38 @@ function WalletWordsComponent(props: {
                         width: '100%',
                     }}>
                         {wordComponents}
+                    </View>
+                    <Text style={{
+                        alignSelf: 'center', textAlign: 'center',
+                        marginVertical: 16,
+                        marginHorizontal: 16,
+                        fontWeight: '400', fontSize: 16,
+                        color: 'rgba(109, 109, 113, 1)'
+                    }}>
+                        {t('import.fullSeedPaste')}
+                    </Text>
+                    <View style={{
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        width: '100%',
+                    }}>
+                        <SeedInput
+                            value={fullSeed}
+                            ref={refs[24]}
+                            innerRef={animatedRefs[24]}
+                            onFocus={onSeedFocus}
+                            setValue={setFullSeed}
+                            onSubmit={async (value: string) => {
+                                const fullSeedWords = value.split(' ').map((v) => v.toLowerCase().trim());
+                                const isValidFull = await mnemonicValidate(fullSeedWords);
+                                if (!isValidFull) {
+                                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                                    return;
+                                }
+                                const deviceEncryption = await getDeviceEncryption();
+                                props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
+                            }}
+                        />
                     </View>
                     <RoundButton
                         title={t('common.continue')}

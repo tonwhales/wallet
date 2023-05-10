@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ActivityIndicator, ImageSourcePropType, Platform, Pressable, StyleProp, Text, View, ViewStyle, Image } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
 import { useAppConfig } from '../utils/AppConfigContext';
+import { RoundButtonDisplay, roundButtonDisplays } from './roundButtonDisplays';
 
 export type RoundButtonSize = 'large' | 'normal' | 'small';
 const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hitSlop: number, pad: number } } = {
@@ -9,8 +10,6 @@ const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hit
     normal: { height: 32, fontSize: 16, hitSlop: 8, pad: Platform.OS == 'ios' ? 1 : -2 },
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
-
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'secondary_contrast' | 'disabled' | 'danger_zone';
 
 export const RoundButton = React.memo((props: {
     size?: RoundButtonSize,
@@ -27,105 +26,6 @@ export const RoundButton = React.memo((props: {
     loadingStatus?: string
 }) => {
     const { Theme } = useAppConfig();
-    const displays: { [key in RoundButtonDisplay]: {
-        textColor: string,
-        textPressed: string,
-        backgroundColor: string,
-        backgroundPressedColor: string,
-        borderColor: string,
-        borderPressedColor: string
-    } } = {
-        default: {
-            backgroundColor: Theme.accent,
-            borderColor: Theme.accent,
-            textColor: Theme.item,
-
-            backgroundPressedColor: Theme.accentDark,
-            borderPressedColor: Theme.accentDark,
-            textPressed: Theme.item,
-        },
-        disabled: {
-            backgroundColor: Theme.disabled,
-            borderColor: Theme.disabled,
-            textColor: Theme.item,
-
-            backgroundPressedColor: Theme.accentDark,
-            borderPressedColor: Theme.accentDark,
-            textPressed: Theme.item,
-        },
-        secondary: {
-            backgroundColor: Theme.secondaryButton,
-            borderColor: Theme.secondaryButton,
-            textColor: Theme.secondaryButtonText,
-
-            backgroundPressedColor: Theme.selector,
-            borderPressedColor: Theme.selector,
-            textPressed: Theme.secondaryButtonText,
-        },
-        secondary_contrast: {
-            backgroundColor: Theme.secondaryButton,
-            borderColor: Theme.secondaryButton,
-            textColor: Theme.textColor,
-
-            backgroundPressedColor: Theme.selector,
-            borderPressedColor: Theme.selector,
-            textPressed: Theme.secondaryButtonText,
-        },
-        pro: {
-            backgroundColor: Theme.textColor,
-            borderColor: Theme.textColor,
-            textColor: Theme.item,
-
-            backgroundPressedColor: Theme.pressedRoundButton,
-            borderPressedColor: Theme.pressedRoundButton,
-            textPressed: Theme.item,
-        },
-        telegram: {
-            backgroundColor: Theme.telegram,
-            borderColor: Theme.telegram,
-            textColor: Theme.item,
-
-            backgroundPressedColor: Theme.pressedRoundButton,
-            borderPressedColor: Theme.pressedRoundButton,
-            textPressed: Theme.item,
-        },
-        outline: {
-            backgroundColor: Theme.background,
-            borderColor: Theme.accent,
-            textColor: Theme.accent,
-
-            backgroundPressedColor: Theme.accentDark,
-            borderPressedColor: Theme.accentDark,
-            textPressed: Theme.accent,
-        },
-        inverted: {
-            backgroundColor: Theme.item,
-            borderColor: Theme.item,
-            textColor: Theme.accent,
-
-            backgroundPressedColor: Theme.divider,
-            borderPressedColor: Theme.divider,
-            textPressed: Theme.accent,
-        },
-        text: {
-            backgroundColor: Theme.transparent,
-            borderColor: Theme.transparent,
-            textColor: Theme.accentText,
-
-            backgroundPressedColor: Theme.divider,
-            borderPressedColor: Theme.divider,
-            textPressed: Theme.accent,
-        },
-        danger_zone: {
-            backgroundColor: Theme.item,
-            borderColor: Theme.item,
-            textColor: Theme.dangerZone,
-
-            backgroundPressedColor: Theme.divider,
-            borderPressedColor: Theme.divider,
-            textPressed: Theme.accent,
-        },
-    }
 
     const [loading, setLoading] = React.useState(false);
     const doLoading = props.loading !== undefined ? props.loading : loading;
@@ -148,8 +48,8 @@ export const RoundButton = React.memo((props: {
 
     const size = sizes[props.size || 'large'];
     const display = props.disabled
-        ? displays['disabled']
-        : displays[props.display || 'default'];
+        ? roundButtonDisplays(Theme)['disabled']
+        : roundButtonDisplays(Theme)[props.display || 'default'];
 
     return (
         <Pressable

@@ -23,6 +23,7 @@ import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 import { useAppConfig } from '../../../utils/AppConfigContext';
+import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -246,7 +247,7 @@ export const ZenPayAppComponent = React.memo((
         // Adding onAppFocus listener in case of content process termination events not firing
         let sub: NativeEventSubscription | null = null;
         if (Platform.OS === 'ios') {
-            sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+            sub = AppState.addEventListener('change', onContentProcessDidTerminate);
         }
         return () => {
             sub?.remove();

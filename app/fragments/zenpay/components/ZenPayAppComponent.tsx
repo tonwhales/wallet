@@ -23,7 +23,6 @@ import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 import { useAppConfig } from '../../../utils/AppConfigContext';
-import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 
 export const ZenPayAppComponent = React.memo((
     props: {

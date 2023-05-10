@@ -8,11 +8,11 @@ import { Platform } from 'react-native';
 export const registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
         if (Platform.OS === 'android') {
-            const getChannelRes = await Notifications.getNotificationChannelsAsync();
-            const setChannelRes = await Notifications.setNotificationChannelAsync('default', {
+            await Notifications.getNotificationChannelsAsync();
+            await Notifications.setNotificationChannelAsync('default', {
                 name: 'Default',
                 importance: Notifications.AndroidImportance.DEFAULT,
-            })
+            });
         }
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;

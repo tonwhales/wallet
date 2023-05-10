@@ -438,7 +438,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     import: {
         title: '24 Secret Words',
-        subtitle: 'Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.'
+        subtitle: 'Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.',
+        fullSeedPlaceholder: 'Enter 24 secret words',
+        fullSeedPaste: 'Or you can paste full seed phrase where each word is separated by a space',
     },
     secure: {
         title: 'Protect your wallet',
@@ -623,53 +625,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             transaction: 'TON transaction',
         }
     },
-    hardwareWallet: {
-        ledger: 'Ledger',
-        title: 'Hardware wallet',
-        description: 'Your hardware Ledger wallet',
-        installationIOS: 'You will need a Ledger with bluetooth (Nano X model) and have Ton App installed on the device',
-        installationAndroid: 'You will need a Ledger Nano X model (for bluetooth and USB connection) or Nano S model (USB only) and have Ton App installed on the device',
-        installationGuide: 'Ton App installation guide',
-        connectionDescriptionAndroid: 'Connect your Ledger via USB or Bluetooth',
-        connectionDescriptionIOS: 'Connect your Ledger via Bluetooth',
-        connectionHIDDescription_1: '1. Turn your ledger on and unlock it',
-        connectionHIDDescription_2: '2. Press \"Continue\"',
-        chooseAccountDescription: 'Open your Ledger \"Ton App\" and then choose an account you would like to connect to',
-        bluetoothScanDescription_1: '1. Turn your ledger on and unlock it',
-        bluetoothScanDescription_2: '2. Make sure that you have bluetooth enabled',
-        bluetoothScanDescription_3: '3. Press \"Scan\" to search for available devices and select suitable Ledger Nano X',
-        openAppVerifyAddress: 'Check the account address that you have selected and then verify the address with the Ledger Ton App when prompted',
-        devices: 'Devices',
-        actions: {
-            connect: 'Connect Ledger',
-            selectAccount: 'Select account',
-            account: 'Account #{{account}}',
-            loadAddress: 'Verify address',
-            connectHid: 'Connect Ledger via USB',
-            connectBluetooth: 'Connect Ledger via Bluetooth',
-            scanBluetooth: 'Scan',
-            confirmOnLedger: 'Confirm via Ledger',
-            sending: 'Awaiting transaction',
-            sent: 'Transaction sent',
-            mainAddress: 'Main address',
-        },
-        confirm: {
-            add: 'Are you sure want to add this app?',
-            remove: 'Are you sure want to remove this app?'   
-        },
-        errors: {
-            noDevice: 'No device found',
-            appNotOpen: 'Ton app is not open on Ledger',
-            turnOnBluetooth: 'Please, turn Bluetooth on and try again',
-            lostConnection: 'Lost connection with Ledger',
-            transactionNotFound: 'Transaction not found',
-            transactionRejected: 'Transaction rejected',
-            transferFailed: 'Transfer failed',
-            searchErrorTitle: 'Error searching for device',
-            bluetoothPermission: 'Please, allow Bluetooth permission and try again',
-            locationPermission: 'Please, allow Location permission and try again',
-        },
-        moreAbout: 'More about Ledger'
+    devTools: {
+        switchNetwork: 'Network',
+        switchNetworkAlertTitle: 'Switching to {{network}} network',
+        switchNetworkAlertMessage: 'Are you sure you want to switch networks?',
+        switchNetworkAlertAction: 'Switch',
+        copySeed: 'Copy 24 words seed phrase',
+        copySeedAlertTitle: 'Coping 24 words seed phrase to clipboard',
+        copySeedAlertMessage: 'WARNING ⚠️ Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.',
+        copySeedAlertAction: 'Copy',
     }
 };
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, InputAccessoryView, Platform, Text, View } from "react-native";
+import { Alert, InputAccessoryView, Platform, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -135,31 +135,62 @@ const WordInput = React.memo(React.forwardRef((props: {
                 >
                     {(props.index + 1)}.
                 </Text>
-                <TextInput
-                    ref={tref}
-                    style={{
-                        paddingVertical: 16,
-                        marginLeft: -16,
-                        paddingLeft: 26,
-                        paddingRight: 48,
-                        flexGrow: 1,
-                        fontSize: 16,
-                        color: !isWrong ? '#000' : '#FF274E'
-                    }}
-                    value={props.value}
-                    onChangeText={onTextChange}
-                    onBlur={onBlur}
-                    returnKeyType="next"
-                    autoComplete='off'
-                    autoCorrect={false}
-                    keyboardType="ascii-capable"
-                    autoCapitalize="none"
-                    onFocus={onFocus}
-                    onSubmitEditing={onSubmit}
-                    blurOnSubmit={false}
-                    inputAccessoryViewID={'suggestions'}
-                    autoFocus={props.autoFocus}
-                />
+                {Platform.OS === 'android' && (
+                    <TouchableOpacity onPress={tref.current?.focus} activeOpacity={1} >
+                        <TextInput
+                            ref={tref}
+                            style={{
+                                paddingVertical: 16,
+                                marginLeft: -16,
+                                paddingLeft: 26,
+                                paddingRight: 48,
+                                flexGrow: 1,
+                                fontSize: 16,
+                                color: !isWrong ? '#000' : '#FF274E'
+                            }}
+                            value={props.value}
+                            onChangeText={onTextChange}
+                            onBlur={onBlur}
+                            returnKeyType="next"
+                            autoComplete='off'
+                            autoCorrect={false}
+                            keyboardType="ascii-capable"
+                            autoCapitalize="none"
+                            onFocus={onFocus}
+                            onSubmitEditing={onSubmit}
+                            blurOnSubmit={false}
+                            inputAccessoryViewID={'suggestions'}
+                            autoFocus={props.autoFocus}
+                        />
+                    </TouchableOpacity>
+                )}
+                {Platform.OS !== 'android' && (
+                    <TextInput
+                        ref={tref}
+                        style={{
+                            paddingVertical: 16,
+                            marginLeft: -16,
+                            paddingLeft: 26,
+                            paddingRight: 48,
+                            flexGrow: 1,
+                            fontSize: 16,
+                            color: !isWrong ? '#000' : '#FF274E'
+                        }}
+                        value={props.value}
+                        onChangeText={onTextChange}
+                        onBlur={onBlur}
+                        returnKeyType="next"
+                        autoComplete='off'
+                        autoCorrect={false}
+                        keyboardType="ascii-capable"
+                        autoCapitalize="none"
+                        onFocus={onFocus}
+                        onSubmitEditing={onSubmit}
+                        blurOnSubmit={false}
+                        inputAccessoryViewID={'suggestions'}
+                        autoFocus={props.autoFocus}
+                    />
+                )}
             </View>
         </Animated.View>
     )

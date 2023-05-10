@@ -36,12 +36,6 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const engine = useEngine();
 
-    // switchNetwork: 'Сеть',
-    // copySeed: 'Скопировать сид фразу из 24 слов',
-    // copySeedAlertTitle: 'Скопировать сид фразу из 24 слов',
-    // copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
-    // copySeedAlertAction: 'Скопировать',
-
     const switchNetwork = React.useCallback(
         () => {
             Alert.alert(

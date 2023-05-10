@@ -5,7 +5,7 @@ import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-rea
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { AddressDomainInput } from "../components/AddressDomainInput";
-import { AndroidToolbar } from "../components/AndroidToolbar";
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInputRef } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
 import { ContactItemView } from "../components/Contacts/ContactItemView";

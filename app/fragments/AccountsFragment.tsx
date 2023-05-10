@@ -3,7 +3,7 @@ import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { AndroidToolbar } from "../components/AndroidToolbar";
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { useEngine } from "../engine/Engine";
 import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";

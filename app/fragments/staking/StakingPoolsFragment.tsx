@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, ImageRequireSource, Alert, Pressable } from "react-native";
+import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Engine, useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
@@ -16,6 +16,7 @@ import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { TopBar } from "../../components/topbar/TopBar";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup';
 
@@ -181,83 +182,7 @@ export const StakingPoolsFragment = fragment(() => {
     if (!staking.config) {
         return (
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-                {Platform.OS === 'ios' && (
-                    <BlurView style={{
-                        height: safeArea.top + 44,
-                        paddingTop: safeArea.top,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                            <HeaderBackButton
-                                style={{
-                                    position: 'absolute',
-                                    left: 0, bottom: 0
-                                }}
-                                label={t('common.back')}
-                                labelVisible
-                                onPress={() => {
-                                    navigation.goBack();
-                                }}
-                                tintColor={Theme.accent}
-                            />
-                            <Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                            ]}>
-                                {t('products.staking.title')}
-                            </Text>
-                        </View>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: Theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </BlurView>
-                )}
-                {Platform.OS === 'android' && (
-                    <View style={{
-                        height: safeArea.top + 44,
-                        paddingTop: safeArea.top,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{
-                            position: 'absolute',
-                            left: 16, bottom: 8
-                        }}>
-                            <TouchableNativeFeedback
-                                onPress={() => {
-                                    navigation.goBack();
-                                }}
-                                background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
-                            >
-                                <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                                    <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
-                                </View>
-                            </TouchableNativeFeedback>
-                        </View>
-                        <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                            ]}>
-                                {t('products.staking.title')}
-                            </Text>
-                        </View>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: Theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </View>
-                )}
+                <TopBar title={t('products.staking.title')} showBack />
                 <View style={{ flexGrow: 1, flexBasis: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <ActivityIndicator />
                 </View>
@@ -425,83 +350,7 @@ export const StakingPoolsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, flex: 1 }}>
-            {Platform.OS === 'ios' && (
-                <BlurView style={{
-                    height: safeArea.top + 44,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                        <HeaderBackButton
-                            style={{
-                                position: 'absolute',
-                                left: 0, bottom: 0
-                            }}
-                            label={t('common.back')}
-                            labelVisible
-                            onPress={() => {
-                                navigation.goBack();
-                            }}
-                            tintColor={Theme.accent}
-                        />
-                        <Text style={[
-                            { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                        ]}>
-                            {t('products.staking.title')}
-                        </Text>
-                    </View>
-                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: Theme.headerDivider,
-                        opacity: 0.08
-                    }} />
-                </BlurView>
-            )}
-            {Platform.OS === 'android' && (
-                <View style={{
-                    height: safeArea.top + 44,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{
-                        position: 'absolute',
-                        left: 16, bottom: 8
-                    }}>
-                        <TouchableNativeFeedback
-                            onPress={() => {
-                                navigation.goBack();
-                            }}
-                            background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
-                        >
-                            <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                                <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
-                            </View>
-                        </TouchableNativeFeedback>
-                    </View>
-                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={[
-                            { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                        ]}>
-                            {t('products.staking.title')}
-                        </Text>
-                    </View>
-                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: Theme.headerDivider,
-                        opacity: 0.08
-                    }} />
-                </View>
-            )}
+            <TopBar title={t('products.staking.title')} showBack />
             <ScrollView
                 alwaysBounceVertical={false}
                 style={{

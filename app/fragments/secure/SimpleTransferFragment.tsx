@@ -33,7 +33,6 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
-    marginLeft: 17,
     fontSize: 17
 };
 
@@ -396,7 +395,7 @@ export const SimpleTransferFragment = fragment(() => {
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    paddingTop: 12,
+                    paddingTop: 17,
                     paddingBottom: 17
                 }}>
                     <Text style={[labelStyle, { textAlign: 'center' }]}>{t('transfer.title', { symbol })}</Text>

@@ -43,7 +43,7 @@ export const CurrencyFragment = fragment(() => {
             <AndroidToolbar pageTitle={t('settings.primaryCurrency')} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{

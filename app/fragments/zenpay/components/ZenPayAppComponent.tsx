@@ -16,7 +16,7 @@ import { warn } from '../../../utils/log';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
-import { AndroidToolbar } from '../../../components/AndroidToolbar';
+import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';

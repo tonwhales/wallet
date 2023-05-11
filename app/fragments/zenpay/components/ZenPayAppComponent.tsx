@@ -242,16 +242,16 @@ export const ZenPayAppComponent = React.memo((
         webRef.current?.reload();
     }, []);
 
-    React.useEffect(() => {
-        // Adding onAppFocus listener in case of content process termination events not firing
-        let sub: NativeEventSubscription | null = null;
-        if (Platform.OS === 'ios') {
-            sub = AppState.addEventListener('change', onContentProcessDidTerminate);
-        }
-        return () => {
-            sub?.remove();
-        }
-    }, []);
+    // React.useEffect(() => {
+    //     // Adding onAppFocus listener in case of content process termination events not firing
+    //     let sub: NativeEventSubscription | null = null;
+    //     if (Platform.OS === 'ios') {
+    //         sub = AppState.addEventListener('focus', onContentProcessDidTerminate);
+    //     }
+    //     return () => {
+    //         sub?.remove();
+    //     }
+    // }, []);
 
     return (
         <>

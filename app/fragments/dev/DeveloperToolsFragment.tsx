@@ -26,6 +26,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
+    const engine = useEngine();
+    
     const reboot = useReboot();
     const restart = React.useCallback(() => {
         // TODO: Implement
@@ -35,8 +37,6 @@ export const DeveloperToolsFragment = fragment(() => {
         clearZenPay(engine);
         reboot();
     }, []);
-
-    const engine = useEngine();
 
     const switchNetwork = React.useCallback(
         () => {

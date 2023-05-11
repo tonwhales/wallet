@@ -24,12 +24,12 @@ import { createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder } f
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { useItem } from "../../engine/persistence/PersistedItem";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const LedgerTransferFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();

@@ -3,7 +3,6 @@ import { useCallback, useMemo } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { useEngine } from "../../engine/Engine";
 import { JettonState } from "../../engine/products/WalletProduct";
@@ -17,6 +16,7 @@ import { Address } from "ton";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();

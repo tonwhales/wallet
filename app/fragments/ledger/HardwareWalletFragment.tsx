@@ -2,7 +2,6 @@ import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { Platform, View, Text, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -11,6 +10,7 @@ import { RoundButton } from "../../components/RoundButton";
 import LedgerIcon from '../../../assets/ic_ledger.svg';
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const HardwareWalletFragment = fragment(() => {
     const { Theme } = useAppConfig();

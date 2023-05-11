@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Platform, Text, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -57,6 +56,7 @@ import { useTransport } from './components/TransportContext';
 import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,

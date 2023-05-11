@@ -3,7 +3,6 @@ import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSynthe
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { CloseButton } from "../../components/CloseButton";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { Address, fromNano } from "ton";
 import BN from "bn.js";
@@ -32,6 +31,7 @@ import { TransactionDescription } from "../../engine/products/WalletProduct";
 import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, address }: { transaction: TransactionDescription, transactionHash: string, engine: Engine, address: Address }) => {
     const { Theme, AppConfig } = useAppConfig();

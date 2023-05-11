@@ -5,6 +5,7 @@ import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
 import { warn } from "../../utils/log";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
+import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 
 export class KeysProduct {
     readonly engine: Engine;
@@ -13,7 +14,7 @@ export class KeysProduct {
         this.engine = engine;
     }
 
-    async createDomainKeyIfNeeded(domain: string, keys?: WalletKeys) {
+    async createDomainKeyIfNeeded(domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys) {
 
         // Normalize
         domain = domain.toLowerCase();

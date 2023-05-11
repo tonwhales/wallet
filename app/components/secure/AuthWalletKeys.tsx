@@ -9,10 +9,12 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 
-export const AuthWalletKeysContext = React.createContext<{
+export type AuthWalletKeysType = {
     authenticate: () => Promise<WalletKeys>,
     authenticateWithPasscode: () => Promise<WalletKeys>,
-} | null>(null);
+}
+
+export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const engine = useEngine();

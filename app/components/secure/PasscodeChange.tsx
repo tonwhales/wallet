@@ -50,7 +50,6 @@ function reduceSteps() {
 }
 
 export const PasscodeChange = React.memo(() => {
-    const { Theme } = useAppConfig();
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
     const navigation = useTypedNavigation();
 

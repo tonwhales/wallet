@@ -104,9 +104,6 @@ export class TypedNavigation {
         this.navigate('StakingCalculator', params);
     }
 
-    navigateZenPayEnrollment(params: { endpoint: string, callback: () => void }) {
-        this.navigate('ZenPayEnroll', params);
-    }
     navigateZenPay(params: ZenPayAppParams) {
         this.navigate('ZenPay', params);
     }

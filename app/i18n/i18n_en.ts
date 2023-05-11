@@ -545,15 +545,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     security: {
         title: 'Security',
         passcodeSettings: {
-            setupTitle: 'Setup passcode',
-            confirmTitle: 'Confirm passcode',
-            changeTitle: 'Change passcode',
-            error: 'Passcodes do not match',
+            setupTitle: 'Setup PIN code',
+            confirmTitle: 'Confirm PIN code',
+            changeTitle: 'Change PIN code',
+            error: 'PIN codes do not match',
             tryAgain: 'Try again',
-            success: 'Passcode successfully set',
-            enterNew: 'Enter new passcode',
-            confirmNew: 'Confirm new passcode',
-            enterCurrent: 'Enter current passcode',
+            success: 'PIN code successfully set',
+            enterNew: 'Enter new PIN code',
+            confirmNew: 'Confirm new PIN code',
+            enterCurrent: 'Enter current PIN code',
         }
     },
     report: {

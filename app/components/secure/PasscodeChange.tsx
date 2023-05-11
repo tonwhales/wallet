@@ -7,12 +7,13 @@ import { t } from "../../i18n/t";
 import { RoundButton } from "../RoundButton";
 import { encryptAndStoreWithPasscode } from "../../storage/secureStorage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { PasscodeSuccess } from "./PasscodeSuccess";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
+
 type Action = { type: 're-enter' | 'input' | 'auth', input: string }
-    | { type: 'error' }
     | { type: 'success' }
-type Step = 'auth' | 'input' | 're-enter' | 'success' | 'error';
+type Step = 'auth' | 'input' | 're-enter' | 'success';
 type ScreenState = {
     step: Step,
     input: string,
@@ -37,11 +38,6 @@ function reduceSteps() {
                     step: 'input',
                     input: ''
                 };
-            case 'error':
-                return {
-                    step: 'error',
-                    input: '',
-                };
             case 'success':
                 return {
                     step: 'success',
@@ -65,41 +61,17 @@ export const PasscodeChange = React.memo(() => {
                     exiting={SlideOutLeft}
                     entering={SlideInRight}
                 >
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 17, marginBottom: 16,
-                        textAlign: 'center'
-                    }}>
-                        {t('security.passcodeSettings.enterCurrent')}
-                    </Text>
-                    <PasscodeInput onEntered={async (pass) => {
-                        try {
+                    <PasscodeInput
+                        title={t('security.passcodeSettings.enterCurrent')}
+                        onEntered={async (pass) => {
+                            if (!pass) {
+                                throw new Error('Passcode is required');
+                                return
+                            }
                             const keys = await loadWalletKeysWithPassword(pass);
                             await encryptAndStoreWithPasscode(state.input, Buffer.from(keys.mnemonics.join(' ')));
                             dispatch({ type: 'success' });
-                        } catch (e) {
-                            dispatch({ type: 'error' });
-                        }
-                    }} />
-                </Animated.View>
-            )}
-
-            {state.step === 'error' && (
-                <Animated.View
-                    style={{ justifyContent: 'center', alignItems: 'center' }}
-                    exiting={SlideOutLeft}
-                    entering={SlideInRight}
-                >
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 17, marginBottom: 16,
-                        color: Theme.dangerZone
-                    }}>
-                        {t('security.passcodeSettings.error')}
-                    </Text>
-                    <RoundButton
-                        title={t('security.passcodeSettings.tryAgain')}
-                        onPress={() => dispatch({ type: 'input', input: '' })}
+                        }}
                     />
                 </Animated.View>
             )}
@@ -109,16 +81,16 @@ export const PasscodeChange = React.memo(() => {
                     exiting={SlideOutLeft}
                     entering={SlideInRight}
                 >
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 17, marginBottom: 16,
-                        textAlign: 'center'
-                    }}>
-                        {t('security.passcodeSettings.enterNew')}
-                    </Text>
-                    <PasscodeInput onEntered={(pass) => {
-                        dispatch({ type: 're-enter', input: pass });
-                    }} />
+                    <PasscodeInput
+                        title={t('security.passcodeSettings.enterNew')}
+                        onEntered={(pass) => {
+                            if (!pass) {
+                                throw new Error('Passcode is required');
+                                return;
+                            }
+                            dispatch({ type: 're-enter', input: pass })
+                        }}
+                    />
                 </Animated.View>
             )}
 
@@ -127,41 +99,24 @@ export const PasscodeChange = React.memo(() => {
                     exiting={SlideOutLeft}
                     entering={SlideInRight}
                 >
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 17, marginBottom: 16,
-                        textAlign: 'center'
-                    }}>
-                        {t('security.passcodeSettings.confirmNew')}
-                    </Text>
-                    <PasscodeInput onEntered={(pass) => {
-                        if (pass !== state.input) {
-                            dispatch({ type: 'error' });
-                        } else {
-                            dispatch({ type: 'auth', input: pass })
-                        }
-                    }} />
+                    <PasscodeInput
+                        title={t('security.passcodeSettings.confirmNew')}
+                        onEntered={async (pass) => {
+                            if (pass !== state.input) {
+                                throw new Error('Passcodes do not match');
+                            } else {
+                                dispatch({ type: 'auth', input: pass })
+                            }
+                        }}
+                    />
                 </Animated.View>
             )}
 
             {state.step === 'success' && (
-                <Animated.View
-                    style={{ justifyContent: 'center', alignItems: 'center' }}
-                    exiting={SlideOutLeft}
-                    entering={SlideInRight}
-                >
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 17, marginBottom: 16,
-                        color: Theme.success
-                    }}>
-                        {t('security.passcodeSettings.success')}
-                    </Text>
-                    <RoundButton
-                        title={t('common.back')}
-                        onPress={() => navigation.goBack()}
-                    />
-                </Animated.View>
+                <PasscodeSuccess
+                    onSuccess={navigation.goBack}
+                    title={t('security.passcodeSettings.success')}
+                />
             )}
         </View>
     );

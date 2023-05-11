@@ -38,7 +38,7 @@ export const PasscodeStep = React.memo((
             return 'transparent';
         }
         if (!error) {
-            return Theme.success;
+            return Theme.accent;
         }
 
         return Theme.dangerZone;

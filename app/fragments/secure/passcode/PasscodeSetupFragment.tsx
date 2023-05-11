@@ -51,12 +51,7 @@ export const PasscodeSetupFragment = fragment(() => {
                 : undefined,
         }}>
             <StatusBar style={(Platform.OS === 'ios' && !initial) ? 'light' : 'dark'} />
-            <KeyboardAvoidingView
-                style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
-                <PasscodeSetup onReady={onPasscodeConfirmed} />
-            </KeyboardAvoidingView>
+            <PasscodeSetup onReady={onPasscodeConfirmed} />
             {Platform.OS === 'ios' && !initial && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

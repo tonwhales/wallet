@@ -3,7 +3,7 @@ import { StyleProp, View, ViewStyle } from "react-native";
 import { PasscodeStep } from "./PasscodeStep";
 
 const defaultPasscodeLen = 6;
-const dotSize = 16;
+const dotSize = 10;
 
 export const PasscodeSteps = React.memo((
     {

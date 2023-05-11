@@ -1,19 +1,25 @@
 import React, { useCallback, useRef, useState } from "react";
-import { NativeSyntheticEvent, Platform, Pressable, StyleProp, TextInputKeyPressEventData, View, ViewStyle } from "react-native";
+import { StyleProp, View, ViewStyle, Text } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { PasscodeSteps } from "./PasscodeSteps";
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
+import { PasscodeKeyboard } from "./PasscodeKeyboard";
+import { PasscodeKey } from "./PasscodeKeyButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const PasscodeInput = React.memo((
     {
+        title,
         style,
         onEntered,
     }: {
+        title?: string,
         style?: StyleProp<ViewStyle>,
-        onEntered: (passcode: string | null) => Promise<void>,
+        onEntered: (passcode: string | null) => Promise<void> | void,
     }
 ) => {
+    const safeArea = useSafeAreaInsets();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
     const tref = useRef<TextInput>(null);
@@ -33,9 +39,8 @@ export const PasscodeInput = React.memo((
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }, []);
 
-    const onKeyPress = useCallback((e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
-        const { key } = e.nativeEvent;
-        if (key === 'Backspace') {
+    const onKeyPress = useCallback((key: PasscodeKey) => {
+        if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
         } else if (/\d/.test(key) && passcode.length < 6) {
             setPasscode((prevPasscode) => {
@@ -60,44 +65,27 @@ export const PasscodeInput = React.memo((
     }, [passcode]);
 
     return (
-        <Animated.View style={shakeStyle}>
-            <TextInput
-                ref={tref}
-                style={{
-                    color: 'transparent',
-                    width: 0,
-                    height: 0,
-                }}
-                value={passcode ?? ''}
-                defaultValue={''}
-                onKeyPress={onKeyPress}
-                autoComplete='off'
-                autoCorrect={false}
-                keyboardType={Platform.OS !== 'ios' ? 'numeric' : 'number-pad'}
-                secureTextEntry={Platform.OS === 'android'}
-                autoCapitalize="none"
-                autoFocus={true}
-                selectionColor={'transparent'}
-                enablesReturnKeyAutomatically={false}
-                onSubmitEditing={() => { }}
-                blurOnSubmit={false}
-            />
-            <Pressable
-                style={({ pressed }) => {
-                    return {
-                        opacity: pressed ? 0.5 : 1
-                    }
-                }}
-                onPress={tref.current?.focus}
-            >
+        <Animated.View style={[shakeStyle, { flexGrow: 1 }, style]}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                {!!title && (
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 17, marginBottom: 8,
+                        textAlign: 'center',
+                    }}>
+                        {title}
+                    </Text>
+                )}
                 <PasscodeSteps
                     state={{
                         passLen: passcode.length,
                         error: isWrong,
                     }}
-                // emoji
                 />
-            </Pressable>
+            </View>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: (safeArea.bottom ?? 16) + 6 }}>
+                <PasscodeKeyboard onKeyPress={onKeyPress} />
+            </View>
         </Animated.View>
     );
 });

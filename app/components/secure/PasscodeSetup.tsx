@@ -1,16 +1,17 @@
 import React, { useCallback, useEffect, useReducer } from "react";
-import { Platform, View, Text } from "react-native";
-import Animated, { FadeIn, SlideInRight, SlideOutLeft } from "react-native-reanimated";
+import { Platform, View, Text, ActivityIndicator } from "react-native";
+import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AndroidToolbar } from "../AndroidToolbar";
-import { RoundButton } from "../RoundButton";
 import { PasscodeInput } from "./PasscodeInput";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { PasscodeSuccess } from "./PasscodeSuccess";
+import { LoadingIndicator } from "../LoadingIndicator";
+import { CloseButton } from "../CloseButton";
 
-type Action = { type: 're-enter' | 'input', input: string, } | { type: 'error' } | { type: 'success' } | { type: 'loading' };
-type Step = 'input' | 're-enter' | 'success' | 'error' | 'loading';
+type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
+type Step = 'input' | 're-enter' | 'success' | 'loading';
 type ScreenState = {
     step: Step,
     input: string,
@@ -28,11 +29,6 @@ function reduceSteps() {
                 return {
                     step: 'input',
                     input: ''
-                };
-            case 'error':
-                return {
-                    step: 'error',
-                    input: '',
                 };
             case 'loading':
                 return {
@@ -52,7 +48,6 @@ function reduceSteps() {
 
 export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string) => Promise<void> }) => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
     const onSuccess = useCallback(async (pass: string) => {
         if (onReady) {
             await onReady(pass);
@@ -68,7 +63,6 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
                     await onSuccess(state.input);
                     dispatch({ type: 'success' });
                 } catch (e) {
-                    dispatch({ type: 'error' });
                     warn(e);
                 }
             })();
@@ -77,108 +71,69 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <AndroidToolbar pageTitle={
-                state.step === 'input' ? t('security.passcodeSettings.setupTitle') : t('security.passcodeSettings.confirmTitle')
-            } />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {state.step === 'input' ? t('security.passcodeSettings.setupTitle') : t('security.passcodeSettings.confirmTitle')}
-                    </Text>
-                </View>
-            )}
+            <AndroidToolbar />
             <View style={{
                 justifyContent: 'center',
                 alignItems: 'center',
                 flex: 1
             }}>
                 {state.step === 'input' && (
-                    <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17, marginBottom: 16,
-                            textAlign: 'center'
-                        }}>
-                            {t('security.passcodeSettings.enterNew')}
-                        </Text>
-                        <PasscodeInput onEntered={(pass) => {
-                            dispatch({
-                                type: 're-enter',
-                                input: pass
-                            });
-                        }} />
+                    <Animated.View exiting={SlideOutLeft}>
+                        <PasscodeInput
+                            title={t('security.passcodeSettings.enterNew')}
+                            onEntered={(pass) => {
+                                if (!pass) {
+                                    throw new Error('Passcode is required');
+                                    return;
+                                }
+                                dispatch({ type: 're-enter', input: pass });
+                            }}
+                        />
                     </Animated.View>
                 )}
 
                 {state.step === 're-enter' && (
                     <Animated.View exiting={SlideOutLeft} entering={SlideInRight}>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17, marginBottom: 16,
-                            textAlign: 'center'
-                        }}>
-                            {t('security.passcodeSettings.confirmNew')}
-                        </Text>
-                        <PasscodeInput onEntered={(pass) => {
-                            if (pass !== state.input) {
-                                dispatch({ type: 'error' });
-                            } else {
-                                dispatch({ type: 'loading' });
-                            }
-                        }} />
-                    </Animated.View>
-                )}
-
-                {state.step === 'error' && (
-                    <Animated.View
-                        style={{ justifyContent: 'center', alignItems: 'center' }}
-                        exiting={SlideOutLeft}
-                        entering={SlideInRight}
-                    >
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17, marginBottom: 16,
-                            color: Theme.dangerZone
-                        }}>
-                            {t('security.passcodeSettings.error')}
-                        </Text>
-                        <RoundButton
-                            title={t('security.passcodeSettings.tryAgain')}
-                            onPress={() => {
-                                dispatch({
-                                    type: 'input',
-                                    input: ''
-                                });
+                        <PasscodeInput
+                            title={t('security.passcodeSettings.confirmNew')}
+                            onEntered={(pass) => {
+                                if (pass !== state.input) {
+                                    throw new Error('Passcode does not match');
+                                } else {
+                                    dispatch({ type: 'loading' });
+                                }
                             }}
                         />
                     </Animated.View>
                 )}
-
                 {state.step === 'success' && (
-                    <Animated.View
-                        style={{ justifyContent: 'center', alignItems: 'center' }}
-                        entering={FadeIn}
-                    >
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17, marginBottom: 16,
-                            color: Theme.success
-                        }}>
-                            {t('security.passcodeSettings.success')}
-                        </Text>
-                        <RoundButton
-                            title={t('common.back')}
-                            onPress={() => {
-                                navigation.goBack();
-                            }}
-                        />
-                    </Animated.View>
+                    <PasscodeSuccess
+                        onSuccess={navigation.goBack}
+                        title={t('security.passcodeSettings.success')}
+                    />
+                )}
+                {state.step === 'loading' && (
+                    <LoadingIndicator simple style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }} />
+                )}
+                {Platform.OS === 'ios' && state.step !== 'input' && (
+                    <CloseButton
+                        style={{ position: 'absolute', top: 12, right: 10 }}
+                        onPress={() => {
+                            switch (state.step) {
+                                case 're-enter':
+                                    dispatch({ type: 'input', input: '' });
+                                    break;
+                                case 'success':
+                                    navigation.goBack();
+                                    break;
+                                case 'loading':
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                        }}
+                    />
                 )}
             </View>
         </View>

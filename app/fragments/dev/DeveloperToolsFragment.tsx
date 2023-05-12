@@ -3,7 +3,7 @@ import { Alert, Platform, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storage, storagePersistence } from '../../storage/storage';
+import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
@@ -12,7 +12,6 @@ import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
-import { passcodeEncKey } from '../../storage/secureStorage';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -87,15 +86,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                 <ItemButton title={"Network"} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                             </View>
                         )}
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton
-                            title={"Clear passcode"}
-                            onPress={() => {
-                                storage.delete(passcodeEncKey);
-                                engine.products.settings.setPasscodeState(null);
-                            }}
-                        />
-                    </View>
                 </View>
             </View>
         </View>

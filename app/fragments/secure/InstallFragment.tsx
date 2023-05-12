@@ -18,6 +18,7 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -26,6 +27,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 const SignStateLoader = React.memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
+    const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -45,7 +47,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
 
         // Create Domain Key if Needed
         let domain = extractDomain(props.url);
-        let created = await engine.products.keys.createDomainKeyIfNeeded(domain);
+        let created = await engine.products.keys.createDomainKeyIfNeeded(domain, authContext);
         if (!created) {
             return;
         }

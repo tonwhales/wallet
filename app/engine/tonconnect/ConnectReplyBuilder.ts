@@ -27,7 +27,7 @@ export class ConnectReplyBuilder {
   }
 
   private static getNetwork(isTestnet: boolean): CHAIN {
-    return isTestnet ? CHAIN.MAINNET : CHAIN.TESTNET;
+    return isTestnet ? CHAIN.TESTNET : CHAIN.MAINNET;
   }
 
   private createTonProofItem(

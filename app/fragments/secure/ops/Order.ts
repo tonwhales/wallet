@@ -1,7 +1,5 @@
 import BN from "bn.js";
 import { Address, beginCell, Cell, CommentMessage } from "ton";
-import { AppConfig } from "../../../AppConfig";
-import { SignRawMessage } from "../../../engine/tonconnect/types";
 
 export type Order = {
     domain?: string;
@@ -89,7 +87,7 @@ export function createJettonOrder(args: {
     tonAmount: BN,
     txAmount: BN,
     payload: Cell | null
-}): Order {
+}, isTestnet: boolean): Order {
 
     // Resolve payload
     let payload: Cell | null = null;
@@ -119,7 +117,7 @@ export function createJettonOrder(args: {
 
 
     return createOrder({
-        target: args.wallet.toFriendly({ testOnly: AppConfig.isTestnet }),
+        target: args.wallet.toFriendly({ testOnly: isTestnet }),
         domain: args.domain,
         payload: msg,
         amount: args.txAmount,

@@ -12,10 +12,10 @@ import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
-import { Theme } from '../../Theme';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 type Item = {
     key: string;
@@ -48,6 +48,7 @@ function groupItems(items: Item[]): GroupedItems[] {
 }
 
 export const ConnectionsFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -118,7 +119,6 @@ export const ConnectionsFragment = fragment(() => {
                 paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             }}>
                 <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                <AndroidToolbar pageTitle={t('auth.apps.title')} />
                 {Platform.OS === 'ios' && (
                     <View style={{
                         marginTop: 17,
@@ -167,6 +167,7 @@ export const ConnectionsFragment = fragment(() => {
                         onPress={() => { navigation.goBack() }}
                     />
                 )}
+                <AndroidToolbar pageTitle={t('auth.apps.title')} />
             </View>
         );
     }

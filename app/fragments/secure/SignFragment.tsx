@@ -11,9 +11,9 @@ import { t } from '../../i18n/t';
 import { getCurrentAddress } from '../../storage/appState';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
 import { useEngine } from '../../engine/Engine';
-import { Theme } from '../../Theme';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { CloseButton } from '../../components/CloseButton';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -22,6 +22,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 export const SignFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const params: {
         textCell: Cell,

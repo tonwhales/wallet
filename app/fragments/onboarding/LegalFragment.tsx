@@ -6,13 +6,13 @@ import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
-import { Theme } from "../../Theme";
 import { markAsTermsAccepted } from "../../storage/appState";
 import { t } from "../../i18n/t";
-import { fragment } from "../../fragment";
 import { systemFragment } from "../../systemFragment";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const LegalFragment = systemFragment(() => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();

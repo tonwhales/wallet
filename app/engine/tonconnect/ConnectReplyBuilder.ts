@@ -9,7 +9,6 @@ import {
 import naclUtils from 'tweetnacl-util';
 import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
-import { AppConfig } from '../../AppConfig';
 import { Address } from 'ton';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
@@ -27,8 +26,8 @@ export class ConnectReplyBuilder {
     this.manifest = manifest;
   }
 
-  private static getNetwork() {
-    return !AppConfig.isTestnet ? CHAIN.MAINNET : CHAIN.TESTNET;
+  private static getNetwork(isTestnet: boolean): CHAIN {
+    return isTestnet ? CHAIN.TESTNET : CHAIN.MAINNET;
   }
 
   private createTonProofItem(
@@ -92,7 +91,7 @@ export class ConnectReplyBuilder {
     };
   }
 
-  createReplyItems(addr: string, privateKey: Uint8Array, walletStateInit: string): ConnectItemReply[] {
+  createReplyItems(addr: string, privateKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
     const address = Address.parse(addr).toString();
 
     const replyItems = this.request.items.map((requestItem): ConnectItemReply => {
@@ -101,7 +100,7 @@ export class ConnectReplyBuilder {
           return {
             name: 'ton_addr',
             address,
-            network: ConnectReplyBuilder.getNetwork(),
+            network: ConnectReplyBuilder.getNetwork(isTestnet),
             walletStateInit,
           };
 
@@ -116,14 +115,14 @@ export class ConnectReplyBuilder {
     return replyItems;
   }
 
-  static createAutoConnectReplyItems(addr: string, walletStateInit: string): ConnectItemReply[] {
+  static createAutoConnectReplyItems(addr: string, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
     const address = Address.parse(addr).toString();
 
     return [
       {
         name: 'ton_addr',
         address,
-        network: ConnectReplyBuilder.getNetwork(),
+        network: ConnectReplyBuilder.getNetwork(isTestnet),
         walletStateInit,
       },
     ];

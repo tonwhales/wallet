@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { Engine } from "../Engine";
 import { tryFetchJettonWallet } from "../metadata/introspections/tryFetchJettonWallet";
 import { startDependentSync } from "./utils/startDependentSync";
@@ -12,7 +11,7 @@ export type JettonWalletState = {
 };
 
 export function startJettonWalletSync(address: Address, engine: Engine) {
-    let key = `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/jetton/wallet`;
+    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/jetton/wallet`;
     let lite = engine.persistence.liteAccounts.item(address);
     let jettonWallet = engine.persistence.jettonWallets.item(address);
 

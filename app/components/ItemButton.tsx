@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Pressable, View, Text, Image, ImageSourcePropType } from 'react-native';
-import { Theme } from '../Theme';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const ItemButton = React.memo((props: {
     title?: string,
@@ -9,6 +9,7 @@ export const ItemButton = React.memo((props: {
     dangerZone?: boolean,
     leftIcon?: ImageSourcePropType
 }) => {
+    const { Theme } = useAppConfig();
     return (
         <Pressable style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })} onPress={props.onPress}>
             <View style={{ height: 48, paddingLeft: props.leftIcon ? 8 : 16, paddingRight: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', flexGrow: 1, flexBasis: 0 }}>

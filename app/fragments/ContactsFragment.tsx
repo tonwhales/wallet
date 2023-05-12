@@ -13,14 +13,15 @@ import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { Theme } from "../Theme";
 import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const { Theme } = useAppConfig();
     const engine = useEngine();
     const account = engine.products.main.useAccount();
     const transactions = account?.transactions ?? [];

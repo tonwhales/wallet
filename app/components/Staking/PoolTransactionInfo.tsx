@@ -2,15 +2,15 @@ import BN from "bn.js";
 import React, { useMemo } from "react"
 import { View, Text } from "react-native"
 import { fromNano, toNano } from "ton";
-import { AppConfig } from "../../AppConfig";
 import { t } from "../../i18n/t";
 import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
-import { Theme } from "../../Theme";
 import { PriceComponent } from "../PriceComponent";
 import { useEngine } from "../../engine/Engine";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: BN | null }) => {
     if (!pool) return null;
+    const { Theme, AppConfig } = useAppConfig();
     const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
     const withdrawFee = pool.params.withdrawFee.add(pool.params.receiptPrice);
     const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;

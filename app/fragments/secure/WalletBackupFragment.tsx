@@ -1,21 +1,22 @@
 import * as React from 'react';
 import { ActivityIndicator, Platform, Text, View, useWindowDimensions, ScrollView } from 'react-native';
-import { Theme } from '../../Theme';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { loadWalletKeys } from '../../storage/walletKeys';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
-import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
+import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import { EngineContext } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
+    const { Theme, AppConfig } = useAppConfig();
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
@@ -28,7 +29,7 @@ export const WalletBackupFragment = systemFragment(() => {
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address);
+        markAddressSecured(address.address, AppConfig.isTestnet);
         if (back) {
             navigation.goBack();
         } else {

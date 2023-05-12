@@ -3,9 +3,10 @@ import { View } from 'react-native';
 import { Item } from '../../components/Item';
 import { fragment } from '../../fragment';
 import { getApplicationKey, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
-import { Theme } from '../../Theme';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 export const DevStorageFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     let [value, setValue] = React.useState('');
     React.useEffect(() => {
         (async () => {

@@ -27,6 +27,7 @@ export type RecoilInterface = {
 }
 
 export class Engine {
+    readonly isTestnet: boolean;
     // Config
     readonly address: Address;
     readonly publicKey: Buffer;
@@ -68,7 +69,8 @@ export class Engine {
         persistence: MMKV,
         client4Endpoint: string,
         connector: Connector,
-        recoil: RecoilInterface
+        recoil: RecoilInterface,
+        isTestnet: boolean
     ) {
         this.recoil = recoil;
         this.persistence = new Persistence(persistence, this);
@@ -81,6 +83,7 @@ export class Engine {
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);
         this.transactions = new Transactions(this);
         this.cloud = new Cloud(this, utilityKey);
+        this.isTestnet = isTestnet;
 
         //
         // Start sync

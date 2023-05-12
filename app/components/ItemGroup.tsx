@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { Theme } from '../Theme';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const ItemGroup = React.memo((props: { children?: any, style?: StyleProp<ViewStyle> }) => {
+    const { Theme } = useAppConfig();
     return (
         <View
             style={[{

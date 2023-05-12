@@ -130,6 +130,7 @@ import Verified from '../../assets/ic_verified.svg';
 import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export const avatarImages = [
     Img_ant,
@@ -278,8 +279,9 @@ export const Avatar = React.memo((props: {
     verified?: boolean,
     dontShowVerified?: boolean,
 }) => {
+    const { AppConfig } = useAppConfig();
 
-    let known = props.address ? KnownWallets[props.address] : undefined;
+    let known = props.address ? KnownWallets(AppConfig.isTestnet)[props.address] : undefined;
     let size = Math.floor(props.size * 0.6);
     let verifiedSize = Math.floor(props.size * 0.35);
 

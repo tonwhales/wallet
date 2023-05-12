@@ -2,15 +2,15 @@ import React, { useMemo } from "react";
 import { BN } from "bn.js";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Theme } from "../../Theme";
 import { TouchableHighlight, View, Text, useWindowDimensions } from "react-native";
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
-import { AppConfig } from "../../AppConfig";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const StakingProductComponent = React.memo(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const staking = engine.products.whalesStakingPools.useStaking();

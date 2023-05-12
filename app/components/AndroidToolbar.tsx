@@ -1,14 +1,15 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react"
 import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } from "react-native"
-import { Theme } from "../Theme";
 import { Ionicons } from '@expo/vector-icons';
+import { useAppConfig } from "../utils/AppConfigContext";
 
-export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string, onBack?: () => void }) => {
+export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string, onBack?: () => void, accentColor?: string }) => {
     if (Platform.OS === 'ios') {
         return null;
     }
 
+    const { Theme } = useAppConfig();
     const navigation = useNavigation();
 
     return (
@@ -34,7 +35,7 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
                     background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                 >
                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                        <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
+                        <Ionicons name="arrow-back-outline" size={28} color={props.accentColor ?? Theme.accent} />
                     </View>
                 </TouchableNativeFeedback>
             )}

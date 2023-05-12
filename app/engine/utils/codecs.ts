@@ -1,12 +1,11 @@
 import { failure, success, Type } from "io-ts"
 import * as t from 'io-ts';
 import { Address, AddressExternal, BitString, Cell } from "ton"
-import { AppConfig } from "../../AppConfig";
 import BN from "bn.js";
 
 export class AddressType extends Type<Address, string, unknown> {
     readonly _tag: 'AddressType' = 'AddressType'
-    constructor() {
+    constructor(isTestnet: boolean) {
         super(
             'Address',
             (u): u is Address => u instanceof Address,
@@ -18,13 +17,13 @@ export class AddressType extends Type<Address, string, unknown> {
                 }
             },
             (u) => {
-                return u.toFriendly({ testOnly: AppConfig.isTestnet });
+                return u.toFriendly({ testOnly: isTestnet });
             }
         )
     }
 }
 
-export const address = new AddressType();
+export const address = (isTestnet: boolean) => new AddressType(isTestnet);
 
 export class BNType extends Type<BN, string, unknown> {
     readonly _tag: 'BNType' = 'BNType'

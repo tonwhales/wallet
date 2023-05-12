@@ -9,10 +9,8 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { AppConfig } from '../../AppConfig';
 import { beginCell, Cell, safeSign, StateInit } from 'ton';
 import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
-import { Theme } from '../../Theme';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
 import SuccessIcon from '../../../assets/ic_success.svg';
@@ -30,6 +28,7 @@ import { useParams } from '../../utils/useParams';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse';
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/utils';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -53,6 +52,7 @@ type SignState = { type: 'loading' }
     | { type: 'failed' }
 
 const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
@@ -160,6 +160,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     acc.address.toFriendly({ testOnly: AppConfig.isTestnet, urlSafe: true, bounceable: true }),
                     Uint8Array.from(walletKeys.keyPair.secretKey),
                     stateInitStr,
+                    AppConfig.isTestnet
                 );
             } catch (e) {
                 warn('Failed to create reply items');

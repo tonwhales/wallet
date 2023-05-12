@@ -1,7 +1,6 @@
 import { StatusBar } from "expo-status-bar"
 import { Platform, View, Text, ScrollView } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { AndroidToolbar } from "../components/AndroidToolbar"
 import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
@@ -10,6 +9,7 @@ import { PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
 
 export const SecurityFragment = fragment(() => {
     const engine = useEngine();

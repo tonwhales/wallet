@@ -105,10 +105,14 @@ export class TypedNavigation {
         this.navigate('StakingCalculator', params);
     }
 
+    navigateLedgerApp() {
+        this.navigate('LedgerApp');
+    }
+
     navigateZenPay(params: ZenPayAppParams) {
         this.navigate('ZenPay', params);
     }
-    
+
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
     }

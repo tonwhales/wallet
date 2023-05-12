@@ -7,7 +7,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
+import { activateKeepAwake, activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
@@ -51,7 +51,7 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate();
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 console.warn(e);
@@ -61,7 +61,7 @@ export const WalletBackupFragment = systemFragment(() => {
         })();
 
         // Keeping screen in awakened state
-        activateKeepAwake('WalletBackupFragment');
+        activateKeepAwakeAsync('WalletBackupFragment');
         return function deactivate() {
             deactivateKeepAwake('WalletBackupFragment')
         };

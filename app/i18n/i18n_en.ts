@@ -549,12 +549,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             setupTitle: 'Setup PIN code',
             confirmTitle: 'Confirm PIN code',
             changeTitle: 'Change PIN code',
-            error: 'PIN codes do not match',
+            error: 'Incorrect PIN code',
             tryAgain: 'Try again',
             success: 'PIN code successfully set',
             enterNew: 'Enter new PIN code',
             confirmNew: 'Confirm new PIN code',
-            enterCurrent: 'Enter current PIN code',
+            enterCurrent: 'Enter your PIN code',
         }
     },
     report: {

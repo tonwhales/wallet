@@ -150,7 +150,7 @@ export const PasscodeSetup = React.memo(({ onReady, initial }: { onReady?: (pass
                     <Pressable
                         style={({ pressed }) => {
                             return {
-                                position: 'absolute', top: 24, left: 16,
+                                position: 'absolute', top: 24, right: 16,
                                 opacity: pressed ? 0.5 : 1,
                             }
                         }}

@@ -48,7 +48,7 @@ export const PasscodeStep = React.memo((
         <View style={{
             justifyContent: 'center', alignItems: 'center',
             width: size, height: size,
-            marginHorizontal: 8,
+            marginHorizontal: 11,
         }}>
             {index >= passLen && (
                 <View

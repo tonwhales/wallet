@@ -19,7 +19,7 @@ export const PasscodeSteps = React.memo((
         emoji?: boolean,
     }
 ) => {
-    const width = defaultPasscodeLen * ((emoji ? 32 : dotSize) + 16);
+    const width = defaultPasscodeLen * ((emoji ? 32 : dotSize) + 22);
 
     return (
         <View style={[

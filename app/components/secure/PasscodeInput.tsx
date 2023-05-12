@@ -2,11 +2,13 @@ import React, { useCallback, useRef, useState } from "react";
 import { StyleProp, View, ViewStyle, Text } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { PasscodeSteps } from "./PasscodeSteps";
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
 import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { t } from "../../i18n/t";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const PasscodeInput = React.memo((
     {
@@ -19,6 +21,7 @@ export const PasscodeInput = React.memo((
         onEntered: (passcode: string | null) => Promise<void> | void,
     }
 ) => {
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
@@ -26,9 +29,7 @@ export const PasscodeInput = React.memo((
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ translateX: translate.value }],
-        };
+        return { transform: [{ translateX: translate.value }] };
     }, []);
     const doShake = React.useCallback(() => {
         translate.value = withSequence(
@@ -55,7 +56,7 @@ export const PasscodeInput = React.memo((
                                 setPasscode('');
                                 tref.current?.clear();
                                 setIsWrong(false);
-                            }, 1000)
+                            }, 1500)
                         }
                     })();
                 }
@@ -65,7 +66,7 @@ export const PasscodeInput = React.memo((
     }, [passcode]);
 
     return (
-        <Animated.View style={[shakeStyle, { flexGrow: 1 }, style]}>
+        <View style={[{ flexGrow: 1 }, style]}>
             <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
                 {!!title && (
                     <Text style={{
@@ -76,16 +77,40 @@ export const PasscodeInput = React.memo((
                         {title}
                     </Text>
                 )}
-                <PasscodeSteps
-                    state={{
-                        passLen: passcode.length,
-                        error: isWrong,
-                    }}
-                />
+                <Animated.View style={[shakeStyle, { alignItems: 'center' }]}>
+                    <PasscodeSteps
+                        state={{
+                            passLen: passcode.length,
+                            error: isWrong,
+                        }}
+                    />
+                    {isWrong && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                top: 54, left: 0, right: 0,
+                                justifyContent: 'center', alignItems: 'center'
+                            }}
+                            entering={FadeIn}
+                            exiting={FadeOut}
+                        >
+                            <Text style={{
+                                fontSize: 15,
+                                color: Theme.dangerZone
+                            }}>
+                                {t('security.passcodeSettings.error')}
+                            </Text>
+                        </Animated.View>
+                    )}
+                </Animated.View>
             </View>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: (safeArea.bottom ?? 16) + 6 }}>
+            <View style={{
+                flex: 1,
+                justifyContent: 'center', alignItems: 'center',
+                marginBottom: (safeArea.bottom ?? 16) + 6
+            }}>
                 <PasscodeKeyboard onKeyPress={onKeyPress} />
             </View>
-        </Animated.View>
+        </View>
     );
 });

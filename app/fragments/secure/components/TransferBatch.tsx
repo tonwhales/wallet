@@ -274,7 +274,7 @@ export const TransferBatch = React.memo((props: Props) => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate();
+            walletKeys = await authContext.authenticate({ cancelable: true });
         } catch (e) {
             return;
         }

@@ -140,7 +140,7 @@ export const DeleteAccountFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                key = await await authContext.authenticate();
+                key = await await authContext.authenticate({ cancelable: true });
             } catch (e) {
                 setStatus(undefined);
                 navigation.goBack();

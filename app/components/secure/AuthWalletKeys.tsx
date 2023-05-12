@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { KeyboardAvoidingView, Platform, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
 import { PasscodeInput } from './PasscodeInput';
 import { t } from '../../i18n/t';
@@ -9,25 +9,35 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 
+export type AuthStyle = {
+    backgroundColor?: string,
+    cancelable?: boolean,
+}
+
+export type AuthProps = {
+    promise: { resolve: (keys: WalletKeys) => void, reject: () => void },
+    style?: AuthStyle
+}
+
 export type AuthWalletKeysType = {
-    authenticate: () => Promise<WalletKeys>,
-    authenticateWithPasscode: () => Promise<WalletKeys>,
+    authenticate: (style?: AuthStyle) => Promise<WalletKeys>,
+    authenticateWithPasscode: (style?: AuthStyle) => Promise<WalletKeys>,
 }
 
 export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const engine = useEngine();
-    const settings = engine.products.settings;
-    const passcodeState = settings.usePasscodeState();
+    const settings = engine?.products?.settings;
+    const passcodeState = settings?.usePasscodeState();
     const { Theme } = useAppConfig();
-    const [promise, setPromise] = useState<{ resolve: (keys: WalletKeys) => void, reject: () => void } | null>(null);
+    const [auth, setAuth] = useState<AuthProps | null>(null);
 
-    const authenticate = useCallback(async () => {
-        if (promise) {
-            promise.reject();
+    const authenticate = useCallback(async (style?: AuthStyle) => {
+        if (auth) {
+            auth.promise.reject();
         }
-        setPromise(null);
+        setAuth(null);
         try {
             const account = getCurrentAddress();
             const keys = await loadWalletKeys(account.secretKeyEnc);
@@ -35,72 +45,81 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         } catch (e) {
             const passcodeKeys = new Promise<WalletKeys>((resolve, reject) => {
                 if (passcodeState !== PasscodeState.Set) {
-                    setPromise(null);
+                    setAuth(null);
                     reject();
                     return;
                 }
-                setPromise({ resolve, reject });
+                setAuth({ promise: { resolve, reject }, style });
             });
-
-            return (await passcodeKeys);
+            return passcodeKeys;
         }
-    }, [promise, passcodeState]);
+    }, [auth, passcodeState]);
 
-    const authenticateWithPasscode = useCallback(() => {
-        if (promise) {
-            promise.reject();
+    const authenticateWithPasscode = useCallback((style?: AuthStyle) => {
+        if (auth) {
+            auth.promise.reject();
         }
-        setPromise(null);
+        setAuth(null);
         return new Promise<WalletKeys>((resolve, reject) => {
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
-            setPromise({ resolve, reject });
+            setAuth({ promise: { resolve, reject }, style });
         });
-    }, [promise, passcodeState]);
+    }, [auth, passcodeState]);
 
     return (
         <AuthWalletKeysContext.Provider value={{ authenticate, authenticateWithPasscode }}>
             {props.children}
-            {promise !== null && (
-                <KeyboardAvoidingView
-                    style={{
-                        flexGrow: 1,
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    }}
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            {auth !== null && (
+                <Animated.View
+                    style={[
+                        {
+                            backgroundColor: auth.style?.backgroundColor ?? Theme.background,
+                            flexGrow: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        },
+                    ]}
+                    exiting={FadeOut}
+                    entering={FadeIn}
                 >
-                    <Animated.View
-                        style={[
-                            {
-                                backgroundColor: Theme.background,
-                                flexGrow: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            },
-                        ]}
-                        exiting={FadeOut}
-                        entering={FadeIn}
-                    >
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17, marginBottom: 16,
-                            textAlign: 'center'
-                        }}>
-                            {t('security.passcodeSettings.enterCurrent')}
-                        </Text>
-                        <PasscodeInput onEntered={async (pass) => {
+                    <PasscodeInput
+                        title={t('security.passcodeSettings.enterCurrent')}
+                        onEntered={async (pass) => {
                             if (!pass) {
-                                promise.reject();
-                                setPromise(null);
+                                auth.promise.reject();
+                                setAuth(null);
                                 return;
                             }
                             const keys = await loadWalletKeysWithPassword(pass);
-                            promise.resolve(keys);
-                            setPromise(null);
-                        }} />
-                    </Animated.View>
-                </KeyboardAvoidingView>
+                            auth.promise.resolve(keys);
+                            setAuth(null);
+                        }}
+                    />
+                    {auth.style?.cancelable && (
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    position: 'absolute', top: 24, right: 16,
+                                    opacity: pressed ? 0.5 : 1,
+                                }
+                            }}
+                            onPress={() => {
+                                auth.promise.reject();
+                                setAuth(null);
+                            }}
+                        >
+                            <Text style={{
+                                color: Theme.accent,
+                                fontSize: 17,
+                                fontWeight: '500',
+                            }}>
+                                {t('common.cancel')}
+                            </Text>
+                        </Pressable>
+                    )}
+                </Animated.View>
             )}
         </AuthWalletKeysContext.Provider>
     );

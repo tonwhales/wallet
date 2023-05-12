@@ -51,7 +51,7 @@ export const SignFragment = fragment(() => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate();
+            walletKeys = await authContext.authenticate({ cancelable: true });
         } catch (e) {
             navigation.goBack();
             return;

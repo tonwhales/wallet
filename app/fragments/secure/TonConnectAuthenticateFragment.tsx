@@ -144,7 +144,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             // Sign
             let walletKeys: WalletKeys;
             try {
-                walletKeys = await authContext.authenticate();
+                walletKeys = await authContext.authenticate({ cancelable: true });
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return;

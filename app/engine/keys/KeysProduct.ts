@@ -35,7 +35,7 @@ export class KeysProduct {
             walletKeys = keys;
         } else {
             try {
-                walletKeys = await authContext.authenticate();
+                walletKeys = await authContext.authenticate({ cancelable: true });
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return false;

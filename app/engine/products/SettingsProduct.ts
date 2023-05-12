@@ -1,9 +1,11 @@
 import BN from "bn.js";
-import { RecoilValueReadOnly, selector, selectorFamily, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, atom, selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
+import { PasscodeState, passcodeStateKey } from "../../storage/secureStorage";
+import { storage } from "../../storage/storage";
 
 const version = 1;
 
@@ -16,11 +18,18 @@ export class SettingsProduct {
     readonly ledger: CloudValue<{ on: boolean }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
+    readonly #passcodeState;
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
         this.ledger = engine.cloud.get(`ledger-v${version}`, (src) => { src.on = false });
+
+        this.#passcodeState = atom<PasscodeState | null>({
+            key: 'settings/passcode-state',
+            default: (storage.getString(passcodeStateKey) as PasscodeState) ?? null,
+            dangerouslyAllowMutability: true
+        });
 
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',
@@ -64,14 +73,17 @@ export class SettingsProduct {
         });
     }
 
-    useLedger(): boolean {
-        return useRecoilValue(this.ledger.atom).on;
+    usePasscodeState(): PasscodeState | null {
+        return useRecoilValue(this.#passcodeState);
     }
 
-    setLedger(on: boolean) {
-        this.ledger.update((doc) => {
-            doc.on = on;
-        });
+    setPasscodeState(newState: PasscodeState | null) {
+        if (!newState) {
+            storage.delete(passcodeStateKey);
+        } else {
+            storage.set(passcodeStateKey, newState);
+        }
+        this.engine.recoil.updater(this.#passcodeState, newState);
     }
 
     useSpamMinAmount(): BN {

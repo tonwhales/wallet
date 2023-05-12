@@ -4,28 +4,39 @@ import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/secure/PasscodeSetup";
-import { fragment } from "../../../fragment"
 import { getCurrentAddress } from "../../../storage/appState";
-import { PasscodeState, encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
+import { PasscodeState, encryptAndStoreWithPasscode, passcodeStateKey } from "../../../storage/secureStorage";
 import { loadWalletKeys } from "../../../storage/walletKeys";
 import { useParams } from "../../../utils/useParams";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useEngine } from "../../../engine/Engine";
 import { warn } from "../../../utils/log";
+import { systemFragment } from "../../../systemFragment";
+import { storage } from "../../../storage/storage";
+import { useReboot } from "../../../utils/RebootContext";
 
-export const PasscodeSetupFragment = fragment(() => {
+export const PasscodeSetupFragment = systemFragment(() => {
     const engine = useEngine();
-    const settings = engine.products.settings;
-    const { initial } = useParams<{ initial?: boolean }>();
+    const reboot = useReboot();
+    const settings = engine?.products?.settings;
+    const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
-        if (initial) {
+        if (initial || afterImport) {
             const acc = getCurrentAddress();
             let keys = await loadWalletKeys(acc.secretKeyEnc);
             await encryptAndStoreWithPasscode(passcode, Buffer.from(keys.mnemonics.join(' ')));
-            settings.setPasscodeState(PasscodeState.Set);
+            if (!!settings) {
+                settings.setPasscodeState(PasscodeState.Set);
+            } else {
+                storage.set(passcodeStateKey, PasscodeState.Set);
+            }
+            if (afterImport) {
+                reboot();
+                return;
+            }
             if (engine && !engine.ready) {
                 navigation.navigateAndReplaceAll('Sync');
             } else {
@@ -36,7 +47,11 @@ export const PasscodeSetupFragment = fragment(() => {
                 const acc = getCurrentAddress();
                 let keys = await loadWalletKeys(acc.secretKeyEnc);
                 await encryptAndStoreWithPasscode(passcode, Buffer.from(keys.mnemonics.join(' ')));
-                settings.setPasscodeState(PasscodeState.Set);
+                if (!!settings) {
+                    settings.setPasscodeState(PasscodeState.Set);
+                } else {
+                    storage.set(passcodeStateKey, PasscodeState.Set);
+                }
             } catch (e) {
                 warn('Failed to encrypt and store with passcode');
             }
@@ -46,13 +61,13 @@ export const PasscodeSetupFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: (Platform.OS === 'android' || initial)
+            paddingTop: (Platform.OS === 'android' || initial || afterImport)
                 ? safeArea.top
                 : undefined,
         }}>
-            <StatusBar style={(Platform.OS === 'ios' && !initial) ? 'light' : 'dark'} />
+            <StatusBar style={(Platform.OS === 'ios' && !initial && !afterImport) ? 'light' : 'dark'} />
             <PasscodeSetup initial={initial} onReady={onPasscodeConfirmed} />
-            {Platform.OS === 'ios' && !initial && (
+            {Platform.OS === 'ios' && !initial && !afterImport && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}
                     onPress={() => {

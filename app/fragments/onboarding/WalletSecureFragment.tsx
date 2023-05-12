@@ -15,9 +15,11 @@ import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
     const { Theme, AppConfig } = useAppConfig();
+    const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
@@ -74,7 +76,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 }
 
                 // Navigate next
-                reboot();
+                navigation.navigateAndReplaceAll('PasscodeSetup', { afterImport: true });
             } catch (e) {
                 warn(e);
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));

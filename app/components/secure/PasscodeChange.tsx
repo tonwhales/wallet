@@ -1,19 +1,27 @@
 import React, { useReducer } from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "./PasscodeInput";
-import { loadWalletKeysWithPassword } from "../../storage/walletKeys";
+import { WalletKeys, loadWalletKeysWithPassword } from "../../storage/walletKeys";
 import { t } from "../../i18n/t";
-import { RoundButton } from "../RoundButton";
 import { encryptAndStoreWithPasscode } from "../../storage/secureStorage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "./PasscodeSuccess";
-import { useAppConfig } from "../../utils/AppConfigContext";
 
 
-type Action = { type: 're-enter' | 'input' | 'auth', input: string }
+type Action = { type: | 'auth', input: string }
+    | { type: 're-enter' | 'input', keys: WalletKeys, input: string }
     | { type: 'success' }
+
 type Step = 'auth' | 'input' | 're-enter' | 'success';
+type StepWithKeys = 'input' | 're-enter';
+
+type ScreenStateWithKeys = {
+    step: StepWithKeys,
+    input: string,
+    keys: WalletKeys
+}
+
 type ScreenState = {
     step: Step,
     input: string,
@@ -21,7 +29,7 @@ type ScreenState = {
 
 // reduce steps
 function reduceSteps() {
-    return (state: ScreenState, action: Action): ScreenState => {
+    return (state: ScreenState | ScreenStateWithKeys, action: Action): ScreenState | ScreenStateWithKeys => {
         switch (action.type) {
             case 'auth':
                 return {
@@ -30,11 +38,13 @@ function reduceSteps() {
                 };
             case 're-enter':
                 return {
+                    keys: action.keys,
                     step: 're-enter',
-                    input: action.input
+                    input: action.input,
                 };
             case 'input':
                 return {
+                    keys: action.keys,
                     step: 'input',
                     input: ''
                 };
@@ -50,7 +60,7 @@ function reduceSteps() {
 }
 
 export const PasscodeChange = React.memo(() => {
-    const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
+    const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '' });
     const navigation = useTypedNavigation();
 
     return (
@@ -69,7 +79,7 @@ export const PasscodeChange = React.memo(() => {
                             }
                             const keys = await loadWalletKeysWithPassword(pass);
                             await encryptAndStoreWithPasscode(state.input, Buffer.from(keys.mnemonics.join(' ')));
-                            dispatch({ type: 'success' });
+                            dispatch({ type: 'input', keys, input: '' });
                         }}
                     />
                 </Animated.View>
@@ -85,9 +95,8 @@ export const PasscodeChange = React.memo(() => {
                         onEntered={(pass) => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
-                                return;
                             }
-                            dispatch({ type: 're-enter', input: pass })
+                            dispatch({ type: 're-enter', input: pass, keys: (state as ScreenStateWithKeys).keys })
                         }}
                     />
                 </Animated.View>
@@ -104,7 +113,8 @@ export const PasscodeChange = React.memo(() => {
                             if (pass !== state.input) {
                                 throw new Error('Passcodes do not match');
                             } else {
-                                dispatch({ type: 'auth', input: pass })
+                                await encryptAndStoreWithPasscode(state.input, Buffer.from((state as ScreenStateWithKeys).keys.mnemonics.join(' ')));
+                                dispatch({ type: 'success' });
                             }
                         }}
                     />

@@ -556,6 +556,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             enterNew: 'Введите новый код',
             confirmNew: 'Подтвердите новый код',
             enterCurrent: 'Введите текущий код',
+            enterPrevious: 'Введите предыдущий код',
         }
     },
     report: {

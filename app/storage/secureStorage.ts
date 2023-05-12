@@ -1,9 +1,17 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { getSecureRandomBytes, openBox, sealBox } from 'ton-crypto';
+import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
+
+export const passcodeStateKey = 'passcode-state';
+export const passcodeSaltKey = 'passcode-salt';
+export const passcodeEncKey = 'ton-passcode-enc-key';
+export enum PasscodeState {
+    NotSet = 'not-set',
+    Set = 'set',
+}
 
 export function loadKeyStorageType(): 'secure-store' | 'local-authentication' | 'key-store' {
     let kind = storage.getString('ton-storage-kind');
@@ -150,4 +158,47 @@ export async function decryptData(data: Buffer) {
         throw Error('Unable to decrypt data');
     }
     return res;
+}
+
+export async function generateKeyFromPasscode(pass: string, nacl?: string) {
+    if (typeof pass !== 'string') {
+        throw Error('Invalid password');
+    }
+
+    const salt = nacl ?? (await getSecureRandomBytes(32)).toString('hex');
+    const iterations = 100000;
+    const keyLength = 32; // 256 bits
+
+    const derivedKey = await pbkdf2_sha512(
+        pass,
+        salt,
+        iterations,
+        keyLength
+    );
+
+    return { key: derivedKey, salt };
+}
+
+export async function encryptWithPasscode(pass: string, data: Buffer) {
+    const passKey = await generateKeyFromPasscode(pass);
+    storage.set(passcodeSaltKey, passKey.salt);
+    const nonce = await getSecureRandomBytes(24);
+    const sealed = sealBox(data, nonce, passKey.key);
+    return Buffer.concat([nonce, sealed]);
+}
+
+export async function doDecryptWithPasscode(pass: string, salt: string, data: Buffer) {
+    const passKey = await generateKeyFromPasscode(pass, salt);
+    let nonce = data.slice(0, 24);
+    let cypherData = data.slice(24);
+    let res = openBox(cypherData, nonce, passKey.key);
+    if (!res) {
+        throw Error('Unable to decrypt data');
+    }
+    return res;
+}
+
+export async function encryptAndStoreWithPasscode(pass: string, data: Buffer) {
+    const encrypted = await encryptWithPasscode(pass, data);
+    storage.set(passcodeEncKey, encrypted.toString('base64'));
 }

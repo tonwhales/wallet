@@ -8,6 +8,7 @@ import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 import { storage } from "../../storage/storage";
 import { fetchCards } from "../api/zenpay/fetchCards";
+import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
@@ -79,13 +80,13 @@ export class ZenPayProduct {
         storage.set('zenpay-token-version', currentTokenVersion);
     }
 
-    async enroll(domain: string) {
+    async enroll(domain: string, authContext: AuthWalletKeysType) {
         let res = await (async () => {
             //
             // Create domain key if needed
             //
 
-            let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain);
+            let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain, authContext);
             if (!created) {
                 return false;
             }

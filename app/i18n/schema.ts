@@ -46,7 +46,8 @@ export type LocalizationSchema = {
         connect: string,
         gotIt: string,
         error: string,
-        wallet: string
+        wallet: string,
+        later: string
     },
     syncStatus: {
         connecting: string,
@@ -547,6 +548,20 @@ export type LocalizationSchema = {
         unblockConfirm: string,
         blockConfirm: string,
         description: string
+    },
+    security: {
+        title: string,
+        passcodeSettings: {
+            setupTitle: string,
+            confirmTitle: string,
+            changeTitle: string,
+            error: string,
+            tryAgain: string,
+            success: string,
+            enterNew: string,
+            confirmNew: string,
+            enterCurrent: string,
+        }
     },
     report: {
         title: string,

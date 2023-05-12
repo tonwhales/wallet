@@ -31,6 +31,12 @@ export class SettingsProduct {
             dangerouslyAllowMutability: true
         });
 
+        this.#passcodeState = atom<PasscodeState | null>({
+            key: 'settings/passcode-state',
+            default: (storage.getString(passcodeStateKey) as PasscodeState) ?? null,
+            dangerouslyAllowMutability: true
+        });
+
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',
             get: ({ get }) => {

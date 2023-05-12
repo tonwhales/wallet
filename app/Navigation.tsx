@@ -22,7 +22,6 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EngineContext } from './engine/Engine';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -56,12 +55,14 @@ import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGr
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
-import { ZenPayEnrollmentFragment } from './fragments/zenpay/ZenPayEnrollmentFragment';
 import { ZenPayLandingFragment } from './fragments/zenpay/ZenPayLandingFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
+import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetupFragment';
+import { SecurityFragment } from './fragments/SecurityFragment';
+import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 
@@ -177,7 +178,6 @@ const navigation = [
     modalScreen('Contacts', ContactsFragment),
     modalScreen('Ledger', LedgerRoot),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
-    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment),
     modalScreen('ZenPayLanding', ZenPayLandingFragment),
     lockedModalScreen('ZenPay', ZenPayAppFragment),
     modalScreen('Assets', AssetsFragment),
@@ -192,11 +192,13 @@ const navigation = [
         name={'ConnectApp'}
         component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
-    />
+    />,
+    modalScreen('Security', SecurityFragment),
+    modalScreen('PasscodeSetup', PasscodeSetupFragment),
+    modalScreen('PasscodeChange', PasscodeChangeFragment)
 ];
 
 export const Navigation = React.memo(() => {
-    const safeArea = useSafeAreaInsets();
     const { AppConfig, NavigationTheme } = useAppConfig();
 
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));

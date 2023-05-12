@@ -5,6 +5,7 @@ import { Context } from 'react-native-portalize/lib/Host';
 import { useTrackScreen } from './analytics/mixpanel';
 import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from './utils/AppConfigContext';
+import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
 
 export function systemFragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?: boolean): React.ComponentType<T> {
     return React.memo((props) => {
@@ -19,17 +20,21 @@ export function systemFragment<T = {}>(Component: React.ComponentType<T>, doNotT
 
         if (ctx) {
             return (
-                <GlobalLoaderProvider>
-                    <Component {...props} />
-                </GlobalLoaderProvider>
+                <AuthWalletKeysContextProvider>
+                    <GlobalLoaderProvider>
+                        <Component {...props} />
+                    </GlobalLoaderProvider>
+                </AuthWalletKeysContextProvider>
             );
         }
         return (
-            <GlobalLoaderProvider>
-                <Host>
-                    <Component {...props} />
-                </Host>
-            </GlobalLoaderProvider>
+            <AuthWalletKeysContextProvider>
+                <GlobalLoaderProvider>
+                    <Host>
+                        <Component {...props} />
+                    </Host>
+                </GlobalLoaderProvider>
+            </AuthWalletKeysContextProvider>
         );
     });
 }

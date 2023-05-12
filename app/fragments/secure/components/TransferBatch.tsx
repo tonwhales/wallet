@@ -17,7 +17,7 @@ import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
-import { loadWalletKeys, WalletKeys } from "../../../storage/walletKeys";
+import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -37,6 +37,7 @@ import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 
 type Props = {
     text: string | null,
@@ -67,6 +68,7 @@ type Props = {
 }
 
 export const TransferBatch = React.memo((props: Props) => {
+    const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -272,7 +274,7 @@ export const TransferBatch = React.memo((props: Props) => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            walletKeys = await authContext.authenticate();
         } catch (e) {
             return;
         }

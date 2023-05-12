@@ -4,16 +4,16 @@ import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { loadWalletKeys } from '../../storage/walletKeys';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
-import { EngineContext, useEngine } from '../../engine/Engine';
+import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { PasscodeState } from '../../storage/secureStorage';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -25,6 +25,7 @@ export const WalletBackupFragment = systemFragment(() => {
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
     const engine = useEngine();
+    const authContext = useKeysAuth();
     const settings = engine.products.settings;
     const passcodeState = settings.usePasscodeState();
     const onComplete = React.useCallback(() => {
@@ -50,7 +51,7 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await loadWalletKeys(address.secretKeyEnc);
+                let keys = await authContext.authenticate();
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 console.warn(e);

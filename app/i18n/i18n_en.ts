@@ -44,6 +44,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',
+        later: 'Later',
     },
     syncStatus: {
         connecting: 'Connecting',

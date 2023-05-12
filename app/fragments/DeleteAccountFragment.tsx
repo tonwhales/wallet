@@ -20,7 +20,7 @@ import { t } from "../i18n/t";
 import { KnownWallets } from "../secure/KnownWallets";
 import { getCurrentAddress } from "../storage/appState";
 import { storage } from "../storage/storage";
-import { loadWalletKeys, WalletKeys } from "../storage/walletKeys";
+import { WalletKeys } from "../storage/walletKeys";
 import { useReboot } from "../utils/RebootContext";
 import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
@@ -28,6 +28,7 @@ import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
 import { clearZenPay } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
+import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -38,6 +39,7 @@ export const DeleteAccountFragment = fragment(() => {
     );
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const authContext = useKeysAuth();
     const reboot = useReboot();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -138,7 +140,7 @@ export const DeleteAccountFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                key = await loadWalletKeys(addr.secretKeyEnc);
+                key = await await authContext.authenticate();
             } catch (e) {
                 setStatus(undefined);
                 navigation.goBack();

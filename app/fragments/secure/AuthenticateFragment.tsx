@@ -13,7 +13,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { beginCell, Cell, safeSign } from 'ton';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
 import SuccessIcon from '../../../assets/ic_success.svg';
@@ -30,6 +30,7 @@ import Url from 'url-parse';
 import isValid from 'is-valid-domain';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -46,6 +47,7 @@ type SignState = { type: 'loading' }
 
 const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
     const { Theme, AppConfig } = useAppConfig();
+    const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
@@ -115,7 +117,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         // Sign
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            walletKeys = await authContext.authenticate();
         } catch (e) {
             warn('Failed to load wallet keys');
             return;
@@ -228,7 +230,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
 
             // Create domain key if needed
             let domain = extractDomain(endpoint);
-            await engine.products.keys.createDomainKeyIfNeeded(domain, walletKeys); // Always succeeds
+            await engine.products.keys.createDomainKeyIfNeeded(domain, authContext, walletKeys); // Always succeeds
 
             // Add extension
             engine.products.extensions.addExtension(

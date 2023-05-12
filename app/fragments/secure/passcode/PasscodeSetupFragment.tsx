@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useCallback } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native"
+import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/secure/PasscodeSetup";
@@ -51,7 +51,7 @@ export const PasscodeSetupFragment = fragment(() => {
                 : undefined,
         }}>
             <StatusBar style={(Platform.OS === 'ios' && !initial) ? 'light' : 'dark'} />
-            <PasscodeSetup onReady={onPasscodeConfirmed} />
+            <PasscodeSetup initial={initial} onReady={onPasscodeConfirmed} />
             {Platform.OS === 'ios' && !initial && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

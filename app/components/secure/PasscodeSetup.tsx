@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useReducer } from "react";
-import { Platform, View, Text, ActivityIndicator } from "react-native";
+import { Platform, View, Text, Pressable } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AndroidToolbar } from "../AndroidToolbar";
 import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { useEngine } from "../../engine/Engine";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -46,8 +47,10 @@ function reduceSteps() {
     };
 }
 
-export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string) => Promise<void> }) => {
+export const PasscodeSetup = React.memo(({ onReady, initial }: { onReady?: (pass: string) => Promise<void>, initial?: boolean }) => {
     const navigation = useTypedNavigation();
+    const engine = useEngine();
+    const { Theme } = useAppConfig();
     const onSuccess = useCallback(async (pass: string) => {
         if (onReady) {
             await onReady(pass);
@@ -69,9 +72,16 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
         }
     }, [state.step, state.input, onSuccess]);
 
+    const onLater = useCallback(() => {
+        if (engine && !engine.ready) {
+            navigation.navigateAndReplaceAll('Sync');
+        } else {
+            navigation.navigateAndReplaceAll('Home');
+        }
+    }, [engine]);
+
     return (
         <View style={{ flexGrow: 1 }}>
-            <AndroidToolbar />
             <View style={{
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -134,6 +144,26 @@ export const PasscodeSetup = React.memo(({ onReady }: { onReady?: (pass: string)
 
                         }}
                     />
+                )}
+
+                {state.step === 'input' && !!initial && (
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                position: 'absolute', top: 24, left: 16,
+                                opacity: pressed ? 0.5 : 1,
+                            }
+                        }}
+                        onPress={onLater}
+                    >
+                        <Text style={{
+                            color: Theme.accent,
+                            fontSize: 17,
+                            fontWeight: '500',
+                        }}>
+                            {t('common.later')}
+                        </Text>
+                    </Pressable>
                 )}
             </View>
         </View>

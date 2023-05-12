@@ -1,7 +1,7 @@
 import { beginCell, safeSign } from "ton";
 import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
 import { getCurrentAddress } from "../../storage/appState";
-import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
+import { WalletKeys } from "../../storage/walletKeys";
 import { warn } from "../../utils/log";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
@@ -35,7 +35,7 @@ export class KeysProduct {
             walletKeys = keys;
         } else {
             try {
-                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                walletKeys = await authContext.authenticate();
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return false;

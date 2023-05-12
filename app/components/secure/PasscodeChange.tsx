@@ -61,7 +61,7 @@ export const PasscodeChange = React.memo(() => {
                     entering={SlideInRight}
                 >
                     <PasscodeInput
-                        title={t('security.passcodeSettings.enterCurrent')}
+                        title={t('security.passcodeSettings.enterPrevious')}
                         onEntered={async (pass) => {
                             if (!pass) {
                                 throw new Error('Passcode is required');

@@ -559,6 +559,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             enterNew: 'Enter new PIN code',
             confirmNew: 'Confirm new PIN code',
             enterCurrent: 'Enter your PIN code',
+            enterPrevious: 'Enter your previous PIN code',
         }
     },
     report: {

@@ -7,7 +7,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { AndroidToolbar } from '../../components/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { activateKeepAwake, activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
@@ -21,6 +21,7 @@ export const WalletBackupFragment = systemFragment(() => {
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
+    const init = route.name === 'WalletBackupInit';
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
@@ -37,7 +38,7 @@ export const WalletBackupFragment = systemFragment(() => {
         if (back) {
             navigation.goBack();
         } else {
-            if (passcodeState !== PasscodeState.Set) {
+            if (passcodeState !== PasscodeState.Set && init) {
                 navigation.navigateAndReplaceAll('PasscodeSetup', { initial: true });
                 return;
             }

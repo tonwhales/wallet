@@ -66,7 +66,11 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 : undefined,
         }}>
             <StatusBar style={(Platform.OS === 'ios' && !initial && !afterImport) ? 'light' : 'dark'} />
-            <PasscodeSetup initial={initial} onReady={onPasscodeConfirmed} />
+            <PasscodeSetup
+                initial={initial}
+                afterImport={afterImport}
+                onReady={onPasscodeConfirmed}
+            />
             {Platform.OS === 'ios' && !initial && !afterImport && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

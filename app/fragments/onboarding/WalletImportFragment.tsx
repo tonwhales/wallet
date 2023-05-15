@@ -17,6 +17,7 @@ import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useParams } from '../../utils/useParams';
 
 const wordsTrie = WordsListTrie();
 
@@ -407,6 +408,7 @@ export const WalletImportFragment = systemFragment(() => {
         mnemonics: string,
         deviceEncryption: DeviceEncryption
     } | null>(null);
+    const { newAccount } = useParams<{newAccount?: boolean}>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 

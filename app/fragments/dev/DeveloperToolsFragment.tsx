@@ -12,6 +12,7 @@ import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -49,6 +50,8 @@ export const DeveloperToolsFragment = fragment(() => {
         [AppConfig.isTestnet],
     );
 
+    const acc = engine.address
+
     return (
         <View style={{
             flex: 1,
@@ -56,7 +59,7 @@ export const DeveloperToolsFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+            <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: Theme.item,
@@ -87,7 +90,18 @@ export const DeveloperToolsFragment = fragment(() => {
                             </View>
                         )}
                 </View>
-            </View>
+                <View style={{
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+
+                </View>
+            </ScrollView>
         </View>
     );
 });

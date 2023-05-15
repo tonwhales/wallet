@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { CloseButton } from "../../components/CloseButton";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { fromNano } from "ton";
 import BN from "bn.js";

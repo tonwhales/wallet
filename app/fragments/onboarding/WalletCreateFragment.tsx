@@ -6,7 +6,7 @@ import { WalletSecureFragment } from './WalletSecureFragment';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';

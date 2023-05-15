@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Image, Platform, Pressable, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CheckBox } from "../../components/CheckBox";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { RoundButton } from "../../components/RoundButton";

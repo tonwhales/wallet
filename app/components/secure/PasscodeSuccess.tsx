@@ -16,7 +16,7 @@ export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string
 
     return (
         <Animated.View
-            style={{ justifyContent: 'center', alignItems: 'center' }}
+            style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
             exiting={SlideOutLeft}
             entering={SlideInRight}
         >

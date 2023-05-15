@@ -76,7 +76,11 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                 }
 
                 // Navigate next
-                navigation.navigateAndReplaceAll('PasscodeSetup', { afterImport: true });
+                if (props.import) {
+                    navigation.navigateAndReplaceAll('PasscodeSetup', { afterImport: true });
+                } else {
+                    reboot();
+                }
             } catch (e) {
                 warn(e);
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));

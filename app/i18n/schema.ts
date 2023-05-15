@@ -283,6 +283,8 @@ export type LocalizationSchema = {
                 moreAboutEPN: string,
                 lockups: string,
                 lockupsDescription: string,
+                tonkeeper: string,
+                tonkeeperDescription: string,
             },
             transfer: {
                 stakingWarning: string,

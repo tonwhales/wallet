@@ -272,6 +272,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 moreAboutEPN: 'Узнать больше о ePN',
                 lockups: 'Локапы',
                 lockupsDescription: 'Позволяет владельцам крупных локапов в TON получать дополнительный доход',
+                tonkeeper: 'Tonkeeper',
+                tonkeeperDescription: 'Дружественный мобильный кошелек на TON',
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',

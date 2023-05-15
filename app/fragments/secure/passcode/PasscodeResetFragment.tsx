@@ -1,12 +1,11 @@
-import { KeyboardAvoidingView, Platform, View, Text, InputAccessoryView, Alert } from "react-native"
+import { Platform, View, Text, InputAccessoryView, Alert } from "react-native"
 import { fragment } from "../../../fragment"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { CloseButton } from "../../../components/CloseButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { AndroidToolbar } from "../../../components/AndroidToolbar";
 import { t } from "../../../i18n/t";
-import React, { useState } from "react";
+import React from "react";
 import { WordInput, WordInputRef, normalize, wordsTrie } from "../../onboarding/WalletImportFragment";
 import Animated, { measure, runOnUI, scrollTo, useAnimatedRef, useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
 import { RoundButton } from "../../../components/RoundButton";
@@ -15,13 +14,17 @@ import { DeviceEncryption, getDeviceEncryption } from "../../../storage/getDevic
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeyboard } from "@react-native-community/hooks";
 import { mnemonicValidate } from "ton-crypto";
-import { PasscodeSetup } from "../../../components/secure/PasscodeSetup";
 import { loadWalletKeys } from "../../../storage/walletKeys";
 import { getCurrentAddress } from "../../../storage/appState";
+import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
+import { SeedInput } from "../../../components/SeedInput";
+import { useEngine } from "../../../engine/Engine";
+import { PasscodeState, passcodeEncKey, passcodeSaltKey } from "../../../storage/secureStorage";
+import { storage } from "../../../storage/storage";
 
 function WalletWordsComponent(props: {
     onComplete: (v: {
-        mnemonics: string,
+        mnemonics: string[],
         deviceEncryption: DeviceEncryption
     }) => void
 }) {
@@ -31,18 +34,19 @@ function WalletWordsComponent(props: {
 
     // References to all fields
     const animatedRefs: React.RefObject<View>[] = [];
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 25; i++) {
         animatedRefs.push(useAnimatedRef());
     }
     const refs = React.useMemo(() => {
         let r: React.RefObject<WordInputRef>[] = [];
-        for (let i = 0; i < 24; i++) {
+        for (let i = 0; i < 25; i++) {
             r.push(React.createRef());
         }
         return r;
     }, []);
 
     // Words and suggestions
+    const [fullSeed, setFullSeed] = React.useState('');
     const [words, setWords] = React.useState<string[]>([
         '', '', '', '', '', '', '', '',
         '', '', '', '', '', '', '', '',
@@ -50,6 +54,9 @@ function WalletWordsComponent(props: {
     ]);
     const [selectedWord, setSelectedWord] = React.useState(0);
     const suggestions = React.useMemo(() => {
+        if (selectedWord === 24) {
+            return [];
+        }
         let w = normalize(words[selectedWord]);
         return (w.length > 0)
             ? wordsTrie.find(w)
@@ -59,6 +66,17 @@ function WalletWordsComponent(props: {
     // Submit Callback (does not re-create during re-render)
     const wordsRef = React.useRef(words);
     const onSubmitEnd = React.useCallback(async () => {
+        if (fullSeed.length !== 0) {
+            const fullSeedWords = fullSeed.split(' ').map((v) => v.toLowerCase().trim());
+            const isValidFull = await mnemonicValidate(fullSeedWords);
+            if (!isValidFull) {
+                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                return;
+            }
+            const deviceEncryption = await getDeviceEncryption();
+            props.onComplete({ mnemonics: fullSeedWords, deviceEncryption });
+            return;
+        }
         let wordsLocal = wordsRef.current;
         let normalized = wordsLocal.map((v) => v.toLowerCase().trim());
         let isValid = await mnemonicValidate(normalized);
@@ -67,8 +85,8 @@ function WalletWordsComponent(props: {
             return;
         }
         const deviceEncryption = await getDeviceEncryption();
-        props.onComplete({ mnemonics: normalized.join(' '), deviceEncryption });
-    }, []);
+        props.onComplete({ mnemonics: normalized, deviceEncryption });
+    }, [fullSeed]);
 
     //
     // Scroll state tracking
@@ -139,6 +157,14 @@ function WalletWordsComponent(props: {
     const onFocus = React.useCallback((index: number) => {
         runOnUI(scrollToInput)(index);
         setSelectedWord(index);
+    }, []);
+
+    const onSeedFocus = React.useCallback(() => {
+        runOnUI(scrollToInput)(24);
+        setTimeout(() => {
+            setSelectedWord(24);
+        }, 600); // Wait for scroll animation to finish (hacky), 
+        // so wierd bug with scrolling to bottom inputs starting from 20th
     }, []);
 
     const onSetValue = React.useCallback((index: number, value: string) => {
@@ -215,7 +241,7 @@ function WalletWordsComponent(props: {
                         fontWeight: '400', fontSize: 16,
                         color: 'rgba(109, 109, 113, 1)'
                     }}>
-                        {t('security.passcodeSettings.resetDescription')}
+                        {t('import.subtitle')}
                     </Text>
                     <View style={{
                         backgroundColor: Theme.item,
@@ -224,8 +250,40 @@ function WalletWordsComponent(props: {
                     }}>
                         {wordComponents}
                     </View>
+                    <Text style={{
+                        alignSelf: 'center', textAlign: 'center',
+                        marginVertical: 16,
+                        marginHorizontal: 16,
+                        fontWeight: '400', fontSize: 16,
+                        color: 'rgba(109, 109, 113, 1)'
+                    }}>
+                        {t('import.fullSeedPaste')}
+                    </Text>
+                    <View style={{
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        width: '100%',
+                    }}>
+                        <SeedInput
+                            value={fullSeed}
+                            ref={refs[24]}
+                            innerRef={animatedRefs[24]}
+                            onFocus={onSeedFocus}
+                            setValue={setFullSeed}
+                            onSubmit={async (value: string) => {
+                                const fullSeedWords = value.split(' ').map((v) => v.toLowerCase().trim());
+                                const isValidFull = await mnemonicValidate(fullSeedWords);
+                                if (!isValidFull) {
+                                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                                    return;
+                                }
+                                const deviceEncryption = await getDeviceEncryption();
+                                props.onComplete({ mnemonics: fullSeedWords, deviceEncryption });
+                            }}
+                        />
+                    </View>
                     <RoundButton
-                        title={t('security.passcodeSettings.resetAction')}
+                        title={t('common.continue')}
                         action={onSubmitEnd}
                         style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
                     />
@@ -258,18 +316,23 @@ export const PasscodeResetFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const acc = getCurrentAddress();
+    const engine = useEngine();
+    const settings = engine?.products?.settings;
 
     const onWordsComplete = React.useCallback(async (v: {
-        mnemonics: string,
+        mnemonics: string[],
         deviceEncryption: DeviceEncryption
     }) => {
         const walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-        if (walletKeys.mnemonics !== v.mnemonics.split('')) {
+        if (walletKeys.mnemonics.join() !== v.mnemonics.join()) {
             Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
             return;
         }
         navigation.goBack();
-        navigation.navigate('PasscodeSetup'); 
+        storage.delete(passcodeSaltKey);
+        storage.delete(passcodeEncKey);
+        settings?.setPasscodeState(PasscodeState.NotSet)
+        navigation.navigate('PasscodeSetup');
     }, []);
 
     return (

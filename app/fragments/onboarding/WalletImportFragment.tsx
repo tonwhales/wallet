@@ -25,12 +25,11 @@ export type WordInputRef = {
     focus: () => void;
 }
 
-function normalize(src: string) {
-    if (!src) return '';
+export function normalize(src: string) {
     return src.trim().toLocaleLowerCase();
 }
 
-const WordInput = React.memo(React.forwardRef((props: {
+export const WordInput = React.memo(React.forwardRef((props: {
     index: number,
     value: string,
     autoFocus?: boolean,

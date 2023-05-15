@@ -55,5 +55,13 @@ export const KnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } 
             name: 'ePN Partners #2',
             requireSource: require('../../assets/known/ic_epn_2.png')
         },
+        [Address.parse('EQAA_5_dizuA1w6OpzTSYvXhvUwYTDNTW_MZDdZ0CGKeeper').toFriendly({ testOnly: isTestnet })]: {
+            name: 'Tonkeeper #1',
+            requireSource: require('../../assets/known/ic_tonkeeper_1.png')
+        },
+        [Address.parse('EQDvvBmP3wUcjoXPY1jHfT4-fgb294imVYH5EHdLnAKeeper').toFriendly({ testOnly: isTestnet })]: {
+            name: 'Tonkeeper #2',
+            requireSource: require('../../assets/known/ic_tonkeeper_2.png')
+        },
     }
 }

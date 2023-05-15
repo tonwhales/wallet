@@ -2,7 +2,7 @@ import React from "react";
 import { Platform, View } from "react-native";
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { systemFragment } from "../../systemFragment";
 
 export const TermsFragment = systemFragment(() => {

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, fromNano, toNano } from "ton";
-import { AndroidToolbar } from "../components/AndroidToolbar";
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CheckBox } from "../components/CheckBox";
 import { CloseButton } from "../components/CloseButton";

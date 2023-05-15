@@ -7,7 +7,7 @@ import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
@@ -17,6 +17,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
+    const engine = useEngine();
+    
     const reboot = useReboot();
     const restart = React.useCallback(() => {
         // TODO: Implement
@@ -26,8 +28,6 @@ export const DeveloperToolsFragment = fragment(() => {
         clearZenPay(engine);
         reboot();
     }, []);
-
-    const engine = useEngine();
 
     const switchNetwork = React.useCallback(
         () => {

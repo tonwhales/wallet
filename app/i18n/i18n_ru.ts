@@ -274,6 +274,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 moreAboutEPN: 'Узнать больше о ePN',
                 lockups: 'Локапы',
                 lockupsDescription: 'Позволяет владельцам крупных локапов в TON получать дополнительный доход',
+                tonkeeper: 'Tonkeeper',
+                tonkeeperDescription: 'Дружественный мобильный кошелек на TON',
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
@@ -439,7 +441,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     import: {
         title: '24 Секретных слова',
-        subtitle: 'Пожалуйста, восстановите доступ к вашему кошельку, введя 24 секретных слова, которые вы записали при создании кошелька.'
+        subtitle: 'Пожалуйста, восстановите доступ к вашему кошельку, введя 24 секретных слова, которые вы записали при создании кошелька.',
+        fullSeedPlaceholder: 'Введите 24 секретных слова',
+        fullSeedPaste: 'Или вы можете вставить всю сид фразу сразу в поле ниже, где каждое слово разделено пробелом'
     },
     secure: {
         title: 'Защитите свой кошелек',
@@ -624,50 +628,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             transaction: 'TON транзакция',
         }
     },
-    hardwareWallet: {
-        ledger: 'Ledger',
-        title: 'Аппаратный кошелёк',
-        description: 'Ваш аппаратный Ledger кошелёк',
-        installationIOS: 'Вам понадобится Ledger с bluetooth (модель Nano X) и установленное на устройстве приложение Ton App',
-        installationAndroid: 'Вам понадобится модель Ledger Nano X (для подключения через Bluetooth и USB) или модель Nano S (только USB) и установленное на устройстве приложение Ton App',
-        installationGuide: 'Руководство по установке приложения Ton App',
-        connectionDescriptionAndroid: 'Подключите ваш Ledger через USB или Bluetooth',
-        connectionDescriptionIOS: 'Подключите ваш Ledger через Bluetooth',
-        connectionHIDDescription_1: '1. Включите устройство и разблокируйте его',
-        connectionHIDDescription_2: '2. Нажмите \"Продолжить\"',
-        chooseAccountDescription: 'Откройте приложение Ton App на вашем Ledger, затем выберите аккаунт, который вы хотите использовать',
-        bluetoothScanDescription_1: '1. Включите устройство и разблокируйте его',
-        bluetoothScanDescription_2: '2. Убедитесь, что bluetooth включен',
-        bluetoothScanDescription_3: '3. Нажмите \"Начать поиск\" для поиска доступных устройств и выберите подходящий Ledger Nano X',
-        openAppVerifyAddress: 'Проверьте адрес счета, который вы выбрали, а затем подтвердите адрес с помощью приложения Ton App на Ledger, когда появится запрос',
-        devices: 'Устройства',
-        actions: {
-            connect: 'Подключить Ledger',
-            selectAccount: 'Выбрать аккаунт',
-            account: 'Аккаунт #{{account}}',
-            loadAddress: 'Подтвердить адрес',
-            connectHid: 'Подключить через USB',
-            connectBluetooth: 'Подключить через Bluetooth',
-            scanBluetooth: 'Начать поиск',
-            confirmOnLedger: 'Подтвердите на Ledger',
-            sending: 'Ожидание транзакции',
-            sent: 'Транзакция отправлена',
-            mainAddress: 'Основной адрес',
-        },
-        confirm: {
-            add: 'Вы уверены, что хотите добавить это приложение?',
-            remove: 'Вы уверены что хотите удалить это приложение?'   
-        },
-        errors: {
-            noDevice: 'Устройство не найдено',
-            appNotOpen: 'Приложение Ton App не открыто на вашем Ledger',
-            turnOnBluetooth: 'Пожалуйста, включите Bluetooth и попробуйте снова',
-            lostConnection: 'Потеряно соединение с устройством',
-            transactionNotFound: 'Транзакция не найдена',
-            transactionRejected: 'Транзакция отклонена',
-            transferFailed: 'Ошибка отправки транзакции',
-        },
-        moreAbout: 'Подробнее о Ledger'
+    devTools: {
+        switchNetwork: 'Сеть',
+        switchNetworkAlertTitle: 'Переключить на {{network}} сеть',
+        switchNetworkAlertMessage: 'Вы уверены что хотите переключить сеть?',
+        switchNetworkAlertAction: 'Переключить',
+        copySeed: 'Скопировать сид фразу из 24 слов',
+        copySeedAlertTitle: 'Скопировать сид фразу из 24 слов',
+        copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
+        copySeedAlertAction: 'Скопировать',
     }
 };
 

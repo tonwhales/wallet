@@ -17,6 +17,7 @@ import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { warn } from '../../utils/log';
 
 const wordsTrie = WordsListTrie();
 
@@ -102,16 +103,24 @@ const WordInput = React.memo(React.forwardRef((props: {
         // Check if value is invalid - shake and DO NOT forward onSubmit
         const normalized = normalize(props.value.trim());
 
-        if (props.index === 0 && (normalized.split(' ').length === 24)) {
-            const fullSeedWords = normalized.split(' ').map((v) => v.toLowerCase().trim());
-            const isValidFull = await mnemonicValidate(fullSeedWords);
-            if (!isValidFull) {
-                doShake();
-                setIsWrong(true);
-                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+        try {
+            if (props.index === 0 && normalized.split(' ').length === 24) {
+                const fullSeedWords = normalized.split(' ').map((v) => normalize(v));
+                const isValidFull = await mnemonicValidate(fullSeedWords);
+                if (!isValidFull) {
+                    doShake();
+                    setIsWrong(true);
+                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                    return;
+                }
+                props.onSubmit(props.index, normalized);
                 return;
             }
-            props.onSubmit(props.index, normalized);
+        } catch (e) {
+            warn('Failed to validate mnemonics');
+            doShake();
+            setIsWrong(true);
+            Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
             return;
         }
 
@@ -341,15 +350,21 @@ function WalletWordsComponent(props: {
     }, []);
 
     const onSubmit = React.useCallback(async (index: number, value: string) => {
-        if (index === 0 && (value.split(' ').length === 24)) {
-            const fullSeedWords = value.split(' ').map((v) => v.toLowerCase().trim());
-            const isValidFull = await mnemonicValidate(fullSeedWords);
-            if (!isValidFull) {
-                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+        try {
+            if (index === 0 && (value.split(' ').length === 24)) {
+                const fullSeedWords = value.split(' ').map((v) => normalize(v));
+                const isValidFull = await mnemonicValidate(fullSeedWords);
+                if (!isValidFull) {
+                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                    return;
+                }
+                const deviceEncryption = await getDeviceEncryption();
+                props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
                 return;
             }
-            const deviceEncryption = await getDeviceEncryption();
-            props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
+        } catch (e) {
+            warn('Failed to validate mnemonics');
+            Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
             return;
         }
         let r = [...wordsRef.current];

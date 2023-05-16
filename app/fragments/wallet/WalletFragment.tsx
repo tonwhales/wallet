@@ -26,6 +26,7 @@ import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { WalletCard } from '../../components/card/WalletCard';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -66,7 +67,6 @@ function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const syncState = engine.state.use();
@@ -173,16 +173,6 @@ function WalletComponent(props: { wallet: WalletState }) {
         [],
     );
 
-    const openGraph = React.useCallback(() => {
-        if (balanceChart && balanceChart.chart.length > 0) {
-            navigation.navigate('AccountBalanceGraph');
-        }
-    }, [account]);
-
-    const navigateToCurrencySettings = React.useCallback(() => {
-        navigation.navigate('Currency');
-    }, []);
-
     React.useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [account.pending.length]);
@@ -203,128 +193,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 removeClippedSubviews={true}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-                <View
-                    style={[
-                        {
-                            marginHorizontal: 16, marginVertical: 16,
-                            height: cardHeight,
-                        }
-                    ]}
-                    collapsable={false}
-                >
-                    <Image
-                        source={require('../../../assets/wallet_card.png')}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: cardHeight,
-                            width: window.width - 32
-                        }}
-                        resizeMode="stretch"
-                        resizeMethod="resize"
-                    />
-                    {/* Sync state */}
-                    <View style={{
-                        flexDirection: 'row',
-                        marginTop: 16, marginLeft: 22,
-                        alignItems: 'center'
-                    }}>
-                        {syncState === 'online' && (
-                            <View style={{
-                                marginRight: 4,
-                                height: 8, width: 8,
-                                borderRadius: 4,
-                                backgroundColor: Theme.success
-                            }} />
-                        )}
-                        {syncState !== 'online' && (
-                            <CircularProgress
-                                style={{
-                                    transform: [{ rotate: '-90deg' }],
-                                    marginRight: 4
-                                }}
-                                progress={100}
-                                animateFromValue={0}
-                                duration={6000}
-                                size={12}
-                                width={2}
-                                color={'#FFFFFF'}
-                                backgroundColor={'#596080'}
-                                fullColor={null}
-                                loop={true}
-                                containerColor={Theme.transparent}
-                            />
-                        )}
-                        <Text style={{
-                            fontSize: 14, fontWeight: '400',
-                            color: syncState === 'online' ? Theme.success : '#A2A5B2'
-                        }}>
-                            {t(`syncStatus.${syncState}`)}
-                        </Text>
-                    </View>
-
-                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: (pressed && balanceChart && balanceChart.chart.length > 0) ? 0.3 : 1,
-                                    marginLeft: 22,
-                                    flexDirection: 'row', alignItems: 'center'
-                                };
-                            }}
-                            onPress={openGraph}
-                        >
-                            <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
-                                <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
-                            </Text>
-                            {account?.balance.gt(new BN(0)) && <GraphIcon />}
-                        </Pressable>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.3 : 1,
-                                }
-                            }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <PriceComponent amount={account.balance} />
-                        </Pressable>
-                        <Pressable style={({ pressed }) => {
-                            return {
-                                marginLeft: 8,
-                                opacity: pressed ? 0.3 : 1
-                            }
-                        }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <ExchangeRate />
-                        </Pressable>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={address}
-                        elipsise
-                        style={{
-                            marginLeft: 22,
-                            marginBottom: 24,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: 'white',
-                            fontWeight: '500',
-                            fontFamily: undefined
-                        }}
-                        lockActions
-                    />
-                </View>
+                <WalletCard main address={address} balance={account.balance} />
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     {

@@ -17,7 +17,6 @@ import { mnemonicValidate } from "ton-crypto";
 import { loadWalletKeys } from "../../../storage/walletKeys";
 import { getCurrentAddress } from "../../../storage/appState";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
-import { SeedInput } from "../../../components/SeedInput";
 import { useEngine } from "../../../engine/Engine";
 import { PasscodeState, passcodeEncKey, passcodeSaltKey } from "../../../storage/secureStorage";
 import { storage } from "../../../storage/storage";
@@ -249,38 +248,6 @@ function WalletWordsComponent(props: {
                         width: '100%',
                     }}>
                         {wordComponents}
-                    </View>
-                    <Text style={{
-                        alignSelf: 'center', textAlign: 'center',
-                        marginVertical: 16,
-                        marginHorizontal: 16,
-                        fontWeight: '400', fontSize: 16,
-                        color: 'rgba(109, 109, 113, 1)'
-                    }}>
-                        {t('import.fullSeedPaste')}
-                    </Text>
-                    <View style={{
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        width: '100%',
-                    }}>
-                        <SeedInput
-                            value={fullSeed}
-                            ref={refs[24]}
-                            innerRef={animatedRefs[24]}
-                            onFocus={onSeedFocus}
-                            setValue={setFullSeed}
-                            onSubmit={async (value: string) => {
-                                const fullSeedWords = value.split(' ').map((v) => v.toLowerCase().trim());
-                                const isValidFull = await mnemonicValidate(fullSeedWords);
-                                if (!isValidFull) {
-                                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
-                                    return;
-                                }
-                                const deviceEncryption = await getDeviceEncryption();
-                                props.onComplete({ mnemonics: fullSeedWords, deviceEncryption });
-                            }}
-                        />
                     </View>
                     <RoundButton
                         title={t('common.continue')}

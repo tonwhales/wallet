@@ -18,13 +18,13 @@ import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
-const wordsTrie = WordsListTrie();
+export const wordsTrie = WordsListTrie();
 
-type WordInputRef = {
+export type WordInputRef = {
     focus: () => void;
 }
 
-function normalize(src: string) {
+export function normalize(src: string) {
     return src.trim().toLocaleLowerCase();
 }
 

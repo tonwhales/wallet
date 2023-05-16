@@ -629,6 +629,51 @@ export type LocalizationSchema = {
             transaction: string
         }
     },
+    hardwareWallet: {
+        ledger: string,
+        title: string,
+        description: string,
+        installationIOS: string,
+        installationAndroid: string,
+        installationGuide: string,
+        connectionDescriptionAndroid: string,
+        connectionDescriptionIOS: string,
+        connectionHIDDescription_1: string,
+        connectionHIDDescription_2: string,
+        bluetoothScanDescription_1: string,
+        bluetoothScanDescription_2: string,
+        bluetoothScanDescription_3: string,
+        chooseAccountDescription: string,
+        openAppVerifyAddress: string,
+        devices: string,
+        actions: {
+            connect: string,
+            selectAccount: string,
+            account: string,
+            loadAddress: string,
+            connectHid: string,
+            connectBluetooth: string,
+            scanBluetooth: string,
+            confirmOnLedger: string,
+            sending: string,
+            sent: string,
+            mainAddress: string
+        },
+        confirm: {
+            add: string,
+            remove: string
+        },
+        errors: {
+            noDevice: string,
+            appNotOpen: string,
+            turnOnBluetooth: string,
+            lostConnection: string,
+            transactionNotFound: string,
+            transactionRejected: string,
+            transferFailed: string
+        },
+        moreAbout: string
+    },
     devTools: {
         switchNetwork: string,
         switchNetworkAlertTitle: string,

@@ -19,11 +19,13 @@ import { shortAddress } from "../../utils/shortAddress";
 export const WalletCard = React.memo((
     {
         address,
-        balance,
+        index,
+        total,
         selected
     }: {
         address: Address,
-        balance: BN,
+        index: number,
+        total: number,
         selected?: boolean
     }
 ) => {
@@ -33,7 +35,10 @@ export const WalletCard = React.memo((
     const navigation = useTypedNavigation();
     const syncState = engine.state.use();
     const balanceChart = engine.products.main.useAccountBalanceChart();
-    const account = engine.products.main.useAccount();
+    const wallet = engine.products.wallets.useWallet(address);
+    const balance = React.useMemo(() => {
+        return wallet?.balance ?? new BN(0);
+    }, [wallet]);
 
     const window = useWindowDimensions();
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
@@ -43,7 +48,7 @@ export const WalletCard = React.memo((
         if (balanceChart && balanceChart.chart.length > 0) {
             navigation.navigate('AccountBalanceGraph');
         }
-    }, [account]);
+    }, []);
 
     const navigateToCurrencySettings = React.useCallback(() => {
         navigation.navigate('Currency');
@@ -77,7 +82,11 @@ export const WalletCard = React.memo((
         <ScalingPressable lock={selected} onPress={onSelectAccount}>
             <View
                 style={[{
-                    marginHorizontal: 16, marginVertical: 16,
+                    marginLeft: index === 0
+                        ? 16
+                        : 10,
+                    marginRight: index === total - 1 ? 10 : 0,
+                    marginVertical: 16,
                     height: cardHeight, width: cardWidth
                 }]}
                 collapsable={false}
@@ -176,7 +185,7 @@ export const WalletCard = React.memo((
                         }}
                         onPress={navigateToCurrencySettings}
                     >
-                        <PriceComponent amount={account?.balance ?? new BN(0)} />
+                        <PriceComponent amount={balance} />
                     </Pressable>
                     <Pressable style={({ pressed }) => {
                         return {

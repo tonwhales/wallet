@@ -23,7 +23,7 @@ export const NewAccountCard = React.memo(() => {
             style={{
                 height: cardHeight,
                 width: cardWidth,
-                marginHorizontal: 16, marginVertical: 16,
+                marginRight: 16, marginVertical: 16,
                 justifyContent: 'center',
                 alignItems: 'center',
                 borderRadius: 16,

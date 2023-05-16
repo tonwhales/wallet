@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Image, LayoutAnimation, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from './views/TransactionView';
@@ -21,8 +21,8 @@ import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { WalletCard } from '../../components/card/WalletCard';
 import { useAppStateManager } from '../../engine/AppStateManager';
-import { BN } from 'bn.js';
 import { NewAccountCard } from '../../components/card/NewAccountCard';
+import { shortAddress } from '../../utils/shortAddress';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -71,15 +71,44 @@ function WalletComponent(props: { wallet: WalletState }) {
         const cursor = appStateManager.current.selected;
         const wallets = appStateManager.current.addresses.map((a, i) => {
             return {
+                id: i,
                 address: a.address,
                 selected: i === cursor,
-                balance: new BN(0)
             }
         });
         const selected = wallets.splice(cursor);
         return [...selected, ...wallets];
+        // return wallets;
 
     }, [appStateManager.current]);
+
+    const onWalletsScroll = React.useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const offset = event.nativeEvent.contentOffset.x + cardWidth + 16;
+        const index = Math.floor(offset / (window.width - 10));
+        if (index === appStateManager.current.selected) return;
+        const wallet = accounts[index];
+        if (wallet) {
+            Alert.alert(
+                t('wallets.switchToAlertTitle', { wallet: shortAddress({ address: wallet.address, isTestnet: AppConfig.isTestnet }) }),
+                t('wallets.switchToAlertMessage'),
+                [
+                    {
+                        text: t('common.cancel'),
+                        style: 'cancel',
+                    },
+                    {
+                        text: t('wallets.switchToAlertAction'),
+                        onPress: () => {
+                            appStateManager.updateAppState({
+                                ...appStateManager.current,
+                                selected: wallet.id
+                            })
+                        },
+                    }
+                ]
+            );
+        }
+    }, [accounts]);
 
     //
     // Transactions
@@ -202,27 +231,30 @@ function WalletComponent(props: { wallet: WalletState }) {
                 removeClippedSubviews={true}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-
                 <ScrollView
                     style={{
                         flexGrow: 0,
                         height: cardHeight + 32,
                     }}
                     horizontal
+                    // onScroll={onWalletsScroll}
+                    onMomentumScrollEnd={onWalletsScroll}
+                    scrollEventThrottle={32}
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ height: cardHeight + 32 }}
-                    snapToInterval={cardWidth + 32}
+                    snapToInterval={cardWidth + 16}
                     snapToAlignment='center'
-                    decelerationRate={0.8}
+                    decelerationRate={'fast'}
                     alwaysBounceHorizontal={false}
                 >
                     {accounts.map((a, i) => {
                         return (
                             <WalletCard
+                                index={i}
                                 key={a.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 selected={a.selected}
+                                total={accounts.length}
                                 address={a.address}
-                                balance={a.balance}
                             />
                         );
                     })}

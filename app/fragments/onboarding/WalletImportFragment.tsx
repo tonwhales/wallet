@@ -16,17 +16,15 @@ import { WordsListTrie } from '../../utils/wordsListTrie';
 import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { SeedInput } from '../../components/SeedInput';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
-export const wordsTrie = WordsListTrie();
+const wordsTrie = WordsListTrie();
 
-export type WordInputRef = {
+type WordInputRef = {
     focus: () => void;
 }
 
 function normalize(src: string) {
-    if (!src) return '';
     return src.trim().toLocaleLowerCase();
 }
 
@@ -93,7 +91,7 @@ const WordInput = React.memo(React.forwardRef((props: {
     }, [props.value]);
 
     // Handle submit (enter press) action
-    const onSubmit = React.useCallback(() => {
+    const onSubmit = React.useCallback(async () => {
 
         // Check if there are suggestions - replace them instead
         if (suggestions.length >= 1) {
@@ -103,6 +101,20 @@ const WordInput = React.memo(React.forwardRef((props: {
 
         // Check if value is invalid - shake and DO NOT forward onSubmit
         const normalized = normalize(props.value.trim());
+
+        if (props.index === 0 && (normalized.split(' ').length === 24)) {
+            const fullSeedWords = normalized.split(' ').map((v) => v.toLowerCase().trim());
+            const isValidFull = await mnemonicValidate(fullSeedWords);
+            if (!isValidFull) {
+                doShake();
+                setIsWrong(true);
+                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                return;
+            }
+            props.onSubmit(props.index, normalized);
+            return;
+        }
+
         if (!wordsTrie.contains(normalized)) {
             doShake();
             setIsWrong(true);
@@ -111,7 +123,7 @@ const WordInput = React.memo(React.forwardRef((props: {
 
         // Word is valid - forward onSubmit
         props.onSubmit(props.index, normalized);
-    }, [props.value, suggestions, props.onSubmit]);
+    }, [props.value, suggestions, props.onSubmit, props.index]);
 
     const onTextChange = React.useCallback((value: string) => {
         props.setValue(props.index, value);
@@ -208,19 +220,18 @@ function WalletWordsComponent(props: {
 
     // References to all fields
     const animatedRefs: React.RefObject<View>[] = [];
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 24; i++) {
         animatedRefs.push(useAnimatedRef());
     }
     const refs = React.useMemo(() => {
         let r: React.RefObject<WordInputRef>[] = [];
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 24; i++) {
             r.push(React.createRef());
         }
         return r;
     }, []);
 
     // Words and suggestions
-    const [fullSeed, setFullSeed] = React.useState('');
     const [words, setWords] = React.useState<string[]>([
         '', '', '', '', '', '', '', '',
         '', '', '', '', '', '', '', '',
@@ -228,9 +239,6 @@ function WalletWordsComponent(props: {
     ]);
     const [selectedWord, setSelectedWord] = React.useState(0);
     const suggestions = React.useMemo(() => {
-        if (selectedWord === 24) {
-            return [];
-        }
         let w = normalize(words[selectedWord]);
         return (w.length > 0)
             ? wordsTrie.find(w)
@@ -243,17 +251,6 @@ function WalletWordsComponent(props: {
     //     wordsRef.current = words;
     // }, [words]);
     const onSubmitEnd = React.useCallback(async () => {
-        if (fullSeed.length !== 0) {
-            const fullSeedWords = fullSeed.split(' ').map((v) => v.toLowerCase().trim());
-            const isValidFull = await mnemonicValidate(fullSeedWords);
-            if (!isValidFull) {
-                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
-                return;
-            }
-            const deviceEncryption = await getDeviceEncryption();
-            props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
-            return;
-        }
         let wordsLocal = wordsRef.current;
         let normalized = wordsLocal.map((v) => v.toLowerCase().trim());
         let isValid = await mnemonicValidate(normalized);
@@ -263,7 +260,7 @@ function WalletWordsComponent(props: {
         }
         const deviceEncryption = await getDeviceEncryption();
         props.onComplete({ mnemonics: normalized.join(' '), deviceEncryption });
-    }, [fullSeed]);
+    }, []);
 
     //
     // Scroll state tracking
@@ -336,14 +333,6 @@ function WalletWordsComponent(props: {
         setSelectedWord(index);
     }, []);
 
-    const onSeedFocus = React.useCallback(() => {
-        runOnUI(scrollToInput)(24);
-        setTimeout(() => {
-            setSelectedWord(24);
-        }, 600); // Wait for scroll animation to finish (hacky), 
-        // so wierd bug with scrolling to bottom inputs starting from 20th
-    }, []);
-
     const onSetValue = React.useCallback((index: number, value: string) => {
         let r = [...wordsRef.current];
         r[index] = value;
@@ -351,7 +340,18 @@ function WalletWordsComponent(props: {
         setWords(r);
     }, []);
 
-    const onSubmit = React.useCallback((index: number, value: string) => {
+    const onSubmit = React.useCallback(async (index: number, value: string) => {
+        if (index === 0 && (value.split(' ').length === 24)) {
+            const fullSeedWords = value.split(' ').map((v) => v.toLowerCase().trim());
+            const isValidFull = await mnemonicValidate(fullSeedWords);
+            if (!isValidFull) {
+                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                return;
+            }
+            const deviceEncryption = await getDeviceEncryption();
+            props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
+            return;
+        }
         let r = [...wordsRef.current];
         r[index] = value;
         wordsRef.current = r;
@@ -426,38 +426,6 @@ function WalletWordsComponent(props: {
                         width: '100%',
                     }}>
                         {wordComponents}
-                    </View>
-                    <Text style={{
-                        alignSelf: 'center', textAlign: 'center',
-                        marginVertical: 16,
-                        marginHorizontal: 16,
-                        fontWeight: '400', fontSize: 16,
-                        color: 'rgba(109, 109, 113, 1)'
-                    }}>
-                        {t('import.fullSeedPaste')}
-                    </Text>
-                    <View style={{
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        width: '100%',
-                    }}>
-                        <SeedInput
-                            value={fullSeed}
-                            ref={refs[24]}
-                            innerRef={animatedRefs[24]}
-                            onFocus={onSeedFocus}
-                            setValue={setFullSeed}
-                            onSubmit={async (value: string) => {
-                                const fullSeedWords = value.split(' ').map((v) => v.toLowerCase().trim());
-                                const isValidFull = await mnemonicValidate(fullSeedWords);
-                                if (!isValidFull) {
-                                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
-                                    return;
-                                }
-                                const deviceEncryption = await getDeviceEncryption();
-                                props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
-                            }}
-                        />
                     </View>
                     <RoundButton
                         title={t('common.continue')}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, InputAccessoryView, Platform, Text, View } from "react-native";
+import { Alert, InputAccessoryView, Platform, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { mnemonicValidate } from 'ton-crypto';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat, useAnimatedRef, useDerivedValue, measure, scrollTo, useAnimatedScrollHandler, runOnUI } from 'react-native-reanimated';
 import { WalletSecureFragment } from './WalletSecureFragment';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { WordsListTrie } from '../../utils/wordsListTrie';
@@ -17,7 +17,7 @@ import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { useParams } from '../../utils/useParams';
+import { warn } from '../../utils/log';
 
 const wordsTrie = WordsListTrie();
 
@@ -88,11 +88,11 @@ const WordInput = React.memo(React.forwardRef((props: {
     // Update wrong state on blur (should we shake in case of failure?)
     const onBlur = React.useCallback(() => {
         const normalized = normalize(props.value);
-        setIsWrong(normalized.length > 0 && wordsTrie.contains(normalized));
+        setIsWrong(normalized.length > 0 && !wordsTrie.contains(normalized));
     }, [props.value]);
 
     // Handle submit (enter press) action
-    const onSubmit = React.useCallback(() => {
+    const onSubmit = React.useCallback(async () => {
 
         // Check if there are suggestions - replace them instead
         if (suggestions.length >= 1) {
@@ -102,6 +102,28 @@ const WordInput = React.memo(React.forwardRef((props: {
 
         // Check if value is invalid - shake and DO NOT forward onSubmit
         const normalized = normalize(props.value.trim());
+
+        try {
+            if (props.index === 0 && normalized.split(' ').length === 24) {
+                const fullSeedWords = normalized.split(' ').map((v) => normalize(v));
+                const isValidFull = await mnemonicValidate(fullSeedWords);
+                if (!isValidFull) {
+                    doShake();
+                    setIsWrong(true);
+                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                    return;
+                }
+                props.onSubmit(props.index, normalized);
+                return;
+            }
+        } catch (e) {
+            warn('Failed to validate mnemonics');
+            doShake();
+            setIsWrong(true);
+            Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+            return;
+        }
+
         if (!wordsTrie.contains(normalized)) {
             doShake();
             setIsWrong(true);
@@ -110,7 +132,7 @@ const WordInput = React.memo(React.forwardRef((props: {
 
         // Word is valid - forward onSubmit
         props.onSubmit(props.index, normalized);
-    }, [props.value, suggestions, props.onSubmit]);
+    }, [props.value, suggestions, props.onSubmit, props.index]);
 
     const onTextChange = React.useCallback((value: string) => {
         props.setValue(props.index, value);
@@ -134,31 +156,62 @@ const WordInput = React.memo(React.forwardRef((props: {
                 >
                     {(props.index + 1)}.
                 </Text>
-                <TextInput
-                    ref={tref}
-                    style={{
-                        paddingVertical: 16,
-                        marginLeft: -16,
-                        paddingLeft: 26,
-                        paddingRight: 48,
-                        flexGrow: 1,
-                        fontSize: 16,
-                        color: !isWrong ? '#000' : '#FF274E'
-                    }}
-                    value={props.value}
-                    onChangeText={onTextChange}
-                    onBlur={onBlur}
-                    returnKeyType="next"
-                    autoComplete='off'
-                    autoCorrect={false}
-                    keyboardType="ascii-capable"
-                    autoCapitalize="none"
-                    onFocus={onFocus}
-                    onSubmitEditing={onSubmit}
-                    blurOnSubmit={false}
-                    inputAccessoryViewID={'suggestions'}
-                    autoFocus={props.autoFocus}
-                />
+                {Platform.OS === 'android' && (
+                    <TouchableOpacity onPress={tref.current?.focus} activeOpacity={1} >
+                        <TextInput
+                            ref={tref}
+                            style={{
+                                paddingVertical: 16,
+                                marginLeft: -16,
+                                paddingLeft: 26,
+                                paddingRight: 48,
+                                flexGrow: 1,
+                                fontSize: 16,
+                                color: !isWrong ? '#000' : '#FF274E'
+                            }}
+                            value={props.value}
+                            onChangeText={onTextChange}
+                            onBlur={onBlur}
+                            returnKeyType="next"
+                            autoComplete='off'
+                            autoCorrect={false}
+                            keyboardType="ascii-capable"
+                            autoCapitalize="none"
+                            onFocus={onFocus}
+                            onSubmitEditing={onSubmit}
+                            blurOnSubmit={false}
+                            inputAccessoryViewID={'suggestions'}
+                            autoFocus={props.autoFocus}
+                        />
+                    </TouchableOpacity>
+                )}
+                {Platform.OS !== 'android' && (
+                    <TextInput
+                        ref={tref}
+                        style={{
+                            paddingVertical: 16,
+                            marginLeft: -16,
+                            paddingLeft: 26,
+                            paddingRight: 48,
+                            flexGrow: 1,
+                            fontSize: 16,
+                            color: !isWrong ? '#000' : '#FF274E'
+                        }}
+                        value={props.value}
+                        onChangeText={onTextChange}
+                        onBlur={onBlur}
+                        returnKeyType="next"
+                        autoComplete='off'
+                        autoCorrect={false}
+                        keyboardType="ascii-capable"
+                        autoCapitalize="none"
+                        onFocus={onFocus}
+                        onSubmitEditing={onSubmit}
+                        blurOnSubmit={false}
+                        inputAccessoryViewID={'suggestions'}
+                        autoFocus={props.autoFocus}
+                    />
+                )}
             </View>
         </Animated.View>
     )
@@ -296,7 +349,24 @@ function WalletWordsComponent(props: {
         setWords(r);
     }, []);
 
-    const onSubmit = React.useCallback((index: number, value: string) => {
+    const onSubmit = React.useCallback(async (index: number, value: string) => {
+        try {
+            if (index === 0 && (value.split(' ').length === 24)) {
+                const fullSeedWords = value.split(' ').map((v) => normalize(v));
+                const isValidFull = await mnemonicValidate(fullSeedWords);
+                if (!isValidFull) {
+                    Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                    return;
+                }
+                const deviceEncryption = await getDeviceEncryption();
+                props.onComplete({ mnemonics: fullSeedWords.join(' '), deviceEncryption });
+                return;
+            }
+        } catch (e) {
+            warn('Failed to validate mnemonics');
+            Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+            return;
+        }
         let r = [...wordsRef.current];
         r[index] = value;
         wordsRef.current = r;

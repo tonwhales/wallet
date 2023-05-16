@@ -17,6 +17,7 @@ import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useParams } from '../../utils/useParams';
 import { warn } from '../../utils/log';
 
 const wordsTrie = WordsListTrie();

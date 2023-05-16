@@ -12,6 +12,8 @@ import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useAppStateManager } from '../../engine/AppStateManager';
 import { t } from '../../i18n/t';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
@@ -27,7 +29,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
-    
+
     const reboot = useReboot();
     const restart = React.useCallback(() => {
         // TODO: Implement
@@ -57,6 +59,23 @@ export const DeveloperToolsFragment = fragment(() => {
         },
         [AppConfig.isTestnet],
     );
+
+    const onAddNewAccount = React.useCallback(() => {
+        navigation.navigate('WalletImport', { newAccount: true });
+    }, []);
+
+    const onSwitchAccount = React.useCallback((selected: number) => {
+        if (
+            selected !== -1
+            && selected < appStateManager.current.addresses.length
+            && selected !== appStateManager.current.selected
+        ) {
+            appStateManager.updateAppState({
+                ...appStateManager.current,
+                selected
+            });
+        }
+    }, [appStateManager.current]);
 
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;

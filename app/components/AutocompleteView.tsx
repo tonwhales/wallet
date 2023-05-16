@@ -46,6 +46,10 @@ export const AutocompleteView = React.memo((props: {
 }) => {
     const { Theme } = useAppConfig();
 
+    if (!props.suggestions || props.suggestions.length === 0) {
+        return null;
+    }
+
     let word0: string | null = null;
     let word1: string | null = null;
     let word2: string | null = null;

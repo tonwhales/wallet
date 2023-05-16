@@ -3,6 +3,7 @@ import * as Application from 'expo-application';
 import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { getCurrentAddress, markAddressSecured } from '../storage/appState';
 
 export const isTestnetKey = 'isTestnet';
 
@@ -167,6 +168,8 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
     }
 
     const setNetwork = (isTestnet: boolean) => {
+        const addr = getCurrentAddress();
+        markAddressSecured(addr.address, isTestnet);
         storage.set(isTestnetKey, isTestnet);
         setAppConfig({
             ...AppConfig,

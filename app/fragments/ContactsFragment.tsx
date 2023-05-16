@@ -5,7 +5,7 @@ import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-rea
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { AddressDomainInput } from "../components/AddressDomainInput";
-import { AndroidToolbar } from "../components/AndroidToolbar";
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInputRef } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
@@ -148,7 +148,7 @@ export const ContactsFragment = fragment(() => {
             )}
             {(!contactsList || contactsList.length === 0) && (
                 <View style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    flex: 1,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <View style={{ alignItems: 'center', paddingHorizontal: 16, }}>

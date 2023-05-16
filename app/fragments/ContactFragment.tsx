@@ -5,7 +5,7 @@ import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, Tou
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { AndroidToolbar } from "../components/AndroidToolbar";
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput, ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
 import { CloseButton } from "../components/CloseButton";

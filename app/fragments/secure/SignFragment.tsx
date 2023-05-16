@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { beginCell, Cell, safeSign } from 'ton';
-import { AndroidToolbar } from '../../components/AndroidToolbar';
+import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';

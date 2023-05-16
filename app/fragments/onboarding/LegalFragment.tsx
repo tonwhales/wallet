@@ -2,7 +2,7 @@ import { useRoute } from "@react-navigation/native";
 import React from "react";
 import { Platform, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";

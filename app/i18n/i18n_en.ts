@@ -274,6 +274,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 moreAboutEPN: 'More about ePN',
                 lockups: 'Lockups Pool',
                 lockupsDescription: 'Allows holders of big lockups in TON to earn additional income',
+                tonkeeper: 'Tonkeeper',
+                tonkeeperDescription: 'Friendly mobile wallet on TON',
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

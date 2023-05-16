@@ -18,7 +18,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TopBar } from "../../components/topbar/TopBar";
 
-export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup';
+export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
 export function filterPools(pools: { address: Address, balance: BN }[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
     return pools.filter((v) => KnownPools(isTestnet)[v.address.toFriendly({ testOnly: isTestnet })].name.toLowerCase().includes(type) && !processed.has(v.address.toFriendly({ testOnly: isTestnet })));
@@ -235,6 +235,7 @@ export const StakingPoolsFragment = fragment(() => {
     let nominators = filterPools(pools, 'nominators', processed, AppConfig.isTestnet);
     let epn = filterPools(pools, 'epn', processed, AppConfig.isTestnet);
     let lockups = filterPools(pools, 'lockup', processed, AppConfig.isTestnet);
+    let tonkeeper = filterPools(pools, 'tonkeeper', processed, AppConfig.isTestnet);
 
     if (epn.length > 0) {
         items.push(
@@ -340,6 +341,26 @@ export const StakingPoolsFragment = fragment(() => {
             items.push(
                 <PoolComponent
                     key={`team-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
+                    address={pool.address}
+                    balance={pool.balance}
+                    engine={engine}
+                />
+            );
+        }
+    }
+
+    if (tonkeeper.length > 0) {
+        items.push(
+            <Header
+                key={'tonkeeper-header'}
+                text={t('products.staking.pools.tonkeeper')}
+                description={t('products.staking.pools.tonkeeperDescription')}
+            />
+        );
+        for (let pool of tonkeeper) {
+            items.push(
+                <PoolComponent
+                    key={`tonkeeper-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}

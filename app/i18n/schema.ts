@@ -440,7 +440,9 @@ export type LocalizationSchema = {
     },
     import: {
         title: string,
-        subtitle: string
+        subtitle: string,
+        fullSeedPlaceholder: string,
+        fullSeedPaste: string
     },
     secure: {
         title: string,
@@ -624,6 +626,16 @@ export type LocalizationSchema = {
             address: string,
             transaction: string
         }
+    },
+    devTools: {
+        switchNetwork: string,
+        switchNetworkAlertTitle: string,
+        switchNetworkAlertMessage: string,
+        switchNetworkAlertAction: string,
+        copySeed: string,
+        copySeedAlertTitle: string,
+        copySeedAlertMessage: string,
+        copySeedAlertAction: string,
     }
 };
 

@@ -635,6 +635,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copySeedAlertTitle: 'Скопировать сид фразу из 24 слов',
         copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
         copySeedAlertAction: 'Скопировать',
+    },
+    wallets: {
+        switchToAlertTitle: 'Переключить на {{wallet}} кошелек',
+        switchToAlertMessage: 'Вы уверены что хотите переключить кошелек?',
+        switchToAlertAction: 'Переключить',
+        addNewTitle: 'Импортировать новый кошелек',
+        addNewAlertTitle: 'Добавить новый кошелек',
+        addNewAlertMessage: 'Вы уверены что хотите добавить новый кошелек?',
+        addNewAlertAction: 'Добавить',
     }
 };
 

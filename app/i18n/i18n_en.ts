@@ -634,6 +634,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         copySeedAlertTitle: 'Coping 24 words seed phrase to clipboard',
         copySeedAlertMessage: 'WARNING ⚠️ Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.',
         copySeedAlertAction: 'Copy',
+    },
+    wallets: {
+        switchToAlertTitle: 'Switching to {{wallet}} wallet',
+        switchToAlertMessage: 'Are you sure you want to switch wallets?',
+        switchToAlertAction: 'Switch',
+        addNewTitle: 'Import new wallet',
+        addNewAlertTitle: 'Adding new wallet',
+        addNewAlertMessage: 'Are you sure you want to add new wallet?',
+        addNewAlertAction: 'Add',
     }
 };
 

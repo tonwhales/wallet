@@ -636,6 +636,15 @@ export type LocalizationSchema = {
         copySeedAlertTitle: string,
         copySeedAlertMessage: string,
         copySeedAlertAction: string,
+    },
+    wallets: {
+        switchToAlertTitle: string,
+        switchToAlertMessage: string,
+        switchToAlertAction: string,
+        addNewTitle: string,
+        addNewAlertTitle: string,
+        addNewAlertMessage: string,
+        addNewAlertAction: string,
     }
 };
 

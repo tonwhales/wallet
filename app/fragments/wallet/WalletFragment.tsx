@@ -1,32 +1,28 @@
 import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Image, LayoutAnimation, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TransactionView } from './views/TransactionView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import LottieView from 'lottie-react-native';
 import { ValueComponent } from '../../components/ValueComponent';
 import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
-import Animated, { Easing, FadeInUp, FadeOutDown, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeInUp, FadeOutDown, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
-import { PriceComponent } from '../../components/PriceComponent';
 import { ProductsComponent } from './products/ProductsComponent';
 import { fragment } from '../../fragment';
-import BN from 'bn.js';
-import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
-import { ExchangeRate } from '../../components/ExchangeRate';
-import GraphIcon from '../../../assets/ic_graph.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { WalletCard } from '../../components/card/WalletCard';
+import { useAppStateManager } from '../../engine/AppStateManager';
+import { BN } from 'bn.js';
+import { NewAccountCard } from '../../components/card/NewAccountCard';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -69,9 +65,21 @@ function WalletComponent(props: { wallet: WalletState }) {
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
-    const syncState = engine.state.use();
-    const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
+    const appStateManager = useAppStateManager();
+    const accounts = React.useMemo(() => {
+        const cursor = appStateManager.current.selected;
+        const wallets = appStateManager.current.addresses.map((a, i) => {
+            return {
+                address: a.address,
+                selected: i === cursor,
+                balance: new BN(0)
+            }
+        });
+        const selected = wallets.splice(cursor);
+        return [...selected, ...wallets];
+
+    }, [appStateManager.current]);
 
     //
     // Transactions
@@ -93,6 +101,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     // Animating wallet card
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
+    const cardWidth = window.width - 32;
 
     const cardOpacity = useSharedValue(1);
     const smallCardOpacity = useSharedValue(0);
@@ -193,7 +202,32 @@ function WalletComponent(props: { wallet: WalletState }) {
                 removeClippedSubviews={true}
             >
                 {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
-                <WalletCard main address={address} balance={account.balance} />
+
+                <ScrollView
+                    style={{
+                        flexGrow: 0,
+                        height: cardHeight + 32,
+                    }}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ height: cardHeight + 32 }}
+                    snapToInterval={cardWidth + 32}
+                    snapToAlignment='center'
+                    decelerationRate={0.8}
+                    alwaysBounceHorizontal={false}
+                >
+                    {accounts.map((a, i) => {
+                        return (
+                            <WalletCard
+                                key={a.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                selected={a.selected}
+                                address={a.address}
+                                balance={a.balance}
+                            />
+                        );
+                    })}
+                    <NewAccountCard />
+                </ScrollView>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     {

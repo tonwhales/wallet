@@ -408,7 +408,7 @@ export const WalletImportFragment = systemFragment(() => {
         mnemonics: string,
         deviceEncryption: DeviceEncryption
     } | null>(null);
-    const { newAccount } = useParams<{newAccount?: boolean}>();
+    const { newAccount } = useParams<{ newAccount?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -446,6 +446,7 @@ export const WalletImportFragment = systemFragment(() => {
                         mnemonics={state.mnemonics}
                         deviceEncryption={state.deviceEncryption}
                         import={true}
+                        newAccount={newAccount}
                     />
                 </Animated.View>
             )}

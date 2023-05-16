@@ -15,9 +15,16 @@ import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useAppStateManager } from '../../engine/AppStateManager';
 
-export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
+export const WalletSecureFragment = systemFragment((props: {
+    mnemonics: string,
+    deviceEncryption: DeviceEncryption,
+    import: boolean,
+    newAccount?: boolean,
+}) => {
     const { Theme, AppConfig } = useAppConfig();
+    const appStateManager = useAppStateManager();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
@@ -55,26 +62,26 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
 
                 // Persist state
                 const state = getAppState();
-                setAppState({
-                    addresses: [
-                        ...state.addresses,
-                        {
-                            address: contract.address,
-                            publicKey: key.publicKey,
-                            secretKeyEnc,
-                            utilityKey,
-                        }
-                    ],
-                    selected: state.addresses.length
-                }, AppConfig.isTestnet);
+                const newAddressesState = [
+                    ...state.addresses,
+                    {
+                        address: contract.address,
+                        publicKey: key.publicKey,
+                        secretKeyEnc,
+                        utilityKey,
+                    }
+                ];
 
                 // Persist secured flag
-                if (props.import) {
+                if (props.import || props.newAccount) {
                     markAddressSecured(contract.address, AppConfig.isTestnet);
                 }
 
-                // Navigate next
-                reboot();
+                appStateManager.updateAppState({
+                    addresses: newAddressesState,
+                    selected: newAddressesState.length - 1
+                });
+
             } catch (e) {
                 warn(e);
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));

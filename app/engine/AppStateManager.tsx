@@ -6,9 +6,10 @@ import { createEngine } from "./createEngine";
 import { EngineContext } from "./Engine";
 import { Address } from "ton";
 import { useRecoilCallback } from "recoil";
+import { useReboot } from "../utils/RebootContext";
 
 export type AppStateManager = {
-    selectAccount: (state: AppState) => void,
+    updateAppState: (state: AppState) => void,
     currentAccount: {
         address: Address;
         publicKey: Buffer;
@@ -21,14 +22,16 @@ export const AppStateManagerContext = React.createContext<AppStateManager | null
 
 export const AppStateManagerLoader = React.memo(({ children }: { children?: any }) => {
     const { AppConfig } = useAppConfig();
+    const reboot = useReboot()
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
 
     const initAppState = React.useMemo(() => {
         const storedAppState = getAppState();
+        console.log({ storedAppState });
         if (!storedAppState) {
             return { state: { addresses: [], selected: -1 }, engine: null };
         }
-        if (storedAppState.selected < storedAppState.addresses.length) {
+        if (storedAppState.selected !== -1 && storedAppState.selected < storedAppState.addresses.length) {
             const ex = storedAppState.addresses[storedAppState.selected];
 
             // Identify user profile by address
@@ -46,13 +49,19 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
 
     const [appState, setAppState] = React.useState(initAppState);
 
-
-    const onAccountSelected = React.useCallback((state: AppState) => {
-        if (state.selected !== undefined && state.selected < state.addresses.length) {
-            storeAppState(state, AppConfig.isTestnet);
-            if (state.selected !== appState.state.selected) {
+    const onAppStateUpdate = React.useCallback((newState: AppState) => {
+        console.log({ newState: newState });
+        if (newState.selected !== undefined && newState.selected < newState.addresses.length) {
+            console.log('here');
+            storeAppState(newState, AppConfig.isTestnet);
+            if (newState.selected === -1) {
                 appState.engine?.destroy();
-                const ex = state.addresses[state.selected];
+                setAppState({ state: newState, engine: null });
+                return;
+            }
+            if (newState.selected !== appState.state.selected) {
+                appState.engine?.destroy();
+                const ex = newState.addresses[newState.selected];
                 mixpanelIdentify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
                 mixpanelFlush(AppConfig.isTestnet);
 
@@ -62,6 +71,7 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
                 setAppState({ state: storedAppState, engine });
             }
         }
+        reboot();
 
     }, [appState, AppConfig.isTestnet]);
 
@@ -75,10 +85,18 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
     }, []);
 
     return (
-        <AppStateManagerContext.Provider value={{ selectAccount: onAccountSelected, currentAccount: appState.state.addresses[appState.state.selected] }}>
+        <AppStateManagerContext.Provider value={{ updateAppState: onAppStateUpdate, currentAccount: appState.state.addresses[appState.state.selected] }}>
             <EngineContext.Provider value={appState.engine}>
                 {children}
             </EngineContext.Provider>
         </AppStateManagerContext.Provider>
     );
-})
+});
+
+export function useAppStateManager() {
+    const ctx = React.useContext(AppStateManagerContext);
+    if (!ctx) {
+        throw new Error('AppStateManagerContext not initialized');
+    }
+    return ctx;
+}

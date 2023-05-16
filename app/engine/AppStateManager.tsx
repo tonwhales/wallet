@@ -10,12 +10,7 @@ import { useReboot } from "../utils/RebootContext";
 
 export type AppStateManager = {
     updateAppState: (state: AppState) => void,
-    currentAccount: {
-        address: Address;
-        publicKey: Buffer;
-        secretKeyEnc: Buffer;
-        utilityKey: Buffer;
-    }
+    current: AppState
 }
 
 export const AppStateManagerContext = React.createContext<AppStateManager | null>(null);
@@ -85,7 +80,7 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
     }, []);
 
     return (
-        <AppStateManagerContext.Provider value={{ updateAppState: onAppStateUpdate, currentAccount: appState.state.addresses[appState.state.selected] }}>
+        <AppStateManagerContext.Provider value={{ updateAppState: onAppStateUpdate, current: appState.state }}>
             <EngineContext.Provider value={appState.engine}>
                 {children}
             </EngineContext.Provider>

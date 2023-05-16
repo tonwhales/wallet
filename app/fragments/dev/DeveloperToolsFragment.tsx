@@ -17,6 +17,7 @@ import { useAppStateManager } from '../../engine/AppStateManager';
 
 export const DeveloperToolsFragment = fragment(() => {
     const appStateManager = useAppStateManager();
+    const addresses = appStateManager.current.addresses.map((a) => a.address);
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -55,6 +56,19 @@ export const DeveloperToolsFragment = fragment(() => {
     const onAddNewAccount = React.useCallback(() => {
         navigation.navigate('WalletImport', { newAccount: true });
     }, []);
+
+    const onSwitchAccount = React.useCallback((selected: number) => {
+        if (
+            selected !== -1
+            && selected < appStateManager.current.addresses.length
+            && selected !== appStateManager.current.selected
+        ) {
+            appStateManager.updateAppState({
+                ...appStateManager.current,
+                selected
+            });
+        }
+    }, [appStateManager.current]);
 
     return (
         <View style={{
@@ -104,6 +118,16 @@ export const DeveloperToolsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <ItemButton title={"Add new account"} onPress={onAddNewAccount} />
+                    {addresses.map((address, index) => {
+                        return (
+                            <ItemButton
+                                key={`addr-${index}`}
+                                title={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                hint={`Address #${index + 1}`}
+                                onPress={() => onSwitchAccount(index)}
+                            />
+                        )
+                    })}
                 </View>
             </ScrollView>
         </View>

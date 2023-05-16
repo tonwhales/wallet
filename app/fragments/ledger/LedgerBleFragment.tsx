@@ -1,12 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerBle } from "./components/LedgerBle";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const LedgerBleFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

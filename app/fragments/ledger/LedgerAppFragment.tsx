@@ -2,13 +2,13 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerApp } from "./components/LedgerApp";
 import { useTransport } from "./components/TransportContext";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export type LedgerAppParams = {
     address: { address: string, publicKey: Buffer },

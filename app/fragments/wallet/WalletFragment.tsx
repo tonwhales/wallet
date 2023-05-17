@@ -82,34 +82,6 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     }, [appStateManager.current]);
 
-    const onWalletsScroll = React.useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const offset = event.nativeEvent.contentOffset.x + cardWidth + 16;
-        const index = Math.floor(offset / (window.width - 10));
-        if (index === appStateManager.current.selected) return;
-        const wallet = accounts[index];
-        if (wallet) {
-            Alert.alert(
-                t('wallets.switchToAlertTitle', { wallet: shortAddress({ address: wallet.address, isTestnet: AppConfig.isTestnet }) }),
-                t('wallets.switchToAlertMessage'),
-                [
-                    {
-                        text: t('common.cancel'),
-                        style: 'cancel',
-                    },
-                    {
-                        text: t('wallets.switchToAlertAction'),
-                        onPress: () => {
-                            appStateManager.updateAppState({
-                                ...appStateManager.current,
-                                selected: wallet.id
-                            })
-                        },
-                    }
-                ]
-            );
-        }
-    }, [accounts]);
-
     //
     // Transactions
     //
@@ -237,13 +209,10 @@ function WalletComponent(props: { wallet: WalletState }) {
                         height: cardHeight + 32,
                     }}
                     horizontal
-                    // onScroll={onWalletsScroll}
-                    onMomentumScrollEnd={onWalletsScroll}
-                    scrollEventThrottle={32}
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ height: cardHeight + 32 }}
+                    contentContainerStyle={{ height: cardHeight + 32, paddingVertical: 16 }}
                     snapToInterval={cardWidth + 16}
-                    snapToAlignment='center'
+                    snapToAlignment={'center'}
                     decelerationRate={'fast'}
                     alwaysBounceHorizontal={false}
                 >
@@ -258,7 +227,6 @@ function WalletComponent(props: { wallet: WalletState }) {
                             />
                         );
                     })}
-                    <NewAccountCard />
                 </ScrollView>
 
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>

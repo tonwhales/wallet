@@ -1,7 +1,7 @@
 import { beginCell, safeSign } from "ton";
 import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
 import { getCurrentAddress } from "../../storage/appState";
-import { WalletKeys } from "../../storage/walletKeys";
+import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
 import { warn } from "../../utils/log";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
@@ -61,46 +61,7 @@ export class KeysProduct {
         storage.set('keys-product-version', currentVersion);
     }
 
-    migrateKeys_v1() {
-        const cloudExtensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string | null, image?: { url: string, blurhash: string } | null } } }> = this.engine.cloud.get('wallet.extensions.v2', (src) => { src.installed = {} });
-        const installed = cloudExtensions.value.installed;
-        const acc = getCurrentAddress();
-        Object.values(installed).forEach((value) => {
-            try {
-                const domain = extractDomain(value.url);
-                const prev = this.engine.persistence.domainKeys.getValue(domain);
-                if (prev) {
-                    this.engine.persistence.domainKeys.setValue(
-                        `${acc.address.toFriendly({ testOnly: this.engine.isTestnet })}/${domain}`,
-                        prev
-                    );
-
-                    // Clear prev
-                    this.engine.persistence.domainKeys.setValue(domain, null);
-                }
-
-            } catch (e) {
-                warn('Failed to migrate key');
-            }
-        });
-
-        // Migrate ZenPay key
-        const zenPayDomain = extractDomain(zenPayUrl);
-        const prev = this.engine.persistence.domainKeys.getValue(zenPayDomain);
-        if (prev) {
-            this.engine.persistence.domainKeys.setValue(
-                `${acc.address.toFriendly({ testOnly: this.engine.isTestnet })}/${zenPayDomain}`,
-                prev
-            );
-
-            // Clear prev
-            this.engine.persistence.domainKeys.setValue(zenPayDomain, null);
-        }
-        
-        storage.set('keys-product-version', currentVersion);
-    }
-
-    async createDomainKeyIfNeeded(domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys) {
+    async createDomainKeyIfNeeded(domain: string, keys?: WalletKeys) {
 
         // Normalize
         domain = domain.toLowerCase();
@@ -121,7 +82,7 @@ export class KeysProduct {
             walletKeys = keys;
         } else {
             try {
-                walletKeys = await authContext.authenticate({ cancelable: true });
+                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return false;

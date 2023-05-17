@@ -21,7 +21,7 @@ import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext, useEngine } from './engine/Engine';
+import { useEngine } from './engine/Engine';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -35,8 +35,6 @@ import { StakingTransferFragment } from './fragments/staking/StakingTransferFrag
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
-import { createEngine } from './engine/createEngine';
-import { useRecoilCallback } from 'recoil';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -61,8 +59,6 @@ import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
 import { useAppConfig } from './utils/AppConfigContext';
-import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
-import { AppStateManagerLoader } from './engine/AppStateManager';
 
 const Stack = createNativeStackNavigator();
 

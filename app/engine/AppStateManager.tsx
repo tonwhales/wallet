@@ -22,7 +22,6 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
 
     const initAppState = React.useMemo(() => {
         const storedAppState = getAppState();
-        console.log({ storedAppState });
         if (!storedAppState) {
             return { state: { addresses: [], selected: -1 }, engine: null };
         }
@@ -45,9 +44,7 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
     const [appState, setAppState] = React.useState(initAppState);
 
     const onAppStateUpdate = React.useCallback((newState: AppState) => {
-        console.log({ newState: newState });
         if (newState.selected !== undefined && newState.selected < newState.addresses.length) {
-            console.log('here');
             storeAppState(newState, AppConfig.isTestnet);
             if (newState.selected === -1) {
                 appState.engine?.destroy();

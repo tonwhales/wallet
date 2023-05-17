@@ -33,7 +33,7 @@ export const ProductsComponent = React.memo(() => {
         if (!domain) {
             return; // Shouldn't happen
         }
-        let k = engine.persistence.domainKeys.getValue(domain);
+        let k = engine.products.keys.getDomainKey(domain);
         if (!k) {
             navigation.navigate('Install', { url });
         } else {

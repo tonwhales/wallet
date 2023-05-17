@@ -38,7 +38,7 @@ export const ZenPayAppFragment = fragment(() => {
             if (!domain) {
                 return; // Shouldn't happen
             }
-            let domainKey = engine.persistence.domainKeys.getValue(domain);
+            let domainKey = engine.products.keys.getDomainKey(domain);
             if (!domainKey) {
                 return true;
             }

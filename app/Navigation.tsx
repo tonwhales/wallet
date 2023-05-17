@@ -62,6 +62,7 @@ import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetup
 import { SecurityFragment } from './fragments/SecurityFragment';
 import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
+import { PasscodeResetFragment } from './fragments/secure/passcode/PasscodeResetFragment';
 
 const Stack = createNativeStackNavigator();
 

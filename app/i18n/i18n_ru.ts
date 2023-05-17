@@ -46,6 +46,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         gotIt: 'Понятно',
         error: 'Ошибка',
         wallet: 'Кошелек',
+        later: 'Позже',
         select: 'Выбрать'
     },
     syncStatus: {

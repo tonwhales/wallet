@@ -16,14 +16,16 @@ import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useAppStateManager } from '../../engine/AppStateManager';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const WalletSecureFragment = systemFragment((props: {
     mnemonics: string,
     deviceEncryption: DeviceEncryption,
     import: boolean,
-    newAccount?: boolean,
+    newAccount?: boolean
 }) => {
     const { Theme, AppConfig } = useAppConfig();
+    const navigation = useTypedNavigation();
     const appStateManager = useAppStateManager();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
@@ -81,10 +83,19 @@ export const WalletSecureFragment = systemFragment((props: {
                     markAddressSecured(contract.address, AppConfig.isTestnet);
                 }
 
-                appStateManager.updateAppState({
-                    addresses: newAddressesState,
-                    selected: newAddressesState.length - 1
-                });
+                // Navigate next
+                if (props.import) {
+                    setAppState({
+                        addresses: newAddressesState,
+                        selected: newAddressesState.length - 1
+                    }, AppConfig.isTestnet);
+                    navigation.navigateAndReplaceAll('PasscodeSetup', { afterImport: true });
+                } else {
+                    appStateManager.updateAppState({
+                        addresses: newAddressesState,
+                        selected: newAddressesState.length - 1
+                    });
+                }
 
             } catch (e) {
                 warn(e);

@@ -21,6 +21,7 @@ import { SettingsProduct } from './products/SettingsProduct';
 import { KeysProduct } from './keys/KeysProduct';
 import { ZenPayProduct } from './corp/ZenPayProduct';
 import { ConnectProduct } from './products/ConnectProduct';
+import { LedgerProduct } from './products/LedgerProduct';
 import { WalletsProduct } from './products/WalletsProduct';
 
 export type RecoilInterface = {
@@ -58,7 +59,6 @@ export class Engine {
         tonConnect: ConnectProduct,
         ledger: LedgerProduct,
         zenPay: ZenPayProduct,
-        tonConnect: ConnectProduct,
         wallets: WalletsProduct
     };
     readonly transactions: Transactions;
@@ -107,7 +107,6 @@ export class Engine {
             tonConnect: new ConnectProduct(this),
             ledger: new LedgerProduct(this),
             zenPay: new ZenPayProduct(this),
-            tonConnect: new ConnectProduct(this),
             wallets: new WalletsProduct(this)
         };
 

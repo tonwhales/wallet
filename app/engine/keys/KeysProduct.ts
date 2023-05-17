@@ -8,6 +8,7 @@ import { Engine } from "../Engine";
 import { storage } from "../../storage/storage";
 import { extractDomain } from "../utils/extractDomain";
 import { CloudValue } from "../cloud/CloudValue";
+import { zenPayUrl } from "../corp/ZenPayProduct";
 
 const currentVersion = 1;
 
@@ -43,6 +44,20 @@ export class KeysProduct {
                 warn('Failed to migrate key');
             }
         });
+
+        // Migrate ZenPay key
+        const zenPayDomain = extractDomain(zenPayUrl);
+        const prev = this.engine.persistence.domainKeys.getValue(zenPayDomain);
+        if (prev) {
+            this.engine.persistence.domainKeys.setValue(
+                `${acc.address.toFriendly({ testOnly: this.engine.isTestnet })}/${zenPayDomain}`,
+                prev
+            );
+
+            // Clear prev
+            this.engine.persistence.domainKeys.setValue(zenPayDomain, null);
+        }
+        
         storage.set('keys-product-version', currentVersion);
     }
 

@@ -4,7 +4,6 @@ import { useAppConfig } from "../utils/AppConfigContext";
 import { mixpanelFlush, mixpanelIdentify } from "../analytics/mixpanel";
 import { createEngine } from "./createEngine";
 import { EngineContext } from "./Engine";
-import { Address } from "ton";
 import { useRecoilCallback } from "recoil";
 import { useReboot } from "../utils/RebootContext";
 

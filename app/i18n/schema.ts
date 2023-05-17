@@ -47,7 +47,7 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
-        later: string
+        select: string,
     },
     syncStatus: {
         connecting: string,
@@ -705,6 +705,15 @@ export type LocalizationSchema = {
         copySeedAlertTitle: string,
         copySeedAlertMessage: string,
         copySeedAlertAction: string,
+    },
+    wallets: {
+        switchToAlertTitle: string,
+        switchToAlertMessage: string,
+        switchToAlertAction: string,
+        addNewTitle: string,
+        addNewAlertTitle: string,
+        addNewAlertMessage: string,
+        addNewAlertAction: string,
     }
 };
 

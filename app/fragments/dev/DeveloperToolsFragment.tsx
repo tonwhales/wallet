@@ -12,9 +12,8 @@ import { useEngine } from '../../engine/Engine';
 import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
-import { warn } from '../../utils/log';
-import { RoundButton } from '../../components/RoundButton';
-import { ATextInput } from '../../components/ATextInput';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useAppStateManager } from '../../engine/AppStateManager';
 import { t } from '../../i18n/t';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { getCurrentAddress } from '../../storage/appState';
@@ -22,12 +21,14 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 
 export const DeveloperToolsFragment = fragment(() => {
+    const appStateManager = useAppStateManager();
+    const addresses = appStateManager.current.addresses.map((a) => a.address);
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
-    
+
     const reboot = useReboot();
     const restart = React.useCallback(() => {
         // TODO: Implement
@@ -58,18 +59,22 @@ export const DeveloperToolsFragment = fragment(() => {
         [AppConfig.isTestnet],
     );
 
-    const [zenPayAppUrl, setZenPayAppUrl] = React.useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
-
-    const onUrlSet = React.useCallback((link: string) => {
-        let url: URL
-        try {
-            url = new URL(link);
-            setZenPayAppUrl(url.toString());
-        } catch (e) {
-            warn(e)
-            setZenPayAppUrl('');
-        }
+    const onAddNewAccount = React.useCallback(() => {
+        navigation.navigate('WalletImport', { newAccount: true });
     }, []);
+
+    const onSwitchAccount = React.useCallback((selected: number) => {
+        if (
+            selected !== -1
+            && selected < appStateManager.current.addresses.length
+            && selected !== appStateManager.current.selected
+        ) {
+            appStateManager.updateAppState({
+                ...appStateManager.current,
+                selected
+            });
+        }
+    }, [appStateManager.current]);
 
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;
@@ -115,7 +120,7 @@ export const DeveloperToolsFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+            <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: Theme.item,
@@ -201,7 +206,28 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
                     )}
                 </View>
-            </View>
+                <View style={{
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <ItemButton title={"Add new account"} onPress={onAddNewAccount} />
+                    {addresses.map((address, index) => {
+                        return (
+                            <ItemButton
+                                key={`addr-${index}`}
+                                title={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                hint={`Address #${index + 1}`}
+                                onPress={() => onSwitchAccount(index)}
+                            />
+                        )
+                    })}
+                </View>
+            </ScrollView>
         </View>
     );
 });

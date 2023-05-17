@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState, NativeEventSubscription, AppStateEvent, AppStateStatus } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -23,6 +23,7 @@ import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
+import { storage } from '../../../storage/storage';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -242,11 +243,23 @@ export const ZenPayAppComponent = React.memo((
         webRef.current?.reload();
     }, []);
 
+    // If the app was in background for more than 1 minute, reload the webview
+    const onAppStateChange = React.useCallback((state: AppStateStatus) => {
+        const now = Date.now();
+        if (state === 'active') {
+            const last = storage.getNumber('zenpay:lastAppStateEventAt');
+            if (now - (last ?? 0) > 1000 * 60) {
+                onContentProcessDidTerminate();
+            }
+        }
+        storage.set('zenpay:lastAppStateEventAt', now);
+    }, []);
+
     React.useEffect(() => {
         // Adding onAppFocus listener in case of content process termination events not firing
         let sub: NativeEventSubscription | null = null;
         if (Platform.OS === 'ios') {
-            sub = AppState.addEventListener('change', onContentProcessDidTerminate);
+            sub = AppState.addEventListener('change', onAppStateChange);
         }
         return () => {
             sub?.remove();

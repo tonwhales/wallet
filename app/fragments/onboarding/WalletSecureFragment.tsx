@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { generateNewKeyAndEncrypt } from '../../storage/secureStorage';
+import { encryptData, generateNewKeyAndEncrypt } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
@@ -44,7 +44,11 @@ export const WalletSecureFragment = systemFragment((props: {
                     if (Platform.OS === 'android' && Platform.Version < 30) {
                         disableEncryption = true; // Encryption doesn't work well on older androids
                     }
-                    secretKeyEnc = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
+                    if (props.newAccount) {
+                        secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
+                    } else {
+                        secretKeyEnc = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
+                    }
                 } catch (e) {
                     // Ignore
                     console.warn(e);

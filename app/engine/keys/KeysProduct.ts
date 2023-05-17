@@ -7,6 +7,7 @@ import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { storage } from "../../storage/storage";
 import { extractDomain } from "../utils/extractDomain";
+import { CloudValue } from "../cloud/CloudValue";
 
 const currentVersion = 1;
 
@@ -21,7 +22,8 @@ export class KeysProduct {
     }
 
     migrateKeys_1() {
-        const installed = this.engine.products.extensions.extensions.value.installed;
+        const cloudExtensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string | null, image?: { url: string, blurhash: string } | null } } }> = this.engine.cloud.get('wallet.extensions.v2', (src) => { src.installed = {} });
+        const installed = cloudExtensions.value.installed;
         const acc = getCurrentAddress();
         Object.values(installed).forEach((value) => {
             try {
@@ -32,6 +34,9 @@ export class KeysProduct {
                         `${acc.address.toFriendly({ testOnly: this.engine.isTestnet })}/${domain}`,
                         prev
                     );
+
+                    // Clear prev
+                    this.engine.persistence.domainKeys.setValue(domain, null);
                 }
 
             } catch (e) {

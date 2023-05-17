@@ -227,6 +227,27 @@ export const DeveloperToolsFragment = fragment(() => {
                         )
                     })}
                 </View>
+                <View style={{
+                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <ItemButton title={"Add new account"} onPress={onAddNewAccount} />
+                    {addresses.map((address, index) => {
+                        return (
+                            <ItemButton
+                                key={`addr-${index}`}
+                                title={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                hint={`Address #${index + 1}`}
+                                onPress={() => onSwitchAccount(index)}
+                            />
+                        )
+                    })}
+                </View>
             </ScrollView>
         </View>
     );

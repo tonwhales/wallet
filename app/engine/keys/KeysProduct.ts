@@ -61,6 +61,45 @@ export class KeysProduct {
         storage.set('keys-product-version', currentVersion);
     }
 
+    migrateKeys_v1() {
+        const cloudExtensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string | null, image?: { url: string, blurhash: string } | null } } }> = this.engine.cloud.get('wallet.extensions.v2', (src) => { src.installed = {} });
+        const installed = cloudExtensions.value.installed;
+        const acc = getCurrentAddress();
+        Object.values(installed).forEach((value) => {
+            try {
+                const domain = extractDomain(value.url);
+                const prev = this.engine.persistence.domainKeys.getValue(domain);
+                if (prev) {
+                    this.engine.persistence.domainKeys.setValue(
+                        `${acc.address.toFriendly({ testOnly: this.engine.isTestnet })}/${domain}`,
+                        prev
+                    );
+
+                    // Clear prev
+                    this.engine.persistence.domainKeys.setValue(domain, null);
+                }
+
+            } catch (e) {
+                warn('Failed to migrate key');
+            }
+        });
+
+        // Migrate ZenPay key
+        const zenPayDomain = extractDomain(zenPayUrl);
+        const prev = this.engine.persistence.domainKeys.getValue(zenPayDomain);
+        if (prev) {
+            this.engine.persistence.domainKeys.setValue(
+                `${acc.address.toFriendly({ testOnly: this.engine.isTestnet })}/${zenPayDomain}`,
+                prev
+            );
+
+            // Clear prev
+            this.engine.persistence.domainKeys.setValue(zenPayDomain, null);
+        }
+        
+        storage.set('keys-product-version', currentVersion);
+    }
+
     async createDomainKeyIfNeeded(domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys) {
 
         // Normalize

@@ -87,6 +87,8 @@ export const WalletCard = React.memo((
             >
                 <View
                     style={[{
+                        marginLeft: index === 0 ? 16 : 0,
+                        marginRight: 8,
                         height: cardHeight, width: cardWidth,
                         borderRadius: 16, overflow: 'hidden',
                     }]}
@@ -220,7 +222,9 @@ export const WalletCard = React.memo((
                 </View>
             </ScalingPressable>
             {index === total - 1 && (
-                <NewAccountCard/>
+                <View style={{ marginRight: 16 }}>
+                    <NewAccountCard />
+                </View>
             )}
         </>
     );

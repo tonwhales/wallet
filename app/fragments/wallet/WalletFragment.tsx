@@ -211,7 +211,9 @@ function WalletComponent(props: { wallet: WalletState }) {
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ height: cardHeight + 32, paddingVertical: 16 }}
-                    snapToInterval={cardWidth + 16}
+                    snapToOffsets={accounts.map((_, i) => i * (cardWidth + 8))}
+                    snapToStart={true}
+                    snapToEnd={true}
                     snapToAlignment={'center'}
                     decelerationRate={'fast'}
                     alwaysBounceHorizontal={false}

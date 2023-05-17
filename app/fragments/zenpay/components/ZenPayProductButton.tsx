@@ -31,7 +31,7 @@ export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPay
             if (!domain) {
                 return; // Shouldn't happen
             }
-            let domainKey = engine.persistence.domainKeys.getValue(domain);
+            let domainKey = engine.products.keys.getDomainKey(domain);
             if (!domainKey) {
                 return true;
             }

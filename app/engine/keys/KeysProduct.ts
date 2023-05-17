@@ -17,11 +17,11 @@ export class KeysProduct {
     constructor(engine: Engine) {
         this.engine = engine;
         if ((storage.getNumber('keys-product-version') ?? 0) < currentVersion) {
-            this.migrateKeys_1();
+            this.migrateKeys_v1();
         }
     }
 
-    migrateKeys_1() {
+    migrateKeys_v1() {
         const cloudExtensions: CloudValue<{ installed: { [key: string]: { url: string, date: number, title?: string | null, image?: { url: string, blurhash: string } | null } } }> = this.engine.cloud.get('wallet.extensions.v2', (src) => { src.installed = {} });
         const installed = cloudExtensions.value.installed;
         const acc = getCurrentAddress();

@@ -16,6 +16,7 @@ import { useAppStateManager } from "../../engine/AppStateManager";
 import { ScalingPressable } from "../ScalingPressable";
 import { shortAddress } from "../../utils/shortAddress";
 import { NewAccountCard } from "./NewAccountCard";
+import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 
 export const WalletCard = React.memo((
     {
@@ -203,23 +204,61 @@ export const WalletCard = React.memo((
                         </Pressable>
                     </View>
                     <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={address}
-                        elipsise
-                        style={{
-                            marginLeft: 22,
+                    {!selected && (
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginHorizontal: 22,
                             marginBottom: 24,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: 'white',
-                            fontWeight: '500',
-                            fontFamily: undefined
-                        }}
-                        lockActions
-                    />
+                        }}>
+                            <WalletAddress
+                                value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                address={address}
+                                elipsise
+                                textStyle={{
+                                    textAlign: 'left',
+                                    color: 'white',
+                                    fontWeight: '500',
+                                    fontFamily: undefined
+                                }}
+                                lockActions
+                            />
+                            <View style={{
+                                backgroundColor: Theme.textColor,
+                                flexDirection: 'row',
+                                flex: 0, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 8,
+                                justifyContent: 'center', alignItems: 'center',
+                            }}>
+                                <Text style={{
+                                    fontWeight: '600',
+                                    color: Theme.item, marginRight: 8
+                                }}>
+                                    {t('common.select')}
+                                </Text>
+                                <ForwardIcon />
+                            </View>
+                        </View>
+                    )}
+                    {selected && (
+                        <WalletAddress
+                            value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            address={address}
+                            elipsise
+                            textStyle={{
+                                textAlign: 'left',
+                                color: 'white',
+                                fontWeight: '500',
+                                fontFamily: undefined
+                            }}
+                            style={{
+                                marginLeft: 22,
+                                marginBottom: 24,
+                                alignSelf: 'flex-start',
+                            }}
+                            lockActions
+                        />
+                    )}
                 </View>
             </ScalingPressable>
             {index === total - 1 && (

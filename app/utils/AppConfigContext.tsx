@@ -124,6 +124,10 @@ export const initialAppConfig = {
         Application.applicationId === 'com.tonhub.app.debug.testnet' ||
         Application.applicationId === 'com.tonhub.wallet.testnet' ||
         Application.applicationId === 'com.tonhub.wallet.testnet.debug' ||
+        Application.applicationId === 'com.tonhub.app.testnet.vz' ||
+        Application.applicationId === 'com.tonhub.app.debug.testnet.vz' ||
+        Application.applicationId === 'com.tonhub.wallet.testnet.vz' ||
+        Application.applicationId === 'com.tonhub.wallet.testnet.debug.vz' ||
         storage.getBoolean(isTestnetKey) === true
     ),
 };

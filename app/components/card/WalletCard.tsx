@@ -82,6 +82,7 @@ export const WalletCard = React.memo((
     return (
         <>
             <ScalingPressable
+                transformScale={0.99}
                 lock={selected}
                 onPress={onSelectAccount}
             >

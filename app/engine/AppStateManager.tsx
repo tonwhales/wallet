@@ -6,6 +6,9 @@ import { createEngine } from "./createEngine";
 import { EngineContext } from "./Engine";
 import { useRecoilCallback } from "recoil";
 import { useReboot } from "../utils/RebootContext";
+import * as Application from 'expo-application';
+import { storage } from "../storage/storage";
+import { passcodeEncKey, passcodeStateKey } from "../storage/secureStorage";
 
 export type AppStateManager = {
     updateAppState: (state: AppState) => void,
@@ -24,6 +27,13 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
         if (!storedAppState) {
             return { state: { addresses: [], selected: -1 }, engine: null };
         }
+
+        // TODO REMOVE THIS BEFORE PR INTO DEV UPSTREAM
+        if (Application.applicationId?.includes('demo')) {
+            storage.delete(passcodeEncKey);
+            storage.delete(passcodeStateKey);
+        }
+
         if (storedAppState.selected !== -1 && storedAppState.selected < storedAppState.addresses.length) {
             const ex = storedAppState.addresses[storedAppState.selected];
 

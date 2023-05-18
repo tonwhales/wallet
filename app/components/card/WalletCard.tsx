@@ -190,7 +190,10 @@ export const WalletCard = React.memo((
                             }}
                             onPress={navigateToCurrencySettings}
                         >
-                            <PriceComponent amount={balance} />
+                            <PriceComponent
+                                style={!selected ? { backgroundColor: undefined, paddingVertical: 0, paddingHorizontal: 0 } : undefined}
+                                amount={balance}
+                            />
                         </Pressable>
                         <Pressable style={({ pressed }) => {
                             return {

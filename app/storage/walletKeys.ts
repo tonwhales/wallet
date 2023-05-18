@@ -21,7 +21,7 @@ export async function loadWalletKeys(secretKeyEnc: Buffer): Promise<WalletKeys> 
 export async function loadWalletKeysWithPassword(address: string, password: string): Promise<WalletKeys> {
     try {
         let secretKeyEnc = Buffer.from(storage.getString(`${address}/${passcodeEncKey}`)!, 'base64');
-        let salt = storage.getString(passcodeSaltKey);
+        let salt = storage.getString(`${address}/${passcodeSaltKey}`);
         if (!salt) {
             throw new Error('Unable to load wallet keys');
         }
@@ -30,6 +30,7 @@ export async function loadWalletKeysWithPassword(address: string, password: stri
         let walletKey = await mnemonicToWalletKey(mnemonics);
         return { keyPair: walletKey, mnemonics };
     } catch (e) {
+        console.log(e);
         throw new Error('Unable to load wallet keys');
     }
 }

@@ -18,7 +18,7 @@ import { loadWalletKeys } from "../../../storage/walletKeys";
 import { getCurrentAddress } from "../../../storage/appState";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 import { useEngine } from "../../../engine/Engine";
-import { PasscodeState, passcodeEncKey, passcodeSaltKey } from "../../../storage/secureStorage";
+import { PasscodeState, passcodeEncKey } from "../../../storage/secureStorage";
 import { storage } from "../../../storage/storage";
 
 function WalletWordsComponent(props: {

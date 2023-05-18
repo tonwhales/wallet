@@ -4,10 +4,11 @@ import { Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
 import { PasscodeInput } from './PasscodeInput';
 import { t } from '../../i18n/t';
-import { PasscodeState } from '../../storage/secureStorage';
+import { PasscodeState, passcodeStateKey } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
+import { storage } from '../../storage/storage';
 
 export type AuthStyle = {
     backgroundColor?: string,
@@ -28,10 +29,7 @@ export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | nu
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const engine = useEngine();
-    const acc = engine ? getCurrentAddress() : null;
-    const settings = engine?.products?.settings;
-    const passcodeState = settings?.usePasscodeState(acc?.address);
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
     const authenticate = useCallback(async (style?: AuthStyle) => {
@@ -39,12 +37,13 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
             auth.promise.reject();
         }
         setAuth(null);
+        const acc = getCurrentAddress();
         try {
-            const account = getCurrentAddress();
-            const keys = await loadWalletKeys(account.secretKeyEnc);
+            const keys = await loadWalletKeys(acc.secretKeyEnc);
             return keys;
         } catch (e) {
             const passcodeKeys = new Promise<WalletKeys>((resolve, reject) => {
+                const passcodeState = storage.getString(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeStateKey}`);
                 if (passcodeState !== PasscodeState.Set) {
                     setAuth(null);
                     reject();
@@ -54,7 +53,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
             });
             return passcodeKeys;
         }
-    }, [auth, passcodeState]);
+    }, [auth]);
 
     const authenticateWithPasscode = useCallback((style?: AuthStyle) => {
         if (auth) {
@@ -62,17 +61,19 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         }
         setAuth(null);
         return new Promise<WalletKeys>((resolve, reject) => {
+            const acc = getCurrentAddress();
+            const passcodeState = storage.getString(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeStateKey}`);
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
             setAuth({ promise: { resolve, reject }, style });
         });
-    }, [auth, passcodeState]);
+    }, [auth]);
 
     return (
         <AuthWalletKeysContext.Provider value={{ authenticate, authenticateWithPasscode }}>
             {props.children}
-            {auth !== null && !!acc && (
+            {auth !== null && (
                 <Animated.View
                     style={[
                         {
@@ -93,6 +94,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                 setAuth(null);
                                 return;
                             }
+                            const acc = getCurrentAddress();
                             const keys = await loadWalletKeysWithPassword(
                                 acc.address.toFriendly({ testOnly: engine.isTestnet }),
                                 pass

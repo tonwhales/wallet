@@ -179,9 +179,9 @@ export async function generateKeyFromPasscode(pass: string, nacl?: string) {
     return { key: derivedKey, salt };
 }
 
-export async function encryptWithPasscode(pass: string, data: Buffer) {
+export async function encryptWithPasscode(address: string, pass: string, data: Buffer) {
     const passKey = await generateKeyFromPasscode(pass);
-    storage.set(passcodeSaltKey, passKey.salt);
+    storage.set(`${address}/${passcodeSaltKey}`, passKey.salt);
     const nonce = await getSecureRandomBytes(24);
     const sealed = sealBox(data, nonce, passKey.key);
     return Buffer.concat([nonce, sealed]);
@@ -199,7 +199,7 @@ export async function doDecryptWithPasscode(pass: string, salt: string, data: Bu
 }
 
 export async function encryptAndStoreWithPasscode(address: string, pass: string, data: Buffer) {
-    const encrypted = await encryptWithPasscode(pass, data);
+    const encrypted = await encryptWithPasscode(address, pass, data);
     storage.set(`${address}/${passcodeEncKey}`, encrypted.toString('base64'));
     storage.set(`${address}/${passcodeStateKey}`, PasscodeState.Set);
 }

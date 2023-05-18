@@ -8,7 +8,8 @@ import { useRecoilCallback } from "recoil";
 import { useReboot } from "../utils/RebootContext";
 import * as Application from 'expo-application';
 import { storage } from "../storage/storage";
-import { passcodeEncKey, passcodeStateKey } from "../storage/secureStorage";
+import { passcodeEncKey, passcodeSaltKey, passcodeStateKey } from "../storage/secureStorage";
+import { warn } from "../utils/log";
 
 export type AppStateManager = {
     updateAppState: (state: AppState) => void,
@@ -30,8 +31,22 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
 
         // TODO REMOVE THIS BEFORE PR INTO DEV UPSTREAM
         if (Application.applicationId?.includes('demo')) {
-            storage.delete(passcodeEncKey);
-            storage.delete(passcodeStateKey);
+            try {
+                const prevKey = storage.getString(passcodeEncKey);
+                const prevPasscodeState = storage.getString(passcodeStateKey);
+                const prevSalt = storage.getString(passcodeSaltKey);
+                const acc = storedAppState.addresses[storedAppState.selected];
+                if (prevKey && prevPasscodeState && prevSalt && acc) {
+                    storage.set(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeSaltKey}`, prevSalt);
+                    storage.set(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeEncKey}`, prevKey);
+                    storage.set(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeStateKey}`, prevPasscodeState);
+                }
+                storage.delete(passcodeEncKey);
+                storage.delete(passcodeSaltKey);
+                storage.delete(passcodeStateKey);
+            } catch (e) {
+                warn('Failed to migrate passcode');
+            }
         }
 
         if (storedAppState.selected !== -1 && storedAppState.selected < storedAppState.addresses.length) {

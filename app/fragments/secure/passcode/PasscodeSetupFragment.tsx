@@ -14,9 +14,11 @@ import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
 import { storage } from "../../../storage/storage";
 import { useReboot } from "../../../utils/RebootContext";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const engine = useEngine();
+    const { AppConfig } = useAppConfig();
     const reboot = useReboot();
     const settings = engine?.products?.settings;
     const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
@@ -28,18 +30,13 @@ export const PasscodeSetupFragment = systemFragment(() => {
         if (initial || afterImport) {
             let keys = await loadWalletKeys(acc.secretKeyEnc);
             await encryptAndStoreWithPasscode(
-                acc.address.toFriendly({ testOnly: engine?.isTestnet }),
+                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                 passcode,
                 Buffer.from(keys.mnemonics.join(' '))
             );
             if (!!settings) {
                 settings.setPasscodeState(
                     acc.address,
-                    PasscodeState.Set
-                );
-            } else {
-                storage.set(
-                    `${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeStateKey}`,
                     PasscodeState.Set
                 );
             }
@@ -57,18 +54,13 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 const acc = getCurrentAddress();
                 let keys = await loadWalletKeys(acc.secretKeyEnc);
                 await encryptAndStoreWithPasscode(
-                    acc.address.toFriendly({ testOnly: engine?.isTestnet }),
+                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                     passcode,
                     Buffer.from(keys.mnemonics.join(' '))
                 );
                 if (!!settings) {
                     settings.setPasscodeState(
                         acc.address,
-                        PasscodeState.Set
-                    );
-                } else {
-                    storage.set(
-                        `${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeStateKey}`,
                         PasscodeState.Set
                     );
                 }

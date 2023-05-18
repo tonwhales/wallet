@@ -28,9 +28,9 @@ export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | nu
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const engine = useEngine();
-    const acc = getCurrentAddress();
+    const acc = engine ? getCurrentAddress() : null;
     const settings = engine?.products?.settings;
-    const passcodeState = settings?.usePasscodeState(acc.address);
+    const passcodeState = settings?.usePasscodeState(acc?.address);
     const { Theme } = useAppConfig();
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
@@ -72,7 +72,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
     return (
         <AuthWalletKeysContext.Provider value={{ authenticate, authenticateWithPasscode }}>
             {props.children}
-            {auth !== null && (
+            {auth !== null && !!acc && (
                 <Animated.View
                     style={[
                         {

@@ -201,4 +201,5 @@ export async function doDecryptWithPasscode(pass: string, salt: string, data: Bu
 export async function encryptAndStoreWithPasscode(address: string, pass: string, data: Buffer) {
     const encrypted = await encryptWithPasscode(pass, data);
     storage.set(`${address}/${passcodeEncKey}`, encrypted.toString('base64'));
+    storage.set(`${address}/${passcodeStateKey}`, PasscodeState.Set);
 }

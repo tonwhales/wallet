@@ -7,6 +7,8 @@ import { t } from "../../i18n/t";
 import { encryptAndStoreWithPasscode } from "../../storage/secureStorage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "./PasscodeSuccess";
+import { getCurrentAddress } from "../../storage/appState";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 
 type Action = { type: | 'auth', input: string }
@@ -60,6 +62,8 @@ function reduceSteps() {
 }
 
 export const PasscodeChange = React.memo(() => {
+    const { AppConfig } = useAppConfig();
+    const acc = getCurrentAddress();
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '' });
     const navigation = useTypedNavigation();
 
@@ -77,8 +81,15 @@ export const PasscodeChange = React.memo(() => {
                                 throw new Error('Passcode is required');
                                 return
                             }
-                            const keys = await loadWalletKeysWithPassword(pass);
-                            await encryptAndStoreWithPasscode(state.input, Buffer.from(keys.mnemonics.join(' ')));
+                            const keys = await loadWalletKeysWithPassword(
+                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                pass
+                            );
+                            await encryptAndStoreWithPasscode(
+                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                state.input,
+                                Buffer.from(keys.mnemonics.join(' '))
+                            );
                             dispatch({ type: 'input', keys, input: '' });
                         }}
                     />
@@ -113,7 +124,11 @@ export const PasscodeChange = React.memo(() => {
                             if (pass !== state.input) {
                                 throw new Error('Passcodes do not match');
                             } else {
-                                await encryptAndStoreWithPasscode(state.input, Buffer.from((state as ScreenStateWithKeys).keys.mnemonics.join(' ')));
+                                await encryptAndStoreWithPasscode(
+                                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                    state.input,
+                                    Buffer.from((state as ScreenStateWithKeys).keys.mnemonics.join(' '))
+                                );
                                 dispatch({ type: 'success' });
                             }
                         }}

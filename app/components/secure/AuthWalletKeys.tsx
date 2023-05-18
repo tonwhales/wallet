@@ -28,8 +28,9 @@ export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | nu
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const engine = useEngine();
+    const acc = getCurrentAddress();
     const settings = engine?.products?.settings;
-    const passcodeState = settings?.usePasscodeState();
+    const passcodeState = settings?.usePasscodeState(acc.address);
     const { Theme } = useAppConfig();
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
@@ -92,7 +93,10 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                 setAuth(null);
                                 return;
                             }
-                            const keys = await loadWalletKeysWithPassword(pass);
+                            const keys = await loadWalletKeysWithPassword(
+                                acc.address.toFriendly({ testOnly: engine.isTestnet }),
+                                pass
+                            );
                             auth.promise.resolve(keys);
                             setAuth(null);
                         }}

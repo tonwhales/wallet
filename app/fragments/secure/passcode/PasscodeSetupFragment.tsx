@@ -22,16 +22,26 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const acc = getCurrentAddress();
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         if (initial || afterImport) {
-            const acc = getCurrentAddress();
             let keys = await loadWalletKeys(acc.secretKeyEnc);
-            await encryptAndStoreWithPasscode(passcode, Buffer.from(keys.mnemonics.join(' ')));
+            await encryptAndStoreWithPasscode(
+                acc.address.toFriendly({ testOnly: engine?.isTestnet }),
+                passcode,
+                Buffer.from(keys.mnemonics.join(' '))
+            );
             if (!!settings) {
-                settings.setPasscodeState(PasscodeState.Set);
+                settings.setPasscodeState(
+                    acc.address,
+                    PasscodeState.Set
+                );
             } else {
-                storage.set(passcodeStateKey, PasscodeState.Set);
+                storage.set(
+                    `${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeStateKey}`,
+                    PasscodeState.Set
+                );
             }
             if (afterImport) {
                 reboot();
@@ -46,11 +56,21 @@ export const PasscodeSetupFragment = systemFragment(() => {
             try {
                 const acc = getCurrentAddress();
                 let keys = await loadWalletKeys(acc.secretKeyEnc);
-                await encryptAndStoreWithPasscode(passcode, Buffer.from(keys.mnemonics.join(' ')));
+                await encryptAndStoreWithPasscode(
+                    acc.address.toFriendly({ testOnly: engine?.isTestnet }),
+                    passcode,
+                    Buffer.from(keys.mnemonics.join(' '))
+                );
                 if (!!settings) {
-                    settings.setPasscodeState(PasscodeState.Set);
+                    settings.setPasscodeState(
+                        acc.address,
+                        PasscodeState.Set
+                    );
                 } else {
-                    storage.set(passcodeStateKey, PasscodeState.Set);
+                    storage.set(
+                        `${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeStateKey}`,
+                        PasscodeState.Set
+                    );
                 }
             } catch (e) {
                 warn('Failed to encrypt and store with passcode');

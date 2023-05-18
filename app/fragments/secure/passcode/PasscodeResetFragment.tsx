@@ -296,9 +296,8 @@ export const PasscodeResetFragment = fragment(() => {
             return;
         }
         navigation.goBack();
-        storage.delete(passcodeSaltKey);
-        storage.delete(passcodeEncKey);
-        settings?.setPasscodeState(PasscodeState.NotSet)
+        storage.delete(`${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeEncKey}`);
+        settings?.setPasscodeState(acc.address, PasscodeState.NotSet)
         navigation.navigate('PasscodeSetup');
     }, []);
 

@@ -5,7 +5,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEngine } from '../../engine/Engine';
@@ -26,9 +26,10 @@ export const WalletBackupFragment = systemFragment(() => {
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
     const engine = useEngine();
+    const acc = getCurrentAddress();
     const authContext = useKeysAuth();
     const settings = engine?.products?.settings;
-    const passcodeState = settings?.usePasscodeState();
+    const passcodeState = settings?.usePasscodeState(acc.address);
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {

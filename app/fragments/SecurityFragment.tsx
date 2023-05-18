@@ -10,14 +10,16 @@ import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
+import { getCurrentAddress } from "../storage/appState"
 
 export const SecurityFragment = fragment(() => {
     const engine = useEngine();
     const settings = engine.products.settings;
+    const acc = getCurrentAddress();
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const passcodeState = settings.usePasscodeState();
+    const passcodeState = settings.usePasscodeState(acc.address);
 
     return (
         <View style={{

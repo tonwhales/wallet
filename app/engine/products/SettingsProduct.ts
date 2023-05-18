@@ -18,16 +18,25 @@ export class SettingsProduct {
     readonly ledger: CloudValue<{ on: boolean }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
-    readonly #passcodeState;
+    readonly #passcodeStateAtom;
+    readonly #passcodeStateSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
         this.ledger = engine.cloud.get(`ledger-v${version}`, (src) => { src.on = false });
 
-        this.#passcodeState = atom<PasscodeState | null>({
+        this.#passcodeStateAtom = atom<PasscodeState | null>({
             key: 'settings/passcode-state',
             default: (storage.getString(passcodeStateKey) as PasscodeState) ?? null,
+            dangerouslyAllowMutability: true
+        });
+
+        this.#passcodeStateSelector = selectorFamily<PasscodeState | null, string>({
+            key: 'settings/passcode-state',
+            get: (address: string) => ({ get }) => {
+                return get(this.#passcodeStateAtom);
+            },
             dangerouslyAllowMutability: true
         });
 
@@ -83,17 +92,17 @@ export class SettingsProduct {
         });
     }
 
-    usePasscodeState(): PasscodeState | null {
-        return useRecoilValue(this.#passcodeState);
+    usePasscodeState(address: Address): PasscodeState | null {
+        return useRecoilValue(this.#passcodeStateSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
     }
 
-    setPasscodeState(newState: PasscodeState | null) {
+    setPasscodeState(address: Address, newState: PasscodeState | null) {
         if (!newState) {
-            storage.delete(passcodeStateKey);
+            storage.delete(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`);
         } else {
-            storage.set(passcodeStateKey, newState);
+            storage.set(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`, newState);
         }
-        this.engine.recoil.updater(this.#passcodeState, newState);
+        this.engine.recoil.updater(this.#passcodeStateAtom, newState);
     }
 
     useSpamMinAmount(): BN {

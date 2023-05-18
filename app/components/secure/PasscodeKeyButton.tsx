@@ -24,9 +24,10 @@ export enum PasscodeKey {
     Nine = '9',
     Zero = '0',
     Backspace = 'backspace',
+    RetryBiometry = 'retryBiometry',
 }
 
-const keyImages = {
+const keyImages: { [key: string]: any } = {
     [PasscodeKey.One]: ImgKey1,
     [PasscodeKey.Two]: ImgKey2,
     [PasscodeKey.Three]: ImgKey3,
@@ -56,7 +57,7 @@ export const PasscodeKeyButton = React.memo((
         <Pressable
             onPress={onPress}
             style={({ pressed }) => {
-                return { opacity: pressed ? 0.5 : 1, }
+                return { opacity: pressed ? 0.5 : 1, height: 60, width: 100, justifyContent: 'center', alignItems: 'center' }
             }}
         >
             <Img color={'#000'} style={{ height: 60, width: 100 }} />

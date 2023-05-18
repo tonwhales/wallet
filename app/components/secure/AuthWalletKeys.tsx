@@ -9,6 +9,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 import { storage } from '../../storage/storage';
+import { warn } from '../../utils/log';
 
 export type AuthStyle = {
     backgroundColor?: string,
@@ -101,6 +102,16 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             );
                             auth.promise.resolve(keys);
                             setAuth(null);
+                        }}
+                        onRetryBiometrics={async () => {
+                            try {
+                                const acc = getCurrentAddress();
+                                const keys = await loadWalletKeys(acc.secretKeyEnc);
+                                auth.promise.resolve(keys);
+                                setAuth(null);
+                            } catch (e) {
+                                warn('Failed to load wallet keys');
+                            }
                         }}
                     />
                     {auth.style?.cancelable && (

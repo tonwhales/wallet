@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Platform } from "react-native";
+import { Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
@@ -31,8 +31,8 @@ export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string
             />
             <Text style={{
                 fontWeight: '600',
-                fontSize: 17, marginBottom: 16,
-                color: Theme.success
+                fontSize: 17, marginBottom: 160, marginTop: 16,
+                color: Theme.textColor
             }}>
                 {title}
             </Text>

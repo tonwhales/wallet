@@ -4,7 +4,7 @@ import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
 import { View, Platform, Text, Pressable } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";

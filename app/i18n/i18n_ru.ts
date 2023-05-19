@@ -273,6 +273,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 moreAboutEPN: 'Узнать больше о ePN',
                 lockups: 'Локапы',
                 lockupsDescription: 'Позволяет владельцам крупных локапов в TON получать дополнительный доход',
+                tonkeeper: 'Tonkeeper',
+                tonkeeperDescription: 'Дружественный мобильный кошелек на TON',
             },
             transfer: {
                 stakingWarning: 'Вы всегда можете внести новую ставку или увеличить существующую на любую сумму. Обратите внимание, что минимальная сумма составляет: {{minAmount}}',
@@ -438,7 +440,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     import: {
         title: '24 Секретных слова',
-        subtitle: 'Пожалуйста, восстановите доступ к вашему кошельку, введя 24 секретных слова, которые вы записали при создании кошелька.'
+        subtitle: 'Пожалуйста, восстановите доступ к вашему кошельку, введя 24 секретных слова, которые вы записали при создании кошелька.',
+        fullSeedPlaceholder: 'Введите 24 секретных слова',
+        fullSeedPaste: 'Или вы можете вставить всю сид фразу сразу в поле ниже, где каждое слово разделено пробелом'
     },
     secure: {
         title: 'Защитите свой кошелек',
@@ -640,6 +644,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             address: 'TON адрес',
             transaction: 'TON транзакция',
         }
+    },
+    devTools: {
+        switchNetwork: 'Сеть',
+        switchNetworkAlertTitle: 'Переключить на {{network}} сеть',
+        switchNetworkAlertMessage: 'Вы уверены что хотите переключить сеть?',
+        switchNetworkAlertAction: 'Переключить',
+        copySeed: 'Скопировать сид фразу из 24 слов',
+        copySeedAlertTitle: 'Скопировать сид фразу из 24 слов',
+        copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
+        copySeedAlertAction: 'Скопировать',
     }
 };
 

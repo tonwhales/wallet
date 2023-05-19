@@ -6,7 +6,7 @@ import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fromNano, toNano } from "ton";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { useEngine } from "../../engine/Engine";

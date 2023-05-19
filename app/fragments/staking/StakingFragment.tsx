@@ -28,6 +28,7 @@ import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { StakingPoolType } from "./StakingPoolsFragment";
 
 export const StakingFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -43,7 +44,7 @@ export const StakingFragment = fragment(() => {
     const staking = engine.products.whalesStakingPools.useStaking();
     const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
 
-    let type: 'club' | 'team' | 'nominators' = useMemo(() => {
+    let type: StakingPoolType = useMemo(() => {
         if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
             return 'club';
         }

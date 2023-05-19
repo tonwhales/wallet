@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Platform, StyleProp, Text, TextStyle, View, Image } from "react-native";
-import { AndroidToolbar } from "../../components/AndroidToolbar";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { t, tStyled } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StatusBar } from 'expo-status-bar';

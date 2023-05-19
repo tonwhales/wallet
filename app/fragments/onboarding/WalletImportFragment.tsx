@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, InputAccessoryView, Platform, Text, View } from "react-native";
+import { Alert, InputAccessoryView, Platform, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,6 +17,7 @@ import { AutocompleteView } from '../../components/AutocompleteView';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { warn } from '../../utils/log';
 
 export const wordsTrie = WordsListTrie();
 

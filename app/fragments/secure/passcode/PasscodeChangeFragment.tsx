@@ -5,8 +5,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { CloseButton } from "../../../components/CloseButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { AndroidToolbar } from "../../../components/AndroidToolbar";
 import { t } from "../../../i18n/t";
+import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 
 export const PasscodeChangeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

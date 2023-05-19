@@ -26,9 +26,10 @@ export const WalletBackupFragment = systemFragment(() => {
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
     const engine = useEngine();
+    const acc = getCurrentAddress();
     const authContext = useKeysAuth();
     const settings = engine?.products?.settings;
-    const passcodeState = settings?.usePasscodeState();
+    const passcodeState = settings?.usePasscodeState(acc.address);
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {

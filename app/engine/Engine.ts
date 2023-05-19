@@ -86,12 +86,6 @@ export class Engine {
         this.isTestnet = isTestnet;
 
         //
-        // Start sync
-        //
-
-        startSync(this);
-
-        //
         // Create products
         //
 
@@ -109,6 +103,12 @@ export class Engine {
             zenPay: new ZenPayProduct(this),
             tonConnect: new ConnectProduct(this)
         };
+
+        //
+        // Start sync
+        //
+
+        startSync(this);
 
         //
         // Declare dependencies

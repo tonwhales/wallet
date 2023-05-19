@@ -6,6 +6,7 @@ import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
 import { PasscodeState, passcodeStateKey } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
+import { getAppState } from "../../storage/appState";
 
 const version = 1;
 
@@ -17,15 +18,21 @@ export class SettingsProduct {
     readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact }, fields: { [key: string]: string } }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
-    readonly #passcodeState;
+    readonly #passcodeStateAtom;
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
 
-        this.#passcodeState = atom<PasscodeState | null>({
+        const appState = getAppState();
+        const defaultPasscodeState: { [key: string]: PasscodeState | null } = {};
+        appState.addresses.forEach((v) => {
+            defaultPasscodeState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (storage.getString(`${v.address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
+        });
+
+        this.#passcodeStateAtom = atom<{ [key: string]: PasscodeState | null }>({
             key: 'settings/passcode-state',
-            default: (storage.getString(passcodeStateKey) as PasscodeState) ?? null,
+            default: defaultPasscodeState,
             dangerouslyAllowMutability: true
         });
 
@@ -71,17 +78,25 @@ export class SettingsProduct {
         });
     }
 
-    usePasscodeState(): PasscodeState | null {
-        return useRecoilValue(this.#passcodeState);
+    usePasscodeState(address?: Address): PasscodeState | null {
+        if (!address) {
+            return null;
+        }
+        return useRecoilValue(this.#passcodeStateAtom)[address.toFriendly({ testOnly: this.engine.isTestnet })];
     }
 
-    setPasscodeState(newState: PasscodeState | null) {
+    setPasscodeState(address: Address, newState: PasscodeState | null) {
         if (!newState) {
-            storage.delete(passcodeStateKey);
+            storage.delete(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`);
         } else {
-            storage.set(passcodeStateKey, newState);
+            storage.set(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`, newState);
         }
-        this.engine.recoil.updater(this.#passcodeState, newState);
+        const appState = getAppState();
+        const newPasscodesState: { [key: string]: PasscodeState | null } = {};
+        appState.addresses.forEach((v) => {
+            newPasscodesState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (storage.getString(`${v.address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
+        });
+        this.engine.recoil.updater(this.#passcodeStateAtom, newPasscodesState);
     }
 
     useSpamMinAmount(): BN {

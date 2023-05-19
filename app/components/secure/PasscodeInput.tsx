@@ -14,10 +14,12 @@ export const PasscodeInput = React.memo((
     {
         title,
         style,
+        onRetryBiometrics,
         onEntered,
     }: {
         title?: string,
         style?: StyleProp<ViewStyle>,
+        onRetryBiometrics?: () => void,
         onEntered: (passcode: string | null) => Promise<void> | void,
     }
 ) => {
@@ -41,6 +43,9 @@ export const PasscodeInput = React.memo((
     }, []);
 
     const onKeyPress = useCallback((key: PasscodeKey) => {
+        if (key === PasscodeKey.RetryBiometry && !!onRetryBiometrics) {
+            onRetryBiometrics();
+        }
         if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
         } else if (/\d/.test(key) && passcode.length < 6) {
@@ -50,6 +55,7 @@ export const PasscodeInput = React.memo((
                         try {
                             await onEntered(prevPasscode + key);
                         } catch (e) {
+                            console.log(e);
                             setIsWrong(true);
                             doShake();
                             setTimeout(() => {
@@ -109,7 +115,7 @@ export const PasscodeInput = React.memo((
                 justifyContent: 'center', alignItems: 'center',
                 marginBottom: (safeArea.bottom ?? 16) + 6
             }}>
-                <PasscodeKeyboard onKeyPress={onKeyPress} />
+                <PasscodeKeyboard auth={!!onRetryBiometrics} onKeyPress={onKeyPress} />
             </View>
         </View>
     );

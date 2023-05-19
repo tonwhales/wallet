@@ -30,7 +30,6 @@ export async function loadWalletKeysWithPassword(address: string, password: stri
         let walletKey = await mnemonicToWalletKey(mnemonics);
         return { keyPair: walletKey, mnemonics };
     } catch (e) {
-        console.log(e);
         throw new Error('Unable to load wallet keys');
     }
 }

@@ -58,8 +58,6 @@ export const PasscodeKeyboard = React.memo(({ onKeyPress, auth }: { onKeyPress: 
         }
     }, [deviceEncryption]);
 
-    console.log({ auth, deviceEncryptionIcon });
-
     return (
         <View>
             <View style={{ flexDirection: 'row' }}>

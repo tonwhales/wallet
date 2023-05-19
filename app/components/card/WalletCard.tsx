@@ -82,35 +82,31 @@ export const WalletCard = React.memo((
 
     return (
         <>
-            <ScalingPressable
-                transformScale={0.99}
-                lock={selected}
-                onPress={onSelectAccount}
-            >
-                <View
-                    style={[{
-                        marginLeft: index === 0 ? 16 : 0,
-                        marginRight: 8,
-                        height: cardHeight, width: cardWidth,
-                        borderRadius: 16, overflow: 'hidden',
-                    }]}
-                    collapsable={false}
-                >
-                    <Image
-                        source={require('../../../assets/wallet_card.png')}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: cardHeight,
-                            width: cardWidth
-                        }}
-                        resizeMode="stretch"
-                        resizeMethod="resize"
-                    />
-                    {selected && (
+            {selected && (
+                <View>
+                    <View
+                        style={[{
+                            marginLeft: index === 0 ? 16 : 0,
+                            marginRight: 8,
+                            height: cardHeight, width: cardWidth,
+                            borderRadius: 16, overflow: 'hidden',
+                        }]}
+                        collapsable={false}
+                    >
+                        <Image
+                            source={require('../../../assets/wallet_card.png')}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                height: cardHeight,
+                                width: cardWidth
+                            }}
+                            resizeMode="stretch"
+                            resizeMethod="resize"
+                        />
                         <View style={{
                             flexDirection: 'row',
                             marginTop: 16, marginLeft: 22,
@@ -149,11 +145,9 @@ export const WalletCard = React.memo((
                                 {t(`syncStatus.${syncState}`)}
                             </Text>
                         </View>
-                    )}
 
-                    <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        {selected && (
+                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Pressable
                                 style={({ pressed }) => {
                                     return {
@@ -169,8 +163,80 @@ export const WalletCard = React.memo((
                                 </Text>
                                 {balance.gt(new BN(0)) && <GraphIcon />}
                             </Pressable>
-                        )}
-                        {!selected && (
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.3 : 1,
+                                    }
+                                }}
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <PriceComponent amount={balance} />
+                            </Pressable>
+                            <Pressable style={({ pressed }) => {
+                                return {
+                                    marginLeft: 8,
+                                    opacity: pressed ? 0.3 : 1
+                                }
+                            }}
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <ExchangeRate />
+                            </Pressable>
+                        </View>
+                        <View style={{ flexGrow: 1 }} />
+                        <WalletAddress
+                            value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            address={address}
+                            elipsise
+                            textStyle={{
+                                textAlign: 'left',
+                                color: 'white',
+                                fontWeight: '500',
+                                fontFamily: undefined
+                            }}
+                            style={{
+                                marginLeft: 22,
+                                marginBottom: 24,
+                                alignSelf: 'flex-start',
+                            }}
+                            lockActions
+                        />
+                    </View>
+                </View>
+            )}
+            {!selected && (
+                <ScalingPressable
+                    transformScale={0.99}
+                    onPress={onSelectAccount}
+                >
+                    <View
+                        style={[{
+                            marginLeft: index === 0 ? 16 : 0,
+                            marginRight: 8,
+                            height: cardHeight, width: cardWidth,
+                            borderRadius: 16, overflow: 'hidden',
+                        }]}
+                        collapsable={false}
+                    >
+                        <Image
+                            source={require('../../../assets/wallet_card.png')}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                height: cardHeight,
+                                width: cardWidth
+                            }}
+                            resizeMode="stretch"
+                            resizeMethod="resize"
+                        />
+                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View style={{
                                 marginLeft: 22,
                                 flexDirection: 'row', alignItems: 'center'
@@ -179,35 +245,33 @@ export const WalletCard = React.memo((
                                     <ValueComponent value={balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                                 </Text>
                             </View>
-                        )}
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
-                        <Pressable
-                            style={({ pressed }) => {
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.3 : 1,
+                                    }
+                                }}
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <PriceComponent
+                                    style={{ backgroundColor: undefined, paddingVertical: 0, paddingHorizontal: 0 }}
+                                    amount={balance}
+                                />
+                            </Pressable>
+                            <Pressable style={({ pressed }) => {
                                 return {
-                                    opacity: pressed ? 0.3 : 1,
+                                    marginLeft: 8,
+                                    opacity: pressed ? 0.3 : 1
                                 }
                             }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <PriceComponent
-                                style={!selected ? { backgroundColor: undefined, paddingVertical: 0, paddingHorizontal: 0 } : undefined}
-                                amount={balance}
-                            />
-                        </Pressable>
-                        <Pressable style={({ pressed }) => {
-                            return {
-                                marginLeft: 8,
-                                opacity: pressed ? 0.3 : 1
-                            }
-                        }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <ExchangeRate />
-                        </Pressable>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
-                    {!selected && (
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <ExchangeRate />
+                            </Pressable>
+                        </View>
+                        <View style={{ flexGrow: 1 }} />
                         <View style={{
                             flexDirection: 'row',
                             alignItems: 'center',
@@ -242,28 +306,9 @@ export const WalletCard = React.memo((
                                 <ForwardIcon />
                             </View>
                         </View>
-                    )}
-                    {selected && (
-                        <WalletAddress
-                            value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            address={address}
-                            elipsise
-                            textStyle={{
-                                textAlign: 'left',
-                                color: 'white',
-                                fontWeight: '500',
-                                fontFamily: undefined
-                            }}
-                            style={{
-                                marginLeft: 22,
-                                marginBottom: 24,
-                                alignSelf: 'flex-start',
-                            }}
-                            lockActions
-                        />
-                    )}
-                </View>
-            </ScalingPressable>
+                    </View>
+                </ScalingPressable>
+            )}
             {index === total - 1 && (
                 <View style={{ marginRight: 16 }}>
                     <NewAccountCard />

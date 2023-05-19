@@ -21,7 +21,7 @@ export const WalletSecureFragment = systemFragment((props: {
     mnemonics: string,
     deviceEncryption: DeviceEncryption,
     import: boolean,
-    newAccount?: boolean,
+    additionalWallet?: boolean,
 }) => {
     const { Theme, AppConfig } = useAppConfig();
     const appStateManager = useAppStateManager();
@@ -44,7 +44,7 @@ export const WalletSecureFragment = systemFragment((props: {
                     if (Platform.OS === 'android' && Platform.Version < 30) {
                         disableEncryption = true; // Encryption doesn't work well on older androids
                     }
-                    if (props.newAccount) {
+                    if (props.additionalWallet) {
                         secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
                     } else {
                         secretKeyEnc = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
@@ -66,6 +66,13 @@ export const WalletSecureFragment = systemFragment((props: {
 
                 // Persist state
                 const state = getAppState();
+                const isNew = state.addresses.findIndex((a) => a.address.equals(contract.address)) === -1;
+
+                if (!isNew) {
+                    Alert.alert(t('wallets.alreadyExistsAlertTitle'), t('wallets.alreadyExistsAlertMessage'));
+                    return;
+                }
+                
                 const newAddressesState = [
                     ...state.addresses,
                     {
@@ -77,7 +84,7 @@ export const WalletSecureFragment = systemFragment((props: {
                 ];
 
                 // Persist secured flag
-                if (props.import || props.newAccount) {
+                if (props.import || props.additionalWallet) {
                     markAddressSecured(contract.address, AppConfig.isTestnet);
                 }
 

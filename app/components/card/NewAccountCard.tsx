@@ -15,7 +15,7 @@ export const NewAccountCard = React.memo(() => {
     const cardWidth = window.width - 32;
 
     const onAddNewAccount = React.useCallback(() => {
-        navigation.navigate('WalletImport', { newAccount: true });
+        navigation.navigate('WalletImport', { additionalWallet: true });
     }, []);
 
     return (

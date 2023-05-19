@@ -644,6 +644,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addNewAlertTitle: 'Adding new wallet',
         addNewAlertMessage: 'Are you sure you want to add new wallet?',
         addNewAlertAction: 'Add',
+        alreadyExistsAlertTitle: 'Wallet already exists',
+        alreadyExistsAlertMessage: 'Wallet with this address already exists',
     }
 };
 

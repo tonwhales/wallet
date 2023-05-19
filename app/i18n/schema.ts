@@ -646,6 +646,8 @@ export type LocalizationSchema = {
         addNewAlertTitle: string,
         addNewAlertMessage: string,
         addNewAlertAction: string,
+        alreadyExistsAlertTitle: string,
+        alreadyExistsAlertMessage: string,
     }
 };
 

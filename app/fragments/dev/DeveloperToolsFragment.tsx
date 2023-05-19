@@ -61,7 +61,7 @@ export const DeveloperToolsFragment = fragment(() => {
     );
 
     const onAddNewAccount = React.useCallback(() => {
-        navigation.navigate('WalletImport', { newAccount: true });
+        navigation.navigate('WalletImport', { additionalWallet: true });
     }, []);
 
     const onSwitchAccount = React.useCallback((selected: number) => {

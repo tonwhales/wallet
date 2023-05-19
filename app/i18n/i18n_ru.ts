@@ -645,6 +645,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         addNewAlertTitle: 'Добавить новый кошелек',
         addNewAlertMessage: 'Вы уверены что хотите добавить новый кошелек?',
         addNewAlertAction: 'Добавить',
+        alreadyExistsAlertTitle: 'Кошелек уже существует',
+        alreadyExistsAlertMessage: 'Кошелек с таким адресом уже существует',
     }
 };
 

@@ -641,7 +641,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         switchToAlertTitle: 'Переключить на {{wallet}} кошелек',
         switchToAlertMessage: 'Вы уверены что хотите переключить кошелек?',
         switchToAlertAction: 'Переключить',
-        addNewTitle: 'Импортировать новый кошелек',
+        addNewTitle: 'Добавить кошелек',
         addNewAlertTitle: 'Добавить новый кошелек',
         addNewAlertMessage: 'Вы уверены что хотите добавить новый кошелек?',
         addNewAlertAction: 'Добавить',

@@ -15,6 +15,7 @@
   "dependencies": {
     "@babel/plugin-proposal-private-methods": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
+    "@expo/react-native-action-sheet": "^4.0.1",
     "@react-native-clipboard/clipboard": "^1.8.5",
     "@react-native-community/hooks": "^2.8.1",
     "@react-native-picker/picker": "2.4.8",

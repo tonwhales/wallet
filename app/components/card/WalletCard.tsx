@@ -1,5 +1,5 @@
-import React from "react"
-import { View, Image, Text, useWindowDimensions, Pressable, Alert } from "react-native"
+import React, { useMemo } from "react"
+import { View, Image, Text, useWindowDimensions, Pressable, Alert, Platform, Share } from "react-native"
 import { useEngine } from "../../engine/Engine";
 import CircularProgress from "../CircularProgress/CircularProgress";
 import { useAppConfig } from "../../utils/AppConfigContext";
@@ -17,6 +17,8 @@ import { ScalingPressable } from "../ScalingPressable";
 import { shortAddress } from "../../utils/shortAddress";
 import { NewAccountCard } from "./NewAccountCard";
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { copyText } from "../../utils/copyText";
 
 export const WalletCard = React.memo((
     {
@@ -32,6 +34,7 @@ export const WalletCard = React.memo((
     }
 ) => {
     const { Theme, AppConfig } = useAppConfig();
+    const { showActionSheetWithOptions } = useActionSheet();
     const appStateManager = useAppStateManager();
     const engine = useEngine();
     const navigation = useTypedNavigation();
@@ -78,6 +81,49 @@ export const WalletCard = React.memo((
                 }
             ]
         );
+    }, []);
+
+    const addressLink = useMemo(() => {
+        return (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
+            + address.toFriendly({ testOnly: AppConfig.isTestnet });
+    }, []);
+
+    const onShare = React.useCallback(() => {
+        if (Platform.OS === 'ios') {
+            Share.share({ title: t('receive.share.title'), url: addressLink });
+        } else {
+            Share.share({ title: t('receive.share.title'), message: addressLink });
+        }
+    }, [addressLink]);
+
+    const onCopy = React.useCallback(() => {
+        const text = address.toFriendly({ testOnly: AppConfig.isTestnet });
+        copyText(text);
+    }, []);
+
+    const onLongPress = React.useCallback(() => {
+        const options = [t('common.cancel'), t('common.copy'), t('common.share')];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            title: `${t('common.walletAddress')} ${shortAddress({ address, isTestnet: AppConfig.isTestnet })}`,
+            options,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    // Create new wallet
+                    onCopy();
+                    break;
+                case 2:
+                    onShare();
+                    break;
+                case cancelButtonIndex:
+                // Canceled
+                default:
+                    break;
+            }
+        });
     }, []);
 
     return (
@@ -202,15 +248,16 @@ export const WalletCard = React.memo((
                                 marginBottom: 24,
                                 alignSelf: 'flex-start',
                             }}
-                            lockActions
+                            limitActions
                         />
                     </View>
                 </View>
             )}
             {!selected && (
                 <ScalingPressable
-                    transformScale={0.99}
+                    transformScale={0.985}
                     onPress={onSelectAccount}
+                    onLongPress={onLongPress}
                 >
                     <View
                         style={[{
@@ -289,7 +336,8 @@ export const WalletCard = React.memo((
                                     fontWeight: '500',
                                     fontFamily: undefined
                                 }}
-                                lockActions
+                                limitActions
+                                disableContextMenu
                             />
                             <View style={{
                                 backgroundColor: Theme.textColor,

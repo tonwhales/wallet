@@ -252,7 +252,7 @@ export const StakingFragment = fragment(() => {
                             fontWeight: '500',
                             fontFamily: undefined
                         }}
-                        lockActions
+                        limitActions
                     />
                 </Animated.View>
                 <StakingPendingComponent

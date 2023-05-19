@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -16,7 +16,7 @@ import { warn } from '../../../utils/log';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
-import { AndroidToolbar } from '../../../components/AndroidToolbar';
+import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
@@ -240,17 +240,6 @@ export const ZenPayAppComponent = React.memo((
 
     const onContentProcessDidTerminate = React.useCallback(() => {
         webRef.current?.reload();
-    }, []);
-
-    React.useEffect(() => {
-        // Adding onAppFocus listener in case of content process termination events not firing
-        let sub: NativeEventSubscription | null = null;
-        if (Platform.OS === 'ios') {
-            sub = AppState.addEventListener('change', onContentProcessDidTerminate);
-        }
-        return () => {
-            sub?.remove();
-        }
     }, []);
 
     return (

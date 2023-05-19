@@ -13,7 +13,6 @@ import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useAppStateManager } from '../../engine/AppStateManager';
 import { t } from '../../i18n/t';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
@@ -22,8 +21,6 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 
 export const DeveloperToolsFragment = fragment(() => {
-    const appStateManager = useAppStateManager();
-    const addresses = appStateManager.current.addresses.map((a) => a.address);
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const navigation = useTypedNavigation();
@@ -59,23 +56,6 @@ export const DeveloperToolsFragment = fragment(() => {
         },
         [AppConfig.isTestnet],
     );
-
-    const onAddNewAccount = React.useCallback(() => {
-        navigation.navigate('WalletImport', { additionalWallet: true });
-    }, []);
-
-    const onSwitchAccount = React.useCallback((selected: number) => {
-        if (
-            selected !== -1
-            && selected < appStateManager.current.addresses.length
-            && selected !== appStateManager.current.selected
-        ) {
-            appStateManager.updateAppState({
-                ...appStateManager.current,
-                selected
-            });
-        }
-    }, [appStateManager.current]);
 
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;
@@ -155,27 +135,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                 <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                             </View>
                         )}
-                </View>
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <ItemButton title={"Add new account"} onPress={onAddNewAccount} />
-                    {addresses.map((address, index) => {
-                        return (
-                            <ItemButton
-                                key={`addr-${index}`}
-                                title={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                hint={`Address #${index + 1}`}
-                                onPress={() => onSwitchAccount(index)}
-                            />
-                        )
-                    })}
                 </View>
             </ScrollView>
         </View>

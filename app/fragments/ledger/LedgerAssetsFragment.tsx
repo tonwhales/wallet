@@ -29,7 +29,7 @@ export const LedgerAssetsFragment = fragment(() => {
     const account = engine.products.ledger.useAccount();
 
     const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
-        navigation.navigateLedgerTransfer({
+        navigation.replace('LedgerTransfer', {
             amount: null,
             target: target,
             comment: null,
@@ -88,8 +88,7 @@ export const LedgerAssetsFragment = fragment(() => {
                                 onCallback();
                                 return;
                             }
-                            navigation.goBack();
-                            navigation.navigateLedgerTransfer({
+                            navigation.replace('LedgerTransfer', {
                                 amount: null,
                                 target: target,
                                 stateInit: null,
@@ -114,8 +113,7 @@ export const LedgerAssetsFragment = fragment(() => {
                                         onCallback(j.master);
                                         return;
                                     }
-                                    navigation.goBack();
-                                    navigateToJettonTransfer(j)
+                                    navigateToJettonTransfer(j);
                                 }}
                             />
                         );

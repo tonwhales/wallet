@@ -59,6 +59,19 @@ export const DeveloperToolsFragment = fragment(() => {
         [AppConfig.isTestnet],
     );
 
+    const [zenPayAppUrl, setZenPayAppUrl] = React.useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
+
+    const onUrlSet = React.useCallback((link: string) => {
+        let url: URL
+        try {
+            url = new URL(link);
+            setZenPayAppUrl(url.toString());
+        } catch (e) {
+            warn(e)
+            setZenPayAppUrl('');
+        }
+    }, []);
+
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
@@ -137,6 +150,57 @@ export const DeveloperToolsFragment = fragment(() => {
                                 <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                             </View>
                         )}
+
+                    {AppConfig.isTestnet && (
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ATextInput
+                                blurOnSubmit={false}
+                                value={zenPayAppUrl}
+                                onValueChange={onUrlSet}
+                                placeholder={'ZenPay App URL'}
+                                keyboardType={'default'}
+                                preventDefaultHeight
+                                editable={true}
+                                enabled={true}
+                                label={
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        width: '100%',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        overflow: 'hidden',
+                                    }}>
+                                        <Text style={{
+                                            fontWeight: '500',
+                                            fontSize: 12,
+                                            color: Theme.label,
+                                            alignSelf: 'flex-start',
+                                        }}>
+                                            {'ZenPay App URL'}
+                                        </Text>
+                                    </View>
+                                }
+                                multiline
+                                autoCorrect={false}
+                                autoComplete={'off'}
+                                style={{
+                                    backgroundColor: Theme.transparent,
+                                    paddingHorizontal: 0,
+                                    minHeight: 72,
+                                    marginHorizontal: 16,
+                                }}
+                            />
+                            <RoundButton
+                                title={'Apply URL'}
+                                onPress={() => {
+                                    storage.set('zenpay-app-url', zenPayAppUrl);
+                                    Alert.alert('Success', 'ZenPay App URL has been updated, now restart the app to apply changes.');
+                                }}
+                                display={'default'}
+                                style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
+                            />
+                        </View>
+                    )}
                 </View>
             </ScrollView>
         </View>

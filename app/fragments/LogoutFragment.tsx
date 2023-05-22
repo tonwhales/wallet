@@ -20,6 +20,7 @@ import { getAppState, getCurrentAddress } from "../storage/appState";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { Address } from "ton";
 import { loadWalletKeys } from "../storage/walletKeys";
+import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 
 export function clearZenPay(engine: Engine, address?: Address) {
     const zenPayDomain = extractDomain(zenPayUrl);
@@ -35,6 +36,7 @@ export function clearZenPay(engine: Engine, address?: Address) {
 export const LogoutFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const appStateManager = useAppStateManager();
+    const authContext = useKeysAuth();
     const { showActionSheetWithOptions } = useActionSheet();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -45,7 +47,13 @@ export const LogoutFragment = fragment(() => {
         const appState = getAppState();
         const acc = getCurrentAddress();
         const currentAddress = acc.address;
-        await loadWalletKeys(acc.secretKeyEnc);
+
+        try {
+            await authContext.authenticate({ cancelable: true });
+        } catch (e) {
+            navigation.goBack();
+            return;
+        }
 
         mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
         trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);

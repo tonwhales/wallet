@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import React, { useMemo, useState } from "react";
-import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
+import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "ton";
@@ -18,7 +18,7 @@ import { fragment } from "../fragment";
 import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { KnownWallets } from "../secure/KnownWallets";
-import { getCurrentAddress } from "../storage/appState";
+import { getAppState, getCurrentAddress } from "../storage/appState";
 import { storage } from "../storage/storage";
 import { WalletKeys } from "../storage/walletKeys";
 import { useReboot } from "../utils/RebootContext";
@@ -29,9 +29,13 @@ import { fetchNfts } from "../engine/api/fetchNfts";
 import { clearZenPay } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { useAppStateManager } from "../engine/AppStateManager";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
+    const appStateManager = useAppStateManager();
+    const { showActionSheetWithOptions } = useActionSheet();
     const tresuresAddress = Address.parse(
         AppConfig.isTestnet
             ? 'kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1'
@@ -48,7 +52,7 @@ export const DeleteAccountFragment = fragment(() => {
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
 
-    const onDeletetAccount = React.useCallback(() => {
+    const onDeleteAccount = React.useCallback(() => {
         let ended = false;
 
         async function confirm(title: LocalizedResources) {
@@ -200,13 +204,31 @@ export const DeleteAccountFragment = fragment(() => {
                     if (s === 0) {
                         setStatus('deleted');
                         ended = true;
-                        setTimeout(() => {
-                            storage.clearAll();
-                            clearZenPay(engine);
-                            mixpanelReset(AppConfig.isTestnet); // Clear super properties and generates a new random distinctId
+                        setTimeout(async () => {
+                            const appState = getAppState();
+                            const acc = getCurrentAddress();
+                            const currentAddress = acc.address;
+
+                            mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
                             trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
                             mixpanelFlush(AppConfig.isTestnet);
-                            reboot();
+
+                            if (appState.addresses.length === 1) {
+                                storage.clearAll();
+                                clearZenPay(engine);
+                                reboot();
+                                return;
+                            }
+
+                            clearZenPay(engine, currentAddress);
+
+                            const newAddresses = appState.addresses.filter((address) => !address.address.equals(currentAddress));
+
+                            appStateManager.updateAppState({
+                                addresses: newAddresses,
+                                selected: 0,
+                            });
+
                         }, 2000);
                         break;
                     }
@@ -221,26 +243,29 @@ export const DeleteAccountFragment = fragment(() => {
     }, [targetAddressInput]);
 
     const onContinue = React.useCallback(() => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    title: t('deleteAccount.confirm.title'),
-                    message: t('deleteAccount.confirm.message'),
-                    options: [t('common.cancel'), t('deleteAccount.action')],
-                    destructiveButtonIndex: 1,
-                    cancelButtonIndex: 0
-                },
-                (buttonIndex) => { if (buttonIndex === 1) onDeletetAccount(); }
-            );
-        } else {
-            Alert.alert(
-                t('deleteAccount.confirm.title'),
-                t('deleteAccount.confirm.message'),
-                [{
-                    text: t('deleteAccount.action'), style: 'destructive', onPress: () => { onDeletetAccount() }
-                }, { text: t('common.cancel') }])
-        }
-    }, [onDeletetAccount]);
+        const options = [t('common.cancel'), t('deleteAccount.action')];
+        const destructiveButtonIndex = 1;
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            title: t('deleteAccount.confirm.title'),
+            message: t('deleteAccount.confirm.message'),
+            options,
+            destructiveButtonIndex,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    // Create new wallet
+                    onDeleteAccount();
+                    break;
+                case cancelButtonIndex:
+                // Canceled
+                default:
+                    break;
+            }
+        });
+    }, [onDeleteAccount]);
 
     return (
         <View style={{

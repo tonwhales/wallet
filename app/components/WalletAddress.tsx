@@ -24,8 +24,9 @@ export const WalletAddress = React.memo((props: {
     known?: boolean,
     spam?: boolean;
     elipsise?: boolean,
-    lockActions?: boolean,
-    previewBackgroundColor?: string
+    limitActions?: boolean,
+    disableContextMenu?: boolean,
+    previewBackgroundColor?: string,
 }) => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
@@ -106,75 +107,140 @@ export const WalletAddress = React.memo((props: {
     }
 
     return (
-        <ContextMenu
-            actions={[
-                { title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined },
-                { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
-                ...(props.lockActions ? [] : actions)
-            ]}
-            onPress={handleAction}
-            style={props.style}
-            previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : Theme.transparent}
-        >
-            <View>
-                {props.elipsise && (
-                    <Text
-                        style={[
-                            {
-                                fontSize: 16,
-                                fontWeight: '700',
-                                textAlign: 'center',
-                                color: Theme.textColor,
-                                fontVariant: ['tabular-nums'],
-                            },
-                            props.textStyle
-                        ]}
-                        selectable={false}
-                        ellipsizeMode={'middle'}
-                        {...props.textProps}
-                    >
-                        {ellipsiseAddress(friendlyAddress)}
-                    </Text>
-                )}
-                {!props.elipsise && (
-                    <>
+        <>
+            {!props.disableContextMenu && (
+                <ContextMenu
+                    actions={[
+                        { title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined },
+                        { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+                        ...(props.limitActions ? [] : actions)
+                    ]}
+                    onPress={handleAction}
+                    style={props.style}
+                    previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : Theme.transparent}
+                >
+                    <View>
+                        {props.elipsise && (
+                            <Text
+                                style={[
+                                    {
+                                        fontSize: 16,
+                                        fontWeight: '700',
+                                        textAlign: 'center',
+                                        color: Theme.textColor,
+                                        fontVariant: ['tabular-nums'],
+                                    },
+                                    props.textStyle
+                                ]}
+                                selectable={false}
+                                ellipsizeMode={'middle'}
+                                {...props.textProps}
+                            >
+                                {ellipsiseAddress(friendlyAddress)}
+                            </Text>
+                        )}
+                        {!props.elipsise && (
+                            <>
+                                <Text
+                                    style={[
+                                        {
+                                            fontSize: 16,
+                                            fontWeight: '400',
+                                            textAlign: 'center',
+                                            color: Theme.textColor,
+                                        },
+                                        props.textStyle
+                                    ]}
+                                    selectable={false}
+                                    ellipsizeMode={'middle'}
+                                    {...props.textProps}
+                                    numberOfLines={1}
+                                >
+                                    {friendlyAddress.slice(0, friendlyAddress.length / 2)}
+                                </Text>
+                                <Text
+                                    style={[
+                                        {
+                                            fontSize: 16,
+                                            fontWeight: '400',
+                                            textAlign: 'center',
+                                            color: Theme.textColor,
+                                        },
+                                        props.textStyle
+                                    ]}
+                                    selectable={false}
+                                    ellipsizeMode={'middle'}
+                                    {...props.textProps}
+                                    numberOfLines={1}
+                                >
+                                    {friendlyAddress.slice(friendlyAddress.length / 2, friendlyAddress.length)}
+                                </Text>
+                            </>
+                        )}
+                    </View>
+                </ContextMenu>
+            )}
+            {props.disableContextMenu && (
+                <View>
+                    {props.elipsise && (
                         <Text
                             style={[
                                 {
                                     fontSize: 16,
-                                    fontWeight: '400',
+                                    fontWeight: '700',
                                     textAlign: 'center',
                                     color: Theme.textColor,
+                                    fontVariant: ['tabular-nums'],
                                 },
                                 props.textStyle
                             ]}
                             selectable={false}
                             ellipsizeMode={'middle'}
                             {...props.textProps}
-                            numberOfLines={1}
                         >
-                            {friendlyAddress.slice(0, friendlyAddress.length / 2)}
+                            {ellipsiseAddress(friendlyAddress)}
                         </Text>
-                        <Text
-                            style={[
-                                {
-                                    fontSize: 16,
-                                    fontWeight: '400',
-                                    textAlign: 'center',
-                                    color: Theme.textColor,
-                                },
-                                props.textStyle
-                            ]}
-                            selectable={false}
-                            ellipsizeMode={'middle'}
-                            {...props.textProps}
-                            numberOfLines={1}
-                        >
-                            {friendlyAddress.slice(friendlyAddress.length / 2, friendlyAddress.length)}
-                        </Text>
-                    </>
-                )}
-            </View>
-        </ContextMenu>
+                    )}
+                    {!props.elipsise && (
+                        <>
+                            <Text
+                                style={[
+                                    {
+                                        fontSize: 16,
+                                        fontWeight: '400',
+                                        textAlign: 'center',
+                                        color: Theme.textColor,
+                                    },
+                                    props.textStyle
+                                ]}
+                                selectable={false}
+                                ellipsizeMode={'middle'}
+                                {...props.textProps}
+                                numberOfLines={1}
+                            >
+                                {friendlyAddress.slice(0, friendlyAddress.length / 2)}
+                            </Text>
+                            <Text
+                                style={[
+                                    {
+                                        fontSize: 16,
+                                        fontWeight: '400',
+                                        textAlign: 'center',
+                                        color: Theme.textColor,
+                                    },
+                                    props.textStyle
+                                ]}
+                                selectable={false}
+                                ellipsizeMode={'middle'}
+                                {...props.textProps}
+                                numberOfLines={1}
+                            >
+                                {friendlyAddress.slice(friendlyAddress.length / 2, friendlyAddress.length)}
+                            </Text>
+                        </>
+                    )}
+                </View>
+            )}
+        </>
     );
 })

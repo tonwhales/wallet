@@ -709,10 +709,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         switchToAlertTitle: 'Switching to {{wallet}} wallet',
         switchToAlertMessage: 'Are you sure you want to switch wallets?',
         switchToAlertAction: 'Switch',
-        addNewTitle: 'Import new wallet',
+        addNewTitle: 'Add wallet',
         addNewAlertTitle: 'Adding new wallet',
         addNewAlertMessage: 'Are you sure you want to add new wallet?',
         addNewAlertAction: 'Add',
+        alreadyExistsAlertTitle: 'Wallet already exists',
+        alreadyExistsAlertMessage: 'Wallet with this address already exists',
     }
 };
 

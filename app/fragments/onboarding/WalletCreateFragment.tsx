@@ -11,10 +11,12 @@ import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useParams } from '../../utils/useParams';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
+    const { additionalWallet } = useParams<{ additionalWallet?: boolean }>();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
@@ -73,6 +75,7 @@ export const WalletCreateFragment = systemFragment(() => {
                         mnemonics={state.mnemonics}
                         deviceEncryption={state.deviceEncryption}
                         import={false}
+                        additionalWallet={additionalWallet}
                     />
                 </Animated.View>
             )}

@@ -1,21 +1,44 @@
 import React from "react"
-import { useWindowDimensions, Text, Image, Pressable, View } from "react-native"
+import { useWindowDimensions, Text, Image, View } from "react-native"
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from "expo-blur";
 import { ScalingPressable } from "../ScalingPressable";
 import { t } from "../../i18n/t";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import AddIcon from "../../../assets/ic_add.svg";
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 export const NewAccountCard = React.memo(() => {
     const { Theme } = useAppConfig();
+    const { showActionSheetWithOptions } = useActionSheet();
     const navigation = useTypedNavigation();
     const window = useWindowDimensions();
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
     const cardWidth = window.width - 32;
 
     const onAddNewAccount = React.useCallback(() => {
-        navigation.navigate('WalletImport', { newAccount: true });
+        const options = [t('welcome.importWallet'), t('welcome.createWallet'), t('common.cancel')];
+        const cancelButtonIndex = 2;
+        showActionSheetWithOptions({
+            options,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 0:
+                    // Import wallet
+                    navigation.navigate('WalletImport', { additionalWallet: true });
+                    break;
+                case 1:
+                    // Create new wallet
+                    navigation.navigate('WalletCreate', { additionalWallet: true });
+                    break;
+
+                case cancelButtonIndex:
+                // Canceled
+                default:
+                    break;
+            }
+        });
     }, []);
 
     return (

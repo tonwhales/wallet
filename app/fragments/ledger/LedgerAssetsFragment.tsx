@@ -42,10 +42,8 @@ export const LedgerAssetsFragment = fragment(() => {
 
     const onCallback = useCallback((address?: Address) => {
         if (callback) {
-            setTimeout(() => {
-                navigation.goBack();
-                callback(address);
-            }, 10);
+            navigation.goBack();
+            callback(address);
         }
     }, [callback]);
 

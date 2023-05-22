@@ -17,14 +17,16 @@ import { RoundButton } from '../../components/RoundButton';
 import { ATextInput } from '../../components/ATextInput';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
-import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
+import { WalletKeys } from '../../storage/walletKeys';
 import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const acc = React.useMemo(() => getCurrentAddress(), []);
+    const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
@@ -75,7 +77,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            walletKeys = await authContext.authenticate({ backgroundColor: Theme.item });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {

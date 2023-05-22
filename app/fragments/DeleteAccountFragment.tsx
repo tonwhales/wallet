@@ -50,7 +50,7 @@ export const DeleteAccountFragment = fragment(() => {
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
 
-    const onDeletetAccount = React.useCallback(() => {
+    const onDeleteAccount = React.useCallback(() => {
         let ended = false;
 
         async function confirm(title: LocalizedResources) {
@@ -255,7 +255,7 @@ export const DeleteAccountFragment = fragment(() => {
             switch (selectedIndex) {
                 case 1:
                     // Create new wallet
-                    onDeletetAccount();
+                    onDeleteAccount();
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -263,7 +263,7 @@ export const DeleteAccountFragment = fragment(() => {
                     break;
             }
         });
-    }, [onDeletetAccount]);
+    }, [onDeleteAccount]);
 
     return (
         <View style={{

@@ -28,7 +28,6 @@ import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
 import { clearZenPay } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
-import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 

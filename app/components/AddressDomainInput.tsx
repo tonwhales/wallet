@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { View, Text, ViewStyle, StyleProp, Alert, TextInput } from "react-native"
+import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
 import { ATextInput, ATextInputRef } from "./ATextInput"
@@ -28,7 +28,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     isKnown,
     index,
     contact,
-    labelText
+    labelText,
+    showToMainAddress
 }: {
     style?: StyleProp<ViewStyle>,
     onFocus?: (index: number) => void,
@@ -42,7 +43,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     isKnown?: boolean,
     index: number,
     contact?: AddressContact,
-    labelText?: string
+    labelText?: string,
+    showToMainAddress?: boolean,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
     const { Theme, AppConfig } = useAppConfig();
@@ -134,9 +136,10 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 <View style={{
                     flexDirection: 'row',
                     width: '100%',
-                    alignItems: 'center',
+                    alignItems: showToMainAddress ? 'flex-start' : 'center',
                     justifyContent: 'space-between',
                     overflow: 'hidden',
+                    minHeight: showToMainAddress ? 24 : 0,
                 }}>
                     <Text style={{
                         fontWeight: '500',
@@ -242,6 +245,44 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 loop={true}
                                 containerColor={Theme.transparent}
                             />
+                        </Animated.View>
+                    )}
+                    {input.length === 0 && showToMainAddress && (
+                        <Animated.View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                            entering={FadeIn}
+                            exiting={FadeOut}
+                        >
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1,
+                                        backgroundColor: Theme.accent,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        paddingVertical: 4,
+                                        paddingHorizontal: 8,
+                                        borderRadius: 16
+                                    }
+                                }}
+                                hitSlop={8}
+                                onPress={() => {
+                                    onInputChange(engine.address.toFriendly({ testOnly: AppConfig.isTestnet }))
+                                }}
+                            >
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 12,
+                                    color: Theme.item,
+                                    alignSelf: 'flex-start',
+                                }}>
+                                    {t('hardwareWallet.actions.mainAddress')}
+                                </Text>
+                            </Pressable>
                         </Animated.View>
                     )}
                 </View>

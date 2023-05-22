@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo } from "react";
-import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share } from "react-native";
+import React, { useMemo } from "react";
+import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { getCurrentAddress } from "../../storage/appState";
 import { CloseButton } from "../../components/CloseButton";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { fromNano } from "ton";
+import { Address, fromNano } from "ton";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -15,7 +13,7 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
-import { useEngine } from "../../engine/Engine";
+import { Engine, useEngine } from "../../engine/Engine";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import ContactIcon from '../../../assets/ic_contacts.svg';
@@ -23,22 +21,22 @@ import CopyIcon from '../../../assets/ic_copy.svg';
 import ExplorerIcon from '../../../assets/ic_explorer.svg';
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
+import Clipboard from '@react-native-clipboard/clipboard';
+import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
-import { copyText } from "../../utils/copyText";
-import * as ScreenCapture from 'expo-screen-capture';
+import { TransactionDescription } from "../../engine/products/WalletProduct";
+import { useTransport } from "./components/TransportContext";
+import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
-export const TransactionPreviewFragment = fragment(() => {
+const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, address }: { transaction: TransactionDescription, transactionHash: string, engine: Engine, address: Address }) => {
     const { Theme, AppConfig } = useAppConfig();
-    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const params = useParams<{ transaction: string }>();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
-    const engine = useEngine();
-    let transaction = engine.products.main.useTransaction(params.transaction);
+    const safeArea = useSafeAreaInsets();
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
@@ -78,31 +76,25 @@ export const TransactionPreviewFragment = fragment(() => {
         if (!transaction.base.lt) {
             return null;
         }
-        if (!transaction.base.hash) {
+        if (!transactionHash) {
             return null;
         }
         return transaction.base.lt +
             '_' +
-            transaction.base.hash.toString('hex')
-    }, [transaction]);
+            transactionHash
+    }, [transaction, transactionHash]);
 
     const explorerLink = useMemo(() => {
-        if (!txId) {
+        if (!transaction.base.lt) {
             return null;
         }
-        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
+        if (!transactionHash) {
+            return null;
+        }
+        return (AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
-            address.toFriendly({ testOnly: AppConfig.isTestnet }) +
+            address.toFriendly() +
             '/' + txId
-    }, [txId]);
-
-    const tonhubLink = useMemo(() => {
-        if (!txId) {
-            return null;
-        }
-        return `${AppConfig.isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/`
-            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
     }, [txId]);
 
     const contact = engine.products.settings.useContactAddress(operation.address);
@@ -130,8 +122,15 @@ export const TransactionPreviewFragment = fragment(() => {
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 
-    const onCopy = React.useCallback((text: string) => {
-        copyText(text);
+    const onCopy = React.useCallback((body: string) => {
+        if (Platform.OS === 'android') {
+            Clipboard.setString(body);
+            ToastAndroid.show(t('common.copied'), ToastAndroid.SHORT);
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            return;
+        }
+        Clipboard.setString(body);
+        return;
     }, []);
 
     const handleCommentAction = React.useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
@@ -148,28 +147,8 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }, [operation, body]);
 
-    useEffect(() => {
-        let subscription: ScreenCapture.Subscription;
-        if (Platform.OS === 'ios') {
-            subscription = ScreenCapture.addScreenshotListener(() => {
-                if (!tonhubLink) {
-                    return;
-                }
-                Share.share({ title: t('txActions.share.transaction'), url: tonhubLink });
-            });
-        }
-        return () => subscription?.remove();
-    }, [tonhubLink]);
-
-
     return (
-        <View style={{
-            alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
-            alignItems: 'center',
-            backgroundColor: Theme.background,
-            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
-        }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+        <>
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
@@ -183,7 +162,7 @@ export const TransactionPreviewFragment = fragment(() => {
             </Text>
             {spam && (
                 <View style={{
-                    borderColor: Theme.textSecondaryBorder,
+                    borderColor: '#ADB6BE',
                     borderWidth: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -224,7 +203,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         />
                     </View>
                     {transaction.base.status === 'failed' ? (
-                        <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                        <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
                     ) : (
@@ -234,7 +213,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     color: item.amount.gte(new BN(0))
                                         ? spam
                                             ? Theme.textColor
-                                            : Theme.pricePositive
+                                            : '#4FAE42'
                                         : '#000000',
                                     fontWeight: '800',
                                     fontSize: 36,
@@ -253,7 +232,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: 'transparent',
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
@@ -410,7 +389,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
-                                    fontWeight: '400',
+                                    fontWeight: '500',
                                     fontSize: 16,
                                     lineHeight: 20
                                 }}
@@ -502,7 +481,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <PriceComponent
                                 amount={transaction.base.fees}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: 'transparent',
                                     paddingHorizontal: 0,
                                     paddingVertical: 0,
                                     justifyContent: 'center',
@@ -527,24 +506,6 @@ export const TransactionPreviewFragment = fragment(() => {
                 </View>
             </ScrollView>
             <View style={{ paddingHorizontal: 16 }}>
-                {transaction.base.kind === 'out' && (transaction.base.body === null || transaction.base.body.type !== 'payload') && (
-                    <View style={{ flexDirection: 'row', width: '100%', marginBottom: 8 }}>
-                        <RoundButton
-                            title={t('txPreview.sendAgain')}
-                            style={{ flexGrow: 1 }}
-                            onPress={() => navigation.navigateSimpleTransfer({
-                                target: transaction.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                comment: transaction.base.body && transaction.base.body.type === 'comment' ? transaction.base.body.comment : null,
-                                amount: transaction.base.amount.neg(),
-                                job: null,
-                                stateInit: null,
-                                jetton: null,
-                                callback: null
-                            })}
-                            display={'secondary'}
-                        />
-                    </View>
-                )}
                 <View style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, }}>
                     <RoundButton
                         title={t('common.close')}
@@ -554,6 +515,46 @@ export const TransactionPreviewFragment = fragment(() => {
                     />
                 </View>
             </View>
+        </>
+    )
+})
+
+export const LedgerTransactionPreviewFragment = fragment(() => {
+    const safeArea = useSafeAreaInsets();
+    const { Theme } = useAppConfig();
+    const engine = useEngine();
+    const params = useParams<{ transaction: string }>();
+    const { addr } = useTransport();
+    const address = React.useMemo(() => {
+        return Address.parse(addr!.address);
+    }, []);
+    const transaction = engine.products.ledger.useTransaction(params.transaction);
+    const navigation = useTypedNavigation();
+
+    if (!transaction) {
+        navigation.goBack();
+    }
+
+    return (
+        <View style={{
+            alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
+            alignItems: 'center',
+            backgroundColor: Theme.background,
+            paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
+        }}>
+            {!transaction && (
+                <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} />
+            )}
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            {transaction && address && (
+                <LoadedTransaction
+                    transaction={transaction}
+                    transactionHash={transaction.base?.hash.toString('base64')}
+                    engine={engine}
+                    address={address}
+                />
+            )}
+            {!transaction && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

@@ -54,6 +54,7 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
 import { ZenPayLandingFragment } from './fragments/zenpay/ZenPayLandingFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
@@ -173,6 +174,7 @@ const navigation = [
     modalScreen('Logout', LogoutFragment),
     modalScreen('Contact', ContactFragment),
     modalScreen('Contacts', ContactsFragment),
+    modalScreen('Ledger', LedgerRoot),
     modalScreen('StakingCalculator', StakingCalculatorFragment),
     modalScreen('ZenPayLanding', ZenPayLandingFragment),
     lockedModalScreen('ZenPay', ZenPayAppFragment),

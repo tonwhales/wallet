@@ -1,72 +1,63 @@
-import BN from 'bn.js';
-import { StatusBar } from 'expo-status-bar';
-import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { ATextInput, ATextInputRef } from '../../components/ATextInput';
-import { CloseButton } from '../../components/CloseButton';
-import { RoundButton } from '../../components/RoundButton';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { resolveUrl } from '../../utils/resolveUrl';
-import { backoff } from '../../utils/time';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useEngine } from '../../engine/Engine';
-import { AsyncLock } from 'teslabot';
-import { getCurrentAddress } from '../../storage/appState';
-import { t } from '../../i18n/t';
+import { useKeyboard } from "@react-native-community/hooks";
+import BN from "bn.js";
+import { StatusBar } from "expo-status-bar";
+import React, { useMemo } from "react"
+import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard } from "react-native"
+import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AsyncLock } from "teslabot";
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { WalletV4Source } from "ton-contracts";
+import { AddressDomainInput } from "../../components/AddressDomainInput";
+import { ATextInput, ATextInputRef } from "../../components/ATextInput";
+import { CloseButton } from "../../components/CloseButton";
+import { RoundButton } from "../../components/RoundButton";
+import { useEngine } from "../../engine/Engine";
+import { t } from "../../i18n/t";
+import { KnownWallets } from "../../secure/KnownWallets";
+import { resolveUrl } from "../../utils/resolveUrl";
+import { backoff } from "../../utils/time";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
-import { KnownWallets } from '../../secure/KnownWallets';
-import { fragment } from '../../fragment';
-import { createJettonOrder, createSimpleOrder } from './ops/Order';
-import { useItem } from '../../engine/persistence/PersistedItem';
-import { estimateFees } from '../../engine/estimate/estimateFees';
-import { useRecoilValue } from 'recoil';
-import { useLinkNavigator } from "../../useLinkNavigator";
-import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
-import { AddressDomainInput } from '../../components/AddressDomainInput';
-import { useParams } from '../../utils/useParams';
-import { useAppConfig } from '../../utils/AppConfigContext';
+import { estimateFees } from "../../engine/estimate/estimateFees";
+import { createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
+import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
+import { useTransport } from "./components/TransportContext";
+import { fragment } from "../../fragment";
+import { useParams } from "../../utils/useParams";
+import { useItem } from "../../engine/persistence/PersistedItem";
+import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
+import { fromBNWithDecimals } from "../../utils/withDecimals";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
-const labelStyle: StyleProp<TextStyle> = {
-    fontWeight: '600',
-    fontSize: 17
-};
-
-export type SimpleTransferParams = {
-    target?: string | null,
-    comment?: string | null,
-    amount?: BN | null,
-    stateInit?: Cell | null,
-    job?: string | null,
-    jetton?: Address | null,
-    callback?: ((ok: boolean, result: Cell | null) => void) | null,
-    back?: number,
-    app?: {
-        domain: string,
-        title: string
-    }
-}
-
-export const SimpleTransferFragment = fragment(() => {
+export const LedgerTransferFragment = fragment(() => {
+    const { addr } = useTransport();
     const { Theme, AppConfig } = useAppConfig();
-    const navigation = useTypedNavigation();
-    const params: SimpleTransferParams | undefined = useParams();
+    const address = useMemo(() => {
+        if (addr) {
+            try {
+                return Address.parse(addr.address);
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+    }, [addr]);
     const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
-    const safeArea = useSafeAreaInsets();
+    const params: SimpleTransferParams | undefined = useParams();
 
-    const [target, setTarget] = React.useState(params?.target || '');
+    const accountV4State = engine.products.ledger.useWallet(address);
+    const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
+    const config = engine.products.config.useConfig();
+
+    // Input state
+    const [target, setTarget] = React.useState(params?.target ?? '');
     const [addressDomainInput, setAddressDomainInput] = React.useState(target);
     const [domain, setDomain] = React.useState<string>();
-    const [comment, setComment] = React.useState(params?.comment || '');
+    const [comment, setComment] = React.useState(params?.comment ?? '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
-    const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
-    const [estimation, setEstimation] = React.useState<BN | null>(null);
-    const acc = React.useMemo(() => getCurrentAddress(), []);
+    const [stateInit, setStateInit] = React.useState<Cell | null>(null);
     const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
     const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
@@ -75,37 +66,20 @@ export const SimpleTransferFragment = fragment(() => {
         if (jettonWallet) {
             value = jettonWallet.balance;
         } else {
-            value = account.balance;
+            value = accountV4State?.balance ?? new BN(0);
         }
         return value;
-    }, [jettonWallet, jettonMaster, account.balance]);
-    const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
+    }, [jettonWallet, jettonMaster, accountV4State?.balance]);
 
-    // Auto-cancel job
-    React.useEffect(() => {
-        return () => {
-            if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
-            }
-            if (params && params.callback) {
-                params.callback(false, null);
-            }
-        }
-    }, []);
+    const [estimation, setEstimation] = React.useState<BN | null>(null);
 
     // Resolve order
     const order = React.useMemo(() => {
-
         // Parse value
         let value: BN;
         try {
-            const validAmount = amount.replace(',', '.').trim();
-            // Manage jettons with decimals
-            if (jettonWallet) {
-                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
-            } else {
-                value = toNano(validAmount);
-            }
+            const validAmount = amount.replace(',', '.');
+            value = toNano(validAmount);
         } catch (e) {
             return null;
         }
@@ -121,11 +95,11 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Resolve jetton order
         if (jettonWallet) {
-            return createJettonOrder({
+            return createLedgerJettonOrder({
                 wallet: params!.jetton!,
                 target: target,
                 domain: domain,
-                responseTarget: acc.address,
+                responseTarget: address,
                 text: comment,
                 amount: value,
                 tonAmount: toNano(0.1),
@@ -135,75 +109,34 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Resolve order
-        return createSimpleOrder({
+        return createSimpleLedgerOrder({
             target: target,
             domain: domain,
             text: comment,
             payload: null,
-            amount: value.eq(account.balance) ? toNano('0') : value,
-            amountAll: value.eq(account.balance),
-            stateInit,
-            app: params?.app
+            amount: accountV4State?.balance?.eq(value) ? toNano('0') : value,
+            amountAll: accountV4State?.balance?.eq(value) ? true : false,
+            stateInit
         });
-
-    }, [amount, target, domain, comment, stateInit, jettonWallet, jettonMaster, params?.app]);
+    }, [amount, target, domain, comment, stateInit]);
 
     const doSend = React.useCallback(async () => {
-
-        let address: Address;
-        let isTestOnly: boolean;
+        // Parse value
         let value: BN;
+        try {
+            const validAmount = amount.replace(',', '.');
+            value = toNano(validAmount);
+        } catch (e) {
+            return null;
+        }
 
+        // Parse address
+        let address: Address;
         try {
             let parsed = Address.parseFriendly(target);
             address = parsed.address;
-            isTestOnly = parsed.isTestOnly;
         } catch (e) {
-            Alert.alert(t('transfer.error.invalidAddress'));
-            return;
-        }
-
-        try {
-            const validAmount = amount.replace(',', '.');
-            // Manage jettons with decimals
-            if (jettonWallet) {
-                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
-            } else {
-                value = toNano(validAmount);
-            }
-        } catch (e) {
-            console.warn(e);
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        if (value.isNeg()) {
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        // Might not happen
-        if (!order) {
-            return;
-        }
-
-        // Load contract
-        const contract = await contractFromPublicKey(acc.publicKey);
-
-        // Check if same address
-        if (address.equals(contract.address)) {
-            Alert.alert(t('transfer.error.sendingToYourself'));
-            return;
-        }
-
-        // Check amount
-        if (!value.eq(balance) && balance.lt(value)) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
-            return;
-        }
-        if (value.eq(new BN(0))) {
-            Alert.alert(t('transfer.error.zeroCoins'));
-            return;
+            return null;
         }
 
         // Dismiss keyboard for iOS
@@ -211,67 +144,82 @@ export const SimpleTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
-        // Navigate to transaction confirmation
-        navigation.navigateTransfer({
-            text: comment,
-            order,
-            job: params && params.job ? params.job : null,
-            callback,
-            back: params && params.back ? params.back + 1 : undefined
-        })
-    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
+        navigation.replace('LedgerSignTransfer', {
+            text: null,
+            order: order!,
+        });
 
-    // Estimate fee
-    const config = engine.products.config.useConfig();
-    const accountState = useRecoilValue(engine.persistence.liteAccounts.item(engine.address).atom);
+    }, [addr, target, amount, comment]);
+
+    // Estimate fees
     const lock = React.useMemo(() => {
         return new AsyncLock();
     }, []);
     React.useEffect(() => {
         let ended = false;
         lock.inLock(async () => {
-            await backoff('simple-transfer', async () => {
+            await backoff('ledger-transfer', async () => {
+                if (!addr) {
+                    return;
+                }
+
+                if (!accountV4State) {
+                    return;
+                }
                 if (ended) {
                     return;
                 }
 
-                // Load app state
-                const appState = getCurrentAddress();
+                if (!order) {
+                    return;
+                }
+
+                // Parse value
+                let value: BN;
+                try {
+                    const validAmount = amount.replace(',', '.');
+                    value = toNano(validAmount);
+                } catch (e) {
+                    return null;
+                }
+
+                // Parse address
+                let address: Address;
+                try {
+                    let parsed = Address.parseFriendly(target);
+                    address = parsed.address;
+                } catch (e) {
+                    return null;
+                }
+
+                const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
+                // Load contract
+                const contract = await contractFromPublicKey(addr.publicKey);
+                const seqno = (await engine.client4.getLastBlock()).last.seqno;
+                // Fetch account light state
+                const accountState = (await backoff('account-state', () => engine.client4.getAccountLite(seqno, contract.address))).account;
+
 
                 // Parse order
                 let intMessage: InternalMessage;
                 let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
-                if (!order) {
-                    intMessage = new InternalMessage({
-                        to: appState.address,
-                        value: new BN(0),
-                        bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: stateInit ? new CellMessage(stateInit) : null,
-                            body: new CommentMessage(comment)
-                        })
-                    });
-                } else {
-                    intMessage = new InternalMessage({
-                        to: Address.parse(order.messages[0].target),
-                        value: order.messages[0].amount,
-                        bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
-                            body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : null
-                        })
-                    });
-                    if (order.messages[0].amountAll) {
-                        sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
-                    }
-                }
 
-                // Load contract
-                const contract = await contractFromPublicKey(appState.publicKey);
+                intMessage = new InternalMessage({
+                    to: address,
+                    value: value,
+                    bounce: false,
+                    body: new CommonMessageInfo({
+                        stateInit: accountV4State.seqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
+                        body: new CommentMessage(comment || '')
+                    })
+                });
+                if (order.amountAll) {
+                    sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
+                }
 
                 // Create transfer
                 let transfer = await contract.createTransfer({
-                    seqno: account.seqno,
+                    seqno: accountV4State.seqno,
                     walletId: contract.source.walletId,
                     secretKey: null,
                     sendMode,
@@ -282,18 +230,18 @@ export const SimpleTransferFragment = fragment(() => {
                 }
 
                 // Resolve fee
-                if (config && accountState) {
+                if (config) {
                     let inMsg = new Cell();
                     new ExternalMessage({
                         to: contract.address,
                         body: new CommonMessageInfo({
-                            stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                            stateInit: accountV4State.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
                             body: new CellMessage(transfer)
                         })
                     }).writeTo(inMsg);
                     let outMsg = new Cell();
                     intMessage.writeTo(outMsg);
-                    let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
+                    let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStat]);
                     setEstimation(local);
                 }
             });
@@ -301,15 +249,27 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, account.seqno, config, accountState, comment]);
+    }, [order, config, comment]);
 
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const onQRCodeRead = React.useCallback((src: string) => {
         let res = resolveUrl(src, AppConfig.isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
                 navigation.goBack();
-                linkNavigator(res);
+
+                const payloadOrder = createSimpleLedgerOrder({
+                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    text: res.comment,
+                    payload: res.payload,
+                    amount: res.amount ? res.amount : new BN(0),
+                    amountAll: false,
+                    stateInit: res.stateInit
+                });
+
+                navigation.navigateLedgerSignTransfer({
+                    text: comment,
+                    order: payloadOrder,
+                });
             } else {
                 setAddressDomainInput(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
                 if (res.amount) {
@@ -334,7 +294,6 @@ export const SimpleTransferFragment = fragment(() => {
     //
     // Scroll state tracking
     //
-
     const [selectedInput, setSelectedInput] = React.useState(0);
 
     const refs = React.useMemo(() => {
@@ -358,12 +317,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        if (Platform.OS !== 'android' && container) {
-            scrollTo(scrollRef, 0, container.height, true);
-        }
-        if (Platform.OS === 'android') {
-            scrollTo(scrollRef, 0, 400, true);
-        }
+        scrollTo(scrollRef, 0, Platform.OS === 'android' ? 400 : (container?.height ?? 0), true);
         return;
 
     }, []);
@@ -392,15 +346,22 @@ export const SimpleTransferFragment = fragment(() => {
     const contact = engine.products.settings.useContact(target);
 
     return (
-        <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.title', { symbol })} />
+        <View style={{
+            flexGrow: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+        }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
+            <AndroidToolbar pageTitle={t('transfer.title', { symbol: 'TON' })} />
+            {Platform.OS !== 'android' && (
                 <View style={{
                     paddingTop: 17,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('transfer.title', { symbol })}</Text>
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 17,
+                        textAlign: 'center'
+                    }}>{t('transfer.title', { symbol: 'TON' })}</Text>
                 </View>
             )}
             <Animated.ScrollView
@@ -421,7 +382,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                     <View style={{
                         marginBottom: 16,
-                        backgroundColor: Theme.item,
+                        backgroundColor: "white",
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -436,7 +397,7 @@ export const SimpleTransferFragment = fragment(() => {
                             placeholder={'0'}
                             keyboardType={'numeric'}
                             textAlign={'center'}
-                            style={{ backgroundColor: Theme.transparent }}
+                            style={{ backgroundColor: 'transparent' }}
                             fontWeight={'800'}
                             fontSize={30}
                             preventDefaultHeight
@@ -447,21 +408,21 @@ export const SimpleTransferFragment = fragment(() => {
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 16,
-                            color: Theme.priceSecondary,
+                            color: '#6D6D71',
                             marginBottom: 5
                         }}>
                             {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                             <Pressable
                                 onPress={onAddAll}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
                                             ? Theme.selector
-                                            : Theme.item,
+                                            : 'white',
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -474,14 +435,14 @@ export const SimpleTransferFragment = fragment(() => {
                                 </View>
                             </Pressable>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: 'white', borderRadius: 14 }}>
                             <Pressable
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
                                             ? Theme.selector
-                                            : Theme.item,
+                                            : 'white',
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -497,7 +458,7 @@ export const SimpleTransferFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
+                        backgroundColor: "white",
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -512,13 +473,14 @@ export const SimpleTransferFragment = fragment(() => {
                             onTargetChange={setTarget}
                             onDomainChange={setDomain}
                             style={{
-                                backgroundColor: Theme.transparent,
+                                backgroundColor: 'transparent',
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
                             isKnown={isKnown}
                             onSubmit={onSubmit}
                             contact={contact}
+                            showToMainAddress
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
                         <ATextInput
@@ -530,7 +492,7 @@ export const SimpleTransferFragment = fragment(() => {
                             placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
                             keyboardType="default"
                             autoCapitalize="sentences"
-                            style={{ backgroundColor: Theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
+                            style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
                             preventDefaultHeight
                             multiline
                             label={
@@ -544,7 +506,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: Theme.label,
+                                        color: '#7D858A',
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.commentLabel')}
@@ -567,7 +529,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.labelSecondary,
+                                                color: '#858B93',
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {t('transfer.checkComment')}
@@ -578,32 +540,47 @@ export const SimpleTransferFragment = fragment(() => {
                             }
                         />
                     </View>
-                    <Text style={{ color: Theme.priceSecondary, marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
+                    <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 style={{
                     marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom + 16,
+                    marginBottom: safeArea.bottom + (Platform.OS === 'android' ? 16 : 0) ?? 16,
+
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
-                <RoundButton
-                    title={t('common.continue')}
-                    action={doSend}
-                />
-            </KeyboardAvoidingView>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
+                <View style={{
+                    flexDirection: 'row'
+                }}>
+                    <RoundButton
+                        title={t('common.back')}
+                        display={'secondary'}
+                        onPress={navigation.goBack}
+                        style={{
+                            flex: 1,
+                            marginRight: 4
                         }}
                     />
-                )
-            }
-        </>
+                    <RoundButton
+                        title={t('common.confirm')}
+                        action={doSend}
+                        disabled={!order}
+                        style={{
+                            flex: 1,
+                            marginLeft: 4
+                        }}
+                    />
+                </View>
+            </KeyboardAvoidingView>
+            {Platform.OS === 'ios' && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={navigation.goBack}
+                />
+            )}
+        </View>
     );
 });

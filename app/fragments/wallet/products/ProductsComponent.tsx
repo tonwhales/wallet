@@ -1,6 +1,7 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
+import { ProductButton } from "./ProductButton"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
@@ -11,6 +12,7 @@ import { t } from "../../../i18n/t"
 import { JettonProduct } from "./JettonProduct"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
+import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 import { ZenPayProductButton } from "../../zenpay/components/ZenPayProductButton"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
@@ -25,6 +27,7 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
+    const ledger = engine.products.settings.useLedger();
     const cards = engine.products.zenPay.useCards();
     const tonconnectExtensions = engine.products.tonConnect.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
@@ -82,6 +85,16 @@ export const ProductsComponent = React.memo(() => {
         }]);
     }, []);
 
+    const removeLedger = React.useCallback(() => {
+        Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
+            text: t('common.continue'),
+            style: 'destructive',
+            onPress: () => {
+                engine.products.settings.setLedger(false);
+            }
+        }]);
+    }, []);
+
     // Resolve apps
     let apps: React.ReactElement[] = [];
 
@@ -126,6 +139,29 @@ export const ProductsComponent = React.memo(() => {
                 }}
                 extension={true}
                 style={{ marginVertical: 4 }}
+            />
+        );
+    }
+
+    if (ledger) {
+        apps.push(
+            <AnimatedProductButton
+                key={'ledger'}
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                name={t('hardwareWallet.title')}
+                subtitle={t('hardwareWallet.description')}
+                icon={HardwareWalletIcon}
+                iconProps={{ width: 32, height: 32, color: 'black' }}
+                iconViewStyle={{
+                    backgroundColor: 'transparent'
+                }}
+                style={{ marginVertical: 4 }}
+                value={null}
+                onLongPress={removeLedger}
+                onPress={() => {
+                    navigation.navigate('Ledger');
+                }}
             />
         );
     }
@@ -229,7 +265,7 @@ export const ProductsComponent = React.memo(() => {
                 <StakingProductComponent key={'pool'} />
             </View>
 
-            {apps.length > 0 && (
+            {(apps.length > 0) && (
                 <>
                     <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
                         <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>

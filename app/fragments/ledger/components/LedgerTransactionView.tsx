@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, NativeSyntheticEvent, Platform, Share, Text, ToastAndroid, useWindowDimensions, View } from 'react-native';
+import { Image, NativeSyntheticEvent, Platform, Share, Text, useWindowDimensions, View } from 'react-native';
 import { Address } from 'ton';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
@@ -21,7 +21,7 @@ function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: s
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
 }
 
-export function TransactionView(props: {
+export function LedgerTransactionView(props: {
     own: Address,
     tx: string,
     separator: boolean,
@@ -33,7 +33,10 @@ export function TransactionView(props: {
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
-    const tx = props.engine.products.main.useTransaction(props.tx);
+    const tx = props.engine.products.ledger.useTransaction(props.tx);
+    if (!tx) {
+        return <></>;
+    }
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -150,7 +153,7 @@ export function TransactionView(props: {
     }, []);
 
     const onRepeatTx = React.useCallback(() => {
-        navigation.navigateSimpleTransfer({
+        navigation.navigateLedgerTransfer({
             target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
             comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
             amount: tx.base.amount.neg(),
@@ -158,7 +161,7 @@ export function TransactionView(props: {
             stateInit: null,
             jetton: null,
             callback: null
-        })
+        });
     }, [tx, operation]);
 
     const transactionActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
@@ -246,7 +249,7 @@ export function TransactionView(props: {
                                 </Text>
                                 {spam && (
                                     <View style={{
-                                        borderColor: Theme.textSecondaryBorder,
+                                        borderColor: '#ADB6BE',
                                         borderWidth: 1,
                                         justifyContent: 'center',
                                         alignItems: 'center',
@@ -259,13 +262,13 @@ export function TransactionView(props: {
                                 )}
                             </View>
                             {parsed.status === 'failed' ? (
-                                <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                                     {t('tx.failed')}
                                 </Text>
                             ) : (
                                 <Text
                                     style={{
-                                        color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : Theme.pricePositive : Theme.priceNegative,
+                                        color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
                                         fontWeight: '400',
                                         fontSize: 16,
                                         marginRight: 2,
@@ -297,4 +300,4 @@ export function TransactionView(props: {
         </ContextMenu>
     );
 }
-TransactionView.displayName = 'TransactionView';
+LedgerTransactionView.displayName = 'LedgerTransactionView';

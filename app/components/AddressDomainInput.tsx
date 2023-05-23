@@ -290,10 +290,11 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             multiline
             autoCorrect={false}
             autoComplete={'off'}
+            textContentType={'none'}
             style={style}
             onBlur={onBlur}
             onSubmit={onSubmit}
-            returnKeyType="next"
+            returnKeyType={'next'}
             blurOnSubmit={false}
             editable={!resolving}
             enabled={!resolving}

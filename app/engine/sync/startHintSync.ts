@@ -15,7 +15,7 @@ export type HintProcessingState = {
     seqno: number;
 };
 
-export function startHintSync(address: Address, engine: Engine, own?: Address) {
+export function startHintSync(address: Address, engine: Engine, owner?: Address) {
     let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/hint`;
     let hint = engine.persistence.hintState.item(address);
     let request = engine.persistence.hintRequest.item(address);
@@ -73,14 +73,14 @@ export function startHintSync(address: Address, engine: Engine, own?: Address) {
         //
 
         if (metadata.jettonMaster) {
-            let wallet = await tryGetJettonWallet(engine.client4, seqno, { address: own ?? engine.address, master: address });
+            let wallet = await tryGetJettonWallet(engine.client4, seqno, { address: owner ?? engine.address, master: address });
             if (wallet) {
 
                 // Register master
                 registerKnownJettonMaster(engine, address);
 
                 // Register wallet
-                registerKnownJettonWallet(engine, own ?? engine.address, wallet);
+                registerKnownJettonWallet(engine, owner ?? engine.address, wallet);
             }
         }
 

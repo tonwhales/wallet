@@ -520,8 +520,8 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
 })
 
 export const LedgerTransactionPreviewFragment = fragment(() => {
-    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
+    const { Theme } = useAppConfig();
     const engine = useEngine();
     const params = useParams<{ transaction: string }>();
     const { addr } = useTransport();

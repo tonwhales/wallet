@@ -40,9 +40,8 @@ export function createLedgerJettonOrder(args: {
     amount: BN,
     tonAmount: BN,
     txAmount: BN,
-    payload: Cell | null,
-    isTestnet: boolean,
-}): LedgerOrder {
+    payload: Cell | null
+}, isTestnet: boolean): LedgerOrder {
 
     // Resolve payload
     let payload: Cell | null = null;
@@ -71,7 +70,7 @@ export function createLedgerJettonOrder(args: {
         .endCell();
 
     return {
-        target: args.wallet.toFriendly({ testOnly: args.isTestnet }),
+        target: args.wallet.toFriendly({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
         payload: { type: 'unsafe', message: new CellMessage(msg) },

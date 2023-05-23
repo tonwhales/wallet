@@ -28,7 +28,7 @@ export function LedgerTransactionView(props: {
     engine: Engine,
     onPress: (src: string) => void
 }) {
-    const { AppConfig, Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;

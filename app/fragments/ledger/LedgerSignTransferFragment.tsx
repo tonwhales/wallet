@@ -86,7 +86,7 @@ type ConfirmLoadedProps = {
 };
 
 const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
-    const { AppConfig, Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const account = engine.products.ledger.useAccount();

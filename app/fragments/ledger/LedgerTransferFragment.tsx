@@ -20,7 +20,7 @@ import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { estimateFees } from "../../engine/estimate/estimateFees";
-import { createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
+import { createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
@@ -32,8 +32,8 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const LedgerTransferFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
     const { addr } = useTransport();
+    const { Theme, AppConfig } = useAppConfig();
     const address = useMemo(() => {
         if (addr) {
             try {
@@ -104,9 +104,8 @@ export const LedgerTransferFragment = fragment(() => {
                 amount: value,
                 tonAmount: toNano(0.1),
                 txAmount: toNano(0.2),
-                payload: null,
-                isTestnet: AppConfig.isTestnet
-            });
+                payload: null
+            }, AppConfig.isTestnet);
         }
 
         // Resolve order
@@ -145,9 +144,7 @@ export const LedgerTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
-        navigation.goBack();
-
-        navigation.navigateLedgerSignTransfer({
+        navigation.replace('LedgerSignTransfer', {
             text: null,
             order: order!,
         });

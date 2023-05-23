@@ -84,8 +84,6 @@ const WalletTransactions = React.memo((props: {
         </View>
     );
 });
-// {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
-// {(Platform.OS !== 'ios' && props.next) && (<View style={{ height: 64 }} />)}
 
 export const LedgerApp = React.memo((props: {
     transport: TonTransport,

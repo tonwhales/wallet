@@ -662,6 +662,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bluetoothScanDescription_1: '1. Turn your ledger on and unlock it',
         bluetoothScanDescription_2: '2. Make sure that you have bluetooth enabled',
         bluetoothScanDescription_3: '3. Press \"Scan\" to search for available devices and select suitable Ledger Nano X',
+        bluetoothScanDescription_3_and: '3. Press \"Scan\" to search for available devices (we will need access to device location data and permission to search for nearby devices)',
+        bluetoothScanDescription_4_and: '4. Then select suitable Ledger Nano X',
         openAppVerifyAddress: 'Check the account address that you have selected and then verify the address with the Ledger Ton App when prompted',
         devices: 'Devices',
         actions: {
@@ -676,10 +678,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             sending: 'Awaiting transaction',
             sent: 'Transaction sent',
             mainAddress: 'Main address',
+            givePermissions: 'Give permissions',
         },
         confirm: {
             add: 'Are you sure want to add this app?',
-            remove: 'Are you sure want to remove this app?'   
+            remove: 'Are you sure want to remove this app?'
         },
         errors: {
             noDevice: 'No device found',
@@ -689,9 +692,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             transactionNotFound: 'Transaction not found',
             transactionRejected: 'Transaction rejected',
             transferFailed: 'Transfer failed',
-            searchErrorTitle: 'Error searching for device',
-            bluetoothPermission: 'Please, allow Bluetooth permission and try again',
-            locationPermission: 'Please, allow Location permission and try again',
+            permissions: 'Please, allow access to bluetooth and location',
         },
         moreAbout: 'More about Ledger'
     },

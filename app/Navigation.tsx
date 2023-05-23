@@ -22,7 +22,7 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EngineContext } from './engine/Engine';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -100,24 +100,33 @@ function formSheetScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-function modalScreen(name: string, component: React.ComponentType<any>) {
+function modalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
             name={name}
             component={component}
-            options={{ presentation: 'modal', headerShown: false }}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+            }}
         />
     );
 }
 
-function lockedModalScreen(name: string, component: React.ComponentType<any>) {
+function lockedModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
             name={name}
             component={component}
-            options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: false,
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+            }}
         />
     );
 }
@@ -133,7 +142,7 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>) {
 //     );
 // }
 
-const navigation = [
+const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
     fullScreen('Sync', SyncFragment),
@@ -148,39 +157,39 @@ const navigation = [
     genericScreen('Settings', SettingsFragment),
     genericScreen('Privacy', PrivacyFragment),
     genericScreen('Terms', TermsFragment),
-    modalScreen('Connections', ConnectionsFragment),
-    modalScreen('Transfer', TransferFragment),
-    modalScreen('SimpleTransfer', SimpleTransferFragment),
-    modalScreen('Receive', ReceiveFragment),
-    modalScreen('Transaction', TransactionPreviewFragment),
-    modalScreen('Authenticate', AuthenticateFragment),
-    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment),
-    modalScreen('Install', InstallFragment),
-    modalScreen('Sign', SignFragment),
-    modalScreen('Migration', MigrationFragment),
-    lockedModalScreen('Scanner', ScannerFragment),
+    modalScreen('Connections', ConnectionsFragment, safeArea),
+    modalScreen('Transfer', TransferFragment, safeArea),
+    modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
+    modalScreen('Receive', ReceiveFragment, safeArea),
+    modalScreen('Transaction', TransactionPreviewFragment, safeArea),
+    modalScreen('Authenticate', AuthenticateFragment, safeArea),
+    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
+    modalScreen('Install', InstallFragment, safeArea),
+    modalScreen('Sign', SignFragment, safeArea),
+    modalScreen('Migration', MigrationFragment, safeArea),
+    lockedModalScreen('Scanner', ScannerFragment, safeArea),
     genericScreen('DeveloperTools', DeveloperToolsFragment),
     genericScreen('DeveloperToolsStorage', DevStorageFragment),
-    lockedModalScreen('Buy', NeocryptoFragment),
+    lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('StakingGraph', StakingGraphFragment),
-    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),
-    modalScreen('StakingTransfer', StakingTransferFragment),
-    modalScreen('Accounts', AccountsFragment),
-    modalScreen('SpamFilter', SpamFilterFragment),
-    modalScreen('Currency', CurrencyFragment),
-    modalScreen('Review', ReviewFragment),
-    modalScreen('DeleteAccount', DeleteAccountFragment),
-    modalScreen('Logout', LogoutFragment),
-    modalScreen('Contact', ContactFragment),
-    modalScreen('Contacts', ContactsFragment),
-    modalScreen('Ledger', LedgerRoot),
-    modalScreen('StakingCalculator', StakingCalculatorFragment),
-    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment),
-    modalScreen('ZenPayLanding', ZenPayLandingFragment),
-    lockedModalScreen('ZenPay', ZenPayAppFragment),
-    modalScreen('Assets', AssetsFragment),
+    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
+    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
+    modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('Accounts', AccountsFragment, safeArea),
+    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
+    modalScreen('Currency', CurrencyFragment, safeArea),
+    modalScreen('Review', ReviewFragment, safeArea),
+    modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
+    modalScreen('Logout', LogoutFragment, safeArea),
+    modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('Contacts', ContactsFragment, safeArea),
+    modalScreen('Ledger', LedgerRoot, safeArea),
+    modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
+    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment, safeArea),
+    modalScreen('ZenPayLanding', ZenPayLandingFragment, safeArea),
+    lockedModalScreen('ZenPay', ZenPayAppFragment, safeArea),
+    modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}
@@ -323,9 +332,15 @@ export const Navigation = React.memo(() => {
                 >
                     <Stack.Navigator
                         initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+                        screenOptions={{
+                            headerBackTitle: t('common.back'),
+                            title: '',
+                            headerShadowVisible: false,
+                            headerTransparent: false,
+                            headerStyle: { backgroundColor: 'white' }
+                        }}
                     >
-                        {navigation}
+                        {navigation(safeArea)}
                     </Stack.Navigator>
                 </NavigationContainer>
                 <Splash hide={hideSplash} />

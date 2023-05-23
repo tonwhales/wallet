@@ -643,6 +643,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         bluetoothScanDescription_1: '1. Включите устройство и разблокируйте его',
         bluetoothScanDescription_2: '2. Убедитесь, что bluetooth включен',
         bluetoothScanDescription_3: '3. Нажмите \"Начать поиск\" для поиска доступных устройств и выберите подходящий Ledger Nano X',
+        bluetoothScanDescription_3_and: '3. Нажмите \"Начать поиск\" для поиска доступных устройств (нам потребуется доступ к данным о местоположении устройства и разрешение на поиск устройств рядом)',
+        bluetoothScanDescription_4_and: '4. Далее выберите подходящий Ledger Nano X',
         openAppVerifyAddress: 'Проверьте адрес счета, который вы выбрали, а затем подтвердите адрес с помощью приложения Ton App на Ledger, когда появится запрос',
         devices: 'Устройства',
         actions: {
@@ -657,6 +659,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             sending: 'Ожидание транзакции',
             sent: 'Транзакция отправлена',
             mainAddress: 'Основной адрес',
+            givePermissions: 'Дать доступ',
         },
         confirm: {
             add: 'Вы уверены, что хотите добавить это приложение?',
@@ -670,6 +673,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             transactionNotFound: 'Транзакция не найдена',
             transactionRejected: 'Транзакция отклонена',
             transferFailed: 'Ошибка отправки транзакции',
+            permissions: 'Пожалуйста, предоставьте разрешение на доступ к данным о местоположении устройства и разрешение на поиск устройств рядом',
         },
         moreAbout: 'Подробнее о Ledger'
     },

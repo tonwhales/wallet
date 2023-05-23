@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
-import { View, Text, Image, LayoutAnimation } from "react-native";
+import { View, LayoutAnimation } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
@@ -8,13 +8,14 @@ import { LedgerDeviceSelection } from "./LedgerDeviceSelection";
 import { LedgerDevice } from "./BleDevice";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
 import { useTransport } from "./TransportContext";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { LedgerBleDescription } from "./LedgerBleDescription";
+
+type StepScreen = 'scan' | 'select-account' | 'description';
 
 export const LedgerBle = React.memo(() => {
-    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const { ledgerConnection, setLedgerConnection, tonTransport, addr } = useTransport();
-    const [screen, setScreen] = useState<'scan' | 'select-account' | null>(null);
+    const [screen, setScreen] = useState<StepScreen>('description');
 
     const onSelectDevice = useCallback(async (device: LedgerDevice) => {
         const transport = await TransportBLE.open(device.id);
@@ -27,7 +28,7 @@ export const LedgerBle = React.memo(() => {
 
     useEffect(() => {
         if (!ledgerConnection) {
-            setScreen(null);
+            setScreen('description');
             return;
         }
         if (tonTransport) {
@@ -41,71 +42,14 @@ export const LedgerBle = React.memo(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            {(screen !== 'scan' && screen !== 'select-account') && (
-                <>
-                    <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        paddingHorizontal: 16,
-                        flexGrow: 1,
-                    }}>
-                        <View style={{ flexGrow: 1 }} />
-                        <Image style={{ width: 204, height: 204 }}
-                            source={require('../../../../assets/ic_ledger_x.png')}
-                        />
-                        <Text style={{
-                            color: Theme.textColor,
-                            fontWeight: '700',
-                            fontSize: 20,
-                            marginBottom: 32,
-                            marginHorizontal: 16,
-                            marginTop: 16
-                        }}>
-                            {t('hardwareWallet.actions.connect')}
-                        </Text>
-                        <View style={{ justifyContent: 'center' }}>
-                            <Text style={{
-                                color: Theme.textColor,
-                                fontWeight: '400',
-                                fontSize: 16,
-                                marginBottom: 12,
-                            }}>
-                                {t('hardwareWallet.bluetoothScanDescription_1')}
-                            </Text>
-                            <Text style={{
-                                color: Theme.textColor,
-                                fontWeight: '400',
-                                fontSize: 16,
-                                marginBottom: 12,
-                            }}>
-                                {t('hardwareWallet.bluetoothScanDescription_2')}
-                            </Text>
-                            <Text style={{
-                                color: Theme.textColor,
-                                fontWeight: '400',
-                                fontSize: 16,
-                                marginBottom: 12,
-                            }}>
-                                {t('hardwareWallet.bluetoothScanDescription_3')}
-                            </Text>
-                        </View>
-                        <View style={{ flexGrow: 1 }} />
-                    </View>
-                    <RoundButton
-                        title={t('hardwareWallet.actions.scanBluetooth')}
-                        onPress={onScan}
-                        style={{
-                            marginBottom: safeArea.bottom + 16,
-                            marginHorizontal: 16,
-                        }}
-                    />
-                </>
+            {screen === 'description' && (
+                <LedgerBleDescription onScan={onScan} />
             )}
             {screen === 'scan' && (
                 <LedgerDeviceSelection
                     onReset={() => {
                         setLedgerConnection(null);
-                        setScreen(null);
+                        setScreen('description');
                     }}
                     onSelectDevice={onSelectDevice}
                 />
@@ -115,7 +59,7 @@ export const LedgerBle = React.memo(() => {
                 <LedgerSelectAccount
                     onReset={() => {
                         setLedgerConnection(null)
-                        setScreen(null);
+                        setScreen('description');
                     }}
                 />
             )}

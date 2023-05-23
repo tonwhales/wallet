@@ -105,22 +105,33 @@ export const ConnectionsFragment = fragment(() => {
 
     const toggleLedger = React.useCallback(() => {
         if (!ledger) {
-            Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.add'), [{ text: t('common.cancel') }, {
-                text: t('common.add'),
-                onPress: () => {
-                    engine.products.settings.setLedger(true);
-                }
-            }]);
+            Alert.alert(
+                t('hardwareWallet.ledger'),
+                t('hardwareWallet.confirm.add'),
+                [
+                    {
+                        text: t('common.cancel')
+                    }, {
+                        text: t('common.add'),
+                        onPress: () => engine.products.settings.setLedger(true)
+                    }
+                ]
+            );
             return;
         }
-        Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
-            text: t('common.continue'),
-            style: 'destructive',
-            onPress: () => {
-                engine.products.settings.setLedger(false);
-            }
-        }]);
-        return;
+        Alert.alert(
+            t('hardwareWallet.ledger'),
+            t('hardwareWallet.confirm.remove'),
+            [
+                {
+                    text: t('common.cancel')
+                }, {
+                    text: t('common.delete'),
+                    style: 'destructive',
+                    onPress: () => engine.products.settings.setLedger(false)
+                }
+            ]
+        );
     }, [ledger]);
 
     // 
@@ -155,6 +166,7 @@ export const ConnectionsFragment = fragment(() => {
                     </Text>
                 </View>
             )}
+            <AndroidToolbar pageTitle={t('auth.apps.title')} />
             {(
                 apps.length === 0
                 && extensions.length === 0
@@ -164,7 +176,7 @@ export const ConnectionsFragment = fragment(() => {
                     <View style={{
                         alignItems: 'center',
                         justifyContent: 'center',
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        position: 'absolute', top: Platform.OS === 'android' ? 56 : 0, left: 0, right: 0, bottom: 0,
                         paddingHorizontal: 16
                     }}>
                         <LottieView
@@ -302,7 +314,6 @@ export const ConnectionsFragment = fragment(() => {
                         <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
                     </ScrollView>
                 )}
-            <AndroidToolbar pageTitle={t('auth.apps.title')} />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

@@ -55,7 +55,6 @@ export const PasscodeInput = React.memo((
                         try {
                             await onEntered(prevPasscode + key);
                         } catch (e) {
-                            console.log(e);
                             setIsWrong(true);
                             doShake();
                             setTimeout(() => {

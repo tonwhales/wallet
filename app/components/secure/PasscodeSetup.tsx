@@ -77,7 +77,6 @@ export const PasscodeSetup = React.memo((
                     await onSuccess(state.input);
                     dispatch({ type: 'success' });
                 } catch (e) {
-                    console.log(e);
                     warn('Failed to encrypt and store with passcode');
                     dispatch({ type: 're-enter', input: state.input });
                 }

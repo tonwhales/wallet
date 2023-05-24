@@ -200,7 +200,8 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
                     id: request.id.toString(),
                   });
                 }
-              }
+              },
+              back: 1
             })
             return;
           }

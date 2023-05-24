@@ -167,7 +167,7 @@ export const cardsListResCodec = t.intersection([
   cardsListCodec
 ]);
 
-export async function fetchCardList(token: string) {
+export async function fetchCardsList(token: string) {
   let res = await axios.post(
     'https://' + zenPayEndpoint + '/card/list',
     { token },

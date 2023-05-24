@@ -7,7 +7,7 @@ import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 import { storage } from "../../storage/storage";
-import { fetchCardList, fetchCardsPublic } from "../api/zenpay/fetchCards";
+import { fetchCardsList, fetchCardsPublic } from "../api/zenpay/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
 
@@ -160,7 +160,7 @@ export class ZenPayProduct {
             let status = this.engine.persistence.zenPayStatus.item(this.engine.address).value;
             if (status && status?.state !== 'need-enrolment') {
                 const token = status.token;
-                const cards = await fetchCardList(token);
+                const cards = await fetchCardsList(token);
                 this.engine.persistence.zenPayCards.item(this.engine.address).update((src) => {
                     return cards;
                 });

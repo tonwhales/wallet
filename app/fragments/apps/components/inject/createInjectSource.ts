@@ -1,8 +1,10 @@
 import WebView from "react-native-webview";
 
 // window.localStorage.clear(); is a hack to clear the cache for ton-x connection bug not reseting on address change
-export function createInjectSource(config: any) {
+export function createInjectSource(config: any, initialInjections?: string) {
     return `
+    ${initialInjections ?? ''}
+    window.alert(JSON.stringify(window.initialState));
     window['ton-x'] = (() => {
         let requestId = 0;
         let callbacks = {};

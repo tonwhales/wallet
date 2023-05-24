@@ -22,6 +22,8 @@ import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { fetchCardList as fetchCardsList } from '../../engine/api/zenpay/fetchCards';
+import { fetchAccountState } from '../../engine/api/zenpay/fetchAccountState';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -203,6 +205,19 @@ export const DeveloperToolsFragment = fragment(() => {
                             />
                         </View>
                     )}
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'cards'}
+                            onPress={async () => {
+                                const token = await engine.cloud.readKey('zenpay-jwt');
+                                if (token) {
+                                    const cards = await fetchCardsList(token.toString());
+                                    fetchAccountState(token.toString());
+                                }
+
+                            }}
+                        />
+                    </View>
                 </View>
             </ScrollView>
         </View>

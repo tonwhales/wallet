@@ -3,7 +3,7 @@ import * as t from "io-ts";
 import { zenPayEndpoint } from "../../corp/ZenPayProduct";
 import { Address } from "ton";
 
-export const cardListCodec = t.union([
+export const cardListPublicCodec = t.union([
   t.type({
     ok: t.literal(true),
     accounts: t.array(
@@ -25,7 +25,7 @@ export const cardListCodec = t.union([
   }),
 ]);
 
-export async function fetchCards(address: Address, isTestnet: boolean) {
+export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
   let res = await axios.post(
     'https://' + zenPayEndpoint + '/public/cards',
     {
@@ -43,12 +43,11 @@ export async function fetchCards(address: Address, isTestnet: boolean) {
     }
   );
 
-
   if (res.status === 401) {
     return null;
   }
 
-  if (!cardListCodec.is(res.data)) {
+  if (!cardListPublicCodec.is(res.data)) {
     throw Error("Invalid card list response");
   }
 
@@ -57,4 +56,142 @@ export async function fetchCards(address: Address, isTestnet: boolean) {
   }
 
   return res.data.accounts;
+}
+
+export enum CardStatus {
+  PENDING = 'PENDING',
+  ORDERED = 'ORDERED',
+  PERSONALIZED = 'PERSONALIZED',
+  DISPATCHED = 'DISPATCHED',
+  DELIVERED = 'DELIVERED',
+}
+
+export type CardDelivery = {
+  id: string,
+  status: CardStatus,
+  countryCode: string,
+  address: string,
+  postalCode: string | undefined,
+  apartment: string | undefined,
+  floor: string | undefined,
+  phone: string,
+  email: string,
+  trackNumber: string | undefined,
+  deliveryMethod: string
+}
+
+export const cardDeliveryCodec = t.type({
+  id: t.string,
+  status: t.union([
+    t.literal(CardStatus.PENDING),
+    t.literal(CardStatus.ORDERED),
+    t.literal(CardStatus.PERSONALIZED),
+    t.literal(CardStatus.DISPATCHED),
+    t.literal(CardStatus.DELIVERED),
+  ]),
+  countryCode: t.string,
+  address: t.string,
+  postalCode: t.union([t.string, t.undefined]),
+  apartment: t.union([t.string, t.undefined]),
+  floor: t.union([t.string, t.undefined]),
+  phone: t.string,
+  email: t.string,
+  trackNumber: t.union([t.string, t.undefined]),
+  deliveryMethod: t.string
+});
+
+export type CardsList = {
+  accounts: {
+    id: string,
+    address: string,
+    state: string,
+    balance: string,
+    card: {
+      lastFourDigits: string | undefined,
+      productId: string,
+      personalizationCode: string,
+      partner: string,
+      provider: string,
+      kind: string,
+      tzOffset: number
+    },
+    contract: string,
+    limits: {
+      tzOffset: number,
+      onetime: string,
+      daily: string,
+      dailySpent: string,
+      monthly: string,
+      monthlySpent: string,
+      dailyDeadline: number,
+      monthlyDeadline: number
+    },
+    delivery: CardDelivery | null
+  }[]
+}
+
+export const cardsListCodec = t.type({
+  accounts: t.array(
+    t.type({
+      id: t.string,
+      address: t.string,
+      state: t.string,
+      balance: t.string,
+      card: t.type({
+        lastFourDigits: t.union([t.string, t.undefined]),
+        productId: t.string,
+        personalizationCode: t.string,
+        partner: t.string,
+        provider: t.string,
+        kind: t.string,
+        tzOffset: t.number
+      }),
+      contract: t.string,
+      limits: t.type({
+        tzOffset: t.number,
+        onetime: t.string,
+        daily: t.string,
+        dailySpent: t.string,
+        monthly: t.string,
+        monthlySpent: t.string,
+        dailyDeadline: t.number,
+        monthlyDeadline: t.number
+      }),
+      delivery: t.union([cardDeliveryCodec, t.null])
+    })
+  ),
+});
+
+export const cardsListResCodec = t.intersection([
+  t.type({ ok: t.literal(true) }),
+  cardsListCodec
+]);
+
+export async function fetchCardList(token: string) {
+  let res = await axios.post(
+    'https://' + zenPayEndpoint + '/card/list',
+    { token },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Credentials": "true",
+      }
+    }
+  );
+
+  if (res.status === 401) {
+    return null;
+  }
+
+  if (!res.data.ok) {
+    throw Error(`Error fetching card list: ${res.data.error}`);
+  }
+
+  if (!cardsListResCodec.is(res.data)) {
+    throw Error("Invalid card list response");
+  }
+
+  return res.data as CardsList;
 }

@@ -4,7 +4,6 @@ import WebView from "react-native-webview";
 export function createInjectSource(config: any, initialInjections?: string) {
     return `
     ${initialInjections ?? ''}
-    window.alert(JSON.stringify(window.initialState));
     window['ton-x'] = (() => {
         let requestId = 0;
         let callbacks = {};

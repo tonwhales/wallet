@@ -125,7 +125,14 @@ export const WalletBackupFragment = systemFragment(() => {
                 </View>
                 <View style={{ height: 64 + 16 + safeArea.bottom }} />
             </ScrollView>
-            <View style={{ height: 64, marginTop: 33, alignSelf: 'stretch', position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
+            <View style={{
+                height: 64,
+                marginTop: 33,
+                alignSelf: 'stretch',
+                position: 'absolute',
+                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0),
+                left: 16, right: 16
+            }}>
                 <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />
             </View>
         </Animated.View>

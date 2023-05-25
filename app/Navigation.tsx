@@ -78,24 +78,16 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-function genericScreen(name: string, component: React.ComponentType<any>) {
+function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
             name={name}
             component={component}
-            options={{ headerShown: Platform.OS === 'ios' }}
-        />
-    );
-}
-
-function formSheetScreen(name: string, component: React.ComponentType<any>) {
-    return (
-        <Stack.Screen
-            key={`formSheetScreen-${name}`}
-            name={name}
-            component={component}
-            options={{ headerShown: false }}
+            options={{
+                headerShown: Platform.OS === 'ios',
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+            }}
         />
     );
 }
@@ -109,7 +101,7 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
             options={{
                 presentation: 'modal',
                 headerShown: false,
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : undefined }
             }}
         />
     );
@@ -131,32 +123,21 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
     );
 }
 
-// function fullScreenModal(name: string, component: React.ComponentType<any>) {
-//     return (
-//         <Stack.Screen
-//             key={`fullScreenModal-${name}`}
-//             name={name}
-//             component={component}
-//             options={{ presentation: 'fullScreenModal', headerShown: false }}
-//         />
-//     );
-// }
-
 const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
     fullScreen('Sync', SyncFragment),
-    genericScreen('LegalCreate', LegalFragment),
-    genericScreen('LegalImport', LegalFragment),
-    genericScreen('WalletImport', WalletImportFragment),
-    genericScreen('WalletCreate', WalletCreateFragment),
-    genericScreen('WalletCreated', WalletCreatedFragment),
-    genericScreen('WalletBackupInit', WalletBackupFragment),
-    genericScreen('WalletBackup', WalletBackupFragment),
-    genericScreen('WalletUpgrade', WalletUpgradeFragment),
-    genericScreen('Settings', SettingsFragment),
-    genericScreen('Privacy', PrivacyFragment),
-    genericScreen('Terms', TermsFragment),
+    genericScreen('LegalCreate', LegalFragment, safeArea),
+    genericScreen('LegalImport', LegalFragment, safeArea),
+    genericScreen('WalletImport', WalletImportFragment, safeArea),
+    genericScreen('WalletCreate', WalletCreateFragment, safeArea),
+    genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
+    genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
+    genericScreen('WalletBackup', WalletBackupFragment, safeArea),
+    genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
+    genericScreen('Settings', SettingsFragment, safeArea),
+    genericScreen('Privacy', PrivacyFragment, safeArea),
+    genericScreen('Terms', TermsFragment, safeArea),
     modalScreen('Connections', ConnectionsFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
@@ -168,8 +149,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
     lockedModalScreen('Scanner', ScannerFragment, safeArea),
-    genericScreen('DeveloperTools', DeveloperToolsFragment),
-    genericScreen('DeveloperToolsStorage', DevStorageFragment),
+    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
+    genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
@@ -186,6 +167,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
+    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment, safeArea),
     modalScreen('ZenPayLanding', ZenPayLandingFragment, safeArea),
     lockedModalScreen('ZenPay', ZenPayAppFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),

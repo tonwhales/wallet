@@ -187,6 +187,7 @@ export const LedgerApp = React.memo((props: {
                             fontWeight: '500',
                             fontFamily: undefined
                         }}
+                        lockActions
                     />
                 </View>
                 <View
@@ -198,7 +199,15 @@ export const LedgerApp = React.memo((props: {
                 >
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight
-                            onPress={() => { navigation.navigate('Receive', { addr: props.address.address }); }}
+                            onPress={() => {
+                                navigation.navigate(
+                                    'LedgerReceive',
+                                    {
+                                        addr: props.address.address,
+                                        ledger: true
+                                    }
+                                );
+                            }}
                             underlayColor={Theme.selector}
                             style={{ borderRadius: 14 }}
                         >

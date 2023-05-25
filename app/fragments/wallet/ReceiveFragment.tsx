@@ -17,15 +17,15 @@ import { Address } from "ton";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { useEngine } from "../../engine/Engine";
 import { WImage } from "../../components/WImage";
-import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const params = useParams<{ addr?: string }>();
+    const params = useParams<{ addr?: string, ledger?: boolean }>();
     const address = React.useMemo(() => {
         if (params.addr) {
             return Address.parse(params.addr);
@@ -87,7 +87,11 @@ export const ReceiveFragment = fragment(() => {
                             }
                         }}
                         onPress={() => {
-                            navigation.navigate('Assets', { callback: onAssetSelected })
+                            if (params.ledger) {
+                                navigation.navigate('LedgerAssets', { callback: onAssetSelected });
+                                return;
+                            }
+                            navigation.navigate('Assets', { callback: onAssetSelected });
                         }}
                     >
                         <View style={{

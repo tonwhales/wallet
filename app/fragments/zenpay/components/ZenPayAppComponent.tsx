@@ -122,9 +122,7 @@ export const ZenPayAppComponent = React.memo((
         }
 
         const initialInjection = `
-        window.initialState = { 
-            ${JSON.stringify(initialState)}
-        }
+        window.initialState = ${JSON.stringify(initialState)};
         `;
 
         let domainSign = engine.products.keys.createDomainSignature(domain);

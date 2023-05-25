@@ -187,7 +187,7 @@ export const LedgerApp = React.memo((props: {
                             fontWeight: '500',
                             fontFamily: undefined
                         }}
-                        lockActions
+                        limitActions
                     />
                 </View>
                 <View

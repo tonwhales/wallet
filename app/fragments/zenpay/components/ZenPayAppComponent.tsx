@@ -114,7 +114,10 @@ export const ZenPayAppComponent = React.memo((
             ${accountState?.state && accountState?.state !== 'need-enrolment'
                 ? `account: {
                     status: ${JSON.stringify(accountState.state)},
-                    kycStatus: ${JSON.stringify(accountState.kycStatus)},
+                    ${accountState?.state === 'need-kyc'
+                        ? `kycStatus: ${JSON.stringify(accountState.kycStatus)},`
+                        : undefined
+                    }
                     token: ${JSON.stringify(accountState.token)},
                 }`
                 : 'account: { status: "no-ref" }'

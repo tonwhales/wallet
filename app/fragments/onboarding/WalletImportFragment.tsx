@@ -414,7 +414,12 @@ function WalletWordsComponent(props: {
                 <Animated.ScrollView
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                     contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                    contentInset={{
+                        bottom: keyboard.keyboardShown
+                            ? (keyboard.keyboardHeight + (Platform.OS === 'ios' ? safeArea.bottom : 0) - safeArea.bottom)
+                            : 0.1 + (Platform.OS ? safeArea.bottom : 0) /* Some weird bug on iOS */,
+                        top: 0.1 /* Some weird bug on iOS */
+                    }}
                     contentInsetAdjustmentBehavior="never"
                     keyboardShouldPersistTaps="always"
                     keyboardDismissMode="none"
@@ -492,7 +497,12 @@ export const WalletImportFragment = systemFragment(() => {
     }, [navigation, state]);
 
     return (
-        <>
+        <View
+            style={{
+                flexGrow: 1,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
+            }}
+        >
             {!state && (
                 <Animated.View
                     style={{
@@ -521,6 +531,6 @@ export const WalletImportFragment = systemFragment(() => {
                     />
                 </Animated.View>
             )}
-        </>
+        </View>
     );
 });

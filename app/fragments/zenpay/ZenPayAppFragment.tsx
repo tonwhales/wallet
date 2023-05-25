@@ -25,7 +25,7 @@ export const ZenPayAppFragment = fragment(() => {
     const endpoint = useMemo(() => {
         let url = zenPayUrl;
         if (params.type === 'account') {
-            url += status.state === 'ready' ? '/create' : '';
+            url += status.state === 'ok' ? '/create' : '';
         } else if (params.type === 'card') {
             url += `/card/${params.id}`;
         }

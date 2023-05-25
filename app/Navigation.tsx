@@ -167,7 +167,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
-    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment, safeArea),
     modalScreen('ZenPayLanding', ZenPayLandingFragment, safeArea),
     lockedModalScreen('ZenPay', ZenPayAppFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),

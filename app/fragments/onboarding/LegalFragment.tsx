@@ -25,7 +25,13 @@ export const LegalFragment = systemFragment(() => {
         }
     }, []);
     return (
-        <View style={{ flexGrow: 1, alignSelf: 'stretch', alignItems: 'center', backgroundColor: 'white', paddingTop: Platform.OS === 'android' ? safeArea.top : 0 }}>
+        <View style={{
+            flexGrow: 1,
+            alignSelf: 'stretch', alignItems: 'center',
+            backgroundColor: 'white',
+            paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
+            paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0,
+        }}>
             <AndroidToolbar pageTitle={t('legal.title')} />
             <View style={{ flexGrow: 1 }} />
             <FragmentMediaContent

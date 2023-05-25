@@ -38,7 +38,12 @@ export const WalletCreateFragment = systemFragment(() => {
     }, []);
 
     return (
-        <>
+        <View
+            style={{
+                flexGrow: 1,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
+            }}
+        >
             {!state && (
                 <Animated.View
                     style={{
@@ -76,6 +81,6 @@ export const WalletCreateFragment = systemFragment(() => {
                     />
                 </Animated.View>
             )}
-        </>
+        </View>
     );
 });

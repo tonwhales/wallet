@@ -110,23 +110,22 @@ export const ZenPayAppComponent = React.memo((
         const cardsState = engine.persistence.zenPayCards.item(engine.address).value;
         const accountState = engine.persistence.zenPayStatus.item(engine.address).value;
 
-        const initialInjection = `window.initialState = { 
-            ${accountState?.state && accountState?.state !== 'need-enrolment'
-                ? `account: {
-                    status: ${JSON.stringify(accountState.state)},
-                    ${accountState?.state === 'need-kyc'
-                        ? `kycStatus: ${JSON.stringify(accountState.kycStatus)},`
-                        : undefined
-                    }
-                    token: ${JSON.stringify(accountState.token)},
-                }`
-                : 'account: { status: "no-ref" }'
-            }
-            ${cardsState
-                ? `, cards: { list: ${JSON.stringify(cardsState.accounts)} }`
-                : ''
-            }
-        }`;
+        const initialState = {
+            account: {
+                state: {
+                    status: accountState?.state || 'no-ref',
+                    kycStatus: accountState?.state === 'need-kyc' ? accountState.kycStatus : null,
+                },
+                ...accountState?.state && accountState.state !== 'need-enrolment' ? { token: accountState?.token } : {},
+            },
+            ...cardsState ? { cardsList: { list: cardsState.accounts } } : {},
+        }
+
+        const initialInjection = `
+        window.initialState = { 
+            ${JSON.stringify(initialState)}
+        }
+        `;
 
         let domainSign = engine.products.keys.createDomainSignature(domain);
 

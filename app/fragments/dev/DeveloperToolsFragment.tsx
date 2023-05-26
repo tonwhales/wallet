@@ -22,6 +22,10 @@ import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
+import axios from 'axios';
+import * as FileSystem from 'expo-file-system';
+import { ZenPayApp, setupLocalZenPayApp, zenPayAppCodec } from '../zenpay/utils';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -203,6 +207,22 @@ export const DeveloperToolsFragment = fragment(() => {
                             />
                         </View>
                     )}
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Test"} onPress={async () => {
+                            const file = await FileSystem.getInfoAsync('file:///var/mobile/Containers/Data/Application/59035F43-A9E0-4F06-B0AF-F91B8A2A4C98/Library/Caches/zenpay/index.html');
+                            console.log({ file });
+                            const zenPayAppFile = (await axios.get(`${zenPayUrl}/app-info.json`)).data;
+                            const app = zenPayAppFile as ZenPayApp;
+                            const localAppUrl = await setupLocalZenPayApp(zenPayUrl, app);
+                            console.log({ localAppUrl });
+                            // if (zenPayAppFile && zenPayAppCodec.is(zenPayAppFile)) {
+                            //     const localAppUrl = await setupLocalZenPayApp(zenPayUrl, app);
+                            //     console.log({ localAppUrl });
+                            // } else {
+                            // }
+                        }} />
+                    </View>
                 </View>
             </ScrollView>
         </View>

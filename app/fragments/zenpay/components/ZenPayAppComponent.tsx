@@ -128,8 +128,6 @@ export const ZenPayAppComponent = React.memo((
         window.initialState = ${JSON.stringify(initialState)};
         `;
 
-        console.log(JSON.stringify(initialState));
-
         let domainSign = engine.products.keys.createDomainSignature(domain);
 
         return createInjectSource(

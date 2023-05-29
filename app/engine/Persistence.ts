@@ -35,7 +35,7 @@ import { CardsList as ZenPayCardsList, cardsListCodec } from "./api/zenpay/fetch
 
 export class Persistence {
 
-    readonly version: number = 16;
+    readonly version: number = 17;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -150,7 +150,7 @@ export class Persistence {
         // ZenPay
         this.zenPayStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: zenPayStatusCodec, engine });
         this.zenPayState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: zenPayStateCodec, engine });
-        this.zenPayCards = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: cardsListCodec, engine });
+        this.zenPayCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });

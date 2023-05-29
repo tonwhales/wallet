@@ -100,5 +100,9 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+	<string>file</string>
+	</array>
 </dict>
 </plist>

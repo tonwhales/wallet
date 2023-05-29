@@ -210,7 +210,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Test"} onPress={async () => {
-                            const file = await FileSystem.getInfoAsync('file:///var/mobile/Containers/Data/Application/59035F43-A9E0-4F06-B0AF-F91B8A2A4C98/Library/Caches/zenpay/index.html');
+                            const file = await FileSystem.getInfoAsync(`${FileSystem.cacheDirectory}zenpay/index.html`);
                             console.log({ file });
                             const zenPayAppFile = (await axios.get(`${zenPayUrl}/app-info.json`)).data;
                             const app = zenPayAppFile as ZenPayApp;

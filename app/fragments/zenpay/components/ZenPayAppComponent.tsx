@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -15,7 +15,7 @@ import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { ZenPayAppParams } from '../ZenPayAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { extractZenPayQueryParams } from '../utils';
+import { extractZenPayQueryParams, setupLocalZenPayApp } from '../utils';
 import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
@@ -24,7 +24,9 @@ import { useLinkNavigator } from '../../../useLinkNavigator';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import * as FileSystem from 'expo-file-system';
-import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
+import { checkMultiple, PERMISSIONS } from 'react-native-permissions';
+import { zenPayUrl } from '../../../engine/corp/ZenPayProduct';
+import axios from 'axios';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -271,7 +273,28 @@ export const ZenPayAppComponent = React.memo((
         webRef.current?.reload();
     }, []);
 
-    console.log(props.endpoint);
+    const [html, setHtml] = React.useState<string>();
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const zenPayAppFile = (await axios.get(`${zenPayUrl}/app-info.json`)).data;
+                const app = await setupLocalZenPayApp(zenPayUrl, zenPayAppFile);
+
+                console.log({ app });
+
+                let html = await FileSystem.readAsStringAsync(`${FileSystem.cacheDirectory}zenpay/index.html`);
+                // if (html) {
+                //     html = html.replaceAll(
+                //         '/assets/',
+                //         `./assets/`
+                //     )
+                // }
+                setHtml(html);
+            } catch (e) {
+                warn(e);
+            }
+        })();
+    }, []);
 
     return (
         <>
@@ -279,74 +302,70 @@ export const ZenPayAppComponent = React.memo((
                 <AnotherKeyboardAvoidingView
                     style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                 >
-                    <WebView
-                        ref={webRef}
-                        source={{ uri: `${FileSystem.cacheDirectory}zenpay/index.html`, baseUrl: FileSystem.cacheDirectory + 'zenpay' }}
-                        allowFileAccess={true}
-                        allowFileAccessFromFileURLs={true}
-                        allowUniversalAccessFromFileURLs={true}
-                        originWhitelist={['*']}
-                        allowingReadAccessToURL={FileSystem.cacheDirectory ?? ''}
-                        // source={{ html, baseUrl: FileSystem.cacheDirectory + 'zenpay' }}
-                        // source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
-                        startInLoadingState={true}
-                        style={{
-                            backgroundColor: Theme.item,
-                            flexGrow: 1, flexBasis: 0, height: '100%',
-                            alignSelf: 'stretch',
-                            marginTop: Platform.OS === 'ios' ? 0 : 8,
-                        }}
-                        onError={(event) => {
-                            console.warn('WebView error', event.nativeEvent);
-                        }}
-                        onHttpError={(event) => {
-                            console.warn('WebView http error', event.nativeEvent);
-                        }}
-                        onLoadEnd={() => {
-                            setLoaded(true);
-                            opacity.value = 0;
-                            (async () => {
-                                const info = await FileSystem.getInfoAsync(`${FileSystem.cacheDirectory}zenpay/index.html`);
-                                console.log('info', info);
-
-                                const res = await checkMultiple([
-                                    PERMISSIONS.IOS.MEDIA_LIBRARY,
-                                    PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
-                                    PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
-                                ]);
-
-                                console.log({ res });
-                            })();
-                        }}
-                        onLoadProgress={(event) => {
-                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                    {html && (
+                        <WebView
+                            ref={webRef}
+                            // uri: indexUri ?? '',
+                            source={{
+                                html: html,
+                                // uri: `${FileSystem.cacheDirectory}zenpay/index.html`,
+                                // removing file:// from uri
+                                baseUrl: (FileSystem.cacheDirectory + 'zenpay/'),
+                            }}
+                            allowFileAccess={true}
+                            allowFileAccessFromFileURLs={true}
+                            allowUniversalAccessFromFileURLs={true}
+                            originWhitelist={['*']}
+                            allowingReadAccessToURL={FileSystem.cacheDirectory + 'zenpay' ?? ''}
+                            // source={{ html, baseUrl: FileSystem.cacheDirectory + 'zenpay' }}
+                            // source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
+                            startInLoadingState={true}
+                            style={{
+                                backgroundColor: Theme.item,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onError={(event) => {
+                                console.warn('WebView error', event.nativeEvent);
+                            }}
+                            onHttpError={(event) => {
+                                console.warn('WebView http error', event.nativeEvent);
+                            }}
+                            onLoadEnd={() => {
+                                setLoaded(true);
+                                opacity.value = 0;
+                            }}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                    // Searching for supported query
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
                                 // Searching for supported query
-                                onNavigation(event.nativeEvent.url);
-                            }
-                        }}
-                        onNavigationStateChange={(event: WebViewNavigation) => {
-                            // Searching for supported query
-                            onNavigation(event.url);
-                        }}
-                        // Locking scroll, it's handled within the Web App
-                        scrollEnabled={false}
-                        contentInset={{ top: 0, bottom: 0 }}
-                        autoManageStatusBarEnabled={false}
-                        // allowFileAccessFromFileURLs={false}
-                        // allowUniversalAccessFromFileURLs={false}
-                        decelerationRate="normal"
-                        allowsInlineMediaPlayback={true}
-                        injectedJavaScriptBeforeContentLoaded={injectSource}
-                        // onShouldStartLoadWithRequest={loadWithRequest} // TODO fix for offline first
-                        // In case of iOS blank WebView
-                        onContentProcessDidTerminate={onContentProcessDidTerminate}
-                        // In case of Android blank WebView
-                        onRenderProcessGone={onContentProcessDidTerminate}
-                        onMessage={handleWebViewMessage}
-                        keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                        bounces={false}
-                    />
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={false}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            // allowFileAccessFromFileURLs={false}
+                            // allowUniversalAccessFromFileURLs={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            injectedJavaScriptBeforeContentLoaded={injectSource}
+                            // onShouldStartLoadWithRequest={loadWithRequest} // TODO fix for offline first
+                            // In case of iOS blank WebView
+                            onContentProcessDidTerminate={onContentProcessDidTerminate}
+                            // In case of Android blank WebView
+                            onRenderProcessGone={onContentProcessDidTerminate}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            bounces={false}
+                        />
+                    )}
                 </AnotherKeyboardAvoidingView>
                 <Animated.View
                     style={animatedStyles}

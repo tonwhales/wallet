@@ -3,6 +3,8 @@ import { BackPolicy, ZenPayQueryParams } from "./types";
 import * as FileSystem from 'expo-file-system';
 import * as t from 'io-ts';
 
+import { Asset } from 'expo-asset';
+
 // {
 // "name":"holders-dapp",
 // "resources":[
@@ -189,9 +191,6 @@ export async function downloadAsset(endpoint: string, assetPath: string): Promis
 
 // A function that downloads all of the ZenPayApp assets and html source, then injects all assets into the source and returns the result
 export async function setupLocalZenPayApp(endpoint: string, app: ZenPayApp): Promise<string | null> {
-    // has free space
-    const freeSpace = await FileSystem.getFreeDiskStorageAsync();
-    console.log({ freeSpace });
     const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + 'zenpay');
     if (!hasAppDirectory.exists) {
         await FileSystem.makeDirectoryAsync(FileSystem.cacheDirectory + 'zenpay');

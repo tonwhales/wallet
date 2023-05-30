@@ -28,6 +28,7 @@ project 'wallet',
         'Release Testnet' => :release
 
 target 'WhalesApp' do
+  pod "GCDWebServer", "~> 3.0", :source => 'https://github.com/CocoaPods/Specs.git'
   use_expo_modules!
   config = use_native_modules!
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ToastAndroid, View, Text } from "react-native";
+import { Alert, Platform, ToastAndroid, View, Text, NativeModules } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -22,10 +22,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
-import axios from 'axios';
-import * as FileSystem from 'expo-file-system';
-import { ZenPayApp, setupLocalZenPayApp, zenPayAppCodec } from '../zenpay/utils';
+import HttpServer from '../../components/modules/HttpServer';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -210,12 +207,19 @@ export const DeveloperToolsFragment = fragment(() => {
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Test"} onPress={async () => {
-                            const file = await FileSystem.getInfoAsync(`${FileSystem.cacheDirectory}zenpay/index.html`);
-                            console.log({ file });
-                            const zenPayAppFile = (await axios.get(`${zenPayUrl}/app-info.json`)).data;
-                            const app = zenPayAppFile as ZenPayApp;
-                            const localAppUrl = await setupLocalZenPayApp(zenPayUrl, app);
-                            console.log({ localAppUrl });
+                            console.log(HttpServer);
+                            
+                            HttpServer.startServer(zenPayAppUrl, 8080);
+                            HttpServer.stopServer();
+
+                            // await HttpServer.start(zenPayAppUrl, 8080);
+                            // await HttpServer.stop();
+                            // const file = await FileSystem.getInfoAsync(`${FileSystem.cacheDirectory}zenpay/index.html`);
+                            // console.log({ file });
+                            // const zenPayAppFile = (await axios.get(`${zenPayUrl}/app-info.json`)).data;
+                            // const app = zenPayAppFile as ZenPayApp;
+                            // const localAppUrl = await setupLocalZenPayApp(zenPayUrl, app);
+                            // console.log({ localAppUrl });
                             // if (zenPayAppFile && zenPayAppCodec.is(zenPayAppFile)) {
                             //     const localAppUrl = await setupLocalZenPayApp(zenPayUrl, app);
                             //     console.log({ localAppUrl });

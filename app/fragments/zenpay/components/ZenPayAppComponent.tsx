@@ -274,6 +274,7 @@ export const ZenPayAppComponent = React.memo((
     }, []);
 
     const [html, setHtml] = React.useState<string>();
+    const [uri, setUri] = React.useState<string>();
     React.useEffect(() => {
         (async () => {
             try {
@@ -282,14 +283,18 @@ export const ZenPayAppComponent = React.memo((
 
                 console.log({ app });
 
-                let html = await FileSystem.readAsStringAsync(`${FileSystem.cacheDirectory}zenpay/index.html`);
-                // if (html) {
-                //     html = html.replaceAll(
-                //         '/assets/',
-                //         `./assets/`
-                //     )
-                // }
+                let html = await FileSystem.readAsStringAsync(`${FileSystem.cacheDirectory}holders/index.html`);
+                if (html) {
+                    html = html.replaceAll(
+                        '/assets/',
+                        // `assets/`
+                        `${FileSystem.cacheDirectory}holders/assets/`
+                    )
+                }
                 setHtml(html);
+                // if (app) {
+                //     setUri(app);
+                // }
             } catch (e) {
                 warn(e);
             }
@@ -308,15 +313,17 @@ export const ZenPayAppComponent = React.memo((
                             // uri: indexUri ?? '',
                             source={{
                                 html: html,
+                                // uri: uri,
                                 // uri: `${FileSystem.cacheDirectory}zenpay/index.html`,
                                 // removing file:// from uri
-                                baseUrl: (FileSystem.cacheDirectory + 'zenpay/'),
+                                baseUrl: `${FileSystem.cacheDirectory}holders/`,
+                                // baseUrl: '',
                             }}
                             allowFileAccess={true}
                             allowFileAccessFromFileURLs={true}
                             allowUniversalAccessFromFileURLs={true}
                             originWhitelist={['*']}
-                            allowingReadAccessToURL={FileSystem.cacheDirectory + 'zenpay' ?? ''}
+                            allowingReadAccessToURL={FileSystem.cacheDirectory + 'holders/' ?? ''}
                             // source={{ html, baseUrl: FileSystem.cacheDirectory + 'zenpay' }}
                             // source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
                             startInLoadingState={true}
@@ -325,12 +332,6 @@ export const ZenPayAppComponent = React.memo((
                                 flexGrow: 1, flexBasis: 0, height: '100%',
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
-                            }}
-                            onError={(event) => {
-                                console.warn('WebView error', event.nativeEvent);
-                            }}
-                            onHttpError={(event) => {
-                                console.warn('WebView http error', event.nativeEvent);
                             }}
                             onLoadEnd={() => {
                                 setLoaded(true);
@@ -350,8 +351,6 @@ export const ZenPayAppComponent = React.memo((
                             scrollEnabled={false}
                             contentInset={{ top: 0, bottom: 0 }}
                             autoManageStatusBarEnabled={false}
-                            // allowFileAccessFromFileURLs={false}
-                            // allowUniversalAccessFromFileURLs={false}
                             decelerationRate="normal"
                             allowsInlineMediaPlayback={true}
                             injectedJavaScriptBeforeContentLoaded={injectSource}

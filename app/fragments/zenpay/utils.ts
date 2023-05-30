@@ -159,8 +159,8 @@ export async function downloadAsset(endpoint: string, assetPath: string): Promis
     const assetRelativePath = assetPath.split('/').slice(0, -1);
     const assetFilename = assetPath.split('/').pop()?.replaceAll('/', '');
     const assetDirectory = assetRelativePath.length > 0
-        ? `${FileSystem.cacheDirectory}${'zenpay/'}${assetPath.split('/').slice(0, -1).join('/')}`
-        : `${FileSystem.cacheDirectory}${'zenpay/'}${assetFilename}`;
+        ? `${FileSystem.cacheDirectory}${'holders/'}${assetPath.split('/').slice(0, -1).join('/')}`
+        : `${FileSystem.cacheDirectory}${'holders/'}${assetFilename}`;
 
     const assetPathInCache = `${assetDirectory}/${assetFilename}`;
 
@@ -189,11 +189,10 @@ export async function downloadAsset(endpoint: string, assetPath: string): Promis
     }
 }
 
-// A function that downloads all of the ZenPayApp assets and html source, then injects all assets into the source and returns the result
 export async function setupLocalZenPayApp(endpoint: string, app: ZenPayApp): Promise<string | null> {
-    const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + 'zenpay');
+    const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + 'holders');
     if (!hasAppDirectory.exists) {
-        await FileSystem.makeDirectoryAsync(FileSystem.cacheDirectory + 'zenpay');
+        await FileSystem.makeDirectoryAsync(FileSystem.cacheDirectory + 'holders');
     }
     
     let uri = null;
@@ -201,14 +200,13 @@ export async function setupLocalZenPayApp(endpoint: string, app: ZenPayApp): Pro
         && app.routes.length > 0
         && app.routes[0].fileName === 'index.html'
     ) {
-        uri = FileSystem.cacheDirectory + 'zenpay/' + app.routes[0].fileName;
+        uri = FileSystem.cacheDirectory + 'holders/' + app.routes[0].fileName;
         const stored = await FileSystem.writeAsStringAsync(uri, app.routes[0].source);
         console.log({ stored });
     }
 
     console.log({ uri });
 
-    // go through all assets and download them await downloadAsset(endpoint, asset)
     const assets = app.resources.map(asset => downloadAsset(endpoint, asset));
     const downloadedAssets = await Promise.all(assets);
     console.log({ downloadedAssets });

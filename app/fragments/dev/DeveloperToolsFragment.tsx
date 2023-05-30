@@ -22,7 +22,6 @@ import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import HttpServer from '../../components/modules/HttpServer';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -204,29 +203,6 @@ export const DeveloperToolsFragment = fragment(() => {
                             />
                         </View>
                     )}
-
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Test"} onPress={async () => {
-                            console.log(HttpServer);
-                            
-                            HttpServer.startServer(zenPayAppUrl, 8080);
-                            HttpServer.stopServer();
-
-                            // await HttpServer.start(zenPayAppUrl, 8080);
-                            // await HttpServer.stop();
-                            // const file = await FileSystem.getInfoAsync(`${FileSystem.cacheDirectory}zenpay/index.html`);
-                            // console.log({ file });
-                            // const zenPayAppFile = (await axios.get(`${zenPayUrl}/app-info.json`)).data;
-                            // const app = zenPayAppFile as ZenPayApp;
-                            // const localAppUrl = await setupLocalZenPayApp(zenPayUrl, app);
-                            // console.log({ localAppUrl });
-                            // if (zenPayAppFile && zenPayAppCodec.is(zenPayAppFile)) {
-                            //     const localAppUrl = await setupLocalZenPayApp(zenPayUrl, app);
-                            //     console.log({ localAppUrl });
-                            // } else {
-                            // }
-                        }} />
-                    </View>
                 </View>
             </ScrollView>
         </View>

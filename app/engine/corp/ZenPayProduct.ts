@@ -305,12 +305,16 @@ export class ZenPayProduct {
 
         FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
 
-        let info = await FileSystem.getInfoAsync(fsPath);
-        if (info.exists) {
+        const stored = await FileSystem.downloadAsync(netPath, fsPath);
+        if (!(asset.endsWith('.js') || asset.endsWith('.html') || asset.endsWith('.css'))) {
             return fsPath;
         }
-
-        FileSystem.downloadAsync(netPath, fsPath);
+        let file = await FileSystem.readAsStringAsync(stored.uri);
+        file = file.replaceAll(
+            '{{APP_PUBLIC_URL}}',
+            FileSystem.cacheDirectory + 'holders/'
+        );
+        await FileSystem.writeAsStringAsync(stored.uri, file);
 
         return fsPath;
     }
@@ -326,15 +330,18 @@ export class ZenPayProduct {
             && app.routes.length > 0
             && app.routes[0].fileName === 'index.html'
         ) {
-            uri = FileSystem.cacheDirectory + 'holders/' + app.routes[0].fileName;
-            const stored = await FileSystem.downloadAsync(endpoint + "/index.html", uri);
+            uri = FileSystem.cacheDirectory + 'holders/index.html';
+            const stored = await FileSystem.downloadAsync(endpoint + '/resources/index.html', uri);
             uri = stored.uri;
             let file = await FileSystem.readAsStringAsync(uri);
-            file = file.replaceAll('/assets/', endpoint + '/assets/');
+            file = file.replaceAll(
+                '{{APP_PUBLIC_URL}}',
+                FileSystem.cacheDirectory + 'holders/'
+            );
             await FileSystem.writeAsStringAsync(uri, file);
         }
 
-        const assets = app.resources.map(asset => this.downloadAsset(endpoint, asset));
+        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}resources/`, asset));
         const downloadedAssets = await Promise.all(assets);
 
         return { uri, assets: downloadedAssets };

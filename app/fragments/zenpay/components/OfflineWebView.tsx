@@ -29,9 +29,6 @@ export const OfflineWebView = React.memo(React.forwardRef((
         }
     }));
 
-    console.log({ offlineApp });
-
-    const [html, setHtml] = React.useState<string>();
     const [renderedOnce, setRenderedOnce] = useState(false);
 
     return (

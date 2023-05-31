@@ -30,10 +30,12 @@ import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/typ
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
+import { accountStateCodec } from "./api/zenpay/fetchAccountState";
+import { CardsList as ZenPayCardsList, cardsListCodec } from "./api/zenpay/fetchCards";
 
 export class Persistence {
 
-    readonly version: number = 15;
+    readonly version: number = 16;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -80,6 +82,7 @@ export class Persistence {
 
     readonly zenPayStatus: PersistedCollection<Address, ZenPayAccountStatus>;
     readonly zenPayState: PersistedCollection<Address, ZenPayState>;
+    readonly zenPayCards: PersistedCollection<Address, ZenPayCardsList>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -147,6 +150,7 @@ export class Persistence {
         // ZenPay
         this.zenPayStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: zenPayStatusCodec, engine });
         this.zenPayState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: zenPayStateCodec, engine });
+        this.zenPayCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -317,21 +321,11 @@ const spamFilterCodec = t.type({
 });
 
 const zenPayStatusCodec = t.union([
-    t.type({
-        state: t.literal('need-enrolment'),
-    }),
-    t.type({
-        state: t.literal('need-phone'),
-        token: t.string
-    }),
-    t.type({
-        state: t.literal('need-kyc'),
-        token: t.string
-    }),
-    t.type({
-        state: t.literal('ready'),
-        token: t.string
-    })
+    t.type({ state: t.literal('need-enrolment') }),
+    t.intersection([
+        t.type({ token: t.string }),
+        accountStateCodec
+    ])
 ]);
 
 const zenPayStateCodec = t.type({

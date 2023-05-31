@@ -47,8 +47,6 @@ export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
     return null;
   }
 
-  console.log({ public: res.data });
-
   if (!cardListPublicCodec.is(res.data)) {
     throw Error("Invalid card list response");
   }
@@ -190,8 +188,6 @@ export async function fetchCardsList(token: string) {
   if (!res.data.ok) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
-
-  console.log({ cardsRes: JSON.stringify(res.data) });
 
   if (!cardsListResCodec.is(res.data)) {
     throw Error("Invalid card list response");

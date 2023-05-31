@@ -6,7 +6,7 @@ import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../anal
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { zenPayUrl } from "../engine/corp/ZenPayProduct";
+import { holdersUrl } from "../engine/corp/ZenPayProduct";
 import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
@@ -23,7 +23,7 @@ import { loadWalletKeys } from "../storage/walletKeys";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 
 export function clearZenPay(engine: Engine, address?: Address) {
-    const zenPayDomain = extractDomain(zenPayUrl);
+    const zenPayDomain = extractDomain(holdersUrl);
     engine.products.zenPay.stopWatching();
     engine.persistence.domainKeys.setValue(
         `${(address ?? engine.address).toFriendly({ testOnly: engine.isTestnet })}/${zenPayDomain}`,

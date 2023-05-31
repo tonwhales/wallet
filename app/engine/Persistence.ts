@@ -30,8 +30,9 @@ import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/typ
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
-import { accountStateCodec } from "./api/zenpay/fetchAccountState";
-import { CardsList as ZenPayCardsList, cardsListCodec } from "./api/zenpay/fetchCards";
+import { accountStateCodec } from "./api/holders/fetchAccountState";
+import { CardsList as ZenPayCardsList, cardsListCodec } from "./api/holders/fetchCards";
+import { HoldersOfflineApp, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
 
 export class Persistence {
 
@@ -83,6 +84,7 @@ export class Persistence {
     readonly zenPayStatus: PersistedCollection<Address, ZenPayAccountStatus>;
     readonly zenPayState: PersistedCollection<Address, ZenPayState>;
     readonly zenPayCards: PersistedCollection<Address, ZenPayCardsList>;
+    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineApp>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -147,10 +149,11 @@ export class Persistence {
         // SpamFilter
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
 
-        // ZenPay
+        // Holders
         this.zenPayStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: zenPayStatusCodec, engine });
         this.zenPayState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: zenPayStateCodec, engine });
         this.zenPayCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });
+        this.holdersOfflineApp = new PersistedCollection({ storage, namespace: 'holdersOfflineApp', key: voidKey, codec: holdersOfflineAppCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });

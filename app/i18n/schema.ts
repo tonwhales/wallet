@@ -707,6 +707,7 @@ export type LocalizationSchema = {
         copySeedAlertTitle: string,
         copySeedAlertMessage: string,
         copySeedAlertAction: string,
+        holdersOfflineApp: string,
     },
     wallets: {
         switchToAlertTitle: string,

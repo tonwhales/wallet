@@ -30,6 +30,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
+    const offlineApp = engine.products.zenPay.useOfflineApp();
 
     const reboot = useReboot();
     const restart = React.useCallback(() => {
@@ -152,6 +153,10 @@ export const DeveloperToolsFragment = fragment(() => {
                                 <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                             </View>
                         )}
+                        
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not ready'} />
+                    </View>
 
                     {AppConfig.isTestnet && (
                         <View style={{ marginHorizontal: 16, width: '100%' }}>

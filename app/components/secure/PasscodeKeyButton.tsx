@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, View, Image } from "react-native";
+import { Pressable } from "react-native";
 import ImgKey0 from '../../../assets/letter_0.svg';
 import ImgKey1 from '../../../assets/letter_1.svg';
 import ImgKey2 from '../../../assets/letter_2.svg';
@@ -24,7 +24,7 @@ export enum PasscodeKey {
     Nine = '9',
     Zero = '0',
     Backspace = 'backspace',
-    RetryBiometry = 'retryBiometry',
+    LeftActionKey = 'leftActionKey',
 }
 
 const keyImages: { [key: string]: any } = {

@@ -49,24 +49,24 @@ export const PasscodeInput = React.memo((
         if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
         } else if (/\d/.test(key) && passcode.length < 6) {
-            setPasscode((prevPasscode) => {
-                if ((prevPasscode + key).length === 6) {
-                    (async () => {
-                        try {
-                            await onEntered(prevPasscode + key);
-                        } catch (e) {
-                            setIsWrong(true);
-                            doShake();
-                            setTimeout(() => {
-                                setPasscode('');
-                                tref.current?.clear();
-                                setIsWrong(false);
-                            }, 1500)
-                        }
-                    })();
-                }
-                return prevPasscode + key
-            });
+            const newPasscode = passcode + key;
+            if (newPasscode.length === 6) {
+                (async () => {
+                    try {
+                        await onEntered(newPasscode);
+                    } catch (e) {
+                        setIsWrong(true);
+                        doShake();
+                    }
+                    setTimeout(() => {
+                        setPasscode('');
+                        tref.current?.clear();
+                        setIsWrong(false);
+                    }, 1500);
+                })();
+            } else {
+                setPasscode(newPasscode);
+            }
         }
     }, [passcode]);
 

@@ -16,6 +16,7 @@ export class SettingsProduct {
     readonly #minAmountSelector: RecoilValueReadOnly<BN>;
     readonly #dontShowCommentsSelector: RecoilValueReadOnly<boolean>;
     readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact }, fields: { [key: string]: string } }>
+    readonly ledger: CloudValue<{ on: boolean }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
     readonly #passcodeStateAtom;
@@ -23,6 +24,7 @@ export class SettingsProduct {
     constructor(engine: Engine) {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
+        this.ledger = engine.cloud.get(`ledger-v${version}`, (src) => { src.on = false });
 
         const appState = getAppState();
         const defaultPasscodeState: { [key: string]: PasscodeState | null } = {};
@@ -78,25 +80,14 @@ export class SettingsProduct {
         });
     }
 
-    usePasscodeState(address?: Address): PasscodeState | null {
-        if (!address) {
-            return null;
-        }
-        return useRecoilValue(this.#passcodeStateAtom)[address.toFriendly({ testOnly: this.engine.isTestnet })];
+    useLedger(): boolean {
+        return useRecoilValue(this.ledger.atom).on;
     }
 
-    setPasscodeState(address: Address, newState: PasscodeState | null) {
-        if (!newState) {
-            storage.delete(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`);
-        } else {
-            storage.set(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`, newState);
-        }
-        const appState = getAppState();
-        const newPasscodesState: { [key: string]: PasscodeState | null } = {};
-        appState.addresses.forEach((v) => {
-            newPasscodesState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (storage.getString(`${v.address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
+    setLedger(on: boolean) {
+        this.ledger.update((doc) => {
+            doc.on = on;
         });
-        this.engine.recoil.updater(this.#passcodeStateAtom, newPasscodesState);
     }
 
     useSpamMinAmount(): BN {

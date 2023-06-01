@@ -1,36 +1,21 @@
 import BN from "bn.js";
 import { selector, useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
-import { fetchAccountState } from "../api/zenpay/fetchAccountState";
+import { AccountState, fetchAccountState } from "../api/zenpay/fetchAccountState";
 import { fetchAccountToken } from "../api/zenpay/fetchAccountToken";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 import { storage } from "../../storage/storage";
-import { fetchCards } from "../api/zenpay/fetchCards";
-import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
+import { fetchCardsList, fetchCardsPublic } from "../api/zenpay/fetchCards";
+import { warn } from "../../utils/log";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
 export const zenPayUrl = 'https://stage.zenpay.org';
 const currentTokenVersion = 1;
 
-export type ZenPayAccountStatus =
-    | {
-        state: 'need-enrolment'
-    }
-    | {
-        state: 'need-phone'
-        token: string
-    }
-    | {
-        state: 'need-kyc'
-        token: string
-    }
-    | {
-        state: 'ready'
-        token: string
-    }
+export type ZenPayAccountStatus = { state: 'need-enrolment' } | (AccountState & { token: string })
 
 export type ZenPayCard = {
     id: string,
@@ -135,9 +120,9 @@ export class ZenPayProduct {
 
     // Update accounts
     async syncAccounts() {
-        let targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
+        const targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
         try {
-            let listRes = await fetchCards(this.engine.address, this.engine.isTestnet);
+            let listRes = await fetchCardsPublic(this.engine.address, this.engine.isTestnet);
 
             // Clear token on 401 unauthorized response
             if (listRes === null) {
@@ -168,7 +153,19 @@ export class ZenPayProduct {
             });
 
         } catch (e) {
-            console.warn(e);
+            warn(e);
+        }
+        try {
+            let status = this.engine.persistence.zenPayStatus.item(this.engine.address).value;
+            if (status && status?.state !== 'need-enrolment') {
+                const token = status.token;
+                const cards = await fetchCardsList(token);
+                this.engine.persistence.zenPayCards.item(this.engine.address).update((src) => {
+                    return cards;
+                });
+            }
+        } catch (e) {
+            warn(e);
         }
     }
 
@@ -201,13 +198,14 @@ export class ZenPayProduct {
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
-                const existing = await this.engine.cloud.readKey('zenpay-jwt');
-                if (existing && existing.toString().length > 0) {
+                const existingToken = await this.engine.cloud.readKey('zenpay-jwt');
+                if (existingToken && existingToken.toString().length > 0) {
+                    let state = await fetchAccountState(existingToken.toString());
                     targetStatus.update((src) => {
-                        if (!src || src.state === 'need-enrolment') {
-                            return { state: 'need-phone', token: existing.toString() };
+                        if (!!state) {
+                            return { ...state, token: existingToken.toString() };
                         }
-                        return src;
+                        return src
                     });
                 } else {
                     targetStatus.update((src) => {
@@ -249,18 +247,18 @@ export class ZenPayProduct {
                             return { state: 'need-enrolment' };
                         }
                         if (account?.state === 'need-phone') {
-                            if (src!.state !== 'need-phone') {
-                                return { state: 'need-phone', token: token };
+                            if (src?.state !== 'need-phone') {
+                                return { ...account, token: token };
                             }
                         }
                         if (account?.state === 'need-kyc') {
-                            if (src!.state !== 'need-kyc') {
-                                return { state: 'need-kyc', token: token };
+                            if (src?.state !== 'need-kyc') {
+                                return { ...account, token: token };
                             }
                         }
                         if (account?.state === 'ok') {
-                            if (src!.state !== 'ready') {
-                                return { state: 'ready', token: token };
+                            if (src?.state !== 'ok') {
+                                return { ...account, token: token };
                             }
                         }
                         return src;
@@ -276,7 +274,7 @@ export class ZenPayProduct {
             await this.syncAccounts();
 
             // Start watcher if ready
-            if (targetStatus.value?.state === 'ready' && !this.watcher) {
+            if (targetStatus.value?.state === 'ok' && !this.watcher) {
                 this.watch(targetStatus.value.token);
             }
         });

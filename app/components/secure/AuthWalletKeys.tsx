@@ -103,11 +103,15 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                 return;
                             }
                             const acc = getCurrentAddress();
-                            const keys = await loadWalletKeysWithPassword(
-                                acc.address.toFriendly({ testOnly: engine.isTestnet }),
-                                pass
-                            );
-                            auth.promise.resolve(keys);
+                            try {
+                                const keys = await loadWalletKeysWithPassword(
+                                    acc.address.toFriendly({ testOnly: engine.isTestnet }),
+                                    pass
+                                );
+                                auth.promise.resolve(keys);
+                            } catch (e) {
+                                auth.promise.reject();
+                            }
                             setAuth(null);
                         }}
                         onRetryBiometrics={async () => {

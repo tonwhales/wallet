@@ -36,15 +36,10 @@ export const OfflineWebView = React.memo(React.forwardRef((
             {Platform.OS === 'android' && (
                 <WebView
                     ref={tref}
-                    // uri: indexUri ?? '',
                     {...props}
-                    source={renderedOnce ? {
-                        // html: html,
+                    source={renderedOnce ? { // some wierd android bug with file:// protocol
                         uri: props.uri,
-                        // uri: `${FileSystem.cacheDirectory}zenpay/index.html`,
-                        // removing file:// from uri
                         baseUrl: `${FileSystem.cacheDirectory}holders/`,
-                        // baseUrl: '',
                     } : undefined}
                     onLoad={(e) => {
                         setRenderedOnce(true);
@@ -58,6 +53,12 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     startInLoadingState={true}
                     originWhitelist={['*']}
                     allowingReadAccessToURL={FileSystem.cacheDirectory + 'holders/' ?? ''}
+                    onShouldStartLoadWithRequest={(e) => {
+                        if (props.onShouldStartLoadWithRequest && renderedOnce) {
+                            return props.onShouldStartLoadWithRequest(e);
+                        }
+                        return true;
+                    }}
                 />
             )}
             {Platform.OS === 'ios' && (
@@ -65,18 +66,26 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     ref={tref}
                     {...props}
                     source={{
-                        // html: html,
                         uri: props.uri,
-                        // uri: `${FileSystem.cacheDirectory}zenpay/index.html`,
-                        // removing file:// from uri
                         baseUrl: `${FileSystem.cacheDirectory}holders/`,
-                        // baseUrl: '',
+                    }}
+                    onLoad={(e) => {
+                        setRenderedOnce(true);
+                        if (props.onLoad) {
+                            props.onLoad(e);
+                        }
                     }}
                     allowFileAccess={true}
                     allowFileAccessFromFileURLs={true}
                     allowUniversalAccessFromFileURLs={true}
                     originWhitelist={['*']}
                     allowingReadAccessToURL={FileSystem.cacheDirectory + 'holders/' ?? ''}
+                    onShouldStartLoadWithRequest={(e) => {
+                        if (props.onShouldStartLoadWithRequest && renderedOnce) {
+                            return props.onShouldStartLoadWithRequest(e);
+                        }
+                        return true;
+                    }}
                 />
             )}
         </>

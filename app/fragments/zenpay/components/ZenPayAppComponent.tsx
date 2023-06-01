@@ -296,14 +296,6 @@ export const ZenPayAppComponent = React.memo((
                 >
                     {/* {offlineReady && ( */}
                     {true && (
-                        // source={{
-                        //     // html: html,
-                        //     uri: uri,
-                        //     // uri: `${FileSystem.cacheDirectory}zenpay/index.html`,
-                        //     // removing file:// from uri
-                        //     baseUrl: `${FileSystem.cacheDirectory}holders/`,
-                        //     // baseUrl: '',
-                        // }}
                         <OfflineWebView
                             ref={webRef}
                             uri={`${FileSystem.cacheDirectory}holders/index.html`}
@@ -334,7 +326,7 @@ export const ZenPayAppComponent = React.memo((
                             decelerationRate="normal"
                             allowsInlineMediaPlayback={true}
                             injectedJavaScriptBeforeContentLoaded={injectSource}
-                            // onShouldStartLoadWithRequest={loadWithRequest}
+                            onShouldStartLoadWithRequest={loadWithRequest}
                             // In case of iOS blank WebView
                             onContentProcessDidTerminate={onContentProcessDidTerminate}
                             // In case of Android blank WebView

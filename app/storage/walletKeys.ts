@@ -23,13 +23,13 @@ export async function loadWalletKeysWithPassword(address: string, password: stri
         let secretKeyEnc = Buffer.from(storage.getString(`${address}/${passcodeEncKey}`)!, 'base64');
         let salt = storage.getString(`${address}/${passcodeSaltKey}`);
         if (!salt) {
-            throw new Error('Unable to load wallet keys');
+            throw new Error('Unable to load wallet keys with password, no salt');
         }
         let plainText = await doDecryptWithPasscode(password, salt, secretKeyEnc);
         let mnemonics = plainText.toString().split(' ');
         let walletKey = await mnemonicToWalletKey(mnemonics);
         return { keyPair: walletKey, mnemonics };
     } catch (e) {
-        throw new Error('Unable to load wallet keys');
+        throw new Error('Unable to load wallet keys with password');
     }
 }

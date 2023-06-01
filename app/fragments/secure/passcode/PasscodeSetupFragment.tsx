@@ -50,22 +50,26 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 navigation.navigateAndReplaceAll('Home');
             }
         } else {
+            const acc = getCurrentAddress();
             try {
-                const acc = getCurrentAddress();
                 let keys = await loadWalletKeys(acc.secretKeyEnc);
-                await encryptAndStoreWithPasscode(
-                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    passcode,
-                    Buffer.from(keys.mnemonics.join(' '))
-                );
-                if (!!settings) {
-                    settings.setPasscodeState(
-                        acc.address,
-                        PasscodeState.Set
+                try {
+                    await encryptAndStoreWithPasscode(
+                        acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                        passcode,
+                        Buffer.from(keys.mnemonics.join(' '))
                     );
+                    if (!!settings) {
+                        settings.setPasscodeState(
+                            acc.address,
+                            PasscodeState.Set
+                        );
+                    }
+                } catch (e) {
+                    warn('Failed to encrypt and store with passcode');
                 }
             } catch (e) {
-                warn('Failed to encrypt and store with passcode');
+                warn('Failed to load wallet keys');
             }
         }
     }, []);

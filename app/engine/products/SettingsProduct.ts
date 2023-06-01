@@ -1,12 +1,9 @@
 import BN from "bn.js";
-import { RecoilValueReadOnly, atom, selector, selectorFamily, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
-import { PasscodeState, passcodeStateKey } from "../../storage/secureStorage";
-import { storage } from "../../storage/storage";
-import { getAppState } from "../../storage/appState";
 
 const version = 1;
 
@@ -19,24 +16,11 @@ export class SettingsProduct {
     readonly ledger: CloudValue<{ on: boolean }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
-    readonly #passcodeStateAtom;
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
         this.ledger = engine.cloud.get(`ledger-v${version}`, (src) => { src.on = false });
-
-        const appState = getAppState();
-        const defaultPasscodeState: { [key: string]: PasscodeState | null } = {};
-        appState.addresses.forEach((v) => {
-            defaultPasscodeState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (storage.getString(`${v.address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
-        });
-
-        this.#passcodeStateAtom = atom<{ [key: string]: PasscodeState | null }>({
-            key: 'settings/passcode-state',
-            default: defaultPasscodeState,
-            dangerouslyAllowMutability: true
-        });
 
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',

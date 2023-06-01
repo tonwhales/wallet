@@ -10,6 +10,7 @@ import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 import { storage } from '../../storage/storage';
 import { warn } from '../../utils/log';
+import { Address } from 'ton';
 
 export type AuthStyle = {
     backgroundColor?: string,
@@ -26,6 +27,10 @@ export type AuthWalletKeysType = {
     authenticateWithPasscode: (style?: AuthStyle) => Promise<WalletKeys>,
 }
 
+function loadPasscodeState(address: Address, isTestnet: boolean) {
+    return storage.getString(`${address.toFriendly({ testOnly: isTestnet })}/${passcodeStateKey}`);
+}
+
 export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
@@ -39,12 +44,13 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         }
         setAuth(null);
         const acc = getCurrentAddress();
+        // Try biometric auth then fallback to passcode if fails
         try {
             const keys = await loadWalletKeys(acc.secretKeyEnc);
             return keys;
         } catch (e) {
             const passcodeKeys = new Promise<WalletKeys>((resolve, reject) => {
-                const passcodeState = storage.getString(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeStateKey}`);
+                const passcodeState = loadPasscodeState(acc.address, AppConfig.isTestnet);
                 if (passcodeState !== PasscodeState.Set) {
                     setAuth(null);
                     reject();
@@ -56,6 +62,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         }
     }, [auth]);
 
+    // Passcode only auth
     const authenticateWithPasscode = useCallback((style?: AuthStyle) => {
         if (auth) {
             auth.promise.reject();
@@ -63,7 +70,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         setAuth(null);
         return new Promise<WalletKeys>((resolve, reject) => {
             const acc = getCurrentAddress();
-            const passcodeState = storage.getString(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeStateKey}`);
+            const passcodeState = loadPasscodeState(acc.address, AppConfig.isTestnet);
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }

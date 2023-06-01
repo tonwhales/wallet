@@ -11,11 +11,10 @@ export type AWebViewRef = {
 }
 
 export const OfflineWebView = React.memo(React.forwardRef((
-    props: Omit<WebViewProps, "source"> & { uri: string },
+    props: Omit<WebViewProps, "source"> & { uri: string, initialRoute?: string },
     ref: React.ForwardedRef<AWebViewRef>
 ) => {
     const engine = useEngine();
-    const offlineApp = engine.products.zenPay.useOfflineApp();
     const tref = React.useRef<WebView>(null);
     React.useImperativeHandle(ref, () => ({
         injectJavaScript: (script: string) => {
@@ -30,6 +29,18 @@ export const OfflineWebView = React.memo(React.forwardRef((
     }));
 
     const [renderedOnce, setRenderedOnce] = useState(false);
+
+    const injectedJavaScriptBeforeContentLoaded = React.useMemo(() => {
+        if (props.initialRoute) {
+            return `
+            window.initialRoute = '${props.initialRoute}';
+            ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
+            `;
+        }
+        return props.injectedJavaScriptBeforeContentLoaded;
+    }, []);
+
+    console.log({ initialRoute: props.initialRoute });
 
     return (
         <>
@@ -59,6 +70,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                         }
                         return true;
                     }}
+                    injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 />
             )}
             {Platform.OS === 'ios' && (
@@ -86,6 +98,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                         }
                         return true;
                     }}
+                    injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 />
             )}
         </>

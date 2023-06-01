@@ -22,15 +22,6 @@ export const ZenPayAppFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const status = engine.products.zenPay.useStatus();
-    const endpoint = useMemo(() => {
-        let url = holdersUrl;
-        if (params.type === 'account') {
-            url += status.state === 'ok' ? '/create' : '/about';
-        } else if (params.type === 'card') {
-            url += `/card/${params.id}`;
-        }
-        return url
-    }, [params, status]);
 
     const needsEnrollment = useMemo(() => {
         try {
@@ -73,7 +64,7 @@ export const ZenPayAppFragment = fragment(() => {
                     | { state: 'need-kyc', token: string }
                     | { state: 'ready', token: string }
                 ).token}
-                endpoint={endpoint}
+                endpoint={holdersUrl}
             />
         </View>
     );

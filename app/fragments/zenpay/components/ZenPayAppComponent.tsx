@@ -23,7 +23,6 @@ import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 import { useAppConfig } from '../../../utils/AppConfigContext';
-import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 
@@ -37,6 +36,7 @@ export const ZenPayAppComponent = React.memo((
 ) => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
+    const status = engine.products.zenPay.useStatus();
     const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
     const webRef = React.useRef<WebView>(null);
@@ -44,13 +44,23 @@ export const ZenPayAppComponent = React.memo((
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.products.zenPay.useOfflineApp();
-    const [netInfo, setNetInfo] = React.useState<NetInfoState>();
-    const offlineReady = React.useMemo(() => {
-        if (!netInfo) {
-            return false;
+
+    const source = React.useMemo(() => {
+        if (status.state !== 'ok') {
+            return null;
         }
-        return !!offlineApp && !netInfo.isConnected;
-    }, [offlineApp, netInfo]);
+        let route = '';
+        if (props.variant.type === 'account') {
+            route = status.state === 'ok' ? '/create' : '/about';
+        } else if (props.variant.type === 'card') {
+            route = `/card/${props.variant.id}`;
+        }
+
+        return {
+            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}`,
+            initialRoute: `?route=${encodeURIComponent(route)}&lang=${lang}&currency=${currency}`,
+        };
+    }, [props, lang, currency, status]);
 
 
     // 
@@ -278,27 +288,17 @@ export const ZenPayAppComponent = React.memo((
         webRef.current?.reload();
     }, []);
 
-    React.useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener((state: NetInfoState) => {
-            setNetInfo(state);
-          });
-
-          return () => {
-            unsubscribe();
-          }
-    }, []);
-
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <AnotherKeyboardAvoidingView
                     style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                 >
-                    {/* {offlineReady && ( */}
-                    {true && (
+                    {!!offlineApp && !!source && (
                         <OfflineWebView
                             ref={webRef}
                             uri={`${FileSystem.cacheDirectory}holders/index.html`}
+                            initialRoute={source.initialRoute}
                             style={{
                                 backgroundColor: Theme.item,
                                 flexGrow: 1, flexBasis: 0, height: '100%',
@@ -337,10 +337,10 @@ export const ZenPayAppComponent = React.memo((
                             bounces={false}
                         />
                     )}
-                    {false && (
+                    {!offlineApp && !!source && (
                         <WebView
                             ref={webRef}
-                            source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
+                            source={{ uri: source.url }}
                             startInLoadingState={true}
                             style={{
                                 backgroundColor: Theme.item,

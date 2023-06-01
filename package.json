@@ -20,7 +20,6 @@
     "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",
     "@react-native-clipboard/clipboard": "^1.8.5",
     "@react-native-community/hooks": "^2.8.1",
-    "@react-native-community/netinfo": "^9.3.10",
     "@react-native-picker/picker": "2.4.8",
     "@react-navigation/native": "6.1.6",
     "@react-navigation/native-stack": "^6.9.12",

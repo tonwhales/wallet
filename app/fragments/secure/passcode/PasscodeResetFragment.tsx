@@ -20,6 +20,7 @@ import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 import { useEngine } from "../../../engine/Engine";
 import { PasscodeState, passcodeEncKey } from "../../../storage/secureStorage";
 import { storage } from "../../../storage/storage";
+import { warn } from "../../../utils/log";
 
 function WalletWordsComponent(props: {
     onComplete: (v: {
@@ -290,15 +291,19 @@ export const PasscodeResetFragment = fragment(() => {
         mnemonics: string[],
         deviceEncryption: DeviceEncryption
     }) => {
-        const walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-        if (walletKeys.mnemonics.join() !== v.mnemonics.join()) {
+        try {
+            const walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            if (walletKeys.mnemonics.join() !== v.mnemonics.join()) {
+                Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
+                return;
+            }
+            storage.delete(`${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeEncKey}`);
+            settings?.setPasscodeState(acc.address, PasscodeState.NotSet)
+            navigation.replace('PasscodeSetup');
+        } catch (e) {
             Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
-            return;
+            warn('Failed to reset passcode',);
         }
-        navigation.goBack();
-        storage.delete(`${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeEncKey}`);
-        settings?.setPasscodeState(acc.address, PasscodeState.NotSet)
-        navigation.navigate('PasscodeSetup');
     }, []);
 
     return (

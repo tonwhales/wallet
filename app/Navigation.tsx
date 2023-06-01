@@ -56,7 +56,6 @@ import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGr
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
-import { ZenPayEnrollmentFragment } from './fragments/zenpay/ZenPayEnrollmentFragment';
 import { ZenPayLandingFragment } from './fragments/zenpay/ZenPayLandingFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
@@ -154,23 +153,22 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
-    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
-    modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
-    modalScreen('Accounts', AccountsFragment, safeArea),
-    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
-    modalScreen('Currency', CurrencyFragment, safeArea),
-    modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
-    modalScreen('Logout', LogoutFragment, safeArea),
-    modalScreen('Contact', ContactFragment, safeArea),
-    modalScreen('Contacts', ContactsFragment, safeArea),
-    modalScreen('Ledger', LedgerRoot, safeArea),
-    modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
-    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment, safeArea),
-    modalScreen('ZenPayLanding', ZenPayLandingFragment, safeArea),
-    lockedModalScreen('ZenPay', ZenPayAppFragment, safeArea),
-    modalScreen('Assets', AssetsFragment, safeArea),
+    modalScreen('StakingGraph', StakingGraphFragment),
+    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),
+    modalScreen('StakingTransfer', StakingTransferFragment),
+    modalScreen('Accounts', AccountsFragment),
+    modalScreen('SpamFilter', SpamFilterFragment),
+    modalScreen('Currency', CurrencyFragment),
+    modalScreen('Review', ReviewFragment),
+    modalScreen('DeleteAccount', DeleteAccountFragment),
+    modalScreen('Logout', LogoutFragment),
+    modalScreen('Contact', ContactFragment),
+    modalScreen('Contacts', ContactsFragment),
+    modalScreen('Ledger', LedgerRoot),
+    modalScreen('StakingCalculator', StakingCalculatorFragment),
+    modalScreen('ZenPayLanding', ZenPayLandingFragment),
+    lockedModalScreen('ZenPay', ZenPayAppFragment),
+    modalScreen('Assets', AssetsFragment),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

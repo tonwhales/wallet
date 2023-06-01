@@ -643,6 +643,8 @@ export type LocalizationSchema = {
         bluetoothScanDescription_1: string,
         bluetoothScanDescription_2: string,
         bluetoothScanDescription_3: string,
+        bluetoothScanDescription_3_and: string,
+        bluetoothScanDescription_4_and: string,
         chooseAccountDescription: string,
         openAppVerifyAddress: string,
         devices: string,
@@ -657,7 +659,8 @@ export type LocalizationSchema = {
             confirmOnLedger: string,
             sending: string,
             sent: string,
-            mainAddress: string
+            mainAddress: string,
+            givePermissions: string,
         },
         confirm: {
             add: string,
@@ -670,7 +673,8 @@ export type LocalizationSchema = {
             lostConnection: string,
             transactionNotFound: string,
             transactionRejected: string,
-            transferFailed: string
+            transferFailed: string,
+            permissions: string,
         },
         moreAbout: string
     },

@@ -34,8 +34,6 @@ export const PasscodeKeyboard = React.memo(({ onKeyPress, auth }: { onKeyPress: 
                     ? <TouchIos color={'#000'} style={{ height: 60, width: 100 }} />
                     : <TouchAndroid color={'#000'} style={{ height: 60, width: 100 }} />
                 break;
-            case 'device-biometrics':
-                break;
             case 'passcode':
             case 'device-passcode':
             case 'secret':
@@ -45,6 +43,7 @@ export const PasscodeKeyboard = React.memo(({ onKeyPress, auth }: { onKeyPress: 
                     color={'#000'}
                 />;
                 break;
+            case 'device-biometrics':
             case 'none':
                 break;
             default:

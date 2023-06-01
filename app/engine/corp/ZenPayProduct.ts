@@ -7,6 +7,7 @@ import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 import { storage } from "../../storage/storage";
+import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { fetchCardsList, fetchCardsPublic } from "../api/zenpay/fetchCards";
 import { warn } from "../../utils/log";
 

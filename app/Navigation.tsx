@@ -185,13 +185,14 @@ const navigation = (safeArea: EdgeInsets) => [
         component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
     />,
-    modalScreen('Security', SecurityFragment),
-    modalScreen('PasscodeSetup', PasscodeSetupFragment),
-    modalScreen('PasscodeChange', PasscodeChangeFragment),
-    modalScreen('PasscodeReset', PasscodeResetFragment)
+    modalScreen('Security', SecurityFragment, safeArea),
+    modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
+    modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
+    modalScreen('PasscodeReset', PasscodeResetFragment, safeArea)
 ];
 
 export const Navigation = React.memo(() => {
+    const safeArea = useSafeAreaInsets();
     const { AppConfig, NavigationTheme } = useAppConfig();
 
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));

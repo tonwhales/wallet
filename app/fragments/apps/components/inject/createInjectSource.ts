@@ -1,7 +1,8 @@
 import WebView from "react-native-webview";
 
-export function createInjectSource(config: any) {
+export function createInjectSource(config: any, additionalInjections?: string) {
     return `
+    ${additionalInjections || ''}
     window['ton-x'] = (() => {
         let requestId = 0;
         let callbacks = {};
@@ -26,7 +27,6 @@ export function createInjectSource(config: any) {
         Object.freeze(obj);
         return obj;
     })();
-    
     true;
     `;
 };

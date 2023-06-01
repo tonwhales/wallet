@@ -8,6 +8,7 @@ import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { QRCode } from "../../components/QRCode/QRCode";
+import { useParams } from "../../utils/useParams";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import { CopyButton } from "../../components/CopyButton";
 import { ShareButton } from "../../components/ShareButton";
@@ -15,16 +16,22 @@ import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { Address } from "ton";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { useEngine } from "../../engine/Engine";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { WImage } from "../../components/WImage";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
     const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const engine = useEngine();
+    const params = useParams<{ addr?: string, ledger?: boolean }>();
+    const address = React.useMemo(() => {
+        if (params.addr) {
+            return Address.parse(params.addr);
+        }
+        return getCurrentAddress().address;
+    }, [params]);
     const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
     const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
 
@@ -80,7 +87,11 @@ export const ReceiveFragment = fragment(() => {
                             }
                         }}
                         onPress={() => {
-                            navigation.navigate('Assets', { callback: onAssetSelected })
+                            if (params.ledger) {
+                                navigation.navigate('LedgerAssets', { callback: onAssetSelected });
+                                return;
+                            }
+                            navigation.navigate('Assets', { callback: onAssetSelected });
                         }}
                     >
                         <View style={{

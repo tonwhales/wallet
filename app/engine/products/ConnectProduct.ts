@@ -265,6 +265,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
     async handleConnectDeeplink(query: ConnectQrQuery) {
         const protocolVersion = Number(query.v);
         const parsed = JSON.parse(decodeURIComponent(query.r));
+        const returnStrategy = query.ret;
 
         if (!connectRequestCodec.is(parsed)) {
             throw new Error('Invalid request');
@@ -282,7 +283,8 @@ export class ConnectProduct extends TonConnectBridgeClient {
             protocolVersion,
             request,
             clientSessionId,
-            manifest
+            manifest,
+            returnStrategy,
         });
     }
 

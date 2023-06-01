@@ -14,7 +14,6 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useRoute } from '@react-navigation/native';
 import { useEngine } from '../../engine/Engine';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
@@ -29,6 +28,7 @@ import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
+import { useParams } from '../../utils/useParams';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
@@ -36,23 +36,25 @@ const labelStyle: StyleProp<TextStyle> = {
     fontSize: 17
 };
 
+export type SimpleTransferParams = {
+    target?: string | null,
+    comment?: string | null,
+    amount?: BN | null,
+    stateInit?: Cell | null,
+    job?: string | null,
+    jetton?: Address | null,
+    callback?: ((ok: boolean, result: Cell | null) => void) | null,
+    back?: number,
+    app?: {
+        domain: string,
+        title: string
+    }
+}
+
 export const SimpleTransferFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const params: {
-        target?: string,
-        comment?: string | null,
-        amount?: BN | null,
-        stateInit?: Cell | null,
-        job?: string | null,
-        jetton?: Address | null,
-        callback?: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number,
-        app?: {
-            domain: string,
-            title: string
-        }
-    } | undefined = useRoute().params;
+    const params: SimpleTransferParams | undefined = useParams();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();

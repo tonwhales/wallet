@@ -249,12 +249,11 @@ export const DeleteAccountFragment = fragment(() => {
             <AndroidToolbar pageTitle={t('deleteAccount.title')} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        marginLeft: 17,
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
                         {t('deleteAccount.title')}

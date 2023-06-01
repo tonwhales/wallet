@@ -19,6 +19,32 @@ type ScreenState = {
     input: string,
 };
 
+const SetupLoader = React.memo((props: {
+    onLoadEnd: (action: Action) => void,
+    load: (input: string) => Promise<void>,
+    input: string
+}) => {
+
+    useEffect(() => {
+        (async () => {
+            try {
+                await props.load(props.input);
+                props.onLoadEnd({ type: 'success' });
+            } catch (e) {
+                warn('Failed to encrypt and store with passcode');
+                props.onLoadEnd({ type: 're-enter', input: props.input });
+            }
+        })();
+    }, []);
+
+    return (
+        <LoadingIndicator
+            simple
+            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+        />
+    );
+});
+
 function reduceSteps() {
     return (state: ScreenState, action: Action): ScreenState => {
         switch (action.type) {
@@ -69,20 +95,6 @@ export const PasscodeSetup = React.memo((
     }, [onReady]);
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
-
-    useEffect(() => {
-        if (state.step === 'loading') {
-            (async () => {
-                try {
-                    await onSuccess(state.input);
-                    dispatch({ type: 'success' });
-                } catch (e) {
-                    warn('Failed to encrypt and store with passcode');
-                    dispatch({ type: 're-enter', input: state.input });
-                }
-            })();
-        }
-    }, [state.step, state.input, onSuccess]);
 
     const onLater = useCallback(() => {
         reboot();
@@ -176,7 +188,11 @@ export const PasscodeSetup = React.memo((
                 </>
             )}
             {state.step === 'loading' && (
-                <LoadingIndicator simple style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }} />
+                <SetupLoader
+                    onLoadEnd={dispatch}
+                    load={onSuccess}
+                    input={state.input}
+                />
             )}
         </View>
     );

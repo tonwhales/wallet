@@ -89,9 +89,7 @@ export const PasscodeSetup = React.memo((
     const reboot = useReboot();
     const { Theme } = useAppConfig();
     const onSuccess = useCallback(async (pass: string) => {
-        if (onReady) {
-            await onReady(pass);
-        }
+        onReady?.(pass);
     }, [onReady]);
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });

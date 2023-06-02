@@ -55,26 +55,34 @@ export const PasscodeInput = React.memo((
         if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
         } else if (/\d/.test(key) && passcode.length < 6) {
-            const newPasscode = passcode + key;
-            if (newPasscode.length === 6) {
-                (async () => {
-                    try {
-                        await onEntered(newPasscode);
-                    } catch (e) {
-                        setIsWrong(true);
-                        doShake();
-                    }
-                    setTimeout(() => {
-                        setPasscode('');
-                        tref.current?.clear();
-                        setIsWrong(false);
-                    }, 1500);
-                })();
-            } else {
-                setPasscode(newPasscode);
-            }
+            setPasscode((prevPasscode) => {
+                const newPasscode = prevPasscode + key;
+
+                if (newPasscode.length === 6) {
+                    (async () => {
+                        try {
+                            await onEntered(newPasscode);
+                        } catch (e) {
+                            setIsWrong(true);
+                        }
+                        setTimeout(() => {
+                            setPasscode('');
+                            tref.current?.clear();
+                            setIsWrong(false);
+                        }, 1500);
+                    })();
+                }
+
+                return newPasscode;
+            });
         }
-    }, [passcode]);
+    }, []);
+
+    useEffect(() => {
+        if (isWrong) {
+            doShake();
+        }
+    }, [isWrong]);
 
     useEffect(() => {
         if (!!onRetryBiometrics) {

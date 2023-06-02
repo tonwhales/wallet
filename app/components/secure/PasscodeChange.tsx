@@ -116,18 +116,17 @@ export const PasscodeChange = React.memo(() => {
                         onEntered={async (pass) => {
                             if (pass !== state.input) {
                                 throw new Error('Passcodes do not match');
-                            } else {
-                                const keys = await loadWalletKeysWithPassword(
-                                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    state.prev
-                                );
-                                await encryptAndStoreWithPasscode(
-                                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    state.input,
-                                    Buffer.from(keys.mnemonics.join(' '))
-                                );
-                                dispatch({ type: 'success' });
                             }
+                            const keys = await loadWalletKeysWithPassword(
+                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                state.prev
+                            );
+                            await encryptAndStoreWithPasscode(
+                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                state.input,
+                                Buffer.from(keys.mnemonics.join(' '))
+                            );
+                            dispatch({ type: 'success' });
                         }}
                     />
                 </Animated.View>

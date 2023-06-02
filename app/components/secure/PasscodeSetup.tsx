@@ -111,7 +111,6 @@ export const PasscodeSetup = React.memo((
                         onEntered={(pass) => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
-                                return;
                             }
                             dispatch({ type: 're-enter', input: pass });
                         }}
@@ -145,9 +144,8 @@ export const PasscodeSetup = React.memo((
                         onEntered={(pass) => {
                             if (pass !== state.input) {
                                 throw new Error('Passcode does not match');
-                            } else {
-                                dispatch({ type: 'loading' });
                             }
+                            dispatch({ type: 'loading' });
                         }}
                     />
                     {!!(initial || afterImport) && (

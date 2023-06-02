@@ -71,12 +71,12 @@ export type CardDelivery = {
   status: CardStatus,
   countryCode: string,
   address: string,
-  postalCode: string | undefined,
-  apartment: string | undefined,
-  floor: string | undefined,
+  postalCode: string | undefined | null,
+  apartment: string | undefined | null,
+  floor: string | undefined | null,
   phone: string,
   email: string,
-  trackNumber: string | undefined,
+  trackNumber: string | undefined | null,
   deliveryMethod: string
 }
 
@@ -91,12 +91,12 @@ export const cardDeliveryCodec = t.type({
   ]),
   countryCode: t.string,
   address: t.string,
-  postalCode: t.union([t.string, t.undefined]),
-  apartment: t.union([t.string, t.undefined]),
-  floor: t.union([t.string, t.undefined]),
+  postalCode: t.union([t.string, t.undefined, t.null]),
+  apartment: t.union([t.string, t.undefined, t.null]),
+  floor: t.union([t.string, t.undefined, t.null]),
   phone: t.string,
   email: t.string,
-  trackNumber: t.union([t.string, t.undefined]),
+  trackNumber: t.union([t.string, t.undefined, t.null]),
   deliveryMethod: t.string
 });
 

@@ -4,7 +4,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { PasscodeSteps } from "./PasscodeSteps";
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
-import { PasscodeKeyboard } from "../PasscodeKeyboard";
+import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";

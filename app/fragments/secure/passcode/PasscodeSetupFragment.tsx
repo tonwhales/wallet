@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
-import { PasscodeSetup } from "../../../components/secure/PasscodeSetup";
+import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { getCurrentAddress } from "../../../storage/appState";
 import { PasscodeState, encryptAndStoreWithPasscode, passcodeStateKey } from "../../../storage/secureStorage";
 import { loadWalletKeys } from "../../../storage/walletKeys";

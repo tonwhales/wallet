@@ -1,12 +1,12 @@
 import React, { useReducer } from "react";
 import { View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
-import { PasscodeInput } from "./PasscodeInput";
+import { PasscodeInput } from "../passcode/PasscodeInput";
 import { loadWalletKeysWithPassword } from "../../storage/walletKeys";
 import { t } from "../../i18n/t";
 import { encryptAndStoreWithPasscode } from "../../storage/secureStorage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { PasscodeSuccess } from "./PasscodeSuccess";
+import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
 import { useAppConfig } from "../../utils/AppConfigContext";
 

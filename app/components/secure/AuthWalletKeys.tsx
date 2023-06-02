@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
-import { PasscodeInput } from './PasscodeInput';
+import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
 import { PasscodeState, passcodeStateKey } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';

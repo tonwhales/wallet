@@ -1,6 +1,6 @@
 import React, {  } from "react"
 import { View, Pressable } from "react-native"
-import { PasscodeKey, PasscodeKeyButton } from "./secure/PasscodeKeyButton";
+import { PasscodeKey, PasscodeKeyButton } from "./PasscodeKeyButton";
 
 export const PasscodeKeyboard = React.memo(({
     onKeyPress,

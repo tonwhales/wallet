@@ -170,8 +170,7 @@ export const ZenPayLandingFragment = fragment(() => {
                         flexGrow: 1,
                     }}
                 >
-                    {/* {!!offlineApp && ( */}
-                    {false && (
+                    {!!offlineApp && (
                         <OfflineWebView
                             ref={webRef}
                             uri={`${FileSystem.cacheDirectory}holders/index.html`}
@@ -208,8 +207,7 @@ export const ZenPayLandingFragment = fragment(() => {
                             bounces={false}
                         />
                     )}
-                    {/* {!offlineApp && ( */}
-                    {true && (
+                    {!offlineApp && (
                         <WebView
                             ref={webRef}
                             source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}

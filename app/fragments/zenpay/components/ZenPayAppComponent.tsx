@@ -58,10 +58,9 @@ export const ZenPayAppComponent = React.memo((
 
         return {
             url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}`,
-            initialRoute: `?route=${encodeURIComponent(route)}&lang=${lang}&currency=${currency}`,
+            initialRoute: `${route}?lang=${lang}&currency=${currency}`,
         };
     }, [props, lang, currency, status]);
-
 
     // 
     // Track events
@@ -383,26 +382,28 @@ export const ZenPayAppComponent = React.memo((
                         />
                     )}
                 </AnotherKeyboardAvoidingView>
-                <Animated.View
-                    style={animatedStyles}
-                    pointerEvents={loaded ? 'none' : 'box-none'}
-                >
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-                    </View>
-                    {Platform.OS === 'ios' && (
-                        <Pressable
-                            style={{ position: 'absolute', top: 22, right: 16 }}
-                            onPress={() => {
-                                navigation.goBack();
-                            }} >
-                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                {t('common.close')}
-                            </Text>
-                        </Pressable>
-                    )}
-                    <ActivityIndicator size="small" color={'#564CE2'} />
-                </Animated.View>
+                {!offlineApp && (
+                    <Animated.View
+                        style={animatedStyles}
+                        pointerEvents={loaded ? 'none' : 'box-none'}
+                    >
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                        </View>
+                        {Platform.OS === 'ios' && (
+                            <Pressable
+                                style={{ position: 'absolute', top: 22, right: 16 }}
+                                onPress={() => {
+                                    navigation.goBack();
+                                }} >
+                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                                    {t('common.close')}
+                                </Text>
+                            </Pressable>
+                        )}
+                        <ActivityIndicator size="small" color={'#564CE2'} />
+                    </Animated.View>
+                )}
             </View>
         </>
     );

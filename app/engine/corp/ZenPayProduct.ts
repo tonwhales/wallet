@@ -210,6 +210,7 @@ export class ZenPayProduct {
 
     async doSync() {
         await this.#lock.inLock(async () => {
+            this.syncOfflineApp();
             let targetStatus = this.engine.persistence.zenPayStatus.item(this.engine.address);
             let status: ZenPayAccountStatus | null = targetStatus.value;
 
@@ -294,8 +295,6 @@ export class ZenPayProduct {
             if (targetStatus.value?.state === 'ok' && !this.watcher) {
                 this.watch(targetStatus.value.token);
             }
-
-            this.syncOfflineApp();
         });
     }
 
@@ -331,7 +330,7 @@ export class ZenPayProduct {
             && app.routes[0].fileName === 'index.html'
         ) {
             uri = FileSystem.cacheDirectory + 'holders/index.html';
-            const stored = await FileSystem.downloadAsync(endpoint + '/resources/index.html', uri);
+            const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;
             let file = await FileSystem.readAsStringAsync(uri);
             file = file.replaceAll(
@@ -341,7 +340,7 @@ export class ZenPayProduct {
             await FileSystem.writeAsStringAsync(uri, file);
         }
 
-        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}resources/`, asset));
+        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}app-cache/`, asset));
         const downloadedAssets = await Promise.all(assets);
 
         return { uri, assets: downloadedAssets };

@@ -33,7 +33,6 @@ export const PasscodeInput = React.memo((
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
-    const tref = useRef<TextInput>(null);
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
@@ -74,7 +73,6 @@ export const PasscodeInput = React.memo((
                 }
                 setTimeout(() => {
                     setPasscode('');
-                    tref.current?.clear();
                     setIsWrong(false);
                 }, 1500);
             })();

@@ -191,11 +191,15 @@ export async function doDecryptWithPasscode(pass: string, salt: string, data: Bu
 }
 
 export async function encryptAndStoreWithPasscode(address: string, pass: string, data: Buffer) {
-    const passKey = await generateKeyFromPasscode(pass);
-    storage.set(`${address}/${passcodeSaltKey}`, passKey.salt);
-    const nonce = await getSecureRandomBytes(24);
-    const sealed = sealBox(data, nonce, passKey.key);
-    const encrypted = Buffer.concat([nonce, sealed]);
-    storage.set(`${address}/${passcodeEncKey}`, encrypted.toString('base64'));
-    storage.set(`${address}/${passcodeStateKey}`, PasscodeState.Set);
+    try {
+        const passKey = await generateKeyFromPasscode(pass);
+        storage.set(`${address}/${passcodeSaltKey}`, passKey.salt);
+        const nonce = await getSecureRandomBytes(24);
+        const sealed = sealBox(data, nonce, passKey.key);
+        const encrypted = Buffer.concat([nonce, sealed]);
+        storage.set(`${address}/${passcodeEncKey}`, encrypted.toString('base64'));
+        storage.set(`${address}/${passcodeStateKey}`, PasscodeState.Set);
+    } catch (e) {
+        throw Error('Unable to encrypt data with passcode');
+    }
 }

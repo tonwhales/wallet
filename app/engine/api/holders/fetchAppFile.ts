@@ -22,7 +22,7 @@ export type HoldersOfflineApp = {
 }
 
 export async function fetchAppFile(endpoint: string) {
-    const zenPayAppFile = (await axios.get(`${endpoint}/app-cache/app-info.json`)).data;
+    const zenPayAppFile = (await axios.get(`${endpoint}/app-cache/info.json`)).data;
 
     if (holdersOfflineAppCodec.is(zenPayAppFile)) {
         return zenPayAppFile as HoldersOfflineApp;

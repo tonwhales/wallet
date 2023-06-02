@@ -56,27 +56,30 @@ export const PasscodeInput = React.memo((
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
         } else if (/\d/.test(key) && passcode.length < 6) {
             setPasscode((prevPasscode) => {
-                const newPasscode = prevPasscode + key;
-
-                if (newPasscode.length === 6) {
-                    (async () => {
-                        try {
-                            await onEntered(newPasscode);
-                        } catch (e) {
-                            setIsWrong(true);
-                        }
-                        setTimeout(() => {
-                            setPasscode('');
-                            tref.current?.clear();
-                            setIsWrong(false);
-                        }, 1500);
-                    })();
+                if (prevPasscode.length < 6) {
+                    return prevPasscode + key;
                 }
-
-                return newPasscode;
+                return prevPasscode;
             });
         }
     }, []);
+
+    useEffect(() => {
+        if (passcode.length === 6) {
+            (async () => {
+                try {
+                    await onEntered(passcode);
+                } catch (e) {
+                    setIsWrong(true);
+                }
+                setTimeout(() => {
+                    setPasscode('');
+                    tref.current?.clear();
+                    setIsWrong(false);
+                }, 1500);
+            })();
+        }
+    }, [passcode]);
 
     useEffect(() => {
         if (isWrong) {

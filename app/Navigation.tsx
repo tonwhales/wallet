@@ -21,7 +21,7 @@ import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext } from './engine/Engine';
+import { useEngine } from './engine/Engine';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
@@ -183,6 +183,7 @@ const navigation = (safeArea: EdgeInsets) => [
 export const Navigation = React.memo(() => {
     const { AppConfig, NavigationTheme } = useAppConfig();
     const engine = useEngine();
+    const safeArea = useSafeAreaInsets();
 
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine, AppConfig.isTestnet);
@@ -284,24 +285,19 @@ export const Navigation = React.memo(() => {
             >
                 <Stack.Navigator
                     initialRouteName={initial}
-                    screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+                    screenOptions={{
+                        headerBackTitle: t('common.back'),
+                        title: '',
+                        headerShadowVisible: false,
+                        headerTransparent: false,
+                        headerStyle: { backgroundColor: 'white' }
+                    }}
                 >
-                    <Stack.Navigator
-                        initialRouteName={initial}
-                        screenOptions={{
-                            headerBackTitle: t('common.back'),
-                            title: '',
-                            headerShadowVisible: false,
-                            headerTransparent: false,
-                            headerStyle: { backgroundColor: 'white' }
-                        }}
-                    >
-                        {navigation(safeArea)}
-                    </Stack.Navigator>
-                </NavigationContainer>
-                <Splash hide={hideSplash} />
-            </View>
-        </EngineContext.Provider>
+                    {navigation(safeArea)}
+                </Stack.Navigator>
+            </NavigationContainer>
+            <Splash hide={hideSplash} />
+        </View>
     );
 });
 

@@ -3,9 +3,11 @@ import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@rea
 import { Address, Cell } from 'ton';
 import BN from 'bn.js';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { ZenPayAppParams } from '../fragments/zenpay/ZenPayAppFragment';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
+import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -27,6 +29,10 @@ export class TypedNavigation {
     readonly base: any;
     constructor(navigation: any) {
         this.base = navigation;
+    }
+
+    baseNavigation = () => {
+        return this.base;
     }
 
     navigate = (name: string, params?: any) => {
@@ -65,20 +71,7 @@ export class TypedNavigation {
         this.navigate('StakingTransfer', params);
     }
 
-    navigateSimpleTransfer(tx: {
-        target: string | null,
-        comment: string | null,
-        amount: BN | null,
-        stateInit: Cell | null,
-        job: string | null,
-        jetton: Address | null,
-        callback: ((ok: boolean, result: Cell | null) => void) | null,
-        back?: number,
-        app?: {
-            domain: string,
-            title: string
-        }
-    }) {
+    navigateSimpleTransfer(tx: SimpleTransferParams) {
         this.navigate('SimpleTransfer', tx);
     }
 
@@ -100,13 +93,22 @@ export class TypedNavigation {
         this.navigate('Review', params);
     }
 
+    navigateLedgerTransfer(tx: SimpleTransferParams) {
+        this.navigate('LedgerTransfer', tx);
+    }
+
+    navigateLedgerSignTransfer(params: LedgerSignTransferParams) {
+        this.navigate('LedgerSignTransfer', params);
+    }
+
     navigateStakingCalculator(params: { target: Address }) {
         this.navigate('StakingCalculator', params);
     }
 
-    navigateZenPayEnrollment(params: { endpoint: string, callback: () => void }) {
-        this.navigate('ZenPayEnroll', params);
+    navigateLedgerApp() {
+        this.navigate('LedgerApp');
     }
+
     navigateZenPay(params: ZenPayAppParams) {
         this.navigate('ZenPay', params);
     }

@@ -88,7 +88,11 @@ export const WalletBackupFragment = systemFragment(() => {
 
     return (
         <Animated.View
-            style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined, }}
+            style={{
+                alignItems: 'center', justifyContent: 'center',
+                flexGrow: 1,
+                backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+            }}
             exiting={FadeIn}
             key={"content"}
         >
@@ -115,7 +119,14 @@ export const WalletBackupFragment = systemFragment(() => {
                 </View>
                 <View style={{ height: 64 + 16 + safeArea.bottom }} />
             </ScrollView>
-            <View style={{ height: 64, marginTop: 33, alignSelf: 'stretch', position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
+            <View style={{
+                height: 64,
+                marginTop: 33,
+                alignSelf: 'stretch',
+                position: 'absolute',
+                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0),
+                left: 16, right: 16
+            }}>
                 <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />
             </View>
         </Animated.View>

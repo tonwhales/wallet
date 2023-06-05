@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share, PermissionsAndroid, Permission } from "react-native";
+import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";

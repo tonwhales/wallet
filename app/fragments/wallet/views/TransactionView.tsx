@@ -117,7 +117,7 @@ export function TransactionView(props: {
         if (!txId) {
             return null;
         }
-        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
+        return (AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
             operation.address.toFriendly() +
             '/' + txId

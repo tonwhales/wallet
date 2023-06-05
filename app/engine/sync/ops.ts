@@ -26,7 +26,7 @@ function removeFromSetArray(src: Address[] | null, value: Address) {
     }
 }
 
-function mergeSetArrays(src: Address[] | null, dst: Address[]) {
+export function mergeSetArrays(src: Address[] | null, dst: Address[]) {
 
     // Return destination if no source
     if (!src) {
@@ -86,7 +86,7 @@ export function requestHintsIfNeeded(address: Address, seqno: number | null, eng
     engine.persistence.accountHints.item(engine.address).update((src) => addToSetArray(src, address));
 }
 
-export function requestAllHintsIfNeeded(addresses: Address[], seqno: number | null, engine: Engine) {
+export function requestAllHintsIfNeeded(addresses: Address[], seqno: number | null, engine: Engine, owner?: Address) {
 
     // Ignore on empty input
     if (addresses.length === 0) {
@@ -101,8 +101,8 @@ export function requestAllHintsIfNeeded(addresses: Address[], seqno: number | nu
     }
 
     // Register account hints
-    let merged = mergeSetArrays(engine.persistence.accountHints.item(engine.address).value, addresses);
+    let merged = mergeSetArrays(engine.persistence.accountHints.item(owner ?? engine.address).value, addresses);
     if (merged.added.length > 0) {
-        engine.persistence.accountHints.item(engine.address).update((src) => merged.res);
+        engine.persistence.accountHints.item(owner ?? engine.address).update((src) => merged.res);
     }
 }

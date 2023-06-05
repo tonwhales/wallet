@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, KeyboardAvoidingView, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -104,26 +104,50 @@ export const ZenPayAppComponent = React.memo((
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);
 
+        const cardsState = engine.persistence.zenPayCards.item(engine.address).value;
+        const accountState = engine.persistence.zenPayStatus.item(engine.address).value;
+
+        const initialState = {
+            ...accountState
+                ? {
+                    account: {
+                        status: {
+                            state: accountState.state,
+                            kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
+                        }
+                    }
+                }
+                : {},
+            ...cardsState ? { cardsList: cardsState.accounts } : {},
+        }
+
+        const initialInjection = `
+        window.initialState = ${JSON.stringify(initialState)};
+        `;
+
         let domainSign = engine.products.keys.createDomainSignature(domain);
 
-        return createInjectSource({
-            version: 1,
-            platform: Platform.OS,
-            platformVersion: Platform.Version,
-            network: AppConfig.isTestnet ? 'testnet' : 'mainnet',
-            address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            publicKey: engine.publicKey.toString('base64'),
-            walletConfig,
-            walletType,
-            signature: domainSign.signature,
-            time: domainSign.time,
-            subkey: {
-                domain: domainSign.subkey.domain,
-                publicKey: domainSign.subkey.publicKey,
-                time: domainSign.subkey.time,
-                signature: domainSign.subkey.signature
-            }
-        });
+        return createInjectSource(
+            {
+                version: 1,
+                platform: Platform.OS,
+                platformVersion: Platform.Version,
+                network: AppConfig.isTestnet ? 'testnet' : 'mainnet',
+                address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                publicKey: engine.publicKey.toString('base64'),
+                walletConfig,
+                walletType,
+                signature: domainSign.signature,
+                time: domainSign.time,
+                subkey: {
+                    domain: domainSign.subkey.domain,
+                    publicKey: domainSign.subkey.publicKey,
+                    time: domainSign.subkey.time,
+                    signature: domainSign.subkey.signature
+                }
+            },
+            initialInjection
+        );
     }, []);
     const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, AppConfig.isTestnet);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
@@ -240,17 +264,6 @@ export const ZenPayAppComponent = React.memo((
 
     const onContentProcessDidTerminate = React.useCallback(() => {
         webRef.current?.reload();
-    }, []);
-
-    React.useEffect(() => {
-        // Adding onAppFocus listener in case of content process termination events not firing
-        let sub: NativeEventSubscription | null = null;
-        if (Platform.OS === 'ios') {
-            sub = AppState.addEventListener('change', onContentProcessDidTerminate);
-        }
-        return () => {
-            sub?.remove();
-        }
     }, []);
 
     return (

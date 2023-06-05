@@ -13,12 +13,14 @@ export class SettingsProduct {
     readonly #minAmountSelector: RecoilValueReadOnly<BN>;
     readonly #dontShowCommentsSelector: RecoilValueReadOnly<boolean>;
     readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact }, fields: { [key: string]: string } }>
+    readonly ledger: CloudValue<{ on: boolean }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
+        this.ledger = engine.cloud.get(`ledger-v${version}`, (src) => { src.on = false });
 
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',
@@ -59,6 +61,16 @@ export class SettingsProduct {
                 const list = get(this.addressBook.atom).contacts || {};
                 return list[address];
             }
+        });
+    }
+
+    useLedger(): boolean {
+        return useRecoilValue(this.ledger.atom).on;
+    }
+
+    setLedger(on: boolean) {
+        this.ledger.update((doc) => {
+            doc.on = on;
         });
     }
 

@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -114,7 +114,12 @@ export const WalletCreatedFragment = systemFragment(() => {
                 </View>
             </FragmentMediaContent>
             <View style={{ flexGrow: 1 }} />
-            <View style={{ height: 64, position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
+            <View style={{
+                height: 64,
+                position: 'absolute',
+                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0),
+                left: 16, right: 16
+            }}>
                 <RoundButton
                     display={(loose && share && responsibility) ? 'default' : 'secondary'}
                     disabled={!(loose && share && responsibility)}

@@ -103,12 +103,11 @@ export const LogoutFragment = fragment(() => {
             <AndroidToolbar pageTitle={t('common.logout')} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        marginLeft: 17,
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
                         {t('common.logout')}

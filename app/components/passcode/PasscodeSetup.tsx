@@ -9,8 +9,6 @@ import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { useEngine } from "../../engine/Engine";
-import { useReboot } from "../../utils/RebootContext";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -78,25 +76,25 @@ export const PasscodeSetup = React.memo((
     {
         onReady,
         initial,
-        afterImport
+        afterImport,
+        migrating,
+        onLater,
+        showSuccess
     }: {
         onReady?: (pass: string) => Promise<void>,
+        onLater?: () => void,
         initial?: boolean,
-        afterImport?: boolean
+        afterImport?: boolean,
+        migrating?: boolean,
+        showSuccess?: boolean
     }) => {
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const reboot = useReboot();
     const { Theme } = useAppConfig();
     const onSuccess = useCallback(async (pass: string) => {
         onReady?.(pass);
     }, [onReady]);
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
-
-    const onLater = useCallback(() => {
-        reboot();
-    }, [engine, afterImport, initial]);
 
     return (
         <View style={{
@@ -113,7 +111,7 @@ export const PasscodeSetup = React.memo((
                             dispatch({ type: 're-enter', input: pass });
                         }}
                     />
-                    {!!(initial || afterImport) && (
+                    {!!onLater && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -146,7 +144,7 @@ export const PasscodeSetup = React.memo((
                             dispatch({ type: 'loading' });
                         }}
                     />
-                    {!!(initial || afterImport) && (
+                    {!!(initial || afterImport || migrating) && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -169,7 +167,7 @@ export const PasscodeSetup = React.memo((
                     )}
                 </Animated.View>
             )}
-            {state.step === 'success' && (
+            {state.step === 'success' && showSuccess && (
                 <>
                     <PasscodeSuccess
                         onSuccess={navigation.goBack}

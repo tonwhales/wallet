@@ -7,6 +7,7 @@ import { Engine } from "../Engine";
 import { PasscodeState, passcodeStateKey } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { getAppState } from "../../storage/appState";
+import { getPasscodeState } from "../../components/secure/AuthWalletKeys";
 
 const version = 1;
 
@@ -29,7 +30,7 @@ export class SettingsProduct {
         const appState = getAppState();
         const defaultPasscodeState: { [key: string]: PasscodeState | null } = {};
         appState.addresses.forEach((v) => {
-            defaultPasscodeState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (storage.getString(`${v.address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
+            defaultPasscodeState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (getPasscodeState(v.address, this.engine.isTestnet) ?? null) as PasscodeState | null;
         });
 
         this.#passcodeStateAtom = atom<{ [key: string]: PasscodeState | null }>({
@@ -96,7 +97,7 @@ export class SettingsProduct {
         const appState = getAppState();
         const newPasscodesState: { [key: string]: PasscodeState | null } = {};
         appState.addresses.forEach((v) => {
-            newPasscodesState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (storage.getString(`${v.address.toFriendly({ testOnly: this.engine.isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
+            newPasscodesState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (getPasscodeState(v.address, this.engine.isTestnet) ?? null) as PasscodeState | null;
         });
         this.engine.recoil.updater(this.#passcodeStateAtom, newPasscodesState);
     }

@@ -4,7 +4,7 @@ import { Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
-import { PasscodeState, passcodeStateKey } from '../../storage/secureStorage';
+import { PasscodeState, getBiometricsMigrated, getBiometricsEncKey, passcodeStateKey } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
@@ -27,7 +27,7 @@ export type AuthWalletKeysType = {
     authenticateWithPasscode: (style?: AuthStyle) => Promise<WalletKeys>,
 }
 
-function loadPasscodeState(address: Address, isTestnet: boolean) {
+export function getPasscodeState(address: Address, isTestnet: boolean) {
     return storage.getString(`${address.toFriendly({ testOnly: isTestnet })}/${passcodeStateKey}`);
 }
 
@@ -39,38 +39,80 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
     const authenticate = useCallback(async (style?: AuthStyle) => {
+
+        // Reject previous auth promise
         if (auth) {
             auth.promise.reject();
         }
+
+        // Clear previous auth
         setAuth(null);
+
         const acc = getCurrentAddress();
-        // Try biometric auth then fallback to passcode if fails
+
+        // Check if migrated to new Passcode and Biometrics keys system
+        const migrated = getBiometricsMigrated(AppConfig.isTestnet);
+
         try {
-            const keys = await loadWalletKeys(acc.secretKeyEnc);
-            return keys;
-        } catch (e) {
-            const passcodeKeys = new Promise<WalletKeys>((resolve, reject) => {
-                const passcodeState = loadPasscodeState(acc.address, AppConfig.isTestnet);
-                if (passcodeState !== PasscodeState.Set) {
-                    setAuth(null);
-                    reject();
-                    return;
+            if (migrated) {
+                const passcodeState = getPasscodeState(acc.address, AppConfig.isTestnet);
+                if (passcodeState === PasscodeState.Set) {
+                    const passcodeKeys = new Promise<WalletKeys>((resolve, reject) => {
+                        const passcodeState = getPasscodeState(acc.address, AppConfig.isTestnet);
+                        if (passcodeState !== PasscodeState.Set) {
+                            setAuth(null);
+                            reject();
+                            return;
+                        }
+                        setAuth({ promise: { resolve, reject }, style });
+                    });
+                    return passcodeKeys;
                 }
-                setAuth({ promise: { resolve, reject }, style });
-            });
-            return passcodeKeys;
+
+                const biometricsEncKey = getBiometricsEncKey(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                // Should never happen
+                if (!biometricsEncKey) {
+                    throw new Error('Biometrics key not found');
+                }
+                const keys = await loadWalletKeys(biometricsEncKey);
+                return keys;
+            } else {
+                try {
+                    const keys = await loadWalletKeys(acc.secretKeyEnc);
+                    return keys;
+                } catch (e) {
+                    const passcodeKeys = new Promise<WalletKeys>((resolve, reject) => {
+                        const passcodeState = getPasscodeState(acc.address, AppConfig.isTestnet);
+                        if (passcodeState !== PasscodeState.Set) {
+                            setAuth(null);
+                            reject();
+                            return;
+                        }
+                        setAuth({ promise: { resolve, reject }, style });
+                    });
+                    return passcodeKeys;
+                }
+            }
+        } catch (e) {
+            warn('Failed to load wallet keys');
+            throw Error('Failed to load wallet keys');
         }
     }, [auth]);
 
     // Passcode only auth
     const authenticateWithPasscode = useCallback((style?: AuthStyle) => {
+        
+        // Reject previous auth promise
         if (auth) {
             auth.promise.reject();
         }
+
+        // Clear previous auth
         setAuth(null);
+
         return new Promise<WalletKeys>((resolve, reject) => {
             const acc = getCurrentAddress();
-            const passcodeState = loadPasscodeState(acc.address, AppConfig.isTestnet);
+            const passcodeState = getPasscodeState(acc.address, AppConfig.isTestnet);
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }

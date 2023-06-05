@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
@@ -14,15 +14,25 @@ import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
 import { useReboot } from "../../../utils/RebootContext";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useRoute } from "@react-navigation/native";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const engine = useEngine();
     const { AppConfig } = useAppConfig();
     const reboot = useReboot();
     const settings = engine?.products?.settings;
+    const route = useRoute();
+    const migrating = route.name === 'PasscodeSetupMigrating';
+
+    console.log({ migrating });
+    // TODO: ADD MIGRATION ONBOASRDING
     const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+
+    const inModalMode = useMemo(() => {
+        return !initial && !afterImport && !migrating;
+    }, [initial, afterImport, migrating]);
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         const acc = getCurrentAddress();
@@ -62,17 +72,19 @@ export const PasscodeSetupFragment = systemFragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: (Platform.OS === 'android' || initial || afterImport)
+            paddingTop: (Platform.OS === 'android' || initial || afterImport || migrating)
                 ? safeArea.top
                 : undefined,
         }}>
-            <StatusBar style={(Platform.OS === 'ios' && !initial && !afterImport) ? 'light' : 'dark'} />
+            <StatusBar style={(Platform.OS === 'ios' && inModalMode) ? 'light' : 'dark'} />
             <PasscodeSetup
                 initial={initial}
                 afterImport={afterImport}
                 onReady={onPasscodeConfirmed}
+                migrating={migrating}
+                showSuccess={!migrating}
             />
-            {Platform.OS === 'ios' && !initial && !afterImport && (
+            {Platform.OS === 'ios' && inModalMode && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}
                     onPress={() => {

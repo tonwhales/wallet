@@ -4,22 +4,22 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { generateNewKeyAndEncrypt } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
-import { getAppState, markAddressSecured, setAppState } from '../../storage/appState';
-import { mnemonicToWalletKey } from 'ton-crypto';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { RoundButton } from '../../components/RoundButton';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
-import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
-import { deriveUtilityKey } from '../../storage/utilityKeys';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { useReboot } from '../../utils/RebootContext';
 
-export const WalletSecureFragment = systemFragment((props: { mnemonics: string, deviceEncryption: DeviceEncryption, import: boolean }) => {
+export const WalletSecureFragment = systemFragment((props: {
+    mnemonics: string,
+    deviceEncryption: DeviceEncryption,
+    callback: (res: boolean) => void,
+    onLater?: () => void
+}) => {
     const { Theme, AppConfig } = useAppConfig();
-    const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
@@ -39,51 +39,24 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                     if (Platform.OS === 'android' && Platform.Version < 30) {
                         disableEncryption = true; // Encryption doesn't work well on older androids
                     }
-                    secretKeyEnc = await generateNewKeyAndEncrypt(disableEncryption, Buffer.from(props.mnemonics));
+                    secretKeyEnc = await generateNewKeyAndEncrypt(
+                        disableEncryption,
+                        Buffer.from(props.mnemonics)
+                    );
                 } catch (e) {
                     // Ignore
-                    console.warn(e);
+                    warn('Failed to generate new key');
                     return;
                 }
 
-                // Resolve key
-                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+                const account = getCurrentAddress();
+                markAddressSecured(account.address, AppConfig.isTestnet);
 
-                // Resolve utility key
-                const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
-
-                // Resolve contract
-                const contract = await contractFromPublicKey(key.publicKey);
-
-                // Persist state
-                const state = getAppState();
-                setAppState({
-                    addresses: [
-                        ...state.addresses,
-                        {
-                            address: contract.address,
-                            publicKey: key.publicKey,
-                            secretKeyEnc,
-                            utilityKey,
-                        }
-                    ],
-                    selected: state.addresses.length
-                }, AppConfig.isTestnet);
-
-                // Persist secured flag
-                if (props.import) {
-                    markAddressSecured(contract.address, AppConfig.isTestnet);
-                }
-
-                // Navigate next
-                if (props.import) {
-                    navigation.navigateAndReplaceAll('PasscodeSetup', { afterImport: true });
-                } else {
-                    reboot();
-                }
+                reboot();
             } catch (e) {
-                warn(e);
+                warn('Failed to generate new key');
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
+                props.callback(false);
             } finally {
                 setLoading(false);
             }
@@ -177,6 +150,19 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
             ])
     }, []);
 
+    const onLater = React.useCallback(() => {
+        Alert.alert(
+            t('secure.onLaterTitle'),
+            t('secure.onLaterMessage'),
+            [
+                { text: t('common.cancel') },
+                {
+                    text: t('secure.onLaterButton'), onPress: props.onLater
+                }
+            ]
+        );
+    }, []);
+
     return (
         <View style={{
             flexGrow: 1,
@@ -192,7 +178,7 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                     text={text}
                 />
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ height: disabled ? 128 : 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <View style={{ height: disabled || props.onLater ? 128 : 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                     <RoundButton
                         disabled={disabled}
                         onPress={onClick}
@@ -220,6 +206,28 @@ export const WalletSecureFragment = systemFragment((props: { mnemonics: string, 
                                 color: Theme.accentText
                             }}>
                                 {t('common.continueAnyway')}
+                            </Text>
+                        </Pressable>
+                    )}
+                    {props.onLater && (
+                        <Pressable
+                            onPress={onLater}
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1,
+                                    alignSelf: 'center',
+                                    marginTop: 26,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }
+                            }}
+                        >
+                            <Text style={{
+                                fontSize: 17,
+                                fontWeight: '600',
+                                color: Theme.accentText
+                            }}>
+                                {t('common.later')}
                             </Text>
                         </Pressable>
                     )}

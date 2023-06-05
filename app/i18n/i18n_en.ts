@@ -459,7 +459,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         upgradeTitle: 'Upgrade needed',
         upgradeMessage: 'Please, allow the app access to wallet keys for an upgrade. No funds would be transferred during this upgrade. Please, make sure that you backed up your keys.',
         allowUpgrade: 'Allow upgrade',
-        backup: 'Backup secret words'
+        backup: 'Backup secret words',
+        onLaterTitle: 'Setup later',
+        onLaterMessage: 'You can setup protection later in settings',
+        onLaterButton: 'Setup later',
     },
     backup: {
         title: 'Your recovery phrase',

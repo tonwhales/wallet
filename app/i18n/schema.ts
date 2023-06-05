@@ -461,7 +461,10 @@ export type LocalizationSchema = {
         upgradeTitle: string,
         upgradeMessage: string,
         allowUpgrade: string,
-        backup: string
+        backup: string,
+        onLaterTitle: string,
+        onLaterMessage: string,
+        onLaterButton: string,
     },
     backup: {
         title: string,

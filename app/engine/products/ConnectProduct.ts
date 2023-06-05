@@ -18,10 +18,11 @@ import { sendTonConnectResponse } from "../api/sendTonConnectResponse";
 import { TonConnectBridgeClient } from "../tonconnect/TonConnectBridgeClient";
 import { connectRequestCodec, transactionRpcRequestCodec } from "../tonconnect/codecs";
 import { isHexString } from "../tonconnect/utils";
+import { ProductWithSync } from "./ProductWithSync";
 
 export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
 
-export class ConnectProduct extends TonConnectBridgeClient {
+export class ConnectProduct extends TonConnectBridgeClient implements ProductWithSync {
     private _destroyed: boolean;
 
     readonly #pendingRequestsSelector: RecoilValueReadOnly<SendTransactionRequest[]>;
@@ -93,6 +94,13 @@ export class ConnectProduct extends TonConnectBridgeClient {
         if (!this._destroyed) {
             this._destroyed = true;
         }
+    }
+
+    startSync() {
+        this._startSync();
+    }
+    stopSync() {
+        this.destroy();
     }
 
     private _startSync() {

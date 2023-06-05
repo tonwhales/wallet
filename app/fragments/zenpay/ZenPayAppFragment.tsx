@@ -21,7 +21,7 @@ export const ZenPayAppFragment = fragment(() => {
     const params = useParams<ZenPayAppParams>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const status = engine.products.zenPay.useStatus();
+    const status = engine.products.syncable.zenPay.useStatus();
     const endpoint = useMemo(() => {
         let url = zenPayUrl;
         if (params.type === 'account') {

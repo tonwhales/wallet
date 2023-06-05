@@ -4,7 +4,7 @@ import { createEngineSync } from "../utils/createEngineSync";
 
 export function startZenPaySync(engine: Engine) {
     let sync = createEngineSync('zenpay-sync', engine, async () => {
-        await engine.products.zenPay.doSync();
+        await engine.products.syncable.zenPay.doSync();
     });
 
     // Invalidate on start

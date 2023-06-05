@@ -13,7 +13,7 @@ import { Cell, fromNano, toNano } from 'ton';
 
 export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: TypedNavigation) {
   const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
-  const app = engine.products.tonConnect.getConnectedAppByUrl(webViewUrl);
+  const app = engine.products.syncable.tonConnect.getConnectedAppByUrl(webViewUrl);
 
   const isConnected = useMemo(() => {
     if (!app) {
@@ -34,7 +34,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
           checkProtocolVersionCapability(protocolVersion);
           verifyConnectRequest(request);
 
-          const manifest = await engine.products.tonConnect.getConnectAppManifest(request.manifestUrl);
+          const manifest = await engine.products.syncable.tonConnect.getConnectAppManifest(request.manifestUrl);
 
           if (!manifest) {
             return new ConnectEventError(
@@ -46,7 +46,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
           const event = await new Promise<ConnectEvent>((resolve, reject) => {
             const callback = (result: TonConnectAuthResult) => {
               if (result.ok) {
-                engine.products.tonConnect.saveAppConnection(
+                engine.products.syncable.tonConnect.saveAppConnection(
                   {
                     name: manifest.name,
                     url: manifest.url,
@@ -97,19 +97,19 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
       },
 
       restoreConnection: async () => {
-        const event = await engine.products.tonConnect.autoConnect(webViewUrl);
+        const event = await engine.products.syncable.tonConnect.autoConnect(webViewUrl);
         setConnectEvent(event);
         return event;
       },
 
       disconnect: async () => {
         setConnectEvent(null);
-        engine.products.tonConnect.removeInjectedConnection(webViewUrl);
+        engine.products.syncable.tonConnect.removeInjectedConnection(webViewUrl);
         return;
       },
 
       send: async <T extends RpcMethod>(request: AppRequest<T>) => {
-        const connectedApp = engine.products.tonConnect.getConnectedAppByUrl(webViewUrl);
+        const connectedApp = engine.products.syncable.tonConnect.getConnectedAppByUrl(webViewUrl);
 
         if (!connectedApp) {
           return {
@@ -223,7 +223,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
 
   const disconnect = useCallback(async () => {
     try {
-      await engine.products.tonConnect.disconnect(webViewUrl);
+      await engine.products.syncable.tonConnect.disconnect(webViewUrl);
       sendEvent({ event: 'disconnect', payload: {} });
     } catch { }
   }, [webViewUrl, sendEvent]);

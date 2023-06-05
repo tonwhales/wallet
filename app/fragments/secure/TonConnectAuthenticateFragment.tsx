@@ -62,7 +62,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         (async () => {
             if (connectProps.type === 'qr') {
                 try {
-                    const handled = await engine.products.tonConnect.handleConnectDeeplink(connectProps.query);
+                    const handled = await engine.products.syncable.tonConnect.handleConnectDeeplink(connectProps.query);
 
                     if (handled) {
                         checkProtocolVersionCapability(handled.protocolVersion);
@@ -94,7 +94,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             checkProtocolVersionCapability(connectProps.protocolVersion);
             verifyConnectRequest(connectProps.request);
 
-            const manifest = await engine.products.tonConnect.getConnectAppManifest(connectProps.request.manifestUrl);
+            const manifest = await engine.products.syncable.tonConnect.getConnectAppManifest(connectProps.request.manifestUrl);
 
             if (manifest) {
                 setState({
@@ -211,7 +211,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                 sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
                 // Save connection
-                engine.products.tonConnect.saveAppConnection(
+                engine.products.syncable.tonConnect.saveAppConnection(
                     {
                         name: state.app.name,
                         url: state.app.url,

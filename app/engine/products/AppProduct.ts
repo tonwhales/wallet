@@ -9,8 +9,9 @@ import { getAppInstanceKeyPair } from '../../storage/appState';
 import { delay } from 'teslabot';
 import axios from 'axios';
 import { warn } from '../../utils/log';
+import { ProductWithSync } from './ProductWithSync';
 
-export class AppProduct {
+export class AppProduct implements ProductWithSync {
 
     readonly engine: Engine;
     private _destroyed: boolean;
@@ -40,7 +41,6 @@ export class AppProduct {
         } catch (e) {
             warn('Stored job error');
         }
-        this._startSync();
     }
 
     get ready() {
@@ -87,6 +87,14 @@ export class AppProduct {
         if (!this._destroyed) {
             this._destroyed = true;
         }
+    }
+
+    startSync() {
+        this._startSync();
+    }
+
+    stopSync() {
+        this.destroy();
     }
 
     async commitCommand(success: boolean, job: string, result: Cell) {

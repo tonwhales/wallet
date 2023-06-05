@@ -8,8 +8,8 @@ export const PriceContext = React.createContext<[PriceState | null | undefined, 
 // Price loader
 export const PriceLoader = React.memo((props: { children?: any }) => {
     const engine = React.useContext(EngineContext)!
-    const price = engine.products.price.useState();
-    const currency = engine.products.price.usePrimaryCurrency();
+    const price = engine.products.syncable.price.useState();
+    const currency = engine.products.syncable.price.usePrimaryCurrency();
 
     return (
         <PriceContext.Provider value={[price, currency]}>

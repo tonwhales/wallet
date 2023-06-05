@@ -17,6 +17,7 @@ import { extractZenPayQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { usePrice } from '../../engine/PriceContext';
 
 export const ZenPayLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -26,7 +27,7 @@ export const ZenPayLandingFragment = fragment(() => {
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: ZenPayAppParams }>();
     const lang = getLocales()[0].languageCode;
-    const currency = engine.products.price.usePrimaryCurrency();
+    const [_, currency] = usePrice();
 
     //
     // View
@@ -82,7 +83,7 @@ export const ZenPayLandingFragment = fragment(() => {
             }
 
             const domain = extractDomain(endpoint);
-            const res = await engine.products.zenPay.enroll(domain);
+            const res = await engine.products.syncable.zenPay.enroll(domain);
             if (!res) {
                 Alert.alert(t('auth.failed'));
                 authOpacity.value = 0;

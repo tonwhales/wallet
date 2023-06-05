@@ -3,11 +3,11 @@ import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
 import BN from "bn.js";
 import { fromNano, toNano } from "ton";
-import { useEngine } from "../../engine/Engine";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { usePrice } from "../../engine/PriceContext";
 
 export const UnstakeBanner = React.memo((
     {
@@ -26,9 +26,7 @@ export const UnstakeBanner = React.memo((
     }
 ) => {
     const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
-    const price = engine.products.price.useState();
-    const currency = engine.products.price.usePrimaryCurrency();
+    const [price, currency] = usePrice();
     const anim = useRef<LottieView>(null);
 
     useLayoutEffect(() => {

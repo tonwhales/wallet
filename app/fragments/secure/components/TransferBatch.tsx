@@ -308,7 +308,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
         // Notify job
         if (job) {
-            await engine.products.apps.commitCommand(true, job, transfer);
+            await engine.products.syncable.apps.commitCommand(true, job, transfer);
         }
 
         // Notify callback

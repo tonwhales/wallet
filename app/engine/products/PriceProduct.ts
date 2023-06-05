@@ -6,6 +6,7 @@ import { fetchPrice } from "../api/fetchPrice";
 import { watchPrice } from "../api/watchPrice";
 import { useRecoilValue } from "recoil";
 import { CloudValue } from "../cloud/CloudValue";
+import { ProductWithSync } from "./ProductWithSync";
 
 export const PrimaryCurrency: { [key: string]: string } = {
     Usd: 'USD',
@@ -42,7 +43,7 @@ export type PriceState = {
 
 const version = 1;
 
-export class PriceProduct {
+export class PriceProduct implements ProductWithSync {
     readonly engine: Engine;
     private _state: PriceState | null = null;
     private _eventEmitter: EventEmitter = new EventEmitter();
@@ -55,7 +56,6 @@ export class PriceProduct {
         this.primaryCurrency = this.engine.cloud.get(`primaryCurrency-v${version}`, (src) => { src.currency = PrimaryCurrency.Usd });
         this._state = engine.persistence.prices.getValue();
         this._destroyed = false;
-        this._start();
     }
 
     get ready() {
@@ -171,5 +171,13 @@ export class PriceProduct {
             this.engine.persistence.prices.setValue(undefined, this._state!);
             this._eventEmitter.emit('updated');
         });
+    }
+
+    startSync() {
+        this._start();
+    }
+
+    stopSync() {
+        this.destroy();
     }
 }

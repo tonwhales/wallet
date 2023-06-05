@@ -85,7 +85,7 @@ export const SimpleTransferFragment = fragment(() => {
     React.useEffect(() => {
         return () => {
             if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
+                engine.products.syncable.apps.commitCommand(false, params.job, new Cell());
             }
             if (params && params.callback) {
                 params.callback(false, null);

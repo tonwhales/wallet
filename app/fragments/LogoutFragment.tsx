@@ -23,7 +23,7 @@ import { loadWalletKeys } from "../storage/walletKeys";
 
 export function clearZenPay(engine: Engine, address?: Address) {
     const zenPayDomain = extractDomain(zenPayUrl);
-    engine.products.zenPay.stopWatching();
+    engine.products.syncable.zenPay.stopWatching();
     engine.persistence.domainKeys.setValue(
         `${(address ?? engine.address).toFriendly({ testOnly: engine.isTestnet })}/${zenPayDomain}`,
         null

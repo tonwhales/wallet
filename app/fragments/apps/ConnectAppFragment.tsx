@@ -12,7 +12,7 @@ export const ConnectAppFragment = fragment(() => {
     const engine = useEngine();
     const { Theme } = useAppConfig();
     const url = (useRoute().params as any).url as string;
-    const appData = engine.products.tonConnect.useAppManifest(url);
+    const appData = engine.products.syncable.tonConnect.useAppManifest(url);
     const safeArea = useSafeAreaInsets();
 
     if (!appData) {

@@ -55,7 +55,7 @@ export const ConnectionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const extensions = engine.products.extensions.useExtensions();
-    const tonconnectApps = engine.products.tonConnect.useExtensions();
+    const tonconnectApps = engine.products.syncable.tonConnect.useExtensions();
     const ledger = engine.products.settings.useLedger();
     let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
 
@@ -98,7 +98,7 @@ export const ConnectionsFragment = fragment(() => {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                engine.products.tonConnect.disconnect(key);
+                engine.products.syncable.tonConnect.disconnect(key);
             }
         }]);
     }, []);

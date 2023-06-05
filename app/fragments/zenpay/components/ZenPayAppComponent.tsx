@@ -23,6 +23,7 @@ import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
+import { usePrice } from '../../../engine/PriceContext';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -39,7 +40,7 @@ export const ZenPayAppComponent = React.memo((
     const webRef = React.useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
-    const currency = engine.products.price.usePrimaryCurrency();
+    const [_, currency] = usePrice();
 
     // 
     // Track events
@@ -203,7 +204,7 @@ export const ZenPayAppComponent = React.memo((
     }, []);
 
     const onCloseApp = React.useCallback(() => {
-        engine.products.zenPay.doSync();
+        engine.products.syncable.zenPay.doSync();
         navigation.goBack();
         trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
     }, []);

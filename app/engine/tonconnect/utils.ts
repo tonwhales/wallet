@@ -43,7 +43,7 @@ export const tonConnectTransactionCallback = (
       sessionCrypto,
       clientSessionId: request.from
     });
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+    engine.products.syncable.tonConnect.deleteActiveRemoteRequest(request.from);
     return;
   }
 
@@ -52,7 +52,7 @@ export const tonConnectTransactionCallback = (
     sessionCrypto,
     clientSessionId: request.from
   });
-  engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+  engine.products.syncable.tonConnect.deleteActiveRemoteRequest(request.from);
 }
 
 export const prepareTonConnectRequest = (request: { from: string } & SendTransactionRequest, engine: Engine) => {
@@ -63,16 +63,16 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
     Array.isArray(params.messages) &&
     params.messages.every((msg) => !!msg.address && !!msg.amount);
 
-  const session = engine.products.tonConnect.getConnectionByClientSessionId(request.from);
+  const session = engine.products.syncable.tonConnect.getConnectionByClientSessionId(request.from);
   if (!session) {
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+    engine.products.syncable.tonConnect.deleteActiveRemoteRequest(request.from);
     Alert.alert(t('common.error'), t('products.tonConnect.errors.connection'));
     return;
   }
   const sessionCrypto = new SessionCrypto(session.sessionKeyPair);
 
   if (!isValidRequest) {
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+    engine.products.syncable.tonConnect.deleteActiveRemoteRequest(request.from);
     sendTonConnectResponse({
       response: {
         error: {
@@ -89,7 +89,7 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
 
   const { valid_until } = params;
   if (valid_until < getTimeSec()) {
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
+    engine.products.syncable.tonConnect.deleteActiveRemoteRequest(request.from);
     sendTonConnectResponse({
       response: {
         error: {
@@ -104,7 +104,7 @@ export const prepareTonConnectRequest = (request: { from: string } & SendTransac
     return;
   }
 
-  const app = engine.products.tonConnect.findConnectedAppByClientSessionId(request.from);
+  const app = engine.products.syncable.tonConnect.findConnectedAppByClientSessionId(request.from);
 
   const messages = [];
   for (const message of params.messages) {

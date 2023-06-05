@@ -9,6 +9,7 @@ import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/zenpay/fetchCards";
 import { warn } from "../../utils/log";
+import { ProductWithSync } from "../products/ProductWithSync";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
@@ -32,7 +33,7 @@ export type ZenPayState = {
     accounts: ZenPayCard[],
 };
 
-export class ZenPayProduct {
+export class ZenPayProduct implements ProductWithSync {
     readonly engine: Engine;
     readonly #status;
     readonly #accountsState;
@@ -278,5 +279,13 @@ export class ZenPayProduct {
                 this.watch(targetStatus.value.token);
             }
         });
+    }
+
+    startSync() {
+        this.doSync();
+    }
+
+    stopSync() {
+        this.stopWatching();
     }
 }

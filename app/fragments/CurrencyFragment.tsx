@@ -17,7 +17,7 @@ export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const priceProduct = engine.products.price;
+    const priceProduct = engine.products.syncable.price;
     const currency = priceProduct.usePrimaryCurrency();
     const { Theme } = useAppConfig();
 

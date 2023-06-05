@@ -38,7 +38,7 @@ export const SignFragment = fragment(() => {
     React.useEffect(() => {
         return () => {
             if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
+                engine.products.syncable.apps.commitCommand(false, params.job, new Cell());
             }
             if (params && params.callback) {
                 params.callback(false, null);
@@ -65,7 +65,7 @@ export const SignFragment = fragment(() => {
 
         // Commit
         if (params.job) {
-            await engine.products.apps.commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());
+            await engine.products.syncable.apps.commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());
         }
 
         // Callback

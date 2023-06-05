@@ -116,7 +116,7 @@ export const TransferFragment = fragment(() => {
     React.useEffect(() => {
         return () => {
             if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
+                engine.products.syncable.apps.commitCommand(false, params.job, new Cell());
             }
             if (params && params.callback) {
                 params.callback(false, null);
@@ -342,7 +342,7 @@ export const TransferFragment = fragment(() => {
                     }]);
                     exited = true;
                     if (params && params.job) {
-                        engine.products.apps.commitCommand(false, params.job, new Cell());
+                        engine.products.syncable.apps.commitCommand(false, params.job, new Cell());
                     }
                     if (params && params.callback) {
                         params.callback(false, null);

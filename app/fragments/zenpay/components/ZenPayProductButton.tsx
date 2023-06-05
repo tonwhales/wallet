@@ -23,7 +23,7 @@ export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPay
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
-    const status = engine.products.zenPay.useStatus();
+    const status = engine.products.syncable.zenPay.useStatus();
 
     const needsEnrolment = React.useMemo(() => {
         try {

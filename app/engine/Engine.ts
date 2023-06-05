@@ -23,6 +23,7 @@ import { ZenPayProduct } from './corp/ZenPayProduct';
 import { ConnectProduct } from './products/ConnectProduct';
 import { WalletsProduct } from './products/WalletsProduct';
 import { LedgerProduct } from './products/LedgerProduct';
+import { ProductWithSync } from './products/ProductWithSync';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -46,19 +47,21 @@ export class Engine {
 
     // Modules
     readonly products: {
+        syncable: {
+            price: PriceProduct,
+            apps: AppProduct,
+            tonConnect: ConnectProduct,
+            zenPay: ZenPayProduct,
+        },
         main: WalletProduct,
         legacy: LegacyProduct,
-        price: PriceProduct,
-        apps: AppProduct,
         whalesStakingPools: StakingPoolsProduct,
         config: ConfigProduct,
         serverConfig: ServerConfigProduct,
         extensions: ExtensionsProduct,
         settings: SettingsProduct,
         keys: KeysProduct,
-        tonConnect: ConnectProduct,
         ledger: LedgerProduct,
-        zenPay: ZenPayProduct,
         wallets: WalletsProduct
     };
     readonly transactions: Transactions;
@@ -90,29 +93,25 @@ export class Engine {
         this.isTestnet = isTestnet;
 
         //
-        // Start sync
-        //
-
-        startSync(this);
-
-        //
         // Create products
         //
 
         this.products = {
+            syncable: {
+                price: new PriceProduct(this),
+                apps: new AppProduct(this),
+                tonConnect: new ConnectProduct(this),
+                zenPay: new ZenPayProduct(this)
+            },
             main: new WalletProduct(this),
             legacy: new LegacyProduct(this),
-            price: new PriceProduct(this),
-            apps: new AppProduct(this),
             whalesStakingPools: new StakingPoolsProduct(this),
             config: new ConfigProduct(this),
             serverConfig: new ServerConfigProduct(this),
             extensions: new ExtensionsProduct(this),
             settings: new SettingsProduct(this),
             keys: new KeysProduct(this),
-            tonConnect: new ConnectProduct(this),
             ledger: new LedgerProduct(this),
-            zenPay: new ZenPayProduct(this),
             wallets: new WalletsProduct(this)
         };
     }
@@ -126,10 +125,20 @@ export class Engine {
     }
 
     destroy() {
+        Object.values(this.products.syncable).forEach(product => {
+            product.stopSync();
+        });
         if (!this._destroyed) {
             this._destroyed = true;
             this.blocksWatcher.stop();
         }
+    }
+
+    start() {
+        Object.values(this.products.syncable).forEach(product => {
+            product.startSync();
+        });
+        startSync(this);
     }
 }
 

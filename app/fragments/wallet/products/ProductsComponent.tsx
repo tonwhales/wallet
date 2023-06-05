@@ -24,13 +24,13 @@ export const ProductsComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
-    const currentJob = engine.products.apps.useState();
+    const currentJob = engine.products.syncable.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
     const ledger = engine.products.settings.useLedger();
-    const cards = engine.products.zenPay.useCards();
-    const tonconnectExtensions = engine.products.tonConnect.useExtensions();
-    const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
+    const cards = engine.products.syncable.zenPay.useCards();
+    const tonconnectExtensions = engine.products.syncable.tonConnect.useExtensions();
+    const tonconnectRequests = engine.products.syncable.tonConnect.usePendingRequests();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);
         if (!domain) {

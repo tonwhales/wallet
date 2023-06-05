@@ -26,7 +26,7 @@ export const ConnectedAppButton = React.memo((
     const { Theme } = useAppConfig();
     const engine = useEngine();
     const appData = engine.products.extensions.useAppData(url);
-    const appManifest = engine.products.tonConnect.useAppManifest(url);
+    const appManifest = engine.products.syncable.tonConnect.useAppManifest(url);
     let app: AppInfo = useMemo(() => {
         if (appData) {
             return { ...appData, type: 'app-data' };

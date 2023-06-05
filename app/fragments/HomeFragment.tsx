@@ -37,7 +37,7 @@ export const HomeFragment = fragment(() => {
                 (async () => {
                     try {
                         await backoff('home', async () => {
-                            let existing = await engine.products.apps.fetchJob();
+                            let existing = await engine.products.syncable.apps.fetchJob();
                             if (!existing) {
                                 return;
                             }

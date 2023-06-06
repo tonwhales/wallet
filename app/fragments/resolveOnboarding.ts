@@ -1,6 +1,8 @@
 import { canUpgradeAppState, getAppState, getCurrentAddress, isAddressSecured } from "../storage/appState";
 import { Engine } from "../engine/Engine";
 import { storage } from "../storage/storage";
+import { getPasscodeState } from "../components/secure/AuthWalletKeys";
+import { PasscodeState } from "../storage/secureStorage";
 
 const passcodeSetupShownKey = 'passcode-setup-shown';
 
@@ -15,10 +17,11 @@ export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): On
     const passcodeSetupShown = isPasscodeSetupShown();
     
     if (state.selected >= 0) {
-        if (!passcodeSetupShown) {
+        const address = getCurrentAddress();
+        const passcodeSet = getPasscodeState(address.address, isTestnet) === PasscodeState.Set;
+        if (!passcodeSetupShown && !passcodeSet) {
             return 'passcode-setup';
         }
-        const address = getCurrentAddress();
         if (isAddressSecured(address.address, isTestnet)) {
             if (engine && !engine.ready) {
                 return 'sync';

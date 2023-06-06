@@ -92,7 +92,7 @@ export const DeveloperToolsFragment = fragment(() => {
         [AppConfig.isTestnet],
     );
 
-    const [zenPayAppUrl, setZenPayAppUrl] = useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
+    const [holdersAppUrl, setZenPayAppUrl] = useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
 
     const onUrlSet = useCallback((link: string) => {
         let url: URL
@@ -151,7 +151,7 @@ export const DeveloperToolsFragment = fragment(() => {
             <AndroidToolbar pageTitle={'Dev Tools'} />
             <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    marginTop: 16,
                     backgroundColor: Theme.item,
                     borderRadius: 14,
                     overflow: 'hidden',
@@ -160,19 +160,24 @@ export const DeveloperToolsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_backup.png')} title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
                     </View>
-
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
+                        <ItemButton title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
                     </View>
-
                     {!(
                         Application.applicationId === 'com.tonhub.app.testnet' ||
                         Application.applicationId === 'com.tonhub.app.debug.testnet' ||
@@ -185,20 +190,42 @@ export const DeveloperToolsFragment = fragment(() => {
                         )}
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Storage status screen"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
+                    </View>
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
                     </View>
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={'Offline integrity check:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
                     </View>
-
-                    {AppConfig.isTestnet && (
+                </View>
+                {AppConfig.isTestnet && (
+                    <View style={{
+                        marginBottom: 16, marginTop: 17,
+                        backgroundColor: Theme.item,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ATextInput
                                 blurOnSubmit={false}
-                                value={zenPayAppUrl}
+                                value={holdersAppUrl}
                                 onValueChange={onUrlSet}
-                                placeholder={'ZenPay App URL'}
+                                placeholder={'Holders App URL'}
                                 keyboardType={'default'}
                                 preventDefaultHeight
                                 editable={true}
@@ -217,7 +244,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                             color: Theme.label,
                                             alignSelf: 'flex-start',
                                         }}>
-                                            {'ZenPay App URL'}
+                                            {'Holders App URL'}
                                         </Text>
                                     </View>
                                 }
@@ -234,15 +261,15 @@ export const DeveloperToolsFragment = fragment(() => {
                             <RoundButton
                                 title={'Apply URL'}
                                 onPress={() => {
-                                    storage.set('zenpay-app-url', zenPayAppUrl);
-                                    Alert.alert('Success', 'ZenPay App URL has been updated, now restart the app to apply changes.');
+                                    storage.set('zenpay-app-url', holdersAppUrl);
+                                    Alert.alert('Success', 'Holders App URL has been updated, now restart the app to apply changes.');
                                 }}
                                 display={'default'}
                                 style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
                             />
                         </View>
-                    )}
-                </View>
+                    </View>
+                )}
             </ScrollView>
         </View>
     );

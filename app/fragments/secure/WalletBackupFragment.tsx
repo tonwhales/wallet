@@ -13,6 +13,7 @@ import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { useReboot } from '../../utils/RebootContext';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -20,6 +21,8 @@ export const WalletBackupFragment = systemFragment(() => {
     const { height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
+    const init = route.name === 'WalletBackupInit';
+    const reboot = useReboot();
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
@@ -34,6 +37,9 @@ export const WalletBackupFragment = systemFragment(() => {
         if (back) {
             navigation.goBack();
         } else {
+            if (init) {
+                reboot();
+            }
             if (engine && !engine.ready) {
                 navigation.navigateAndReplaceAll('Sync');
             } else {

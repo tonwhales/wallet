@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { mnemonicValidate } from 'ton-crypto';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat } from 'react-native-reanimated';
-import { WalletSecureFragment } from './WalletSecureFragment';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { WordsListTrie } from '../../utils/wordsListTrie';
@@ -15,7 +14,7 @@ import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { warn } from '../../utils/log';
 import { WalletWordsComponent } from '../../components/secure/WalletWordsComponent';
-import { WalletSecurePasscodeFragment } from './WalletSecurePasscodeFragment';
+import { WalletSecurePasscodeComponent } from './WalletSecurePasscodeComponent';
 
 export const wordsTrie = WordsListTrie();
 
@@ -259,7 +258,7 @@ export const WalletImportFragment = systemFragment(() => {
                     key="content"
                     entering={FadeIn}
                 >
-                    <WalletSecurePasscodeFragment
+                    <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
                         import={true}
                     />

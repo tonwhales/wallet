@@ -60,20 +60,34 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
                 const biometricsEncKey = getBiometricsEncKey(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
                 const biometricsState = getBiometricsState(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                const useBiometrics = biometricsState === BiometricsState.SetToUse && !!biometricsEncKey;
+                const useBiometrics = biometricsState === BiometricsState.InUse && !!biometricsEncKey;
+
+                if (useBiometrics) {
+                    // Should never happen
+                    if (!biometricsEncKey) {
+                        throw new Error('Biometrics key not found');
+                    }
+    
+                    try {
+                        const keys = await loadWalletKeys(biometricsEncKey);
+                        return keys;
+                    } catch (e) {
+                        warn('Failed to load wallet keys with biometrics');
+                        if (passcodeState === PasscodeState.Set) {
+                            return new Promise<WalletKeys>((resolve, reject) => {
+                                setAuth({ promise: { resolve, reject }, style: {...style, useBiometrics } });
+                            });
+                        }
+                    }
+                }
 
                 if (passcodeState === PasscodeState.Set) {
                     return new Promise<WalletKeys>((resolve, reject) => {
                         setAuth({ promise: { resolve, reject }, style: {...style, useBiometrics } });
                     });
                 }
+                throw Error('Failed to load wallet keys with biometrics & passcode');
 
-                // Should never happen
-                if (!biometricsEncKey) {
-                    throw new Error('Biometrics key not found');
-                }
-                const keys = await loadWalletKeys(biometricsEncKey);
-                return keys;
             } else {
                 try {
                     const keys = await loadWalletKeys(acc.secretKeyEnc);

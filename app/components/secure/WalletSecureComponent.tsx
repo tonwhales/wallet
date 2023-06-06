@@ -2,57 +2,60 @@ import * as React from 'react';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { generateNewKeyAndEncrypt } from '../../storage/secureStorage';
+import { BiometricsState, generateNewKeyAndEncrypt, storeBiometricsEncKey, storeBiometricsState } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
-import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
-import { RoundButton } from '../../components/RoundButton';
-import { FragmentMediaContent } from '../../components/FragmentMediaContent';
+import { RoundButton } from '../RoundButton';
+import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
-import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { mnemonicToWalletKey } from 'ton-crypto';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { useReboot } from '../../utils/RebootContext';
 
-export const WalletSecureFragment = systemFragment((props: {
+export const WalletSecureComponent = React.memo((props: {
     mnemonics: string,
     deviceEncryption: DeviceEncryption,
     callback: (res: boolean) => void,
-    onLater?: () => void
+    onLater?: () => void,
+    import?: boolean
 }) => {
+    const reboot = useReboot();
+    const navigation = useTypedNavigation();
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const reboot = useReboot();
+    let disableEncryption =
+        props.deviceEncryption === 'none'
+        || props.deviceEncryption === 'device-biometrics'
+        || props.deviceEncryption === 'device-passcode'
+        || Platform.OS === 'android' && Platform.Version < 30 // Encryption doesn't work well on older androids
 
     // Action
     const [loading, setLoading] = React.useState(false);
-    const onClick = React.useCallback((bypassEncryption?: boolean) => {
+    const onClick = React.useCallback(() => {
         (async () => {
             setLoading(true);
             try {
 
-                // Encrypted token
-                let secretKeyEnc: Buffer;
-
                 // Generate New Key
-                try {
-                    let disableEncryption = !!(props.deviceEncryption === 'none' || props.deviceEncryption === 'device-biometrics' || props.deviceEncryption === 'device-passcode' || bypassEncryption);
-                    if (Platform.OS === 'android' && Platform.Version < 30) {
-                        disableEncryption = true; // Encryption doesn't work well on older androids
-                    }
-                    secretKeyEnc = await generateNewKeyAndEncrypt(
-                        disableEncryption,
-                        Buffer.from(props.mnemonics)
-                    );
-                } catch (e) {
-                    // Ignore
-                    warn('Failed to generate new key');
-                    return;
-                }
+                let secretKeyEnc = await generateNewKeyAndEncrypt(
+                    false,
+                    Buffer.from(props.mnemonics)
+                );
 
-                const account = getCurrentAddress();
-                markAddressSecured(account.address, AppConfig.isTestnet);
+                // Resolve key
+                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
 
-                reboot();
+                // Resolve contract
+                const contract = await contractFromPublicKey(key.publicKey);
+
+                // Save to storage and default state to Use biometrics
+                storeBiometricsEncKey(contract.address.toFriendly({ testOnly: AppConfig.isTestnet }), secretKeyEnc);
+                storeBiometricsState(contract.address.toFriendly({ testOnly: AppConfig.isTestnet }), BiometricsState.InUse);
+
+                props.callback(true);
             } catch (e) {
                 warn('Failed to generate new key');
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
@@ -87,25 +90,11 @@ export const WalletSecureFragment = systemFragment((props: {
                 ? t('secure.protectTouchID')
                 : t('secure.protectBiometrics');
             break;
-        case 'passcode':
-            icon = <Ionicons
-                name="keypad"
-                size={20}
-                color="white"
-            />;
-            buttonText = t('secure.protectPasscode');
-            break;
         case 'device-biometrics':
             buttonText = t('secure.protectBiometrics');
             break;
         case 'device-passcode':
-            icon = <Ionicons
-                name="keypad"
-                size={20}
-                color="white"
-            />;
-            buttonText = t('secure.protectPasscode');
-            break;
+        case 'passcode':
         case 'secret':
             icon = <Ionicons
                 name="keypad"
@@ -129,27 +118,6 @@ export const WalletSecureFragment = systemFragment((props: {
             break;
     }
 
-    const disabled = props.deviceEncryption === 'none';
-    if (disabled) {
-        text = t('secure.subtitleNoBiometrics');
-        buttonText = t('secure.titleUnprotected');
-        icon = undefined;
-    }
-
-    const continueAnywayAlert = React.useCallback(() => {
-        Alert.alert(
-            t('secure.titleUnprotected'),
-            t('secure.messageNoBiometrics'),
-            [
-                { text: t('common.cancel') },
-                {
-                    text: t('common.continueAnyway'), onPress: () => {
-                        onClick(true);
-                    }
-                }
-            ])
-    }, []);
-
     const onLater = React.useCallback(() => {
         Alert.alert(
             t('secure.onLaterTitle'),
@@ -162,6 +130,21 @@ export const WalletSecureFragment = systemFragment((props: {
             ]
         );
     }, []);
+
+    if (disableEncryption) {
+        if (props.import) {
+            const address = React.useMemo(() => getBackup(), []);
+            let state = getAppState();
+            if (!state) {
+                throw Error('Invalid state');
+            }
+            markAddressSecured(address.address, AppConfig.isTestnet);
+            reboot();
+            return null;
+        }
+        navigation.navigate('WalletBackupInit')
+        return null;
+    }
 
     return (
         <View style={{
@@ -178,37 +161,14 @@ export const WalletSecureFragment = systemFragment((props: {
                     text={text}
                 />
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ height: disabled || props.onLater ? 128 : 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <View style={{ height: props.onLater ? 128 : 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
                     <RoundButton
-                        disabled={disabled}
                         onPress={onClick}
                         title={buttonText}
                         loading={loading}
                         iconImage={iconImage}
                         icon={icon}
                     />
-                    {disabled && (
-                        <Pressable
-                            onPress={continueAnywayAlert}
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    alignSelf: 'center',
-                                    marginTop: 26,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }
-                            }}
-                        >
-                            <Text style={{
-                                fontSize: 17,
-                                fontWeight: '600',
-                                color: Theme.accentText
-                            }}>
-                                {t('common.continueAnyway')}
-                            </Text>
-                        </Pressable>
-                    )}
                     {props.onLater && (
                         <Pressable
                             onPress={onLater}
@@ -220,6 +180,12 @@ export const WalletSecureFragment = systemFragment((props: {
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                 }
+                            }}
+                            hitSlop={{
+                                top: 12,
+                                left: 100,
+                                bottom: 12,
+                                right: 100
                             }}
                         >
                             <Text style={{

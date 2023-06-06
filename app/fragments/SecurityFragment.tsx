@@ -1,25 +1,100 @@
 import { StatusBar } from "expo-status-bar"
-import { Platform, View, Text, ScrollView } from "react-native"
+import { Platform, View, Text, ScrollView, ImageSourcePropType, Image } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
-import { PasscodeState } from "../storage/secureStorage"
+import { BiometricsState, PasscodeState, getBiometricsMigrated } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
 import { getCurrentAddress } from "../storage/appState"
+import { useEffect, useMemo, useState } from "react"
+import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
+import { Ionicons } from '@expo/vector-icons';
+import TouchIos from '../../assets/ic_touch_ios.svg';
+import TouchAndroid from '../../assets/ic_touch_and.svg';
+import FaceIos from '../../assets/ic_face_id.svg';
+import { ItemSwitch } from "../components/Item"
+import { useKeysAuth } from "../components/secure/AuthWalletKeys"
+import { warn } from "../utils/log"
+import { ItemGroup } from "../components/ItemGroup"
 
 export const SecurityFragment = fragment(() => {
-    const engine = useEngine();
-    const settings = engine.products.settings;
-    const acc = getCurrentAddress();
-    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const engine = useEngine();
+    const settings = engine.products.settings;
+    const authContext = useKeysAuth();
+    const acc = getCurrentAddress();
+    const { Theme, AppConfig } = useAppConfig();
     const passcodeState = settings.usePasscodeState(acc.address);
+    const biometricsState = settings.useBiometricsState(acc.address);
+    const migrated = getBiometricsMigrated(AppConfig.isTestnet);
+    const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
+
+    const biometricsProps = useMemo(() => {
+        if (!migrated) {
+            return null
+        }
+
+        let icon: any | undefined;
+        let buttonText: string | undefined;
+        switch (deviceEncryption) {
+            case 'face':
+                icon = Platform.OS === 'ios'
+                    ? <FaceIos width={20} height={20} color={'#000'} />
+                    : <TouchAndroid width={20} height={20} color={'#000'} />
+                buttonText = Platform.OS === 'ios'
+                    ? t('secure.protectFaceID')
+                    : t('secure.protectBiometrics');
+                break;
+            case 'biometric':
+            case 'fingerprint':
+                icon = Platform.OS === 'ios'
+                    ? <TouchIos width={20} height={20} color={'#000'} />
+                    : <TouchAndroid width={20} height={20} color={'#000'} />
+                buttonText = Platform.OS === 'ios'
+                    ? t('secure.protectTouchID')
+                    : t('secure.protectBiometrics');
+                break;
+            case 'passcode':
+            case 'device-passcode':
+            case 'secret':
+                icon = <Ionicons
+                    name={'keypad'}
+                    size={20}
+                    color={'#000'}
+                />;
+                buttonText = t('secure.protectPasscode');
+                break;
+            case 'device-biometrics':
+                buttonText = t('secure.protectBiometrics');
+                break;
+            case 'none':
+                return null;
+            default:
+                return null;
+        }
+
+        return {
+            icon,
+            buttonText,
+            state: biometricsState,
+        }
+
+    }, [biometricsState, migrated, deviceEncryption]);
+
+    useEffect(() => {
+        (async () => {
+            const encryption = await getDeviceEncryption();
+            setDeviceEncryption(encryption);
+        })();
+    }, []);
+
+    console.log('biometricsProps', biometricsProps);
 
     return (
         <View style={{
@@ -85,6 +160,39 @@ export const SecurityFragment = fragment(() => {
                                 onPress={() => navigation.navigate('PasscodeSetup')}
                             />
                         </View>
+                    )}
+                    {biometricsProps && (
+                        <>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemGroup>
+                                    {!!biometricsProps.state && biometricsProps.state !== BiometricsState.NotSet && (
+                                        <ItemSwitch
+                                            title={biometricsProps.buttonText}
+                                            value={biometricsProps.state === BiometricsState.InUse}
+                                            onChange={async (newValue: boolean) => {
+                                                try {
+                                                    await authContext.authenticateWithPasscode({cancelable: true});
+                                                    settings.setBiometricsState(acc.address, newValue ? BiometricsState.InUse : BiometricsState.DontUse);
+                                                } catch (e) {
+                                                    warn('Failed to authenticate with passcode');
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                    {(!biometricsProps.state || biometricsProps.state === BiometricsState.NotSet) && (
+                                        <ItemButton
+                                            leftIconComponent={biometricsProps.icon}
+                                            title={biometricsProps.buttonText}
+                                            onPress={() => {
+                                                console.log('biometricsState', biometricsState, migrated);
+                                                navigation.navigate('BiometricsSetup');
+                                            }}
+                                        />
+                                    )}
+                                </ItemGroup>
+                            </View>
+                        </>
                     )}
                 </View>
             </ScrollView>

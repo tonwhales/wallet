@@ -9,7 +9,7 @@ import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { WalletSecurePasscodeFragment } from './WalletSecurePasscodeFragment';
+import { WalletSecurePasscodeComponent } from './WalletSecurePasscodeComponent';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme } = useAppConfig();
@@ -33,7 +33,7 @@ export const WalletCreateFragment = systemFragment(() => {
         <View
             style={{
                 flexGrow: 1,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) : 0,
             }}
         >
             {!state && (
@@ -66,7 +66,7 @@ export const WalletCreateFragment = systemFragment(() => {
                     key="content"
                     entering={FadeIn}
                 >
-                    <WalletSecurePasscodeFragment
+                    <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
                         import={false}
                     />

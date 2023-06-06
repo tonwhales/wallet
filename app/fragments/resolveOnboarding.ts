@@ -15,14 +15,14 @@ type OnboardingState = 'welcome' | 'upgrade-store' | 'passcode-setup' | 'backup'
 export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): OnboardingState {
     const state = getAppState();
     const passcodeSetupShown = isPasscodeSetupShown();
-    
+
     if (state.selected >= 0) {
         const address = getCurrentAddress();
-        const passcodeSet = getPasscodeState(address.address, isTestnet) === PasscodeState.Set;
-        if (!passcodeSetupShown && !passcodeSet) {
-            return 'passcode-setup';
-        }
         if (isAddressSecured(address.address, isTestnet)) {
+            const passcodeSet = getPasscodeState(address.address, isTestnet) === PasscodeState.Set;
+            if (!passcodeSetupShown && !passcodeSet) {
+                return 'passcode-setup';
+            }
             if (engine && !engine.ready) {
                 return 'sync';
             } else {

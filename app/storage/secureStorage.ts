@@ -16,8 +16,8 @@ export const biometricsStateKey = 'biometrics-state';
 
 export enum BiometricsState {
     NotSet = 'not-set',
-    SetToDontUse = 'set-to-dont-use',
-    SetToUse = 'set-to-use',
+    DontUse = 'dont-use',
+    InUse = 'in-use',
 }
 export enum PasscodeState {
     NotSet = 'not-set',
@@ -240,7 +240,7 @@ export function migrateBiometricsEcnKeys(isTestnet: boolean) {
             );
             storeBiometricsState(
                 address.address.toFriendly({ testOnly: isTestnet }),
-                BiometricsState.SetToUse
+                BiometricsState.InUse
             );
         });
         storage.set(`migrated-biometrics-enc-keys-${isTestnet ? 'testnet' : 'mainnet'}`, true);

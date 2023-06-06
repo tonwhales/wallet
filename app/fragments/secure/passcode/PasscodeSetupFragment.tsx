@@ -15,6 +15,7 @@ import { systemFragment } from "../../../systemFragment";
 import { useReboot } from "../../../utils/RebootContext";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useRoute } from "@react-navigation/native";
+import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const engine = useEngine();
@@ -22,17 +23,16 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const reboot = useReboot();
     const settings = engine?.products?.settings;
     const route = useRoute();
-    const migrating = route.name === 'PasscodeSetupMigrating';
+    const init = route.name === 'PasscodeSetupInit';
 
-    console.log({ migrating });
     // TODO: ADD MIGRATION ONBOASRDING
     const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
     const inModalMode = useMemo(() => {
-        return !initial && !afterImport && !migrating;
-    }, [initial, afterImport, migrating]);
+        return !initial && !afterImport && !init;
+    }, [initial, afterImport, init]);
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         const acc = getCurrentAddress();
@@ -72,17 +72,18 @@ export const PasscodeSetupFragment = systemFragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: (Platform.OS === 'android' || initial || afterImport || migrating)
+            paddingTop: (Platform.OS === 'android' || initial || afterImport || init)
                 ? safeArea.top
                 : undefined,
         }}>
+            {inModalMode && (<AndroidToolbar />)}
             <StatusBar style={(Platform.OS === 'ios' && inModalMode) ? 'light' : 'dark'} />
             <PasscodeSetup
                 initial={initial}
                 afterImport={afterImport}
                 onReady={onPasscodeConfirmed}
-                migrating={migrating}
-                showSuccess={!migrating}
+                migrating={init}
+                showSuccess={!init}
             />
             {Platform.OS === 'ios' && inModalMode && (
                 <CloseButton

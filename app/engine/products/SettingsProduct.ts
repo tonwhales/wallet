@@ -4,7 +4,7 @@ import { Address, toNano } from "ton";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
-import { PasscodeState, passcodeStateKey } from "../../storage/secureStorage";
+import { BiometricsState, PasscodeState, biometricsStateKey, getBiometricsState, passcodeStateKey } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { getAppState } from "../../storage/appState";
 import { getPasscodeState } from "../../components/secure/AuthWalletKeys";
@@ -21,6 +21,7 @@ export class SettingsProduct {
     readonly #denyAddressSelector;
     readonly #contactSelector;
     readonly #passcodeStateAtom;
+    readonly #biometricsStateAtom;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -36,6 +37,17 @@ export class SettingsProduct {
         this.#passcodeStateAtom = atom<{ [key: string]: PasscodeState | null }>({
             key: 'settings/passcode-state',
             default: defaultPasscodeState,
+            dangerouslyAllowMutability: true
+        });
+
+        const defaultBiometricsState: { [key: string]: BiometricsState | null } = {};
+        appState.addresses.forEach((v) => {
+            defaultBiometricsState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (getBiometricsState(v.address.toFriendly({ testOnly: this.engine.isTestnet })) ?? null) as BiometricsState | null;
+        });
+
+        this.#biometricsStateAtom = atom<{ [key: string]: BiometricsState | null }>({
+            key: 'settings/biometrics-state',
+            default: defaultBiometricsState,
             dangerouslyAllowMutability: true
         });
 
@@ -86,6 +98,27 @@ export class SettingsProduct {
             return null;
         }
         return useRecoilValue(this.#passcodeStateAtom)[address.toFriendly({ testOnly: this.engine.isTestnet })];
+    }
+
+    useBiometricsState(address?: Address): BiometricsState | null {
+        if (!address) {
+            return null;
+        }
+        return useRecoilValue(this.#biometricsStateAtom)[address.toFriendly({ testOnly: this.engine.isTestnet })];
+    }
+
+    setBiometricsState(address: Address, newState: BiometricsState | null) {
+        if (!newState) {
+            storage.delete(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${biometricsStateKey}`);
+        } else {
+            storage.set(`${address.toFriendly({ testOnly: this.engine.isTestnet })}/${biometricsStateKey}`, newState);
+        }
+        const appState = getAppState();
+        const newBiometricsState: { [key: string]: BiometricsState | null } = {};
+        appState.addresses.forEach((v) => {
+            newBiometricsState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (getBiometricsState(v.address.toFriendly({ testOnly: this.engine.isTestnet })) ?? null) as BiometricsState | null;
+        });
+        this.engine.recoil.updater(this.#biometricsStateAtom, newBiometricsState);
     }
 
     setPasscodeState(address: Address, newState: PasscodeState | null) {

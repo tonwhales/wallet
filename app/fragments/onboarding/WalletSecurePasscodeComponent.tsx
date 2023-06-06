@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { encryptAndStoreWithPasscode } from '../../storage/secureStorage';
-import { getAppState, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
+import { getAppState, getBackup, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useReboot } from '../../utils/RebootContext';
@@ -15,11 +15,11 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { PasscodeSetup } from '../../components/passcode/PasscodeSetup';
 import Animated, { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated';
-import { WalletSecureFragment } from './WalletSecureFragment';
+import { WalletSecureComponent } from '../../components/secure/WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 
-export const WalletSecurePasscodeFragment = systemFragment((props: {
+export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
     import: boolean
 }) => {
@@ -30,6 +30,16 @@ export const WalletSecurePasscodeFragment = systemFragment((props: {
 
     const [deviceEncryption, setDeviceEncryption] = React.useState<DeviceEncryption>();
     const [loading, setLoading] = React.useState(false);
+
+    const onAfterImport = React.useCallback(() => {
+        const address = getBackup();
+        let state = getAppState();
+        if (!state) {
+            throw Error('Invalid state');
+        }
+        markAddressSecured(address.address, AppConfig.isTestnet);
+        reboot();
+    }, []);
 
     const onConfirmed = React.useCallback(async (passcode: string) => {
         setLoading(true);
@@ -108,16 +118,24 @@ export const WalletSecurePasscodeFragment = systemFragment((props: {
                     key="content"
                     entering={FadeIn}
                 >
-                    <WalletSecureFragment
+                    <WalletSecureComponent
                         mnemonics={props.mnemonics}
                         deviceEncryption={deviceEncryption}
                         callback={(res: boolean) => {
-                            if (res) reboot();
+                            if (res) {
+                                if (props.import) {
+                                    onAfterImport();
+                                } else {
+                                    navigation.navigate('WalletBackupInit')
+                                }
+                            }
                         }}
                         onLater={() => {
-                            const account = getCurrentAddress();
-                            markAddressSecured(account.address, AppConfig.isTestnet);
-                            reboot();
+                            if (props.import) {
+                                onAfterImport();
+                            } else {
+                                navigation.navigate('WalletBackupInit')
+                            }
                         }}
                     />
                 </Animated.View>

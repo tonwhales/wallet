@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable, AppState, NativeEventSubscription } from 'react-native';
+import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -23,6 +23,9 @@ import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 import { useAppConfig } from '../../../utils/AppConfigContext';
+import { OfflineWebView } from './OfflineWebView';
+import * as FileSystem from 'expo-file-system';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -34,20 +37,58 @@ export const ZenPayAppComponent = React.memo((
 ) => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
-    const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
-    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
-    const webRef = React.useRef<WebView>(null);
+    const status = engine.products.zenPay.useStatus();
+    const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
+    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
+    const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const cards = engine.products.zenPay.useCards();
-    const account = engine.products.zenPay.useStatus();
+    const offlineApp = engine.products.zenPay.useOfflineApp();
 
+    const offlineAppReady = useMemo(async () => {
+        if (!offlineApp) {
+            return false;
+        }
+
+        const filesCheck: Promise<boolean>[] = [];
+        offlineApp.resources.forEach((asset) => {
+            filesCheck.push((async () => {
+                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
+                return info.exists;
+            })());
+        });
+
+        filesCheck.push((async () => {
+            const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
+            return info.exists;
+        })());
+
+        const files = await Promise.all(filesCheck);
+        return files.every((f) => f);
+    }, [offlineApp]);
+
+    const source = useMemo(() => {
+        if (status.state !== 'ok') {
+            return null;
+        }
+        let route = '';
+        if (props.variant.type === 'account') {
+            route = status.state === 'ok' ? '/create' : '/about';
+        } else if (props.variant.type === 'card') {
+            route = `/card/${props.variant.id}`;
+        }
+
+        return {
+            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}`,
+            initialRoute: `${route}?lang=${lang}&currency=${currency}`,
+        };
+    }, [props, lang, currency, status]);
 
     // 
     // Track events
     // 
-    const start = React.useMemo(() => {
+    const start = useMemo(() => {
         return Date.now();
     }, []);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type }, AppConfig.isTestnet);
@@ -55,7 +96,7 @@ export const ZenPayAppComponent = React.memo((
     //
     // View
     //
-    let [loaded, setLoaded] = React.useState(false);
+    let [loaded, setLoaded] = useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -75,7 +116,7 @@ export const ZenPayAppComponent = React.memo((
     // Navigation
     //
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
-    const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
+    const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
@@ -101,7 +142,7 @@ export const ZenPayAppComponent = React.memo((
     //
     // Injection
     //
-    const injectSource = React.useMemo(() => {
+    const injectSource = useMemo(() => {
         const contract = contractFromPublicKey(engine.publicKey);
         const walletConfig = contract.source.backup();
         const walletType = contract.source.type;
@@ -153,7 +194,7 @@ export const ZenPayAppComponent = React.memo((
         );
     }, []);
     const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, AppConfig.isTestnet);
-    const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
+    const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
         // Resolve parameters
@@ -205,13 +246,13 @@ export const ZenPayAppComponent = React.memo((
         })();
     }, []);
 
-    const onCloseApp = React.useCallback(() => {
+    const onCloseApp = useCallback(() => {
         engine.products.zenPay.doSync();
         navigation.goBack();
         trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
     }, []);
 
-    const safelyOpenUrl = React.useCallback((url: string) => {
+    const safelyOpenUrl = useCallback((url: string) => {
         try {
             let pageDomain = extractDomain(url);
             if (
@@ -228,7 +269,7 @@ export const ZenPayAppComponent = React.memo((
         }
     }, []);
 
-    const onNavigation = React.useCallback((url: string) => {
+    const onNavigation = useCallback((url: string) => {
         const params = extractZenPayQueryParams(url);
         if (params.closeApp) {
             onCloseApp();
@@ -241,7 +282,7 @@ export const ZenPayAppComponent = React.memo((
         }
     }, []);
 
-    const onHardwareBackPress = React.useCallback(() => {
+    const onHardwareBackPress = useCallback(() => {
         if (backPolicy === 'lock') {
             return true;
         }
@@ -258,14 +299,14 @@ export const ZenPayAppComponent = React.memo((
         return false;
     }, [backPolicy]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
         return () => {
             BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
         }
     }, [onHardwareBackPress]);
 
-    const onContentProcessDidTerminate = React.useCallback(() => {
+    const onContentProcessDidTerminate = useCallback(() => {
         webRef.current?.reload();
     }, []);
 
@@ -275,70 +316,117 @@ export const ZenPayAppComponent = React.memo((
                 <AnotherKeyboardAvoidingView
                     style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                 >
-                    <WebView
-                        ref={webRef}
-                        source={{ uri: `${props.endpoint}?lang=${lang}&currency=${currency}` }}
-                        startInLoadingState={true}
-                        style={{
-                            backgroundColor: Theme.item,
-                            flexGrow: 1, flexBasis: 0, height: '100%',
-                            alignSelf: 'stretch',
-                            marginTop: Platform.OS === 'ios' ? 0 : 8,
-                        }}
-                        onLoadEnd={() => {
-                            setLoaded(true);
-                            opacity.value = 0;
-                        }}
-                        onLoadProgress={(event) => {
-                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                    {!!offlineAppReady && !!source && (
+                        <OfflineWebView
+                            ref={webRef}
+                            uri={`${FileSystem.documentDirectory}holders/index.html`}
+                            initialRoute={source.initialRoute}
+                            style={{
+                                backgroundColor: Theme.item,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onLoadEnd={() => {
+                                setLoaded(true);
+                                opacity.value = 0;
+                            }}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                    // Searching for supported query
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
                                 // Searching for supported query
-                                onNavigation(event.nativeEvent.url);
-                            }
-                        }}
-                        onNavigationStateChange={(event: WebViewNavigation) => {
-                            // Searching for supported query
-                            onNavigation(event.url);
-                        }}
-                        // Locking scroll, it's handled within the Web App
-                        scrollEnabled={false}
-                        contentInset={{ top: 0, bottom: 0 }}
-                        autoManageStatusBarEnabled={false}
-                        allowFileAccessFromFileURLs={false}
-                        allowUniversalAccessFromFileURLs={false}
-                        decelerationRate="normal"
-                        allowsInlineMediaPlayback={true}
-                        injectedJavaScriptBeforeContentLoaded={injectSource}
-                        onShouldStartLoadWithRequest={loadWithRequest}
-                        // In case of iOS blank WebView
-                        onContentProcessDidTerminate={onContentProcessDidTerminate}
-                        // In case of Android blank WebView
-                        onRenderProcessGone={onContentProcessDidTerminate}
-                        onMessage={handleWebViewMessage}
-                        keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                        bounces={false}
-                    />
-                </AnotherKeyboardAvoidingView>
-                <Animated.View
-                    style={animatedStyles}
-                    pointerEvents={loaded ? 'none' : 'box-none'}
-                >
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-                    </View>
-                    {Platform.OS === 'ios' && (
-                        <Pressable
-                            style={{ position: 'absolute', top: 22, right: 16 }}
-                            onPress={() => {
-                                navigation.goBack();
-                            }} >
-                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                {t('common.close')}
-                            </Text>
-                        </Pressable>
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={false}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            injectedJavaScriptBeforeContentLoaded={injectSource}
+                            onShouldStartLoadWithRequest={loadWithRequest}
+                            // In case of iOS blank WebView
+                            onContentProcessDidTerminate={onContentProcessDidTerminate}
+                            // In case of Android blank WebView
+                            onRenderProcessGone={onContentProcessDidTerminate}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            bounces={false}
+                        />
                     )}
-                    <ActivityIndicator size="small" color={'#564CE2'} />
-                </Animated.View>
+                    {!offlineAppReady && !!source && (
+                        <WebView
+                            ref={webRef}
+                            source={{ uri: source.url }}
+                            startInLoadingState={true}
+                            style={{
+                                backgroundColor: Theme.item,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onLoadEnd={() => {
+                                setLoaded(true);
+                                opacity.value = 0;
+                            }}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                    // Searching for supported query
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
+                                // Searching for supported query
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={false}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            allowFileAccessFromFileURLs={false}
+                            allowUniversalAccessFromFileURLs={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            injectedJavaScriptBeforeContentLoaded={injectSource}
+                            onShouldStartLoadWithRequest={loadWithRequest}
+                            // In case of iOS blank WebView
+                            onContentProcessDidTerminate={onContentProcessDidTerminate}
+                            // In case of Android blank WebView
+                            onRenderProcessGone={onContentProcessDidTerminate}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            bounces={false}
+                        />
+                    )}
+                </AnotherKeyboardAvoidingView>
+                {!offlineApp && (
+                    <Animated.View
+                        style={animatedStyles}
+                        pointerEvents={loaded ? 'none' : 'box-none'}
+                    >
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                        </View>
+                        {Platform.OS === 'ios' && (
+                            <Pressable
+                                style={{ position: 'absolute', top: 22, right: 16 }}
+                                onPress={() => {
+                                    navigation.goBack();
+                                }} >
+                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                                    {t('common.close')}
+                                </Text>
+                            </Pressable>
+                        )}
+                        <ActivityIndicator size="small" color={'#564CE2'} />
+                    </Animated.View>
+                )}
             </View>
         </>
     );

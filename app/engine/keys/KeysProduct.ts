@@ -9,7 +9,7 @@ import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { storage } from "../../storage/storage";
 import { extractDomain } from "../utils/extractDomain";
 import { CloudValue } from "../cloud/CloudValue";
-import { zenPayUrl } from "../corp/ZenPayProduct";
+import { holdersUrl } from "../corp/ZenPayProduct";
 
 const currentVersion = 1;
 
@@ -47,7 +47,7 @@ export class KeysProduct {
         });
 
         // Migrate ZenPay key
-        const zenPayDomain = extractDomain(zenPayUrl);
+        const zenPayDomain = extractDomain(holdersUrl);
         const prev = this.engine.persistence.domainKeys.getValue(zenPayDomain);
         if (prev) {
             this.engine.persistence.domainKeys.setValue(

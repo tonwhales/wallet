@@ -17,48 +17,48 @@ export function extractZenPayQueryParams(url: string): {
         let openEnrollment = false;
         let showKeyboardAccessoryView = false;
 
-            if (params.has(ZenPayQueryParams.CloseApp)) {
-                const queryValue = params.get(ZenPayQueryParams.CloseApp);
-                if (queryValue === 'true') {
-                    closeApp = true;
-                }
+        if (params.has(ZenPayQueryParams.CloseApp)) {
+            const queryValue = params.get(ZenPayQueryParams.CloseApp);
+            if (queryValue === 'true') {
+                closeApp = true;
             }
+        }
 
-            if (params.has(ZenPayQueryParams.OpenUrl)) {
-                const queryValue = params.get(ZenPayQueryParams.OpenUrl);
-                if (queryValue) {
-                    openUrl = queryValue;
-                }
+        if (params.has(ZenPayQueryParams.OpenUrl)) {
+            const queryValue = params.get(ZenPayQueryParams.OpenUrl);
+            if (queryValue) {
+                openUrl = queryValue;
             }
+        }
 
-            if (params.has(ZenPayQueryParams.BackPolicy)) {
-                const queryValue = params.get(ZenPayQueryParams.BackPolicy);
-                if (queryValue === 'back') {
-                    backPolicy = 'back';
-                }
+        if (params.has(ZenPayQueryParams.BackPolicy)) {
+            const queryValue = params.get(ZenPayQueryParams.BackPolicy);
+            if (queryValue === 'back') {
+                backPolicy = 'back';
             }
+        }
 
-            if (params.has(ZenPayQueryParams.OpenEnrollment)) {
-                const queryValue = params.get(ZenPayQueryParams.OpenEnrollment);
-                if (queryValue === 'true') {
-                    openEnrollment = true;
-                }
+        if (params.has(ZenPayQueryParams.OpenEnrollment)) {
+            const queryValue = params.get(ZenPayQueryParams.OpenEnrollment);
+            if (queryValue === 'true') {
+                openEnrollment = true;
             }
+        }
 
-            if (params.has(ZenPayQueryParams.ShowKeyboardAccessoryView)) {
-                const queryValue = params.get(ZenPayQueryParams.ShowKeyboardAccessoryView);
-                if (queryValue === 'true') {
-                    showKeyboardAccessoryView = true;
-                }
+        if (params.has(ZenPayQueryParams.ShowKeyboardAccessoryView)) {
+            const queryValue = params.get(ZenPayQueryParams.ShowKeyboardAccessoryView);
+            if (queryValue === 'true') {
+                showKeyboardAccessoryView = true;
             }
+        }
 
-            return {
-                closeApp,
-                openUrl,
-                backPolicy: backPolicy,
-                openEnrollment,
-                showKeyboardAccessoryView,
-            }
+        return {
+            closeApp,
+            openUrl,
+            backPolicy: backPolicy,
+            openEnrollment,
+            showKeyboardAccessoryView,
+        }
     } catch (error) {
         warn(error);
         return {

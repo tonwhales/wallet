@@ -706,6 +706,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copySeedAlertTitle: 'Скопировать сид фразу из 24 слов',
         copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
         copySeedAlertAction: 'Скопировать',
+        holdersOfflineApp: 'Holders Offline App',
     },
     wallets: {
         switchToAlertTitle: 'Переключить на {{wallet}} кошелек',

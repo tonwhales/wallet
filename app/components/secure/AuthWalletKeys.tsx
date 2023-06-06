@@ -67,7 +67,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                     if (!biometricsEncKey) {
                         throw new Error('Biometrics key not found');
                     }
-    
+
                     try {
                         const keys = await loadWalletKeys(biometricsEncKey);
                         return keys;
@@ -75,7 +75,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         warn('Failed to load wallet keys with biometrics');
                         if (passcodeState === PasscodeState.Set) {
                             return new Promise<WalletKeys>((resolve, reject) => {
-                                setAuth({ promise: { resolve, reject }, style: {...style, useBiometrics } });
+                                setAuth({ promise: { resolve, reject }, style: { ...style, useBiometrics } });
                             });
                         }
                     }
@@ -83,7 +83,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
                 if (passcodeState === PasscodeState.Set) {
                     return new Promise<WalletKeys>((resolve, reject) => {
-                        setAuth({ promise: { resolve, reject }, style: {...style, useBiometrics } });
+                        setAuth({ promise: { resolve, reject }, style: { ...style, useBiometrics } });
                     });
                 }
                 throw Error('Failed to load wallet keys with biometrics & passcode');
@@ -100,7 +100,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             reject();
                             return;
                         }
-                        setAuth({ promise: { resolve, reject }, style: {...style, useBiometrics: true} });
+                        setAuth({ promise: { resolve, reject }, style: { ...style, useBiometrics: true } });
                     });
                     return passcodeKeys;
                 }
@@ -113,7 +113,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
     // Passcode only auth
     const authenticateWithPasscode = useCallback((style?: AuthStyle) => {
-        
+
         // Reject previous auth promise
         if (auth) {
             auth.promise.reject();
@@ -171,7 +171,18 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         onRetryBiometrics={auth.style?.useBiometrics ? async () => {
                             try {
                                 const acc = getCurrentAddress();
-                                const keys = await loadWalletKeys(acc.secretKeyEnc);
+                                const migrated = getBiometricsMigrated(AppConfig.isTestnet);
+                                let keys: WalletKeys;
+                                if (migrated) {
+                                    const biometricsEncKey = getBiometricsEncKey(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                    if (!biometricsEncKey) {
+                                        warn('Biometrics key not found');
+                                        throw new Error('Biometrics key not found');
+                                    }
+                                    keys = await loadWalletKeys(biometricsEncKey);
+                                } else {
+                                    keys = await loadWalletKeys(acc.secretKeyEnc);
+                                }
                                 auth.promise.resolve(keys);
                                 setAuth(null);
                             } catch (e) {

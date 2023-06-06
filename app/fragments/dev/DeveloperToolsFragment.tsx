@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ToastAndroid, View, Text, NativeModules } from "react-native";
+import { Alert, Platform, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -18,31 +18,61 @@ import { ATextInput } from '../../components/ATextInput';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
-import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import * as FileSystem from 'expo-file-system';
+import { useCallback, useEffect, useState } from 'react';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
-    const acc = React.useMemo(() => getCurrentAddress(), []);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const offlineApp = engine.products.zenPay.useOfflineApp();
 
+    const [offlineAppReady, setOfflineAppReady] = useState(false);
+
+    useEffect(() => {
+        (async () => {
+            if (!offlineApp) {
+                return false;
+            }
+
+            const filesCheck: Promise<boolean>[] = [];
+            offlineApp.resources.forEach((asset) => {
+                filesCheck.push((async () => {
+                    const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
+                    if (!info.exists) {
+                        console.log('asset', asset, info.exists);
+                    }
+                    return info.exists;
+                })());
+            });
+
+            filesCheck.push((async () => {
+                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
+                return info.exists;
+            })());
+
+            const files = await Promise.all(filesCheck);
+
+            setOfflineAppReady(files.every((file) => file));
+        })()
+    }, [offlineApp]);
+
     const reboot = useReboot();
-    const restart = React.useCallback(() => {
+    const restart = useCallback(() => {
         // TODO: Implement
     }, [])
-    const resetCache = React.useCallback(() => {
+    const resetCache = useCallback(() => {
         storagePersistence.clearAll();
         clearZenPay(engine);
         reboot();
     }, []);
 
-    const switchNetwork = React.useCallback(
+    const switchNetwork = useCallback(
         () => {
             Alert.alert(
                 t('devTools.switchNetworkAlertTitle', { network: AppConfig.isTestnet ? 'Mainnet' : 'Testnet' }),
@@ -62,9 +92,9 @@ export const DeveloperToolsFragment = fragment(() => {
         [AppConfig.isTestnet],
     );
 
-    const [zenPayAppUrl, setZenPayAppUrl] = React.useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
+    const [zenPayAppUrl, setZenPayAppUrl] = useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
 
-    const onUrlSet = React.useCallback((link: string) => {
+    const onUrlSet = useCallback((link: string) => {
         let url: URL
         try {
             url = new URL(link);
@@ -75,7 +105,7 @@ export const DeveloperToolsFragment = fragment(() => {
         }
     }, []);
 
-    const copySeed = React.useCallback(async () => {
+    const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
             walletKeys = await authContext.authenticate({ backgroundColor: Theme.item });
@@ -95,7 +125,7 @@ export const DeveloperToolsFragment = fragment(() => {
         }
     }, [])
 
-    const onExportSeedAlert = React.useCallback(() => {
+    const onExportSeedAlert = useCallback(() => {
         Alert.alert(
             t('devTools.copySeedAlertTitle'),
             t('devTools.copySeedAlertMessage'),
@@ -153,9 +183,13 @@ export const DeveloperToolsFragment = fragment(() => {
                                 <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
                             </View>
                         )}
-                        
+
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not ready'} />
+                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={'Offline integrity check:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
                     </View>
 
                     {AppConfig.isTestnet && (

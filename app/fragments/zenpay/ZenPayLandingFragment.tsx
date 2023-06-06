@@ -20,10 +20,11 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
+import { useCallback, useMemo, useRef } from 'react';
 
 export const ZenPayLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
-    const webRef = React.useRef<WebView>(null);
+    const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
     const engine = useEngine();
     const navigation = useTypedNavigation();
@@ -32,6 +33,27 @@ export const ZenPayLandingFragment = fragment(() => {
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.products.zenPay.useOfflineApp();
+    const offlineAppReady = useMemo(async () => {
+        if (!offlineApp) {
+            return false;
+        }
+
+        const filesCheck: Promise<boolean>[] = [];
+        offlineApp.resources.forEach((asset) => {
+            filesCheck.push((async () => {
+                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
+                return info.exists;
+            })());
+        });
+
+        filesCheck.push((async () => {
+            const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
+            return info.exists;
+        })());
+
+        const files = await Promise.all(filesCheck);
+        return files.every((f) => f);
+    }, [offlineApp]);
 
     //
     // View
@@ -69,7 +91,7 @@ export const ZenPayLandingFragment = fragment(() => {
         };
     });
 
-    const onEnroll = React.useCallback(async () => {
+    const onEnroll = useCallback(async () => {
         if (auth) {
             return;
         }
@@ -113,7 +135,7 @@ export const ZenPayLandingFragment = fragment(() => {
     //
     // Navigation
     //
-    const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
+    const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
         // Resolve parameters
@@ -142,7 +164,7 @@ export const ZenPayLandingFragment = fragment(() => {
         }
     }, [onEnroll]);
 
-    const onNavigation = React.useCallback((url: string) => {
+    const onNavigation = useCallback((url: string) => {
         const params = extractZenPayQueryParams(url);
         if (params.closeApp) {
             navigation.goBack();
@@ -170,10 +192,10 @@ export const ZenPayLandingFragment = fragment(() => {
                         flexGrow: 1,
                     }}
                 >
-                    {!!offlineApp && (
+                    {!!offlineAppReady && (
                         <OfflineWebView
                             ref={webRef}
-                            uri={`${FileSystem.cacheDirectory}holders/index.html`}
+                            uri={`${FileSystem.documentDirectory}holders/index.html`}
                             initialRoute={`/about?lang=${lang}&currency=${currency}`}
                             style={{
                                 backgroundColor: Theme.item,
@@ -207,7 +229,7 @@ export const ZenPayLandingFragment = fragment(() => {
                             bounces={false}
                         />
                     )}
-                    {!offlineApp && (
+                    {!offlineAppReady && (
                         <WebView
                             ref={webRef}
                             source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}

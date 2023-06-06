@@ -25,6 +25,7 @@ import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoid
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export const ZenPayAppComponent = React.memo((
     props: {
@@ -37,15 +38,37 @@ export const ZenPayAppComponent = React.memo((
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const status = engine.products.zenPay.useStatus();
-    const [backPolicy, setBackPolicy] = React.useState<BackPolicy>('back');
-    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
-    const webRef = React.useRef<WebView>(null);
+    const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
+    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
+    const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.products.zenPay.useOfflineApp();
 
-    const source = React.useMemo(() => {
+    const offlineAppReady = useMemo(async () => {
+        if (!offlineApp) {
+            return false;
+        }
+
+        const filesCheck: Promise<boolean>[] = [];
+        offlineApp.resources.forEach((asset) => {
+            filesCheck.push((async () => {
+                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
+                return info.exists;
+            })());
+        });
+
+        filesCheck.push((async () => {
+            const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
+            return info.exists;
+        })());
+
+        const files = await Promise.all(filesCheck);
+        return files.every((f) => f);
+    }, [offlineApp]);
+
+    const source = useMemo(() => {
         if (status.state !== 'ok') {
             return null;
         }
@@ -65,7 +88,7 @@ export const ZenPayAppComponent = React.memo((
     // 
     // Track events
     // 
-    const start = React.useMemo(() => {
+    const start = useMemo(() => {
         return Date.now();
     }, []);
     useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type }, AppConfig.isTestnet);
@@ -73,7 +96,7 @@ export const ZenPayAppComponent = React.memo((
     //
     // View
     //
-    let [loaded, setLoaded] = React.useState(false);
+    let [loaded, setLoaded] = useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -93,7 +116,7 @@ export const ZenPayAppComponent = React.memo((
     // Navigation
     //
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
-    const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
+    const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
@@ -119,7 +142,7 @@ export const ZenPayAppComponent = React.memo((
     //
     // Injection
     //
-    const injectSource = React.useMemo(() => {
+    const injectSource = useMemo(() => {
         const contract = contractFromPublicKey(engine.publicKey);
         const walletConfig = contract.source.backup();
         const walletType = contract.source.type;
@@ -171,7 +194,7 @@ export const ZenPayAppComponent = React.memo((
         );
     }, []);
     const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, AppConfig.isTestnet);
-    const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
+    const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
         // Resolve parameters
@@ -223,13 +246,13 @@ export const ZenPayAppComponent = React.memo((
         })();
     }, []);
 
-    const onCloseApp = React.useCallback(() => {
+    const onCloseApp = useCallback(() => {
         engine.products.zenPay.doSync();
         navigation.goBack();
         trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
     }, []);
 
-    const safelyOpenUrl = React.useCallback((url: string) => {
+    const safelyOpenUrl = useCallback((url: string) => {
         try {
             let pageDomain = extractDomain(url);
             if (
@@ -246,7 +269,7 @@ export const ZenPayAppComponent = React.memo((
         }
     }, []);
 
-    const onNavigation = React.useCallback((url: string) => {
+    const onNavigation = useCallback((url: string) => {
         const params = extractZenPayQueryParams(url);
         if (params.closeApp) {
             onCloseApp();
@@ -259,7 +282,7 @@ export const ZenPayAppComponent = React.memo((
         }
     }, []);
 
-    const onHardwareBackPress = React.useCallback(() => {
+    const onHardwareBackPress = useCallback(() => {
         if (backPolicy === 'lock') {
             return true;
         }
@@ -276,14 +299,14 @@ export const ZenPayAppComponent = React.memo((
         return false;
     }, [backPolicy]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
         return () => {
             BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
         }
     }, [onHardwareBackPress]);
 
-    const onContentProcessDidTerminate = React.useCallback(() => {
+    const onContentProcessDidTerminate = useCallback(() => {
         webRef.current?.reload();
     }, []);
 
@@ -293,10 +316,10 @@ export const ZenPayAppComponent = React.memo((
                 <AnotherKeyboardAvoidingView
                     style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                 >
-                    {!!offlineApp && !!source && (
+                    {!!offlineAppReady && !!source && (
                         <OfflineWebView
                             ref={webRef}
-                            uri={`${FileSystem.cacheDirectory}holders/index.html`}
+                            uri={`${FileSystem.documentDirectory}holders/index.html`}
                             initialRoute={source.initialRoute}
                             style={{
                                 backgroundColor: Theme.item,
@@ -336,7 +359,7 @@ export const ZenPayAppComponent = React.memo((
                             bounces={false}
                         />
                     )}
-                    {!offlineApp && !!source && (
+                    {!offlineAppReady && !!source && (
                         <WebView
                             ref={webRef}
                             source={{ uri: source.url }}

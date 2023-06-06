@@ -299,7 +299,7 @@ export class ZenPayProduct {
     }
 
     async downloadAsset(endpoint: string, asset: string): Promise<string> {
-        let fsPath = FileSystem.cacheDirectory + 'holders/' + asset;
+        let fsPath = FileSystem.documentDirectory + 'holders/' + asset;
         let netPath = endpoint + '/' + asset;
 
         FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
@@ -311,7 +311,7 @@ export class ZenPayProduct {
         let file = await FileSystem.readAsStringAsync(stored.uri);
         file = file.replaceAll(
             '{{APP_PUBLIC_URL}}',
-            FileSystem.cacheDirectory + 'holders/'
+            FileSystem.documentDirectory + 'holders/'
         );
         await FileSystem.writeAsStringAsync(stored.uri, file);
 
@@ -319,9 +319,9 @@ export class ZenPayProduct {
     }
 
     async syncOfflineRes(endpoint: string, app: HoldersOfflineApp) {
-        const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + 'holders');
+        const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'holders');
         if (!hasAppDirectory.exists) {
-            await FileSystem.makeDirectoryAsync(FileSystem.cacheDirectory + 'holders');
+            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'holders');
         }
 
         let uri = null;
@@ -329,13 +329,13 @@ export class ZenPayProduct {
             && app.routes.length > 0
             && app.routes[0].fileName === 'index.html'
         ) {
-            uri = FileSystem.cacheDirectory + 'holders/index.html';
+            uri = FileSystem.documentDirectory + 'holders/index.html';
             const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;
             let file = await FileSystem.readAsStringAsync(uri);
             file = file.replaceAll(
                 '{{APP_PUBLIC_URL}}',
-                FileSystem.cacheDirectory + 'holders/'
+                FileSystem.documentDirectory + 'holders/'
             );
             await FileSystem.writeAsStringAsync(uri, file);
         }

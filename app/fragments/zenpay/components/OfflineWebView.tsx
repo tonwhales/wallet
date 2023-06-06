@@ -50,7 +50,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     {...props}
                     source={renderedOnce ? { // some wierd android bug with file:// protocol
                         uri: props.uri,
-                        baseUrl: `${FileSystem.cacheDirectory}holders/`,
+                        baseUrl: `${FileSystem.documentDirectory}holders/`,
                     } : undefined}
                     onLoad={(e) => {
                         setRenderedOnce(true);
@@ -63,7 +63,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     allowUniversalAccessFromFileURLs={true}
                     startInLoadingState={true}
                     originWhitelist={['*']}
-                    allowingReadAccessToURL={FileSystem.cacheDirectory + 'holders/' ?? ''}
+                    allowingReadAccessToURL={FileSystem.documentDirectory + 'holders/' ?? ''}
                     onShouldStartLoadWithRequest={(e) => {
                         if (props.onShouldStartLoadWithRequest && renderedOnce) {
                             return props.onShouldStartLoadWithRequest(e);
@@ -79,7 +79,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     {...props}
                     source={{
                         uri: props.uri,
-                        baseUrl: `${FileSystem.cacheDirectory}holders/`,
+                        baseUrl: `${FileSystem.documentDirectory}holders/`,
                     }}
                     onLoad={(e) => {
                         setRenderedOnce(true);
@@ -91,7 +91,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     allowFileAccessFromFileURLs={true}
                     allowUniversalAccessFromFileURLs={true}
                     originWhitelist={['*']}
-                    allowingReadAccessToURL={FileSystem.cacheDirectory + 'holders/' ?? ''}
+                    allowingReadAccessToURL={FileSystem.documentDirectory + 'holders/' ?? ''}
                     onShouldStartLoadWithRequest={(e) => {
                         if (props.onShouldStartLoadWithRequest && renderedOnce) {
                             return props.onShouldStartLoadWithRequest(e);

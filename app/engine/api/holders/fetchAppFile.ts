@@ -28,5 +28,5 @@ export async function fetchAppFile(endpoint: string) {
         return zenPayAppFile as HoldersOfflineApp;
     }
 
-    throw Error('Invalid app file');
+    return null;
 }

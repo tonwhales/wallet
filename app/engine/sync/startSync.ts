@@ -16,7 +16,7 @@ import { startConfigSync } from "./startConfigSync";
 import { startServerConfigSync } from "./startServerConfigSync";
 import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
-import { startZenPaySync } from "./startZenPaySync";
+import { startZenPaySync as startHoldersSync } from "./startZenPaySync";
 import { startApySync } from "./startApySync";
 import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
 import { createTracer } from '../../utils/tracer';
@@ -210,8 +210,8 @@ export function startSync(engine: Engine) {
     //
     
     if (engine.isTestnet) {
-        startZenPaySync(engine);
-        tracer.label('zen pay');
+        startHoldersSync(engine);
+        tracer.label('holders');
     }
 
     tracer.report();

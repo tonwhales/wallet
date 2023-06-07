@@ -44,6 +44,11 @@ export class ZenPayProduct {
     watcher: null | (() => void) = null;
 
     constructor(engine: Engine) {
+        //TODO: REMOVE THIS, DEV DEMO ONLY
+        const devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+        if (devUseOffline === undefined) {
+            storage.set('dev-tools:use-offline-app', true);
+        }
         this.engine = engine;
         this.#status = selector<ZenPayAccountStatus>({
             key: 'zenpay/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',
@@ -305,6 +310,7 @@ export class ZenPayProduct {
         FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
 
         const stored = await FileSystem.downloadAsync(netPath, fsPath);
+        
         if (!(asset.endsWith('.js') || asset.endsWith('.html') || asset.endsWith('.css'))) {
             return fsPath;
         }
@@ -340,7 +346,7 @@ export class ZenPayProduct {
             await FileSystem.writeAsStringAsync(uri, file);
         }
 
-        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}app-cache/`, asset));
+        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset));
         const downloadedAssets = await Promise.all(assets);
 
         return { uri, assets: downloadedAssets };
@@ -359,16 +365,14 @@ export class ZenPayProduct {
             return;
         }
 
-        if (!stored || stored.version !== fetchedApp.version) {
-            try {
-                await this.syncOfflineRes(holdersUrl, fetchedApp);
-                this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                    return fetchedApp;
-                });
-            } catch (e) {
-                warn('Failed to sync offline app');
-                return;
-            }
+        try {
+            await this.syncOfflineRes(holdersUrl, fetchedApp);
+            this.engine.persistence.holdersOfflineApp.item().update((src) => {
+                return fetchedApp;
+            });
+        } catch (e) {
+            warn('Failed to sync offline app');
+            return;
         }
     }
 }

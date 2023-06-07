@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Platform } from "react-native";
 import WebView, { WebViewProps } from "react-native-webview";
 import * as FileSystem from 'expo-file-system';
-import { useEngine } from "../../../engine/Engine";
 
 export type AWebViewRef = {
     injectJavaScript: (script: string) => void;
@@ -14,7 +13,6 @@ export const OfflineWebView = React.memo(React.forwardRef((
     props: Omit<WebViewProps, "source"> & { uri: string, initialRoute?: string },
     ref: React.ForwardedRef<AWebViewRef>
 ) => {
-    const engine = useEngine();
     const tref = React.useRef<WebView>(null);
     React.useImperativeHandle(ref, () => ({
         injectJavaScript: (script: string) => {
@@ -39,8 +37,6 @@ export const OfflineWebView = React.memo(React.forwardRef((
         }
         return props.injectedJavaScriptBeforeContentLoaded;
     }, []);
-
-    console.log({ initialRoute: props.initialRoute });
 
     return (
         <>

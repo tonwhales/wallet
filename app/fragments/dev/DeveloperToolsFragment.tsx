@@ -23,6 +23,7 @@ import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useState } from 'react';
+import { ItemSwitch } from '../../components/Item';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -33,6 +34,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const offlineApp = engine.products.zenPay.useOfflineApp();
 
     const [offlineAppReady, setOfflineAppReady] = useState(false);
+    const [offlineAppEnabled, setOfflineAppEnabled] = useState(storage.getBoolean('dev-tools:use-offline-app') ?? false);
 
     useEffect(() => {
         (async () => {
@@ -44,9 +46,6 @@ export const DeveloperToolsFragment = fragment(() => {
             offlineApp.resources.forEach((asset) => {
                 filesCheck.push((async () => {
                     const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
-                    if (!info.exists) {
-                        console.log('asset', asset, info.exists);
-                    }
                     return info.exists;
                 })());
             });
@@ -220,6 +219,16 @@ export const DeveloperToolsFragment = fragment(() => {
                         alignItems: 'center',
                         flexShrink: 1,
                     }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemSwitch
+                                title='Use offline app'
+                                value={offlineAppEnabled}
+                                onChange={(newValue: boolean) => {
+                                    storage.set('dev-tools:use-offline-app', newValue);
+                                    setOfflineAppEnabled(newValue);
+                                }}
+                            />
+                        </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ATextInput
                                 blurOnSubmit={false}

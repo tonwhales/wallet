@@ -7,6 +7,7 @@ import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
 import { watchZenPayAccountUpdates } from "./watchZenPayAccountUpdates";
 import { storage } from "../../storage/storage";
+import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { fetchCardsList, fetchCardsPublic } from "../api/zenpay/fetchCards";
 import { warn } from "../../utils/log";
 
@@ -65,13 +66,13 @@ export class ZenPayProduct {
         storage.set('zenpay-token-version', currentTokenVersion);
     }
 
-    async enroll(domain: string) {
+    async enroll(domain: string, authContext: AuthWalletKeysType) {
         let res = await (async () => {
             //
             // Create domain key if needed
             //
 
-            let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain);
+            let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain, authContext);
             if (!created) {
                 return false;
             }

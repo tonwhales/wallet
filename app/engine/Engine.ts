@@ -88,12 +88,6 @@ export class Engine {
         this.isTestnet = isTestnet;
 
         //
-        // Start sync
-        //
-
-        startSync(this);
-
-        //
         // Create products
         //
 
@@ -112,6 +106,12 @@ export class Engine {
             ledger: new LedgerProduct(this),
             zenPay: new ZenPayProduct(this),
         };
+
+        //
+        // Start sync
+        //
+
+        startSync(this);
 
         //
         // Declare dependencies

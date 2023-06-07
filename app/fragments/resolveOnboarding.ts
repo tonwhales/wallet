@@ -3,6 +3,7 @@ import { Engine } from "../engine/Engine";
 
 export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): 'backup' | 'sync' | 'home' | 'welcome' | 'upgrade-store' {
     const state = getAppState();
+    
     if (state.selected >= 0) {
         const address = getCurrentAddress();
         if (isAddressSecured(address.address, isTestnet)) {

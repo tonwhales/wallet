@@ -45,7 +45,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         connect: 'Подключить',
         gotIt: 'Понятно',
         error: 'Ошибка',
-        wallet: 'Кошелек'
+        wallet: 'Кошелек',
+        later: 'Позже',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -548,6 +549,24 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         unblockConfirm: 'Разблокировать адрес',
         blockConfirm: 'Пометить адрес как спам',
         description: 'Вы можете легко добавить адрес в список заблокированных вручную, если зажмете любую транзакцию или адрес и во всплывшем меню выберете опцию \"Пометить адрес как спам\"'
+    },
+    security: {
+        title: 'Безопасность',
+        passcodeSettings: {
+            setupTitle: 'Установить код доступа',
+            confirmTitle: 'Подтвердить код доступа',
+            changeTitle: 'Изменить код доступа',
+            resetTitle: 'Сбросить код доступа',
+            resetDescription: 'Вы можете сбросить код доступа, введя 24 секретных слова, которые вы записали при создании кошелька.',
+            resetAction: 'Сбросить',
+            error: 'Неверный код доступа',
+            tryAgain: 'Ещё раз',
+            success: 'Код доступа установлен',
+            enterNew: 'Введите новый код',
+            confirmNew: 'Подтвердите новый код',
+            enterCurrent: 'Введите текущий код',
+            enterPrevious: 'Введите предыдущий код',
+        }
     },
     report: {
         title: 'Сообщить о проблеме',

@@ -45,6 +45,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',
+        later: 'Later',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -547,6 +548,24 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unblockConfirm: 'Unblock address',
         blockConfirm: 'Mark address as spam',
         description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu.'
+    },
+    security: {
+        title: 'Security',
+        passcodeSettings: {
+            setupTitle: 'Setup PIN code',
+            confirmTitle: 'Confirm PIN code',
+            changeTitle: 'Change PIN code',
+            resetTitle: 'Reset PIN code',
+            resetDescription: 'If you forgot your PIN code, you can reset it by entering the 24 secret words you wrote down when creating the wallet.',
+            resetAction: 'Reset',
+            error: 'Incorrect PIN code',
+            tryAgain: 'Try again',
+            success: 'PIN code successfully set',
+            enterNew: 'Enter new PIN code',
+            confirmNew: 'Confirm new PIN code',
+            enterCurrent: 'Enter your PIN code',
+            enterPrevious: 'Enter your previous PIN code',
+        }
     },
     report: {
         title: 'Report',

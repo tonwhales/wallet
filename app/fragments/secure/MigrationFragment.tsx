@@ -5,13 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SendMode, WalletContractType } from 'ton';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { getCurrentAddress } from '../../storage/appState';
 import { ValueComponent } from '../../components/ValueComponent';
 import { WalletAddress } from '../../components/WalletAddress';
 import { CloseButton } from '../../components/CloseButton';
@@ -22,6 +21,7 @@ import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -32,10 +32,10 @@ function ellipsiseAddress(src: string) {
 const MigrationProcessFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
+    const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
     const engine = useEngine();
-    const acc = React.useMemo(() => getCurrentAddress(), []);
 
     React.useEffect(() => {
         let ended = false;
@@ -45,7 +45,7 @@ const MigrationProcessFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                key = await loadWalletKeys(acc.secretKeyEnc);
+                key = await authContext.authenticate({ cancelable: true });
             } catch (e) {
                 navigation.goBack();
                 return;

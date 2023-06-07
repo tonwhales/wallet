@@ -61,8 +61,12 @@ import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAut
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
+import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetupFragment';
+import { SecurityFragment } from './fragments/SecurityFragment';
+import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
+import { PasscodeResetFragment } from './fragments/secure/passcode/PasscodeResetFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -180,7 +184,11 @@ const navigation = (safeArea: EdgeInsets) => [
         name={'ConnectApp'}
         component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
-    />
+    />,
+    modalScreen('Security', SecurityFragment, safeArea),
+    modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
+    modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
+    modalScreen('PasscodeReset', PasscodeResetFragment, safeArea)
 ];
 
 export const Navigation = React.memo(() => {

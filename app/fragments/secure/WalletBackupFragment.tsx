@@ -4,15 +4,16 @@ import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { loadWalletKeys } from '../../storage/walletKeys';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
-import { EngineContext } from '../../engine/Engine';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { PasscodeState } from '../../storage/secureStorage';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -20,10 +21,15 @@ export const WalletBackupFragment = systemFragment(() => {
     const { width, height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
+    const init = route.name === 'WalletBackupInit';
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
-    const engine = React.useContext(EngineContext)!
+    const engine = useEngine();
+    const acc = getCurrentAddress();
+    const authContext = useKeysAuth();
+    const settings = engine?.products?.settings;
+    const passcodeState = settings?.usePasscodeState(acc.address);
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
@@ -33,6 +39,10 @@ export const WalletBackupFragment = systemFragment(() => {
         if (back) {
             navigation.goBack();
         } else {
+            if (passcodeState !== PasscodeState.Set && init) {
+                navigation.navigateAndReplaceAll('PasscodeSetup', { initial: true });
+                return;
+            }
             if (engine && !engine.ready) {
                 navigation.navigateAndReplaceAll('Sync');
             } else {
@@ -43,7 +53,7 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await loadWalletKeys(address.secretKeyEnc);
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 console.warn(e);
@@ -53,7 +63,7 @@ export const WalletBackupFragment = systemFragment(() => {
         })();
 
         // Keeping screen in awakened state
-        activateKeepAwake('WalletBackupFragment');
+        activateKeepAwakeAsync('WalletBackupFragment');
         return function deactivate() {
             deactivateKeepAwake('WalletBackupFragment')
         };

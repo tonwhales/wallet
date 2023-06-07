@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, Platform, Text, View, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -94,7 +94,7 @@ export const ZenPayLandingFragment = fragment(() => {
             backgroundColor: Theme.item,
             alignItems: 'center',
             justifyContent: 'center',
-            opacity: withTiming(authOpacity.value, { duration: 300 }),
+            opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
         };
     });
 
@@ -280,26 +280,34 @@ export const ZenPayLandingFragment = fragment(() => {
                         </Animated.View>
                     )}
                 </KeyboardAvoidingView>
-                <Animated.View
-                    style={animatedStyles}
-                    pointerEvents={loaded ? 'none' : 'box-none'}
-                >
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-                    </View>
-                    {Platform.OS === 'ios' && (
-                        <Pressable
-                            style={{ position: 'absolute', top: 22, right: 16 }}
-                            onPress={() => {
-                                navigation.goBack();
-                            }} >
-                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                {t('common.close')}
-                            </Text>
-                        </Pressable>
-                    )}
-                    <ActivityIndicator size="small" color={'#564CE2'} />
-                </Animated.View>
+                {!offlineAppReady && (
+                    <Animated.View
+                        style={animatedStyles}
+                        pointerEvents={loaded ? 'none' : 'box-none'}
+                    >
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                        </View>
+                        {Platform.OS === 'ios' && (
+                            <Pressable
+                                style={{ position: 'absolute', top: 22, right: 16 }}
+                                onPress={() => {
+                                    navigation.goBack();
+                                }} >
+                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                                    {t('common.close')}
+                                </Text>
+                            </Pressable>
+                        )}
+                        <ActivityIndicator size="small" color={'#564CE2'} />
+                    </Animated.View>
+                )}
+                {!offlineAppReady && (
+                    <Animated.View
+                        style={animatedStyles}
+                        pointerEvents={loaded ? 'none' : 'box-none'}
+                    />
+                )}
                 <Animated.View
                     style={animatedAuthStyles}
                     pointerEvents={!auth ? 'none' : 'box-none'}

@@ -74,6 +74,7 @@ function reduceSteps() {
 
 export const PasscodeSetup = React.memo((
     {
+        description,
         onReady,
         initial,
         afterImport,
@@ -81,12 +82,13 @@ export const PasscodeSetup = React.memo((
         onLater,
         showSuccess
     }: {
+        description?: string,
         onReady?: (pass: string) => Promise<void>,
         onLater?: () => void,
         initial?: boolean,
         afterImport?: boolean,
         migrating?: boolean,
-        showSuccess?: boolean
+        showSuccess?: boolean,
     }) => {
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
@@ -96,6 +98,8 @@ export const PasscodeSetup = React.memo((
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
 
+    console.log({ description });
+
     return (
         <View style={{
             width: '100%', height: '100%',
@@ -104,6 +108,7 @@ export const PasscodeSetup = React.memo((
                 <Animated.View style={{ flexGrow: 1 }} exiting={SlideOutLeft}>
                     <PasscodeInput
                         title={t('security.passcodeSettings.enterNew')}
+                        description={description}
                         onEntered={(pass) => {
                             if (!pass) {
                                 throw new Error('Passcode is required');

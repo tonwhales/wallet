@@ -18,11 +18,13 @@ import FaceIos from '../../../assets/ic_face_id.svg';
 export const PasscodeInput = React.memo((
     {
         title,
+        description,
         style,
         onRetryBiometrics,
         onEntered,
     }: {
         title?: string,
+        description?: string,
         style?: StyleProp<ViewStyle>,
         onRetryBiometrics?: () => void,
         onEntered: (passcode: string | null) => Promise<void> | void,
@@ -33,6 +35,8 @@ export const PasscodeInput = React.memo((
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
+
+    console.log({ description });
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
@@ -144,13 +148,31 @@ export const PasscodeInput = React.memo((
                         {title}
                     </Text>
                 )}
-                <Animated.View style={[shakeStyle, { alignItems: 'center' }]}>
+                <Animated.View style={[shakeStyle, { alignItems: 'center', width: '100%' }]}>
                     <PasscodeSteps
                         state={{
                             passLen: passcode.length,
                             error: isWrong,
                         }}
                     />
+                    {description && !isWrong && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                top: 54, left: 0, right: 0,
+                                justifyContent: 'center', alignItems: 'center'
+                            }}
+                            entering={FadeIn}
+                            exiting={FadeOut}
+                        >
+                            <Text style={{
+                                fontSize: 15,
+                                color: Theme.textSecondary, textAlign: 'center'
+                            }}>
+                                {description}
+                            </Text>
+                        </Animated.View>
+                    )}
                     {isWrong && (
                         <Animated.View
                             style={{

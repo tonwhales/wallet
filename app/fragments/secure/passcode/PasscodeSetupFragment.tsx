@@ -16,17 +16,16 @@ import { useReboot } from "../../../utils/RebootContext";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useRoute } from "@react-navigation/native";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
+import { t } from "../../../i18n/t";
 
 export const PasscodeSetupFragment = systemFragment(() => {
-    const engine = useEngine();
+    const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
     const { AppConfig } = useAppConfig();
+    const engine = useEngine();
     const reboot = useReboot();
     const settings = engine?.products?.settings;
     const route = useRoute();
     const init = route.name === 'PasscodeSetupInit';
-
-    // TODO: ADD MIGRATION ONBOASRDING
-    const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -79,6 +78,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
             {inModalMode && (<AndroidToolbar />)}
             <StatusBar style={(Platform.OS === 'ios' && inModalMode) ? 'light' : 'dark'} />
             <PasscodeSetup
+                description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
                 initial={initial}
                 afterImport={afterImport}
                 onReady={onPasscodeConfirmed}

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Pressable, Text } from 'react-native';
+import { Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
@@ -11,6 +11,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { storage } from '../../storage/storage';
 import { warn } from '../../utils/log';
 import { Address } from 'ton';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type AuthStyle = {
     backgroundColor?: string,
@@ -36,6 +37,7 @@ export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | nu
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const engine = useEngine();
+    const safeAreaInsets = useSafeAreaInsets();
     const { Theme, AppConfig } = useAppConfig();
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
@@ -195,7 +197,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         <Pressable
                             style={({ pressed }) => {
                                 return {
-                                    position: 'absolute', top: 24, right: 16,
+                                    position: 'absolute', top: Platform.OS === 'android' ? safeAreaInsets.top + 24 : 24, right: 16,
                                     opacity: pressed ? 0.5 : 1,
                                 }
                             }}

@@ -31,7 +31,8 @@ export class SettingsProduct {
         const appState = getAppState();
         const defaultPasscodeState: { [key: string]: PasscodeState | null } = {};
         appState.addresses.forEach((v) => {
-            defaultPasscodeState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (getPasscodeState(v.address, this.engine.isTestnet) ?? null) as PasscodeState | null;
+            const stored = getPasscodeState(v.address, this.engine.isTestnet);
+            defaultPasscodeState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = stored;
         });
 
         this.#passcodeStateAtom = atom<{ [key: string]: PasscodeState | null }>({
@@ -42,7 +43,8 @@ export class SettingsProduct {
 
         const defaultBiometricsState: { [key: string]: BiometricsState | null } = {};
         appState.addresses.forEach((v) => {
-            defaultBiometricsState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = (getBiometricsState(v.address.toFriendly({ testOnly: this.engine.isTestnet })) ?? null) as BiometricsState | null;
+            const stored = getBiometricsState(v.address.toFriendly({ testOnly: this.engine.isTestnet }));
+            defaultBiometricsState[v.address.toFriendly({ testOnly: this.engine.isTestnet })] = stored;
         });
 
         this.#biometricsStateAtom = atom<{ [key: string]: BiometricsState | null }>({

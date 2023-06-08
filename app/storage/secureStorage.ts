@@ -233,13 +233,13 @@ export function migrateBiometricsEcnKeys(isTestnet: boolean) {
     const appState = getAppState();
 
     try {
-        appState.addresses.forEach(address => {
+        appState.addresses.forEach(addr => {
             storeBiometricsEncKey(
-                address.address.toFriendly({ testOnly: isTestnet }),
-                address.secretKeyEnc
+                addr.address.toFriendly({ testOnly: isTestnet }),
+                addr.secretKeyEnc
             );
             storeBiometricsState(
-                address.address.toFriendly({ testOnly: isTestnet }),
+                addr.address.toFriendly({ testOnly: isTestnet }),
                 BiometricsState.InUse
             );
         });
@@ -250,7 +250,7 @@ export function migrateBiometricsEcnKeys(isTestnet: boolean) {
 }
 
 export function getBiometricsState(address: string) {
-    return storage.getString(`${address}/${biometricsStateKey}`);
+    return (storage.getString(`${address}/${biometricsStateKey}`) ?? null) as BiometricsState | null;
 }
 
 export function getBiometricsEncKey(address: string) {

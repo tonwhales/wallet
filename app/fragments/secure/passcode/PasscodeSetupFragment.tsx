@@ -73,14 +73,14 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
                 onReady={onPasscodeConfirmed}
                 migrating={init}
-                onLater={() => {
+                onLater={init ? () => {
                     storage.set(passcodeSetupShownKey, true)
                     if (engine && !engine.ready) {
                         navigation.navigateAndReplaceAll('Sync');
                     } else {
                         navigation.navigateAndReplaceAll('Home');
                     }
-                }}
+                } : undefined}
                 showSuccess={!init}
             />
             {Platform.OS === 'ios' && !init && (

@@ -29,7 +29,7 @@ export type AuthWalletKeysType = {
 }
 
 export function getPasscodeState(address: Address, isTestnet: boolean) {
-    return storage.getString(`${address.toFriendly({ testOnly: isTestnet })}/${passcodeStateKey}`);
+    return (storage.getString(`${address.toFriendly({ testOnly: isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
 }
 
 export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);

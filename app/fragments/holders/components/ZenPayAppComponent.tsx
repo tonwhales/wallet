@@ -13,7 +13,7 @@ import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
-import { ZenPayAppParams } from '../ZenPayAppFragment';
+import { ZenPayAppParams } from '../HoldersAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractZenPayQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
@@ -410,13 +410,13 @@ export const ZenPayAppComponent = React.memo((
                         </Animated.View>
                     )}
                 </AnotherKeyboardAvoidingView>
-                {offlineApp && (
+                {offlineAppReady && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
                     />
                 )}
-                {!offlineApp && (
+                {!offlineAppReady && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

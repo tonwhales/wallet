@@ -12,7 +12,7 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { StatusBar } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
-import { ZenPayAppParams } from './ZenPayAppFragment';
+import { ZenPayAppParams } from './HoldersAppFragment';
 import { extractZenPayQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
@@ -23,7 +23,7 @@ import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { storage } from '../../storage/storage';
 
-export const ZenPayLandingFragment = fragment(() => {
+export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
@@ -302,32 +302,34 @@ export const ZenPayLandingFragment = fragment(() => {
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
-                {!offlineAppReady && (
+                {offlineAppReady && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
                     />
                 )}
-                <Animated.View
-                    style={animatedAuthStyles}
-                    pointerEvents={!auth ? 'none' : 'box-none'}
-                >
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar onBack={() => navigation.goBack()} />
-                    </View>
-                    {Platform.OS === 'ios' && (
-                        <Pressable
-                            style={{ position: 'absolute', top: 22, right: 16 }}
-                            onPress={() => {
-                                navigation.goBack();
-                            }} >
-                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                {t('common.close')}
-                            </Text>
-                        </Pressable>
-                    )}
-                    <ActivityIndicator size="small" color={'#564CE2'} />
-                </Animated.View>
+                {!offlineAppReady && (
+                    <Animated.View
+                        style={animatedAuthStyles}
+                        pointerEvents={!auth ? 'none' : 'box-none'}
+                    >
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                            <AndroidToolbar onBack={() => navigation.goBack()} />
+                        </View>
+                        {Platform.OS === 'ios' && (
+                            <Pressable
+                                style={{ position: 'absolute', top: 22, right: 16 }}
+                                onPress={() => {
+                                    navigation.goBack();
+                                }} >
+                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                                    {t('common.close')}
+                                </Text>
+                            </Pressable>
+                        )}
+                        <ActivityIndicator size="small" color={'#564CE2'} />
+                    </Animated.View>
+                )}
             </View>
         </View>
     );

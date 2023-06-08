@@ -310,7 +310,7 @@ export class ZenPayProduct {
         FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
 
         const stored = await FileSystem.downloadAsync(netPath, fsPath);
-        
+
         if (!(asset.endsWith('.js') || asset.endsWith('.html') || asset.endsWith('.css'))) {
             return fsPath;
         }

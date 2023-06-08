@@ -13,7 +13,7 @@ export const cardListPublicCodec = t.union([
         state: t.string,
         balance: t.string,
         card: t.type({
-          lastFourDigits: t.union([t.string, t.undefined]),
+          lastFourDigits: t.union([t.string, t.undefined, t.null]),
           productId: t.string,
           personalizationCode: t.string,
           partner: t.string,

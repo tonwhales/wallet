@@ -15,7 +15,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 
 export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
-export const ZenPayAppFragment = fragment(() => {
+export const HoldersAppFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const engine = useEngine();
     const params = useParams<ZenPayAppParams>();

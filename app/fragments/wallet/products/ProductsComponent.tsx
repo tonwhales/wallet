@@ -13,7 +13,7 @@ import { JettonProduct } from "./JettonProduct"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
-import { ZenPayProductButton } from "../../zenpay/components/ZenPayProductButton"
+import { ZenPayProductButton } from "../../holders/components/ZenPayProductButton"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";

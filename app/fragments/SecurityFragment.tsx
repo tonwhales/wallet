@@ -94,8 +94,6 @@ export const SecurityFragment = fragment(() => {
         })();
     }, []);
 
-    console.log('biometricsProps', biometricsProps);
-
     return (
         <View style={{
             flex: 1,
@@ -184,10 +182,7 @@ export const SecurityFragment = fragment(() => {
                                         <ItemButton
                                             leftIconComponent={biometricsProps.icon}
                                             title={biometricsProps.buttonText}
-                                            onPress={() => {
-                                                console.log('biometricsState', biometricsState, migrated);
-                                                navigation.navigate('BiometricsSetup');
-                                            }}
+                                            onPress={() => navigation.navigate('BiometricsSetup')}
                                         />
                                     )}
                                 </ItemGroup>

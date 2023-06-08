@@ -36,8 +36,6 @@ export const PasscodeInput = React.memo((
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
 
-    console.log({ description });
-
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
         return { transform: [{ translateX: translate.value }] };

@@ -98,8 +98,6 @@ export const PasscodeSetup = React.memo((
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
 
-    console.log({ description });
-
     return (
         <View style={{
             width: '100%', height: '100%',

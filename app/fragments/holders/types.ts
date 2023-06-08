@@ -1,4 +1,4 @@
-export enum ZenPayQueryParams {
+export enum HoldersQueryParams {
     LockScroll = 'lockScroll',
     CloseApp = 'closeApp',
     OpenEnrollment = 'openEnrollment',

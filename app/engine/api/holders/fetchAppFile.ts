@@ -1,6 +1,8 @@
 import axios from 'axios';
 import * as t from 'io-ts';
 
+export const holdersAppCodecVersion = 1;
+
 export const holdersOfflineAppCodec = t.type({
     version: t.string,
     routes: t.array(t.type({
@@ -22,10 +24,10 @@ export type HoldersOfflineApp = {
 }
 
 export async function fetchAppFile(endpoint: string) {
-    const zenPayAppFile = (await axios.get(`${endpoint}/app-cache/info.json`)).data;
+    const holdersAppFile = (await axios.get(`${endpoint}/app-cache/info.json`)).data;
 
-    if (holdersOfflineAppCodec.is(zenPayAppFile)) {
-        return zenPayAppFile as HoldersOfflineApp;
+    if (holdersOfflineAppCodec.is(holdersAppFile)) {
+        return holdersAppFile as HoldersOfflineApp;
     }
 
     return null;

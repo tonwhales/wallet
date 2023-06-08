@@ -4,24 +4,24 @@ import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEngine } from '../../engine/Engine';
-import { ZenPayAppComponent } from './components/ZenPayAppComponent';
+import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { holdersUrl } from '../../engine/corp/ZenPayProduct';
+import { holdersUrl } from '../../engine/corp/HoldersProduct';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
-export type ZenPayAppParams = { type: 'card'; id: string; } | { type: 'account' };
+export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
 export const HoldersAppFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const engine = useEngine();
-    const params = useParams<ZenPayAppParams>();
+    const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const status = engine.products.zenPay.useStatus();
+    const status = engine.products.holders.useStatus();
 
     const needsEnrollment = useMemo(() => {
         try {
@@ -56,7 +56,7 @@ export const HoldersAppFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 
-            <ZenPayAppComponent
+            <HoldersAppComponent
                 title={t('products.zenPay.title')}
                 variant={params}
                 token={(

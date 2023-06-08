@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
-import { ZenPayCard, holdersUrl } from "../../../engine/corp/ZenPayProduct";
+import { HoldersCard, holdersUrl } from "../../../engine/corp/HoldersProduct";
 import { Engine } from "../../../engine/Engine";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
@@ -18,12 +18,12 @@ const colorsMap = [
     ['#792AF6', "#954CF9"],
 ];
 
-export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPayCard, engine: Engine }) => {
+export const HoldersProductButton = React.memo(({ card, engine }: { card?: HoldersCard, engine: Engine }) => {
     const { Theme } = useAppConfig();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
-    const status = engine.products.zenPay.useStatus();
+    const status = engine.products.holders.useStatus();
 
     const needsEnrolment = React.useMemo(() => {
         try {
@@ -56,7 +56,7 @@ export const ZenPayProductButton = React.memo(({ card, engine }: { card?: ZenPay
                 );
                 return;
             }
-            navigation.navigateZenPay(card ? { type: 'card', id: card.id } : { type: 'account' });
+            navigation.navigateHolders(card ? { type: 'card', id: card.id } : { type: 'account' });
         },
         [card, needsEnrolment],
     );

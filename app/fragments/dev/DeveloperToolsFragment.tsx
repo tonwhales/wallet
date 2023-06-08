@@ -9,7 +9,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { clearZenPay } from '../LogoutFragment';
+import { clearHolders } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { warn } from '../../utils/log';
@@ -31,7 +31,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
-    const offlineApp = engine.products.zenPay.useOfflineApp();
+    const offlineApp = engine.products.holders.useOfflineApp();
 
     const [offlineAppReady, setOfflineAppReady] = useState(false);
     const [offlineAppEnabled, setOfflineAppEnabled] = useState(storage.getBoolean('dev-tools:use-offline-app') ?? false);
@@ -67,7 +67,7 @@ export const DeveloperToolsFragment = fragment(() => {
     }, [])
     const resetCache = useCallback(() => {
         storagePersistence.clearAll();
-        clearZenPay(engine);
+        clearHolders(engine);
         reboot();
     }, []);
 
@@ -91,16 +91,16 @@ export const DeveloperToolsFragment = fragment(() => {
         [AppConfig.isTestnet],
     );
 
-    const [holdersAppUrl, setZenPayAppUrl] = useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
+    const [holdersAppUrl, setHoldersAppUrl] = useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
 
     const onUrlSet = useCallback((link: string) => {
         let url: URL
         try {
             url = new URL(link);
-            setZenPayAppUrl(url.toString());
+            setHoldersAppUrl(url.toString());
         } catch (e) {
             warn(e)
-            setZenPayAppUrl('');
+            setHoldersAppUrl('');
         }
     }, []);
 

@@ -12,15 +12,15 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { StatusBar } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
-import { ZenPayAppParams } from './HoldersAppFragment';
-import { extractZenPayQueryParams } from './utils';
+import { HoldersAppParams } from './HoldersAppFragment';
+import { extractHoldersQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { storage } from '../../storage/storage';
 
 export const HoldersLandingFragment = fragment(() => {
@@ -30,10 +30,10 @@ export const HoldersLandingFragment = fragment(() => {
     const engine = useEngine();
     const navigation = useTypedNavigation();
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: ZenPayAppParams }>();
+    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.products.zenPay.useOfflineApp();
+    const offlineApp = engine.products.holders.useOfflineApp();
     const [offlineAppReady, setOfflineAppReady] = useState(false);
     useEffect(() => {
         (async () => {
@@ -116,7 +116,7 @@ export const HoldersLandingFragment = fragment(() => {
             }
 
             const domain = extractDomain(endpoint);
-            const res = await engine.products.zenPay.enroll(domain, authContext);
+            const res = await engine.products.holders.enroll(domain, authContext);
             if (!res) {
                 Alert.alert(t('auth.failed'));
                 authOpacity.value = 0;
@@ -126,7 +126,7 @@ export const HoldersLandingFragment = fragment(() => {
 
             // Navigate to continue
             navigation.goBack();
-            navigation.navigateZenPay(onEnrollType);
+            navigation.navigateHolders(onEnrollType);
 
             authOpacity.value = 0;
             setAuth(false);
@@ -172,7 +172,7 @@ export const HoldersLandingFragment = fragment(() => {
     }, [onEnroll]);
 
     const onNavigation = useCallback((url: string) => {
-        const params = extractZenPayQueryParams(url);
+        const params = extractHoldersQueryParams(url);
         if (params.closeApp) {
             navigation.goBack();
             return;

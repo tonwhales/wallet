@@ -1,7 +1,7 @@
 import { warn } from "../../utils/log";
-import { BackPolicy, ZenPayQueryParams } from "./types";
+import { BackPolicy, HoldersQueryParams } from "./types";
 
-export function extractZenPayQueryParams(url: string): {
+export function extractHoldersQueryParams(url: string): {
     closeApp: boolean,
     openUrl: string | null,
     backPolicy: BackPolicy,
@@ -17,36 +17,36 @@ export function extractZenPayQueryParams(url: string): {
         let openEnrollment = false;
         let showKeyboardAccessoryView = false;
 
-        if (params.has(ZenPayQueryParams.CloseApp)) {
-            const queryValue = params.get(ZenPayQueryParams.CloseApp);
+        if (params.has(HoldersQueryParams.CloseApp)) {
+            const queryValue = params.get(HoldersQueryParams.CloseApp);
             if (queryValue === 'true') {
                 closeApp = true;
             }
         }
 
-        if (params.has(ZenPayQueryParams.OpenUrl)) {
-            const queryValue = params.get(ZenPayQueryParams.OpenUrl);
+        if (params.has(HoldersQueryParams.OpenUrl)) {
+            const queryValue = params.get(HoldersQueryParams.OpenUrl);
             if (queryValue) {
                 openUrl = queryValue;
             }
         }
 
-        if (params.has(ZenPayQueryParams.BackPolicy)) {
-            const queryValue = params.get(ZenPayQueryParams.BackPolicy);
+        if (params.has(HoldersQueryParams.BackPolicy)) {
+            const queryValue = params.get(HoldersQueryParams.BackPolicy);
             if (queryValue === 'back') {
                 backPolicy = 'back';
             }
         }
 
-        if (params.has(ZenPayQueryParams.OpenEnrollment)) {
-            const queryValue = params.get(ZenPayQueryParams.OpenEnrollment);
+        if (params.has(HoldersQueryParams.OpenEnrollment)) {
+            const queryValue = params.get(HoldersQueryParams.OpenEnrollment);
             if (queryValue === 'true') {
                 openEnrollment = true;
             }
         }
 
-        if (params.has(ZenPayQueryParams.ShowKeyboardAccessoryView)) {
-            const queryValue = params.get(ZenPayQueryParams.ShowKeyboardAccessoryView);
+        if (params.has(HoldersQueryParams.ShowKeyboardAccessoryView)) {
+            const queryValue = params.get(HoldersQueryParams.ShowKeyboardAccessoryView);
             if (queryValue === 'true') {
                 showKeyboardAccessoryView = true;
             }

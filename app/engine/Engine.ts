@@ -19,7 +19,7 @@ import { Cloud } from './cloud/Cloud';
 import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
 import { KeysProduct } from './keys/KeysProduct';
-import { ZenPayProduct } from './corp/ZenPayProduct';
+import { HoldersProduct } from './corp/HoldersProduct';
 import { ConnectProduct } from './products/ConnectProduct';
 import { LedgerProduct } from './products/LedgerProduct';
 import { WalletsProduct } from './products/WalletsProduct';
@@ -58,7 +58,7 @@ export class Engine {
         keys: KeysProduct,
         tonConnect: ConnectProduct,
         ledger: LedgerProduct,
-        zenPay: ZenPayProduct,
+        holders: HoldersProduct,
         wallets: WalletsProduct
     };
     readonly transactions: Transactions;
@@ -106,7 +106,7 @@ export class Engine {
             keys: new KeysProduct(this),
             tonConnect: new ConnectProduct(this),
             ledger: new LedgerProduct(this),
-            zenPay: new ZenPayProduct(this),
+            holders: new HoldersProduct(this),
             wallets: new WalletsProduct(this)
         };
 

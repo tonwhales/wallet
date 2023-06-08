@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as t from "io-ts";
-import { zenPayEndpoint } from "../../corp/ZenPayProduct";
+import { holdersEndpoint } from "../../corp/HoldersProduct";
 import { Address } from "ton";
 
 export const cardListPublicCodec = t.union([
@@ -33,7 +33,7 @@ export const cardListPublicCodec = t.union([
 
 export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
   let res = await axios.post(
-    'https://' + zenPayEndpoint + '/public/cards',
+    'https://' + holdersEndpoint + '/public/cards',
     {
       walletKind: 'tonhub',
       network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
@@ -175,7 +175,7 @@ export const cardsListResCodec = t.intersection([
 
 export async function fetchCardsList(token: string) {
   let res = await axios.post(
-    'https://' + zenPayEndpoint + '/card/list',
+    'https://' + holdersEndpoint + '/card/list',
     { token },
     {
       headers: {

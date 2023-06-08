@@ -4,7 +4,7 @@ import { Address, Cell } from 'ton';
 import BN from 'bn.js';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
-import { ZenPayAppParams } from '../fragments/holders/HoldersAppFragment';
+import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
@@ -109,7 +109,7 @@ export class TypedNavigation {
         this.navigate('LedgerApp');
     }
 
-    navigateZenPay(params: ZenPayAppParams) {
+    navigateHolders(params: HoldersAppParams) {
         this.navigate('ZenPay', params);
     }
 

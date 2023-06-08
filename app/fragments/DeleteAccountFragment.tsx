@@ -26,7 +26,7 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
-import { clearZenPay } from "./LogoutFragment";
+import { clearHolders } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { useAppStateManager } from "../engine/AppStateManager";
@@ -215,12 +215,12 @@ export const DeleteAccountFragment = fragment(() => {
 
                             if (appState.addresses.length === 1) {
                                 storage.clearAll();
-                                clearZenPay(engine);
+                                clearHolders(engine);
                                 reboot();
                                 return;
                             }
 
-                            clearZenPay(engine, currentAddress);
+                            clearHolders(engine, currentAddress);
 
                             const newAddresses = appState.addresses.filter((address) => !address.address.equals(currentAddress));
 

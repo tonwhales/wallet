@@ -13,7 +13,7 @@ import { JettonProduct } from "./JettonProduct"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
-import { ZenPayProductButton } from "../../holders/components/ZenPayProductButton"
+import { HoldersProductButton } from "../../holders/components/HoldersProductButton"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
@@ -28,7 +28,7 @@ export const ProductsComponent = React.memo(() => {
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
     const ledger = engine.products.settings.useLedger();
-    const cards = engine.products.zenPay.useCards();
+    const cards = engine.products.holders.useCards();
     const tonconnectExtensions = engine.products.tonConnect.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const openExtension = React.useCallback((url: string) => {
@@ -100,9 +100,9 @@ export const ProductsComponent = React.memo(() => {
 
     if (AppConfig.isTestnet) {
         cards.map((c) => {
-            apps.push(<ZenPayProductButton engine={engine} key={c.id} card={c} />)
+            apps.push(<HoldersProductButton engine={engine} key={c.id} card={c} />)
         });
-        apps.push(<ZenPayProductButton engine={engine} key={'zenpay-add'} />)
+        apps.push(<HoldersProductButton engine={engine} key={'zenpay-add'} />)
     }
 
     for (let e of extensions) {

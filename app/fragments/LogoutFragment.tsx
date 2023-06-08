@@ -1,12 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
+import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { holdersUrl } from "../engine/corp/ZenPayProduct";
+import { holdersUrl } from "../engine/corp/HoldersProduct";
 import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
@@ -19,17 +19,16 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { getAppState, getCurrentAddress } from "../storage/appState";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { Address } from "ton";
-import { loadWalletKeys } from "../storage/walletKeys";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 
-export function clearZenPay(engine: Engine, address?: Address) {
-    const zenPayDomain = extractDomain(holdersUrl);
-    engine.products.zenPay.stopWatching();
+export function clearHolders(engine: Engine, address?: Address) {
+    const holdersDomain = extractDomain(holdersUrl);
+    engine.products.holders.stopWatching();
     engine.persistence.domainKeys.setValue(
-        `${(address ?? engine.address).toFriendly({ testOnly: engine.isTestnet })}/${zenPayDomain}`,
+        `${(address ?? engine.address).toFriendly({ testOnly: engine.isTestnet })}/${holdersDomain}`,
         null
     );
-    engine.persistence.zenPayState.setValue(address ?? engine.address, null);
+    engine.persistence.holdersState.setValue(address ?? engine.address, null);
     engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
 }
 
@@ -61,12 +60,12 @@ export const LogoutFragment = fragment(() => {
 
         if (appState.addresses.length === 1) {
             storage.clearAll();
-            clearZenPay(engine);
+            clearHolders(engine);
             reboot();
             return;
         }
 
-        clearZenPay(engine, currentAddress);
+        clearHolders(engine, currentAddress);
 
         const newAddresses = appState.addresses.filter((address) => !address.address.equals(currentAddress));
 

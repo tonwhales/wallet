@@ -13,9 +13,9 @@ import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
-import { ZenPayAppParams } from '../HoldersAppFragment';
+import { HoldersAppParams } from '../HoldersAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { extractZenPayQueryParams } from '../utils';
+import { extractHoldersQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
@@ -28,9 +28,9 @@ import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { storage } from '../../../storage/storage';
 
-export const ZenPayAppComponent = React.memo((
+export const HoldersAppComponent = React.memo((
     props: {
-        variant: ZenPayAppParams,
+        variant: HoldersAppParams,
         token: string,
         title: string,
         endpoint: string
@@ -38,14 +38,14 @@ export const ZenPayAppComponent = React.memo((
 ) => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
-    const status = engine.products.zenPay.useStatus();
+    const status = engine.products.holders.useStatus();
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.products.zenPay.useOfflineApp();
+    const offlineApp = engine.products.holders.useOfflineApp();
     const [offlineAppReady, setOfflineAppReady] = useState(false);
     useEffect(() => {
         (async () => {
@@ -94,7 +94,7 @@ export const ZenPayAppComponent = React.memo((
     const start = useMemo(() => {
         return Date.now();
     }, []);
-    useTrackEvent(MixpanelEvent.ZenPay, { url: props.variant.type }, AppConfig.isTestnet);
+    useTrackEvent(MixpanelEvent.Holders, { url: props.variant.type }, AppConfig.isTestnet);
 
     //
     // View
@@ -151,8 +151,8 @@ export const ZenPayAppComponent = React.memo((
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);
 
-        const cardsState = engine.persistence.zenPayCards.item(engine.address).value;
-        const accountState = engine.persistence.zenPayStatus.item(engine.address).value;
+        const cardsState = engine.persistence.holdersCards.item(engine.address).value;
+        const accountState = engine.persistence.holdersStatus.item(engine.address).value;
 
         const initialState = {
             ...accountState
@@ -250,9 +250,9 @@ export const ZenPayAppComponent = React.memo((
     }, []);
 
     const onCloseApp = useCallback(() => {
-        engine.products.zenPay.doSync();
+        engine.products.holders.doSync();
         navigation.goBack();
-        trackEvent(MixpanelEvent.ZenPayClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
     }, []);
 
     const safelyOpenUrl = useCallback((url: string) => {
@@ -273,7 +273,7 @@ export const ZenPayAppComponent = React.memo((
     }, []);
 
     const onNavigation = useCallback((url: string) => {
-        const params = extractZenPayQueryParams(url);
+        const params = extractHoldersQueryParams(url);
         if (params.closeApp) {
             onCloseApp();
             return;

@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar"
-import { Platform, View, Text, ScrollView, ImageSourcePropType, Image } from "react-native"
+import { Platform, View, Text, ScrollView } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
@@ -36,7 +36,7 @@ export const SecurityFragment = fragment(() => {
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
     const biometricsProps = useMemo(() => {
-        if (!migrated) {
+        if (!migrated || !(passcodeState === PasscodeState.Set)) {
             return null
         }
 
@@ -85,7 +85,7 @@ export const SecurityFragment = fragment(() => {
             state: biometricsState,
         }
 
-    }, [biometricsState, migrated, deviceEncryption]);
+    }, [biometricsState, migrated, deviceEncryption, passcodeState]);
 
     useEffect(() => {
         (async () => {

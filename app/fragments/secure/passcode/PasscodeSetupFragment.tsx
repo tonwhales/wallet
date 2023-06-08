@@ -17,9 +17,10 @@ import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useRoute } from "@react-navigation/native";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 import { t } from "../../../i18n/t";
+import { storage } from "../../../storage/storage";
+import { passcodeSetupShownKey } from "../../resolveOnboarding";
 
 export const PasscodeSetupFragment = systemFragment(() => {
-    const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
     const { AppConfig } = useAppConfig();
     const engine = useEngine();
     const reboot = useReboot();
@@ -28,10 +29,6 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const init = route.name === 'PasscodeSetupInit';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-
-    const inModalMode = useMemo(() => {
-        return !initial && !afterImport && !init;
-    }, [initial, afterImport, init]);
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         const acc = getCurrentAddress();
@@ -50,16 +47,11 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 );
             }
         } catch (e) {
-            warn(`Failed to load wallet keys, ${initial ? 'initial' : ''} ${afterImport ? 'after import' : ''}`);
+            warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
             throw Error('Failed to load wallet keys');
         }
 
-        if (initial || afterImport) {
-            if (afterImport) {
-                reboot();
-                return;
-            }
-
+        if (init) {
             if (engine && !engine.ready) {
                 navigation.navigateAndReplaceAll('Sync');
             } else {
@@ -71,21 +63,27 @@ export const PasscodeSetupFragment = systemFragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: (Platform.OS === 'android' || initial || afterImport || init)
+            paddingTop: (Platform.OS === 'android' || init)
                 ? safeArea.top
                 : undefined,
         }}>
-            {inModalMode && (<AndroidToolbar />)}
-            <StatusBar style={(Platform.OS === 'ios' && inModalMode) ? 'light' : 'dark'} />
+            {!init && (<AndroidToolbar />)}
+            <StatusBar style={(Platform.OS === 'ios' && !init) ? 'light' : 'dark'} />
             <PasscodeSetup
                 description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
-                initial={initial}
-                afterImport={afterImport}
                 onReady={onPasscodeConfirmed}
                 migrating={init}
+                onLater={() => {
+                    storage.set(passcodeSetupShownKey, true)
+                    if (engine && !engine.ready) {
+                        navigation.navigateAndReplaceAll('Sync');
+                    } else {
+                        navigation.navigateAndReplaceAll('Home');
+                    }
+                }}
                 showSuccess={!init}
             />
-            {Platform.OS === 'ios' && inModalMode && (
+            {Platform.OS === 'ios' && !init && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}
                     onPress={() => {

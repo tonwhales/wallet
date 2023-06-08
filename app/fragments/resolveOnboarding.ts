@@ -4,7 +4,7 @@ import { storage } from "../storage/storage";
 import { getPasscodeState } from "../components/secure/AuthWalletKeys";
 import { PasscodeState } from "../storage/secureStorage";
 
-const passcodeSetupShownKey = 'passcode-setup-shown';
+export const passcodeSetupShownKey = 'passcode-setup-shown';
 
 function isPasscodeSetupShown(): boolean {
     return storage.getBoolean(passcodeSetupShownKey) ?? false;

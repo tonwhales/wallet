@@ -86,8 +86,9 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         setAuth({ promise: { resolve, reject }, style: { ...style, useBiometrics } });
                     });
                 }
-                throw Error('Failed to load wallet keys with biometrics & passcode');
 
+                const keys = await loadWalletKeys(acc.secretKeyEnc);
+                return keys;
             } else {
                 try {
                     const keys = await loadWalletKeys(acc.secretKeyEnc);

@@ -160,7 +160,8 @@ export const PasscodeInput = React.memo((
                             style={{
                                 position: 'absolute',
                                 top: 54, left: 0, right: 0,
-                                justifyContent: 'center', alignItems: 'center'
+                                justifyContent: 'center', alignItems: 'center',
+                                paddingHorizontal: 16,
                             }}
                             entering={FadeIn}
                             exiting={FadeOut}

@@ -77,8 +77,6 @@ export const PasscodeSetup = React.memo((
         description,
         onReady,
         initial,
-        afterImport,
-        migrating,
         onLater,
         showSuccess
     }: {
@@ -86,8 +84,6 @@ export const PasscodeSetup = React.memo((
         onReady?: (pass: string) => Promise<void>,
         onLater?: () => void,
         initial?: boolean,
-        afterImport?: boolean,
-        migrating?: boolean,
         showSuccess?: boolean,
     }) => {
     const navigation = useTypedNavigation();
@@ -147,7 +143,7 @@ export const PasscodeSetup = React.memo((
                             dispatch({ type: 'loading' });
                         }}
                     />
-                    {!!(initial || afterImport || migrating) && (
+                    {!!initial && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {

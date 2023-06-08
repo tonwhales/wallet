@@ -72,7 +72,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
             <PasscodeSetup
                 description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
                 onReady={onPasscodeConfirmed}
-                migrating={init}
+                initial={init}
                 onLater={init ? () => {
                     storage.set(passcodeSetupShownKey, true)
                     if (engine && !engine.ready) {

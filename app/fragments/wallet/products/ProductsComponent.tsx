@@ -100,7 +100,7 @@ export const ProductsComponent = React.memo(() => {
 
     if (AppConfig.isTestnet) {
         cards.map((c) => {
-            apps.push(<HoldersProductButton engine={engine} key={c.id} card={c} />)
+            apps.push(<HoldersProductButton engine={engine} key={c.id} account={c} />)
         });
         apps.push(<HoldersProductButton engine={engine} key={'zenpay-add'} />)
     }

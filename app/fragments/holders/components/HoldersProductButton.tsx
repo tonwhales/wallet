@@ -7,18 +7,19 @@ import { HoldersCard, holdersUrl } from "../../../engine/corp/HoldersProduct";
 import { Engine } from "../../../engine/Engine";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
-import { avatarHash } from "../../../utils/avatarHash";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 
-const colorsMap = [
-    ['#EA7509', '#E9A904'],
-    ['#0999EA', "#046DE9"],
-    ['#EA0909', "#E97204"],
-    ['#792AF6', "#954CF9"],
-];
+const colorsMap: { [key: string]: string[] } = {
+    'minimal-1': ['#8689b5', '#9fa2d1'],
+    'minimal-2': ['#000000', '#333333'],
+    'minimal-3': ['#dca6c0', '#cda3b7'],
+    'minimal-4': ['#93c1a6', '#8da998'],
+    'default-1': ['#dec08e', '#b9a88b'],
+    'default-2': ['#792AF6', "#954CF9"], // Default
+}
 
-export const HoldersProductButton = React.memo(({ card, engine }: { card?: HoldersCard, engine: Engine }) => {
+export const HoldersProductButton = React.memo(({ account, engine }: { account?: HoldersCard, engine: Engine }) => {
     const { Theme } = useAppConfig();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
@@ -51,17 +52,17 @@ export const HoldersProductButton = React.memo(({ card, engine }: { card?: Holde
                     'ZenPayLanding',
                     {
                         endpoint: holdersUrl,
-                        onEnrollType: card ? { type: 'card', id: card.id } : { type: 'account' }
+                        onEnrollType: account ? { type: 'card', id: account.id } : { type: 'account' }
                     }
                 );
                 return;
             }
-            navigation.navigateHolders(card ? { type: 'card', id: card.id } : { type: 'account' });
+            navigation.navigateHolders(account ? { type: 'card', id: account.id } : { type: 'account' });
         },
-        [card, needsEnrolment],
+        [account, needsEnrolment],
     );
 
-    const colors = card ? colorsMap[avatarHash(card.id, colorsMap.length)] : ['#333A5A', "#A7AFD3"]
+    const colors = account ? (colorsMap[account.card.personalizationCode] ?? colorsMap['default-2']) : ['#333A5A', "#A7AFD3"];
 
     return (
         <TouchableHighlight
@@ -84,30 +85,30 @@ export const HoldersProductButton = React.memo(({ card, engine }: { card?: Holde
                             />
                         </Rect>
                     </Canvas>
-                    {!!card?.card.lastFourDigits && (
+                    {!!account?.card.lastFourDigits && (
                         <Text style={{ color: 'white', fontSize: 8, marginHorizontal: 4, marginTop: 2 }} numberOfLines={1}>
-                            {card.card.lastFourDigits}
+                            {account.card.lastFourDigits}
                         </Text>
                     )}
-                    {!card && (
+                    {!account && (
                         <Image source={require('../../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
-                    {card && card.type === 'virtual' && (
+                    {account && account.type === 'virtual' && (
                         <Image source={require('../../../../assets/ic_virtual_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
-                    {card && card.type === 'physical' && (
+                    {account && account.type === 'physical' && (
                         <Image source={require('../../../../assets/ic_visa_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                 </View>
-                {!!card && (
+                {!!account && (
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
                             <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
-                                {card.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: card.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle')}
+                                {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' :''}`}
                             </Text>
-                            {!!card && card.balance && (
+                            {!!account && account.balance && (
                                 <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
-                                    <ValueComponent value={card.balance} precision={2} />{' TON'}
+                                    <ValueComponent value={account.balance} precision={2} />{' TON'}
                                 </Text>
                             )}
                         </View>
@@ -117,21 +118,21 @@ export const HoldersProductButton = React.memo(({ card, engine }: { card?: Holde
                                 ellipsizeMode="tail"
                                 numberOfLines={1}
                             >
-                                {!!card && (
+                                {!!account && (
                                     <Text style={{ flexShrink: 1 }}>
-                                        {t(`products.zenPay.card.type.${card.type}`)}
+                                        {t(`products.zenPay.card.type.${account.type}`)}
                                     </Text>
                                 )}
-                                {!card && (
+                                {!account && (
                                     <Text style={{ flexShrink: 1 }}>
                                         {t('products.zenPay.card.defaultSubtitle')}
                                     </Text>
                                 )}
                             </Text>
-                            {!!card &&
+                            {!!account &&
                                 (
                                     <PriceComponent
-                                        amount={card.balance}
+                                        amount={account.balance}
                                         style={{
                                             backgroundColor: 'transparent',
                                             paddingHorizontal: 0, paddingVertical: 0,
@@ -146,7 +147,7 @@ export const HoldersProductButton = React.memo(({ card, engine }: { card?: Holde
                         <View style={{ flexGrow: 1 }} />
                     </View>
                 )}
-                {!card && (
+                {!account && (
                     <View style={{ flexDirection: 'row', flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'space-between', paddingRight: 10 }}>
                         <View style={{ flexDirection: 'column', flexShrink: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>

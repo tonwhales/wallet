@@ -324,28 +324,26 @@ export const HoldersLandingFragment = fragment(() => {
                         )}
                     </Animated.View>
                 )}
-                {!offlineAppReady && (
-                    <Animated.View
-                        style={animatedAuthStyles}
-                        pointerEvents={!auth ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
-                        <ActivityIndicator size="small" color={'#564CE2'} />
-                    </Animated.View>
-                )}
+                <Animated.View
+                    style={animatedAuthStyles}
+                    pointerEvents={!auth ? 'none' : 'box-none'}
+                >
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                    </View>
+                    {Platform.OS === 'ios' && (
+                        <Pressable
+                            style={{ position: 'absolute', top: 22, right: 16 }}
+                            onPress={() => {
+                                navigation.goBack();
+                            }} >
+                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                                {t('common.close')}
+                            </Text>
+                        </Pressable>
+                    )}
+                    <ActivityIndicator size="small" color={'#564CE2'} />
+                </Animated.View>
             </View>
         </View>
     );

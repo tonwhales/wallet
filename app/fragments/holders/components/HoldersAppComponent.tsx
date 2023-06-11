@@ -263,6 +263,10 @@ export const HoldersAppComponent = React.memo((
                         warn('Invalid main button params');
                         break;
                     }
+                    case 'offClick': {
+                        dispatchMainButton({ type: 'offClick' });
+                        break;
+                    }
                     default:
                         warn('Invalid main button action type');
                 }

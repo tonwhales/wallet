@@ -6,7 +6,8 @@ import * as t from "io-ts";
 export type MainButtonAction = { type: 'showProgress' } | { type: 'hideProgress' } | { type: 'show' } | { type: 'hide' } | { type: 'enable' } | { type: 'disable' }
     | { type: 'setParams', args: Omit<MainButtonProps, 'isProgressVisible' | 'onPress'> }
     | { type: 'setText', ags: { text: string } }
-    | { type: 'onClick', args: { callback?: () => void } };
+    | { type: 'onClick', args: { callback?: () => void } }
+    | { type: 'offClick' };
 
 export function reduceMainButton() {
     return (mainButtonState: MainButtonProps, action: MainButtonAction) => {
@@ -29,6 +30,8 @@ export function reduceMainButton() {
                 return { ...mainButtonState, text: action.ags.text };
             case 'onClick':
                 return { ...mainButtonState, onPress: action.args.callback };
+                case 'offClick':
+                    return { ...mainButtonState, onPress: undefined };
             default:
                 return mainButtonState;
         }
@@ -52,7 +55,7 @@ export interface MainButton {
     hide: () => void,
     enable: () => void,
     disable: () => void,
-    setParams: (params: Omit<MainButtonProps, 'isProgressVisible'>) => void,
+    setParams: (params: Omit<MainButtonProps, 'isProgressVisible' | 'onPress '>) => void,
 }
 
 export type MainButtonProps = {

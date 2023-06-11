@@ -15,6 +15,10 @@ window['main-button'] = (() => {
         callbacks[id] = callback;
     };
 
+    const offClick = () => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-button.offClick' } }));
+    };
+
     const showProgress = (leaveActive) => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-button.showProgress', args: { leaveActive } } }));
     };

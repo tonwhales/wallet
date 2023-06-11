@@ -45,53 +45,90 @@ export type AccountStateRes = {
     state: AccountState
 };
 
-export const accountStateCodec =
-    t.union([
-        t.type({
-            state: t.literal('need-kyc'),
-            kycStatus: t.union([
-                t.null,
-                t.type({
-                    kind: t.string,
-                    applicantId: t.string,
-                    applicantStatus: t.type({
-                        id: t.string,
+// {"ok":true,"state":{"state":"need-kyc","kycStatus":{"kind":"sumsub","applicantId":"64468525bd352a63a6310ae8","applicantStatus":{"id":"64468525bd352a63a6310ae8","createdAt":"2023-04-24 13:33:25","key":"CWVGFSQACMHRKB","clientId":"walleexer.com_58544","inspectionId":"64468525bd352a63a6310ae9","externalUserId":"corp:clg6lyojc000zvq02damgwwnf","info":{"firstName":"ולדיסלב","firstNameEn":"wldyslb","lastName":"ז'ובניטסקי","lastNameEn":"zwbnytsqy","dob":"1994-12-08","country":"ISR","idDocs":[{"idDocType":"ID_CARD","country":"ISR","firstName":"ולדיסלב","firstNameEn":"wldyslb","lastName":"ז'ובניטסקי","lastNameEn":"zwbnytsqy","validUntil":"2033-04-24","number":"347759458","dob":"1994-12-08","ocrDocTypes":null,"imageFieldsInfo":null}]},"applicantPlatform":"Web","ipCountry":"ISR","agreement":{"createdAt":"2023-04-24 13:33:32","source":"WebSDK","targets":["constConsentEn_v6"],"content":null,"link":null,"privacyNoticeUrl":null},"requiredIdDocs":{"docSets":[{"idDocSetType":"IDENTITY","types":["DRIVERS","ID_CARD","RESIDENCE_PERMIT","PASSPORT"],"videoRequired":"docapture","captureMode":"manualAndAuto","uploaderMode":"always"},{"idDocSetType":"SELFIE","types":["SELFIE"],"videoRequired":"passiveLiveness"}]},"review":{"reviewId":"eboHg","attemptId":"FcHhQ","attemptCnt":0,"elapsedSincePendingMs":46089,"elapsedSinceQueuedMs":46089,"levelName":"card-demo","createDate":"2023-06-09 17:00:47+0000","reviewDate":"2023-06-09 17:01:33+0000","reviewReasonCode":"deepGeneralTier","moderationTierType":null,"reviewResult":{"reviewAnswer":"RED","reviewRejectType":"RETRY"},"reviewStatus":"prechecked","priority":0,"moderatorNames":null},"lang":"ru","type":"individual"}},"notificationSettings":{"enabled":true}}}
+
+export const accountStateCodec = t.union([
+    t.type({
+        state: t.literal('need-kyc'),
+        kycStatus: t.union([
+            t.null,
+            t.type({
+                kind: t.string,
+                applicantId: t.string,
+                applicantStatus: t.type({
+                    id: t.string,
+                    createdAt: t.string,
+                    key: t.string,
+                    clientId: t.string,
+                    inspectionId: t.string,
+                    externalUserId: t.string,
+                    info: t.type({
+                        firstName: t.string,
+                        firstNameEn: t.string,
+                        lastName: t.string,
+                        lastNameEn: t.string,
+                        dob: t.string,
+                        country: t.string,
+                        idDocs: t.array(
+                            t.type({
+                                idDocType: t.string,
+                                country: t.string,
+                                firstName: t.string,
+                                firstNameEn: t.string,
+                                lastName: t.string,
+                                lastNameEn: t.string,
+                                validUntil: t.string,
+                                number: t.string,
+                                dob: t.string,
+                                ocrDocTypes: t.null,
+                                imageFieldsInfo: t.null,
+                            })
+                        ),
+                    }),
+                    applicantPlatform: t.string,
+                    ipCountry: t.string,
+                    agreement: t.type({
                         createdAt: t.string,
-                        key: t.string,
-                        clientId: t.string,
-                        inspectionId: t.string,
-                        externalUserId: t.string,
-                        applicantPlatform: t.string,
-                        requiredIdDocs: t.type({
-                            docSets: t.array(t.type({
+                        source: t.string,
+                        targets: t.array(t.string),
+                        content: t.null,
+                        link: t.null,
+                        privacyNoticeUrl: t.null,
+                    }),
+                    requiredIdDocs: t.type({
+                        docSets: t.array(
+                            t.type({
                                 idDocSetType: t.string,
                                 types: t.array(t.string),
                                 videoRequired: t.string,
                                 captureMode: t.string,
                                 uploaderMode: t.string,
-                            })),
-                        }),
-                        review: t.type({
-                            reviewId: t.string,
-                            attemptId: t.string,
-                            attemptCnt: t.number,
-                            levelName: t.string,
-                            createDate: t.string,
-                            reviewStatus: t.string,
-                            priority: t.number,
-                        }),
-                        lang: t.string,
-                        type: t.string,
+                            })
+                        ),
                     }),
+                    review: t.type({
+                        reviewStatus: t.string,
+                    }),
+                    
                 }),
-            ]),
+            }),
+        ]),
+    }),
+    t.type({
+        state: t.union([
+            t.literal('need-phone'),
+            t.literal('ok'),
+            t.literal('no-ref'),
+        ]),
+        notificationSettings: t.type({
+            enabled: t.boolean,
         }),
-        t.type({ state: t.union([t.literal('need-phone'), t.literal('ok'), t.literal('no-ref')]) })
-    ]);
+    }),
+]);
 
 export const accountStateResCodec = t.type({
     ok: t.boolean,
-    state: accountStateCodec
+    state: accountStateCodec,
 });
 
 export async function fetchAccountState(token: string) {
@@ -108,7 +145,9 @@ export async function fetchAccountState(token: string) {
         throw Error('Failed to fetch account state');
     }
 
-    if (!accountStateResCodec.is(res.data)) {
+    console.log(JSON.stringify(res.data));
+
+    if (!accountStateResCodec.is(res.data.state)) {
         throw Error('Invalid account response');
     }
 

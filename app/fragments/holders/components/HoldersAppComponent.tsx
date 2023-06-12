@@ -255,7 +255,6 @@ export const HoldersAppComponent = React.memo((
                         dispatchMainButton({ type: 'hideProgress' });
                         break;
                     case 'setParams': {
-                        // const parsedParams = JSON.parse(parsed.data.args);
                         if (setParamsCodec.is(parsed.data.args)) {
                             dispatchMainButton({ type: 'setParams', args: parsed.data.args });
                         }
@@ -431,8 +430,7 @@ export const HoldersAppComponent = React.memo((
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
-                            // source={{ uri: source.url }}
-                            source={{ uri: `http://192.168.1.135:3000${source.initialRoute}` }}
+                            source={{ uri: source.url }}
                             startInLoadingState={true}
                             style={{
                                 backgroundColor: Theme.item,

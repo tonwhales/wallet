@@ -145,9 +145,7 @@ export async function fetchAccountState(token: string) {
         throw Error('Failed to fetch account state');
     }
 
-    console.log(JSON.stringify(res.data));
-
-    if (!accountStateResCodec.is(res.data.state)) {
+    if (!accountStateResCodec.is(res.data)) {
         throw Error('Invalid account response');
     }
 

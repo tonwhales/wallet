@@ -47,7 +47,6 @@ export const HoldersAppComponent = React.memo((
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.products.holders.useOfflineApp();
-    const keyboard = useKeyboard();
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -225,7 +224,7 @@ export const HoldersAppComponent = React.memo((
         try {
             let parsed = JSON.parse(nativeEvent.data);
             // Main button API
-            if (parsed.data.name.contains('main-button')) {
+            if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-button') !== -1) {
                 const actionType = parsed.data.name.split('.')[1];
 
                 if (actionType === 'onClick' && typeof parsed.id === 'number') {
@@ -256,16 +255,16 @@ export const HoldersAppComponent = React.memo((
                         dispatchMainButton({ type: 'hideProgress' });
                         break;
                     case 'setParams': {
-                        const parsedParams = JSON.parse(parsed.data.args);
-                        if (setParamsCodec.is(parsedParams)) {
-                            dispatchMainButton({ type: 'setParams', args: parsedParams });
+                        // const parsedParams = JSON.parse(parsed.data.args);
+                        if (setParamsCodec.is(parsed.data.args)) {
+                            dispatchMainButton({ type: 'setParams', args: parsed.data.args });
                         }
                         warn('Invalid main button params');
                         break;
                     }
                     case 'offClick': {
                         dispatchMainButton({ type: 'offClick' });
-                        break;
+
                     }
                     default:
                         warn('Invalid main button action type');
@@ -432,7 +431,8 @@ export const HoldersAppComponent = React.memo((
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
-                            source={{ uri: source.url }}
+                            // source={{ uri: source.url }}
+                            source={{ uri: `http://192.168.1.135:3000${source.initialRoute}` }}
                             startInLoadingState={true}
                             style={{
                                 backgroundColor: Theme.item,
@@ -472,7 +472,6 @@ export const HoldersAppComponent = React.memo((
                             keyboardDisplayRequiresUserAction={false}
                             hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                             bounces={false}
-
                         />
                     </Animated.View>
                 )}
@@ -528,7 +527,7 @@ export const HoldersAppComponent = React.memo((
                         }}
                         keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
                     >
-                        {mainButton.isVisible && keyboard.keyboardShown && (
+                        {mainButton.isVisible && (
                             <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
                                 <DappMainButton
                                     isActive={!mainButton.isActive}

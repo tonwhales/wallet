@@ -4,6 +4,7 @@ const mainButtonAPI = `
 window['main-button'] = (() => {
     let requestId = 0;
     let callbacks = {};
+    let __MAIN_BUTTON_AVAILIBLE = true;
 
     const setText = (text) => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-button.setText', args: { text } } }));
@@ -48,14 +49,14 @@ window['main-button'] = (() => {
     };
 
     const __response = (ev) => {
-        if (ev && typeof ev.id === 'number' && ev.data && callbacks[ev.id]) {
+        if (ev && typeof ev.id === 'number' && callbacks[ev.id]) {
             let c = callbacks[ev.id];
             delete callbacks[ev.id];
             c(ev.data);
         }
     }
 
-    const obj = { setText, onClick, showProgress, hideProgress, show, hide, enable, disable, setParams, __response };
+    const obj = { setText, onClick, offClick, showProgress, hideProgress, show, hide, enable, disable, setParams, __MAIN_BUTTON_AVAILIBLE, __response };
     Object.freeze(obj);
     return obj;
 })();

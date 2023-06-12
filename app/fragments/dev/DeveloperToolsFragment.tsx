@@ -35,6 +35,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const [offlineAppReady, setOfflineAppReady] = useState(false);
     const [offlineAppEnabled, setOfflineAppEnabled] = useState(storage.getBoolean('dev-tools:use-offline-app') ?? false);
+    const [nativeButtonEnabled, setNativeButtonEnabled] = useState(storage.getBoolean('dev-tools:use-main-button') ?? false);
 
     useEffect(() => {
         (async () => {
@@ -235,6 +236,16 @@ export const DeveloperToolsFragment = fragment(() => {
                                     onChange={(newValue: boolean) => {
                                         storage.set('dev-tools:use-offline-app', newValue);
                                         setOfflineAppEnabled(newValue);
+                                    }}
+                                />
+                            </View>
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemSwitch
+                                    title='Use native button'
+                                    value={nativeButtonEnabled}
+                                    onChange={(newValue: boolean) => {
+                                        storage.set('dev-tools:use-main-button', newValue);
+                                        setNativeButtonEnabled(newValue);
                                     }}
                                 />
                             </View>

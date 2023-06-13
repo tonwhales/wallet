@@ -28,21 +28,6 @@ export const accountStateCodec = t.union([
                         lastNameEn: t.string,
                         dob: t.string,
                         country: t.string,
-                        idDocs: t.array(
-                            t.type({
-                                idDocType: t.string,
-                                country: t.string,
-                                firstName: t.string,
-                                firstNameEn: t.string,
-                                lastName: t.string,
-                                lastNameEn: t.string,
-                                validUntil: t.string,
-                                number: t.string,
-                                dob: t.string,
-                                ocrDocTypes: t.null,
-                                imageFieldsInfo: t.null,
-                            })
-                        ),
                     }),
                     applicantPlatform: t.string,
                     ipCountry: t.string,
@@ -50,9 +35,6 @@ export const accountStateCodec = t.union([
                         createdAt: t.string,
                         source: t.string,
                         targets: t.array(t.string),
-                        content: t.null,
-                        link: t.null,
-                        privacyNoticeUrl: t.null,
                     }),
                     requiredIdDocs: t.type({
                         docSets: t.array(
@@ -68,10 +50,12 @@ export const accountStateCodec = t.union([
                     review: t.type({
                         reviewStatus: t.string,
                     }),
-
                 }),
             }),
         ]),
+        notificationSettings: t.type({
+            enabled: t.boolean,
+        }),
     }),
     t.type({
         state: t.union([
@@ -102,10 +86,6 @@ export async function fetchAccountState(token: string) {
 
     if (!res.data.ok) {
         throw Error('Failed to fetch account state');
-    }
-
-    if (!accountStateResCodec.is(res.data)) {
-        throw Error('Invalid account response');
     }
 
     return res.data.state as AccountState;

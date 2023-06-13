@@ -12,45 +12,15 @@ export const accountStateCodec = t.union([
         kycStatus: t.union([
             t.null,
             t.type({
-                kind: t.string,
-                applicantId: t.string,
-                applicantStatus: t.type({
-                    id: t.string,
-                    createdAt: t.string,
-                    key: t.string,
-                    clientId: t.string,
-                    inspectionId: t.string,
-                    externalUserId: t.string,
-                    info: t.type({
-                        firstName: t.string,
-                        firstNameEn: t.string,
-                        lastName: t.string,
-                        lastNameEn: t.string,
-                        dob: t.string,
-                        country: t.string,
-                    }),
-                    applicantPlatform: t.string,
-                    ipCountry: t.string,
-                    agreement: t.type({
-                        createdAt: t.string,
-                        source: t.string,
-                        targets: t.array(t.string),
-                    }),
-                    requiredIdDocs: t.type({
-                        docSets: t.array(
-                            t.type({
-                                idDocSetType: t.string,
-                                types: t.array(t.string),
-                                videoRequired: t.string,
-                                captureMode: t.string,
-                                uploaderMode: t.string,
-                            })
-                        ),
-                    }),
-                    review: t.type({
-                        reviewStatus: t.string,
-                    }),
-                }),
+                applicantStatus: t.union([
+                    t.union([
+                        t.type({ review: t.type({ reviewStatus: t.string, }) }),
+                        t.null,
+                        t.undefined
+                    ]),
+                    t.undefined,
+                    t.null
+                ]),
             }),
         ]),
         notificationSettings: t.type({

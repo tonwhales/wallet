@@ -1,37 +1,36 @@
 import React, { useReducer } from "react";
 import { View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
-import { PasscodeInput } from "./PasscodeInput";
-import { WalletKeys, loadWalletKeysWithPassword } from "../../storage/walletKeys";
+import { PasscodeInput } from "../passcode/PasscodeInput";
+import { loadWalletKeysWithPassword } from "../../storage/walletKeys";
 import { t } from "../../i18n/t";
 import { encryptAndStoreWithPasscode } from "../../storage/secureStorage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { PasscodeSuccess } from "./PasscodeSuccess";
+import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 
-type Action = { type: | 'auth', input: string }
-    | { type: 're-enter' | 'input', keys: WalletKeys, input: string }
+type Action =
+    | { type: 'auth', input: string }
+    | { type: 'input' | 're-enter', prev: string, input: string }
     | { type: 'success' }
 
-type Step = 'auth' | 'input' | 're-enter' | 'success';
-type StepWithKeys = 'input' | 're-enter';
-
-type ScreenStateWithKeys = {
-    step: StepWithKeys,
-    input: string,
-    keys: WalletKeys
-}
+type Step = 'auth' | 'success';
+type InputStep = 'input' | 're-enter';
 
 type ScreenState = {
     step: Step,
     input: string,
+} | {
+    step: InputStep,
+    input: string,
+    prev: string,
 };
 
 // reduce steps
 function reduceSteps() {
-    return (state: ScreenState | ScreenStateWithKeys, action: Action): ScreenState | ScreenStateWithKeys => {
+    return (state: ScreenState, action: Action): ScreenState => {
         switch (action.type) {
             case 'auth':
                 return {
@@ -40,15 +39,15 @@ function reduceSteps() {
                 };
             case 're-enter':
                 return {
-                    keys: action.keys,
                     step: 're-enter',
                     input: action.input,
+                    prev: action.prev
                 };
             case 'input':
                 return {
-                    keys: action.keys,
                     step: 'input',
-                    input: ''
+                    input: '',
+                    prev: action.prev
                 };
             case 'success':
                 return {
@@ -79,18 +78,12 @@ export const PasscodeChange = React.memo(() => {
                         onEntered={async (pass) => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
-                                return
                             }
-                            const keys = await loadWalletKeysWithPassword(
+                            await loadWalletKeysWithPassword(
                                 acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
                                 pass
                             );
-                            await encryptAndStoreWithPasscode(
-                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                state.input,
-                                Buffer.from(keys.mnemonics.join(' '))
-                            );
-                            dispatch({ type: 'input', keys, input: '' });
+                            dispatch({ type: 'input', input: '', prev: pass });
                         }}
                     />
                 </Animated.View>
@@ -107,7 +100,7 @@ export const PasscodeChange = React.memo(() => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
                             }
-                            dispatch({ type: 're-enter', input: pass, keys: (state as ScreenStateWithKeys).keys })
+                            dispatch({ type: 're-enter', input: pass, prev: state.prev })
                         }}
                     />
                 </Animated.View>
@@ -123,14 +116,17 @@ export const PasscodeChange = React.memo(() => {
                         onEntered={async (pass) => {
                             if (pass !== state.input) {
                                 throw new Error('Passcodes do not match');
-                            } else {
-                                await encryptAndStoreWithPasscode(
-                                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    state.input,
-                                    Buffer.from((state as ScreenStateWithKeys).keys.mnemonics.join(' '))
-                                );
-                                dispatch({ type: 'success' });
                             }
+                            const keys = await loadWalletKeysWithPassword(
+                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                state.prev
+                            );
+                            await encryptAndStoreWithPasscode(
+                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                state.input,
+                                Buffer.from(keys.mnemonics.join(' '))
+                            );
+                            dispatch({ type: 'success' });
                         }}
                     />
                 </Animated.View>

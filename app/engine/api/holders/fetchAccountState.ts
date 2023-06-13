@@ -2,50 +2,9 @@ import axios from 'axios';
 import { holdersEndpoint } from '../../corp/HoldersProduct';
 import * as t from "io-ts";
 
-export type AccountState =
-    | { state: 'need-phone' | 'ok' | 'no-ref' }
-    | {
-        state: 'need-kyc', kycStatus: {
-            kind: string;
-            applicantId: string;
-            applicantStatus: {
-                id: string;
-                createdAt: string;
-                key: string;
-                clientId: string;
-                inspectionId: string;
-                externalUserId: string;
-                applicantPlatform: string;
-                requiredIdDocs: {
-                    docSets: {
-                        idDocSetType: string;
-                        types: string[];
-                        videoRequired: string;
-                        captureMode: string;
-                        uploaderMode: string;
-                    }[];
-                };
-                review: {
-                    reviewId: string;
-                    attemptId: string;
-                    attemptCnt: number;
-                    levelName: string;
-                    createDate: string;
-                    reviewStatus: string;
-                    priority: number;
-                };
-                lang: string;
-                type: string;
-            };
-        } | null;
-    }
+export type AccountState = t.TypeOf<typeof accountStateCodec>;
 
-export type AccountStateRes = {
-    ok: boolean;
-    state: AccountState
-};
-
-// {"ok":true,"state":{"state":"need-kyc","kycStatus":{"kind":"sumsub","applicantId":"64468525bd352a63a6310ae8","applicantStatus":{"id":"64468525bd352a63a6310ae8","createdAt":"2023-04-24 13:33:25","key":"CWVGFSQACMHRKB","clientId":"walleexer.com_58544","inspectionId":"64468525bd352a63a6310ae9","externalUserId":"corp:clg6lyojc000zvq02damgwwnf","info":{"firstName":"ולדיסלב","firstNameEn":"wldyslb","lastName":"ז'ובניטסקי","lastNameEn":"zwbnytsqy","dob":"1994-12-08","country":"ISR","idDocs":[{"idDocType":"ID_CARD","country":"ISR","firstName":"ולדיסלב","firstNameEn":"wldyslb","lastName":"ז'ובניטסקי","lastNameEn":"zwbnytsqy","validUntil":"2033-04-24","number":"347759458","dob":"1994-12-08","ocrDocTypes":null,"imageFieldsInfo":null}]},"applicantPlatform":"Web","ipCountry":"ISR","agreement":{"createdAt":"2023-04-24 13:33:32","source":"WebSDK","targets":["constConsentEn_v6"],"content":null,"link":null,"privacyNoticeUrl":null},"requiredIdDocs":{"docSets":[{"idDocSetType":"IDENTITY","types":["DRIVERS","ID_CARD","RESIDENCE_PERMIT","PASSPORT"],"videoRequired":"docapture","captureMode":"manualAndAuto","uploaderMode":"always"},{"idDocSetType":"SELFIE","types":["SELFIE"],"videoRequired":"passiveLiveness"}]},"review":{"reviewId":"eboHg","attemptId":"FcHhQ","attemptCnt":0,"elapsedSincePendingMs":46089,"elapsedSinceQueuedMs":46089,"levelName":"card-demo","createDate":"2023-06-09 17:00:47+0000","reviewDate":"2023-06-09 17:01:33+0000","reviewReasonCode":"deepGeneralTier","moderationTierType":null,"reviewResult":{"reviewAnswer":"RED","reviewRejectType":"RETRY"},"reviewStatus":"prechecked","priority":0,"moderatorNames":null},"lang":"ru","type":"individual"}},"notificationSettings":{"enabled":true}}}
+export type AccountStateRes = { ok: boolean, state: AccountState };
 
 export const accountStateCodec = t.union([
     t.type({
@@ -109,7 +68,7 @@ export const accountStateCodec = t.union([
                     review: t.type({
                         reviewStatus: t.string,
                     }),
-                    
+
                 }),
             }),
         ]),

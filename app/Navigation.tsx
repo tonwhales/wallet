@@ -64,6 +64,7 @@ import { PasscodeResetFragment } from './fragments/secure/passcode/PasscodeReset
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
+import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -184,8 +185,10 @@ const navigation = (safeArea: EdgeInsets) => [
     />,
     modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
+    modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
-    modalScreen('PasscodeReset', PasscodeResetFragment, safeArea)
+    modalScreen('PasscodeReset', PasscodeResetFragment, safeArea),
+    modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {
@@ -206,6 +209,8 @@ export const Navigation = React.memo(() => {
             return 'Welcome';
         } else if (onboarding === 'upgrade-store') {
             return 'WalletUpgrade';
+        } else if (onboarding === 'passcode-setup') {
+            return 'PasscodeSetupInit';
         } else {
             throw Error('Invalid onboarding state');
         }

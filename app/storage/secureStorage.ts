@@ -4,10 +4,21 @@ import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from 'ton-crypt
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
+import { getAppState } from './appState';
+import { warn } from '../utils/log';
 
 export const passcodeStateKey = 'passcode-state';
 export const passcodeSaltKey = 'passcode-salt';
 export const passcodeEncKey = 'ton-passcode-enc-key';
+
+export const biometricsEncKey = 'ton-biometrics-enc-key';
+export const biometricsStateKey = 'biometrics-state';
+
+export enum BiometricsState {
+    NotSet = 'not-set',
+    DontUse = 'dont-use',
+    InUse = 'in-use',
+}
 export enum PasscodeState {
     NotSet = 'not-set',
     Set = 'set',
@@ -179,14 +190,6 @@ export async function generateKeyFromPasscode(pass: string, nacl?: string) {
     return { key: derivedKey, salt };
 }
 
-export async function encryptWithPasscode(address: string, pass: string, data: Buffer) {
-    const passKey = await generateKeyFromPasscode(pass);
-    storage.set(`${address}/${passcodeSaltKey}`, passKey.salt);
-    const nonce = await getSecureRandomBytes(24);
-    const sealed = sealBox(data, nonce, passKey.key);
-    return Buffer.concat([nonce, sealed]);
-}
-
 export async function doDecryptWithPasscode(pass: string, salt: string, data: Buffer) {
     const passKey = await generateKeyFromPasscode(pass, salt);
     let nonce = data.slice(0, 24);
@@ -199,7 +202,69 @@ export async function doDecryptWithPasscode(pass: string, salt: string, data: Bu
 }
 
 export async function encryptAndStoreWithPasscode(address: string, pass: string, data: Buffer) {
-    const encrypted = await encryptWithPasscode(address, pass, data);
-    storage.set(`${address}/${passcodeEncKey}`, encrypted.toString('base64'));
-    storage.set(`${address}/${passcodeStateKey}`, PasscodeState.Set);
+    try {
+        const passKey = await generateKeyFromPasscode(pass);
+
+        storage.set(`${address}/${passcodeSaltKey}`, passKey.salt);
+
+        const nonce = await getSecureRandomBytes(24);
+        const sealed = sealBox(data, nonce, passKey.key);
+        const encrypted = Buffer.concat([nonce, sealed]);
+
+        storage.set(`${address}/${passcodeEncKey}`, encrypted.toString('base64'));
+        storage.set(`${address}/${passcodeStateKey}`, PasscodeState.Set);
+
+        return encrypted;
+    } catch (e) {
+        throw Error('Unable to encrypt data with passcode');
+    }
+}
+
+export function getBiometricsMigrated(isTestnet: boolean) {
+    return storage.getBoolean(`migrated-biometrics-enc-keys-${isTestnet ? 'testnet' : 'mainnet'}`);
+}
+
+export function migrateBiometricsEcnKeys(isTestnet: boolean) {
+    const migrated = getBiometricsMigrated(isTestnet);
+    if (migrated) {
+        return;
+    }
+
+    const appState = getAppState();
+
+    try {
+        appState.addresses.forEach(addr => {
+            storeBiometricsEncKey(
+                addr.address.toFriendly({ testOnly: isTestnet }),
+                addr.secretKeyEnc
+            );
+            storeBiometricsState(
+                addr.address.toFriendly({ testOnly: isTestnet }),
+                BiometricsState.InUse
+            );
+        });
+        storage.set(`migrated-biometrics-enc-keys-${isTestnet ? 'testnet' : 'mainnet'}`, true);
+    } catch (e) {
+        warn('Unable to migrate biometrics enc keys');
+    }
+}
+
+export function getBiometricsState(address: string) {
+    return (storage.getString(`${address}/${biometricsStateKey}`) ?? null) as BiometricsState | null;
+}
+
+export function getBiometricsEncKey(address: string) {
+    const encKey = storage.getString(`${address}/${biometricsEncKey}`);
+    if (!encKey) {
+        return null;
+    }
+    return Buffer.from(encKey, 'base64');
+}
+
+export function storeBiometricsState(address: string, state: BiometricsState) {
+    storage.set(`${address}/${biometricsStateKey}`, state);
+}
+
+export function storeBiometricsEncKey(address: string, data: Buffer) {
+    storage.set(`${address}/${biometricsEncKey}`, data.toString('base64'));
 }

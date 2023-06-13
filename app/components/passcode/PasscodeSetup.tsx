@@ -8,9 +8,7 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
-import { useAppConfig } from "../../utils/AppConfigContext";
-import { useEngine } from "../../engine/Engine";
-import { useReboot } from "../../utils/RebootContext";
+import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -18,6 +16,54 @@ type ScreenState = {
     step: Step,
     input: string,
 };
+
+const SetupLoader = React.memo((props: {
+    onLoadEnd: (action: Action) => void,
+    load: (input: string) => Promise<void>,
+    input: string,
+    theme: ThemeType
+}) => {
+
+    useEffect(() => {
+        (async () => {
+            try {
+                await props.load(props.input);
+                props.onLoadEnd({ type: 'success' });
+            } catch (e) {
+                warn('Failed to encrypt and store with passcode');
+                props.onLoadEnd({ type: 're-enter', input: props.input });
+            }
+        })();
+    }, []);
+
+    return (
+        <>
+            <LoadingIndicator
+                simple
+                style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
+            <Pressable
+                style={({ pressed }) => {
+                    return {
+                        position: 'absolute', top: 24, right: 16,
+                        opacity: pressed ? 0.5 : 1,
+                    }
+                }}
+                onPress={() => {
+                    props.onLoadEnd({ type: 'input', input: '' });
+                }}
+            >
+                <Text style={{
+                    color: props.theme.accent,
+                    fontSize: 17,
+                    fontWeight: '500',
+                }}>
+                    {t('common.back')}
+                </Text>
+            </Pressable>
+        </>
+    );
+});
 
 function reduceSteps() {
     return (state: ScreenState, action: Action): ScreenState => {
@@ -50,43 +96,22 @@ function reduceSteps() {
 
 export const PasscodeSetup = React.memo((
     {
+        description,
         onReady,
         initial,
-        afterImport
+        onLater,
+        showSuccess
     }: {
+        description?: string,
         onReady?: (pass: string) => Promise<void>,
+        onLater?: () => void,
         initial?: boolean,
-        afterImport?: boolean
+        showSuccess?: boolean,
     }) => {
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const reboot = useReboot();
     const { Theme } = useAppConfig();
-    const onSuccess = useCallback(async (pass: string) => {
-        if (onReady) {
-            await onReady(pass);
-        }
-    }, [onReady]);
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
-
-    useEffect(() => {
-        if (state.step === 'loading') {
-            (async () => {
-                try {
-                    await onSuccess(state.input);
-                    dispatch({ type: 'success' });
-                } catch (e) {
-                    warn('Failed to encrypt and store with passcode');
-                    dispatch({ type: 're-enter', input: state.input });
-                }
-            })();
-        }
-    }, [state.step, state.input, onSuccess]);
-
-    const onLater = useCallback(() => {
-        reboot();
-    }, [engine, afterImport, initial]);
 
     return (
         <View style={{
@@ -96,15 +121,15 @@ export const PasscodeSetup = React.memo((
                 <Animated.View style={{ flexGrow: 1 }} exiting={SlideOutLeft}>
                     <PasscodeInput
                         title={t('security.passcodeSettings.enterNew')}
+                        description={description}
                         onEntered={(pass) => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
-                                return;
                             }
                             dispatch({ type: 're-enter', input: pass });
                         }}
                     />
-                    {!!(initial || afterImport) && (
+                    {!!onLater && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -133,12 +158,11 @@ export const PasscodeSetup = React.memo((
                         onEntered={(pass) => {
                             if (pass !== state.input) {
                                 throw new Error('Passcode does not match');
-                            } else {
-                                dispatch({ type: 'loading' });
                             }
+                            dispatch({ type: 'loading' });
                         }}
                     />
-                    {!!(initial || afterImport) && (
+                    {!!initial && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -161,7 +185,7 @@ export const PasscodeSetup = React.memo((
                     )}
                 </Animated.View>
             )}
-            {state.step === 'success' && (
+            {state.step === 'success' && showSuccess && (
                 <>
                     <PasscodeSuccess
                         onSuccess={navigation.goBack}
@@ -176,7 +200,12 @@ export const PasscodeSetup = React.memo((
                 </>
             )}
             {state.step === 'loading' && (
-                <LoadingIndicator simple style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }} />
+                <SetupLoader
+                    onLoadEnd={dispatch}
+                    load={async (pass) => { await onReady?.(pass) }}
+                    input={state.input}
+                    theme={Theme}
+                />
             )}
         </View>
     );

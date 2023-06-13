@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { getCurrentAddress } from "../../../storage/appState";
-import { PasscodeState, encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
+import { BiometricsState, PasscodeState, encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
 import { loadWalletKeys } from "../../../storage/walletKeys";
 import { useParams } from "../../../utils/useParams";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -23,7 +23,6 @@ import { passcodeSetupShownKey } from "../../resolveOnboarding";
 export const PasscodeSetupFragment = systemFragment(() => {
     const { AppConfig } = useAppConfig();
     const engine = useEngine();
-    const reboot = useReboot();
     const settings = engine?.products?.settings;
     const route = useRoute();
     const init = route.name === 'PasscodeSetupInit';
@@ -44,6 +43,10 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 settings.setPasscodeState(
                     acc.address,
                     PasscodeState.Set
+                );
+                settings.setBiometricsState(
+                    acc.address,
+                    BiometricsState.InUse
                 );
             }
         } catch (e) {

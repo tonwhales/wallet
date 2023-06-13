@@ -8,7 +8,7 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -20,7 +20,8 @@ type ScreenState = {
 const SetupLoader = React.memo((props: {
     onLoadEnd: (action: Action) => void,
     load: (input: string) => Promise<void>,
-    input: string
+    input: string,
+    theme: ThemeType
 }) => {
 
     useEffect(() => {
@@ -36,10 +37,31 @@ const SetupLoader = React.memo((props: {
     }, []);
 
     return (
-        <LoadingIndicator
-            simple
-            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-        />
+        <>
+            <LoadingIndicator
+                simple
+                style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
+            <Pressable
+                style={({ pressed }) => {
+                    return {
+                        position: 'absolute', top: 24, right: 16,
+                        opacity: pressed ? 0.5 : 1,
+                    }
+                }}
+                onPress={() => {
+                    props.onLoadEnd({ type: 'input', input: '' });
+                }}
+            >
+                <Text style={{
+                    color: props.theme.accent,
+                    fontSize: 17,
+                    fontWeight: '500',
+                }}>
+                    {t('common.back')}
+                </Text>
+            </Pressable>
+        </>
     );
 });
 
@@ -88,9 +110,6 @@ export const PasscodeSetup = React.memo((
     }) => {
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
-    const onSuccess = useCallback(async (pass: string) => {
-        onReady?.(pass);
-    }, [onReady]);
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
 
@@ -183,8 +202,9 @@ export const PasscodeSetup = React.memo((
             {state.step === 'loading' && (
                 <SetupLoader
                     onLoadEnd={dispatch}
-                    load={onSuccess}
+                    load={async (pass) => { await onReady?.(pass) }}
                     input={state.input}
+                    theme={Theme}
                 />
             )}
         </View>

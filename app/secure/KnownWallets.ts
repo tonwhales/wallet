@@ -415,6 +415,7 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             
             'EQBCFwW8uFUh-amdRmNY9NyeDEaeDYXd9ggJGsicpqVcHq7B': {}, // DHD Coin
             'EQDCJL0iQHofcBBvFBHdVG233Ri2V4kCNFgfRT-gqAd3Oc86': {}, // Fanzee Token
+            'EQC-tdRjjoYMz3MXKW4pj95bNZgvRyWwZ23Jix3ph7guvHxJ': {}, // KINGY
         }
         : {};
 }

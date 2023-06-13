@@ -26,7 +26,6 @@ import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { storage } from '../../../storage/storage';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DappMainButton, reduceMainButton, setParamsCodec } from '../../../components/DappMainButton';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 
@@ -330,6 +329,7 @@ export const HoldersAppComponent = React.memo((
                 || pageDomain.endsWith('tonwhales.com')
                 || pageDomain.endsWith('tontestnet.com')
                 || pageDomain.endsWith('tonhub.com')
+                || pageDomain.endsWith('t.me')
             ) {
                 openWithInApp(url);
                 return;

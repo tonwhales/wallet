@@ -25,6 +25,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = wallet/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = wallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = wallet/main.m; sourceTree = "<group>"; };
+		36CBB2EA2A3A23BF00D2C313 /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
 		47590BC8E77910EFC48FE959 /* Pods-WhalesApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug.xcconfig"; sourceTree = "<group>"; };
 		53E71CDCB4F52EC15FB111F8 /* Pods-WhalesApp.release testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release testnet.xcconfig"; sourceTree = "<group>"; };
 		691A256078ACC9E4A1B2B9C9 /* Pods-WhalesApp.debug testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug testnet.xcconfig"; sourceTree = "<group>"; };
@@ -70,6 +71,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				36CBB2EA2A3A23BF00D2C313 /* LocalAuthentication.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				85458C172B89A967BD19FEE3 /* libPods-WhalesApp.a */,
 			);

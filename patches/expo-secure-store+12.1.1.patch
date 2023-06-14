@@ -1,5 +1,5 @@
 diff --git a/node_modules/expo-secure-store/ios/EXSecureStore/EXSecureStore.m b/node_modules/expo-secure-store/ios/EXSecureStore/EXSecureStore.m
-index 8ef26c4..2c83814 100644
+index 8ef26c4..5f085de 100644
 --- a/node_modules/expo-secure-store/ios/EXSecureStore/EXSecureStore.m
 +++ b/node_modules/expo-secure-store/ios/EXSecureStore/EXSecureStore.m
 @@ -4,6 +4,7 @@
@@ -10,7 +10,7 @@ index 8ef26c4..2c83814 100644
  
  @implementation EXSecureStore
  
-@@ -38,8 +39,25 @@ - (BOOL)_setValue:(NSString *)value withKey:(NSString *)key withOptions:(NSDicti
+@@ -38,8 +39,22 @@ - (BOOL)_setValue:(NSString *)value withKey:(NSString *)key withOptions:(NSDicti
    if (![requireAuth boolValue]) {
      [dictionary setObject:(__bridge id)accessibility forKey:(__bridge id)kSecAttrAccessible];
    } else {
@@ -24,9 +24,6 @@ index 8ef26c4..2c83814 100644
 +        hasBiometricAuthentication = YES;
 +      }
 +    }
-+
-+    // LOG hasBiometricAuthentication
-+    NSLog(@"hasBiometricAuthentication: %d", hasBiometricAuthentication);
 +
 +    if (!hasBiometricAuthentication) {
 +      SecAccessControlRef accessOptions = SecAccessControlCreateWithFlags(nil, accessibility, kSecAccessControlDevicePasscode, nil);

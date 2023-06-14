@@ -152,6 +152,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                     entering={FadeIn}
                 >
                     <PasscodeInput
+                        style={{ marginTop: 49 }}
                         title={t('security.passcodeSettings.enterCurrent')}
                         onEntered={async (pass) => {
                             if (!pass) {

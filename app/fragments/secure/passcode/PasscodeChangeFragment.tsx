@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, View, Text } from "react-native"
+import { Platform, View, Text } from "react-native"
 import { PasscodeChange } from "../../../components/secure/PasscodeChange";
 import { fragment } from "../../../fragment"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,12 +32,7 @@ export const PasscodeChangeFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <KeyboardAvoidingView
-                style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
-                <PasscodeChange />
-            </KeyboardAvoidingView>
+            <PasscodeChange />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

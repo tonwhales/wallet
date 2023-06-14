@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Platform, Pressable, Text } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { WalletKeys, loadWalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
@@ -12,6 +12,7 @@ import { storage } from '../../storage/storage';
 import { warn } from '../../utils/log';
 import { Address } from 'ton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AndroidToolbar } from '../topbar/AndroidToolbar';
 
 export type AuthStyle = {
     backgroundColor?: string,
@@ -152,6 +153,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                     entering={FadeIn}
                 >
                     <PasscodeInput
+                        style={{ marginTop: 49 }}
                         title={t('security.passcodeSettings.enterCurrent')}
                         onEntered={async (pass) => {
                             if (!pass) {

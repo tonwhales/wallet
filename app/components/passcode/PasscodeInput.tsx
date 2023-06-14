@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { StyleProp, View, ViewStyle, Text, Image, Platform, ImageSourcePropType } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
 import { PasscodeSteps } from "./PasscodeSteps";
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
 import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
@@ -31,7 +29,6 @@ export const PasscodeInput = React.memo((
     }
 ) => {
     const { Theme } = useAppConfig();
-    const safeArea = useSafeAreaInsets();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
@@ -195,7 +192,6 @@ export const PasscodeInput = React.memo((
             <View style={{
                 flex: 1,
                 justifyContent: 'center', alignItems: 'center',
-                marginBottom: (safeArea.bottom ?? 16) + 6
             }}>
                 <PasscodeKeyboard
                     leftIcon={deviceEncryptionIcon}

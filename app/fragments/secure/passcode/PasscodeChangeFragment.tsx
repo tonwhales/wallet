@@ -32,12 +32,7 @@ export const PasscodeChangeFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            <KeyboardAvoidingView
-                style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
-                <PasscodeChange />
-            </KeyboardAvoidingView>
+            <PasscodeChange />
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

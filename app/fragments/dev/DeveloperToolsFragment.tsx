@@ -40,7 +40,8 @@ export const DeveloperToolsFragment = fragment(() => {
     useEffect(() => {
         (async () => {
             if (!offlineApp) {
-                return false;
+                setOfflineAppReady(false);
+                return;
             }
 
             const filesCheck: Promise<boolean>[] = [];
@@ -149,12 +150,12 @@ export const DeveloperToolsFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
-            <KeyboardAvoidingView 
-            style={{
-                flex: 1,
-                flexGrow: 1,
-            }}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            <KeyboardAvoidingView
+                style={{
+                    flex: 1,
+                    flexGrow: 1,
+                }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
 
 
@@ -217,6 +218,13 @@ export const DeveloperToolsFragment = fragment(() => {
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={'Offline integrity check:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                        </View>
+
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
+                                engine.persistence.holdersOfflineApp.item().update(() => null);
+                                await engine.products.holders.forceSyncOfflineApp();
+                            }} />
                         </View>
                     </View>
                     {AppConfig.isTestnet && (

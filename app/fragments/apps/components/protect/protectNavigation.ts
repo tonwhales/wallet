@@ -3,7 +3,6 @@ import { extractDomain } from "../../../../engine/utils/extractDomain";
 export function protectNavigation(url: string, app: string) {
     let appDomain = extractDomain(app);
     let pageDomain = extractDomain(url);
-    return true;
     if (!appDomain || !pageDomain) {
         return false;
     }

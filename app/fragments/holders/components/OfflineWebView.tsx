@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Platform } from "react-native";
 import WebView, { WebViewProps } from "react-native-webview";
 import * as FileSystem from 'expo-file-system';
+import { OfflineErrorComponent } from "./OfflineErrorComponent";
 
 export type AWebViewRef = {
     injectJavaScript: (script: string) => void;
@@ -67,6 +68,15 @@ export const OfflineWebView = React.memo(React.forwardRef((
                         return true;
                     }}
                     injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
+                    renderError={(eDomain, eCode, eDescr) => {
+                        return (
+                            <OfflineErrorComponent
+                                errorCode={eCode}
+                                errorDesc={eDescr}
+                                errorDomain={eDomain}
+                            />
+                        )
+                    }}
                 />
             )}
             {Platform.OS === 'ios' && (
@@ -89,12 +99,24 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     originWhitelist={['*']}
                     allowingReadAccessToURL={FileSystem.documentDirectory + 'holders/' ?? ''}
                     onShouldStartLoadWithRequest={(e) => {
-                        if (props.onShouldStartLoadWithRequest && renderedOnce) {
+                        if (e.url.indexOf(FileSystem.documentDirectory + 'holders/') !== -1) {
+                            return true;
+                        }
+                        if (props.onShouldStartLoadWithRequest) {
                             return props.onShouldStartLoadWithRequest(e);
                         }
                         return true;
                     }}
                     injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
+                    renderError={(eDomain, eCode, eDescr) => {
+                        return (
+                            <OfflineErrorComponent
+                                errorCode={eCode}
+                                errorDesc={eDescr}
+                                errorDomain={eDomain}
+                            />
+                        )
+                    }}
                 />
             )}
         </>

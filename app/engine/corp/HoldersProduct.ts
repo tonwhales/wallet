@@ -87,6 +87,7 @@ export class HoldersProduct {
             this.cleanup();
         }
         storage.set('zenpay-token-version', currentTokenVersion);
+        this.forceSyncOfflineApp();
     }
 
     async enroll(domain: string, authContext: AuthWalletKeysType) {
@@ -359,9 +360,9 @@ export class HoldersProduct {
     }
 
     async syncOfflineApp() {
-        const currentVersion = storage.getNumber('holders-offline-app-codec-v');
+        const currentCodecVersion = storage.getNumber('holders-offline-app-codec-v');
 
-        if (currentVersion === null || currentVersion !== holdersAppCodecVersion) {
+        if (currentCodecVersion === null || currentCodecVersion !== holdersAppCodecVersion) {
             this.engine.persistence.holdersOfflineApp.item().update((src) => {
                 return null;
             });
@@ -377,6 +378,24 @@ export class HoldersProduct {
         const stored = this.engine.persistence.holdersOfflineApp.item().value;
 
         if (stored && stored.version === fetchedApp.version) {
+            return;
+        }
+
+        try {
+            await this.syncOfflineRes(holdersUrl, fetchedApp);
+            this.engine.persistence.holdersOfflineApp.item().update((src) => {
+                return fetchedApp;
+            });
+        } catch (e) {
+            warn('Failed to sync offline app');
+            return;
+        }
+    }
+
+    async forceSyncOfflineApp() {
+        const fetchedApp = await fetchAppFile(holdersUrl);
+
+        if (!fetchedApp) {
             return;
         }
 

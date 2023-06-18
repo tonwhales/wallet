@@ -628,7 +628,7 @@ export const HoldersAppComponent = React.memo((
                         {mainButton.isVisible && (
                             <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
                                 <DappMainButton
-                                    isActive={!mainButton.isActive}
+                                    isActive={mainButton.isActive}
                                     text={mainButton.text}
                                     color={mainButton.color}
                                     textColor={mainButton.textColor}

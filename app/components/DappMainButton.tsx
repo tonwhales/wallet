@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ActivityIndicator, Pressable, StyleProp, Text, View, ViewStyle, Platform } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
 import * as t from "io-ts";
+import { useAppConfig } from '../utils/AppConfigContext';
 
 export type MainButtonAction = { type: 'showProgress' } | { type: 'hideProgress' } | { type: 'show' } | { type: 'hide' } | { type: 'enable' } | { type: 'disable' }
     | { type: 'setParams', args: Omit<MainButtonProps, 'isProgressVisible' | 'onPress'> }
@@ -30,21 +31,26 @@ export function reduceMainButton() {
                 return { ...mainButtonState, text: action.ags.text };
             case 'onClick':
                 return { ...mainButtonState, onPress: action.args.callback };
-                case 'offClick':
-                    return { ...mainButtonState, onPress: undefined };
+            case 'offClick':
+                return { ...mainButtonState, onPress: undefined };
             default:
                 return mainButtonState;
         }
     }
 }
 
-export const setParamsCodec = t.type({
-    text: t.string,
-    textColor: t.string,
-    color: t.string,
-    isVisible: t.boolean,
-    isActive: t.boolean,
-});
+export const setParamsCodec = t.intersection([
+    t.type({
+        text: t.string,
+        textColor: t.string,
+        color: t.string,
+        isVisible: t.boolean,
+        isActive: t.boolean,
+    }),
+    t.partial({
+        disabledColor: t.string,
+    })
+]);
 
 export interface MainButton {
     setText: (text: string) => void,
@@ -62,6 +68,7 @@ export type MainButtonProps = {
     text: string,
     textColor: string,
     color: string,
+    disabledColor?: string,
     isVisible: boolean,
     isActive: boolean,
     isProgressVisible: boolean,
@@ -71,6 +78,7 @@ export type MainButtonProps = {
 export const DappMainButton = React.memo((
     props: { style?: StyleProp<ViewStyle> } & Omit<MainButtonProps, 'isVisible'>
 ) => {
+    const { Theme } = useAppConfig();
 
     return (
         <Pressable
@@ -78,7 +86,7 @@ export const DappMainButton = React.memo((
             style={(p) => ([
                 {
                     borderRadius: 14,
-                    backgroundColor: props.color,
+                    backgroundColor: props.isActive ? props.color : (props.disabledColor ?? Theme.disabled),
                 },
                 p.pressed && {
                     opacity: 0.55

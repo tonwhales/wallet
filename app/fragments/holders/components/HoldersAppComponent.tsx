@@ -28,6 +28,8 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { storage } from '../../../storage/storage';
 import { DappMainButton, processMainButtonMessage, reduceMainButton, setParamsCodec } from '../../../components/DappMainButton';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useKeyboard } from '@react-native-community/hooks';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -37,6 +39,8 @@ export const HoldersAppComponent = React.memo((
         endpoint: string
     }
 ) => {
+    const safeArea = useSafeAreaInsets();
+    const keyboard = useKeyboard();
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const status = engine.products.holders.useStatus();
@@ -578,11 +582,14 @@ export const HoldersAppComponent = React.memo((
                     <KeyboardAvoidingView
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
                         contentContainerStyle={{ marginHorizontal: 16 }}
-                        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+                        keyboardVerticalOffset={Platform.OS === 'ios'
+                            ? safeArea.bottom + (keyboard.keyboardShown ? 64 : 32)
+                            : 16
+                        }
                     >
                         {mainButton.isVisible && (
                             <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
-                                <DappMainButton {...mainButton}/>
+                                <DappMainButton {...mainButton} />
                             </Animated.View>
                         )}
                     </KeyboardAvoidingView>

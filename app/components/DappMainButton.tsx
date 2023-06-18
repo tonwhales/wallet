@@ -3,6 +3,68 @@ import { ActivityIndicator, Pressable, StyleProp, Text, View, ViewStyle, Platfor
 import { iOSUIKit } from 'react-native-typography';
 import * as t from "io-ts";
 import { useAppConfig } from '../utils/AppConfigContext';
+import { warn } from '../utils/log';
+import WebView from "react-native-webview";
+
+export function processMainButtonMessage(
+    parsed: any,
+    dispatchMainButton: (value: MainButtonAction) => void,
+    dispatchMainButtonResponse: (webRef: React.RefObject<WebView<{}>>, data: any) => void,
+    webRef: React.MutableRefObject<any>
+) {
+    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-button') !== -1) {
+        const actionType = parsed.data.name.split('.')[1];
+
+        if (actionType === 'onClick' && typeof parsed.id === 'number') {
+            let id = parsed.id;
+
+            if (typeof parsed.id !== 'number') {
+                warn('Invalid operation id');
+                return;
+            }
+
+            dispatchMainButton({
+                type: 'onClick',
+                args: { callback: () => dispatchMainButtonResponse(webRef, { id }) }
+            });
+            return;
+        }
+        switch (actionType) {
+            case 'show':
+                dispatchMainButton({ type: 'show' });
+                break;
+            case 'hide':
+                dispatchMainButton({ type: 'hide' });
+                break;
+            case 'enable':
+                dispatchMainButton({ type: 'enable' });
+                break;
+            case 'disable':
+                dispatchMainButton({ type: 'disable' });
+                break;
+            case 'showProgress':
+                dispatchMainButton({ type: 'showProgress' });
+                break;
+            case 'hideProgress':
+                dispatchMainButton({ type: 'hideProgress' });
+                break;
+            case 'setParams': {
+                if (setParamsCodec.is(parsed.data.args)) {
+                    dispatchMainButton({ type: 'setParams', args: parsed.data.args });
+                }
+                warn('Invalid main button params');
+                break;
+            }
+            case 'offClick': {
+                dispatchMainButton({ type: 'offClick' });
+
+            }
+            default:
+                warn('Invalid main button action type');
+        }
+        return;
+    }
+}
 
 export type MainButtonAction = { type: 'showProgress' } | { type: 'hideProgress' } | { type: 'show' } | { type: 'hide' } | { type: 'enable' } | { type: 'disable' }
     | { type: 'setParams', args: Omit<MainButtonProps, 'isProgressVisible' | 'onPress'> }

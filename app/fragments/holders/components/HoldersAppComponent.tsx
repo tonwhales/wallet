@@ -26,7 +26,7 @@ import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { storage } from '../../../storage/storage';
-import { DappMainButton, reduceMainButton, setParamsCodec } from '../../../components/DappMainButton';
+import { DappMainButton, processMainButtonMessage, reduceMainButton, setParamsCodec } from '../../../components/DappMainButton';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 
 export const HoldersAppComponent = React.memo((
@@ -54,6 +54,7 @@ export const HoldersAppComponent = React.memo((
             text: '',
             textColor: Theme.item,
             color: Theme.accent,
+            disabledColor: Theme.disabled,
             isVisible: false,
             isActive: false,
             isProgressVisible: false,
@@ -224,52 +225,7 @@ export const HoldersAppComponent = React.memo((
         try {
             let parsed = JSON.parse(nativeEvent.data);
             // Main button API
-            if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-button') !== -1) {
-                const actionType = parsed.data.name.split('.')[1];
-
-                if (actionType === 'onClick' && typeof parsed.id === 'number') {
-                    id = parsed.id;
-                    dispatchMainButton({
-                        type: 'onClick',
-                        args: { callback: () => dispatchMainButtonResponse(webRef, { id }) }
-                    });
-                    return;
-                }
-                switch (actionType) {
-                    case 'show':
-                        dispatchMainButton({ type: 'show' });
-                        break;
-                    case 'hide':
-                        dispatchMainButton({ type: 'hide' });
-                        break;
-                    case 'enable':
-                        dispatchMainButton({ type: 'enable' });
-                        break;
-                    case 'disable':
-                        dispatchMainButton({ type: 'disable' });
-                        break;
-                    case 'showProgress':
-                        dispatchMainButton({ type: 'showProgress' });
-                        break;
-                    case 'hideProgress':
-                        dispatchMainButton({ type: 'hideProgress' });
-                        break;
-                    case 'setParams': {
-                        if (setParamsCodec.is(parsed.data.args)) {
-                            dispatchMainButton({ type: 'setParams', args: parsed.data.args });
-                        }
-                        warn('Invalid main button params');
-                        break;
-                    }
-                    case 'offClick': {
-                        dispatchMainButton({ type: 'offClick' });
-
-                    }
-                    default:
-                        warn('Invalid main button action type');
-                }
-                return;
-            }
+            processMainButtonMessage(parsed, dispatchMainButton, dispatchMainButtonResponse, webRef);
 
             if (typeof parsed.id !== 'number') {
                 warn('Invalid operation id');
@@ -433,8 +389,7 @@ export const HoldersAppComponent = React.memo((
                             <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                                 <WebView
                                     ref={webRef}
-                                    // source={{ uri: source.url }}
-                                    source={{ uri: `http://192.168.1.135:3000${source.initialRoute}` }}
+                                    source={{ uri: source.url }}
                                     startInLoadingState={true}
                                     style={{
                                         backgroundColor: Theme.item,
@@ -483,11 +438,56 @@ export const HoldersAppComponent = React.memo((
                     <AnotherKeyboardAvoidingView
                         style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                     >
-                            {offlineAppReady && (
-                                <OfflineWebView
+                        {offlineAppReady && (
+                            <OfflineWebView
+                                ref={webRef}
+                                uri={`${FileSystem.documentDirectory}holders/index.html`}
+                                initialRoute={source.initialRoute}
+                                style={{
+                                    backgroundColor: Theme.item,
+                                    flexGrow: 1, flexBasis: 0, height: '100%',
+                                    alignSelf: 'stretch',
+                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
+                                }}
+                                onLoadEnd={() => {
+                                    setLoaded(true);
+                                    opacity.value = 0;
+                                }}
+                                onLoadProgress={(event) => {
+                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                        // Searching for supported query
+                                        onNavigation(event.nativeEvent.url);
+                                    }
+                                }}
+                                onNavigationStateChange={(event: WebViewNavigation) => {
+                                    // Searching for supported query
+                                    onNavigation(event.url);
+                                }}
+                                // Locking scroll, it's handled within the Web App
+                                scrollEnabled={false}
+                                contentInset={{ top: 0, bottom: 0 }}
+                                autoManageStatusBarEnabled={false}
+                                decelerationRate="normal"
+                                allowsInlineMediaPlayback={true}
+                                injectedJavaScriptBeforeContentLoaded={injectSource}
+                                onShouldStartLoadWithRequest={loadWithRequest}
+                                // In case of iOS blank WebView
+                                onContentProcessDidTerminate={onContentProcessDidTerminate}
+                                // In case of Android blank WebView
+                                onRenderProcessGone={onContentProcessDidTerminate}
+                                onMessage={handleWebViewMessage}
+                                keyboardDisplayRequiresUserAction={false}
+                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                                bounces={false}
+                                startInLoadingState={true}
+                            />
+                        )}
+                        {!offlineAppReady && (
+                            <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                                <WebView
                                     ref={webRef}
-                                    uri={`${FileSystem.documentDirectory}holders/index.html`}
-                                    initialRoute={source.initialRoute}
+                                    source={{ uri: source.url }}
+                                    startInLoadingState={true}
                                     style={{
                                         backgroundColor: Theme.item,
                                         flexGrow: 1, flexBasis: 0, height: '100%',
@@ -512,6 +512,8 @@ export const HoldersAppComponent = React.memo((
                                     scrollEnabled={false}
                                     contentInset={{ top: 0, bottom: 0 }}
                                     autoManageStatusBarEnabled={false}
+                                    allowFileAccessFromFileURLs={false}
+                                    allowUniversalAccessFromFileURLs={false}
                                     decelerationRate="normal"
                                     allowsInlineMediaPlayback={true}
                                     injectedJavaScriptBeforeContentLoaded={injectSource}
@@ -524,56 +526,9 @@ export const HoldersAppComponent = React.memo((
                                     keyboardDisplayRequiresUserAction={false}
                                     hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                                     bounces={false}
-                                    startInLoadingState={true}
                                 />
-                            )}
-                            {!offlineAppReady && (
-                                <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                                    <WebView
-                                        ref={webRef}
-                                        source={{ uri: source.url }}
-                                        startInLoadingState={true}
-                                        style={{
-                                            backgroundColor: Theme.item,
-                                            flexGrow: 1, flexBasis: 0, height: '100%',
-                                            alignSelf: 'stretch',
-                                            marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                        }}
-                                        onLoadEnd={() => {
-                                            setLoaded(true);
-                                            opacity.value = 0;
-                                        }}
-                                        onLoadProgress={(event) => {
-                                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                                // Searching for supported query
-                                                onNavigation(event.nativeEvent.url);
-                                            }
-                                        }}
-                                        onNavigationStateChange={(event: WebViewNavigation) => {
-                                            // Searching for supported query
-                                            onNavigation(event.url);
-                                        }}
-                                        // Locking scroll, it's handled within the Web App
-                                        scrollEnabled={false}
-                                        contentInset={{ top: 0, bottom: 0 }}
-                                        autoManageStatusBarEnabled={false}
-                                        allowFileAccessFromFileURLs={false}
-                                        allowUniversalAccessFromFileURLs={false}
-                                        decelerationRate="normal"
-                                        allowsInlineMediaPlayback={true}
-                                        injectedJavaScriptBeforeContentLoaded={injectSource}
-                                        onShouldStartLoadWithRequest={loadWithRequest}
-                                        // In case of iOS blank WebView
-                                        onContentProcessDidTerminate={onContentProcessDidTerminate}
-                                        // In case of Android blank WebView
-                                        onRenderProcessGone={onContentProcessDidTerminate}
-                                        onMessage={handleWebViewMessage}
-                                        keyboardDisplayRequiresUserAction={false}
-                                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                        bounces={false}
-                                    />
-                                </Animated.View>
-                            )}
+                            </Animated.View>
+                        )}
                     </AnotherKeyboardAvoidingView>
                 )}
                 {offlineAppReady && (
@@ -627,14 +582,7 @@ export const HoldersAppComponent = React.memo((
                     >
                         {mainButton.isVisible && (
                             <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
-                                <DappMainButton
-                                    isActive={mainButton.isActive}
-                                    text={mainButton.text}
-                                    color={mainButton.color}
-                                    textColor={mainButton.textColor}
-                                    isProgressVisible={mainButton.isProgressVisible}
-                                    onPress={mainButton.onPress}
-                                />
+                                <DappMainButton {...mainButton}/>
                             </Animated.View>
                         )}
                     </KeyboardAvoidingView>

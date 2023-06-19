@@ -14,6 +14,8 @@ import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useReboot } from '../../utils/RebootContext';
+import { warn } from '../../utils/log';
+import { BiometricsState, getBiometricsState } from '../../storage/secureStorage';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -50,10 +52,11 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
+                const biometricsState = (getBiometricsState(address.address.toFriendly({ testOnly: AppConfig.isTestnet })) ?? null) as BiometricsState | null
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item, useBiometrics: biometricsState === BiometricsState.InUse });
                 setMnemonics(keys.mnemonics);
             } catch (e) {
-                console.warn(e);
+                warn(e);
                 navigation.goBack();
                 return;
             }

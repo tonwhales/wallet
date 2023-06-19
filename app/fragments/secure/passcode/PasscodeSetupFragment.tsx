@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
@@ -7,12 +7,10 @@ import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { getCurrentAddress } from "../../../storage/appState";
 import { BiometricsState, PasscodeState, encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
 import { loadWalletKeys } from "../../../storage/walletKeys";
-import { useParams } from "../../../utils/useParams";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useEngine } from "../../../engine/Engine";
 import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
-import { useReboot } from "../../../utils/RebootContext";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useRoute } from "@react-navigation/native";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";

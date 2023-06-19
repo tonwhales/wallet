@@ -126,7 +126,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                 if (props.import) {
                                     onAfterImport();
                                 } else {
-                                    navigation.navigate('WalletBackupInit')
+                                    navigation.navigate('WalletCreated')
                                 }
                             }
                         }}
@@ -134,7 +134,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             if (props.import) {
                                 onAfterImport();
                             } else {
-                                navigation.navigate('WalletBackupInit')
+                                navigation.navigate('WalletCreated')
                             }
                         }}
                     />

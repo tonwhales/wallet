@@ -224,7 +224,7 @@ export function getBiometricsMigrated(isTestnet: boolean) {
     return storage.getBoolean(`migrated-biometrics-enc-keys-${isTestnet ? 'testnet' : 'mainnet'}`);
 }
 
-export function migrateBiometricsEcnKeys(isTestnet: boolean) {
+export function migrateBiometricsEncKeys(isTestnet: boolean) {
     const migrated = getBiometricsMigrated(isTestnet);
     if (migrated) {
         return;

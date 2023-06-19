@@ -27,10 +27,10 @@ export const WalletSecureComponent = React.memo((props: {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     let disableEncryption =
-        props.deviceEncryption === 'none'
-        || props.deviceEncryption === 'device-biometrics'
-        || props.deviceEncryption === 'device-passcode'
-        || Platform.OS === 'android' && Platform.Version < 30 // Encryption doesn't work well on older androids
+        (props.deviceEncryption === 'none')
+        || (props.deviceEncryption === 'device-biometrics')
+        || (props.deviceEncryption === 'device-passcode')
+        || (Platform.OS === 'android' && Platform.Version < 30) // Encryption doesn't work well on older androids
 
     // Action
     const [loading, setLoading] = React.useState(false);

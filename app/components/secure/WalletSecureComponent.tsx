@@ -12,7 +12,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { useReboot } from '../../utils/RebootContext';
 
 export const WalletSecureComponent = React.memo((props: {
@@ -133,12 +133,12 @@ export const WalletSecureComponent = React.memo((props: {
 
     if (disableEncryption) {
         if (props.import) {
-            const address = React.useMemo(() => getBackup(), []);
             let state = getAppState();
             if (!state) {
                 throw Error('Invalid state');
             }
-            markAddressSecured(address.address, AppConfig.isTestnet);
+            const account = getCurrentAddress();
+            markAddressSecured(account.address, AppConfig.isTestnet);
             reboot();
             return null;
         }

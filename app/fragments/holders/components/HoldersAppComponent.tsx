@@ -26,8 +26,7 @@ import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { storage } from '../../../storage/storage';
-import { DappMainButton, processMainButtonMessage, reduceMainButton, setParamsCodec } from '../../../components/DappMainButton';
-import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
+import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 

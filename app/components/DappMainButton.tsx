@@ -13,21 +13,22 @@ export function processMainButtonMessage(
     webRef: React.MutableRefObject<any>
 ) {
     if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-button') !== -1) {
+        console.log('main-button', parsed.data);
         const actionType = parsed.data.name.split('.')[1];
 
         if (actionType === 'onClick' && typeof parsed.id === 'number') {
             let id = parsed.id;
 
             if (typeof parsed.id !== 'number') {
-                warn('Invalid operation id');
-                return;
+                warn('Invalid main-button operation id');
+                return false;
             }
 
             dispatchMainButton({
                 type: 'onClick',
                 args: { callback: () => dispatchMainButtonResponse(webRef, { id }) }
             });
-            return;
+            return true;
         }
         switch (actionType) {
             case 'show':
@@ -51,19 +52,21 @@ export function processMainButtonMessage(
             case 'setParams': {
                 if (setParamsCodec.is(parsed.data.args)) {
                     dispatchMainButton({ type: 'setParams', args: parsed.data.args });
+                    break;
                 }
                 warn('Invalid main button params');
                 break;
             }
             case 'offClick': {
                 dispatchMainButton({ type: 'offClick' });
-
+                break;
             }
             default:
                 warn('Invalid main button action type');
         }
-        return;
+        return true;
     }
+    return false;
 }
 
 export type MainButtonAction = { type: 'showProgress' } | { type: 'hideProgress' } | { type: 'show' } | { type: 'hide' } | { type: 'enable' } | { type: 'disable' }

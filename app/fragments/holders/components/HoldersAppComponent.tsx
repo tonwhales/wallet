@@ -50,8 +50,6 @@ export const HoldersAppComponent = React.memo((
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.products.holders.useOfflineApp();
 
-    const useMainButton = storage.getBoolean('dev-tools:use-main-button');
-
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
         {
@@ -229,7 +227,16 @@ export const HoldersAppComponent = React.memo((
         try {
             let parsed = JSON.parse(nativeEvent.data);
             // Main button API
-            processMainButtonMessage(parsed, dispatchMainButton, dispatchMainButtonResponse, webRef);
+            const processed = processMainButtonMessage(
+                parsed,
+                dispatchMainButton,
+                dispatchMainButtonResponse,
+                webRef
+            );
+
+            if (processed) {
+                return;
+            }
 
             if (typeof parsed.id !== 'number') {
                 warn('Invalid operation id');
@@ -343,197 +350,96 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {useMainButton && (
-                    <>
-                        {offlineAppReady && (
-                            <OfflineWebView
-                                ref={webRef}
-                                uri={`${FileSystem.documentDirectory}holders/index.html`}
-                                initialRoute={source.initialRoute}
-                                style={{
-                                    backgroundColor: Theme.item,
-                                    flexGrow: 1, flexBasis: 0, height: '100%',
-                                    alignSelf: 'stretch',
-                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                }}
-                                onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
-                                }}
-                                onLoadProgress={(event) => {
-                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                        // Searching for supported query
-                                        onNavigation(event.nativeEvent.url);
-                                    }
-                                }}
-                                onNavigationStateChange={(event: WebViewNavigation) => {
-                                    // Searching for supported query
-                                    onNavigation(event.url);
-                                }}
-                                // Locking scroll, it's handled within the Web App
-                                scrollEnabled={false}
-                                contentInset={{ top: 0, bottom: 0 }}
-                                autoManageStatusBarEnabled={false}
-                                decelerationRate="normal"
-                                allowsInlineMediaPlayback={true}
-                                injectedJavaScriptBeforeContentLoaded={injectSource}
-                                onShouldStartLoadWithRequest={loadWithRequest}
-                                // In case of iOS blank WebView
-                                onContentProcessDidTerminate={onContentProcessDidTerminate}
-                                // In case of Android blank WebView
-                                onRenderProcessGone={onContentProcessDidTerminate}
-                                onMessage={handleWebViewMessage}
-                                keyboardDisplayRequiresUserAction={false}
-                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                bounces={false}
-                                startInLoadingState={true}
-                            />
-                        )}
-                        {!offlineAppReady && (
-                            <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                                <WebView
-                                    ref={webRef}
-                                    source={{ uri: source.url }}
-                                    startInLoadingState={true}
-                                    style={{
-                                        backgroundColor: Theme.item,
-                                        flexGrow: 1, flexBasis: 0, height: '100%',
-                                        alignSelf: 'stretch',
-                                        marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                    }}
-                                    onLoadEnd={() => {
-                                        setLoaded(true);
-                                        opacity.value = 0;
-                                    }}
-                                    onLoadProgress={(event) => {
-                                        if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                            // Searching for supported query
-                                            onNavigation(event.nativeEvent.url);
-                                        }
-                                    }}
-                                    onNavigationStateChange={(event: WebViewNavigation) => {
-                                        // Searching for supported query
-                                        onNavigation(event.url);
-                                    }}
-                                    // Locking scroll, it's handled within the Web App
-                                    scrollEnabled={false}
-                                    contentInset={{ top: 0, bottom: 0 }}
-                                    autoManageStatusBarEnabled={false}
-                                    allowFileAccessFromFileURLs={false}
-                                    allowUniversalAccessFromFileURLs={false}
-                                    decelerationRate="normal"
-                                    allowsInlineMediaPlayback={true}
-                                    injectedJavaScriptBeforeContentLoaded={injectSource}
-                                    onShouldStartLoadWithRequest={loadWithRequest}
-                                    // In case of iOS blank WebView
-                                    onContentProcessDidTerminate={onContentProcessDidTerminate}
-                                    // In case of Android blank WebView
-                                    onRenderProcessGone={onContentProcessDidTerminate}
-                                    onMessage={handleWebViewMessage}
-                                    keyboardDisplayRequiresUserAction={false}
-                                    hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                    bounces={false}
-                                />
-                            </Animated.View>
-                        )}
-                    </>
+                {offlineAppReady && (
+                    <OfflineWebView
+                        ref={webRef}
+                        uri={`${FileSystem.documentDirectory}holders/index.html`}
+                        initialRoute={source.initialRoute}
+                        style={{
+                            backgroundColor: Theme.item,
+                            flexGrow: 1, flexBasis: 0, height: '100%',
+                            alignSelf: 'stretch',
+                            marginTop: Platform.OS === 'ios' ? 0 : 8,
+                        }}
+                        onLoadEnd={() => {
+                            setLoaded(true);
+                            opacity.value = 0;
+                        }}
+                        onLoadProgress={(event) => {
+                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                // Searching for supported query
+                                onNavigation(event.nativeEvent.url);
+                            }
+                        }}
+                        onNavigationStateChange={(event: WebViewNavigation) => {
+                            // Searching for supported query
+                            onNavigation(event.url);
+                        }}
+                        // Locking scroll, it's handled within the Web App
+                        scrollEnabled={false}
+                        contentInset={{ top: 0, bottom: 0 }}
+                        autoManageStatusBarEnabled={false}
+                        decelerationRate="normal"
+                        allowsInlineMediaPlayback={true}
+                        injectedJavaScriptBeforeContentLoaded={injectSource}
+                        onShouldStartLoadWithRequest={loadWithRequest}
+                        // In case of iOS blank WebView
+                        onContentProcessDidTerminate={onContentProcessDidTerminate}
+                        // In case of Android blank WebView
+                        onRenderProcessGone={onContentProcessDidTerminate}
+                        onMessage={handleWebViewMessage}
+                        keyboardDisplayRequiresUserAction={false}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        bounces={false}
+                        startInLoadingState={true}
+                    />
                 )}
-                {!useMainButton && (
-                    <AnotherKeyboardAvoidingView
-                        style={{ backgroundColor: Theme.item, flexGrow: 1 }}
-                    >
-                        {offlineAppReady && (
-                            <OfflineWebView
-                                ref={webRef}
-                                uri={`${FileSystem.documentDirectory}holders/index.html`}
-                                initialRoute={source.initialRoute}
-                                style={{
-                                    backgroundColor: Theme.item,
-                                    flexGrow: 1, flexBasis: 0, height: '100%',
-                                    alignSelf: 'stretch',
-                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                }}
-                                onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
-                                }}
-                                onLoadProgress={(event) => {
-                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                        // Searching for supported query
-                                        onNavigation(event.nativeEvent.url);
-                                    }
-                                }}
-                                onNavigationStateChange={(event: WebViewNavigation) => {
+                {!offlineAppReady && (
+                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                        <WebView
+                            ref={webRef}
+                            source={{ uri: source.url }}
+                            startInLoadingState={true}
+                            style={{
+                                backgroundColor: Theme.item,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onLoadEnd={() => {
+                                setLoaded(true);
+                                opacity.value = 0;
+                            }}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query
-                                    onNavigation(event.url);
-                                }}
-                                // Locking scroll, it's handled within the Web App
-                                scrollEnabled={false}
-                                contentInset={{ top: 0, bottom: 0 }}
-                                autoManageStatusBarEnabled={false}
-                                decelerationRate="normal"
-                                allowsInlineMediaPlayback={true}
-                                injectedJavaScriptBeforeContentLoaded={injectSource}
-                                onShouldStartLoadWithRequest={loadWithRequest}
-                                // In case of iOS blank WebView
-                                onContentProcessDidTerminate={onContentProcessDidTerminate}
-                                // In case of Android blank WebView
-                                onRenderProcessGone={onContentProcessDidTerminate}
-                                onMessage={handleWebViewMessage}
-                                keyboardDisplayRequiresUserAction={false}
-                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                bounces={false}
-                                startInLoadingState={true}
-                            />
-                        )}
-                        {!offlineAppReady && (
-                            <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                                <WebView
-                                    ref={webRef}
-                                    source={{ uri: source.url }}
-                                    startInLoadingState={true}
-                                    style={{
-                                        backgroundColor: Theme.item,
-                                        flexGrow: 1, flexBasis: 0, height: '100%',
-                                        alignSelf: 'stretch',
-                                        marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                    }}
-                                    onLoadEnd={() => {
-                                        setLoaded(true);
-                                        opacity.value = 0;
-                                    }}
-                                    onLoadProgress={(event) => {
-                                        if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                            // Searching for supported query
-                                            onNavigation(event.nativeEvent.url);
-                                        }
-                                    }}
-                                    onNavigationStateChange={(event: WebViewNavigation) => {
-                                        // Searching for supported query
-                                        onNavigation(event.url);
-                                    }}
-                                    // Locking scroll, it's handled within the Web App
-                                    scrollEnabled={false}
-                                    contentInset={{ top: 0, bottom: 0 }}
-                                    autoManageStatusBarEnabled={false}
-                                    allowFileAccessFromFileURLs={false}
-                                    allowUniversalAccessFromFileURLs={false}
-                                    decelerationRate="normal"
-                                    allowsInlineMediaPlayback={true}
-                                    injectedJavaScriptBeforeContentLoaded={injectSource}
-                                    onShouldStartLoadWithRequest={loadWithRequest}
-                                    // In case of iOS blank WebView
-                                    onContentProcessDidTerminate={onContentProcessDidTerminate}
-                                    // In case of Android blank WebView
-                                    onRenderProcessGone={onContentProcessDidTerminate}
-                                    onMessage={handleWebViewMessage}
-                                    keyboardDisplayRequiresUserAction={false}
-                                    hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                    bounces={false}
-                                />
-                            </Animated.View>
-                        )}
-                    </AnotherKeyboardAvoidingView>
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
+                                // Searching for supported query
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={false}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            allowFileAccessFromFileURLs={false}
+                            allowUniversalAccessFromFileURLs={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            injectedJavaScriptBeforeContentLoaded={injectSource}
+                            onShouldStartLoadWithRequest={loadWithRequest}
+                            // In case of iOS blank WebView
+                            onContentProcessDidTerminate={onContentProcessDidTerminate}
+                            // In case of Android blank WebView
+                            onRenderProcessGone={onContentProcessDidTerminate}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            bounces={false}
+                        />
+                    </Animated.View>
                 )}
                 {offlineAppReady && (
                     <Animated.View
@@ -578,7 +484,7 @@ export const HoldersAppComponent = React.memo((
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
-                {mainButton && useMainButton && (
+                {mainButton && (
                     <KeyboardAvoidingView
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
                         contentContainerStyle={{ marginHorizontal: 16 }}

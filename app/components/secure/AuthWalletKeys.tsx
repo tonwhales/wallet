@@ -1,15 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Platform, Pressable, Text } from 'react-native';
-import { WalletKeys, loadWalletKeys, loadWalletKeysWithPassword } from '../../storage/walletKeys';
+import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
-import { PasscodeState, getBiometricsMigrated, getBiometricsEncKey, passcodeStateKey, getBiometricsState, BiometricsState } from '../../storage/secureStorage';
+import { PasscodeState, getBiometricsEncKey, getBiometricsState, BiometricsState, getPasscodeState } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { getCurrentAddress } from '../../storage/appState';
-import { storage } from '../../storage/storage';
 import { warn } from '../../utils/log';
-import { Address } from 'ton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type AuthStyle = {
@@ -26,10 +24,6 @@ export type AuthProps = {
 export type AuthWalletKeysType = {
     authenticate: (style?: AuthStyle) => Promise<WalletKeys>,
     authenticateWithPasscode: (style?: AuthStyle) => Promise<WalletKeys>,
-}
-
-export function getPasscodeState(address: Address, isTestnet: boolean) {
-    return (storage.getString(`${address.toFriendly({ testOnly: isTestnet })}/${passcodeStateKey}`) ?? null) as PasscodeState | null;
 }
 
 export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);
@@ -50,44 +44,24 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         setAuth(null);
 
         const acc = getCurrentAddress();
-
-        // Check if migrated to new Passcode and Biometrics keys system
-        const migrated = getBiometricsMigrated(AppConfig.isTestnet);
-
-        if (!migrated) {
-            try {
-                const keys = await loadWalletKeys(acc.secretKeyEnc);
-                return keys;
-            } catch (e) {
-                const passcodeKeys = new Promise<WalletKeys>((resolve, reject) => {
-                    const passcodeState = getPasscodeState(acc.address, AppConfig.isTestnet);
-                    if (passcodeState !== PasscodeState.Set) {
-                        setAuth(null);
-                        reject();
-                        return;
-                    }
-                    setAuth({ promise: { resolve, reject }, style: { useBiometrics: true, ...style } });
-                });
-                return passcodeKeys;
-            }
-        }
-
-        const passcodeState = getPasscodeState(acc.address, AppConfig.isTestnet);
-        const biometricsEncKey = getBiometricsEncKey(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-        const biometricsState = getBiometricsState(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-        const useBiometrics = biometricsState === BiometricsState.InUse && !!biometricsEncKey;
+        const passcodeState = getPasscodeState();
+        const biometricsState = getBiometricsState();
+        const useBiometrics = (biometricsState === BiometricsState.InUse);
 
         if (useBiometrics) {
-            // Should never happen
-            if (!biometricsEncKey) {
-                throw new Error('Biometrics key not found');
-            }
-
             try {
+                const biometricsEncKey = getBiometricsEncKey(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+
+                if (!biometricsEncKey) {
+                    throw Error('No biometricsEncKey found');
+                }
+
                 const keys = await loadWalletKeys(biometricsEncKey);
                 return keys;
             } catch (e) {
                 warn('Failed to load wallet keys with biometrics');
+
+                // Retry with passcode
                 if (passcodeState === PasscodeState.Set) {
                     return new Promise<WalletKeys>((resolve, reject) => {
                         setAuth({ promise: { resolve, reject }, style: { useBiometrics: true, ...style } });
@@ -98,12 +72,11 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
         if (passcodeState === PasscodeState.Set) {
             return new Promise<WalletKeys>((resolve, reject) => {
-                setAuth({ promise: { resolve, reject }, style: { useBiometrics: true, ...style } });
+                setAuth({ promise: { resolve, reject }, style: { ...style, useBiometrics: false } });
             });
         }
 
-        const keys = await loadWalletKeys(acc.secretKeyEnc);
-        return keys;
+        throw Error('Failed to load keys');
     }, [auth]);
 
     // Passcode only auth
@@ -118,8 +91,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         setAuth(null);
 
         return new Promise<WalletKeys>((resolve, reject) => {
-            const acc = getCurrentAddress();
-            const passcodeState = getPasscodeState(acc.address, AppConfig.isTestnet);
+            const passcodeState = getPasscodeState();
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
@@ -152,34 +124,32 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                 setAuth(null);
                                 return;
                             }
+
                             const acc = getCurrentAddress();
                             try {
-                                const keys = await loadWalletKeysWithPassword(
-                                    acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                    pass
-                                );
+                                const keys = await loadWalletKeys(acc.secretKeyEnc, pass);
                                 auth.promise.resolve(keys);
                             } catch (e) {
                                 auth.promise.reject();
                             }
+
+                            // Remove auth view
                             setAuth(null);
                         }}
                         onRetryBiometrics={auth.style?.useBiometrics ? async () => {
                             try {
                                 const acc = getCurrentAddress();
-                                const migrated = getBiometricsMigrated(AppConfig.isTestnet);
-                                let keys: WalletKeys;
-                                if (migrated) {
-                                    const biometricsEncKey = getBiometricsEncKey(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                                    if (!biometricsEncKey) {
-                                        warn('Biometrics key not found');
-                                        throw new Error('Biometrics key not found');
-                                    }
-                                    keys = await loadWalletKeys(biometricsEncKey);
-                                } else {
-                                    keys = await loadWalletKeys(acc.secretKeyEnc);
+
+                                const biometricsEncKey = getBiometricsEncKey(acc.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                if (!biometricsEncKey) {
+                                    warn('Biometrics key not found');
+                                    throw new Error('Biometrics key not found');
                                 }
+
+                                let keys = await loadWalletKeys(biometricsEncKey);
                                 auth.promise.resolve(keys);
+
+                                // Remove auth view
                                 setAuth(null);
                             } catch (e) {
                                 warn('Failed to load wallet keys');

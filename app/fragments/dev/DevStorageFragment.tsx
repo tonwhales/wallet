@@ -2,22 +2,16 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { Item } from '../../components/Item';
 import { fragment } from '../../fragment';
-import { getApplicationKey, getBiometricsMigrated, getBiometricsState, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
+import { getApplicationKey, getBiometricsState, getPasscodeState, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { getCurrentAddress } from '../../storage/appState';
-import { getPasscodeState } from '../../components/secure/AuthWalletKeys';
 import { ItemButton } from '../../components/ItemButton';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Address } from 'ton';
 import { ItemGroup } from '../../components/ItemGroup';
 
-function loadStorageState(isTestnet: boolean) {
-    const account = getCurrentAddress();
-    const storedBiometricsMigrated = getBiometricsMigrated(isTestnet);
-    const biometricsState = getBiometricsState(account.address.toFriendly({ testOnly: isTestnet }));
-    const passcodeState = getPasscodeState(account.address, isTestnet);
+function loadStorageState() {
+    const biometricsState = getBiometricsState();
+    const passcodeState = getPasscodeState();
     return {
-        migrated: storedBiometricsMigrated,
         biometricsState,
         passcodeState,
     }
@@ -28,7 +22,7 @@ export const DevStorageFragment = fragment(() => {
 
     let [value, setValue] = React.useState('');
 
-    const initialState = loadStorageState(AppConfig.isTestnet);
+    const initialState = loadStorageState();
     const [keysStorageState, setKeysStorageState] = React.useState(initialState);
 
     React.useEffect(() => {
@@ -75,12 +69,8 @@ export const DevStorageFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
-
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Encrypted keys migrated"} hint={keysStorageState.migrated ? 'migrated' : 'not migrated'} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"Biometrics state"} hint={keysStorageState.biometricsState} />
+                        <Item title={"Biometrics state"} hint={keysStorageState.biometricsState ?? 'Not set'} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"Passcode state"} hint={keysStorageState.passcodeState ?? 'Not set'} />
@@ -91,7 +81,7 @@ export const DevStorageFragment = fragment(() => {
                             leftIcon={require('../../../assets/ic_backup.png')}
                             title={"Check keys storage status again"}
                             onPress={() => {
-                                const stored = loadStorageState(AppConfig.isTestnet);
+                                const stored = loadStorageState();
                                 setKeysStorageState(stored);
                             }}
                         />

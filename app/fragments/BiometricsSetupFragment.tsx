@@ -3,11 +3,10 @@ import { Alert, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { systemFragment } from '../systemFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
-import { useReboot } from '../utils/RebootContext';
 import { useEffect, useMemo, useState } from 'react';
 import { DeviceEncryption, getDeviceEncryption } from '../storage/getDeviceEncryption';
 import { useEngine } from '../engine/Engine';
-import { BiometricsState, generateNewKeyAndEncrypt, getBiometricsMigrated } from '../storage/secureStorage';
+import { BiometricsState, generateNewKeyAndEncrypt, storeBiometricsEncKey } from '../storage/secureStorage';
 import { getCurrentAddress } from '../storage/appState';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
@@ -30,17 +29,12 @@ export const BiometricsSetupFragment = systemFragment(() => {
     const authContext = useKeysAuth();
     const settings = engine.products.settings;
     const acc = getCurrentAddress();
-    const biometricsState = settings.useBiometricsState(acc.address);
-    const migrated = getBiometricsMigrated(AppConfig.isTestnet);
+    const biometricsState = settings.useBiometricsState();
 
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
     const biometricsProps = useMemo(() => {
         if (!deviceEncryption) {
-            return;
-        }
-        if (!migrated) {
-            navigation.goBack();
             return;
         }
 
@@ -90,7 +84,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
             buttonText
         }
 
-    }, [biometricsState, migrated, deviceEncryption]);
+    }, [biometricsState, deviceEncryption]);
 
     useEffect(() => {
         (async () => {
@@ -105,31 +99,29 @@ export const BiometricsSetupFragment = systemFragment(() => {
         (async () => {
             setLoading(true);
             try {
-
-                // Encrypted token
-                let secretKeyEnc: Buffer;
-
-                // Generate New Key
                 try {
                     let disableEncryption = !!(deviceEncryption === 'none' || deviceEncryption === 'device-biometrics' || deviceEncryption === 'device-passcode' || bypassEncryption);
                     if (Platform.OS === 'android' && Platform.Version < 30) {
                         disableEncryption = true; // Encryption doesn't work well on older androids
                     }
-
+                    
                     // Shouldn't happen because we check for this in the UI
                     if (disableEncryption) {
                         navigation.goBack();
                         return;
                     }
-
+                    
                     const passcodeKeys = await authContext.authenticateWithPasscode();
-
-                    secretKeyEnc = await generateNewKeyAndEncrypt(
+                    
+                    // Generate New Key
+                    let secretKeyEnc = await generateNewKeyAndEncrypt(
                         disableEncryption,
                         Buffer.from(passcodeKeys.mnemonics.join(' '))
                     );
 
-                    settings.setBiometricsState(acc.address, BiometricsState.InUse);
+                    // Store new appKey-encrypted private
+                    storeBiometricsEncKey(acc.address.toFriendly({testOnly: AppConfig.isTestnet}), secretKeyEnc);
+                    settings.setBiometricsState(BiometricsState.InUse);
                 } catch (e) {
                     // Ignore
                     warn('Failed to generate new key');

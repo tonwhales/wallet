@@ -5,7 +5,7 @@ import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
-import { BiometricsState, PasscodeState, getBiometricsMigrated } from "../storage/secureStorage"
+import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
@@ -29,14 +29,13 @@ export const SecurityFragment = fragment(() => {
     const settings = engine.products.settings;
     const authContext = useKeysAuth();
     const acc = getCurrentAddress();
-    const { Theme, AppConfig } = useAppConfig();
-    const passcodeState = settings.usePasscodeState(acc.address);
-    const biometricsState = settings.useBiometricsState(acc.address);
-    const migrated = getBiometricsMigrated(AppConfig.isTestnet);
+    const { Theme } = useAppConfig();
+    const passcodeState = settings.usePasscodeState();
+    const biometricsState = settings.useBiometricsState();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
     const biometricsProps = useMemo(() => {
-        if (!migrated || !(passcodeState === PasscodeState.Set)) {
+        if (passcodeState !== PasscodeState.Set) {
             return null
         }
 
@@ -85,7 +84,7 @@ export const SecurityFragment = fragment(() => {
             state: biometricsState,
         }
 
-    }, [biometricsState, migrated, deviceEncryption, passcodeState]);
+    }, [biometricsState, deviceEncryption, passcodeState]);
 
     useEffect(() => {
         (async () => {
@@ -170,8 +169,12 @@ export const SecurityFragment = fragment(() => {
                                             value={biometricsProps.state === BiometricsState.InUse}
                                             onChange={async (newValue: boolean) => {
                                                 try {
-                                                    await authContext.authenticateWithPasscode({cancelable: true});
-                                                    settings.setBiometricsState(acc.address, newValue ? BiometricsState.InUse : BiometricsState.DontUse);
+                                                    if (newValue) {
+                                                        await authContext.authenticateWithPasscode({ cancelable: true });
+                                                    } else {
+                                                        await authContext.authenticate({ cancelable: true });
+                                                    }
+                                                    settings.setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
                                                 } catch (e) {
                                                     warn('Failed to authenticate with passcode');
                                                 }

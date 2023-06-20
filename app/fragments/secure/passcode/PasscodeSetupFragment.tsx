@@ -4,8 +4,8 @@ import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
-import { getCurrentAddress } from "../../../storage/appState";
-import { BiometricsState, PasscodeState, encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
+import { getAppState, getCurrentAddress, setAppState } from "../../../storage/appState";
+import { BiometricsState, PasscodeState, decryptDataBatch, encryptData, generateNewKeyAndEncrypt } from "../../../storage/secureStorage";
 import { loadWalletKeys } from "../../../storage/walletKeys";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useEngine } from "../../../engine/Engine";
@@ -28,24 +28,45 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const navigation = useTypedNavigation();
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
-        const acc = getCurrentAddress();
+        const appState = getAppState();
+        const current = getCurrentAddress();
 
         try {
-            let keys = await loadWalletKeys(acc.secretKeyEnc);
-            await encryptAndStoreWithPasscode(
-                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                passcode,
-                Buffer.from(keys.mnemonics.join(' '))
-            );
+            const decryptedKeys = await decryptDataBatch(appState.addresses.map(acc => acc.secretKeyEnc));
+            const secretKeyEnc = await generateNewKeyAndEncrypt(false, decryptedKeys[appState.selected], passcode);
+
+            const newSelectedAccount = {
+                address: current.address,
+                publicKey: current.publicKey,
+                secretKeyEnc,
+                utilityKey: current.utilityKey,
+            };
+
+            const newAddresses = [];
+            for (let i = 0; i < decryptedKeys.length; i++) {
+                const account = appState.addresses[i];
+                if (i === appState.selected) {
+                    continue;
+                }
+                const newEncKey = await encryptData(decryptedKeys[i], passcode);
+                newAddresses.push({
+                    address: account.address,
+                    publicKey: account.publicKey,
+                    secretKeyEnc: newEncKey,
+                    utilityKey: account.utilityKey,
+                });
+            }
+            newAddresses.push(newSelectedAccount);
+
+            // Save new appState
+            setAppState({
+                addresses: newAddresses,
+                selected: newAddresses.length - 1,
+            }, AppConfig.isTestnet);
+
             if (!!settings) {
-                settings.setPasscodeState(
-                    acc.address,
-                    PasscodeState.Set
-                );
-                settings.setBiometricsState(
-                    acc.address,
-                    BiometricsState.InUse
-                );
+                settings.setPasscodeState(PasscodeState.Set);
+                settings.setBiometricsState(BiometricsState.InUse);
             }
         } catch (e) {
             warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);

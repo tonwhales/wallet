@@ -2,13 +2,14 @@ import React, { useReducer } from "react";
 import { View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "../passcode/PasscodeInput";
-import { loadWalletKeysWithPassword } from "../../storage/walletKeys";
 import { t } from "../../i18n/t";
-import { encryptAndStoreWithPasscode } from "../../storage/secureStorage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
-import { getCurrentAddress } from "../../storage/appState";
+import { getAppState, getCurrentAddress, setAppState } from "../../storage/appState";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { loadWalletKeys } from "../../storage/walletKeys";
+import { encryptData, generateNewKeyAndEncrypt, migrateToNewPasscode } from "../../storage/secureStorage";
+import { warn } from "../../utils/log";
 
 
 type Action =
@@ -79,10 +80,7 @@ export const PasscodeChange = React.memo(() => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
                             }
-                            await loadWalletKeysWithPassword(
-                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                pass
-                            );
+                            await loadWalletKeys(acc.secretKeyEnc, pass);
                             dispatch({ type: 'input', input: '', prev: pass });
                         }}
                     />
@@ -113,19 +111,13 @@ export const PasscodeChange = React.memo(() => {
                 >
                     <PasscodeInput
                         title={t('security.passcodeSettings.confirmNew')}
-                        onEntered={async (pass) => {
-                            if (pass !== state.input) {
+                        onEntered={async (newPasscode) => {
+                            if (newPasscode !== state.input) {
                                 throw new Error('Passcodes do not match');
                             }
-                            const keys = await loadWalletKeysWithPassword(
-                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                state.prev
-                            );
-                            await encryptAndStoreWithPasscode(
-                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                state.input,
-                                Buffer.from(keys.mnemonics.join(' '))
-                            );
+
+                            migrateToNewPasscode(state.prev, newPasscode, AppConfig.isTestnet);
+
                             dispatch({ type: 'success' });
                         }}
                     />

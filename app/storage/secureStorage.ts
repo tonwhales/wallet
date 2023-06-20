@@ -4,8 +4,9 @@ import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from 'ton-crypt
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
-import { getAppState } from './appState';
+import { getAppState, setAppState } from './appState';
 import { warn } from '../utils/log';
+import { loadWalletKeys } from './walletKeys';
 
 export const passcodeStateKey = 'passcode-state';
 export const passcodeSaltKey = 'passcode-salt';
@@ -57,7 +58,18 @@ export function loadKeyStorageRef() {
     }
 }
 
-export async function getApplicationKey() {
+export async function getApplicationKey(passcode?: string) {
+
+    if (passcode) {
+        const salt = storage.getString('ton-storage-passcode-nacl');
+        const passEncKey = storage.getString('ton-storage-pass-key');
+
+        if (!salt || !passEncKey) {
+            throw Error(`${!!salt ? 'Salt ' : ''}${!!passEncKey ? 'EncPassKey ' : ''} not found`);
+        }
+
+        return doDecryptWithPasscode(passcode, salt, Buffer.from(passEncKey, 'base64'));
+    }
 
     const storageType = loadKeyStorageType();
     const ref = loadKeyStorageRef();
@@ -113,7 +125,15 @@ async function doEncrypt(key: Buffer, data: Buffer) {
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function generateNewKeyAndEncrypt(disableEncryption: boolean, data: Buffer) {
+export async function generateNewKeyAndEncrypt(disableEncryption: boolean, data: Buffer, passcode?: string) {
+
+    if (passcode) {
+        const passcodePrivateKey = await generateKeyFromPasscode(passcode);
+        storage.set('ton-storage-passcode-nacl', passcodePrivateKey.salt);
+        storage.set('ton-storage-pass-key', passcodePrivateKey.key.toString('base64'));
+        storage.set(passcodeStateKey, PasscodeState.Set);
+        return doEncrypt(passcodePrivateKey.key, data);
+    }
 
     // Generate new ref
     let ref = (await getSecureRandomBytes(32)).toString('hex');
@@ -147,21 +167,35 @@ export async function generateNewKeyAndEncrypt(disableEncryption: boolean, data:
         storage.set('ton-storage-kind', 'key-store');
         await KeyStore.setItemAsync(ref, privateKey.toString('base64'));
     } else {
-        throw Error('Unsupporteed platform')
+        throw Error('Unsupported platform')
     }
 
     return doEncrypt(privateKey, data);
 }
 
-export async function encryptData(data: Buffer) {
-    const key = await getApplicationKey();
+export async function encryptData(data: Buffer, passcode?: string) {
+    const key = await getApplicationKey(passcode);
     const nonce = await getSecureRandomBytes(24);
     const sealed = sealBox(data, nonce, key);
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function decryptData(data: Buffer) {
-    const key = await getApplicationKey();
+export async function decryptDataBatch(data: Buffer[], passcode?: string) {
+    const key = await getApplicationKey(passcode);
+    data.map((item) => {
+        let nonce = item.slice(0, 24);
+        let cypherData = item.slice(24);
+        let res = openBox(cypherData, nonce, key);
+        if (!res) {
+            throw Error('Unable to decrypt data');
+        }
+        return res;
+    });
+    return data;
+}
+
+export async function decryptData(data: Buffer, passcode?: string) {
+    const key = await getApplicationKey(passcode);
     let nonce = data.slice(0, 24);
     let cypherData = data.slice(24);
     let res = openBox(cypherData, nonce, key);
@@ -201,31 +235,8 @@ export async function doDecryptWithPasscode(pass: string, salt: string, data: Bu
     return res;
 }
 
-export async function encryptAndStoreWithPasscode(address: string, pass: string, data: Buffer) {
-    try {
-        const passKey = await generateKeyFromPasscode(pass);
-
-        storage.set(`${address}/${passcodeSaltKey}`, passKey.salt);
-
-        const nonce = await getSecureRandomBytes(24);
-        const sealed = sealBox(data, nonce, passKey.key);
-        const encrypted = Buffer.concat([nonce, sealed]);
-
-        storage.set(`${address}/${passcodeEncKey}`, encrypted.toString('base64'));
-        storage.set(`${address}/${passcodeStateKey}`, PasscodeState.Set);
-
-        return encrypted;
-    } catch (e) {
-        throw Error('Unable to encrypt data with passcode');
-    }
-}
-
-export function getBiometricsMigrated(isTestnet: boolean) {
-    return storage.getBoolean(`migrated-biometrics-enc-keys-${isTestnet ? 'testnet' : 'mainnet'}`);
-}
-
 export function migrateBiometricsEncKeys(isTestnet: boolean) {
-    const migrated = getBiometricsMigrated(isTestnet);
+    const migrated = storage.getBoolean(`migrated-biometrics-enc-keys-${isTestnet ? 'testnet' : 'mainnet'}`);
     if (migrated) {
         return;
     }
@@ -238,10 +249,7 @@ export function migrateBiometricsEncKeys(isTestnet: boolean) {
                 addr.address.toFriendly({ testOnly: isTestnet }),
                 addr.secretKeyEnc
             );
-            storeBiometricsState(
-                addr.address.toFriendly({ testOnly: isTestnet }),
-                BiometricsState.InUse
-            );
+            storeBiometricsState(BiometricsState.InUse);
         });
         storage.set(`migrated-biometrics-enc-keys-${isTestnet ? 'testnet' : 'mainnet'}`, true);
     } catch (e) {
@@ -249,8 +257,57 @@ export function migrateBiometricsEncKeys(isTestnet: boolean) {
     }
 }
 
-export function getBiometricsState(address: string) {
-    return (storage.getString(`${address}/${biometricsStateKey}`) ?? null) as BiometricsState | null;
+export async function migrateToNewPasscode(prevPasscode: string, newPasscode: string, isTestnet: boolean) {
+    const appState = getAppState();
+    const current = appState.addresses[appState.selected];
+    try {
+        const keys = await loadWalletKeys(current.secretKeyEnc, prevPasscode);
+        // Generate new and save for current account
+        const secretKeyEnc = await generateNewKeyAndEncrypt(false, Buffer.from(keys.mnemonics.join(' ')), newPasscode);
+
+        const newSelectedAccount = {
+            address: current.address,
+            publicKey: current.publicKey,
+            secretKeyEnc,
+            utilityKey: current.utilityKey,
+        };
+
+        const newAddresses = [];
+        // Migrate all keys to new passcode
+        for (let i = 0; i < appState.addresses.length; i++) {
+            const account = appState.addresses[i];
+            if (i === appState.selected) {
+                continue;
+            }
+            const keys = await loadWalletKeys(account.secretKeyEnc, prevPasscode);
+            const newEncKey = await encryptData(Buffer.from(keys.mnemonics.join(' ')), newPasscode);
+            newAddresses.push({
+                address: account.address,
+                publicKey: account.publicKey,
+                secretKeyEnc: newEncKey,
+                utilityKey: account.utilityKey,
+            });
+        }
+
+        newAddresses.push(newSelectedAccount);
+
+        // Save new appState
+        setAppState({
+            addresses: newAddresses,
+            selected: newAddresses.length - 1,
+        }, isTestnet);
+    } catch (e) {
+        warn('Unable to migrate to new passcode');
+        throw Error('Unable to migrate to new passcode');
+    }
+}
+
+export function getPasscodeState() {
+    return (storage.getString(passcodeStateKey) ?? null) as PasscodeState | null;
+}
+
+export function getBiometricsState() {
+    return (storage.getString(biometricsStateKey) ?? null) as BiometricsState | null;
 }
 
 export function getBiometricsEncKey(address: string) {
@@ -261,8 +318,8 @@ export function getBiometricsEncKey(address: string) {
     return Buffer.from(encKey, 'base64');
 }
 
-export function storeBiometricsState(address: string, state: BiometricsState) {
-    storage.set(`${address}/${biometricsStateKey}`, state);
+export function storeBiometricsState(state: BiometricsState) {
+    storage.set(biometricsStateKey, state);
 }
 
 export function storeBiometricsEncKey(address: string, data: Buffer) {

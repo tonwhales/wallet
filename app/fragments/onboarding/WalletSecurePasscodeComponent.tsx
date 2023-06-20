@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { encryptAndStoreWithPasscode } from '../../storage/secureStorage';
 import { getAppState, getBackup, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -18,6 +17,8 @@ import Animated, { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated'
 import { WalletSecureComponent } from '../../components/secure/WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { storage } from '../../storage/storage';
+import { PasscodeState, encryptData, generateNewKeyAndEncrypt, passcodeStateKey } from '../../storage/secureStorage';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -57,17 +58,26 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             // Resolve contract
             const contract = await contractFromPublicKey(key.publicKey);
 
-            // Generate New Key
-            try {
-                secretKeyEnc = await encryptAndStoreWithPasscode(
-                    contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    passcode,
-                    Buffer.from(props.mnemonics)
-                );
-            } catch (e) {
-                // Ignore
-                warn('Failed to generate new key');
-                return;
+            const passcodeState = storage.getString(passcodeStateKey);
+            const isPasscodeSet = (passcodeState === PasscodeState.Set);
+
+            if (isPasscodeSet) {
+                // Use prev app key
+                try {
+                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics, 'base64'), passcode);
+                } catch (e) {
+                    warn('Failed to encrypt with passcode');
+                    return;
+                }
+            } else {
+                // Generate New Key
+                try {
+                    secretKeyEnc = await generateNewKeyAndEncrypt(false, Buffer.from(props.mnemonics), passcode);
+                } catch (e) {
+                    // Ignore
+                    warn('Failed to generate new key');
+                    return;
+                }
             }
 
             // Persist state

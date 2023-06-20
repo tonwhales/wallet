@@ -21,7 +21,7 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
-import { ZenPayAccountStatus, ZenPayState } from "./corp/ZenPayProduct";
+import { HoldersAccountStatus, HoldersState } from "./corp/HoldersProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
@@ -30,12 +30,13 @@ import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/typ
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
-import { accountStateCodec } from "./api/zenpay/fetchAccountState";
-import { CardsList as ZenPayCardsList, cardsListCodec } from "./api/zenpay/fetchCards";
+import { accountStateCodec } from "./api/holders/fetchAccountState";
+import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fetchCards";
+import { HoldersOfflineApp, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
 
 export class Persistence {
 
-    readonly version: number = 16;
+    readonly version: number = 19;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -80,9 +81,10 @@ export class Persistence {
 
     readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
 
-    readonly zenPayStatus: PersistedCollection<Address, ZenPayAccountStatus>;
-    readonly zenPayState: PersistedCollection<Address, ZenPayState>;
-    readonly zenPayCards: PersistedCollection<Address, ZenPayCardsList>;
+    readonly holdersStatus: PersistedCollection<Address, HoldersAccountStatus>;
+    readonly holdersState: PersistedCollection<Address, HoldersState>;
+    readonly holdersCards: PersistedCollection<Address, HoldersCardsList>;
+    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineApp>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -147,10 +149,11 @@ export class Persistence {
         // SpamFilter
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
 
-        // ZenPay
-        this.zenPayStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: zenPayStatusCodec, engine });
-        this.zenPayState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: zenPayStateCodec, engine });
-        this.zenPayCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });
+        // Holders
+        this.holdersStatus = new PersistedCollection({ storage, namespace: 'holdersStatus', key: addressKey, codec: holdersStatusCodec, engine });
+        this.holdersState = new PersistedCollection({ storage, namespace: 'holdersState', key: addressKey, codec: holdersStateCodec, engine });
+        this.holdersCards = new PersistedCollection({ storage, namespace: 'holdersAccount', key: addressKey, codec: cardsListCodec, engine });
+        this.holdersOfflineApp = new PersistedCollection({ storage, namespace: 'holdersOfflineApp', key: voidKey, codec: holdersOfflineAppCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -320,7 +323,7 @@ const spamFilterCodec = t.type({
     dontShowComments: t.union([t.boolean, t.null])
 });
 
-const zenPayStatusCodec = t.union([
+const holdersStatusCodec = t.union([
     t.type({ state: t.literal('need-enrolment') }),
     t.intersection([
         t.type({ token: t.string }),
@@ -328,7 +331,7 @@ const zenPayStatusCodec = t.union([
     ])
 ]);
 
-const zenPayStateCodec = t.type({
+const holdersStateCodec = t.type({
     accounts: t.array(t.type({
         id: t.string,
         address: t.string,
@@ -337,6 +340,12 @@ const zenPayStateCodec = t.type({
         type: t.union([t.literal('virtual'), t.literal('physical')]),
         card: t.type({
             lastFourDigits: t.union([t.string, t.undefined, t.null]),
+            productId: t.string,
+            personalizationCode: t.string,
+            partner: t.string,
+            provider: t.string,
+            kind: t.string,
+            tzOffset: t.number
         }),
     })),
 });

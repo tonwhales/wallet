@@ -706,7 +706,8 @@ export type LocalizationSchema = {
         copySeedAlertTitle: string,
         copySeedAlertMessage: string,
         copySeedAlertAction: string,
-    }
+        holdersOfflineApp: string,
+    },
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

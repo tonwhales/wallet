@@ -10,9 +10,9 @@ import { copyText } from "../utils/copyText";
 import { useAppConfig } from "../utils/AppConfigContext";
 
 function ellipsiseAddress(src: string) {
-    return src.slice(0, 6)
+    return src.slice(0, 10)
         + '...'
-        + src.slice(src.length - 8)
+        + src.slice(src.length - 4)
 }
 
 export const WalletAddress = React.memo((props: {

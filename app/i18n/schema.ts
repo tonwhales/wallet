@@ -220,6 +220,7 @@ export type LocalizationSchema = {
         requestPermission: string
     },
     products: {
+        addNew: string,
         tonConnect: {
             errors: {
                 connection: string

@@ -9,7 +9,7 @@ import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { confirmJettonAction } from '../../AccountsFragment';
 import { AnimatedProductButton } from './AnimatedProductButton';
 
-export const JettonProduct = React.memo((props: {
+export const JettonProductButton = React.memo((props: {
     navigation: TypedNavigation,
     engine: Engine,
     jetton: {

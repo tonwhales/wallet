@@ -14,7 +14,7 @@ import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
-import { JettonProduct } from "../wallet/products/JettonProduct";
+import { JettonProductButton } from "../wallet/products/JettonProductButton";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
@@ -101,7 +101,7 @@ export const LedgerAssetsFragment = fragment(() => {
                     />
                     {jettons.map((j) => {
                         return (
-                            <JettonProduct
+                            <JettonProductButton
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}

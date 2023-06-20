@@ -1,6 +1,6 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
-import { Alert, LayoutAnimation, Text, View } from "react-native"
+import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
 import { ProductButton } from "./ProductButton"
 import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
@@ -9,7 +9,7 @@ import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
-import { JettonProduct } from "./JettonProduct"
+import { JettonProductButton } from "./JettonProductButton"
 import { getConnectionReferences } from "../../../storage/appState"
 import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
@@ -18,6 +18,7 @@ import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import { HoldersProductButton } from "./HoldersProductButton"
 
 export const ProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -28,7 +29,6 @@ export const ProductsComponent = React.memo(() => {
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
     const ledger = engine.products.settings.useLedger();
-    const cards = engine.products.zenPay.useCards();
     const tonconnectExtensions = engine.products.tonConnect.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const openExtension = React.useCallback((url: string) => {
@@ -65,7 +65,7 @@ export const ProductsComponent = React.memo(() => {
     for (let j of jettons) {
         if (j.balance.gt(new BN(0))) {
             accounts.push(
-                <JettonProduct
+                <JettonProductButton
                     key={'jt' + j.wallet.toFriendly()}
                     jetton={j}
                     navigation={navigation}
@@ -94,77 +94,6 @@ export const ProductsComponent = React.memo(() => {
             }
         }]);
     }, []);
-
-    // Resolve apps
-    let apps: React.ReactElement[] = [];
-
-    if (AppConfig.isTestnet) {
-        cards.map((c) => {
-            apps.push(<ZenPayProductButton engine={engine} key={c.id} card={c} />)
-        });
-        apps.push(<ZenPayProductButton engine={engine} key={'zenpay-add'} />)
-    }
-
-    for (let e of extensions) {
-        apps.push(
-            <AnimatedProductButton
-                entering={FadeInUp}
-                exiting={FadeOutDown}
-                key={e.key}
-                name={e.name}
-                subtitle={e.description ? e.description : e.url}
-                image={e.image?.url}
-                blurhash={e.image?.blurhash}
-                value={null}
-                onLongPress={() => removeExtension(e.key)}
-                onPress={() => openExtension(e.url)}
-                extension={true}
-                style={{ marginVertical: 4 }}
-            />
-        );
-    }
-
-    for (let e of tonconnectExtensions) {
-        apps.push(
-            <AnimatedProductButton
-                entering={FadeInUp}
-                exiting={FadeOutDown}
-                key={e.key}
-                name={e.name}
-                subtitle={e.url}
-                image={e.image ?? undefined}
-                value={null}
-                onPress={() => {
-                    navigation.navigate('ConnectApp', { url: e.url });
-                }}
-                extension={true}
-                style={{ marginVertical: 4 }}
-            />
-        );
-    }
-
-    if (ledger) {
-        apps.push(
-            <AnimatedProductButton
-                key={'ledger'}
-                entering={FadeInUp}
-                exiting={FadeOutDown}
-                name={t('hardwareWallet.title')}
-                subtitle={t('hardwareWallet.description')}
-                icon={HardwareWalletIcon}
-                iconProps={{ width: 32, height: 32, color: 'black' }}
-                iconViewStyle={{
-                    backgroundColor: 'transparent'
-                }}
-                style={{ marginVertical: 4 }}
-                value={null}
-                onLongPress={removeLedger}
-                onPress={() => {
-                    navigation.navigate('Ledger');
-                }}
-            />
-        );
-    }
 
     // Resolve tonconnect requests
     let tonconnect: React.ReactElement[] = [];
@@ -204,7 +133,7 @@ export const ProductsComponent = React.memo(() => {
     }, [extensions, jettons, oldWalletsBalance, currentJob, tonconnectRequests]);
 
     return (
-        <View style={{ paddingTop: 8 }}>
+        <View style={{ paddingHorizontal: 16 }}>
             {tonconnect}
             {currentJob && currentJob.job.type === 'transaction' && (
                 <AnimatedProductButton
@@ -261,27 +190,36 @@ export const ProductsComponent = React.memo(() => {
                 />
             )}
 
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between', alignItems: 'center',
+                marginTop: 16,
+                paddingVertical: 12,
+                marginBottom: 4
+            }}>
+                <Text style={{
+                    fontSize: 17,
+                    fontWeight: '600',
+                    color: Theme.textColor,
+                }}>
+                    {t('common.products')}
+                </Text>
+                <Pressable>
+                    <Text style={{
+                        fontSize: 15,
+                        fontWeight: '500',
+                        color: Theme.accent,
+                    }}>
+                        {t('products.addNew')}
+                    </Text>
+                </Pressable>
+            </View>
+
+            <HoldersProductButton />
+
             <View style={{ marginTop: 8 }}>
                 <StakingProductComponent key={'pool'} />
             </View>
-
-            {(apps.length > 0) && (
-                <>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
-                    </View>
-                    {apps}
-                </>
-            )}
-
-            {accounts.length > 0 && (
-                <>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.accounts')}</Text>
-                    </View>
-                    {accounts}
-                </>
-            )}
         </View>
     )
 })

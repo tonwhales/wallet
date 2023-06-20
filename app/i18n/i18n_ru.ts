@@ -219,6 +219,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         requestPermission: 'Открыть настройки',
     },
     products: {
+        addNew: 'Добавить новый продукт',
         tonConnect: {
             errors: {
                 connection: 'Ошибка соединения',

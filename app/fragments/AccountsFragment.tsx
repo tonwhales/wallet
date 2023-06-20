@@ -10,7 +10,7 @@ import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { JettonProduct } from "./wallet/products/JettonProduct";
+import { JettonProductButton } from "./wallet/products/JettonProductButton";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
 
@@ -159,7 +159,7 @@ export const AccountsFragment = fragment(() => {
                         </View>
                         {active.map((j) => {
                             return (
-                                <JettonProduct
+                                <JettonProductButton
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}
@@ -183,7 +183,7 @@ export const AccountsFragment = fragment(() => {
                         )}
                         {disabled.map((j) => {
                             return (
-                                <JettonProduct
+                                <JettonProductButton
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}

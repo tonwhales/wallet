@@ -12,7 +12,7 @@ import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AnimatedProductButton } from "./products/AnimatedProductButton";
-import { JettonProduct } from "./products/JettonProduct";
+import { JettonProductButton } from "./products/JettonProductButton";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
@@ -100,7 +100,7 @@ export const AssetsFragment = fragment(() => {
                     />
                     {jettons.map((j) => {
                         return (
-                            <JettonProduct
+                            <JettonProductButton
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}

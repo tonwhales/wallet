@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, StyleProp, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { fragment } from "../fragment";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WalletFragment } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
-import { StatusBar } from 'expo-status-bar';
-import { BlurView } from 'expo-blur';
 import { CachedLinking } from '../utils/CachedLinking';
 import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -19,6 +17,17 @@ import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
+
+const tabButtonStyle: StyleProp<ViewStyle> = {
+    height: 49, flexGrow: 1, flexBasis: 0,
+    alignItems: 'center', justifyContent: 'center'
+}
+
+const tabButtonTextStyle: StyleProp<TextStyle> = {
+    fontSize: 10, lineHeight: 12,
+    fontWeight: '500',
+    marginTop: 5,
+}
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -119,7 +128,6 @@ export const HomeFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <View style={{ flexGrow: 1 }} />
-            <StatusBar style={'dark'} />
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
                 <WalletFragment />
             </View>
@@ -129,105 +137,80 @@ export const HomeFragment = fragment(() => {
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 2 ? 1 : 0 }} pointerEvents={tab === 2 ? 'box-none' : 'none'}>
                 <SettingsFragment />
             </View>
-            <View style={{ height: 52 + safeArea.bottom, }}>
-                {Platform.OS === 'ios' && (
-                    <BlurView
-                        style={{
-                            height: 52 + safeArea.bottom,
-                            paddingBottom: safeArea.bottom, paddingHorizontal: 16,
-                            flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        }}
+            <View
+                style={{
+                    height: 49 + safeArea.bottom, paddingHorizontal: 16,
+                    backgroundColor: 'white',
+                    borderTopEndRadius: 20, borderTopStartRadius: 20,
+                    shadowColor: 'rgba(0, 0, 0, 0.1)',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowRadius: 14,
+                    shadowOpacity: 1,
+                }}
+            >
+                <View style={{
+                    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                    paddingBottom: 2, paddingTop: 9
+                }}>
+                    <Pressable
+                        style={tabButtonStyle}
+                        onPress={() => setTab(0)}
                     >
-                        <View
+                        <Image
+                            source={tab === 0 ? require('../../assets/ic_home_selected.png') : require('../../assets/ic_home.png')}
                             style={{
-                                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                                backgroundColor: Theme.background,
-                                opacity: 0.9
+                                tintColor: tab === 0 ? Theme.accent : Theme.textSecondary,
+                                height: 24, width: 24
                             }}
                         />
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image
-                                source={tab === 0 ? require('../../assets/ic_home_selected.png') : require('../../assets/ic_home.png')}
-                                style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
-                            >
-                                {t('home.wallet')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image
-                                source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
-                                style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}
-                            >
-                                {t('transactions.history')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
-                            <Image
-                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                style={{ tintColor: tab === 2 ? Theme.accent : Theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? Theme.accent : Theme.textSecondary }}
-                            >
-                                {t('home.settings')}
-                            </Text>
-                        </Pressable>
-                    </BlurView>
-                )}
-                {Platform.OS === 'android' && (
-                    <View style={{
-                        height: 52 + safeArea.bottom,
-                        paddingBottom: safeArea.bottom, paddingHorizontal: 16,
-                        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        backgroundColor: Theme.item
-                    }}>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image
-                                source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
-                                style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
-                            >
-                                {t('home.wallet')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image
-                                source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
-                                style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
-                            />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>
-                                {t('transactions.history')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
-                            <Image
-                                source={tab === 2 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                style={{ tintColor: tab === 2 ? Theme.accent : Theme.textSecondary }}
-                            />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? Theme.accent : Theme.textSecondary }}>
-                                {t('home.settings')}
-                            </Text>
-                        </Pressable>
-                    </View>
-                )}
-                <View
-                    style={{
-                        position: 'absolute',
-                        top: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: Theme.headerDivider,
-                        opacity: 0.08
-                    }}
-                />
+                        <Text style={{
+                            color: tab === 0 ? Theme.accent : Theme.textSecondary,
+                            ...tabButtonTextStyle
+                        }}>
+                            {t('home.wallet')}
+                        </Text>
+                    </Pressable>
+                    <Pressable
+                        style={tabButtonStyle}
+                        onPress={() => setTab(1)}
+                    >
+                        <Image
+                            source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
+                            style={{
+                                tintColor: tab === 1 ? Theme.accent : Theme.textSecondary,
+                                height: 24, width: 24
+                            }}
+                        />
+                        <Text
+                            style={{
+                                color: tab === 1 ? Theme.accent : Theme.textSecondary,
+                                ...tabButtonTextStyle
+                            }}
+                        >
+                            {t('transactions.history')}
+                        </Text>
+                    </Pressable>
+                    <Pressable
+                        style={tabButtonStyle}
+                        onPress={() => setTab(2)}
+                    >
+                        <Image
+                            source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                            style={{
+                                tintColor: tab === 2 ? Theme.accent : Theme.textSecondary,
+                                height: 24, width: 24
+                            }}
+                        />
+                        <Text
+                            style={{
+                                color: tab === 2 ? Theme.accent : Theme.textSecondary,
+                                ...tabButtonTextStyle
+                            }}
+                        >
+                            {t('home.settings')}
+                        </Text>
+                    </Pressable>
+                </View>
             </View>
         </View>
     );

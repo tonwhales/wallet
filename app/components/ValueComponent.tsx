@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import { StyleProp, Text, TextStyle } from "react-native";
-import { fromNano } from "ton";
 import { fromBNWithDecimals } from "../utils/withDecimals";
 
 export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle>, precision?: number, decimals?: number | null }) {
@@ -50,7 +49,7 @@ export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<Tex
         <Text>
             <Text>{r}</Text>
             <Text style={[props.centFontStyle]}>
-                .{p[1].substring(
+                ,{p[1].substring(
                     0,
                     precision // Show only the last two decimal places
                 )}

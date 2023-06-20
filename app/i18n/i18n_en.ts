@@ -218,6 +218,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         requestPermission: 'Open settings',
     },
     products: {
+        addNew: 'Add new product',
         tonConnect: {
             errors: {
                 connection: 'Connection error',

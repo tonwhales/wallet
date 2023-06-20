@@ -490,11 +490,18 @@ export const HoldersAppComponent = React.memo((
                         contentContainerStyle={{ marginHorizontal: 16 }}
                         keyboardVerticalOffset={Platform.OS === 'ios'
                             ? safeArea.bottom + (keyboard.keyboardShown ? 64 : 32)
-                            : 16
+                            : undefined
                         }
                     >
                         {mainButton.isVisible && (
-                            <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
+                            <Animated.View
+                                style={Platform.OS === 'android'
+                                    ? { marginHorizontal: 16, marginBottom: 16 }
+                                    : undefined
+                                }
+                                entering={FadeInDown}
+                                exiting={FadeOutDown}
+                            >
                                 <DappMainButton {...mainButton} />
                             </Animated.View>
                         )}

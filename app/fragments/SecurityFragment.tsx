@@ -139,14 +139,15 @@ export const SecurityFragment = fragment(() => {
                                     onPress={() => navigation.navigate('PasscodeChange')}
                                 />
                             </View>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                            {/* TODO: rework PasscodeResetFlow to account for multiaccounts */}
+                            {/* <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
                                 <ItemButton
                                     leftIcon={require('../../assets/ic_reset.png')}
                                     title={t('security.passcodeSettings.resetTitle')}
                                     onPress={() => navigation.navigate('PasscodeReset')}
                                 />
-                            </View>
+                            </View> */}
                         </>
                     )}
                     {(!passcodeState || passcodeState === PasscodeState.NotSet) && (

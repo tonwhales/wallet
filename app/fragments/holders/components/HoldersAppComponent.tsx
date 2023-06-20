@@ -89,7 +89,13 @@ export const HoldersAppComponent = React.memo((
             })());
 
             const files = await Promise.all(filesCheck);
-            setOfflineAppReady(files.every((f) => f));
+            const ready = files.every((f) => f);
+
+            if (!ready) {
+                engine.products.holders.forceSyncOfflineApp();
+            }
+
+            setOfflineAppReady(ready);
         })();
     }, [offlineApp]);
 

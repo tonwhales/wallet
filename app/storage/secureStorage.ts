@@ -6,7 +6,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
 
 export const passcodeStateKey = 'passcode-state';
-export const passcodeSaltKey = 'passcode-salt';
+export const passcodeSaltKey = 'ton-storage-passcode-nacl';
 export const passcodeEncKey = 'ton-storage-passcode-enc-key-';
 
 export const biometricsEncKey = 'ton-biometrics-enc-key';
@@ -58,12 +58,12 @@ export function loadKeyStorageRef() {
 export async function getApplicationKey(passcode?: string) {
 
     if (passcode) {
-        const salt = storage.getString('ton-storage-passcode-nacl');
+        const salt = storage.getString(passcodeSaltKey);
         const ref = storage.getString('ton-storage-ref')
         const passEncKey = storage.getString(passcodeEncKey + ref);
 
         if (!salt || !passEncKey) {
-            throw Error(`${!!salt ? 'Salt ' : ''}${!!passEncKey ? 'EncPassKey ' : ''} not found`);
+            throw Error(`${!salt ? 'Salt ' : ''}${!passEncKey ? 'EncPassKey ' : ''}not found`);
         }
 
         return doDecryptWithPasscode(passcode, salt, Buffer.from(passEncKey, 'base64'));
@@ -167,8 +167,8 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         const appKey = await getApplicationKey();
 
         // Encrypt and store app key with new passcode
-        const passcodePrivateKey = await generateKeyFromPasscode(passcode);
-        const passcodeEncAppKey = await doEncrypt(passcodePrivateKey.key, appKey);
+        const passcodeKey = await generateKeyFromPasscode(passcode);
+        const passcodeEncAppKey = await doEncrypt(passcodeKey.key, appKey);
         const ref = storage.getString('ton-storage-ref');
 
         if (!ref) {
@@ -176,7 +176,7 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         }
 
         // Store
-        storage.set('ton-storage-passcode-nacl', passcodePrivateKey.salt);
+        storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
     } catch (e) {
@@ -193,11 +193,12 @@ export async function generateNewKeyAndEncrypt(data: Buffer, passcode: string) {
         let privateKey = await getSecureRandomBytes(32);
 
         // Encrypt with passcode
-        const passcodePrivateKey = await generateKeyFromPasscode(passcode);
-        const passcodeEncPrivateKey = await doEncrypt(passcodePrivateKey.key, privateKey);
+        const passcodeKey = await generateKeyFromPasscode(passcode);
+        const passcodeEncPrivateKey = await doEncrypt(passcodeKey.key, privateKey);
 
         // Store
-        storage.set('ton-storage-passcode-nacl', passcodePrivateKey.salt);
+        storage.set('ton-storage-ref', ref);
+        storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncPrivateKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
 

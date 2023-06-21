@@ -37,7 +37,7 @@ export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | nu
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const safeAreaInsets = useSafeAreaInsets();
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
     const authenticate = useCallback(async (style?: AuthStyle) => {
@@ -133,7 +133,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                 } else {
                                     auth.promise.resolve(keys);
                                 }
-                            } catch (e) {
+                            } catch {
                                 auth.promise.reject();
                             }
 
@@ -149,7 +149,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                         auth.promise.resolve(keys);
                                         // Remove auth view
                                         setAuth(null);
-                                    } catch (e) {
+                                    } catch {
                                         warn('Failed to load wallet keys');
                                     }
                                 }
@@ -191,4 +191,3 @@ export function useKeysAuth() {
     }
     return context;
 }
-

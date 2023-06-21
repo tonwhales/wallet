@@ -52,8 +52,7 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                const biometricsState = (getBiometricsState() ?? null) as BiometricsState | null
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item, useBiometrics: biometricsState === BiometricsState.InUse });
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
                 setMnemonics(keys.mnemonics);
             } catch (e) {
                 warn(e);

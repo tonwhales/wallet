@@ -102,7 +102,7 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
             options={{
                 presentation: 'modal',
                 headerShown: false,
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : undefined }
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) + 16 : undefined }
             }}
         />
     );

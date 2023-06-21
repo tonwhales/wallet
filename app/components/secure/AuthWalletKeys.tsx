@@ -146,6 +146,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             flexGrow: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
+                            paddingBottom: (safeAreaInsets.bottom === 0 ? 32 : safeAreaInsets.bottom),
                         },
                     ]}
                     exiting={FadeOut}

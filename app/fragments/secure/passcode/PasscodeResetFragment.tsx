@@ -30,7 +30,7 @@ export const PasscodeResetFragment = fragment(() => {
     }) => {
         try {
             const walletKeys = await authContext.authenticateWithPasscode();
-            if (walletKeys.mnemonics.join(' ') !== v.mnemonics) {
+            if (walletKeys.keys.mnemonics.join(' ') !== v.mnemonics) {
                 Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
                 return;
             }

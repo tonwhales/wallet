@@ -6,7 +6,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import { useEffect, useMemo, useState } from 'react';
 import { DeviceEncryption, getDeviceEncryption } from '../storage/getDeviceEncryption';
 import { useEngine } from '../engine/Engine';
-import { BiometricsState, generateNewKeyAndEncrypt, storeBiometricsEncKey } from '../storage/secureStorage';
+import { BiometricsState, encryptAndStoreAppKey } from '../storage/secureStorage';
 import { getCurrentAddress } from '../storage/appState';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
@@ -22,13 +22,12 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { CloseButton } from '../components/CloseButton';
 
 export const BiometricsSetupFragment = systemFragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const authContext = useKeysAuth();
     const settings = engine.products.settings;
-    const acc = getCurrentAddress();
     const biometricsState = settings.useBiometricsState();
 
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
@@ -111,16 +110,9 @@ export const BiometricsSetupFragment = systemFragment(() => {
                         return;
                     }
                     
-                    const passcodeKeys = await authContext.authenticateWithPasscode();
-                    
-                    // Generate New Key
-                    let secretKeyEnc = await generateNewKeyAndEncrypt(
-                        disableEncryption,
-                        Buffer.from(passcodeKeys.mnemonics.join(' '))
-                    );
+                    const authRes = await authContext.authenticateWithPasscode();
+                    await encryptAndStoreAppKey(disableEncryption, authRes.passcode);
 
-                    // Store new appKey-encrypted private
-                    storeBiometricsEncKey(acc.address.toFriendly({testOnly: AppConfig.isTestnet}), secretKeyEnc);
                     settings.setBiometricsState(BiometricsState.InUse);
                 } catch (e) {
                     // Ignore

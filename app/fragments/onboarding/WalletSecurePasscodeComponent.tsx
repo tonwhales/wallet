@@ -29,7 +29,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
-    const [deviceEncryption, setDeviceEncryption] = React.useState<DeviceEncryption>();
+    const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = React.useState(false);
 
     const onAfterImport = React.useCallback(() => {
@@ -72,7 +72,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             } else {
                 // Generate New Key
                 try {
-                    secretKeyEnc = await generateNewKeyAndEncrypt(false, Buffer.from(props.mnemonics), passcode);
+                    secretKeyEnc = await generateNewKeyAndEncrypt(Buffer.from(props.mnemonics), passcode);
                 } catch (e) {
                     // Ignore
                     warn('Failed to generate new key');
@@ -96,7 +96,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             }, AppConfig.isTestnet);
 
             const deviceEncryption = await getDeviceEncryption();
-            setDeviceEncryption(deviceEncryption);
+            setState({ passcode, deviceEncryption });
         } catch (e) {
             warn(e);
             Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
@@ -107,7 +107,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
     return (
         <>
-            {!deviceEncryption && (
+            {!state && (
                 <Animated.View
                     style={{
                         flex: 1,
@@ -122,15 +122,15 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 </Animated.View>
             )}
 
-            {deviceEncryption && (
+            {state && (
                 <Animated.View
                     style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
                     key="content"
                     entering={FadeIn}
                 >
                     <WalletSecureComponent
-                        mnemonics={props.mnemonics}
-                        deviceEncryption={deviceEncryption}
+                        deviceEncryption={state.deviceEncryption}
+                        passcode={state.passcode}
                         callback={(res: boolean) => {
                             if (res) {
                                 if (props.import) {

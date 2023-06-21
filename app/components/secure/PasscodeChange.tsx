@@ -5,12 +5,9 @@ import { PasscodeInput } from "../passcode/PasscodeInput";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
-import { getAppState, getCurrentAddress, setAppState } from "../../storage/appState";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { getCurrentAddress } from "../../storage/appState";
 import { loadWalletKeys } from "../../storage/walletKeys";
-import { encryptData, generateNewKeyAndEncrypt, migrateToNewPasscode } from "../../storage/secureStorage";
-import { warn } from "../../utils/log";
-
+import { migrateToNewPasscode } from "../../storage/secureStorage";
 
 type Action =
     | { type: 'auth', input: string }
@@ -62,7 +59,6 @@ function reduceSteps() {
 }
 
 export const PasscodeChange = React.memo(() => {
-    const { AppConfig } = useAppConfig();
     const acc = getCurrentAddress();
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '' });
     const navigation = useTypedNavigation();
@@ -116,7 +112,7 @@ export const PasscodeChange = React.memo(() => {
                                 throw new Error('Passcodes do not match');
                             }
 
-                            migrateToNewPasscode(state.prev, newPasscode, AppConfig.isTestnet);
+                            migrateToNewPasscode(state.prev, newPasscode);
 
                             dispatch({ type: 'success' });
                         }}

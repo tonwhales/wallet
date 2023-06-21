@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, View, Text } from "react-native"
+import { Platform, View, Text } from "react-native"
 import { PasscodeChange } from "../../../components/secure/PasscodeChange";
 import { fragment } from "../../../fragment"
 import { useSafeAreaInsets } from "react-native-safe-area-context";

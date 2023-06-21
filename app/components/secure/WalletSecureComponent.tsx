@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { BiometricsState, decryptData, generateNewKeyAndEncrypt, storeBiometricsEncKey, storeBiometricsState } from '../../storage/secureStorage';
+import { BiometricsState, encryptAndStoreAppKey, getApplicationKey, storeBiometricsState } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
 import { FragmentMediaContent } from '../FragmentMediaContent';
@@ -10,15 +10,13 @@ import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { mnemonicToWalletKey } from 'ton-crypto';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { useReboot } from '../../utils/RebootContext';
 import { storage } from '../../storage/storage';
 
 export const WalletSecureComponent = React.memo((props: {
-    mnemonics: string,
     deviceEncryption: DeviceEncryption,
+    passcode: string,
     callback: (res: boolean) => void,
     onLater?: () => void,
     import?: boolean
@@ -39,33 +37,8 @@ export const WalletSecureComponent = React.memo((props: {
         (async () => {
             setLoading(true);
             try {
-
-                const hasRef = !!storage.getString('ton-storage-ref');
-                const hasStorageKind = !!storage.getString('ton-storage-kind');
-                const hasAppKey = hasRef && hasStorageKind;
-
-                let secretKeyEnc;
-
-                if (hasAppKey) {
-                    // Use existing
-                    secretKeyEnc = await decryptData(Buffer.from(props.mnemonics));
-                } else {
-                    // Generate New Key
-                    secretKeyEnc = await generateNewKeyAndEncrypt(
-                        false,
-                        Buffer.from(props.mnemonics)
-                    );
-                }
-
-
-                // Resolve key
-                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
-
-                // Resolve contract
-                const contract = await contractFromPublicKey(key.publicKey);
-
-                // Save to storage and default state to Use biometrics
-                storeBiometricsEncKey(contract.address.toFriendly({ testOnly: AppConfig.isTestnet }), secretKeyEnc);
+                encryptAndStoreAppKey(disableEncryption, props.passcode);
+                // Save default state to Use biometrics
                 storeBiometricsState(BiometricsState.InUse);
 
                 props.callback(true);

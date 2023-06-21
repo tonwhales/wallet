@@ -20,6 +20,10 @@ const currentTokenVersion = 1;
 
 export type HoldersAccountStatus = { state: 'need-enrolment' } | (AccountState & { token: string })
 
+export function normalizePath(path: string) {
+    return path.replaceAll('.', '_');
+}
+
 export type HoldersCard = {
     id: string,
     address: string,
@@ -55,6 +59,7 @@ export class HoldersProduct {
         if (devUseOffline === undefined) {
             storage.set('dev-tools:use-offline-app', true);
         }
+
         this.engine = engine;
         this.#status = selector<HoldersAccountStatus>({
             key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',
@@ -87,7 +92,6 @@ export class HoldersProduct {
             this.cleanup();
         }
         storage.set('zenpay-token-version', currentTokenVersion);
-        this.forceSyncOfflineApp();
     }
 
     async enroll(domain: string, authContext: AuthWalletKeysType) {
@@ -310,8 +314,8 @@ export class HoldersProduct {
         });
     }
 
-    async downloadAsset(endpoint: string, asset: string): Promise<string> {
-        let fsPath = FileSystem.documentDirectory + 'holders/' + asset;
+    async downloadAsset(endpoint: string, asset: string, version: string): Promise<string> {
+        let fsPath = FileSystem.documentDirectory + `holders${version}/` + asset;
         let netPath = endpoint + '/' + asset;
 
         FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
@@ -324,7 +328,7 @@ export class HoldersProduct {
         let file = await FileSystem.readAsStringAsync(stored.uri);
         file = file.replaceAll(
             '{{APP_PUBLIC_URL}}',
-            FileSystem.documentDirectory + 'holders/'
+            FileSystem.documentDirectory + `holders${version}/`
         );
         await FileSystem.writeAsStringAsync(stored.uri, file);
 
@@ -332,9 +336,10 @@ export class HoldersProduct {
     }
 
     async syncOfflineRes(endpoint: string, app: HoldersOfflineApp) {
-        const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'holders');
+        const normalizedVersion = normalizePath(app.version);
+        const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`);
         if (!hasAppDirectory.exists) {
-            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'holders');
+            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`, { intermediates: true });
         }
 
         let uri = null;
@@ -342,18 +347,18 @@ export class HoldersProduct {
             && app.routes.length > 0
             && app.routes[0].fileName === 'index.html'
         ) {
-            uri = FileSystem.documentDirectory + 'holders/index.html';
+            uri = FileSystem.documentDirectory + `holders${normalizedVersion}/index.html`;
             const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;
             let file = await FileSystem.readAsStringAsync(uri);
             file = file.replaceAll(
                 '{{APP_PUBLIC_URL}}',
-                FileSystem.documentDirectory + 'holders/'
+                FileSystem.documentDirectory + `holders${normalizedVersion}/`
             );
             await FileSystem.writeAsStringAsync(uri, file);
         }
 
-        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset));
+        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset, normalizedVersion));
         const downloadedAssets = await Promise.all(assets);
 
         return { uri, assets: downloadedAssets };
@@ -384,9 +389,13 @@ export class HoldersProduct {
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((src) => {
+                if (src) {
+                    this.cleanupOldOfflineApp(src);
+                }
                 return fetchedApp;
             });
         } catch (e) {
+            warn(e);
             warn('Failed to sync offline app');
             return;
         }
@@ -402,11 +411,49 @@ export class HoldersProduct {
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((src) => {
+                if (src) {
+                    this.cleanupOldOfflineApp(src);
+                }
                 return fetchedApp;
             });
         } catch (e) {
             warn('Failed to sync offline app');
             return;
         }
+    }
+
+    async cleanupOldOfflineApp(app: HoldersOfflineApp) {
+        const appDir = FileSystem.documentDirectory + `holders${normalizePath(app.version)}`;
+        const hasAppDirectory = await FileSystem.getInfoAsync(appDir);
+        if (hasAppDirectory.exists) {
+            await FileSystem.deleteAsync(appDir, { idempotent: true });
+        }
+    }
+
+    async checkOfflineApp() {
+        const offlineApp = this.engine.persistence.holdersOfflineApp.item().value;
+
+        if (!offlineApp) {
+            return false;
+        }
+        const normalizedPath = normalizePath(offlineApp.version);
+
+        const filesCheck: Promise<boolean>[] = [];
+        offlineApp.resources.forEach((asset) => {
+            filesCheck.push((async () => {
+                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/${asset}`);
+                return info.exists;
+            })());
+        });
+
+        filesCheck.push((async () => {
+            const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/index.html`);
+            return info.exists;
+        })());
+
+        const files = await Promise.all(filesCheck);
+        const ready = files.every((f) => f);
+
+        return ready;
     }
 }

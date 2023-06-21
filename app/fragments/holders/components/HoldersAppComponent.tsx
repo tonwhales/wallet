@@ -28,6 +28,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { storage } from '../../../storage/storage';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { normalizePath } from '../../../engine/corp/HoldersProduct';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -74,25 +75,7 @@ export const HoldersAppComponent = React.memo((
                 return false;
             }
 
-            const filesCheck: Promise<boolean>[] = [];
-            offlineApp.resources.forEach((asset) => {
-                filesCheck.push((async () => {
-                    const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
-                    return info.exists;
-                })());
-            });
-
-            filesCheck.push((async () => {
-                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
-                return info.exists;
-            })());
-
-            const files = await Promise.all(filesCheck);
-            const ready = files.every((f) => f);
-
-            if (!ready) {
-                engine.products.holders.forceSyncOfflineApp();
-            }
+            const ready = await engine.products.holders.checkOfflineApp();
 
             setOfflineAppReady(ready);
         })();
@@ -354,10 +337,11 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineAppReady && (
+                {offlineAppReady && offlineApp && (
                     <OfflineWebView
                         ref={webRef}
-                        uri={`${FileSystem.documentDirectory}holders/index.html`}
+                        uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
+                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
                         initialRoute={source.initialRoute}
                         style={{
                             backgroundColor: Theme.item,
@@ -398,7 +382,7 @@ export const HoldersAppComponent = React.memo((
                         startInLoadingState={true}
                     />
                 )}
-                {!offlineAppReady && (
+                {!(offlineAppReady && offlineApp) && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}

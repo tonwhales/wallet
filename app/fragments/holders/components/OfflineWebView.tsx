@@ -3,6 +3,7 @@ import { Platform } from "react-native";
 import WebView, { WebViewProps } from "react-native-webview";
 import * as FileSystem from 'expo-file-system';
 import { OfflineErrorComponent } from "./OfflineErrorComponent";
+import { normalizePath } from "../../../engine/corp/HoldersProduct";
 
 export type AWebViewRef = {
     injectJavaScript: (script: string) => void;
@@ -11,7 +12,7 @@ export type AWebViewRef = {
 }
 
 export const OfflineWebView = React.memo(React.forwardRef((
-    props: Omit<WebViewProps, "source"> & { uri: string, initialRoute?: string },
+    props: Omit<WebViewProps, "source"> & { uri: string, baseUrl: string, initialRoute?: string },
     ref: React.ForwardedRef<AWebViewRef>
 ) => {
     const tref = React.useRef<WebView>(null);
@@ -47,7 +48,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     {...props}
                     source={renderedOnce ? { // some wierd android bug with file:// protocol
                         uri: props.uri,
-                        baseUrl: `${FileSystem.documentDirectory}holders/`,
+                        baseUrl: props.baseUrl,
                     } : undefined}
                     onLoad={(e) => {
                         setRenderedOnce(true);
@@ -60,7 +61,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     allowUniversalAccessFromFileURLs={true}
                     startInLoadingState={true}
                     originWhitelist={['*']}
-                    allowingReadAccessToURL={FileSystem.documentDirectory + 'holders/' ?? ''}
+                    allowingReadAccessToURL={props.baseUrl}
                     onShouldStartLoadWithRequest={(e) => {
                         if (props.onShouldStartLoadWithRequest && renderedOnce) {
                             return props.onShouldStartLoadWithRequest(e);
@@ -85,7 +86,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     {...props}
                     source={{
                         uri: props.uri,
-                        baseUrl: `${FileSystem.documentDirectory}holders/`,
+                        baseUrl: props.baseUrl,
                     }}
                     onLoad={(e) => {
                         setRenderedOnce(true);
@@ -97,9 +98,9 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     allowFileAccessFromFileURLs={true}
                     allowUniversalAccessFromFileURLs={true}
                     originWhitelist={['*']}
-                    allowingReadAccessToURL={FileSystem.documentDirectory + 'holders/' ?? ''}
+                    allowingReadAccessToURL={props.baseUrl}
                     onShouldStartLoadWithRequest={(e) => {
-                        if (e.url.indexOf(FileSystem.documentDirectory + 'holders/') !== -1) {
+                        if (e.url.indexOf(props.baseUrl) !== -1) {
                             return true;
                         }
                         if (props.onShouldStartLoadWithRequest) {

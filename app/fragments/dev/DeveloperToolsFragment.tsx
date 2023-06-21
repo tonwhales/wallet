@@ -21,7 +21,6 @@ import { WalletKeys } from '../../storage/walletKeys';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useState } from 'react';
 import { ItemSwitch } from '../../components/Item';
 
@@ -43,22 +42,9 @@ export const DeveloperToolsFragment = fragment(() => {
                 return;
             }
 
-            const filesCheck: Promise<boolean>[] = [];
-            offlineApp.resources.forEach((asset) => {
-                filesCheck.push((async () => {
-                    const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
-                    return info.exists;
-                })());
-            });
+            const ready = await engine.products.holders.checkOfflineApp();
 
-            filesCheck.push((async () => {
-                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
-                return info.exists;
-            })());
-
-            const files = await Promise.all(filesCheck);
-
-            setOfflineAppReady(files.every((file) => file));
+            setOfflineAppReady(ready);
         })()
     }, [offlineApp]);
 
@@ -221,6 +207,10 @@ export const DeveloperToolsFragment = fragment(() => {
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
+                                const app = engine.persistence.holdersOfflineApp.item().value;
+                                if (app) {
+                                    engine.products.holders.cleanupOldOfflineApp(app);
+                                }
                                 engine.persistence.holdersOfflineApp.item().update(() => null);
                                 await engine.products.holders.forceSyncOfflineApp();
                             }} />

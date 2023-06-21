@@ -13,7 +13,6 @@ export function processMainButtonMessage(
     webRef: React.MutableRefObject<any>
 ) {
     if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-button') !== -1) {
-        console.log('main-button', parsed.data);
         const actionType = parsed.data.name.split('.')[1];
 
         if (actionType === 'onClick' && typeof parsed.id === 'number') {

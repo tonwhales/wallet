@@ -32,7 +32,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                 title={t('backupIntro.title')}
                 text={t('backupIntro.subtitle')}
             >
-                <ScrollView style={{ width: '100%', paddingHorizontal: 16 }}>
+                <ScrollView style={{ width: '100%', flexGrow: 0, paddingHorizontal: 16, flexShrink: 1 }}>
                     <View
                         style={{
                             marginBottom: 32,

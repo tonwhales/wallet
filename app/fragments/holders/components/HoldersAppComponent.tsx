@@ -28,7 +28,6 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { storage } from '../../../storage/storage';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useKeyboard } from '@react-native-community/hooks';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -39,7 +38,6 @@ export const HoldersAppComponent = React.memo((
     }
 ) => {
     const safeArea = useSafeAreaInsets();
-    const keyboard = useKeyboard();
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const status = engine.products.holders.useStatus();
@@ -48,6 +46,7 @@ export const HoldersAppComponent = React.memo((
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.products.holders.useOfflineApp();
+    const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -492,9 +491,9 @@ export const HoldersAppComponent = React.memo((
                 {mainButton && (
                     <KeyboardAvoidingView
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        contentContainerStyle={{ marginHorizontal: 16 }}
+                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: (safeArea.bottom === 0 ? 16 : safeArea.bottom) }}
                         keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? safeArea.bottom + (keyboard.keyboardShown ? 64 : 32)
+                            ? bottomMargin
                             : undefined
                         }
                     >
@@ -502,7 +501,7 @@ export const HoldersAppComponent = React.memo((
                             <Animated.View
                                 style={Platform.OS === 'android'
                                     ? { marginHorizontal: 16, marginBottom: 16 }
-                                    : undefined
+                                    : { marginBottom: 16 }
                                 }
                                 entering={FadeInDown}
                                 exiting={FadeOutDown}

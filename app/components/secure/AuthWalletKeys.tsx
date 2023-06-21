@@ -57,7 +57,8 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
         if (useBiometrics) {
             try {
-                return loadWalletKeys(acc.secretKeyEnc);
+                const keys = loadWalletKeys(acc.secretKeyEnc);
+                return keys;
             } catch (e) {
                 warn('Failed to load wallet keys with biometrics');
 

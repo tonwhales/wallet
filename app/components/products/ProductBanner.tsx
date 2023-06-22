@@ -7,6 +7,7 @@ export const ProductBanner = React.memo((props: {
     title: string,
     subtitle?: string,
     illustration?: ImageSourcePropType,
+    reverse?: boolean
 }) => {
     const { Theme } = useAppConfig();
 
@@ -21,6 +22,11 @@ export const ProductBanner = React.memo((props: {
             }}
         >
             <View style={{ flexDirection: 'row' }}>
+                {(!!props.illustration && props.reverse) && (
+                    <View style={{ height: 106, width: 106 }}>
+                        <Image source={props.illustration} style={{ height: 106, width: 106 }} />
+                    </View>
+                )}
                 <View style={{
                     justifyContent: 'space-between', padding: 20, paddingRight: 12,
                     flexGrow: 1, flexShrink: 1
@@ -39,7 +45,7 @@ export const ProductBanner = React.memo((props: {
                         </Text>
                     )}
                 </View>
-                {(!!props.illustration) && (
+                {(!!props.illustration && !props.reverse) && (
                     <View style={{ height: 106, width: 106 }}>
                         <Image source={props.illustration} style={{ height: 106, width: 106 }} />
                     </View>

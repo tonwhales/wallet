@@ -405,9 +405,11 @@ export type LocalizationSchema = {
                 pin: string
             },
             card: {
+                cards: string,
                 title: string,
                 defaultSubtitle: string,
                 defaultTitle: string,
+                eurSubtitle: string,
                 type: {
                     physical: string,
                     virtual: string,

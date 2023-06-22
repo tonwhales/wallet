@@ -404,9 +404,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 pin: 'Смена PIN-кода',
             },
             card: {
+                cards: 'Карты ({{count}})',
                 title: 'Tonhub Card *{{cardNumber}}',
                 defaultSubtitle: 'Платите в TON, конвертация в EUR с комиссией 0%',
                 defaultTitle: 'Tonhub Bank Card',
+                eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Физическая карта',
                     virtual: 'Виртуальная',

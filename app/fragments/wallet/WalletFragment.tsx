@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, Text, View } from 'react-native';
+import { Image, LayoutAnimation, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
-import Animated from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { WalletAddress } from '../../components/WalletAddress';
@@ -269,19 +268,15 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </View>
                 </View>
             </View>
-            <Animated.ScrollView
+            <ScrollView
+                style={{ flexBasis: 0 }}
                 contentContainerStyle={{
-                    flexGrow: 1,
-                    paddingTop: Platform.OS === 'android'
-                        ? safeArea.top + 44
-                        : undefined,
                     backgroundColor: Theme.item
                 }}
-                removeClippedSubviews={true}
             >
                 <ProductsComponent />
-            </Animated.ScrollView>
-        </View >
+            </ScrollView>
+        </View>
     );
 }
 

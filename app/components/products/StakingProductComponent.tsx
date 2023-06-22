@@ -69,34 +69,29 @@ export const StakingProductComponent = React.memo(() => {
                     </View>
                 </View>
                 <View style={{
-                    flexDirection: 'column',
-                    flexGrow: 1, justifyContent: 'center'
+                    flexDirection: 'row',
+                    flexGrow: 1, flexShrink: 1, alignItems: 'center',
+                    justifyContent: 'space-between',
+                    overflow: 'hidden'
                 }}>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        marginBottom: 3
-                    }}>
+                    <View style={{ flexGrow: 1, flexShrink: 1 }}>
                         <Text
-                            style={{ color: Theme.textColor, ...titleStyle }}
+                            style={{ color: Theme.textColor, ...titleStyle, marginBottom: 3 }}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
                             {t('products.staking.title')}
                         </Text>
+                        <Text style={{ color: '#838D99', ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                            {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
+                        </Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
                         <Text style={{ color: Theme.textColor, ...titleStyle }}>
                             <ValueComponent
                                 value={staking.total}
                             />
                             {' TON'}
-                        </Text>
-                    </View>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                    }}>
-                        <Text style={{ color: '#838D99', ...subtitleStyle }} ellipsizeMode="tail">
-                            {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                         </Text>
                         <PriceComponent
                             amount={staking.total}
@@ -104,7 +99,7 @@ export const StakingProductComponent = React.memo(() => {
                                 backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0, paddingVertical: 0,
                                 alignSelf: 'flex-end',
-                                height: undefined,
+                                height: undefined
                             }}
                             textStyle={{ color: '#838D99', ...subtitleStyle }}
                         />

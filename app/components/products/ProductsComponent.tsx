@@ -26,6 +26,8 @@ export const ProductsComponent = React.memo(() => {
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
+    const cards = engine.products.holders.useCards();
+    const totalStaked = engine.products.whalesStakingPools.useStaking().total;
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];
@@ -168,23 +170,25 @@ export const ProductsComponent = React.memo(() => {
                 }}>
                     {t('common.products')}
                 </Text>
-                <Pressable
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1
-                        }
-                    }}
-                    onPress={() => navigation.navigate('Products')}
+                {!(cards.length === 0 && totalStaked.lte(new BN(0))) && (
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1
+                            }
+                        }}
+                        onPress={() => navigation.navigate('Products')}
                     >
-                    <Text style={{
-                        fontSize: 15,
-                        fontWeight: '500',
-                        lineHeight: 20,
-                        color: Theme.accent,
-                    }}>
-                        {t('products.addNew')}
-                    </Text>
-                </Pressable>
+                        <Text style={{
+                            fontSize: 15,
+                            fontWeight: '500',
+                            lineHeight: 20,
+                            color: Theme.accent,
+                        }}>
+                            {t('products.addNew')}
+                        </Text>
+                    </Pressable>
+                )}
             </View>
 
             <HoldersProductButton />

@@ -403,9 +403,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 pin: 'Change PIN',
             },
             card: {
+                cards : '{{count}} Cards',
                 title: 'Tonhub Card *{{cardNumber}}',
                 defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
                 defaultTitle: 'Tonhub Bank Card',
+                eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Physical Card',
                     virtual: 'Virtual',

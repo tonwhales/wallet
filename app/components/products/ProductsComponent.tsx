@@ -1,24 +1,21 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
-import { ProductButton } from "./ProductButton"
-import { useEngine } from "../../../engine/Engine"
-import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
-import SignIcon from '../../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../../assets/ic_transaction.svg';
-import { useTypedNavigation } from "../../../utils/useTypedNavigation"
-import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
-import { t } from "../../../i18n/t"
+import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
+import SignIcon from '../../../assets/ic_sign.svg';
+import TransactionIcon from '../../../assets/ic_transaction.svg';
 import { JettonProductButton } from "./JettonProductButton"
-import { getConnectionReferences } from "../../../storage/appState"
-import { extractDomain } from "../../../engine/utils/extractDomain"
-import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
-import { ZenPayProductButton } from "../../zenpay/components/ZenPayProductButton"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
-import { useAppConfig } from "../../../utils/AppConfigContext";
 import { HoldersProductButton } from "./HoldersProductButton"
+import { useEngine } from "../../engine/Engine";
+import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../engine/tonconnect/utils";
+import { extractDomain } from "../../engine/utils/extractDomain";
+import { getConnectionReferences } from "../../storage/appState";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { StakingProductComponent } from "./StakingProductComponent";
+import { t } from "../../i18n/t";
 
 export const ProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -28,21 +25,7 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
-    const ledger = engine.products.settings.useLedger();
-    const tonconnectExtensions = engine.products.tonConnect.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
-    const openExtension = React.useCallback((url: string) => {
-        let domain = extractDomain(url);
-        if (!domain) {
-            return; // Shouldn't happen
-        }
-        let k = engine.persistence.domainKeys.getValue(domain);
-        if (!k) {
-            navigation.navigate('Install', { url });
-        } else {
-            navigation.navigate('App', { url });
-        }
-    }, []);
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];

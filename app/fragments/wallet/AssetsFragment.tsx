@@ -11,11 +11,11 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AnimatedProductButton } from "./products/AnimatedProductButton";
-import { JettonProductButton } from "./products/JettonProductButton";
+import { AnimatedProductButton } from "../../components/products/AnimatedProductButton";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
+import { JettonProductButton } from "../../components/products/JettonProductButton";
 
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();

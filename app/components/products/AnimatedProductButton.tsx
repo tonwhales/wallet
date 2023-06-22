@@ -1,6 +1,6 @@
 import React from "react";
 import { Platform } from "react-native";
-import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, EntryExitTransition } from "react-native-reanimated";
+import Animated, { BaseAnimationBuilder } from "react-native-reanimated";
 import { ProductButton, ProductButtonProps } from "./ProductButton";
 
 export const AnimatedProductButton = React.memo((

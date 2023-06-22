@@ -13,10 +13,10 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
-import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
-import { JettonProductButton } from "../wallet/products/JettonProductButton";
+import { AnimatedProductButton } from "../../components/products/AnimatedProductButton";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { JettonProductButton } from "../../components/products/JettonProductButton";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();

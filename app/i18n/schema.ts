@@ -55,8 +55,10 @@ export type LocalizationSchema = {
         online: string
     },
     home: {
-        wallet: string,
-        settings: string
+        home: string,
+        history: string,
+        services: string,
+        more: string
     }
     settings: {
         title: string,

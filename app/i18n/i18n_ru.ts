@@ -54,8 +54,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         online: 'Подключено'
     },
     home: {
-        wallet: 'Кошелек',
-        settings: 'Настройки'
+        home: 'Главная',
+        history: 'История',
+        services: 'Сервисы',
+        more: 'Еще',
     },
     settings: {
         title: 'Настройки',

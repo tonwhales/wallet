@@ -122,7 +122,9 @@ export const HomeFragment = fragment(() => {
     } else if (tab === 1) {
         useTrackScreen('Transactions', AppConfig.isTestnet);
     } else if (tab === 2) {
-        useTrackScreen('Settings', AppConfig.isTestnet);
+        useTrackScreen('Services', AppConfig.isTestnet);
+    } else if (tab === 3) {
+        useTrackScreen('More', AppConfig.isTestnet);
     }
 
     return (
@@ -135,6 +137,8 @@ export const HomeFragment = fragment(() => {
                 <TransactionsFragment />
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 2 ? 1 : 0 }} pointerEvents={tab === 2 ? 'box-none' : 'none'}>
+            </View>
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 3 ? 1 : 0 }} pointerEvents={tab === 3 ? 'box-none' : 'none'}>
                 <SettingsFragment />
             </View>
             <View
@@ -157,7 +161,7 @@ export const HomeFragment = fragment(() => {
                         onPress={() => setTab(0)}
                     >
                         <Image
-                            source={tab === 0 ? require('../../assets/ic_home_selected.png') : require('../../assets/ic_home.png')}
+                            source={require('../../assets/ic-home.png')}
                             style={{
                                 tintColor: tab === 0 ? Theme.accent : Theme.textSecondary,
                                 height: 24, width: 24
@@ -167,7 +171,7 @@ export const HomeFragment = fragment(() => {
                             color: tab === 0 ? Theme.accent : Theme.textSecondary,
                             ...tabButtonTextStyle
                         }}>
-                            {t('home.wallet')}
+                            {t('home.home')}
                         </Text>
                     </Pressable>
                     <Pressable
@@ -175,7 +179,7 @@ export const HomeFragment = fragment(() => {
                         onPress={() => setTab(1)}
                     >
                         <Image
-                            source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
+                            source={require('../../assets/ic-history.png')}
                             style={{
                                 tintColor: tab === 1 ? Theme.accent : Theme.textSecondary,
                                 height: 24, width: 24
@@ -187,7 +191,7 @@ export const HomeFragment = fragment(() => {
                                 ...tabButtonTextStyle
                             }}
                         >
-                            {t('transactions.history')}
+                            {t('home.history')}
                         </Text>
                     </Pressable>
                     <Pressable
@@ -195,7 +199,7 @@ export const HomeFragment = fragment(() => {
                         onPress={() => setTab(2)}
                     >
                         <Image
-                            source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                            source={require('../../assets/ic-services.png')}
                             style={{
                                 tintColor: tab === 2 ? Theme.accent : Theme.textSecondary,
                                 height: 24, width: 24
@@ -207,7 +211,27 @@ export const HomeFragment = fragment(() => {
                                 ...tabButtonTextStyle
                             }}
                         >
-                            {t('home.settings')}
+                            {t('home.services')}
+                        </Text>
+                    </Pressable>
+                    <Pressable
+                        style={tabButtonStyle}
+                        onPress={() => setTab(3)}
+                    >
+                        <Image
+                            source={tab === 3 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                            style={{
+                                tintColor: tab === 3 ? Theme.accent : Theme.textSecondary,
+                                height: 24, width: 24
+                            }}
+                        />
+                        <Text
+                            style={{
+                                color: tab === 3 ? Theme.accent : Theme.textSecondary,
+                                ...tabButtonTextStyle
+                            }}
+                        >
+                            {t('home.more')}
                         </Text>
                     </Pressable>
                 </View>

@@ -10,9 +10,9 @@ import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { JettonProductButton } from "./wallet/products/JettonProductButton";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
+import { JettonProductButton } from "../components/products/JettonProductButton";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {

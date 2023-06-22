@@ -404,7 +404,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             card: {
                 title: 'Tonhub Card *{{cardNumber}}',
-                defaultSubtitle: 'TON to EUR (0% fee)',
+                defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
                 defaultTitle: 'Tonhub Bank Card',
                 type: {
                     physical: 'Physical Card',

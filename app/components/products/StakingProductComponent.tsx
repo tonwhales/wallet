@@ -9,6 +9,7 @@ import { ValueComponent } from "../ValueComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 import StakingIcon from '../../../assets/ic-staking.svg';
+import { ProductBanner } from "./ProductBanner";
 
 const style: StyleProp<ViewStyle> = {
     height: 84,
@@ -117,34 +118,11 @@ export const StakingProductComponent = React.memo(() => {
     );
 
     return (
-        <TouchableHighlight
+        <ProductBanner
             onPress={() => navigation.navigate('StakingPools')}
-            underlayColor={Theme.selector}
-            style={style}
-        >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
-                <View style={icStyle}>
-                    <View style={{ backgroundColor: Theme.success, ...icStyleInner }}>
-                        <StakingIcon width={32} height={32} color={'white'} />
-                    </View>
-                </View>
-                <View style={{
-                    flexGrow: 1,
-                    justifyContent: 'space-between',
-                }}>
-                    <Text style={{ color: Theme.textColor, ...titleStyle }}
-                        ellipsizeMode={'tail'}
-                        numberOfLines={1}
-                    >
-                        {t('products.staking.title')}
-                    </Text>
-                    <Text style={{ color: '#838D99', ...subtitleStyle }}
-                        ellipsizeMode={'tail'}
-                    >
-                        {AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-                    </Text>
-                </View>
-            </View>
-        </TouchableHighlight>
+            title={t('products.staking.title')}
+            subtitle={AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
+            illustration={require('../../../assets/banner-staking.png')}
+        />
     );
 })

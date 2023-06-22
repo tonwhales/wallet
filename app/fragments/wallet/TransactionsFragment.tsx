@@ -108,7 +108,6 @@ const WalletTransactions = React.memo((props: {
         >
             {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
             {components}
-            {(Platform.OS !== 'ios' && props.next) && (<View style={{ height: 64 }} />)}
         </ScrollView>
     );
 });
@@ -138,7 +137,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     }, [account.next ? account.next.lt : null]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+        <View style={{ flexGrow: 1 }}>
             <StatusBar style={'dark'} />
             {account.transactions.length === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>

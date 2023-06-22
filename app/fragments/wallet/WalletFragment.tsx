@@ -4,7 +4,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
-import Animated, { } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { WalletAddress } from '../../components/WalletAddress';
@@ -18,11 +18,11 @@ import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { StatusBar } from 'expo-status-bar';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
+import { useCallback, useLayoutEffect, useMemo } from 'react';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
-import { useCallback, useLayoutEffect, useMemo } from 'react';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -291,6 +291,7 @@ export const WalletFragment = fragment(() => {
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <StatusBar style={'light'} />
                 <LoadingIndicator />
             </View>
         );

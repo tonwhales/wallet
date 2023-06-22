@@ -72,7 +72,8 @@ function WalletComponent(props: { wallet: WalletState }) {
     }, [account.pending.length]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom, backgroundColor: Theme.item }}>
+        <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
+            <StatusBar style={'light'} />
             <View
                 style={{
                     backgroundColor: '#131928',

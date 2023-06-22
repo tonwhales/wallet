@@ -11,6 +11,7 @@ import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
 import { useAppConfig } from '../utils/AppConfigContext';
+import { StatusBar } from 'expo-status-bar';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -41,6 +42,7 @@ export const SettingsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={'dark'} />
             {Platform.OS === 'ios' && (
                 <BlurView style={{
                     height: safeArea.top + 44,
@@ -98,7 +100,6 @@ export const SettingsFragment = fragment(() => {
                     backgroundColor: Theme.background,
                     paddingHorizontal: 16,
                     flexBasis: 0,
-                    marginBottom: 52 + safeArea.bottom
                 }}
             >
                 {__DEV__ && (
@@ -215,7 +216,7 @@ export const SettingsFragment = fragment(() => {
                 onPress={onVersionTap}
                 style={{
                     position: 'absolute',
-                    bottom: 52 + 14 + safeArea.bottom,
+                    bottom: 14,
                     flexShrink: 1,
                     alignSelf: 'center',
                     borderRadius: 20,

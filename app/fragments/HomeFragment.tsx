@@ -18,6 +18,16 @@ import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { StatusBar } from 'expo-status-bar';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Tab = createBottomTabNavigator();
+
+//   return (
+//     <Tab.Navigator>
+//       <Tab.Screen name="Home" component={HomeScreen} />
+//       <Tab.Screen name="Settings" component={SettingsScreen} />
+//     </Tab.Navigator>
+//   );
 
 const tabButtonStyle: StyleProp<ViewStyle> = {
     height: 49, flexGrow: 1, flexBasis: 0,
@@ -129,9 +139,120 @@ export const HomeFragment = fragment(() => {
     }
 
     return (
-        <View style={{ flexGrow: 1 }}>
-            <StatusBar style={'auto'} />
-            <View style={{ flexGrow: 1 }} />
+        <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
+            <Tab.Navigator
+                initialRouteName={'Home'}
+                tabBar={(props) => {
+                    return (
+                        <View
+                            style={{
+                                height: 49 + safeArea.bottom, paddingHorizontal: 16,
+                                backgroundColor: 'white',
+                                borderTopEndRadius: 20, borderTopStartRadius: 20,
+                                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowRadius: 14,
+                                shadowOpacity: 1,
+                            }}
+                        >
+                            <View style={{
+                                flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                                paddingBottom: 2, paddingTop: 9
+                            }}>
+                                <Pressable
+                                    style={tabButtonStyle}
+                                    onPress={() => props.navigation.navigate('Home')}
+                                >
+                                    <Image
+                                        source={require('../../assets/ic-home.png')}
+                                        style={{
+                                            tintColor: tab === 0 ? Theme.accent : Theme.textSecondary,
+                                            height: 24, width: 24
+                                        }}
+                                    />
+                                    <Text style={{
+                                        color: tab === 0 ? Theme.accent : Theme.textSecondary,
+                                        ...tabButtonTextStyle
+                                    }}>
+                                        {t('home.home')}
+                                    </Text>
+                                </Pressable>
+                                <Pressable
+                                    style={tabButtonStyle}
+                                    onPress={() => props.navigation.navigate('Transactions')}
+                                >
+                                    <Image
+                                        source={require('../../assets/ic-history.png')}
+                                        style={{
+                                            tintColor: tab === 1 ? Theme.accent : Theme.textSecondary,
+                                            height: 24, width: 24
+                                        }}
+                                    />
+                                    <Text
+                                        style={{
+                                            color: tab === 1 ? Theme.accent : Theme.textSecondary,
+                                            ...tabButtonTextStyle
+                                        }}
+                                    >
+                                        {t('home.history')}
+                                    </Text>
+                                </Pressable>
+                                <Pressable
+                                    style={tabButtonStyle}
+                                    onPress={() => props.navigation.navigate('Services')}
+                                >
+                                    <Image
+                                        source={require('../../assets/ic-services.png')}
+                                        style={{
+                                            tintColor: tab === 2 ? Theme.accent : Theme.textSecondary,
+                                            height: 24, width: 24
+                                        }}
+                                    />
+                                    <Text
+                                        style={{
+                                            color: tab === 2 ? Theme.accent : Theme.textSecondary,
+                                            ...tabButtonTextStyle
+                                        }}
+                                    >
+                                        {t('home.services')}
+                                    </Text>
+                                </Pressable>
+                                <Pressable
+                                    style={tabButtonStyle}
+                                    onPress={() => props.navigation.navigate('More')}
+                                >
+                                    <Image
+                                        source={tab === 3 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
+                                        style={{
+                                            tintColor: tab === 3 ? Theme.accent : Theme.textSecondary,
+                                            height: 24, width: 24
+                                        }}
+                                    />
+                                    <Text
+                                        style={{
+                                            color: tab === 3 ? Theme.accent : Theme.textSecondary,
+                                            ...tabButtonTextStyle
+                                        }}
+                                    >
+                                        {t('home.more')}
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    )
+                }}
+                screenOptions={({ route }) => ({
+                    headerShown: false,
+                    header: undefined,
+                })}
+            >
+                <Tab.Screen name={'Home'} component={WalletFragment} />
+                <Tab.Screen name={'Transactions'} component={TransactionsFragment} />
+                <Tab.Screen name={'Services'} component={View} />
+                <Tab.Screen name={'More'} component={SettingsFragment} />
+            </Tab.Navigator>
+            {/* <StatusBar style={'auto'} /> */}
+            {/* <View style={{ flexGrow: 1 }} />
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
                 <WalletFragment />
             </View>
@@ -143,101 +264,7 @@ export const HomeFragment = fragment(() => {
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 3 ? 1 : 0 }} pointerEvents={tab === 3 ? 'box-none' : 'none'}>
                 <SettingsFragment />
             </View>
-            <View
-                style={{
-                    height: 49 + safeArea.bottom, paddingHorizontal: 16,
-                    backgroundColor: 'white',
-                    borderTopEndRadius: 20, borderTopStartRadius: 20,
-                    shadowColor: 'rgba(0, 0, 0, 0.1)',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowRadius: 14,
-                    shadowOpacity: 1,
-                }}
-            >
-                <View style={{
-                    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                    paddingBottom: 2, paddingTop: 9
-                }}>
-                    <Pressable
-                        style={tabButtonStyle}
-                        onPress={() => setTab(0)}
-                    >
-                        <Image
-                            source={require('../../assets/ic-home.png')}
-                            style={{
-                                tintColor: tab === 0 ? Theme.accent : Theme.textSecondary,
-                                height: 24, width: 24
-                            }}
-                        />
-                        <Text style={{
-                            color: tab === 0 ? Theme.accent : Theme.textSecondary,
-                            ...tabButtonTextStyle
-                        }}>
-                            {t('home.home')}
-                        </Text>
-                    </Pressable>
-                    <Pressable
-                        style={tabButtonStyle}
-                        onPress={() => setTab(1)}
-                    >
-                        <Image
-                            source={require('../../assets/ic-history.png')}
-                            style={{
-                                tintColor: tab === 1 ? Theme.accent : Theme.textSecondary,
-                                height: 24, width: 24
-                            }}
-                        />
-                        <Text
-                            style={{
-                                color: tab === 1 ? Theme.accent : Theme.textSecondary,
-                                ...tabButtonTextStyle
-                            }}
-                        >
-                            {t('home.history')}
-                        </Text>
-                    </Pressable>
-                    <Pressable
-                        style={tabButtonStyle}
-                        onPress={() => setTab(2)}
-                    >
-                        <Image
-                            source={require('../../assets/ic-services.png')}
-                            style={{
-                                tintColor: tab === 2 ? Theme.accent : Theme.textSecondary,
-                                height: 24, width: 24
-                            }}
-                        />
-                        <Text
-                            style={{
-                                color: tab === 2 ? Theme.accent : Theme.textSecondary,
-                                ...tabButtonTextStyle
-                            }}
-                        >
-                            {t('home.services')}
-                        </Text>
-                    </Pressable>
-                    <Pressable
-                        style={tabButtonStyle}
-                        onPress={() => setTab(3)}
-                    >
-                        <Image
-                            source={tab === 3 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                            style={{
-                                tintColor: tab === 3 ? Theme.accent : Theme.textSecondary,
-                                height: 24, width: 24
-                            }}
-                        />
-                        <Text
-                            style={{
-                                color: tab === 3 ? Theme.accent : Theme.textSecondary,
-                                ...tabButtonTextStyle
-                            }}
-                        >
-                            {t('home.more')}
-                        </Text>
-                    </Pressable>
-                </View>
-            </View>
+             */}
         </View>
     );
 }, true);

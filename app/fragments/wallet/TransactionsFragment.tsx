@@ -139,6 +139,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+            <StatusBar style={'dark'} />
             {account.transactions.length === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                     <Pressable
@@ -263,6 +264,7 @@ export const TransactionsFragment = fragment(() => {
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <StatusBar style={'dark'} />
                 <LoadingIndicator />
             </View>
         );

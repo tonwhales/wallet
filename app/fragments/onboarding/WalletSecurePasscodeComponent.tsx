@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { encryptAndStoreWithPasscode } from '../../storage/secureStorage';
-import { getAppState, getBackup, markAddressSecured, setAppState } from '../../storage/appState';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useReboot } from '../../utils/RebootContext';
@@ -18,6 +17,8 @@ import Animated, { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated'
 import { WalletSecureComponent } from '../../components/secure/WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { storage } from '../../storage/storage';
+import { PasscodeState, encryptData, generateNewKeyAndEncrypt, passcodeStateKey } from '../../storage/secureStorage';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -28,7 +29,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
-    const [deviceEncryption, setDeviceEncryption] = React.useState<DeviceEncryption>();
+    const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = React.useState(false);
 
     const onAfterImport = React.useCallback(() => {
@@ -57,17 +58,26 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             // Resolve contract
             const contract = await contractFromPublicKey(key.publicKey);
 
-            // Generate New Key
-            try {
-                secretKeyEnc = await encryptAndStoreWithPasscode(
-                    contract.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    passcode,
-                    Buffer.from(props.mnemonics)
-                );
-            } catch (e) {
-                // Ignore
-                warn('Failed to generate new key');
-                return;
+            const passcodeState = storage.getString(passcodeStateKey);
+            const isPasscodeSet = (passcodeState === PasscodeState.Set);
+
+            if (isPasscodeSet) {
+                // Use prev app key
+                try {
+                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics, 'base64'), passcode);
+                } catch (e) {
+                    warn('Failed to encrypt with passcode');
+                    return;
+                }
+            } else {
+                // Generate New Key
+                try {
+                    secretKeyEnc = await generateNewKeyAndEncrypt(Buffer.from(props.mnemonics), passcode);
+                } catch {
+                    // Ignore
+                    warn('Failed to generate new key');
+                    return;
+                }
             }
 
             // Persist state
@@ -86,7 +96,28 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             }, AppConfig.isTestnet);
 
             const deviceEncryption = await getDeviceEncryption();
-            setDeviceEncryption(deviceEncryption);
+
+            let disableEncryption =
+                (deviceEncryption === 'none')
+                || (deviceEncryption === 'device-biometrics')
+                || (deviceEncryption === 'device-passcode')
+                || (Platform.OS === 'android' && Platform.Version < 30);
+
+            // Skip biometrics setup if encryption is disabled
+            if (disableEncryption) {
+                if (props.import) {
+                    let state = getAppState();
+                    if (!state) {
+                        throw Error('Invalid state');
+                    }
+                    const account = getCurrentAddress();
+                    markAddressSecured(account.address, AppConfig.isTestnet);
+                    reboot();
+                }
+                navigation.navigate('WalletBackupInit');
+            }
+
+            setState({ passcode, deviceEncryption });
         } catch (e) {
             warn(e);
             Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
@@ -97,7 +128,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
     return (
         <>
-            {!deviceEncryption && (
+            {!state && (
                 <Animated.View
                     style={{
                         flex: 1,
@@ -112,21 +143,21 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 </Animated.View>
             )}
 
-            {deviceEncryption && (
+            {state && (
                 <Animated.View
                     style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
                     key="content"
                     entering={FadeIn}
                 >
                     <WalletSecureComponent
-                        mnemonics={props.mnemonics}
-                        deviceEncryption={deviceEncryption}
+                        deviceEncryption={state.deviceEncryption}
+                        passcode={state.passcode}
                         callback={(res: boolean) => {
                             if (res) {
                                 if (props.import) {
                                     onAfterImport();
                                 } else {
-                                    navigation.navigate('WalletBackupInit')
+                                    navigation.navigate('WalletCreated')
                                 }
                             }
                         }}
@@ -134,7 +165,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             if (props.import) {
                                 onAfterImport();
                             } else {
-                                navigation.navigate('WalletBackupInit')
+                                navigation.navigate('WalletCreated')
                             }
                         }}
                     />

@@ -5,12 +5,11 @@ import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
-import { BiometricsState, PasscodeState, getBiometricsMigrated } from "../storage/secureStorage"
+import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
-import { getCurrentAddress } from "../storage/appState"
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
@@ -28,15 +27,13 @@ export const SecurityFragment = fragment(() => {
     const engine = useEngine();
     const settings = engine.products.settings;
     const authContext = useKeysAuth();
-    const acc = getCurrentAddress();
-    const { Theme, AppConfig } = useAppConfig();
-    const passcodeState = settings.usePasscodeState(acc.address);
-    const biometricsState = settings.useBiometricsState(acc.address);
-    const migrated = getBiometricsMigrated(AppConfig.isTestnet);
+    const { Theme } = useAppConfig();
+    const passcodeState = settings.usePasscodeState();
+    const biometricsState = settings.useBiometricsState();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
     const biometricsProps = useMemo(() => {
-        if (!migrated || !(passcodeState === PasscodeState.Set)) {
+        if (passcodeState !== PasscodeState.Set) {
             return null
         }
 
@@ -61,7 +58,6 @@ export const SecurityFragment = fragment(() => {
                     : t('secure.protectBiometrics');
                 break;
             case 'passcode':
-            case 'device-passcode':
             case 'secret':
                 icon = <Ionicons
                     name={'keypad'}
@@ -70,9 +66,8 @@ export const SecurityFragment = fragment(() => {
                 />;
                 buttonText = t('secure.protectPasscode');
                 break;
+            case 'device-passcode':
             case 'device-biometrics':
-                buttonText = t('secure.protectBiometrics');
-                break;
             case 'none':
                 return null;
             default:
@@ -85,7 +80,7 @@ export const SecurityFragment = fragment(() => {
             state: biometricsState,
         }
 
-    }, [biometricsState, migrated, deviceEncryption, passcodeState]);
+    }, [biometricsState, deviceEncryption, passcodeState]);
 
     useEffect(() => {
         (async () => {
@@ -140,14 +135,15 @@ export const SecurityFragment = fragment(() => {
                                     onPress={() => navigation.navigate('PasscodeChange')}
                                 />
                             </View>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                            {/* TODO: rework PasscodeResetFlow to account for multiaccounts */}
+                            {/* <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
                                 <ItemButton
                                     leftIcon={require('../../assets/ic_reset.png')}
                                     title={t('security.passcodeSettings.resetTitle')}
                                     onPress={() => navigation.navigate('PasscodeReset')}
                                 />
-                            </View>
+                            </View> */}
                         </>
                     )}
                     {(!passcodeState || passcodeState === PasscodeState.NotSet) && (
@@ -170,8 +166,12 @@ export const SecurityFragment = fragment(() => {
                                             value={biometricsProps.state === BiometricsState.InUse}
                                             onChange={async (newValue: boolean) => {
                                                 try {
-                                                    await authContext.authenticateWithPasscode({cancelable: true});
-                                                    settings.setBiometricsState(acc.address, newValue ? BiometricsState.InUse : BiometricsState.DontUse);
+                                                    if (newValue) {
+                                                        await authContext.authenticateWithPasscode({ cancelable: true });
+                                                    } else {
+                                                        await authContext.authenticate({ cancelable: true });
+                                                    }
+                                                    settings.setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
                                                 } catch (e) {
                                                     warn('Failed to authenticate with passcode');
                                                 }

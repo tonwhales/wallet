@@ -14,6 +14,8 @@ import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useReboot } from '../../utils/RebootContext';
+import { warn } from '../../utils/log';
+import { BiometricsState, getBiometricsState } from '../../storage/secureStorage';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -53,7 +55,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 let keys = await authContext.authenticate({ backgroundColor: Theme.item });
                 setMnemonics(keys.mnemonics);
             } catch (e) {
-                console.warn(e);
+                warn(e);
                 navigation.goBack();
                 return;
             }
@@ -98,8 +100,7 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: Theme.item, 
-                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+                backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
             }}
             exiting={FadeIn}
             key={"content"}
@@ -132,7 +133,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 marginTop: 33,
                 alignSelf: 'stretch',
                 position: 'absolute',
-                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0),
+                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0),
                 left: 16, right: 16
             }}>
                 <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />

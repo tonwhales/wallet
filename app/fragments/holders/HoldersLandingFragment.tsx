@@ -22,6 +22,7 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { storage } from '../../storage/storage';
+import { normalizePath } from '../../engine/corp/HoldersProduct';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -199,11 +200,12 @@ export const HoldersLandingFragment = fragment(() => {
                         flexGrow: 1,
                     }}
                 >
-                    {offlineAppReady && (
+                    {offlineAppReady && offlineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
                                 ref={webRef}
-                                uri={`${FileSystem.documentDirectory}holders/index.html`}
+                                uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
+                                baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
                                 initialRoute={`/about?lang=${lang}&currency=${currency}`}
                                 style={{
                                     backgroundColor: Theme.item,
@@ -239,7 +241,7 @@ export const HoldersLandingFragment = fragment(() => {
                             />
                         </Animated.View>
                     )}
-                    {!offlineAppReady && (
+                    {!(offlineAppReady && offlineApp) && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <WebView
                                 ref={webRef}

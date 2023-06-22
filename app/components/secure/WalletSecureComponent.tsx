@@ -2,17 +2,13 @@ import * as React from 'react';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { BiometricsState, encryptAndStoreAppKey, getApplicationKey, storeBiometricsState } from '../../storage/secureStorage';
+import { BiometricsState, encryptAndStoreAppKey, storeBiometricsState } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
 import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
-import { useReboot } from '../../utils/RebootContext';
-import { storage } from '../../storage/storage';
 
 export const WalletSecureComponent = React.memo((props: {
     deviceEncryption: DeviceEncryption,
@@ -21,23 +17,15 @@ export const WalletSecureComponent = React.memo((props: {
     onLater?: () => void,
     import?: boolean
 }) => {
-    const reboot = useReboot();
-    const navigation = useTypedNavigation();
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    let disableEncryption =
-        (props.deviceEncryption === 'none')
-        || (props.deviceEncryption === 'device-biometrics')
-        || (props.deviceEncryption === 'device-passcode')
-        || (Platform.OS === 'android' && Platform.Version < 30) // Encryption doesn't work well on older androids
-
     // Action
     const [loading, setLoading] = React.useState(false);
     const onClick = React.useCallback(() => {
         (async () => {
             setLoading(true);
             try {
-                encryptAndStoreAppKey(disableEncryption, props.passcode);
+                encryptAndStoreAppKey(props.passcode);
                 // Save default state to Use biometrics
                 storeBiometricsState(BiometricsState.InUse);
 
@@ -76,10 +64,6 @@ export const WalletSecureComponent = React.memo((props: {
                 ? t('secure.protectTouchID')
                 : t('secure.protectBiometrics');
             break;
-        case 'device-biometrics':
-            buttonText = t('secure.protectBiometrics');
-            break;
-        case 'device-passcode':
         case 'passcode':
         case 'secret':
             icon = <Ionicons
@@ -89,17 +73,6 @@ export const WalletSecureComponent = React.memo((props: {
             />;
             buttonText = t('secure.protectPasscode');
             break;
-        case 'none':
-            icon = <Ionicons
-                name="lock-open-outline"
-                size={20}
-                color="white"
-            />;
-            buttonText = t('common.continueAnyway');
-            title = t('secure.titleUnprotected');
-            text = t('secure.subtitleUnprotected');
-            break;
-
         default:
             break;
     }
@@ -116,21 +89,6 @@ export const WalletSecureComponent = React.memo((props: {
             ]
         );
     }, []);
-
-    if (disableEncryption) {
-        if (props.import) {
-            let state = getAppState();
-            if (!state) {
-                throw Error('Invalid state');
-            }
-            const account = getCurrentAddress();
-            markAddressSecured(account.address, AppConfig.isTestnet);
-            reboot();
-            return null;
-        }
-        navigation.navigate('WalletBackupInit')
-        return null;
-    }
 
     return (
         <View style={{

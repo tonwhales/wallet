@@ -10,7 +10,6 @@ import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
-import { getCurrentAddress } from "../storage/appState"
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
@@ -28,7 +27,6 @@ export const SecurityFragment = fragment(() => {
     const engine = useEngine();
     const settings = engine.products.settings;
     const authContext = useKeysAuth();
-    const acc = getCurrentAddress();
     const { Theme } = useAppConfig();
     const passcodeState = settings.usePasscodeState();
     const biometricsState = settings.useBiometricsState();
@@ -60,7 +58,6 @@ export const SecurityFragment = fragment(() => {
                     : t('secure.protectBiometrics');
                 break;
             case 'passcode':
-            case 'device-passcode':
             case 'secret':
                 icon = <Ionicons
                     name={'keypad'}
@@ -69,9 +66,8 @@ export const SecurityFragment = fragment(() => {
                 />;
                 buttonText = t('secure.protectPasscode');
                 break;
+            case 'device-passcode':
             case 'device-biometrics':
-                buttonText = t('secure.protectBiometrics');
-                break;
             case 'none':
                 return null;
             default:

@@ -58,7 +58,6 @@ export const BiometricsSetupFragment = systemFragment(() => {
                     : t('secure.protectBiometrics');
                 break;
             case 'passcode':
-            case 'device-passcode':
             case 'secret':
                 icon = <Ionicons
                     name={'keypad'}
@@ -67,9 +66,8 @@ export const BiometricsSetupFragment = systemFragment(() => {
                 />;
                 buttonText = t('secure.protectPasscode');
                 break;
+            case 'device-passcode':
             case 'device-biometrics':
-                buttonText = t('secure.protectBiometrics');
-                break;
             case 'none':
                 navigation.goBack();
                 return;
@@ -99,19 +97,8 @@ export const BiometricsSetupFragment = systemFragment(() => {
             setLoading(true);
             try {
                 try {
-                    let disableEncryption = !!(deviceEncryption === 'none' || deviceEncryption === 'device-biometrics' || deviceEncryption === 'device-passcode' || bypassEncryption);
-                    if (Platform.OS === 'android' && Platform.Version < 30) {
-                        disableEncryption = true; // Encryption doesn't work well on older androids
-                    }
-                    
-                    // Shouldn't happen because we check for this in the UI
-                    if (disableEncryption) {
-                        navigation.goBack();
-                        return;
-                    }
-                    
                     const authRes = await authContext.authenticateWithPasscode();
-                    await encryptAndStoreAppKey(disableEncryption, authRes.passcode);
+                    await encryptAndStoreAppKey(authRes.passcode);
 
                     settings.setBiometricsState(BiometricsState.InUse);
                 } catch (e) {

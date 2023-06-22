@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getAppState, getBackup, markAddressSecured, setAppState } from '../../storage/appState';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useReboot } from '../../utils/RebootContext';
@@ -96,6 +96,28 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             }, AppConfig.isTestnet);
 
             const deviceEncryption = await getDeviceEncryption();
+
+            let disableEncryption =
+                (deviceEncryption === 'none')
+                || (deviceEncryption === 'device-biometrics')
+                || (deviceEncryption === 'device-passcode')
+                || (Platform.OS === 'android' && Platform.Version < 30);
+
+            // Skip biometrics setup if encryption is disabled
+            if (disableEncryption) {
+                if (props.import) {
+                    let state = getAppState();
+                    if (!state) {
+                        throw Error('Invalid state');
+                    }
+                    const account = getCurrentAddress();
+                    markAddressSecured(account.address, AppConfig.isTestnet);
+                    reboot();
+                    return null;
+                }
+                navigation.navigate('WalletBackupInit');
+            }
+
             setState({ passcode, deviceEncryption });
         } catch (e) {
             warn(e);

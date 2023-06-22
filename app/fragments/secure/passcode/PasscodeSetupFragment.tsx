@@ -4,8 +4,7 @@ import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
-import { getCurrentAddress } from "../../../storage/appState";
-import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, getApplicationKey } from "../../../storage/secureStorage";
+import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useEngine } from "../../../engine/Engine";
 import { warn } from "../../../utils/log";
@@ -23,15 +22,31 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const init = route.name === 'PasscodeSetupInit';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const storageType = loadKeyStorageType();
+    const isLocalAuth = storageType === 'local-authentication';
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
             await encryptAndStoreAppKeyWithPasscode(passcode);
-            
+
             if (!!settings) {
                 settings.setPasscodeState(PasscodeState.Set);
+
+
+                if (isLocalAuth) {
+                    const ref = loadKeyStorageRef();
+                    let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
+
+                    // Remove old unencrypted key
+                    storage.delete(key);
+                    return;
+                }
+
+                // Set only if there is are biometrics to use
                 settings.setBiometricsState(BiometricsState.InUse);
             }
+
+
         } catch (e) {
             warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
             throw Error('Failed to load wallet keys');
@@ -59,14 +74,18 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
                 onReady={onPasscodeConfirmed}
                 initial={init}
-                onLater={init ? () => {
-                    storage.set(passcodeSetupShownKey, true)
-                    if (engine && !engine.ready) {
-                        navigation.navigateAndReplaceAll('Sync');
-                    } else {
-                        navigation.navigateAndReplaceAll('Home');
-                    }
-                } : undefined}
+                onLater={
+                    (init && !isLocalAuth) // Lock migation to passcode from local auth
+                        ? () => {
+                            storage.set(passcodeSetupShownKey, true)
+                            if (engine && !engine.ready) {
+                                navigation.navigateAndReplaceAll('Sync');
+                            } else {
+                                navigation.navigateAndReplaceAll('Home');
+                            }
+                        }
+                        : undefined
+                }
                 showSuccess={!init}
             />
             {Platform.OS === 'ios' && !init && (

@@ -74,19 +74,6 @@ export async function getApplicationKey(passcode?: string) {
 
     // Local authentication
     if (storageType === 'local-authentication') {
-
-        // Request local authentication
-        let supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
-        if (supportedAuthTypes.length > 0) {
-            let authRes = await LocalAuthentication.authenticateAsync();
-            if (!authRes.success) {
-                // Ignore device not being secured with a PIN, pattern or password.
-                if (authRes.error !== 'not_enrolled') {
-                    throw Error('Authentication canceled');
-                }
-            }
-        }
-
         // Read from keystore
         let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref; // Legacy hack
         const ex = storage.getString(key);
@@ -123,20 +110,13 @@ async function doEncrypt(key: Buffer, data: Buffer) {
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function encryptAndStoreAppKey(disableEncryption: boolean, passcode: string) {
+export async function encryptAndStoreAppKey(passcode: string) {
     // Load existing app key with passcode
     const appKey = await getApplicationKey(passcode);
     const ref = storage.getString('ton-storage-ref');
 
     if (!ref) {
         throw Error('Invalid ref');
-    }
-
-    // Handle no-encryption
-    if (disableEncryption) {
-        storage.set('ton-storage-kind', 'local-authentication');
-        storage.set('ton-storage-ref', ref);
-        storage.set('ton-storage-key-' + ref, appKey.toString('base64'));
     }
 
     // Handle iOS

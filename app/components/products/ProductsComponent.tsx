@@ -1,10 +1,19 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
-import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
-import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
-import SignIcon from '../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../assets/ic_transaction.svg';
-import { JettonProductButton } from "./JettonProductButton"
+import { Alert, LayoutAnimation, Text, View } from "react-native"
+import { ProductButton } from "./ProductButton"
+import { useEngine } from "../../../engine/Engine"
+import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
+import SignIcon from '../../../../assets/ic_sign.svg';
+import TransactionIcon from '../../../../assets/ic_transaction.svg';
+import { useTypedNavigation } from "../../../utils/useTypedNavigation"
+import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
+import { t } from "../../../i18n/t"
+import { JettonProduct } from "./JettonProduct"
+import { getConnectionReferences } from "../../../storage/appState"
+import { extractDomain } from "../../../engine/utils/extractDomain"
+import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
+import { HoldersProductButton } from "../../holders/components/HoldersProductButton"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { HoldersProductButton } from "./HoldersProductButton"
@@ -25,6 +34,9 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const extensions = engine.products.extensions.useExtensions();
+    const ledger = engine.products.settings.useLedger();
+    const cards = engine.products.holders.useCards();
+    const tonconnectExtensions = engine.products.tonConnect.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
 
     // Resolve accounts
@@ -77,6 +89,77 @@ export const ProductsComponent = React.memo(() => {
             }
         }]);
     }, []);
+
+    // Resolve apps
+    let apps: React.ReactElement[] = [];
+
+    if (AppConfig.isTestnet) {
+        cards.map((c) => {
+            apps.push(<HoldersProductButton engine={engine} key={c.id} account={c} />)
+        });
+        apps.push(<HoldersProductButton engine={engine} key={'zenpay-add'} />)
+    }
+
+    for (let e of extensions) {
+        apps.push(
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                key={e.key}
+                name={e.name}
+                subtitle={e.description ? e.description : e.url}
+                image={e.image?.url}
+                blurhash={e.image?.blurhash}
+                value={null}
+                onLongPress={() => removeExtension(e.key)}
+                onPress={() => openExtension(e.url)}
+                extension={true}
+                style={{ marginVertical: 4 }}
+            />
+        );
+    }
+
+    for (let e of tonconnectExtensions) {
+        apps.push(
+            <AnimatedProductButton
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                key={e.key}
+                name={e.name}
+                subtitle={e.url}
+                image={e.image ?? undefined}
+                value={null}
+                onPress={() => {
+                    navigation.navigate('ConnectApp', { url: e.url });
+                }}
+                extension={true}
+                style={{ marginVertical: 4 }}
+            />
+        );
+    }
+
+    if (ledger) {
+        apps.push(
+            <AnimatedProductButton
+                key={'ledger'}
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                name={t('hardwareWallet.title')}
+                subtitle={t('hardwareWallet.description')}
+                icon={HardwareWalletIcon}
+                iconProps={{ width: 32, height: 32, color: 'black' }}
+                iconViewStyle={{
+                    backgroundColor: 'transparent'
+                }}
+                style={{ marginVertical: 4 }}
+                value={null}
+                onLongPress={removeLedger}
+                onPress={() => {
+                    navigation.navigate('Ledger');
+                }}
+            />
+        );
+    }
 
     // Resolve tonconnect requests
     let tonconnect: React.ReactElement[] = [];

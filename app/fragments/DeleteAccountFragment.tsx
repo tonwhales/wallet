@@ -26,9 +26,9 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
-import { clearZenPay } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { clearHolders } from "./LogoutFragment";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -202,7 +202,7 @@ export const DeleteAccountFragment = fragment(() => {
                         ended = true;
                         setTimeout(() => {
                             storage.clearAll();
-                            clearZenPay(engine);
+                            clearHolders(engine);
                             mixpanelReset(AppConfig.isTestnet); // Clear super properties and generates a new random distinctId
                             trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
                             mixpanelFlush(AppConfig.isTestnet);

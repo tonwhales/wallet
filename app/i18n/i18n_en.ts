@@ -707,7 +707,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         copySeedAlertTitle: 'Coping 24 words seed phrase to clipboard',
         copySeedAlertMessage: 'WARNING ⚠️ Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.',
         copySeedAlertAction: 'Copy',
-    }
+        holdersOfflineApp: 'Holders Offline App',
+    },
 };
 
 export default schema;

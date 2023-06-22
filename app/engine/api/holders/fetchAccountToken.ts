@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { zenPayEndpoint } from '../../corp/ZenPayProduct';
+import { holdersEndpoint } from '../../corp/HoldersProduct';
 
 export async function fetchAccountToken(config: {
     address: string,
@@ -15,7 +15,7 @@ export async function fetchAccountToken(config: {
     }
 }, isTestnet: boolean): Promise<string> {
     let res = await axios.post(
-        'https://' + zenPayEndpoint +'/account/connect',
+        'https://' + holdersEndpoint +'/account/connect',
         {
             stack: 'ton',
             network: isTestnet ? 'ton-testnet' : 'ton-mainnet',

@@ -67,6 +67,7 @@ import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { PasscodeResetFragment } from './fragments/secure/passcode/PasscodeResetFragment';
 import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
+import { ProductsFragment } from './fragments/ProductsFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -188,7 +189,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
-    modalScreen('PasscodeReset', PasscodeResetFragment, safeArea)
+    modalScreen('PasscodeReset', PasscodeResetFragment, safeArea),
+    modalScreen('Products', ProductsFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

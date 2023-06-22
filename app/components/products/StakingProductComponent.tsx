@@ -55,7 +55,6 @@ export const StakingProductComponent = React.memo(() => {
     }, [apy]);
 
     const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale <= 1;
 
     if (!showJoin) return (
         <TouchableHighlight
@@ -71,8 +70,7 @@ export const StakingProductComponent = React.memo(() => {
                 </View>
                 <View style={{
                     flexDirection: 'column',
-                    flexGrow: 1,
-                    paddingVertical: 2,
+                    flexGrow: 1, justifyContent: 'center'
                 }}>
                     <View style={{
                         flexDirection: 'row',
@@ -89,15 +87,15 @@ export const StakingProductComponent = React.memo(() => {
                         <Text style={{ color: Theme.textColor, ...titleStyle }}>
                             <ValueComponent
                                 value={staking.total}
-                                precision={3}
                             />
+                            {' TON'}
                         </Text>
                     </View>
                     <View style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                     }}>
-                        <Text style={{ color: Theme.price, fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
+                        <Text style={{ color: '#838D99', ...subtitleStyle }} ellipsizeMode="tail">
                             {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                         </Text>
                         <PriceComponent
@@ -106,10 +104,9 @@ export const StakingProductComponent = React.memo(() => {
                                 backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0, paddingVertical: 0,
                                 alignSelf: 'flex-end',
-                                marginTop: 2, height: undefined,
-                                minHeight: fontScaleNormal ? 14 : undefined
+                                height: undefined,
                             }}
-                            textStyle={{ color: Theme.textSubtitle, fontWeight: '400', fontSize: 12 }}
+                            textStyle={{ color: '#838D99', ...subtitleStyle }}
                         />
                     </View>
                 </View>

@@ -17,6 +17,7 @@ import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
+import { StatusBar } from 'expo-status-bar';
 
 const tabButtonStyle: StyleProp<ViewStyle> = {
     height: 49, flexGrow: 1, flexBasis: 0,
@@ -129,6 +130,7 @@ export const HomeFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={'auto'} />
             <View style={{ flexGrow: 1 }} />
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
                 <WalletFragment />

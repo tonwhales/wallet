@@ -18,7 +18,7 @@ const colorsMap: { [key: string]: string[] } = {
 }
 
 export const HoldersProductButton = React.memo(() => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const cards = engine.products.holders.useCards();
@@ -59,6 +59,10 @@ export const HoldersProductButton = React.memo(() => {
         },
         [needsEnrolment],
     );
+
+    if (!AppConfig.isTestnet) {
+        return null;
+    }
 
 
     if (cards.length === 0) {

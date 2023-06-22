@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import {View, Text, ScrollView, ActivityIndicator, Alert, Pressable } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Engine, useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
@@ -14,6 +14,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TopBar } from "../../components/topbar/TopBar";
 import { ProductButton } from "../../components/products/ProductButton";
+import { StatusBar } from "expo-status-bar";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -368,6 +369,7 @@ export const StakingPoolsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, flex: 1 }}>
+            <StatusBar style={'dark'} />
             <TopBar title={t('products.staking.title')} showBack />
             <ScrollView
                 alwaysBounceVertical={false}

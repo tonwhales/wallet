@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, Pressable, Platform, ActivityIndicator, Alert, Linking } from 'react-native';
+import { Text, View, StyleSheet, Image, Pressable, Platform, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
@@ -7,8 +7,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
-import { useCameraDevices } from 'react-native-vision-camera';
-import { CloseButton } from '../../components/CloseButton';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { RoundButton } from '../../components/RoundButton';
@@ -75,14 +73,6 @@ export const ScannerFragment = systemFragment(() => {
                         {t('qr.requestingPermission')}
                     </Text>
                 </View>
-                <CloseButton
-                    style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}
-                    onPress={() => {
-                        setActive(false);
-                        setTimeout(navigation.goBack, 10);
-                    }}
-                    dark
-                />
             </View>
         );
     }
@@ -131,14 +121,6 @@ export const ScannerFragment = systemFragment(() => {
                         })}
                     />
                 </View>
-                <CloseButton
-                    style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}
-                    onPress={() => {
-                        setActive(false);
-                        setTimeout(navigation.goBack, 10);
-                    }}
-                    dark
-                />
             </View>
         );
     }
@@ -191,14 +173,6 @@ export const ScannerFragment = systemFragment(() => {
                     {t('qr.title')}
                 </Text>
             </View>
-            <CloseButton
-                style={{ position: 'absolute', top: Platform.OS === 'android' ? 12 + safeArea.top : 12, right: 10 }}
-                onPress={() => {
-                    setActive(false);
-                    setTimeout(navigation.goBack, 10);
-                }}
-                dark
-            />
         </View>
     );
 });

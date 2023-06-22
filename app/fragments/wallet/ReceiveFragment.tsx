@@ -164,12 +164,7 @@ export const ReceiveFragment = fragment(() => {
                 </View>
             </View>
             <View style={{ flexGrow: 1 }} />
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={navigation.goBack}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

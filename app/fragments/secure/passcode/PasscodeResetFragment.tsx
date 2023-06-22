@@ -65,14 +65,7 @@ export const PasscodeResetFragment = fragment(() => {
             <View style={{ flexGrow: 1, justifyContent: 'center' }}>
                 <WalletWordsComponent onComplete={onWordsComplete} />
             </View>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

@@ -400,16 +400,7 @@ export const TransferFragment = fragment(() => {
                 {!loadedProps && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
                 {!!loadedProps && <TransferLoaded {...loadedProps} />}
             </View>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </>
     );
 });

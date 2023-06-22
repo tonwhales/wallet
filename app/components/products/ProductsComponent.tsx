@@ -58,26 +58,6 @@ export const ProductsComponent = React.memo(() => {
         }
     }
 
-    let removeExtension = React.useCallback((key: string) => {
-        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
-            text: t('common.delete'),
-            style: 'destructive',
-            onPress: () => {
-                engine.products.extensions.removeExtension(key);
-            }
-        }]);
-    }, []);
-
-    const removeLedger = React.useCallback(() => {
-        Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
-            text: t('common.continue'),
-            style: 'destructive',
-            onPress: () => {
-                engine.products.settings.setLedger(false);
-            }
-        }]);
-    }, []);
-
     // Resolve tonconnect requests
     let tonconnect: React.ReactElement[] = [];
     for (let r of tonconnectRequests) {
@@ -184,13 +164,22 @@ export const ProductsComponent = React.memo(() => {
                     fontSize: 17,
                     fontWeight: '600',
                     color: Theme.textColor,
+                    lineHeight: 24,
                 }}>
                     {t('common.products')}
                 </Text>
-                <Pressable>
+                <Pressable
+                    style={({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.5 : 1
+                        }
+                    }}
+                    onPress={() => navigation.navigate('Products')}
+                    >
                     <Text style={{
                         fontSize: 15,
                         fontWeight: '500',
+                        lineHeight: 20,
                         color: Theme.accent,
                     }}>
                         {t('products.addNew')}

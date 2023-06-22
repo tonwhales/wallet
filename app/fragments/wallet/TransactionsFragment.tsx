@@ -15,6 +15,7 @@ import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { StatusBar } from "expo-status-bar";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],

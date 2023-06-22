@@ -2,84 +2,37 @@ import * as React from 'react';
 import { Image, LayoutAnimation, Platform, Pressable, Text, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { TransactionView } from './views/TransactionView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
-import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
+import Animated, { } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { Address } from 'ton';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { Engine, useEngine } from '../../engine/Engine';
+import { useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { StatusBar } from 'expo-status-bar';
+import { ProductsComponent } from '../../components/products/ProductsComponent';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
-import { ProductsComponent } from '../../components/products/ProductsComponent';
-
-const PendingTxs = React.memo((props: {
-    txs: { id: string, time: number }[],
-    next: { lt: string, hash: string } | null,
-    address: Address,
-    engine: Engine,
-    onPress: (tx: string) => void
-}) => {
-    const { Theme } = useAppConfig();
-    return (
-        <>
-            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('wallet.pendingTransactions')}</Text>
-            </View>
-            {props.txs.map((t, i) => {
-                return (
-                    <View
-                        key={'tx-view' + t}
-                        style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: Theme.item, overflow: 'hidden' }}
-                        collapsable={false}
-                    >
-                        <TransactionView
-                            key={'tx-' + t}
-                            own={props.address}
-                            engine={props.engine}
-                            tx={t.id}
-                            separator={i < props.txs.length - 1}
-                            onPress={props.onPress}
-                        />
-                    </View>
-                )
-            })}
-        </>
-    );
-});
+import { useCallback, useLayoutEffect, useMemo } from 'react';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
 
-    //
-    // Transactions
-    //
-
-    const openTransactionFragment = React.useCallback((transaction: string) => {
-        if (transaction) {
-            navigation.navigate('Transaction', {
-                transaction: transaction
-            });
-        }
-    }, [navigation]);
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
 
     const onQRCodeRead = (src: string) => {
@@ -93,30 +46,33 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     };
 
-    const onOpenBuy = React.useCallback(
+    const onOpenBuy = useCallback(
         () => {
             navigation.navigate('Buy');
         },
         [],
     );
 
-    const openGraph = React.useCallback(() => {
+    const openGraph = useCallback(() => {
         if (balanceChart && balanceChart.chart.length > 0) {
             navigation.navigate('AccountBalanceGraph');
         }
     }, [account]);
 
-    const navigateToCurrencySettings = React.useCallback(() => {
+    const selectAccount = useCallback(() => {
+
+    }, []);
+
+    const navigateToCurrencySettings = useCallback(() => {
         navigation.navigate('Currency');
     }, []);
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [account.pending.length]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom, backgroundColor: Theme.item }}>
-            <StatusBar style="light" />
             <View
                 style={{
                     backgroundColor: '#131928',
@@ -135,27 +91,37 @@ function WalletComponent(props: { wallet: WalletState }) {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{
-                            width: 24, height: 24,
-                            backgroundColor: Theme.accent,
-                            borderRadius: 12
-                        }}>
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1
+                            }
+                        }}
+                        onPress={selectAccount}
+                    >
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <View style={{
+                                width: 24, height: 24,
+                                backgroundColor: Theme.accent,
+                                borderRadius: 12
+                            }}>
+                            </View>
+                            <Text style={{ marginLeft: 12, fontWeight: '500', fontSize: 17, color: '#AAB4BF' }}>
+                                {'Wallet 1'}
+                            </Text>
+                            <ChevronDown
+                                style={{
+                                    height: 16,
+                                    width: 16,
+                                    marginLeft: 8,
+                                }}
+                                height={16}
+                                width={16}
+                                color={'#AAB4BF'}
+                            />
                         </View>
-                        <Text style={{ marginLeft: 12, fontWeight: '500', fontSize: 17, color: '#AAB4BF' }}>
-                            {'Wallet 1'}
-                        </Text>
-                        <ChevronDown
-                            style={{
-                                height: 16,
-                                width: 16,
-                                marginLeft: 8,
-                            }}
-                            height={16}
-                            width={16}
-                            color={'#AAB4BF'}
-                        />
-                    </View>
+                    </Pressable>
                     <View style={{ flexDirection: 'row' }}>
                         <Chart
                             style={{
@@ -166,16 +132,25 @@ function WalletComponent(props: { wallet: WalletState }) {
                             width={24}
                             color={'#AAB4BF'}
                         />
-                        <Scanner
-                            style={{
-                                height: 24,
-                                width: 24,
-                                marginLeft: 14
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1
+                                }
                             }}
-                            height={24}
-                            width={24}
-                            color={'#AAB4BF'}
-                        />
+                            onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                        >
+                            <Scanner
+                                style={{
+                                    height: 24,
+                                    width: 24,
+                                    marginLeft: 14
+                                }}
+                                height={24}
+                                width={24}
+                                color={'#AAB4BF'}
+                            />
+                        </Pressable>
                     </View>
                 </View>
 
@@ -231,7 +206,6 @@ function WalletComponent(props: { wallet: WalletState }) {
                     marginTop: 24
                 }} collapsable={false}>
                     {
-                        // TODO export to component
                         (!AppConfig.isTestnet && Platform.OS === 'android') && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14 }}>
                                 <TouchableHighlight
@@ -304,30 +278,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 }}
                 removeClippedSubviews={true}
             >
-                {account.pending.length > 0 && Platform.OS === 'android' && (
-                    <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
-                        <PendingTxs
-                            txs={account.pending}
-                            next={account.next}
-                            address={address}
-                            engine={engine}
-                            onPress={openTransactionFragment}
-                        />
-                    </Animated.View>
-                )}
-
-                {account.pending.length > 0 && Platform.OS !== 'android' && (
-                    <PendingTxs
-                        txs={account.pending}
-                        next={account.next}
-                        address={address}
-                        engine={engine}
-                        onPress={openTransactionFragment}
-                    />
-                )}
-
                 <ProductsComponent />
-                
             </Animated.ScrollView>
         </View >
     );

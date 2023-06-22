@@ -113,7 +113,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     const account = getCurrentAddress();
                     markAddressSecured(account.address, AppConfig.isTestnet);
                     reboot();
-                    return null;
                 }
                 navigation.navigate('WalletBackupInit');
             }

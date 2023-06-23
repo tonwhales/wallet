@@ -164,7 +164,7 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
     }
 }
 
-export async function generateNewKeyAndEncrypt(data: Buffer, passcode: string) {
+export async function generateNewKeyAndEncryptWithPasscode(data: Buffer, passcode: string) {
     try {
         // Generate new ref
         let ref = (await getSecureRandomBytes(32)).toString('hex');

@@ -74,6 +74,16 @@ export async function getApplicationKey(passcode?: string) {
 
     // Local authentication
     if (storageType === 'local-authentication') {
+        let supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+        if (supportedAuthTypes.length > 0) {
+            let authRes = await LocalAuthentication.authenticateAsync();
+            if (!authRes.success) {
+                // Ignore device not being secured with a PIN, pattern or password.
+                if (authRes.error !== 'not_enrolled') {
+                    throw Error('Authentication canceled');
+                }
+            }
+        }
         // Read from keystore
         let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref; // Legacy hack
         const ex = storage.getString(key);

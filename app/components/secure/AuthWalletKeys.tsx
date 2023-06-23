@@ -10,7 +10,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export type AuthStyle = {
+export type AuthParams = {
     backgroundColor?: string,
     cancelable?: boolean,
     useBiometrics?: boolean,
@@ -20,17 +20,17 @@ export type AuthProps =
     | {
         type: 'keysWithPasscode',
         promise: { resolve: (res: { keys: WalletKeys, passcode: string }) => void, reject: () => void }
-        style?: AuthStyle
+        style?: AuthParams
     } |
     {
         type: 'keysOnly',
         promise: { resolve: (keys: WalletKeys) => void, reject: () => void }
-        style?: AuthStyle
+        style?: AuthParams
     }
 
 export type AuthWalletKeysType = {
-    authenticate: (style?: AuthStyle) => Promise<WalletKeys>,
-    authenticateWithPasscode: (style?: AuthStyle) => Promise<{ keys: WalletKeys, passcode: string }>,
+    authenticate: (style?: AuthParams) => Promise<WalletKeys>,
+    authenticateWithPasscode: (style?: AuthParams) => Promise<{ keys: WalletKeys, passcode: string }>,
 }
 
 export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);
@@ -40,7 +40,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
     const { Theme } = useAppConfig();
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
-    const authenticate = useCallback(async (style?: AuthStyle) => {
+    const authenticate = useCallback(async (style?: AuthParams) => {
 
         // Reject previous auth promise
         if (auth) {
@@ -81,7 +81,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
     }, [auth]);
 
     // Passcode only auth
-    const authenticateWithPasscode = useCallback((style?: AuthStyle) => {
+    const authenticateWithPasscode = useCallback((style?: AuthParams) => {
 
         // Reject previous auth promise
         if (auth) {

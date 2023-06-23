@@ -12,11 +12,11 @@ import { deriveUtilityKey } from '../../storage/utilityKeys';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
-import { PasscodeSetup } from '../../components/passcode/PasscodeSetup';
+import { PasscodeSetup } from '../passcode/PasscodeSetup';
 import Animated, { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated';
-import { WalletSecureComponent } from '../../components/secure/WalletSecureComponent';
+import { WalletSecureComponent } from './WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
 import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passcodeStateKey } from '../../storage/secureStorage';
 

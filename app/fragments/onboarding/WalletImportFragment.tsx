@@ -14,7 +14,7 @@ import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { warn } from '../../utils/log';
 import { WalletWordsComponent } from '../../components/secure/WalletWordsComponent';
-import { WalletSecurePasscodeComponent } from './WalletSecurePasscodeComponent';
+import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 
 export const wordsTrie = WordsListTrie();
 

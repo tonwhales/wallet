@@ -13,7 +13,7 @@ import { useRoute } from "@react-navigation/native";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
-import { passcodeSetupShownKey } from "../../resolveOnboarding";
+import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const engine = useEngine();
@@ -77,7 +77,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 onLater={
                     (init && !isLocalAuth) // Lock migation to passcode from local auth
                         ? () => {
-                            storage.set(passcodeSetupShownKey, true)
+                            storage.set(wasPasscodeSetupShownKey, true)
                             if (engine && !engine.ready) {
                                 navigation.navigateAndReplaceAll('Sync');
                             } else {

@@ -64,7 +64,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             if (isPasscodeSet) {
                 // Use prev app key
                 try {
-                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics, 'base64'), passcode);
+                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), passcode);
                 } catch (e) {
                     warn('Failed to encrypt with passcode');
                     return;

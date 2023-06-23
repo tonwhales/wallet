@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from "react";
-import { Platform, View, Text, Pressable } from "react-native";
+import { Platform, View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
@@ -37,31 +37,10 @@ const SetupLoader = React.memo((props: {
     }, []);
 
     return (
-        <>
-            <LoadingIndicator
-                simple
-                style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-            />
-            <Pressable
-                style={({ pressed }) => {
-                    return {
-                        position: 'absolute', top: 24, right: 16,
-                        opacity: pressed ? 0.5 : 1,
-                    }
-                }}
-                onPress={() => {
-                    props.onLoadEnd({ type: 'input', input: '' });
-                }}
-            >
-                <Text style={{
-                    color: props.theme.accent,
-                    fontSize: 17,
-                    fontWeight: '500',
-                }}>
-                    {t('common.back')}
-                </Text>
-            </Pressable>
-        </>
+        <LoadingIndicator
+            simple
+            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+        />
     );
 });
 
@@ -100,13 +79,15 @@ export const PasscodeSetup = React.memo((
         onReady,
         initial,
         onLater,
-        showSuccess
+        showSuccess,
+        style
     }: {
         description?: string,
         onReady?: (pass: string) => Promise<void>,
         onLater?: () => void,
         initial?: boolean,
         showSuccess?: boolean,
+        style?: StyleProp<ViewStyle>,
     }) => {
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
@@ -114,9 +95,7 @@ export const PasscodeSetup = React.memo((
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
 
     return (
-        <View style={{
-            width: '100%', height: '100%',
-        }}>
+        <View style={[{ width: '100%', height: '100%', }, style]}>
             {state.step === 'input' && (
                 <Animated.View style={{ flexGrow: 1 }} exiting={SlideOutLeft}>
                     <PasscodeInput

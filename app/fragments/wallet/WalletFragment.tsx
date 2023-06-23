@@ -271,7 +271,8 @@ function WalletComponent(props: { wallet: WalletState }) {
             <ScrollView
                 style={{ flexBasis: 0 }}
                 contentContainerStyle={{
-                    backgroundColor: Theme.item
+                    backgroundColor: Theme.item,
+                    paddingBottom: 16
                 }}
             >
                 <ProductsComponent />

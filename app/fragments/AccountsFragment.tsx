@@ -12,7 +12,7 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
-import { JettonProductButton } from "../components/products/JettonProductButton";
+import { JettonProductItem } from "../components/products/JettonProductItem";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -159,7 +159,7 @@ export const AccountsFragment = fragment(() => {
                         </View>
                         {active.map((j) => {
                             return (
-                                <JettonProductButton
+                                <JettonProductItem
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}
@@ -183,7 +183,7 @@ export const AccountsFragment = fragment(() => {
                         )}
                         {disabled.map((j) => {
                             return (
-                                <JettonProductButton
+                                <JettonProductItem
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}

@@ -529,7 +529,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         tokenReceived: 'Токен получен'
     },
     jetton: {
-        token: 'токен'
+        token: 'токен',
+        productButtonTitle: '{{count}} Токенов',
+        productButtonSubtitle: '{{jettonName}} и {{count}} других',
     },
     connections: {
         extensions: 'Расширения',

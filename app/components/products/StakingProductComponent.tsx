@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { BN } from "bn.js";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { TouchableHighlight, View, Text, useWindowDimensions, StyleProp, ViewStyle, TextStyle } from "react-native";
+import { TouchableHighlight, View, Text, StyleProp, ViewStyle, TextStyle } from "react-native";
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
@@ -14,7 +14,7 @@ import { ProductBanner } from "./ProductBanner";
 const style: StyleProp<ViewStyle> = {
     height: 84,
     borderRadius: 20,
-    marginBottom: 16, marginVertical: 4,
+    marginVertical: 4,
     backgroundColor: '#F7F8F9',
     padding: 20
 }
@@ -54,8 +54,6 @@ export const StakingProductComponent = React.memo(() => {
         }
     }, [apy]);
 
-    const dimentions = useWindowDimensions();
-
     if (!showJoin) return (
         <TouchableHighlight
             onPress={() => navigation.navigate('StakingPools')}
@@ -76,7 +74,7 @@ export const StakingProductComponent = React.memo(() => {
                 }}>
                     <View style={{ flexGrow: 1, flexShrink: 1 }}>
                         <Text
-                            style={{ color: Theme.textColor, ...titleStyle, marginBottom: 3 }}
+                            style={{ color: Theme.textColor, ...titleStyle }}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >

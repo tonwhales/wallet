@@ -16,7 +16,7 @@ import { Address } from "ton";
 import { AnimatedProductButton } from "../../components/products/AnimatedProductButton";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { JettonProductButton } from "../../components/products/JettonProductButton";
+import { JettonProductItem } from "../../components/products/JettonProductItem";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
@@ -101,7 +101,7 @@ export const LedgerAssetsFragment = fragment(() => {
                     />
                     {jettons.map((j) => {
                         return (
-                            <JettonProductButton
+                            <JettonProductItem
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}

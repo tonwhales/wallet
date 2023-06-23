@@ -57,14 +57,14 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
     );
 
     return (
-        <Pressable 
-        style={({pressed}) => {
-            return {
-                flex: 1,
-                opacity: pressed ? 0.5 : 1,
-            }
-        }}
-        onPress={onPress}
+        <Pressable
+            style={({ pressed }) => {
+                return {
+                    flex: 1,
+                    opacity: pressed ? 0.5 : 1,
+                }
+            }}
+            onPress={onPress}
         >
             <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20, }}>
                 <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>

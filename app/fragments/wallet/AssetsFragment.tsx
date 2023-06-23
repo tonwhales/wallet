@@ -15,7 +15,7 @@ import { AnimatedProductButton } from "../../components/products/AnimatedProduct
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
-import { JettonProductButton } from "../../components/products/JettonProductButton";
+import { JettonProductItem } from "../../components/products/JettonProductItem";
 
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
@@ -100,7 +100,7 @@ export const AssetsFragment = fragment(() => {
                     />
                     {jettons.map((j) => {
                         return (
-                            <JettonProductButton
+                            <JettonProductItem
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}

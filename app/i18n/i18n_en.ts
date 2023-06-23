@@ -528,7 +528,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenReceived: 'Token received'
     },
     jetton: {
-        token: 'token'
+        token: 'token',
+        productButtonTitle: '{{COUNT}} Tokens',
+        productButtonSubtitle: '{{jettonName}} and {{count}} others',
     },
     connections: {
         extensions: 'Extensions',

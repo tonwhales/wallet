@@ -1,10 +1,10 @@
 import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
-import { Alert, LayoutAnimation, Pressable, Text, View } from "react-native"
+import { LayoutAnimation, Pressable, Text, View } from "react-native"
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../assets/ic_transaction.svg';
-import { JettonProductButton } from "./JettonProductButton"
+import { JettonProductItem } from "./JettonProductItem"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { HoldersProductButton } from "./HoldersProductButton"
@@ -16,6 +16,7 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingProductComponent } from "./StakingProductComponent";
 import { t } from "../../i18n/t";
+import { JettonsProductComponent } from "./JettonsProductComponent";
 
 export const ProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -23,8 +24,6 @@ export const ProductsComponent = React.memo(() => {
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
     const currentJob = engine.products.apps.useState();
-    const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
-    const extensions = engine.products.extensions.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const cards = engine.products.holders.useCards();
     const totalStaked = engine.products.whalesStakingPools.useStaking().total;
@@ -45,19 +44,6 @@ export const ProductsComponent = React.memo(() => {
                 style={{ marginVertical: 4 }}
             />
         );
-    }
-
-    for (let j of jettons) {
-        if (j.balance.gt(new BN(0))) {
-            accounts.push(
-                <JettonProductButton
-                    key={'jt' + j.wallet.toFriendly()}
-                    jetton={j}
-                    navigation={navigation}
-                    engine={engine}
-                />
-            );
-        }
     }
 
     // Resolve tonconnect requests
@@ -95,7 +81,7 @@ export const ProductsComponent = React.memo(() => {
 
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [extensions, jettons, oldWalletsBalance, currentJob, tonconnectRequests]);
+    }, [oldWalletsBalance, currentJob, tonconnectRequests]);
 
     return (
         <View style={{ paddingHorizontal: 16 }}>
@@ -191,10 +177,14 @@ export const ProductsComponent = React.memo(() => {
                 )}
             </View>
 
-            <HoldersProductButton />
+            <HoldersProductButton key={'holders'} />
 
             <View style={{ marginTop: 8 }}>
                 <StakingProductComponent key={'pool'} />
+            </View>
+
+            <View style={{ marginTop: 8 }}>
+                <JettonsProductComponent key={'jettons'} />
             </View>
         </View>
     )

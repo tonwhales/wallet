@@ -530,7 +530,9 @@ export type LocalizationSchema = {
         tokenReceived: string
     },
     jetton: {
-        token: string
+        token: string,
+        productButtonTitle: string,
+        productButtonSubtitle: string,
     },
     connections: {
         extensions: string,

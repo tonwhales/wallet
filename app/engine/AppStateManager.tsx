@@ -29,26 +29,6 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
             return { state: { addresses: [], selected: -1 }, engine: null };
         }
 
-        // TODO REMOVE THIS BEFORE PR INTO DEV UPSTREAM
-        if (Application.applicationId?.includes('demo')) {
-            try {
-                const prevKey = storage.getString(passcodeEncKey);
-                const prevPasscodeState = storage.getString(passcodeStateKey);
-                const prevSalt = storage.getString(passcodeSaltKey);
-                const acc = storedAppState.addresses[storedAppState.selected];
-                if (prevKey && prevPasscodeState && prevSalt && acc) {
-                    storage.set(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeSaltKey}`, prevSalt);
-                    storage.set(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeEncKey}`, prevKey);
-                    storage.set(`${acc.address.toFriendly({ testOnly: AppConfig.isTestnet })}/${passcodeStateKey}`, prevPasscodeState);
-                }
-                storage.delete(passcodeEncKey);
-                storage.delete(passcodeSaltKey);
-                storage.delete(passcodeStateKey);
-            } catch (e) {
-                warn('Failed to migrate passcode');
-            }
-        }
-
         if (storedAppState.selected !== -1 && storedAppState.selected < storedAppState.addresses.length) {
             const ex = storedAppState.addresses[storedAppState.selected];
 

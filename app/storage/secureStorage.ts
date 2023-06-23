@@ -2,9 +2,10 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from 'ton-crypto';
 import { storage } from "./storage";
+import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
+import { wasPasscodeSetupShownKey } from '../fragments/resolveOnboarding';
 import { getAppState, setAppState } from './appState';
-import { passcodeSetupShownKey } from '../fragments/resolveOnboarding';
 
 export const passcodeStateKey = 'passcode-state';
 export const passcodeSaltKey = 'ton-storage-passcode-nacl';
@@ -75,6 +76,16 @@ export async function getApplicationKey(passcode?: string) {
 
     // Local authentication
     if (storageType === 'local-authentication') {
+        let supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+        if (supportedAuthTypes.length > 0) {
+            let authRes = await LocalAuthentication.authenticateAsync();
+            if (!authRes.success) {
+                // Ignore device not being secured with a PIN, pattern or password.
+                if (authRes.error !== 'not_enrolled') {
+                    throw Error('Authentication canceled');
+                }
+            }
+        }
         // Read from keystore
         let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref; // Legacy hack
         const ex = storage.getString(key);
@@ -111,7 +122,7 @@ async function doEncrypt(key: Buffer, data: Buffer) {
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function encryptAndStoreAppKey(passcode: string) {
+export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
     // Load existing app key with passcode
     const appKey = await getApplicationKey(passcode);
     const ref = storage.getString('ton-storage-ref');
@@ -160,12 +171,13 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(wasPasscodeSetupShownKey, true);
     } catch (e) {
         throw Error('Failed to encrypt and store app key with passcode');
     }
 }
 
-export async function generateNewKeyAndEncrypt(data: Buffer, passcode: string) {
+export async function generateNewKeyAndEncryptWithPasscode(data: Buffer, passcode: string) {
     try {
         // Generate new ref
         let ref = (await getSecureRandomBytes(32)).toString('hex');
@@ -182,6 +194,7 @@ export async function generateNewKeyAndEncrypt(data: Buffer, passcode: string) {
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncPrivateKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(wasPasscodeSetupShownKey, true);
 
         // Encrypt data with new key
         return doEncrypt(privateKey, data);
@@ -238,7 +251,7 @@ export async function doDecryptWithPasscode(pass: string, salt: string, data: Bu
     return res;
 }
 
-export async function migrateToNewPasscode(prevPasscode: string, newPasscode: string) {
+export async function updatePasscode(prevPasscode: string, newPasscode: string) {
     try {
         // Load app key with passcode
         const appKey = await getApplicationKey(prevPasscode);
@@ -291,7 +304,7 @@ export function migrateBiometricEncKeys(isTestnet: boolean) {
             }
         }
 
-        storage.delete(passcodeSetupShownKey);
+        storage.delete(wasPasscodeSetupShownKey);
         storage.delete(passcodeStateKey);
 
         setAppState({

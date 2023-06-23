@@ -18,7 +18,7 @@ import { WalletSecureComponent } from '../../components/secure/WalletSecureCompo
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { storage } from '../../storage/storage';
-import { PasscodeState, encryptData, generateNewKeyAndEncrypt, passcodeStateKey } from '../../storage/secureStorage';
+import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passcodeStateKey } from '../../storage/secureStorage';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -64,7 +64,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             if (isPasscodeSet) {
                 // Use prev app key
                 try {
-                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics, 'base64'), passcode);
+                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), passcode);
                 } catch (e) {
                     warn('Failed to encrypt with passcode');
                     return;
@@ -72,7 +72,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             } else {
                 // Generate New Key
                 try {
-                    secretKeyEnc = await generateNewKeyAndEncrypt(Buffer.from(props.mnemonics), passcode);
+                    secretKeyEnc = await generateNewKeyAndEncryptWithPasscode(Buffer.from(props.mnemonics), passcode);
                 } catch {
                     // Ignore
                     warn('Failed to generate new key');
@@ -117,6 +117,8 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 navigation.navigate('WalletBackupInit');
             }
 
+            console.log('here after import', storage.getString(passcodeStateKey));
+
             setState({ passcode, deviceEncryption });
         } catch (e) {
             warn(e);
@@ -139,7 +141,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     exiting={FadeOutDown}
                 >
                     <StatusBar style={'dark'} />
-                    <PasscodeSetup onReady={onConfirmed} />
+                    <PasscodeSetup style={props.import ? { backgroundColor: 'white' } : undefined} onReady={onConfirmed} />
                 </Animated.View>
             )}
 

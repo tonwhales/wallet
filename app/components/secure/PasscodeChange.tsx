@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
 import { loadWalletKeys } from "../../storage/walletKeys";
-import { migrateToNewPasscode } from "../../storage/secureStorage";
+import { updatePasscode } from "../../storage/secureStorage";
 
 type Action =
     | { type: 'auth', input: string }
@@ -112,7 +112,7 @@ export const PasscodeChange = React.memo(() => {
                                 throw new Error('Passcodes do not match');
                             }
 
-                            migrateToNewPasscode(state.prev, newPasscode);
+                            updatePasscode(state.prev, newPasscode);
 
                             dispatch({ type: 'success' });
                         }}

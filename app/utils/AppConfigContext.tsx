@@ -4,8 +4,8 @@ import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { getCurrentAddress, markAddressSecured } from '../storage/appState';
-import { useEffect } from 'react';
 import { migrateBiometricEncKeys } from '../storage/secureStorage';
+import { useEffect } from 'react';
 
 export const isTestnetKey = 'isTestnet';
 

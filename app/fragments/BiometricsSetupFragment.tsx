@@ -6,7 +6,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import { useEffect, useMemo, useState } from 'react';
 import { DeviceEncryption, getDeviceEncryption } from '../storage/getDeviceEncryption';
 import { useEngine } from '../engine/Engine';
-import { BiometricsState, encryptAndStoreAppKey } from '../storage/secureStorage';
+import { BiometricsState, encryptAndStoreAppKeyWithBiometrics } from '../storage/secureStorage';
 import { getCurrentAddress } from '../storage/appState';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
@@ -98,7 +98,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
             try {
                 try {
                     const authRes = await authContext.authenticateWithPasscode();
-                    await encryptAndStoreAppKey(authRes.passcode);
+                    await encryptAndStoreAppKeyWithBiometrics(authRes.passcode);
 
                     settings.setBiometricsState(BiometricsState.InUse);
                 } catch (e) {

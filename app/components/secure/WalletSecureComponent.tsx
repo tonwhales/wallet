@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { BiometricsState, encryptAndStoreAppKey, storeBiometricsState } from '../../storage/secureStorage';
+import { BiometricsState, encryptAndStoreAppKeyWithBiometrics, storeBiometricsState } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
 import { FragmentMediaContent } from '../FragmentMediaContent';
@@ -25,7 +25,7 @@ export const WalletSecureComponent = React.memo((props: {
         (async () => {
             setLoading(true);
             try {
-                encryptAndStoreAppKey(props.passcode);
+                encryptAndStoreAppKeyWithBiometrics(props.passcode);
                 // Save default state to Use biometrics
                 storeBiometricsState(BiometricsState.InUse);
 

@@ -110,7 +110,7 @@ async function doEncrypt(key: Buffer, data: Buffer) {
     return Buffer.concat([nonce, sealed]);
 }
 
-export async function encryptAndStoreAppKey(passcode: string) {
+export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
     // Load existing app key with passcode
     const appKey = await getApplicationKey(passcode);
     const ref = storage.getString('ton-storage-ref');

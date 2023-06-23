@@ -237,7 +237,7 @@ export async function doDecryptWithPasscode(pass: string, salt: string, data: Bu
     return res;
 }
 
-export async function migrateToNewPasscode(prevPasscode: string, newPasscode: string) {
+export async function updatePasscode(prevPasscode: string, newPasscode: string) {
     try {
         // Load app key with passcode
         const appKey = await getApplicationKey(prevPasscode);

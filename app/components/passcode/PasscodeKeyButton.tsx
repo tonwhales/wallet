@@ -57,7 +57,12 @@ export const PasscodeKeyButton = React.memo((
         <Pressable
             onPress={onPress}
             style={({ pressed }) => {
-                return { opacity: pressed ? 0.5 : 1, height: 60, width: 100, justifyContent: 'center', alignItems: 'center' }
+                return {
+                    opacity: pressed ? 0.5 : 1,
+                    height: 60, width: 100,
+                    justifyContent: 'center', alignItems: 'center',
+                    marginHorizontal: 10
+                }
             }}
         >
             <Img color={'#000'} style={{ height: 60, width: 100 }} />

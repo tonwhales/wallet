@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { StyleProp, View, ViewStyle, Text, Image, Platform, ImageSourcePropType } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
 import { PasscodeSteps } from "./PasscodeSteps";
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
 import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
@@ -18,18 +16,19 @@ import FaceIos from '../../../assets/ic_face_id.svg';
 export const PasscodeInput = React.memo((
     {
         title,
+        description,
         style,
         onRetryBiometrics,
         onEntered,
     }: {
         title?: string,
+        description?: string,
         style?: StyleProp<ViewStyle>,
         onRetryBiometrics?: () => void,
         onEntered: (passcode: string | null) => Promise<void> | void,
     }
 ) => {
     const { Theme } = useAppConfig();
-    const safeArea = useSafeAreaInsets();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
@@ -144,13 +143,32 @@ export const PasscodeInput = React.memo((
                         {title}
                     </Text>
                 )}
-                <Animated.View style={[shakeStyle, { alignItems: 'center' }]}>
+                <Animated.View style={[shakeStyle, { alignItems: 'center', width: '100%' }]}>
                     <PasscodeSteps
                         state={{
                             passLen: passcode.length,
                             error: isWrong,
                         }}
                     />
+                    {description && !isWrong && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                top: 54, left: 0, right: 0,
+                                justifyContent: 'center', alignItems: 'center',
+                                paddingHorizontal: 16,
+                            }}
+                            entering={FadeIn}
+                            exiting={FadeOut}
+                        >
+                            <Text style={{
+                                fontSize: 15,
+                                color: Theme.textSecondary, textAlign: 'center'
+                            }}>
+                                {description}
+                            </Text>
+                        </Animated.View>
+                    )}
                     {isWrong && (
                         <Animated.View
                             style={{
@@ -174,7 +192,6 @@ export const PasscodeInput = React.memo((
             <View style={{
                 flex: 1,
                 justifyContent: 'center', alignItems: 'center',
-                marginBottom: (safeArea.bottom ?? 16) + 6
             }}>
                 <PasscodeKeyboard
                     leftIcon={deviceEncryptionIcon}

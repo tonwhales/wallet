@@ -7,7 +7,6 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import React from "react";
 import { DeviceEncryption } from "../../../storage/getDeviceEncryption";
-import { loadWalletKeys } from "../../../storage/walletKeys";
 import { getCurrentAddress } from "../../../storage/appState";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 import { useEngine } from "../../../engine/Engine";
@@ -15,8 +14,10 @@ import { PasscodeState, passcodeEncKey } from "../../../storage/secureStorage";
 import { storage } from "../../../storage/storage";
 import { warn } from "../../../utils/log";
 import { WalletWordsComponent } from "../../../components/secure/WalletWordsComponent";
+import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 
 export const PasscodeResetFragment = fragment(() => {
+    const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const acc = getCurrentAddress();
@@ -28,13 +29,13 @@ export const PasscodeResetFragment = fragment(() => {
         deviceEncryption: DeviceEncryption
     }) => {
         try {
-            const walletKeys = await loadWalletKeys(acc.secretKeyEnc);
-            if (walletKeys.mnemonics.join(' ') !== v.mnemonics) {
+            const walletKeys = await authContext.authenticateWithPasscode();
+            if (walletKeys.keys.mnemonics.join(' ') !== v.mnemonics) {
                 Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));
                 return;
             }
             storage.delete(`${acc.address.toFriendly({ testOnly: engine.isTestnet })}/${passcodeEncKey}`);
-            settings?.setPasscodeState(acc.address, PasscodeState.NotSet)
+            settings?.setPasscodeState(PasscodeState.NotSet);
             navigation.replace('PasscodeSetup');
         } catch (e) {
             Alert.alert(t('errors.incorrectWords.title'), t('errors.incorrectWords.message'));

@@ -194,7 +194,7 @@ export const AccountsFragment = fragment(() => {
                             );
                         })}
                     </View>
-                    {Platform.OS === 'android' && (<View style={{ height: 62 }} />)}
+                    <View style={{ height: 62 /*ProductButton height*/ + 16 /* vertical margins */ }} />
                 </ScrollView>
             )}
             {Platform.OS === 'ios' && (

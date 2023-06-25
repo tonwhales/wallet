@@ -34,7 +34,6 @@ export type HoldersCard = {
         lastFourDigits: string | null | undefined,
         productId: string,
         personalizationCode: string,
-        partner: string,
         provider: string,
         kind: string,
         tzOffset: number

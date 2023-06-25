@@ -16,5 +16,9 @@ export function protectNavigation(url: string, app: string) {
     if (pageDomain.endsWith('mc.yandex.ru')) {
         return true;
     }
+    // To account for walletconnect redirects
+    if (pageDomain.endsWith('verify.walletconnect.com')) {
+        return true;
+    }
     return false;
 }

@@ -48,7 +48,6 @@ export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
   }
 
   if (!cardListPublicCodec.is(res.data)) {
-    console.log(res.data);
     throw Error("Invalid card list response");
   }
 

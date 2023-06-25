@@ -22,7 +22,7 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from '../../utils/dns/dns';
+import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from '../../utils/dns/dns';
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
@@ -147,19 +147,43 @@ export const TransferFragment = fragment(() => {
 
                 if (order.domain) {
                     try {
-                        const resolvedDomainAddress = await resolveDomain(
-                            engine.client4,
-                            tonDnsRootAddress,
-                            order.domain,
-                            DNS_CATEGORY_NEXT_RESOLVER,
-                            true
-                        );
-
-                        if (!resolvedDomainAddress || !Address.isAddress(resolvedDomainAddress)) {
-                            throw Error('Error resolving domain address');
+                        const tonZoneMatch = order.domain.match(/\.ton$/);
+                        let zone = null;
+                        if (tonZoneMatch) {
+                            zone = '.ton';
+                        } else {
+                            const tMeZoneMatch = order.domain.match(/\.t\.me$/);
+                            if (tMeZoneMatch) {
+                                zone = '.t.me';
+                            }
                         }
 
-                        const resolvedDomainWallet = await resolveDomain(engine.client4, resolvedDomainAddress, '.', DNS_CATEGORY_WALLET);
+                        let domain = zone === '.ton'
+                            ? order.domain.slice(0, order.domain.length - 4)
+                            : order.domain.slice(0, order.domain.length - 5);
+
+                        const valid = validateDomain(domain);
+
+                        if (!valid) {
+                            throw Error('Invalid domain');
+                        }
+
+                        const resolvedCollectionAddress = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_NEXT_RESOLVER, true);
+                        if (!resolvedCollectionAddress) {
+                            throw Error('Error resolving collection address');
+                        }
+                        const collectionAddress = Address.parseRaw(resolvedCollectionAddress.toString());
+
+                        const resolvedDomainAddress = await resolveDomain(engine.client4, collectionAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
+                        if (!resolvedDomainAddress) {
+                            throw Error('Error resolving domain address');
+                        }
+                        const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
+
+                        const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
+                        if (!resolvedDomainWallet) {
+                            throw Error('Error resolving domain wallet');
+                        }
 
                         if (
                             !resolvedDomainWallet

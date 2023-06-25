@@ -54,8 +54,7 @@ export const WalletBackupFragment = systemFragment(() => {
             try {
                 let keys = await authContext.authenticate({ backgroundColor: Theme.item });
                 setMnemonics(keys.mnemonics);
-            } catch (e) {
-                warn(e);
+            } catch {
                 navigation.goBack();
                 return;
             }

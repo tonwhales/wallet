@@ -118,8 +118,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             }
 
             setState({ passcode, deviceEncryption });
-        } catch (e) {
-            warn(e);
+        } catch {
             Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
         } finally {
             setLoading(false);

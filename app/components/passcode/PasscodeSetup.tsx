@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from "react";
-import { Platform, View, Text, Pressable } from "react-native";
+import { Platform, View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
@@ -8,9 +8,7 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
-import { useAppConfig } from "../../utils/AppConfigContext";
-import { useEngine } from "../../engine/Engine";
-import { useReboot } from "../../utils/RebootContext";
+import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -22,7 +20,8 @@ type ScreenState = {
 const SetupLoader = React.memo((props: {
     onLoadEnd: (action: Action) => void,
     load: (input: string) => Promise<void>,
-    input: string
+    input: string,
+    theme: ThemeType
 }) => {
 
     useEffect(() => {
@@ -76,36 +75,32 @@ function reduceSteps() {
 
 export const PasscodeSetup = React.memo((
     {
+        description,
         onReady,
         initial,
-        afterImport
+        onLater,
+        showSuccess,
+        style
     }: {
+        description?: string,
         onReady?: (pass: string) => Promise<void>,
+        onLater?: () => void,
         initial?: boolean,
-        afterImport?: boolean
+        showSuccess?: boolean,
+        style?: StyleProp<ViewStyle>,
     }) => {
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const reboot = useReboot();
     const { Theme } = useAppConfig();
-    const onSuccess = useCallback(async (pass: string) => {
-        onReady?.(pass);
-    }, [onReady]);
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
 
-    const onLater = useCallback(() => {
-        reboot();
-    }, [engine, afterImport, initial]);
-
     return (
-        <View style={{
-            width: '100%', height: '100%',
-        }}>
+        <View style={[{ width: '100%', height: '100%', }, style]}>
             {state.step === 'input' && (
                 <Animated.View style={{ flexGrow: 1 }} exiting={SlideOutLeft}>
                     <PasscodeInput
                         title={t('security.passcodeSettings.enterNew')}
+                        description={description}
                         onEntered={(pass) => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
@@ -113,7 +108,7 @@ export const PasscodeSetup = React.memo((
                             dispatch({ type: 're-enter', input: pass });
                         }}
                     />
-                    {!!(initial || afterImport) && (
+                    {!!onLater && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -146,7 +141,7 @@ export const PasscodeSetup = React.memo((
                             dispatch({ type: 'loading' });
                         }}
                     />
-                    {!!(initial || afterImport) && (
+                    {!!initial && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -169,7 +164,7 @@ export const PasscodeSetup = React.memo((
                     )}
                 </Animated.View>
             )}
-            {state.step === 'success' && (
+            {state.step === 'success' && showSuccess && (
                 <>
                     <PasscodeSuccess
                         onSuccess={navigation.goBack}
@@ -181,8 +176,9 @@ export const PasscodeSetup = React.memo((
             {state.step === 'loading' && (
                 <SetupLoader
                     onLoadEnd={dispatch}
-                    load={onSuccess}
+                    load={async (pass) => { await onReady?.(pass) }}
                     input={state.input}
+                    theme={Theme}
                 />
             )}
         </View>

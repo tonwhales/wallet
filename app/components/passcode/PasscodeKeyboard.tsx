@@ -1,4 +1,4 @@
-import React, {  } from "react"
+import React, { } from "react"
 import { View, Pressable } from "react-native"
 import { PasscodeKey, PasscodeKeyButton } from "./PasscodeKeyButton";
 
@@ -11,7 +11,7 @@ export const PasscodeKeyboard = React.memo(({
 }) => {
 
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row' }}>
                 <PasscodeKeyButton
                     key={PasscodeKey.One}
@@ -29,7 +29,7 @@ export const PasscodeKeyboard = React.memo(({
                     onPress={() => onKeyPress(PasscodeKey.Three)}
                 />
             </View>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row', marginTop: 12 }}>
                 <PasscodeKeyButton
                     key={PasscodeKey.Four}
                     passcodeKey={PasscodeKey.Four}
@@ -46,7 +46,7 @@ export const PasscodeKeyboard = React.memo(({
                     onPress={() => onKeyPress(PasscodeKey.Six)}
                 />
             </View>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row', marginTop: 12 }}>
                 <PasscodeKeyButton
                     key={PasscodeKey.Seven}
                     passcodeKey={PasscodeKey.Seven}
@@ -63,7 +63,7 @@ export const PasscodeKeyboard = React.memo(({
                     onPress={() => onKeyPress(PasscodeKey.Nine)}
                 />
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
                 {!!leftIcon && (
                     <Pressable
                         onPress={() => onKeyPress(PasscodeKey.LeftActionKey)}

@@ -466,7 +466,10 @@ export type LocalizationSchema = {
         upgradeTitle: string,
         upgradeMessage: string,
         allowUpgrade: string,
-        backup: string
+        backup: string,
+        onLaterTitle: string,
+        onLaterMessage: string,
+        onLaterButton: string,
     },
     backup: {
         title: string,
@@ -573,7 +576,8 @@ export type LocalizationSchema = {
             enterNew: string,
             confirmNew: string,
             enterCurrent: string,
-            enterPrevious: string
+            enterPrevious: string,
+            enterNewDescription: string,
         }
     },
     report: {

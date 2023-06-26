@@ -2,26 +2,21 @@ import * as React from 'react';
 import { Platform, View } from 'react-native';
 import { mnemonicNew } from 'ton-crypto';
 import { minimumDelay } from 'teslabot';
-import { WalletSecureFragment } from './WalletSecureFragment';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
-import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const [state, setState] = React.useState<{
-        mnemonics: string,
-        deviceEncryption: DeviceEncryption
-    } | null>(null);
+    const [state, setState] = React.useState<{ mnemonics: string } | null>(null);
     React.useEffect(() => {
         (async () => {
-
             // Nice minimum delay for smooth animations
             // and secure feeling of key generation process
             // It is a little bit random - sometimes it takes few seconds, sometimes few milliseconds
@@ -29,11 +24,8 @@ export const WalletCreateFragment = systemFragment(() => {
                 return await mnemonicNew();
             })());
 
-            // Fetch enrolled security
-            const encryption = await getDeviceEncryption();
-
             // Persist state
-            setState({ mnemonics: mnemonics.join(' '), deviceEncryption: encryption });
+            setState({ mnemonics: mnemonics.join(' ') });
         })()
     }, []);
 
@@ -41,7 +33,7 @@ export const WalletCreateFragment = systemFragment(() => {
         <View
             style={{
                 flexGrow: 1,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) : 0,
             }}
         >
             {!state && (
@@ -74,9 +66,8 @@ export const WalletCreateFragment = systemFragment(() => {
                     key="content"
                     entering={FadeIn}
                 >
-                    <WalletSecureFragment
+                    <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
-                        deviceEncryption={state.deviceEncryption}
                         import={false}
                     />
                 </Animated.View>

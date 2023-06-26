@@ -18,6 +18,7 @@ import LottieView from 'lottie-react-native';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductButton } from '../../components/products/ProductButton';
+import { TabHeader } from '../../components/topbar/TabHeader';
 
 type Item = {
     key: string;
@@ -147,26 +148,9 @@ export const ConnectionsFragment = fragment(() => {
     }, []);
 
     return (
-        <View style={{
-            flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-        }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17,
-                        textAlign: 'center'
-                    }]}>
-                        {t('auth.apps.title')}
-                    </Text>
-                </View>
-            )}
-            <AndroidToolbar pageTitle={t('auth.apps.title')} />
+        <View style={{ flex: 1 }}>
+            <StatusBar style={'dark'} />
+            <TabHeader title={t('home.browser')} />
             {(
                 apps.length === 0
                 && extensions.length === 0
@@ -314,7 +298,6 @@ export const ConnectionsFragment = fragment(() => {
                         <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
                     </ScrollView>
                 )}
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

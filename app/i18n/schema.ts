@@ -57,7 +57,7 @@ export type LocalizationSchema = {
     home: {
         home: string,
         history: string,
-        services: string,
+        browser: string,
         more: string
     }
     settings: {

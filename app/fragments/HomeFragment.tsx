@@ -14,20 +14,13 @@ import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
-import { useTrackScreen } from '../analytics/mixpanel';
+import { trackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
-import { StatusBar } from 'expo-status-bar';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { ConnectionsFragment } from './connections/ConnectionsFragment';
 
 const Tab = createBottomTabNavigator();
-
-//   return (
-//     <Tab.Navigator>
-//       <Tab.Screen name="Home" component={HomeScreen} />
-//       <Tab.Screen name="Settings" component={SettingsScreen} />
-//     </Tab.Navigator>
-//   );
 
 const tabButtonStyle: StyleProp<ViewStyle> = {
     height: 49, flexGrow: 1, flexBasis: 0,
@@ -43,7 +36,6 @@ const tabButtonTextStyle: StyleProp<TextStyle> = {
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const { Theme, AppConfig } = useAppConfig();
-    const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const engine = useEngine();
@@ -128,16 +120,6 @@ export const HomeFragment = fragment(() => {
         });
     }, []);
 
-    if (tab === 0) {
-        useTrackScreen('Wallet', AppConfig.isTestnet);
-    } else if (tab === 1) {
-        useTrackScreen('Transactions', AppConfig.isTestnet);
-    } else if (tab === 2) {
-        useTrackScreen('Services', AppConfig.isTestnet);
-    } else if (tab === 3) {
-        useTrackScreen('More', AppConfig.isTestnet);
-    }
-
     return (
         <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
             <Tab.Navigator
@@ -162,7 +144,10 @@ export const HomeFragment = fragment(() => {
                             }}>
                                 <Pressable
                                     style={tabButtonStyle}
-                                    onPress={() => props.navigation.navigate('Home')}
+                                    onPress={() => {
+                                        props.navigation.navigate('Home')
+                                        trackScreen('Home', undefined, AppConfig.isTestnet);
+                                    }}
                                 >
                                     <Image
                                         source={require('../../assets/ic-home.png')}
@@ -180,7 +165,10 @@ export const HomeFragment = fragment(() => {
                                 </Pressable>
                                 <Pressable
                                     style={tabButtonStyle}
-                                    onPress={() => props.navigation.navigate('Transactions')}
+                                    onPress={() => {
+                                        props.navigation.navigate('Transactions');
+                                        trackScreen('Transactions', undefined, AppConfig.isTestnet);
+                                    }}
                                 >
                                     <Image
                                         source={require('../../assets/ic-history.png')}
@@ -200,7 +188,10 @@ export const HomeFragment = fragment(() => {
                                 </Pressable>
                                 <Pressable
                                     style={tabButtonStyle}
-                                    onPress={() => props.navigation.navigate('Services')}
+                                    onPress={() => {
+                                        props.navigation.navigate('Browser');
+                                        trackScreen('Browser', undefined, AppConfig.isTestnet)
+                                    }}
                                 >
                                     <Image
                                         source={require('../../assets/ic-services.png')}
@@ -215,12 +206,15 @@ export const HomeFragment = fragment(() => {
                                             ...tabButtonTextStyle
                                         }}
                                     >
-                                        {t('home.services')}
+                                        {t('home.browser')}
                                     </Text>
                                 </Pressable>
                                 <Pressable
                                     style={tabButtonStyle}
-                                    onPress={() => props.navigation.navigate('More')}
+                                    onPress={() => {
+                                        props.navigation.navigate('More');
+                                        trackScreen('More', undefined, AppConfig.isTestnet);
+                                    }}
                                 >
                                     <Image
                                         source={props.state.index === 3 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
@@ -249,7 +243,7 @@ export const HomeFragment = fragment(() => {
             >
                 <Tab.Screen name={'Home'} component={WalletFragment} />
                 <Tab.Screen name={'Transactions'} component={TransactionsFragment} />
-                <Tab.Screen name={'Services'} component={View} />
+                <Tab.Screen name={'Browser'} component={ConnectionsFragment} />
                 <Tab.Screen name={'More'} component={SettingsFragment} />
             </Tab.Navigator>
         </View>

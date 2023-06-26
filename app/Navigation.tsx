@@ -143,7 +143,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('Settings', SettingsFragment, safeArea),
     genericScreen('Privacy', PrivacyFragment, safeArea),
     genericScreen('Terms', TermsFragment, safeArea),
-    modalScreen('Connections', ConnectionsFragment, safeArea),
+    // modalScreen('Connections', ConnectionsFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),

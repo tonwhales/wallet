@@ -55,7 +55,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     home: {
         home: 'Home',
         history: 'History',
-        services: 'Services',
+        browser: 'Browser',
         more: 'More',
     },
     settings: {

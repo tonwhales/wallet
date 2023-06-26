@@ -465,6 +465,7 @@ export type LocalizationSchema = {
         onLaterTitle: string,
         onLaterMessage: string,
         onLaterButton: string,
+        onBiometricsError: string
     },
     backup: {
         title: string,

@@ -1,10 +1,10 @@
 diff --git a/node_modules/react-native-screens/ios/RNSScreen.mm b/node_modules/react-native-screens/ios/RNSScreen.mm
-index 4373c1a..0c2bf53 100644
+index d6975f7..f12eaee 100644
 --- a/node_modules/react-native-screens/ios/RNSScreen.mm
 +++ b/node_modules/react-native-screens/ios/RNSScreen.mm
-@@ -854,11 +854,6 @@ - (void)viewDidLayoutSubviews
+@@ -939,11 +939,6 @@ - (void)viewDidLayoutSubviews
    if (isDisplayedWithinUINavController || isPresentedAsNativeModal) {
- #ifdef RN_FABRIC_ENABLED
+ #ifdef RCT_NEW_ARCH_ENABLED
      [self.screenView updateBounds];
 -#else
 -    if (!CGRectEqualToRect(_lastViewFrame, self.screenView.frame)) {

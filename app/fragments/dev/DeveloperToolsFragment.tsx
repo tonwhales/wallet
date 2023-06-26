@@ -13,19 +13,21 @@ import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
-import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
+import { WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
 import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
+    const authContext = useKeysAuth();
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
-    
+
     const reboot = useReboot();
     const restart = React.useCallback(() => {
         // TODO: Implement
@@ -59,7 +61,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            walletKeys = await authContext.authenticate({ backgroundColor: Theme.item });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {

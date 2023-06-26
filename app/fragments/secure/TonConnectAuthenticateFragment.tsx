@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Image } from "react-native";
+import { Platform, StyleProp, Text, TextStyle, View, Image, Linking } from "react-native";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { t, tStyled } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -10,7 +10,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { beginCell, Cell, safeSign, StateInit } from 'ton';
-import { loadWalletKeys, WalletKeys } from '../../storage/walletKeys';
+import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
 import SuccessIcon from '../../../assets/ic_success.svg';
@@ -22,13 +22,14 @@ import { WImage } from '../../components/WImage';
 import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
 import { AppManifest } from '../../engine/api/fetchManifest';
 import { ConnectReplyBuilder } from '../../engine/tonconnect/ConnectReplyBuilder';
-import { ConnectQrQuery, TonConnectBridgeType } from '../../engine/tonconnect/types';
+import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../engine/tonconnect/types';
 import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';
 import { useParams } from '../../utils/useParams';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse';
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/utils';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -37,7 +38,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 type SignState = { type: 'loading' }
-    | { type: 'expired' }
+    | { type: 'expired', returnStrategy?: ReturnStrategy }
     | {
         type: 'initing',
         name: string,
@@ -46,14 +47,16 @@ type SignState = { type: 'loading' }
         protocolVersion: number,
         request: ConnectRequest,
         clientSessionId?: string,
+        returnStrategy?: ReturnStrategy
     }
-    | { type: 'completed' }
-    | { type: 'authorized' }
-    | { type: 'failed' }
+    | { type: 'completed', returnStrategy?: ReturnStrategy }
+    | { type: 'authorized', returnStrategy?: ReturnStrategy }
+    | { type: 'failed', returnStrategy?: ReturnStrategy }
 
 const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
+    const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
     const engine = useEngine();
@@ -76,10 +79,11 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                                 protocolVersion: handled.protocolVersion,
                                 request: handled.request,
                                 clientSessionId: handled.clientSessionId,
+                                returnStrategy: handled.returnStrategy
                             });
                             return;
                         }
-                        setState({ type: 'failed' });
+                        setState({ type: 'failed', returnStrategy: connectProps.query.ret });
                         return;
                     }
 
@@ -129,7 +133,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         const sessionCrypto = new SessionCrypto();
 
         if (state.protocolVersion === 1) {
-            setState({ type: 'failed' });
+            setState({ type: 'failed', returnStrategy: state.returnStrategy });
         }
 
         try {
@@ -142,7 +146,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             // Sign
             let walletKeys: WalletKeys;
             try {
-                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                walletKeys = await authContext.authenticate({ cancelable: true });
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return;
@@ -224,7 +228,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     },
                 );
 
-                setState({ type: 'authorized' });
+                setState({ type: 'authorized', returnStrategy: state.returnStrategy });
                 return;
             } else if (connectProps.type === 'callback') {
                 connectProps.callback({ ok: true, replyItems });
@@ -235,10 +239,10 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             }
 
             // Should not happen
-            setState({ type: 'failed' });
+            setState({ type: 'failed', returnStrategy: state.returnStrategy });
         } catch (e) {
             warn('Failed to approve');
-            setState({ type: 'failed' });
+            setState({ type: 'failed', returnStrategy: state.returnStrategy });
         }
 
     }, [state]);
@@ -257,7 +261,26 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
-                <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
+                <RoundButton
+                    title={t('common.back')}
+                    onPress={() => {
+                        if (state.returnStrategy && state.returnStrategy !== 'none' && state.returnStrategy !== 'back') {
+                            try {
+                                const url = new URL(state.returnStrategy);
+                                Linking.openURL(url.toString());
+                                return;
+                            } catch (e) {
+                                warn('Failed to open url');
+                            }
+                            navigation.goBack();
+                            return;
+                        }
+                        navigation.goBack();
+                    }}
+                    size="large"
+                    style={{ width: 200 }}
+                    display="outline"
+                />
             </View>
         );
     }
@@ -267,7 +290,26 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
-                <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
+                <RoundButton
+                    title={t('common.back')}
+                    onPress={() => {
+                        if (state.returnStrategy && state.returnStrategy !== 'none' && state.returnStrategy !== 'back') {
+                            try {
+                                const url = new URL(state.returnStrategy);
+                                Linking.openURL(url.toString());
+                                return;
+                            } catch (e) {
+                                warn('Failed to open url');
+                            }
+                            navigation.goBack();
+                            return;
+                        }
+                        navigation.goBack();
+                    }}
+                    size="large"
+                    style={{ width: 200 }}
+                    display="outline"
+                />
             </View>
         );
     }
@@ -277,7 +319,26 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
-                <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
+                <RoundButton
+                    title={t('common.back')}
+                    onPress={() => {
+                        if (state.returnStrategy && state.returnStrategy !== 'none' && state.returnStrategy !== 'back') {
+                            try {
+                                const url = new URL(state.returnStrategy);
+                                Linking.openURL(url.toString());
+                                return;
+                            } catch (e) {
+                                warn('Failed to open url');
+                            }
+                            navigation.goBack();
+                            return;
+                        }
+                        navigation.goBack();
+                    }}
+                    size="large"
+                    style={{ width: 200 }}
+                    display="outline"
+                />
             </View>
         );
     }
@@ -316,7 +377,20 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                 </Text>
                 <RoundButton
                     title={t('common.close')}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        if (state.returnStrategy && state.returnStrategy !== 'none' && state.returnStrategy !== 'back') {
+                            try {
+                                const url = new URL(state.returnStrategy);
+                                Linking.openURL(url.toString());
+                                return;
+                            } catch (e) {
+                                warn('Failed to open url');
+                            }
+                            navigation.goBack();
+                            return;
+                        }
+                        navigation.goBack();
+                    }}
                     size="large"
                     style={{ width: 200 }}
                     display="outline"

@@ -1,10 +1,11 @@
 import { beginCell, safeSign } from "ton";
 import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
 import { getCurrentAddress } from "../../storage/appState";
-import { loadWalletKeys, WalletKeys } from "../../storage/walletKeys";
+import { WalletKeys } from "../../storage/walletKeys";
 import { warn } from "../../utils/log";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
+import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 
 export class KeysProduct {
     readonly engine: Engine;
@@ -13,7 +14,7 @@ export class KeysProduct {
         this.engine = engine;
     }
 
-    async createDomainKeyIfNeeded(domain: string, keys?: WalletKeys) {
+    async createDomainKeyIfNeeded(domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys) {
 
         // Normalize
         domain = domain.toLowerCase();
@@ -34,7 +35,7 @@ export class KeysProduct {
             walletKeys = keys;
         } else {
             try {
-                walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+                walletKeys = await authContext.authenticate({ cancelable: true });
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return false;

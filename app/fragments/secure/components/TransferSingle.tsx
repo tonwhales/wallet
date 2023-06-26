@@ -15,7 +15,7 @@ import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
-import { loadWalletKeys, WalletKeys } from "../../../storage/walletKeys";
+import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -45,6 +45,7 @@ import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { zenPayUrl } from "../../../engine/corp/ZenPayProduct";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 
 type Props = {
     target: {
@@ -66,6 +67,7 @@ type Props = {
 }
 
 export const TransferSingle = React.memo((props: Props) => {
+    const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -197,7 +199,7 @@ export const TransferSingle = React.memo((props: Props) => {
         // Read key
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await loadWalletKeys(acc.secretKeyEnc);
+            walletKeys = await authContext.authenticate({ cancelable: true });
         } catch (e) {
             return;
         }

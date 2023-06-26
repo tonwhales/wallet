@@ -2,12 +2,29 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { Item } from '../../components/Item';
 import { fragment } from '../../fragment';
-import { getApplicationKey, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
+import { getApplicationKey, getBiometricsState, getPasscodeState, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { ItemButton } from '../../components/ItemButton';
+import { ScrollView } from 'react-native-gesture-handler';
+import { ItemGroup } from '../../components/ItemGroup';
+
+function loadStorageState() {
+    const biometricsState = getBiometricsState();
+    const passcodeState = getPasscodeState();
+    return {
+        biometricsState,
+        passcodeState,
+    }
+}
 
 export const DevStorageFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
+
     let [value, setValue] = React.useState('');
+
+    const initialState = loadStorageState();
+    const [keysStorageState, setKeysStorageState] = React.useState(initialState);
+
     React.useEffect(() => {
         (async () => {
             try {
@@ -23,25 +40,54 @@ export const DevStorageFragment = fragment(() => {
     let kind = loadKeyStorageType();
 
     return (
-        <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16 }}>
-            <View style={{
-                marginBottom: 16, marginTop: 17,
-                backgroundColor: Theme.item,
-                borderRadius: 14,
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexShrink: 1,
-            }}>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Storage Kind"} hint={kind} />
-                </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Storage Ref"} hint={ref} />
-                </View>
-                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                    <Item title={"Storage Key"} hint={value} />
-                </View>
+        <ScrollView style={{ flexGrow: 1 }}>
+            <View style={{ backgroundColor: Theme.background, flexGrow: 1, paddingHorizontal: 16 }}>
+                <ItemGroup style={{
+                    marginBottom: 16, marginTop: 16,
+                    backgroundColor: Theme.item,
+                    borderRadius: 16,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Storage Kind"} hint={kind} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Storage Ref"} hint={ref} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Storage Key"} hint={value} />
+                    </View>
+
+                </ItemGroup>
+
+                <ItemGroup style={{
+                    marginBottom: 16,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Biometrics state"} hint={keysStorageState.biometricsState ?? 'Not set'} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Passcode state"} hint={keysStorageState.passcodeState ?? 'Not set'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            leftIcon={require('../../../assets/ic_backup.png')}
+                            title={"Check keys storage status again"}
+                            onPress={() => {
+                                const stored = loadStorageState();
+                                setKeysStorageState(stored);
+                            }}
+                        />
+                    </View>
+                </ItemGroup>
             </View>
-        </View>
+        </ScrollView>
     );
 });

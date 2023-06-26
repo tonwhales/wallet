@@ -41,9 +41,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         apy: 'APY',
         tx: 'Transaction',
         add: 'Add',
+        connect: 'Connect',
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',
+        later: 'Later',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -63,7 +65,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         developerTools: 'Developer Tools',
         spamFilter: 'SPAM filter',
         logoutDescription: 'This action will disconnect the wallet from this app and delete all of your data from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.',
-        primaryCurrency: 'Primary currency'
+        primaryCurrency: 'Primary currency',
+        experimental: 'Experimental',
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -456,7 +459,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         upgradeTitle: 'Upgrade needed',
         upgradeMessage: 'Please, allow the app access to wallet keys for an upgrade. No funds would be transferred during this upgrade. Please, make sure that you backed up your keys.',
         allowUpgrade: 'Allow upgrade',
-        backup: 'Backup secret words'
+        backup: 'Backup secret words',
+        onLaterTitle: 'Setup later',
+        onLaterMessage: 'You can setup protection later in settings',
+        onLaterButton: 'Setup later',
     },
     backup: {
         title: 'Your recovery phrase',
@@ -546,6 +552,25 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         blockConfirm: 'Mark address as spam',
         description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu.'
     },
+    security: {
+        title: 'Security',
+        passcodeSettings: {
+            setupTitle: 'Setup PIN code',
+            confirmTitle: 'Confirm PIN code',
+            changeTitle: 'Change PIN code',
+            resetTitle: 'Reset PIN code',
+            resetDescription: 'If you forgot your PIN code, you can reset it by entering the 24 secret words you wrote down when creating the wallet.',
+            resetAction: 'Reset',
+            error: 'Incorrect PIN code',
+            tryAgain: 'Try again',
+            success: 'PIN code successfully set',
+            enterNew: 'Enter new PIN code',
+            confirmNew: 'Confirm new PIN code',
+            enterCurrent: 'Enter your PIN code',
+            enterPrevious: 'Enter your previous PIN code',
+            enterNewDescription: 'Setting a password provides an additional layer of security when using the application'
+        }
+    },
     report: {
         title: 'Report',
         scam: 'scam',
@@ -624,6 +649,55 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             address: 'TON address',
             transaction: 'TON transaction',
         }
+    },
+    hardwareWallet: {
+        ledger: 'Ledger',
+        title: 'Hardware wallet',
+        description: 'Your hardware Ledger wallet',
+        installationIOS: 'You will need a Ledger with bluetooth (Nano X model) and have Ton App installed on the device',
+        installationAndroid: 'You will need a Ledger Nano X model (for bluetooth and USB connection) or Nano S model (USB only) and have Ton App installed on the device',
+        installationGuide: 'Ton App installation guide',
+        connectionDescriptionAndroid: 'Connect your Ledger via USB or Bluetooth',
+        connectionDescriptionIOS: 'Connect your Ledger via Bluetooth',
+        connectionHIDDescription_1: '1. Turn your ledger on and unlock it',
+        connectionHIDDescription_2: '2. Press \"Continue\"',
+        chooseAccountDescription: 'Open your Ledger \"Ton App\" and then choose an account you would like to connect to',
+        bluetoothScanDescription_1: '1. Turn your ledger on and unlock it',
+        bluetoothScanDescription_2: '2. Make sure that you have bluetooth enabled',
+        bluetoothScanDescription_3: '3. Press \"Scan\" to search for available devices and select suitable Ledger Nano X',
+        bluetoothScanDescription_3_and: '3. Press \"Scan\" to search for available devices (we will need access to device location data and permission to search for nearby devices)',
+        bluetoothScanDescription_4_and: '4. Then select suitable Ledger Nano X',
+        openAppVerifyAddress: 'Check the account address that you have selected and then verify the address with the Ledger Ton App when prompted',
+        devices: 'Devices',
+        actions: {
+            connect: 'Connect Ledger',
+            selectAccount: 'Select account',
+            account: 'Account #{{account}}',
+            loadAddress: 'Verify address',
+            connectHid: 'Connect Ledger via USB',
+            connectBluetooth: 'Connect Ledger via Bluetooth',
+            scanBluetooth: 'Scan',
+            confirmOnLedger: 'Confirm via Ledger',
+            sending: 'Awaiting transaction',
+            sent: 'Transaction sent',
+            mainAddress: 'Main address',
+            givePermissions: 'Give permissions',
+        },
+        confirm: {
+            add: 'Are you sure want to add this app?',
+            remove: 'Are you sure want to remove this app?'
+        },
+        errors: {
+            noDevice: 'No device found',
+            appNotOpen: 'Ton app is not open on Ledger',
+            turnOnBluetooth: 'Please, turn Bluetooth on and try again',
+            lostConnection: 'Lost connection with Ledger',
+            transactionNotFound: 'Transaction not found',
+            transactionRejected: 'Transaction rejected',
+            transferFailed: 'Transfer failed',
+            permissions: 'Please, allow access to bluetooth and location',
+        },
+        moreAbout: 'More about Ledger'
     },
     devTools: {
         switchNetwork: 'Network',

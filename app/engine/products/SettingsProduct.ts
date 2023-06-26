@@ -1,9 +1,11 @@
 import BN from "bn.js";
-import { RecoilValueReadOnly, selector, selectorFamily, useRecoilValue } from "recoil";
+import { RecoilValueReadOnly, atom, selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
 import { SpamFilterConfig } from "../../fragments/SpamFilterFragment";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
+import { BiometricsState, PasscodeState, biometricsStateKey, getBiometricsState, getPasscodeState, passcodeStateKey } from "../../storage/secureStorage";
+import { storage } from "../../storage/storage";
 
 const version = 1;
 
@@ -13,12 +15,28 @@ export class SettingsProduct {
     readonly #minAmountSelector: RecoilValueReadOnly<BN>;
     readonly #dontShowCommentsSelector: RecoilValueReadOnly<boolean>;
     readonly addressBook: CloudValue<{ denyList: { [key: string]: { reason: string | null } }, contacts: { [key: string]: AddressContact }, fields: { [key: string]: string } }>
+    readonly ledger: CloudValue<{ on: boolean }>
     readonly #denyAddressSelector;
     readonly #contactSelector;
+    readonly #passcodeStateAtom;
+    readonly #biometricsStateAtom;
 
     constructor(engine: Engine) {
         this.engine = engine;
         this.addressBook = engine.cloud.get(`addressbook-v${version}`, (src) => { src.denyList = {}; src.contacts = {}; src.fields = {} });
+        this.ledger = engine.cloud.get(`ledger-v${version}`, (src) => { src.on = false });
+
+        this.#passcodeStateAtom = atom<PasscodeState | null>({
+            key: 'settings/passcode-state',
+            default: getPasscodeState(),
+            dangerouslyAllowMutability: true
+        });
+
+        this.#biometricsStateAtom = atom<BiometricsState | null>({
+            key: 'settings/biometrics-state',
+            default: getBiometricsState(),
+            dangerouslyAllowMutability: true
+        });
 
         this.#minAmountSelector = selector({
             key: 'settings/spam/min-amount',
@@ -59,6 +77,42 @@ export class SettingsProduct {
                 const list = get(this.addressBook.atom).contacts || {};
                 return list[address];
             }
+        });
+    }
+
+    usePasscodeState(): PasscodeState | null {
+        return useRecoilValue(this.#passcodeStateAtom);
+    }
+
+    useBiometricsState(): BiometricsState | null {
+        return useRecoilValue(this.#biometricsStateAtom);
+    }
+
+    setBiometricsState(newState: BiometricsState | null) {
+        if (!newState) {
+            storage.delete(biometricsStateKey);
+        } else {
+            storage.set(biometricsStateKey, newState);
+        }
+        this.engine.recoil.updater(this.#biometricsStateAtom, newState);
+    }
+
+    setPasscodeState(newState: PasscodeState | null) {
+        if (!newState) {
+            storage.delete(passcodeStateKey);
+        } else {
+            storage.set(passcodeStateKey, newState);
+        }
+        this.engine.recoil.updater(this.#passcodeStateAtom, newState);
+    }
+
+    useLedger(): boolean {
+        return useRecoilValue(this.ledger.atom).on;
+    }
+
+    setLedger(on: boolean) {
+        this.ledger.update((doc) => {
+            doc.on = on;
         });
     }
 

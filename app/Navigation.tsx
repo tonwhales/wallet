@@ -22,7 +22,7 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EngineContext } from './engine/Engine';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -54,15 +54,20 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
+import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
-import { ZenPayEnrollmentFragment } from './fragments/zenpay/ZenPayEnrollmentFragment';
 import { ZenPayLandingFragment } from './fragments/zenpay/ZenPayLandingFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
+import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetupFragment';
+import { SecurityFragment } from './fragments/SecurityFragment';
+import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
+import { PasscodeResetFragment } from './fragments/secure/passcode/PasscodeResetFragment';
+import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -77,108 +82,98 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-function genericScreen(name: string, component: React.ComponentType<any>) {
+function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
             name={name}
             component={component}
-            options={{ headerShown: Platform.OS === 'ios' }}
+            options={{
+                headerShown: Platform.OS === 'ios',
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+            }}
         />
     );
 }
 
-function formSheetScreen(name: string, component: React.ComponentType<any>) {
-    return (
-        <Stack.Screen
-            key={`formSheetScreen-${name}`}
-            name={name}
-            component={component}
-            options={{ headerShown: false }}
-        />
-    );
-}
-
-function modalScreen(name: string, component: React.ComponentType<any>) {
+function modalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
             name={name}
             component={component}
-            options={{ presentation: 'modal', headerShown: false }}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : undefined }
+            }}
         />
     );
 }
 
-function lockedModalScreen(name: string, component: React.ComponentType<any>) {
+function lockedModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
             name={name}
             component={component}
-            options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: false,
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+            }}
         />
     );
 }
 
-// function fullScreenModal(name: string, component: React.ComponentType<any>) {
-//     return (
-//         <Stack.Screen
-//             key={`fullScreenModal-${name}`}
-//             name={name}
-//             component={component}
-//             options={{ presentation: 'fullScreenModal', headerShown: false }}
-//         />
-//     );
-// }
-
-const navigation = [
+const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
     fullScreen('Sync', SyncFragment),
-    genericScreen('LegalCreate', LegalFragment),
-    genericScreen('LegalImport', LegalFragment),
-    genericScreen('WalletImport', WalletImportFragment),
-    genericScreen('WalletCreate', WalletCreateFragment),
-    genericScreen('WalletCreated', WalletCreatedFragment),
-    genericScreen('WalletBackupInit', WalletBackupFragment),
-    genericScreen('WalletBackup', WalletBackupFragment),
-    genericScreen('WalletUpgrade', WalletUpgradeFragment),
-    genericScreen('Settings', SettingsFragment),
-    genericScreen('Privacy', PrivacyFragment),
-    genericScreen('Terms', TermsFragment),
-    modalScreen('Connections', ConnectionsFragment),
-    modalScreen('Transfer', TransferFragment),
-    modalScreen('SimpleTransfer', SimpleTransferFragment),
-    modalScreen('Receive', ReceiveFragment),
-    modalScreen('Transaction', TransactionPreviewFragment),
-    modalScreen('Authenticate', AuthenticateFragment),
-    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment),
-    modalScreen('Install', InstallFragment),
-    modalScreen('Sign', SignFragment),
-    modalScreen('Migration', MigrationFragment),
-    lockedModalScreen('Scanner', ScannerFragment),
-    genericScreen('DeveloperTools', DeveloperToolsFragment),
-    genericScreen('DeveloperToolsStorage', DevStorageFragment),
-    lockedModalScreen('Buy', NeocryptoFragment),
+    genericScreen('LegalCreate', LegalFragment, safeArea),
+    genericScreen('LegalImport', LegalFragment, safeArea),
+    genericScreen('WalletImport', WalletImportFragment, safeArea),
+    genericScreen('WalletCreate', WalletCreateFragment, safeArea),
+    genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
+    genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
+    genericScreen('WalletBackup', WalletBackupFragment, safeArea),
+    genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
+    genericScreen('Settings', SettingsFragment, safeArea),
+    genericScreen('Privacy', PrivacyFragment, safeArea),
+    genericScreen('Terms', TermsFragment, safeArea),
+    modalScreen('Connections', ConnectionsFragment, safeArea),
+    modalScreen('Transfer', TransferFragment, safeArea),
+    modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
+    modalScreen('Receive', ReceiveFragment, safeArea),
+    modalScreen('Transaction', TransactionPreviewFragment, safeArea),
+    modalScreen('Authenticate', AuthenticateFragment, safeArea),
+    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
+    modalScreen('Install', InstallFragment, safeArea),
+    modalScreen('Sign', SignFragment, safeArea),
+    modalScreen('Migration', MigrationFragment, safeArea),
+    lockedModalScreen('Scanner', ScannerFragment, safeArea),
+    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
+    genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
+    lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('StakingGraph', StakingGraphFragment),
-    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment),
-    modalScreen('StakingTransfer', StakingTransferFragment),
-    modalScreen('Accounts', AccountsFragment),
-    modalScreen('SpamFilter', SpamFilterFragment),
-    modalScreen('Currency', CurrencyFragment),
-    modalScreen('Review', ReviewFragment),
-    modalScreen('DeleteAccount', DeleteAccountFragment),
-    modalScreen('Logout', LogoutFragment),
-    modalScreen('Contact', ContactFragment),
-    modalScreen('Contacts', ContactsFragment),
-    modalScreen('StakingCalculator', StakingCalculatorFragment),
-    modalScreen('ZenPayEnroll', ZenPayEnrollmentFragment),
-    modalScreen('ZenPayLanding', ZenPayLandingFragment),
-    lockedModalScreen('ZenPay', ZenPayAppFragment),
-    modalScreen('Assets', AssetsFragment),
+    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
+    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
+    modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('Accounts', AccountsFragment, safeArea),
+    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
+    modalScreen('Currency', CurrencyFragment, safeArea),
+    modalScreen('Review', ReviewFragment, safeArea),
+    modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
+    modalScreen('Logout', LogoutFragment, safeArea),
+    modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('Contacts', ContactsFragment, safeArea),
+    modalScreen('Ledger', LedgerRoot, safeArea),
+    modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
+    modalScreen('ZenPayLanding', ZenPayLandingFragment, safeArea),
+    lockedModalScreen('ZenPay', ZenPayAppFragment, safeArea),
+    modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}
@@ -190,7 +185,13 @@ const navigation = [
         name={'ConnectApp'}
         component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
-    />
+    />,
+    modalScreen('Security', SecurityFragment, safeArea),
+    modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
+    modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
+    modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
+    modalScreen('PasscodeReset', PasscodeResetFragment, safeArea),
+    modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {
@@ -234,6 +235,8 @@ export const Navigation = React.memo(() => {
             return 'Welcome';
         } else if (onboarding === 'upgrade-store') {
             return 'WalletUpgrade';
+        } else if (onboarding === 'passcode-setup') {
+            return 'PasscodeSetupInit';
         } else {
             throw Error('Invalid onboarding state');
         }
@@ -321,9 +324,15 @@ export const Navigation = React.memo(() => {
                 >
                     <Stack.Navigator
                         initialRouteName={initial}
-                        screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
+                        screenOptions={{
+                            headerBackTitle: t('common.back'),
+                            title: '',
+                            headerShadowVisible: false,
+                            headerTransparent: false,
+                            headerStyle: { backgroundColor: 'white' }
+                        }}
                     >
-                        {navigation}
+                        {navigation(safeArea)}
                     </Stack.Navigator>
                 </NavigationContainer>
                 <Splash hide={hideSplash} />

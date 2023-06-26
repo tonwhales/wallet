@@ -4,26 +4,32 @@ import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { loadWalletKeys } from '../../storage/walletKeys';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
-import { EngineContext } from '../../engine/Engine';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { useReboot } from '../../utils/RebootContext';
+import { warn } from '../../utils/log';
+import { BiometricsState, getBiometricsState } from '../../storage/secureStorage';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const { Theme, AppConfig } = useAppConfig();
-    const { width, height } = useWindowDimensions();
+    const { height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
+    const init = route.name === 'WalletBackupInit';
+    const reboot = useReboot();
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
-    const engine = React.useContext(EngineContext)!
+    const engine = useEngine();
+    const authContext = useKeysAuth();
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
@@ -33,27 +39,29 @@ export const WalletBackupFragment = systemFragment(() => {
         if (back) {
             navigation.goBack();
         } else {
+            if (init) {
+                reboot();
+            }
             if (engine && !engine.ready) {
                 navigation.navigateAndReplaceAll('Sync');
             } else {
                 navigation.navigateAndReplaceAll('Home');
             }
         }
-    }, []);
+    }, [engine]);
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await loadWalletKeys(address.secretKeyEnc);
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
                 setMnemonics(keys.mnemonics);
-            } catch (e) {
-                console.warn(e);
+            } catch {
                 navigation.goBack();
                 return;
             }
         })();
 
         // Keeping screen in awakened state
-        activateKeepAwake('WalletBackupFragment');
+        activateKeepAwakeAsync('WalletBackupFragment');
         return function deactivate() {
             deactivateKeepAwake('WalletBackupFragment')
         };
@@ -88,7 +96,11 @@ export const WalletBackupFragment = systemFragment(() => {
 
     return (
         <Animated.View
-            style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined, }}
+            style={{
+                alignItems: 'center', justifyContent: 'center',
+                flexGrow: 1,
+                backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+            }}
             exiting={FadeIn}
             key={"content"}
         >
@@ -115,7 +127,14 @@ export const WalletBackupFragment = systemFragment(() => {
                 </View>
                 <View style={{ height: 64 + 16 + safeArea.bottom }} />
             </ScrollView>
-            <View style={{ height: 64, marginTop: 33, alignSelf: 'stretch', position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
+            <View style={{
+                height: 64,
+                marginTop: 33,
+                alignSelf: 'stretch',
+                position: 'absolute',
+                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0),
+                left: 16, right: 16
+            }}>
                 <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />
             </View>
         </Animated.View>

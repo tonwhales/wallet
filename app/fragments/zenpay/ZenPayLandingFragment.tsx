@@ -17,10 +17,12 @@ import { extractZenPayQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 
 export const ZenPayLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const webRef = React.useRef<WebView>(null);
+    const authContext = useKeysAuth();
     const engine = useEngine();
     const navigation = useTypedNavigation();
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = React.useState(true);
@@ -82,7 +84,7 @@ export const ZenPayLandingFragment = fragment(() => {
             }
 
             const domain = extractDomain(endpoint);
-            const res = await engine.products.zenPay.enroll(domain);
+            const res = await engine.products.zenPay.enroll(domain, authContext);
             if (!res) {
                 Alert.alert(t('auth.failed'));
                 authOpacity.value = 0;

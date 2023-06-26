@@ -12,6 +12,8 @@ import { useEngine } from '../../engine/Engine';
 import { clearHolders } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
+import { t } from '../../i18n/t';
+import { WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
 import { RoundButton } from '../../components/RoundButton';
 import { ATextInput } from '../../components/ATextInput';

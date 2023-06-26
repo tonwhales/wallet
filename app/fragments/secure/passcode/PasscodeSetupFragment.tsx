@@ -4,53 +4,55 @@ import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
-import { getCurrentAddress } from "../../../storage/appState";
-import { PasscodeState, encryptAndStoreWithPasscode } from "../../../storage/secureStorage";
-import { loadWalletKeys } from "../../../storage/walletKeys";
-import { useParams } from "../../../utils/useParams";
+import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useEngine } from "../../../engine/Engine";
 import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
-import { useReboot } from "../../../utils/RebootContext";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useRoute } from "@react-navigation/native";
+import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
+import { t } from "../../../i18n/t";
+import { storage } from "../../../storage/storage";
+import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const engine = useEngine();
-    const { AppConfig } = useAppConfig();
-    const reboot = useReboot();
     const settings = engine?.products?.settings;
-    const { initial, afterImport } = useParams<{ initial?: boolean, afterImport?: boolean }>();
+    const route = useRoute();
+    const init = route.name === 'PasscodeSetupInit';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const storageType = loadKeyStorageType();
+    const isLocalAuth = storageType === 'local-authentication';
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
-        const acc = getCurrentAddress();
-
         try {
-            let keys = await loadWalletKeys(acc.secretKeyEnc);
-            await encryptAndStoreWithPasscode(
-                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                passcode,
-                Buffer.from(keys.mnemonics.join(' '))
-            );
+            await encryptAndStoreAppKeyWithPasscode(passcode);
+
             if (!!settings) {
-                settings.setPasscodeState(
-                    acc.address,
-                    PasscodeState.Set
-                );
+                settings.setPasscodeState(PasscodeState.Set);
+
+
+                if (isLocalAuth) {
+                    const ref = loadKeyStorageRef();
+                    let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
+
+                    // Remove old unencrypted key
+                    storage.delete(key);
+                    return;
+                }
+
+                // Set only if there is are biometrics to use
+                settings.setBiometricsState(BiometricsState.InUse);
             }
+
+
         } catch (e) {
-            warn(`Failed to load wallet keys, ${initial ? 'initial' : ''} ${afterImport ? 'after import' : ''}`);
+            warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
             throw Error('Failed to load wallet keys');
         }
 
-        if (initial || afterImport) {
-            if (afterImport) {
-                reboot();
-                return;
-            }
-
+        if (init) {
             if (engine && !engine.ready) {
                 navigation.navigateAndReplaceAll('Sync');
             } else {
@@ -62,17 +64,38 @@ export const PasscodeSetupFragment = systemFragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: (Platform.OS === 'android' || initial || afterImport)
+            paddingTop: (Platform.OS === 'android' || init)
                 ? safeArea.top
                 : undefined,
         }}>
-            <StatusBar style={(Platform.OS === 'ios' && !initial && !afterImport) ? 'light' : 'dark'} />
+            {!init && (<AndroidToolbar />)}
+            <StatusBar style={(Platform.OS === 'ios' && !init) ? 'light' : 'dark'} />
             <PasscodeSetup
-                initial={initial}
-                afterImport={afterImport}
+                description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
                 onReady={onPasscodeConfirmed}
+                initial={init}
+                onLater={
+                    (init && !isLocalAuth) // Lock migation to passcode from local auth
+                        ? () => {
+                            storage.set(wasPasscodeSetupShownKey, true)
+                            if (engine && !engine.ready) {
+                                navigation.navigateAndReplaceAll('Sync');
+                            } else {
+                                navigation.navigateAndReplaceAll('Home');
+                            }
+                        }
+                        : undefined
+                }
+                showSuccess={!init}
             />
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
+            {Platform.OS === 'ios' && !init && (
+                <CloseButton
+                    style={{ position: 'absolute', top: 12, right: 10 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+            )}
         </View>
     );
 });

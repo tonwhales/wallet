@@ -634,7 +634,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.20.0):
+  - RNScreens (3.22.0):
     - React-Core
     - React-RCTImage
   - RNSVG (13.4.0):
@@ -1069,7 +1069,7 @@ SPEC CHECKSUMS:
   RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
   RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
   RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
-  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
+  RNScreens: 68fd1060f57dd1023880bf4c05d74784b5392789
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
@@ -1082,4 +1082,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 1647daf638619a7875415c62ae030be7bfdcb453
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.12.1

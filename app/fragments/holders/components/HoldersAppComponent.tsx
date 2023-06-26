@@ -474,6 +474,7 @@ export const HoldersAppComponent = React.memo((
                 )}
                 {mainButton && (
                     <KeyboardAvoidingView
+                        style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
                         contentContainerStyle={{ marginHorizontal: 16, marginBottom: (safeArea.bottom === 0 ? 16 : safeArea.bottom) }}
                         keyboardVerticalOffset={Platform.OS === 'ios'

@@ -117,8 +117,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 navigation.navigate('WalletBackupInit');
             }
 
-            console.log('here after import', storage.getString(passcodeStateKey));
-
             setState({ passcode, deviceEncryption });
         } catch (e) {
             warn(e);

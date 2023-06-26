@@ -55,8 +55,6 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         const biometricsState = getBiometricsState();
         const useBiometrics = (biometricsState === BiometricsState.InUse);
 
-        console.log({ passcodeState, biometricsState, useBiometrics })
-
         if (useBiometrics) {
             try {
                 const keys = await loadWalletKeys(acc.secretKeyEnc);

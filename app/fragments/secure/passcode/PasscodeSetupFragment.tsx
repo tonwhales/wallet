@@ -88,14 +88,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 }
                 showSuccess={!init}
             />
-            {Platform.OS === 'ios' && !init && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

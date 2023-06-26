@@ -65,6 +65,9 @@ import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChan
 import { useAppConfig } from './utils/AppConfigContext';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { PasscodeResetFragment } from './fragments/secure/passcode/PasscodeResetFragment';
+import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
+import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
+import { ProductsFragment } from './fragments/ProductsFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 
 const Stack = createNativeStackNavigator();
@@ -189,6 +192,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
     modalScreen('PasscodeReset', PasscodeResetFragment, safeArea),
+    modalScreen('Products', ProductsFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
 ];
 

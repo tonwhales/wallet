@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
@@ -15,13 +14,14 @@ import { useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { StatusBar } from 'expo-status-bar';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useLayoutEffect, useMemo } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { WalletAddress } from '../../components/WalletAddress';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
+import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -31,7 +31,6 @@ function WalletComponent(props: { wallet: WalletState }) {
     const engine = useEngine();
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
-
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
 
     const onQRCodeRead = (src: string) => {
@@ -45,26 +44,32 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     };
 
-    const onOpenBuy = useCallback(
-        () => {
-            navigation.navigate('Buy');
-        },
-        [],
-    );
-
+    const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
+    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const openGraph = useCallback(() => {
         if (balanceChart && balanceChart.chart.length > 0) {
             navigation.navigate('AccountBalanceGraph');
         }
     }, [account]);
 
-    const selectAccount = useCallback(() => {
-
+    // TODO: Implement
+    const selectAccountModal = useCallback(() => {
     }, []);
 
-    const navigateToCurrencySettings = useCallback(() => {
-        navigation.navigate('Currency');
+    // ScrollView background color animation
+    const scrollBackgroundColor = useSharedValue(0);
+
+    const onScroll = useAnimatedScrollHandler((event) => {
+        if ((event.contentOffset.y) >= 0) { // Overscrolled to top
+            scrollBackgroundColor.value = 1;
+        } else { // Overscrolled to bottom
+            scrollBackgroundColor.value = 0;
+        }
     }, []);
+
+    const scrollStyle = useAnimatedStyle(() => {
+        return { backgroundColor: scrollBackgroundColor.value === 0 ? '#131928' : 'white', };
+    });
 
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -76,14 +81,10 @@ function WalletComponent(props: { wallet: WalletState }) {
                 style={{
                     backgroundColor: '#131928',
                     paddingTop: safeArea.top,
-                    paddingHorizontal: 16,
-                    borderBottomEndRadius: 24,
-                    borderBottomStartRadius: 24,
-                    paddingBottom: 20,
+                    paddingHorizontal: 16
                 }}
                 collapsable={false}
             >
-
                 <View style={{
                     height: 44,
                     flexDirection: 'row',
@@ -96,9 +97,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 opacity: pressed ? 0.5 : 1
                             }
                         }}
-                        onPress={selectAccount}
+                        onPress={selectAccountModal}
                     >
-
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View style={{
                                 width: 24, height: 24,
@@ -122,21 +122,22 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </View>
                     </Pressable>
                     <View style={{ flexDirection: 'row' }}>
-                        <Chart
-                            style={{
-                                height: 24,
-                                width: 24,
-                            }}
-                            height={24}
-                            width={24}
-                            color={'#AAB4BF'}
-                        />
                         <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1
-                                }
-                            }}
+                            style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                            onPress={openGraph}
+                        >
+                            <Chart
+                                style={{
+                                    height: 24,
+                                    width: 24,
+                                }}
+                                height={24}
+                                width={24}
+                                color={'#AAB4BF'}
+                            />
+                        </Pressable>
+                        <Pressable
+                            style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
                             onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                         >
                             <Scanner
@@ -152,130 +153,146 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </Pressable>
                     </View>
                 </View>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={{
-                        fontSize: 32,
-                        color: 'white',
-                        marginRight: 8,
-                        fontWeight: '500',
-                    }}>
-
-                        <ValueComponent precision={6} value={account.balance} />
+            </View>
+            <Animated.ScrollView
+                style={[{ flexBasis: 0 }, scrollStyle]}
+                contentContainerStyle={{ paddingBottom: 16, backgroundColor: 'white' }}
+                showsVerticalScrollIndicator={false}
+                onScroll={onScroll}
+                scrollEventThrottle={16}
+                decelerationRate={'fast'}
+                alwaysBounceVertical={false}
+            >
+                <View
+                    style={{
+                        backgroundColor: '#131928',
+                        paddingHorizontal: 16,
+                        borderBottomEndRadius: 24,
+                        borderBottomStartRadius: 24,
+                        paddingBottom: 20,
+                        paddingTop: 20,
+                    }}
+                    collapsable={false}
+                >
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={{
-                            fontSize: 17,
-                            color: '#838D99',
+                            fontSize: 32,
+                            color: 'white',
                             marginRight: 8,
                             fontWeight: '500',
-                        }}>{' TON'}</Text>
-                    </Text>
-                </View>
-                <View style={{
-                    flexDirection: 'row', alignItems: 'center',
-                    marginTop: 8
-                }}>
-                    <Pressable onPress={navigateToCurrencySettings}>
-                        <PriceComponent amount={account.balance} />
-                    </Pressable>
-                </View>
-                <View style={{ flexGrow: 1 }} />
-                <WalletAddress
-                    value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                    address={address}
-                    elipsise
-                    style={{
-                        marginTop: 12,
-                        alignSelf: 'flex-start',
-                    }}
-                    textStyle={{
-                        fontSize: 13,
-                        textAlign: 'left',
-                        color: '#838D99',
-                        fontWeight: '400',
-                        fontFamily: undefined
-                    }}
-                    lockActions
-                />
-                <View style={{
-                    flexDirection: 'row',
-                    marginHorizontal: 16,
-                    backgroundColor: '#1F283E',
-                    borderRadius: 20,
-                    paddingVertical: 20,
-                    marginTop: 24
-                }} collapsable={false}>
-                    {
-                        (!AppConfig.isTestnet && Platform.OS === 'android') && (
-                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14 }}>
-                                <TouchableHighlight
-                                    onPress={onOpenBuy}
-                                    underlayColor={Theme.selector}
-                                    style={{ borderRadius: 14 }}
-                                >
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                        <View style={{
-                                            backgroundColor: Theme.accent,
-                                            width: 32, height: 32,
-                                            borderRadius: 16,
-                                            alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <Image source={require('../../../assets/ic_buy.png')} />
+                        }}>
+
+                            <ValueComponent precision={6} value={account.balance} />
+                            <Text style={{
+                                fontSize: 17,
+                                color: '#838D99',
+                                marginRight: 8,
+                                fontWeight: '500',
+                            }}>{' TON'}</Text>
+                        </Text>
+                    </View>
+                    <View style={{
+                        flexDirection: 'row', alignItems: 'center',
+                        marginTop: 8
+                    }}>
+                        <Pressable onPress={navigateToCurrencySettings}>
+                            <PriceComponent amount={account.balance} />
+                        </Pressable>
+                    </View>
+                    <View style={{ flexGrow: 1 }} />
+                    <WalletAddress
+                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        address={address}
+                        elipsise
+                        style={{
+                            marginTop: 12,
+                            alignSelf: 'flex-start',
+                        }}
+                        textStyle={{
+                            fontSize: 13,
+                            textAlign: 'left',
+                            color: '#838D99',
+                            fontWeight: '400',
+                            fontFamily: undefined
+                        }}
+                        lockActions
+                    />
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            marginHorizontal: 16,
+                            backgroundColor: '#1F283E',
+                            borderRadius: 20,
+                            paddingVertical: 20,
+                            marginTop: 24
+                        }}
+                        collapsable={false}
+                    >
+                        {
+                            (!AppConfig.isTestnet && Platform.OS === 'android') && (
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14 }}>
+                                    <TouchableHighlight
+                                        onPress={onOpenBuy}
+                                        underlayColor={Theme.selector}
+                                        style={{ borderRadius: 14 }}
+                                    >
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                            <View style={{
+                                                backgroundColor: Theme.accent,
+                                                width: 32, height: 32,
+                                                borderRadius: 16,
+                                                alignItems: 'center', justifyContent: 'center'
+                                            }}>
+                                                <Image source={require('../../../assets/ic_buy.png')} />
+                                            </View>
+                                            <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6 }}>{t('wallet.actions.buy')}</Text>
                                         </View>
-                                        <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6 }}>{t('wallet.actions.buy')}</Text>
+                                    </TouchableHighlight>
+                                </View>
+                            )
+                        }
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14 }}>
+                            <TouchableHighlight
+                                onPress={() => navigation.navigate('Receive')}
+                                underlayColor={Theme.selector}
+                                style={{ borderRadius: 14 }}
+                            >
+                                <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                    <View style={{
+                                        backgroundColor: Theme.accent,
+                                        width: 32, height: 32,
+                                        borderRadius: 16,
+                                        alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Image source={require('../../../assets/ic_receive.png')} />
                                     </View>
-                                </TouchableHighlight>
-                            </View>
-                        )
-                    }
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14 }}>
-                        <TouchableHighlight
-                            onPress={() => navigation.navigate('Receive')}
-                            underlayColor={Theme.selector}
-                            style={{ borderRadius: 14 }}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                <View style={{
-                                    backgroundColor: Theme.accent,
-                                    width: 32, height: 32,
-                                    borderRadius: 16,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <Image source={require('../../../assets/ic_receive.png')} />
+                                    <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
                                 </View>
-                                <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
-                            </View>
-                        </TouchableHighlight>
-                    </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
-                        <TouchableHighlight
-                            onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
-                            underlayColor={Theme.selector}
-                            style={{ borderRadius: 14 }}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                <View style={{
-                                    backgroundColor: Theme.accent,
-                                    width: 32, height: 32,
-                                    borderRadius: 16,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <Image source={require('../../../assets/ic_send.png')} />
+                            </TouchableHighlight>
+                        </View>
+                        <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
+                            <TouchableHighlight
+                                onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
+                                underlayColor={Theme.selector}
+                                style={{ borderRadius: 14 }}
+                            >
+                                <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                    <View style={{
+                                        backgroundColor: Theme.accent,
+                                        width: 32, height: 32,
+                                        borderRadius: 16,
+                                        alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Image source={require('../../../assets/ic_send.png')} />
+                                    </View>
+                                    <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                 </View>
-                                <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
-                            </View>
-                        </TouchableHighlight>
+                            </TouchableHighlight>
+                        </View>
                     </View>
                 </View>
-            </View>
-            <ScrollView
-                style={{ flexBasis: 0 }}
-                contentContainerStyle={{
-                    backgroundColor: Theme.item,
-                    paddingBottom: 16
-                }}
-            >
                 <ProductsComponent />
-            </ScrollView>
+            </Animated.ScrollView>
         </View>
     );
 }

@@ -9,7 +9,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { copyText } from "../utils/copyText";
 import { useAppConfig } from "../utils/AppConfigContext";
 
-function ellipsiseAddress(src: string) {
+export function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
         + '...'
         + src.slice(src.length - 4)

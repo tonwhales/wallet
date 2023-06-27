@@ -45,6 +45,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',
+        wallets: 'Wallets',
         later: 'Later',
         select: 'Select',
         showAll: 'Show all',

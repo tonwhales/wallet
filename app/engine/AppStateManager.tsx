@@ -6,10 +6,6 @@ import { createEngine } from "./createEngine";
 import { EngineContext } from "./Engine";
 import { useRecoilCallback } from "recoil";
 import { useReboot } from "../utils/RebootContext";
-import * as Application from 'expo-application';
-import { storage } from "../storage/storage";
-import { passcodeEncKey, passcodeSaltKey, passcodeStateKey } from "../storage/secureStorage";
-import { warn } from "../utils/log";
 
 export type AppStateManager = {
     updateAppState: (state: AppState) => void,

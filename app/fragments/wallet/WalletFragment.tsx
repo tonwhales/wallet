@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { getCurrentAddress } from '../../storage/appState';
+import { Image, LayoutAnimation, Platform, Pressable, Text, View } from 'react-native';
+import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
@@ -15,13 +15,15 @@ import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { useBottomSheet } from '../../components/modal/BottomSheetModal';
+import { WalletSelector } from '../../components/WalletSelector';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -32,6 +34,8 @@ function WalletComponent(props: { wallet: WalletState }) {
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const modal = useBottomSheet();
+    const currentWalletIndex = getAppState().selected;
 
     const onQRCodeRead = (src: string) => {
         try {
@@ -52,10 +56,13 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [account]);
 
-    const selectAccount = useCallback(() => {
-
+    // Wallet Account modal
+    const onAccountPress = useCallback(() => {
+        modal?.show(
+            <WalletSelector />,
+            ['50%', '95%']
+        );
     }, []);
-
 
     // ScrollView background color animation
     const scrollBackgroundColor = useSharedValue(0);
@@ -98,7 +105,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 opacity: pressed ? 0.5 : 1
                             }
                         }}
-                        onPress={selectAccount}
+                        onPress={onAccountPress}
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View style={{
@@ -108,7 +115,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             }}>
                             </View>
                             <Text style={{ marginLeft: 12, fontWeight: '500', fontSize: 17, color: '#AAB4BF' }}>
-                                {'Wallet 1'}
+                                {`${t('common.wallet')} ${currentWalletIndex + 1}`}
                             </Text>
                             <ChevronDown
                                 style={{

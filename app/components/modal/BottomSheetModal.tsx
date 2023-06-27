@@ -54,6 +54,7 @@ export const BottomSheetProvider = React.memo((props: BottomSheetProviderProps) 
                         enablePanDownToClose={true}
                         keyboardBehavior="interactive"
                         keyboardBlurBehavior="restore"
+                        handleComponent={null}
                         style={{ backgroundColor: 'white', borderTopRightRadius: 20, borderTopLeftRadius: 20 }}
                         containerStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', paddingTop: safeArea.top }}
                         onChange={(index) => {

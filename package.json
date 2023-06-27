@@ -16,6 +16,7 @@
     "@babel/plugin-proposal-private-methods": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@expo/react-native-action-sheet": "^4.0.1",
+    "@gorhom/bottom-sheet": "^4.4.7",
     "@ledgerhq/react-native-hid": "6.28.8",
     "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",
     "@react-native-clipboard/clipboard": "^1.8.5",

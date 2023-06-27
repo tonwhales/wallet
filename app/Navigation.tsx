@@ -28,7 +28,6 @@ import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
-import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
@@ -65,6 +64,8 @@ import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { ProductsFragment } from './fragments/ProductsFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { BottomSheetProvider } from './components/modal/BottomSheetModal';
 
 const Stack = createNativeStackNavigator();
 
@@ -291,24 +292,26 @@ export const Navigation = React.memo(() => {
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-            <NavigationContainer
-                theme={NavigationTheme}
-                onReady={onMounted}
-            >
-                <Stack.Navigator
-                    initialRouteName={initial}
-                    screenOptions={{
-                        headerBackTitle: t('common.back'),
-                        title: '',
-                        headerShadowVisible: false,
-                        headerTransparent: false,
-                        headerStyle: { backgroundColor: 'white' }
-                    }}
+            <BottomSheetProvider>
+                <NavigationContainer
+                    theme={NavigationTheme}
+                    onReady={onMounted}
                 >
-                    {navigation(safeArea)}
-                </Stack.Navigator>
-            </NavigationContainer>
-            <Splash hide={hideSplash} />
+                    <Stack.Navigator
+                        initialRouteName={initial}
+                        screenOptions={{
+                            headerBackTitle: t('common.back'),
+                            title: '',
+                            headerShadowVisible: false,
+                            headerTransparent: false,
+                            headerStyle: { backgroundColor: 'white' }
+                        }}
+                    >
+                        {navigation(safeArea)}
+                    </Stack.Navigator>
+                </NavigationContainer>
+                <Splash hide={hideSplash} />
+            </BottomSheetProvider>
         </View>
     );
 });

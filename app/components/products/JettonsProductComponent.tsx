@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Pressable, View, Text } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { JettonProductItem } from "./JettonProductItem";
-import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import Chevron from '../../../assets/ic_chevron_down.svg';
 import Tokens from '../../../assets/ic-one.svg';
 import Collapsible from "react-native-collapsible";
 import { t } from "../../i18n/t";
@@ -16,21 +15,11 @@ export const JettonsProductComponent = React.memo(() => {
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const [collapsed, setCollapsed] = useState(true);
 
-    const rotation = useSharedValue(0);
-    const animatedChevron = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, 180])}deg` }],
-        }
-    }, []);
-    useEffect(() => {
-        rotation.value = withTiming(collapsed ? 0 : 1, { duration: 150 });
-    }, [collapsed]);
-
     if (jettons.length === 0) {
         return null;
     }
 
-    if (jettons.length <= 2) {
+    if (jettons.length <= 3) {
         return (
             <View style={{
                 borderRadius: 20,
@@ -118,18 +107,43 @@ export const JettonsProductComponent = React.memo(() => {
                         {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })}
                     </Text>
                 </View>
-                <Animated.View style={[
-                    {
-                        height: 12, width: 12,
-                        justifyContent: 'center', alignItems: 'center',
-                        alignSelf: 'center'
-                    },
-                    animatedChevron
-                ]}>
-                    <Chevron />
-                </Animated.View>
+                <View style={{
+                    backgroundColor: Theme.accent,
+                    borderRadius: 16,
+                    alignSelf: 'center',
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                }}>
+                    {collapsed && (
+                        <Animated.Text
+                            style={{
+                                color: 'white',
+                                fontWeight: '500',
+                                fontSize: 15,
+                                lineHeight: 20,
+                            }}
+                            entering={FadeIn}
+                        >
+                            {collapsed ? t('common.showAll') : t('common.hideAll')}
+                        </Animated.Text>
+                    )}
+                    {!collapsed && (
+                        <Animated.Text
+                            style={{
+                                color: 'white',
+                                fontWeight: '500',
+                                fontSize: 15,
+                                lineHeight: 20,
+                            }}
+                            entering={FadeIn}
+                        >
+                            {t('common.hideAll')}
+                        </Animated.Text>
+                    )}
+                </View>
             </Pressable>
             <Collapsible renderChildrenCollapsed={true} collapsed={collapsed}>
+                <View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />
                 {jettons.map((j, index) => {
                     return (
                         <JettonProductItem

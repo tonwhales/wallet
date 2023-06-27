@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import { View, Pressable, Text } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { ProductBanner } from "./ProductBanner";
@@ -7,8 +7,7 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { holdersUrl } from "../../engine/corp/HoldersProduct";
-import Chevron from '../../../assets/ic_chevron_down.svg'
-import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import Collapsible from "react-native-collapsible";
 import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
@@ -29,6 +28,7 @@ export const HoldersProductButton = React.memo(() => {
     const engine = useEngine();
     const accounts = engine.products.holders.useCards();
     const status = engine.products.holders.useStatus();
+    const [collapsed, setCollapsed] = useState(true);
 
     const needsEnrolment = useMemo(() => {
         try {
@@ -66,20 +66,6 @@ export const HoldersProductButton = React.memo(() => {
         [needsEnrolment],
     );
 
-    const [collapsed, setCollapsed] = useState(true);
-
-    const rotation = useSharedValue(0);
-
-    const animatedChevron = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, 180])}deg` }],
-        }
-    }, []);
-
-    useEffect(() => {
-        rotation.value = withTiming(collapsed ? 0 : 1, { duration: 150 });
-    }, [collapsed]);
-
     if (!AppConfig.isTestnet) {
         return null;
     }
@@ -96,7 +82,7 @@ export const HoldersProductButton = React.memo(() => {
         );
     }
 
-    if (accounts.length <= 2) {
+    if (accounts.length <= 3) {
         return (
             <View style={{
                 borderRadius: 20,
@@ -117,7 +103,7 @@ export const HoldersProductButton = React.memo(() => {
             <Pressable
                 style={({ pressed }) => {
                     return {
-                        opacity: pressed ? 0.3 : 1,
+                        opacity: pressed ? 0.5 : 1,
                         flexDirection: 'row',
                         justifyContent: 'center',
                         overflow: 'hidden',
@@ -201,18 +187,43 @@ export const HoldersProductButton = React.memo(() => {
                         {t('products.zenPay.card.eurSubtitle')}
                     </Text>
                 </View>
-                <Animated.View style={[
-                    {
-                        height: 12, width: 12,
-                        justifyContent: 'center', alignItems: 'center',
-                        alignSelf: 'center'
-                    },
-                    animatedChevron
-                ]}>
-                    <Chevron />
-                </Animated.View>
+                <View style={{
+                    backgroundColor: Theme.accent,
+                    borderRadius: 16,
+                    alignSelf: 'center',
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                }}>
+                    {collapsed && (
+                        <Animated.Text
+                            style={{
+                                color: 'white',
+                                fontWeight: '500',
+                                fontSize: 15,
+                                lineHeight: 20,
+                            }}
+                            entering={FadeIn}
+                        >
+                            {collapsed ? t('common.showAll') : t('common.hideAll')}
+                        </Animated.Text>
+                    )}
+                    {!collapsed && (
+                        <Animated.Text
+                            style={{
+                                color: 'white',
+                                fontWeight: '500',
+                                fontSize: 15,
+                                lineHeight: 20,
+                            }}
+                            entering={FadeIn}
+                        >
+                            {t('common.hideAll')}
+                        </Animated.Text>
+                    )}
+                </View>
             </Pressable>
             <Collapsible renderChildrenCollapsed={true} collapsed={collapsed}>
+                <View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />
                 {accounts.map((card, index) => {
                     return (<HoldersCardItem account={card} last={index === accounts.length - 1} />)
                 })}

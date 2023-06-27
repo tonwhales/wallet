@@ -47,7 +47,9 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
-        later: string
+        later: string,
+        showAll: string,
+        hideAll: string,
     },
     syncStatus: {
         connecting: string,

@@ -47,6 +47,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         error: 'Ошибка',
         wallet: 'Кошелек',
         later: 'Позже',
+        showAll: 'Показать все',
+        hideAll: 'Скрыть все',
     },
     syncStatus: {
         connecting: 'Идет подключение',

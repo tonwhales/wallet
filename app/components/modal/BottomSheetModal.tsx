@@ -1,8 +1,7 @@
 import React from "react";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import BottomSheet, { BottomSheetView, BottomSheetFooter } from "@gorhom/bottom-sheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 
 // BottomSheet provider with hooks to show/hide the bottom sheet with passed component
 type BottomSheetProviderProps = {
@@ -12,23 +11,23 @@ type BottomSheetProviderState = {
     visible: boolean,
     component: React.ReactNode,
     snapPoints: (string | number)[] | null,
+    footer?: any
 };
 const BottomSheetContext = React.createContext<{
-    show: (component: React.ReactNode, snapPoints: (string | number)[]) => void;
+    show: (component: React.ReactNode, snapPoints: (string | number)[], footer?: any) => void;
     hide: () => void;
 } | null>(null);
 
 export const BottomSheetProvider = React.memo((props: BottomSheetProviderProps) => {
-    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<BottomSheetProviderState>();
     const sheetRef = React.useRef<BottomSheet>(null);
 
-    const show = (component: React.ReactNode, snapPoints: (string | number)[]) => {
-        setState({ visible: true, component, snapPoints });
+    const show = (component: React.ReactNode, snapPoints: (string | number)[], footer?: any) => {
+        setState({ visible: true, component, snapPoints, footer });
     };
     const hide = () => {
-        setState({ visible: false, component: null, snapPoints: ['100%'] });
+        setState(undefined);
     };
 
     return (
@@ -62,10 +61,15 @@ export const BottomSheetProvider = React.memo((props: BottomSheetProviderProps) 
                                 setState(undefined);
                             }
                         }}
+                        footerComponent={state.footer ? (props) => {
+                            return (
+                                <BottomSheetFooter {...props}>
+                                    {state.footer}
+                                </BottomSheetFooter>
+                            );
+                        } : undefined}
                     >
-                        <BottomSheetView
-                            pointerEvents="box-none"
-                        >
+                        <BottomSheetView pointerEvents="box-none">
                             {state.component}
                         </BottomSheetView>
                     </BottomSheet>

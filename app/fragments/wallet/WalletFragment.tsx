@@ -23,7 +23,10 @@ import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useBottomSheet } from '../../components/modal/BottomSheetModal';
-import { WalletSelector } from '../../components/WalletSelector';
+import { WalletSelector } from '../../components/wallet/WalletSelector';
+import { RoundButton } from '../../components/RoundButton';
+import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
+import { BlurView } from 'expo-blur';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -56,16 +59,33 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [account]);
 
+    // Add new wallet account modal
+    const onAddNewAccount = React.useCallback(() => {
+        modal?.hide();
+        modal?.show(
+            <AdditionalWalletsActions navigation={navigation} />,
+            ['40%'],
+        );
+    }, [modal]);
+
     // Wallet Account modal
     const onAccountPress = useCallback(() => {
+        modal?.hide();
         modal?.show(
             <WalletSelector />,
-            ['50%', '95%']
+            ['50%', '80%'],
+            <BlurView intensity={30} style={{paddingBottom: safeArea.bottom, paddingHorizontal: 16}}>
+                <RoundButton
+                    style={{ marginVertical: 16 }}
+                    onPress={onAddNewAccount}
+                    title={t('wallets.addNewTitle')}
+                />
+            </BlurView>
         );
-    }, []);
+    }, [modal]);
 
     // ScrollView background color animation
-    const scrollBackgroundColor = useSharedValue(0);
+    const scrollBackgroundColor = useSharedValue(1);
 
     const onScroll = useAnimatedScrollHandler((event) => {
         if ((event.contentOffset.y) >= 0) { // Overscrolled to top

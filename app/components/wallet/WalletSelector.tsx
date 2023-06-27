@@ -1,19 +1,49 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
-import { useAppConfig } from "../utils/AppConfigContext";
-import { useAppStateManager } from "../engine/AppStateManager";
-import { t } from "../i18n/t";
-import { ellipsiseAddress } from "./WalletAddress";
-import IcCheck from "../../assets/ic-check.svg";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { useAppStateManager } from "../../engine/AppStateManager";
+import { t } from "../../i18n/t";
+import { ellipsiseAddress } from "../WalletAddress";
+import IcCheck from "../../../assets/ic-check.svg";
+import { Address } from "ton";
+import { shortAddress } from "../../utils/shortAddress";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
 export const WalletSelector = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const appStateManager = useAppStateManager();
+    const safeArea = useSafeAreaInsets();
+
+    const onSelectAccount = React.useCallback((selected: boolean, address: Address) => {
+        if (selected) return;
+        const index = appStateManager.current.addresses.findIndex((a) => a.address.toFriendly() === address.toFriendly());
+        Alert.alert(
+            t('wallets.switchToAlertTitle', { wallet: shortAddress({ address, isTestnet: AppConfig.isTestnet }) }),
+            t('wallets.switchToAlertMessage'),
+            [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('wallets.switchToAlertAction'),
+                    onPress: () => {
+                        appStateManager.updateAppState({
+                            ...appStateManager.current,
+                            selected: index
+                        });
+                    },
+                }
+            ]
+        );
+    }, []);
 
     return (
         <View style={{
+            flexGrow: 1,
             paddingTop: 40,
-            paddingHorizontal: 16
+            paddingHorizontal: 16, justifyContent: 'space-evenly',
         }}>
             <Text style={{
                 fontSize: 32, fontWeight: '600',
@@ -22,10 +52,11 @@ export const WalletSelector = React.memo(() => {
             }}>
                 {t('common.wallets')}
             </Text>
-            <ScrollView style={{ marginTop: 16 }}>
+            <BottomSheetScrollView style={{ minHeight: 356, marginTop: 16 }} showsVerticalScrollIndicator={false}>
                 {appStateManager.current.addresses.map((wallet, index) => {
                     return (
                         <Pressable
+                            key={`wallet-${index}`}
                             style={{
                                 backgroundColor: '#F7F8F9',
                                 padding: 20,
@@ -37,7 +68,7 @@ export const WalletSelector = React.memo(() => {
                                 alignItems: 'center',
                                 justifyContent: 'space-between'
                             }}
-                            onPress={() => { }}
+                            onPress={() => onSelectAccount(index === appStateManager.current.selected, wallet.address)}
                         >
                             <View style={{ height: 42.2, width: 42.2, backgroundColor: Theme.accent, borderRadius: 22, marginRight: 12 }} />
                             <View style={{ justifyContent: 'center', flexGrow: 1 }}>
@@ -51,7 +82,7 @@ export const WalletSelector = React.memo(() => {
                             <View style={{
                                 justifyContent: 'center', alignItems: 'center',
                                 height: 24, width: 24,
-                                backgroundColor: index === appStateManager.current.selected ? Theme.accent : '#E4E6EA', 
+                                backgroundColor: index === appStateManager.current.selected ? Theme.accent : '#E4E6EA',
                                 borderRadius: 12
                             }}>
                                 <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
@@ -59,7 +90,8 @@ export const WalletSelector = React.memo(() => {
                         </Pressable>
                     )
                 })}
-            </ScrollView>
+                <View style={{ height: safeArea.bottom + 56 }} />
+            </BottomSheetScrollView>
         </View>
     );
 });

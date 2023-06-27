@@ -19,6 +19,7 @@ import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ConnectionsFragment } from './connections/ConnectionsFragment';
+import { StatusBar } from 'expo-status-bar';
 
 const Tab = createBottomTabNavigator();
 
@@ -124,7 +125,6 @@ export const HomeFragment = fragment(() => {
         <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
             <Tab.Navigator
                 initialRouteName={'Home'}
-                detachInactiveScreens={true}
                 tabBar={(props) => {
                     return (
                         <View
@@ -138,6 +138,7 @@ export const HomeFragment = fragment(() => {
                                 shadowOpacity: 1,
                             }}
                         >
+                            <StatusBar style={props.state.index === 0 ? 'light' : 'dark'} />
                             <View style={{
                                 flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
                                 paddingBottom: 2, paddingTop: 9

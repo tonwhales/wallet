@@ -149,7 +149,6 @@ export const ConnectionsFragment = fragment(() => {
 
     return (
         <View style={{ flex: 1 }}>
-            <StatusBar style={'dark'} />
             <TabHeader title={t('home.browser')} />
             {(
                 apps.length === 0

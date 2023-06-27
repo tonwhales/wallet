@@ -16,6 +16,7 @@ import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { StatusBar } from "expo-status-bar";
 import { TabHeader } from "../../components/topbar/TabHeader";
+import { Suspense } from "../../Suspense";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -27,6 +28,7 @@ const WalletTransactions = React.memo((props: {
     frameArea: Rect,
     onLoadMore: () => void,
 }) => {
+    const safeArea = useSafeAreaInsets();
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
@@ -95,11 +97,10 @@ const WalletTransactions = React.memo((props: {
     return (
         <ScrollView
             contentContainerStyle={{
-                flexGrow: 1,
-                marginBottom: 53
+                // marginBottom: 49 + safeArea.bottom
             }}
-            contentInset={{ top: 0, bottom: 52 }}
-            contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
+            // contentInset={{ top: 0, bottom: 52 }}
+            // contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
             onScroll={onScroll}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
@@ -134,8 +135,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     }, [account.next ? account.next.lt : null]);
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: 'white' }}>
-            <StatusBar style={'dark'} />
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
             <TabHeader title={t('transactions.history')} />
             {account.transactions.length === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
@@ -185,7 +185,6 @@ export const TransactionsFragment = fragment(() => {
     if (!account) {
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>
-                <StatusBar style={'dark'} />
                 <TabHeader title={t('transactions.history')} />
                 <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <LoadingIndicator />
@@ -193,6 +192,6 @@ export const TransactionsFragment = fragment(() => {
             </View>
         );
     } else {
-        return <TransactionsComponent wallet={account} />
+        return (<TransactionsComponent wallet={account} />);
     }
 }, true);

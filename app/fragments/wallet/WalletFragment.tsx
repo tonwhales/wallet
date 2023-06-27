@@ -72,7 +72,6 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
-            <StatusBar style={'light'} />
             <View
                 style={{
                     backgroundColor: '#131928',
@@ -287,7 +286,6 @@ export const WalletFragment = fragment(() => {
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <StatusBar style={'light'} />
                 <LoadingIndicator />
             </View>
         );

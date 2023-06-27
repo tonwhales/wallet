@@ -12,6 +12,7 @@ import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { StatusBar } from 'expo-status-bar';
+import { TabHeader } from '../components/topbar/TabHeader';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -42,57 +43,7 @@ export const SettingsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={'dark'} />
-            {Platform.OS === 'ios' && (
-                <BlurView style={{
-                    height: safeArea.top + 44,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={[
-                            { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
-                        ]}>
-                            {t('settings.title')}
-                        </Text>
-                    </View>
-                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: Theme.headerDivider,
-                        opacity: 0.08
-                    }} />
-                </BlurView>
-            )}
-            {Platform.OS === 'android' && (
-                <View style={{
-                    height: safeArea.top + 44,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={[
-                            { fontSize: 22, color: Theme.textColor, fontWeight: '700' },
-                        ]}>
-                            {t('settings.title')}
-                        </Text>
-                    </View>
-                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: Theme.headerDivider,
-                        opacity: 0.08
-                    }} />
-                </View>
-            )}
+            <TabHeader title={t('settings.title')} />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{

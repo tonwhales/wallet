@@ -4,7 +4,6 @@ import { Address } from "ton";
 import { Engine } from "../../../engine/Engine";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { TransactionView } from "./TransactionView";
-import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const TransactionsSection = React.memo(({
     section,
@@ -17,16 +16,15 @@ export const TransactionsSection = React.memo(({
     address: Address,
     engine: Engine,
 }) => {
-    const { Theme } = useAppConfig();
     const openTransactionFragment = React.useCallback((transaction: string) => {
         if (transaction) {
             navigation.navigate('Transaction', { transaction: transaction });
         }
     }, [navigation]);
     return (
-        <View>
+        <View style={{backgroundColor: 'white'}}>
             <View
-                style={{ marginTop: 8, backgroundColor: Theme.background }}
+                style={{ marginTop: 8 }}
                 collapsable={false}
             >
                 <Text
@@ -45,7 +43,6 @@ export const TransactionsSection = React.memo(({
                 style={{
                     marginHorizontal: 16,
                     borderRadius: 14,
-                    backgroundColor: Theme.item,
                     overflow: 'hidden'
                 }}
                 collapsable={false}

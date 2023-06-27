@@ -103,7 +103,6 @@ export const AssetsFragment = fragment(() => {
                             <JettonProductItem
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
-                                navigation={navigation}
                                 engine={engine}
                                 onPress={() => {
                                     if (callback) {

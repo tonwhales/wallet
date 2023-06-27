@@ -14,9 +14,10 @@ import { useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { StatusBar } from 'expo-status-bar';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { useCallback, useLayoutEffect, useMemo } from 'react';
+import { useAppStateManager } from '../../engine/AppStateManager';
+import { WalletAddress } from '../../components/WalletAddress';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
@@ -208,7 +209,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         fontWeight: '400',
                         fontFamily: undefined
                     }}
-                    lockActions
+                    limitActions
                 />
                 <View style={{
                     flexDirection: 'row',

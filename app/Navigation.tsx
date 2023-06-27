@@ -65,9 +65,6 @@ import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { ProductsFragment } from './fragments/ProductsFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
-import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
-import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -83,7 +80,6 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
 }
 
 function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
-function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
@@ -93,15 +89,10 @@ function genericScreen(name: string, component: React.ComponentType<any>, safeAr
                 headerShown: Platform.OS === 'ios',
                 contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
             }}
-            options={{
-                headerShown: Platform.OS === 'ios',
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
-            }}
         />
     );
 }
 
-function modalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
 function modalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
@@ -118,7 +109,6 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
 }
 
 function lockedModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
-function lockedModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
@@ -130,17 +120,10 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
                 gestureEnabled: false,
                 contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
             }}
-            options={{
-                presentation: 'modal',
-                headerShown: false,
-                gestureEnabled: false,
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
-            }}
         />
     );
 }
 
-const navigation = (safeArea: EdgeInsets) => [
 const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
@@ -156,7 +139,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('Settings', SettingsFragment, safeArea),
     genericScreen('Privacy', PrivacyFragment, safeArea),
     genericScreen('Terms', TermsFragment, safeArea),
-    // modalScreen('Connections', ConnectionsFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
@@ -330,4 +312,3 @@ export const Navigation = React.memo(() => {
         </View>
     );
 });
-

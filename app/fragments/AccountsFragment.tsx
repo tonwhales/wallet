@@ -162,7 +162,6 @@ export const AccountsFragment = fragment(() => {
                                 <JettonProductItem
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
-                                    navigation={navigation}
                                     engine={engine}
                                     onPress={() => promptDisable(j.master, j.symbol)}
                                 />
@@ -186,7 +185,6 @@ export const AccountsFragment = fragment(() => {
                                 <JettonProductItem
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
-                                    navigation={navigation}
                                     engine={engine}
                                     onPress={() => promptActive(j.master, j.symbol)}
                                     onLongPress={() => { }}

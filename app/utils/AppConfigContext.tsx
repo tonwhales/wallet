@@ -4,7 +4,6 @@ import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { getCurrentAddress, markAddressSecured } from '../storage/appState';
-import { migrateBiometricEncKeys } from '../storage/secureStorage';
 import { useEffect } from 'react';
 
 export const isTestnetKey = 'isTestnet';
@@ -182,10 +181,6 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
         storagePersistence.clearAll();
         reboot();
     };
-
-    useEffect(() => {
-        migrateBiometricEncKeys(AppConfig.isTestnet);
-    }, []);
 
     return (
         <AppConfigContext.Provider value={{ AppConfig, setNetwork, Theme, NavigationTheme }}>

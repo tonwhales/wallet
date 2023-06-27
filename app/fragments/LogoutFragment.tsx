@@ -110,12 +110,11 @@ export const LogoutFragment = fragment(() => {
             <AndroidToolbar pageTitle={t('common.logout')} />
             {Platform.OS === 'ios' && (
                 <View style={{
-                    marginTop: 12,
+                    marginTop: 17,
                     height: 32
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        marginLeft: 17,
                         fontSize: 17
                     }, { textAlign: 'center' }]}>
                         {t('common.logout')}
@@ -142,14 +141,7 @@ export const LogoutFragment = fragment(() => {
                     display={'danger_zone'}
                 />
             </View>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

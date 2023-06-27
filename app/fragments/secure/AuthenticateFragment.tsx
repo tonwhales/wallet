@@ -551,14 +551,7 @@ export const AuthenticateFragment = fragment(() => {
                 </View>
             )}
             <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} />
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </>
     );
 });

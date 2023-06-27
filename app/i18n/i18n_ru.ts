@@ -47,7 +47,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         error: 'Ошибка',
         wallet: 'Кошелек',
         later: 'Позже',
-        select: 'Выбрать'
+        select: 'Выбрать',
+        showAll: 'Показать все',
+        hideAll: 'Скрыть все',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -55,8 +57,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         online: 'Подключено'
     },
     home: {
-        wallet: 'Кошелек',
-        settings: 'Настройки'
+        home: 'Главная',
+        history: 'История',
+        browser: 'Браузер',
+        more: 'Еще',
     },
     settings: {
         title: 'Настройки',
@@ -220,6 +224,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         requestPermission: 'Открыть настройки',
     },
     products: {
+        addNew: 'Добавить новый продукт',
         tonConnect: {
             errors: {
                 connection: 'Ошибка соединения',
@@ -402,9 +407,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 pin: 'Смена PIN-кода',
             },
             card: {
+                cards: 'Карты ({{count}})',
                 title: 'Tonhub Card *{{cardNumber}}',
-                defaultSubtitle: 'TON в EUR (комиссия 0%)',
+                defaultSubtitle: 'Платите в TON, конвертация в EUR с комиссией 0%',
                 defaultTitle: 'Tonhub Bank Card',
+                eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Физическая карта',
                     virtual: 'Виртуальная',
@@ -465,6 +472,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         onLaterTitle: 'Настроить позже',
         onLaterMessage: 'Вы можете настроить защиту позже в настройках приложения',
         onLaterButton: 'Настроить позже',
+        onBiometricsError: 'Ошибка подтверждения биометрии',
     },
     backup: {
         title: 'Фраза восстановления',
@@ -528,7 +536,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         tokenReceived: 'Токен получен'
     },
     jetton: {
-        token: 'токен'
+        token: 'токен',
+        productButtonTitle: '{{count}} Токенов',
+        productButtonSubtitle: '{{jettonName}} и {{count}} других',
     },
     connections: {
         extensions: 'Расширения',

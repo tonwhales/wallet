@@ -28,8 +28,8 @@ import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useParams } from '../../utils/useParams';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -594,16 +594,7 @@ export const SimpleTransferFragment = fragment(() => {
                     action={doSend}
                 />
             </KeyboardAvoidingView>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </>
     );
 });

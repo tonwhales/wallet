@@ -58,7 +58,6 @@ export class HoldersProduct {
         if (devUseOffline === undefined) {
             storage.set('dev-tools:use-offline-app', true);
         }
-
         this.engine = engine;
         this.#status = selector<HoldersAccountStatus>({
             key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',

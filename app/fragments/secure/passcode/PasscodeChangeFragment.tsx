@@ -4,13 +4,11 @@ import { fragment } from "../../../fragment"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { CloseButton } from "../../../components/CloseButton";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 
 export const PasscodeChangeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
 
     return (
         <View style={{
@@ -33,14 +31,7 @@ export const PasscodeChangeFragment = fragment(() => {
                 </View>
             )}
             <PasscodeChange />
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

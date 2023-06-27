@@ -13,10 +13,10 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
-import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
-import { JettonProduct } from "../wallet/products/JettonProduct";
+import { AnimatedProductButton } from "../../components/products/AnimatedProductButton";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { JettonProductItem } from "../../components/products/JettonProductItem";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
@@ -101,10 +101,9 @@ export const LedgerAssetsFragment = fragment(() => {
                     />
                     {jettons.map((j) => {
                         return (
-                            <JettonProduct
+                            <JettonProductItem
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
-                                navigation={navigation}
                                 engine={engine}
                                 onPress={() => {
                                     if (callback) {
@@ -119,14 +118,7 @@ export const LedgerAssetsFragment = fragment(() => {
                 </View>
                 <View style={{ height: safeArea.bottom }} />
             </ScrollView>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

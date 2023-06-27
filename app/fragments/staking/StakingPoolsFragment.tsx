@@ -1,22 +1,20 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, Alert, Pressable } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Engine, useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { KnownPools } from "../../utils/KnownPools";
-import { ProductButton } from "../wallet/products/ProductButton";
 import StakingIcon from '../../../assets/ic_staking.svg';
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
-import { BlurView } from "expo-blur";
 import { t } from "../../i18n/t";
-import { Ionicons } from '@expo/vector-icons';
-import { HeaderBackButton } from "@react-navigation/elements";
 import { Address, fromNano, toNano } from "ton";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TopBar } from "../../components/topbar/TopBar";
+import { ProductButton } from "../../components/products/ProductButton";
+import { StatusBar } from "expo-status-bar";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -371,6 +369,7 @@ export const StakingPoolsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, flex: 1 }}>
+            <StatusBar style={'dark'} />
             <TopBar title={t('products.staking.title')} showBack />
             <ScrollView
                 alwaysBounceVertical={false}

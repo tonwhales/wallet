@@ -127,24 +127,13 @@ export const SecurityFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     {passcodeState === PasscodeState.Set && (
-                        <>
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton
-                                    leftIcon={require('../../assets/ic_passcode.png')}
-                                    title={t('security.passcodeSettings.changeTitle')}
-                                    onPress={() => navigation.navigate('PasscodeChange')}
-                                />
-                            </View>
-                            {/* TODO: rework PasscodeResetFlow to account for multiaccounts */}
-                            {/* <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton
-                                    leftIcon={require('../../assets/ic_reset.png')}
-                                    title={t('security.passcodeSettings.resetTitle')}
-                                    onPress={() => navigation.navigate('PasscodeReset')}
-                                />
-                            </View> */}
-                        </>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                leftIcon={require('../../assets/ic_passcode.png')}
+                                title={t('security.passcodeSettings.changeTitle')}
+                                onPress={() => navigation.navigate('PasscodeChange')}
+                            />
+                        </View>
                     )}
                     {(!passcodeState || passcodeState === PasscodeState.NotSet) && (
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
@@ -191,14 +180,7 @@ export const SecurityFragment = fragment(() => {
                     )}
                 </View>
             </ScrollView>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     )
 })

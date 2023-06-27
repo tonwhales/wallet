@@ -31,12 +31,12 @@ export const PriceComponent = React.memo((
     return (
         <View style={[{
             backgroundColor: Theme.accent,
-            borderRadius: 9,
-            height: 24,
+            borderRadius: 16,
+            height: 27,
             justifyContent: 'center',
             alignItems: 'flex-start',
             alignSelf: 'flex-start',
-            paddingVertical: 4, paddingHorizontal: 8
+            paddingVertical: 4, paddingHorizontal: 10
         }, style]}>
             <Text style={[{
                 color: Theme.item,

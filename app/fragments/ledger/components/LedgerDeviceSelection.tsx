@@ -191,8 +191,8 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
         <View style={{ flexGrow: 1 }}>
             {!scan && (
                 <LoadingIndicator
-                    style={{
-                        position: 'absolute',
+                    style={{ 
+                        position: 'absolute', 
                         top: 0, left: 0, right: 0, bottom: 0,
                     }}
                     simple

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { Engine, useEngine } from "../../engine/Engine";
@@ -7,7 +7,6 @@ import { WalletState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { getCurrentAddress } from "../../storage/appState";
-import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
 import { Address } from "ton";
 import { formatDate, getDateKey } from "../../utils/dates";
@@ -15,6 +14,9 @@ import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { StatusBar } from "expo-status-bar";
+import { TabHeader } from "../../components/topbar/TabHeader";
+import { Suspense } from "../../Suspense";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -26,6 +28,7 @@ const WalletTransactions = React.memo((props: {
     frameArea: Rect,
     onLoadMore: () => void,
 }) => {
+    const safeArea = useSafeAreaInsets();
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
@@ -94,20 +97,15 @@ const WalletTransactions = React.memo((props: {
     return (
         <ScrollView
             contentContainerStyle={{
-                flexGrow: 1,
-                paddingTop: Platform.OS === 'android'
-                    ? props.safeArea.top + 44
-                    : undefined,
+                // marginBottom: 49 + safeArea.bottom
             }}
-            contentInset={{ top: 44, bottom: 52 }}
-            contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
+            // contentInset={{ top: 0, bottom: 52 }}
+            // contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
             onScroll={onScroll}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
         >
-            {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
             {components}
-            {(Platform.OS !== 'ios' && props.next) && (<View style={{ height: 64 }} />)}
         </ScrollView>
     );
 });
@@ -137,7 +135,8 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     }, [account.next ? account.next.lt : null]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
+            <TabHeader title={t('transactions.history')} />
             {account.transactions.length === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                     <Pressable
@@ -176,82 +175,6 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     frameArea={frameArea}
                 />
             )}
-            {/* iOS Toolbar */}
-            {
-                Platform.OS === 'ios' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
-                    }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: safeArea.top,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}
-                        >
-                            <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={[
-                                    {
-                                        fontSize: 22,
-                                        color: Theme.textColor,
-                                        fontWeight: '700',
-                                        position: 'relative'
-                                    }
-                                ]}>
-                                    {t('transactions.history')}
-                                </Text>
-                            </View>
-                        </BlurView>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: Theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </View >
-                )
-            }
-            {/* Android Toolbar */}
-            {
-                Platform.OS === 'android' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
-                        backgroundColor: Theme.background,
-                        paddingTop: safeArea.top,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                            <Text style={[
-                                {
-                                    fontSize: 22,
-                                    color: Theme.textColor,
-                                    fontWeight: '700',
-                                    position: 'relative'
-                                },
-                            ]}>
-                                {t('transactions.history')}
-                            </Text>
-                        </View>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: Theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </View>
-                )
-            }
         </View >
     );
 }
@@ -261,11 +184,14 @@ export const TransactionsFragment = fragment(() => {
     const account = engine.products.main.useAccount();
     if (!account) {
         return (
-            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <LoadingIndicator />
+            <View style={{ flex: 1, backgroundColor: 'white' }}>
+                <TabHeader title={t('transactions.history')} />
+                <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <LoadingIndicator />
+                </View>
             </View>
         );
     } else {
-        return <TransactionsComponent wallet={account} />
+        return (<TransactionsComponent wallet={account} />);
     }
 }, true);

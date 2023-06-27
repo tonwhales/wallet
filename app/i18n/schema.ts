@@ -49,6 +49,8 @@ export type LocalizationSchema = {
         wallet: string,
         later: string,
         select: string,
+        showAll: string,
+        hideAll: string,
     },
     syncStatus: {
         connecting: string,
@@ -56,8 +58,10 @@ export type LocalizationSchema = {
         online: string
     },
     home: {
-        wallet: string,
-        settings: string
+        home: string,
+        history: string,
+        browser: string,
+        more: string
     }
     settings: {
         title: string,
@@ -221,6 +225,7 @@ export type LocalizationSchema = {
         requestPermission: string
     },
     products: {
+        addNew: string,
         tonConnect: {
             errors: {
                 connection: string
@@ -403,9 +408,11 @@ export type LocalizationSchema = {
                 pin: string
             },
             card: {
+                cards: string,
                 title: string,
                 defaultSubtitle: string,
                 defaultTitle: string,
+                eurSubtitle: string,
                 type: {
                     physical: string,
                     virtual: string,
@@ -466,6 +473,7 @@ export type LocalizationSchema = {
         onLaterTitle: string,
         onLaterMessage: string,
         onLaterButton: string,
+        onBiometricsError: string
     },
     backup: {
         title: string,
@@ -529,7 +537,9 @@ export type LocalizationSchema = {
         tokenReceived: string
     },
     jetton: {
-        token: string
+        token: string,
+        productButtonTitle: string,
+        productButtonSubtitle: string,
     },
     connections: {
         extensions: string,

@@ -14,9 +14,9 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { ProductButton } from "./wallet/products/ProductButton";
 import SpamIcon from '../../assets/known/spam_icon.svg';
 import { useAppConfig } from "../utils/AppConfigContext";
+import { ProductButton } from "../components/products/ProductButton";
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
@@ -227,14 +227,7 @@ export const SpamFilterFragment = fragment(() => {
                     display={disabled ? 'secondary' : 'default'}
                 />
             </View>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

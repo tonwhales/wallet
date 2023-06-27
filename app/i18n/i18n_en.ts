@@ -46,7 +46,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         error: 'Error',
         wallet: 'Wallet',
         later: 'Later',
-        select: 'Select'
+        select: 'Select',
+        showAll: 'Show all',
+        hideAll: 'Hide all'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -54,8 +56,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         online: 'Connected'
     },
     home: {
-        wallet: 'Wallet',
-        settings: 'Settings'
+        home: 'Home',
+        history: 'History',
+        browser: 'Browser',
+        more: 'More',
     },
     settings: {
         title: 'Settings',
@@ -219,6 +223,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         requestPermission: 'Open settings',
     },
     products: {
+        addNew: 'Add new product',
         tonConnect: {
             errors: {
                 connection: 'Connection error',
@@ -401,9 +406,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 pin: 'Change PIN',
             },
             card: {
+                cards : '{{count}} Cards',
                 title: 'Tonhub Card *{{cardNumber}}',
-                defaultSubtitle: 'TON to EUR (0% fee)',
+                defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
                 defaultTitle: 'Tonhub Bank Card',
+                eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Physical Card',
                     virtual: 'Virtual',
@@ -464,6 +471,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onLaterTitle: 'Setup later',
         onLaterMessage: 'You can setup protection later in settings',
         onLaterButton: 'Setup later',
+        onBiometricsError: 'Error authenticating with biometrics',
     },
     backup: {
         title: 'Your recovery phrase',
@@ -527,7 +535,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenReceived: 'Token received'
     },
     jetton: {
-        token: 'token'
+        token: 'token',
+        productButtonTitle: '{{COUNT}} Tokens',
+        productButtonSubtitle: '{{jettonName}} and {{count}} others',
     },
     connections: {
         extensions: 'Extensions',

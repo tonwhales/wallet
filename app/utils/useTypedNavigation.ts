@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
 import { Address, Cell } from 'ton';
-import BN from 'bn.js';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';

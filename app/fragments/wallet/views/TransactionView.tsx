@@ -212,7 +212,7 @@ export function TransactionView(props: {
             <TouchableHighlight
                 onPress={() => props.onPress(props.tx)}
                 underlayColor={Theme.selector}
-                style={{ backgroundColor: Theme.item }}
+                style={{ backgroundColor: '#F7F8F9' }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>

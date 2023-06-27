@@ -232,14 +232,7 @@ export const MigrationFragment = systemFragment(() => {
                 <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
                     <RoundButton title={t('common.start')} onPress={() => setConfirm(true)} disabled={s.lte(new BN(0))} display={s.lte(new BN(0)) ? 'secondary' : 'default'} />
                 </View>
-                {Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )}
+                <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
             </>
         );
     }

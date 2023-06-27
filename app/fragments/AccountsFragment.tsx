@@ -10,9 +10,9 @@ import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { JettonProduct } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
+import { JettonProductItem } from "../components/products/JettonProductItem";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -159,7 +159,7 @@ export const AccountsFragment = fragment(() => {
                         </View>
                         {active.map((j) => {
                             return (
-                                <JettonProduct
+                                <JettonProductItem
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}
@@ -183,7 +183,7 @@ export const AccountsFragment = fragment(() => {
                         )}
                         {disabled.map((j) => {
                             return (
-                                <JettonProduct
+                                <JettonProductItem
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}
@@ -194,16 +194,10 @@ export const AccountsFragment = fragment(() => {
                             );
                         })}
                     </View>
+                    <View style={{ height: 62 /*ProductButton height*/ + 16 /* vertical margins */ }} />
                 </ScrollView>
             )}
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

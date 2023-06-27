@@ -4,8 +4,6 @@ import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from 'ton-crypt
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
-import { wasPasscodeSetupShownKey } from '../fragments/resolveOnboarding';
-import { getAppState, setAppState } from './appState';
 
 export const passcodeStateKey = 'passcode-state';
 export const passcodeSaltKey = 'ton-storage-passcode-nacl';
@@ -171,7 +169,6 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
-        storage.set(wasPasscodeSetupShownKey, true);
     } catch (e) {
         throw Error('Failed to encrypt and store app key with passcode');
     }
@@ -194,7 +191,6 @@ export async function generateNewKeyAndEncryptWithPasscode(data: Buffer, passcod
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncPrivateKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
-        storage.set(wasPasscodeSetupShownKey, true);
 
         // Encrypt data with new key
         return doEncrypt(privateKey, data);
@@ -282,35 +278,4 @@ export function getBiometricsState() {
 
 export function storeBiometricsState(state: BiometricsState) {
     storage.set(biometricsStateKey, state);
-}
-
-// DEMO ONLY
-export function migrateBiometricEncKeys(isTestnet: boolean) {
-    const migrated = storage.getBoolean('demo-migrated-old-keys');
-    if (!migrated) {
-
-        const appState = getAppState();
-
-        const newAddress = [];
-
-        for (let i = 0; i < appState.addresses.length; i++) {
-            const account = appState.addresses[i];
-            const encKey = storage.getString(`${account.address.toFriendly({ testOnly: isTestnet })}/${biometricsEncKey}`);
-            if (encKey) {
-                newAddress.push({
-                    ...account,
-                    secretKeyEnc: Buffer.from(encKey, 'base64')
-                });
-            }
-        }
-
-        storage.delete(wasPasscodeSetupShownKey);
-        storage.delete(passcodeStateKey);
-
-        setAppState({
-            addresses: newAddress,
-            selected: newAddress.length
-        }, isTestnet);
-        storage.set('demo-migrated-old-keys', true);
-    }
 }

@@ -9,7 +9,7 @@ import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { WalletSecurePasscodeComponent } from './WalletSecurePasscodeComponent';
+import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme } = useAppConfig();

@@ -11,11 +11,11 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AnimatedProductButton } from "./products/AnimatedProductButton";
-import { JettonProduct } from "./products/JettonProduct";
+import { AnimatedProductButton } from "../../components/products/AnimatedProductButton";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
+import { JettonProductItem } from "../../components/products/JettonProductItem";
 
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
@@ -100,7 +100,7 @@ export const AssetsFragment = fragment(() => {
                     />
                     {jettons.map((j) => {
                         return (
-                            <JettonProduct
+                            <JettonProductItem
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}
@@ -118,14 +118,7 @@ export const AssetsFragment = fragment(() => {
                 </View>
                 <View style={{ height: safeArea.bottom }} />
             </ScrollView>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Platform, Pressable, Text } from 'react-native';
+import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
@@ -18,14 +18,14 @@ export type AuthParams = {
 
 export type AuthProps =
     | {
-        type: 'keysWithPasscode',
+        returns: 'keysWithPasscode',
         promise: { resolve: (res: { keys: WalletKeys, passcode: string }) => void, reject: () => void }
-        style?: AuthParams
+        params?: AuthParams
     } |
     {
-        type: 'keysOnly',
+        returns: 'keysOnly',
         promise: { resolve: (keys: WalletKeys) => void, reject: () => void }
-        style?: AuthParams
+        params?: AuthParams
     }
 
 export type AuthWalletKeysType = {
@@ -65,7 +65,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 // Retry with passcode
                 if (passcodeState === PasscodeState.Set) {
                     return new Promise<WalletKeys>((resolve, reject) => {
-                        setAuth({ type: 'keysOnly', promise: { resolve, reject }, style: { useBiometrics: true, ...style } });
+                        setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style } });
                     });
                 }
             }
@@ -73,7 +73,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
         if (passcodeState === PasscodeState.Set) {
             return new Promise<WalletKeys>((resolve, reject) => {
-                setAuth({ type: 'keysOnly', promise: { resolve, reject }, style: { ...style, useBiometrics: false } });
+                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { ...style, useBiometrics: false } });
             });
         }
 
@@ -96,7 +96,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
-            setAuth({ type: 'keysWithPasscode', promise: { resolve, reject }, style: { ...style, useBiometrics: false } });
+            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { ...style, useBiometrics: false } });
         });
     }, [auth]);
 
@@ -107,7 +107,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 <Animated.View
                     style={[
                         {
-                            backgroundColor: auth.style?.backgroundColor ?? Theme.background,
+                            backgroundColor: auth.params?.backgroundColor ?? Theme.background,
                             flexGrow: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -129,12 +129,13 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             const acc = getCurrentAddress();
                             try {
                                 const keys = await loadWalletKeys(acc.secretKeyEnc, pass);
-                                if (auth.type === 'keysWithPasscode') {
+                                if (auth.returns === 'keysWithPasscode') {
                                     auth.promise.resolve({ keys, passcode: pass });
                                 } else {
                                     auth.promise.resolve(keys);
                                 }
                             } catch {
+                                Alert.alert(t('security.passcodeSettings.error'));
                                 auth.promise.reject();
                             }
 
@@ -142,7 +143,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             setAuth(null);
                         }}
                         onRetryBiometrics={
-                            (auth.style?.useBiometrics && auth.type === 'keysOnly')
+                            (auth.params?.useBiometrics && auth.returns === 'keysOnly')
                                 ? async () => {
                                     try {
                                         const acc = getCurrentAddress();
@@ -151,13 +152,14 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                         // Remove auth view
                                         setAuth(null);
                                     } catch {
+                                        Alert.alert(t('secure.onBiometricsError'));
                                         warn('Failed to load wallet keys');
                                     }
                                 }
                                 : undefined
                         }
                     />
-                    {auth.style?.cancelable && (
+                    {auth.params?.cancelable && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {

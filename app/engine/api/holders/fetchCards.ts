@@ -16,7 +16,6 @@ export const cardListPublicCodec = t.union([
           lastFourDigits: t.union([t.string, t.undefined, t.null]),
           productId: t.string,
           personalizationCode: t.string,
-          partner: t.string,
           provider: t.string,
           kind: t.string,
           tzOffset: t.number

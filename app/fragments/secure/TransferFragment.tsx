@@ -148,19 +148,19 @@ export const TransferFragment = fragment(() => {
                 if (order.domain) {
                     try {
                         const tonZoneMatch = order.domain.match(/\.ton$/);
+                        const tMeZoneMatch = order.domain.match(/\.t\.me$/);
                         let zone = null;
-                        if (tonZoneMatch) {
-                            zone = '.ton';
-                        } else {
-                            const tMeZoneMatch = order.domain.match(/\.t\.me$/);
-                            if (tMeZoneMatch) {
-                                zone = '.t.me';
-                            }
+                        let domain = null;
+                        if (tonZoneMatch || tMeZoneMatch) {
+                            zone = tonZoneMatch ? '.ton' : '.t.me';
+                            domain = zone === '.ton'
+                                ? order.domain.slice(0, order.domain.length - 4)
+                                : order.domain.slice(0, order.domain.length - 5)
                         }
 
-                        let domain = zone === '.ton'
-                            ? order.domain.slice(0, order.domain.length - 4)
-                            : order.domain.slice(0, order.domain.length - 5);
+                        if (!domain) {
+                            throw Error('Invalid domain');
+                        }
 
                         const valid = validateDomain(domain);
 
@@ -178,9 +178,9 @@ export const TransferFragment = fragment(() => {
                         if (!resolvedDomainAddress) {
                             throw Error('Error resolving domain address');
                         }
-                        const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
+                        const domainAddress = Address.parseRaw(resolvedDomainAddress.toString());
 
-                        const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
+                        const resolvedDomainWallet = await resolveDomain(engine.client4, domainAddress, '.', DNS_CATEGORY_WALLET);
                         if (!resolvedDomainWallet) {
                             throw Error('Error resolving domain wallet');
                         }

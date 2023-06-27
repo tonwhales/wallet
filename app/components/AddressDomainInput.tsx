@@ -90,9 +90,9 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 if (!resolvedDomainAddress) {
                     throw Error('Error resolving domain address');
                 }
-                const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
+                const domainAddress = Address.parseRaw(resolvedDomainAddress.toString());
 
-                const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
+                const resolvedDomainWallet = await resolveDomain(engine.client4, domainAddress, '.', DNS_CATEGORY_WALLET);
                 if (!resolvedDomainWallet) {
                     throw Error('Error resolving domain wallet');
                 }

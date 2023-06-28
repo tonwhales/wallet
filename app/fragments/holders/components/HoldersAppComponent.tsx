@@ -214,6 +214,8 @@ export const HoldersAppComponent = React.memo((
         try {
             let parsed = JSON.parse(nativeEvent.data);
             // Main button API
+
+            console.log({ parsed });
             const processed = processMainButtonMessage(
                 parsed,
                 dispatchMainButton,

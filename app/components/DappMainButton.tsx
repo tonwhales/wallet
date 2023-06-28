@@ -16,16 +16,9 @@ export function processMainButtonMessage(
         const actionType = parsed.data.name.split('.')[1];
 
         if (actionType === 'onClick' && typeof parsed.id === 'number') {
-            let id = parsed.id;
-
-            if (typeof parsed.id !== 'number') {
-                warn('Invalid main-button operation id');
-                return false;
-            }
-
             dispatchMainButton({
                 type: 'onClick',
-                args: { callback: () => dispatchMainButtonResponse(webRef, { id }) }
+                args: { callback: () => dispatchMainButtonResponse(webRef) }
             });
             return true;
         }
@@ -96,7 +89,6 @@ export function reduceMainButton() {
             case 'onClick':
                 return { ...mainButtonState, onPress: action.args.callback };
             case 'offClick':
-                return { ...mainButtonState, onPress: undefined };
             default:
                 return mainButtonState;
         }
@@ -142,6 +134,7 @@ export type MainButtonProps = {
 export const DappMainButton = React.memo((
     props: { style?: StyleProp<ViewStyle> } & Omit<MainButtonProps, 'isVisible'>
 ) => {
+    console.log({ props })
     const { Theme } = useAppConfig();
 
     return (

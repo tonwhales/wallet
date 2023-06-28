@@ -12,12 +12,18 @@ window['main-button'] = (() => {
 
     const onClick = (callback) => {
         let id = requestId++;
+        callback.uniqueId = id;
         window.ReactNativeWebView.postMessage(JSON.stringify({ id, data: { name: 'main-button.onClick' } }));
         callbacks[id] = callback;
     };
 
-    const offClick = () => {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-button.offClick' } }));
+    const offClick = (callback) => {
+        let id = callback.uniqueId;
+        if (!id) {
+            id = requestId;
+        }
+        window.ReactNativeWebView.postMessage(JSON.stringify({ id, data: { name: 'main-button.offClick' } }));
+        delete callbacks[id];
     };
 
     const showProgress = (leaveActive) => {
@@ -49,9 +55,15 @@ window['main-button'] = (() => {
     };
 
     const __response = (ev) => {
-        if (ev && typeof ev.id === 'number' && callbacks[ev.id]) {
+        if (ev && callbacks[ev.id]) {
             let c = callbacks[ev.id];
-            delete callbacks[ev.id];
+            c(ev.data);
+            return;
+        }
+
+        const lastId = Object.keys(callbacks).pop();
+        if (lastId && callbacks[lastId]) {
+            let c = callbacks[lastId];
             c(ev.data);
         }
     }
@@ -94,8 +106,8 @@ export function createInjectSource(config: any, additionalInjections?: string, u
     `;
 };
 
-export function dispatchMainButtonResponse(webRef: React.RefObject<WebView>, data: any) {
-    let injectedMessage = `window['main-button'].__response(${JSON.stringify(data)}); true;`;
+export function dispatchMainButtonResponse(webRef: React.RefObject<WebView>) {
+    let injectedMessage = `window['main-button'].__response(); true;`;
     webRef.current?.injectJavaScript(injectedMessage);
 }
 

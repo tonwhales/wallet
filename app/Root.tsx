@@ -5,6 +5,7 @@ import { RecoilRoot } from 'recoil';
 import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
 import { AppConfigContextProvider } from './utils/AppConfigContext';
+import { AppStateManagerLoader } from './engine/AppStateManager';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);
@@ -21,7 +22,9 @@ export const Root = React.memo(() => {
             <RebootContext.Provider value={reboot}>
                 <AppConfigContextProvider>
                     <RecoilRoot>
-                        <Navigation />
+                        <AppStateManagerLoader>
+                            <Navigation />
+                        </AppStateManagerLoader>
                     </RecoilRoot>
                 </AppConfigContextProvider>
             </RebootContext.Provider>

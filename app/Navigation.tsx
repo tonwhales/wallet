@@ -21,7 +21,7 @@ import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext } from './engine/Engine';
+import { useEngine } from './engine/Engine';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
@@ -36,8 +36,6 @@ import { StakingTransferFragment } from './fragments/staking/StakingTransferFrag
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
-import { createEngine } from './engine/createEngine';
-import { useRecoilCallback } from 'recoil';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -65,7 +63,6 @@ import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetup
 import { SecurityFragment } from './fragments/SecurityFragment';
 import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
-import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 
 const Stack = createNativeStackNavigator();
@@ -195,30 +192,7 @@ const navigation = (safeArea: EdgeInsets) => [
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
     const { AppConfig, NavigationTheme } = useAppConfig();
-
-    const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
-
-    const engine = React.useMemo(() => {
-        let state = getAppState();
-        if (0 <= state.selected && state.selected < state.addresses.length) {
-            const ex = state.addresses[state.selected];
-
-            // Identify user profile by address
-            mixpanelIdentify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            mixpanelFlush(AppConfig.isTestnet);
-
-            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater, isTestnet: AppConfig.isTestnet });
-        } else {
-            return null;
-        }
-    }, []);
-    React.useEffect(() => {
-        return () => {
-            if (engine) {
-                engine.destroy();
-            }
-        }
-    }, []);
+    const engine = useEngine();
 
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine, AppConfig.isTestnet);
@@ -314,28 +288,26 @@ export const Navigation = React.memo(() => {
     }, []);
 
     return (
-        <EngineContext.Provider value={engine}>
-            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-                <NavigationContainer
-                    theme={NavigationTheme}
-                    onReady={onMounted}
+        <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+            <NavigationContainer
+                theme={NavigationTheme}
+                onReady={onMounted}
+            >
+                <Stack.Navigator
+                    initialRouteName={initial}
+                    screenOptions={{
+                        headerBackTitle: t('common.back'),
+                        title: '',
+                        headerShadowVisible: false,
+                        headerTransparent: false,
+                        headerStyle: { backgroundColor: 'white' }
+                    }}
                 >
-                    <Stack.Navigator
-                        initialRouteName={initial}
-                        screenOptions={{
-                            headerBackTitle: t('common.back'),
-                            title: '',
-                            headerShadowVisible: false,
-                            headerTransparent: false,
-                            headerStyle: { backgroundColor: 'white' }
-                        }}
-                    >
-                        {navigation(safeArea)}
-                    </Stack.Navigator>
-                </NavigationContainer>
-                <Splash hide={hideSplash} />
-            </View>
-        </EngineContext.Provider>
+                    {navigation(safeArea)}
+                </Stack.Navigator>
+            </NavigationContainer>
+            <Splash hide={hideSplash} />
+        </View>
     );
 });
 

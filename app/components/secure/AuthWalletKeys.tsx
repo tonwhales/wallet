@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Platform, Pressable, Text } from 'react-native';
+import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
@@ -135,6 +135,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                     auth.promise.resolve(keys);
                                 }
                             } catch {
+                                Alert.alert(t('security.passcodeSettings.error'));
                                 auth.promise.reject();
                             }
 
@@ -151,6 +152,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                         // Remove auth view
                                         setAuth(null);
                                     } catch {
+                                        Alert.alert(t('secure.onBiometricsError'));
                                         warn('Failed to load wallet keys');
                                     }
                                 }

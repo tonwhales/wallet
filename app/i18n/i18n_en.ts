@@ -463,6 +463,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onLaterTitle: 'Setup later',
         onLaterMessage: 'You can setup protection later in settings',
         onLaterButton: 'Setup later',
+        onBiometricsError: 'Error authenticating with biometrics',
     },
     backup: {
         title: 'Your recovery phrase',

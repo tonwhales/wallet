@@ -9,7 +9,7 @@ import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { zenPayUrl } from '../../engine/corp/ZenPayProduct';
+import { holdersUrl } from '../../engine/corp/ZenPayProduct';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useAppConfig } from '../../utils/AppConfigContext';
 
@@ -23,7 +23,7 @@ export const ZenPayAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const status = engine.products.zenPay.useStatus();
     const endpoint = useMemo(() => {
-        let url = zenPayUrl;
+        let url = holdersUrl;
         if (params.type === 'account') {
             url += status.state === 'ok' ? '/create' : '/about';
         } else if (params.type === 'card') {
@@ -34,7 +34,7 @@ export const ZenPayAppFragment = fragment(() => {
 
     const needsEnrollment = useMemo(() => {
         try {
-            let domain = extractDomain(zenPayUrl);
+            let domain = extractDomain(holdersUrl);
             if (!domain) {
                 return; // Shouldn't happen
             }

@@ -1,72 +1,91 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
+import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { zenPayUrl } from "../engine/corp/ZenPayProduct";
-import { Engine, useEngine } from "../engine/Engine";
-import { extractDomain } from "../engine/utils/extractDomain";
+import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { storage } from "../storage/storage";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
-
-export function clearZenPay(engine: Engine) {
-    const zenPayDomain = extractDomain(zenPayUrl);
-    engine.persistence.domainKeys.setValue(zenPayDomain, null);
-    engine.persistence.zenPayState.setValue(engine.address, null);
-    engine.products.zenPay.stopWatching();
-    engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
-}
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { getAppState, getCurrentAddress } from "../storage/appState";
+import { useAppStateManager } from "../engine/AppStateManager";
+import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { clearHolders } from "../utils/clearHolders";
 
 export const LogoutFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
+    const appStateManager = useAppStateManager();
+    const authContext = useKeysAuth();
+    const { showActionSheetWithOptions } = useActionSheet();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
     const engine = useEngine();
 
-    const onDeletetAccount = React.useCallback(() => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    title: t('confirm.logout.title'),
-                    message: t('confirm.logout.message'),
-                    options: [t('common.cancel'), t('deleteAccount.logOutAndDelete')],
-                    destructiveButtonIndex: 1,
-                    cancelButtonIndex: 0
-                },
-                (buttonIndex) => {
-                    if (buttonIndex === 1) {
-                        storage.clearAll();
-                        clearZenPay(engine);
-                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                        mixpanelFlush(AppConfig.isTestnet);
-                        reboot();
-                    }
-                }
-            );
-        } else {
-            Alert.alert(
-                t('confirm.logout.title'),
-                t('confirm.logout.message'),
-                [{
-                    text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
-                        storage.clearAll();
-                        clearZenPay(engine);
-                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                        mixpanelFlush(AppConfig.isTestnet);
-                        reboot();
-                    }
-                }, { text: t('common.cancel') }])
+    const onLogout = React.useCallback(async () => {
+        const appState = getAppState();
+        const acc = getCurrentAddress();
+        const currentAddress = acc.address;
+
+        try {
+            await authContext.authenticate({ cancelable: true });
+        } catch (e) {
+            navigation.goBack();
+            return;
         }
+
+        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
+        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
+        mixpanelFlush(AppConfig.isTestnet);
+
+        if (appState.addresses.length === 1) {
+            storage.clearAll();
+            clearHolders(engine);
+            reboot();
+            return;
+        }
+
+        clearHolders(engine, currentAddress);
+
+        const newAddresses = appState.addresses.filter((address) => !address.address.equals(currentAddress));
+
+        appStateManager.updateAppState({
+            addresses: newAddresses,
+            selected: 0,
+        });
+
+    }, []);
+
+    const logoutActionSheet = React.useCallback(() => {
+        const options = [t('common.cancel'), t('deleteAccount.logOutAndDelete')];
+        const destructiveButtonIndex = 1;
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            title: t('confirm.logout.title'),
+            message: t('confirm.logout.message'),
+            options,
+            destructiveButtonIndex,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    // Create new wallet
+                    onLogout();
+                    break;
+                case cancelButtonIndex:
+                // Canceled
+                default:
+                    break;
+            }
+        });
     }, []);
 
     return (
@@ -105,7 +124,7 @@ export const LogoutFragment = fragment(() => {
             <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
                 <RoundButton
                     title={t('common.logout')}
-                    onPress={onDeletetAccount}
+                    onPress={logoutActionSheet}
                     display={'danger_zone'}
                 />
             </View>

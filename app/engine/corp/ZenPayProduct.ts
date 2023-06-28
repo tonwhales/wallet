@@ -13,7 +13,7 @@ import { warn } from "../../utils/log";
 
 // export const zenPayEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const zenPayEndpoint = 'card-staging.whales-api.com';
-export const zenPayUrl = 'https://stage.zenpay.org';
+export const holdersUrl = 'https://stage.zenpay.org';
 const currentTokenVersion = 1;
 
 export type ZenPayAccountStatus = { state: 'need-enrolment' } | (AccountState & { token: string })

@@ -55,7 +55,7 @@ window['main-button'] = (() => {
     };
 
     const __response = (ev) => {
-        if (ev && callbacks[ev.id]) {
+        if (ev && callbacks[ev.id] && ev.data) {
             let c = callbacks[ev.id];
             c(ev.data);
             return;
@@ -64,7 +64,7 @@ window['main-button'] = (() => {
         const lastId = Object.keys(callbacks).pop();
         if (lastId && callbacks[lastId]) {
             let c = callbacks[lastId];
-            c(ev.data);
+            c();
         }
     }
 

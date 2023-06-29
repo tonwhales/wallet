@@ -12,6 +12,8 @@ export const passcodeEncKey = 'ton-storage-passcode-enc-key-';
 export const biometricsEncKey = 'ton-biometrics-enc-key';
 export const biometricsStateKey = 'biometrics-state';
 
+export const androidKeyStoreMigrated = 'android-key-store-migrated';
+
 export enum BiometricsState {
     NotSet = 'not-set',
     DontUse = 'dont-use',
@@ -120,6 +122,27 @@ async function doEncrypt(key: Buffer, data: Buffer) {
     return Buffer.concat([nonce, sealed]);
 }
 
+export async function migrateAndroidKeyStore(passcode?: string) {
+    const isMigrated = storage.getBoolean(androidKeyStoreMigrated);
+
+    // Pre-flight checks
+    if (isMigrated || Platform.OS !== 'android') {
+        return;
+    }
+
+    const appKey = await getApplicationKey(passcode);
+    const ref = storage.getString('ton-storage-ref');
+
+    if (!ref) {
+        throw Error('Invalid ref');
+    }
+
+    await SecureStore.setItemAsync(ref, appKey.toString('base64'), { requireAuthentication: true });
+
+    storage.set('ton-storage-kind', 'secure-store');
+    storage.set(androidKeyStoreMigrated, true);
+}
+
 export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
     // Load existing app key with passcode
     const appKey = await getApplicationKey(passcode);
@@ -130,7 +153,7 @@ export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
     }
 
     // Handle iOS
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || Platform.OS === 'android') {
         storage.set('ton-storage-kind', 'secure-store');
         storage.set('ton-storage-ref', ref);
         try {
@@ -142,10 +165,8 @@ export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
             requireAuthentication: true,
             keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
         });
-    } else if (Platform.OS === 'android') {
-        storage.set('ton-storage-ref', ref);
-        storage.set('ton-storage-kind', 'key-store');
-        await KeyStore.setItemAsync(ref, appKey.toString('base64'));
+        // Handle Android (Keystore) migration tag
+        storage.set(androidKeyStoreMigrated, true);
     } else {
         throw Error('Unsupported platform')
     }

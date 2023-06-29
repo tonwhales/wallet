@@ -67,6 +67,7 @@ import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChan
 import { useAppConfig } from './utils/AppConfigContext';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
+import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -190,6 +191,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
+    modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {
@@ -235,6 +237,8 @@ export const Navigation = React.memo(() => {
             return 'WalletUpgrade';
         } else if (onboarding === 'passcode-setup') {
             return 'PasscodeSetupInit';
+        } else if (onboarding === 'android-key-store-migration') {
+            return 'KeyStoreMigration';
         } else {
             throw Error('Invalid onboarding state');
         }

@@ -8,8 +8,11 @@ import Color from 'color';
 import { useRoute } from '@react-navigation/native';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useEngine } from '../../engine/Engine';
+import { warn } from '../../utils/log';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 
 export const AppFragment = fragment(() => {
+    const navigation = useTypedNavigation();
     const engine = useEngine();
     const url = (useRoute().params as any).url as string;
     const domain = extractDomain(url);
@@ -20,9 +23,21 @@ export const AppFragment = fragment(() => {
     const dark = c.isDark();
     const fontColor = dark ? '#fff' : '#000';
     const key = engine.products.keys.getDomainKey(domain);
+
+    // Should never happen
     if (!appData) {
-        throw Error('No App Data');
+        warn('No App Data');
+        navigation.goBack();
+        return null;
     }
+
+    // Should never happen
+    if (!key) {
+        warn('No Domain Key');
+        navigation.goBack();
+        return null;
+    }
+
     return (
         <View style={{
             flex: 1,

@@ -9,7 +9,6 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
@@ -19,6 +18,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { clearHolders } from '../../utils/clearHolders';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -34,7 +34,7 @@ export const DeveloperToolsFragment = fragment(() => {
     }, [])
     const resetCache = React.useCallback(() => {
         storagePersistence.clearAll();
-        clearZenPay(engine);
+        clearHolders(engine);
         reboot();
     }, []);
 

@@ -26,11 +26,11 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
-import { clearHolders } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { useActionSheet } from "@expo/react-native-action-sheet";
+import { clearHolders } from "../utils/clearHolders";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -213,6 +213,7 @@ export const DeleteAccountFragment = fragment(() => {
                             trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
                             mixpanelFlush(AppConfig.isTestnet);
 
+                            // Clear all data for current sellected wallet
                             if (appState.addresses.length === 1) {
                                 storage.clearAll();
                                 clearHolders(engine);
@@ -220,10 +221,9 @@ export const DeleteAccountFragment = fragment(() => {
                                 return;
                             }
 
+                            // Clear all data for current sellected wallet & select next wallet
                             clearHolders(engine, currentAddress);
-
                             const newAddresses = appState.addresses.filter((address) => !address.address.equals(currentAddress));
-
                             appStateManager.updateAppState({
                                 addresses: newAddresses,
                                 selected: 0,

@@ -25,6 +25,7 @@ export class WalletsProduct {
         });
     }
 
+    // Getting WalletV4State by address
     useWallet(address: Address) {
         return useRecoilValue(this.#walletSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
     }

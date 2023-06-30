@@ -2,7 +2,6 @@ import { canUpgradeAppState, getAppState, getCurrentAddress, isAddressSecured } 
 import { Engine } from "../engine/Engine";
 import { storage } from "../storage/storage";
 import { PasscodeState, androidKeyStoreMigrated, getPasscodeState, loadKeyStorageType } from "../storage/secureStorage";
-import { Platform } from "react-native";
 
 export const wasPasscodeSetupShownKey = 'passcode-setup-shown';
 
@@ -24,7 +23,7 @@ export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): On
             const storageType = loadKeyStorageType();
             const isKeyStore = storageType === 'key-store';
 
-            if (!isKeyStoreMigrated && Platform.OS === 'android' && isKeyStore) {
+            if (!isKeyStoreMigrated && isKeyStore) {
                 return 'android-key-store-migration';
             }
 

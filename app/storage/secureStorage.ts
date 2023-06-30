@@ -152,24 +152,21 @@ export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
         throw Error('Invalid ref');
     }
 
-    // Handle iOS
-    if (Platform.OS === 'ios' || Platform.OS === 'android') {
-        storage.set('ton-storage-kind', 'secure-store');
-        storage.set('ton-storage-ref', ref);
-        try {
-            await SecureStore.deleteItemAsync(ref);
-        } catch (e) {
-            // Ignore
-        }
-        await SecureStore.setItemAsync(ref, appKey.toString('base64'), {
-            requireAuthentication: true,
-            keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
-        });
-        // Handle Android (Keystore) migration tag
-        storage.set(androidKeyStoreMigrated, true);
-    } else {
-        throw Error('Unsupported platform')
+    // Set storage kind and ref
+    storage.set('ton-storage-kind', 'secure-store');
+    storage.set('ton-storage-ref', ref);
+    try {
+        // Delete prev existing key
+        await SecureStore.deleteItemAsync(ref);
+    } catch (e) {
+        // Ignore
     }
+    await SecureStore.setItemAsync(ref, appKey.toString('base64'), {
+        requireAuthentication: true,
+        keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
+    });
+    // Handle Android (Keystore) migration tag
+    storage.set(androidKeyStoreMigrated, true);
 }
 
 export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {

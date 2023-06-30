@@ -12,8 +12,11 @@ export const WImage = React.memo((props: {
     heigh: number,
     width: number,
     borderRadius: number,
+    borderWidth?: number,
+    borderOpacity?: number,
     style?: StyleProp<ViewStyle>,
-    lockLoading?: boolean
+    lockLoading?: boolean,
+    onLoad?: () => void,
 }) => {
     const { Theme } = useAppConfig();
     const [loading, setLoading] = React.useState(false);
@@ -34,6 +37,7 @@ export const WImage = React.memo((props: {
                     resizeMode={'cover'}
                     onLoadStart={() => setLoading(true)}
                     onLoadEnd={() => setLoading(false)}
+                    onLoad={props.onLoad}
                 />
                 {loading && !props.lockLoading && (
                     <Animated.View
@@ -54,11 +58,11 @@ export const WImage = React.memo((props: {
                     </Animated.View>
                 )}
                 <View style={{
-                    borderWidth: 0.5,
+                    borderWidth: props.borderWidth ?? 0.5,
                     borderColor: 'black',
                     backgroundColor: Theme.transparent,
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: 0.06,
+                    opacity: props.borderOpacity ?? 0.06,
                     borderRadius: props.borderRadius
                 }} />
             </View>
@@ -79,6 +83,7 @@ export const WImage = React.memo((props: {
                     resizeMode={'cover'}
                     onLoadStart={() => setLoading(true)}
                     onLoadEnd={() => setLoading(false)}
+                    onLoad={props.onLoad}
                 />
                 {loading && (
                     <Animated.View
@@ -97,11 +102,11 @@ export const WImage = React.memo((props: {
                     </Animated.View>
                 )}
                 <View style={{
-                    borderWidth: 0.5,
+                    borderWidth: props.borderWidth ?? 0.5,
                     borderColor: 'black',
                     backgroundColor: Theme.transparent,
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: 0.06,
+                    opacity: props.borderOpacity ?? 0.06,
                     borderRadius: props.borderRadius
                 }} />
             </View>
@@ -122,11 +127,11 @@ export const WImage = React.memo((props: {
                     resizeMode={'cover'}
                 />
                 <View style={{
-                    borderWidth: 0.5,
+                    borderWidth: props.borderWidth ?? 0.5,
                     borderColor: 'black',
                     backgroundColor: Theme.transparent,
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: 0.06,
+                    opacity: props.borderOpacity ?? 0.06,
                     borderRadius: props.borderRadius
                 }} />
             </View>
@@ -146,11 +151,11 @@ export const WImage = React.memo((props: {
                 resizeMode={'cover'}
             />
             <View style={{
-                borderWidth: 0.5,
+                borderWidth: props.borderWidth ?? 0.5,
                 borderColor: 'black',
                 backgroundColor: Theme.transparent,
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                opacity: 0.06,
+                opacity: props.borderOpacity ?? 0.06,
                 borderRadius: props.borderRadius
             }} />
         </View>

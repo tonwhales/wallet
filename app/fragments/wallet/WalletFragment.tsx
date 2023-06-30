@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Image, LayoutAnimation, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { getCurrentAddress } from '../../storage/appState';
+import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
@@ -32,6 +32,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const currentWalletIndex = getAppState().selected;
 
     const onQRCodeRead = (src: string) => {
         try {
@@ -57,7 +58,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     }, []);
 
     // ScrollView background color animation
-    const scrollBackgroundColor = useSharedValue(0);
+    const scrollBackgroundColor = useSharedValue(1);
 
     const onScroll = useAnimatedScrollHandler((event) => {
         if ((event.contentOffset.y) >= 0) { // Overscrolled to top
@@ -107,7 +108,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             }}>
                             </View>
                             <Text style={{ marginLeft: 12, fontWeight: '500', fontSize: 17, color: '#AAB4BF' }}>
-                                {'Wallet 1'}
+                                {`${t('common.wallet')} ${currentWalletIndex + 1}`}
                             </Text>
                             <ChevronDown
                                 style={{

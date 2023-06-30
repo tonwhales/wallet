@@ -1,8 +1,7 @@
 import React, { useCallback } from "react";
-import { Pressable, StyleProp, View, ViewStyle, Text, Platform, Share } from "react-native";
+import { Pressable, StyleProp, View, ViewStyle, Text, Platform, Share, TextStyle } from "react-native";
 import ShareIcon from '../../assets/ic_share_address.svg';
 import { t } from "../i18n/t";
-import { iOSUIKit } from 'react-native-typography';
 import { useAppConfig } from "../utils/AppConfigContext";
 
 const size = {
@@ -15,11 +14,17 @@ const size = {
 export const ShareButton = React.memo(({
     body,
     style,
-    disabled
+    disabled,
+    showIcon,
+    textStyle,
+    onScreenCapture
 }: {
     body: string,
     style?: StyleProp<ViewStyle>,
-    disabled?: boolean
+    disabled?: boolean,
+    showIcon?: boolean,
+    textStyle?: StyleProp<TextStyle>,
+    onScreenCapture?: () => { uri: string }
 }) => {
     const { Theme } = useAppConfig();
     const display = {
@@ -32,6 +37,7 @@ export const ShareButton = React.memo(({
         textPressed: Theme.secondaryButtonText
     }
     const onShare = useCallback(() => {
+
         if (Platform.OS === 'ios') {
             Share.share({ title: t('receive.share.title'), url: body });
         } else {
@@ -45,6 +51,7 @@ export const ShareButton = React.memo(({
             hitSlop={size.hitSlop}
             style={(p) => ([
                 {
+                    flex: 1,
                     borderWidth: 1,
                     borderRadius: 14,
                     backgroundColor: display.backgroundColor,
@@ -74,21 +81,22 @@ export const ShareButton = React.memo(({
                         alignItems: 'center',
                         flexGrow: 1,
                         paddingHorizontal: 16,
-                        backgroundColor: display.backgroundColor,
                     }}>
-                        <View style={{ marginRight: 10 }}>
-                            <ShareIcon width={15} height={24} />
-                        </View>
+                        {showIcon && (
+                            <View style={{ marginRight: 10 }}>
+                                <ShareIcon width={15} height={24} />
+                            </View>
+                        )}
                         <Text
                             style={[
-                                iOSUIKit.title3,
                                 {
                                     color: display.textColor,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,
                                     flexShrink: 1
-                                }
+                                },
+                                textStyle
                             ]}
                             numberOfLines={1}
                             ellipsizeMode='tail'

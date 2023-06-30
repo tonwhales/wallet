@@ -287,7 +287,7 @@ export const HoldersLandingFragment = fragment(() => {
                         pointerEvents={loaded ? 'none' : 'box-none'}
                     >
                         <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                            <AndroidToolbar tintColor={'#564CE2'} onBack={() => navigation.goBack()} />
                         </View>
                         {Platform.OS === 'ios' && (
                             <Pressable

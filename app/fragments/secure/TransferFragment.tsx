@@ -22,7 +22,7 @@ import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from '../../utils/dns/dns';
+import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
@@ -139,6 +139,7 @@ export const TransferFragment = fragment(() => {
         backoff('transfer', async () => {
             // Get contract
             const contract = contractFromPublicKey(from.publicKey);
+            const tonDnsRootAddress = netConfig.rootDnsAddress;
 
             if (order.messages.length === 1) {
                 let target = Address.parseFriendly(
@@ -163,24 +164,11 @@ export const TransferFragment = fragment(() => {
                         }
 
                         const valid = validateDomain(domain);
-
                         if (!valid) {
                             throw Error('Invalid domain');
                         }
 
-                        const resolvedCollectionAddress = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_NEXT_RESOLVER, true);
-                        if (!resolvedCollectionAddress) {
-                            throw Error('Error resolving collection address');
-                        }
-                        const collectionAddress = Address.parseRaw(resolvedCollectionAddress.toString());
-
-                        const resolvedDomainAddress = await resolveDomain(engine.client4, collectionAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
-                        if (!resolvedDomainAddress) {
-                            throw Error('Error resolving domain address');
-                        }
-                        const domainAddress = Address.parseRaw(resolvedDomainAddress.toString());
-
-                        const resolvedDomainWallet = await resolveDomain(engine.client4, domainAddress, '.', DNS_CATEGORY_WALLET);
+                        const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
                         if (!resolvedDomainWallet) {
                             throw Error('Error resolving domain wallet');
                         }

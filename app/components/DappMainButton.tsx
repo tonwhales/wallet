@@ -9,7 +9,7 @@ import WebView from "react-native-webview";
 export function processMainButtonMessage(
     parsed: any,
     dispatchMainButton: (value: MainButtonAction) => void,
-    dispatchMainButtonResponse: (webRef: React.RefObject<WebView<{}>>, data: any) => void,
+    dispatchMainButtonResponse: (webRef: React.RefObject<WebView<{}>>) => void,
     webRef: React.MutableRefObject<any>
 ) {
     if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-button') !== -1) {

@@ -27,7 +27,7 @@ import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress } from '../../utils/dns/dns';
+import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain } from '../../utils/dns/dns';
 import TonSign from '../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Contact from '../../../assets/ic_transfer_contact.svg';

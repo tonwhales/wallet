@@ -1,13 +1,13 @@
-import { zenPayEndpoint } from "./ZenPayProduct";
+import { holdersEndpoint } from "./HoldersProduct";
 
 let index = 0;
 
-export function watchZenPayAccountUpdates(token: string, handler: (event: any) => void) {
+export function watchHoldersAccountUpdates(token: string, handler: (event: any) => void) {
     let closed = false;
     let socket: WebSocket | null = null;
     let i = index++;
     function doOpen() {
-        let s = new WebSocket(`wss://${zenPayEndpoint}/account/updates`);
+        let s = new WebSocket(`wss://${holdersEndpoint}/account/updates`);
         socket = s;
         socket.onopen = () => {
             socket!.send(JSON.stringify({ type: 'connect', token: token }));

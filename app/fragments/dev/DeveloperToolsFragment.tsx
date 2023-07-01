@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -9,7 +9,6 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
@@ -19,6 +18,8 @@ import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { clearHolders } from '../LogoutFragment';
+import { useEffect, useState } from 'react';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -27,6 +28,22 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
+    const offlineApp = engine.products.holders.useOfflineApp();
+
+    const [offlineAppReady, setOfflineAppReady] = useState(false);
+
+    useEffect(() => {
+        (async () => {
+            if (!offlineApp) {
+                setOfflineAppReady(false);
+                return;
+            }
+
+            const ready = await engine.products.holders.checkOfflineApp();
+
+            setOfflineAppReady(ready);
+        })()
+    }, [offlineApp]);
 
     const reboot = useReboot();
     const restart = React.useCallback(() => {
@@ -34,7 +51,7 @@ export const DeveloperToolsFragment = fragment(() => {
     }, [])
     const resetCache = React.useCallback(() => {
         storagePersistence.clearAll();
-        clearZenPay(engine);
+        clearHolders(engine);
         reboot();
     }, []);
 
@@ -102,7 +119,9 @@ export const DeveloperToolsFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+            <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+
+
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: Theme.item,
@@ -137,7 +156,35 @@ export const DeveloperToolsFragment = fragment(() => {
                             </View>
                         )}
                 </View>
-            </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={'Offline integrity check:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
+                            const app = engine.persistence.holdersOfflineApp.item().value;
+                            if (app) {
+                                engine.products.holders.cleanupOldOfflineApp(app);
+                            }
+                            engine.persistence.holdersOfflineApp.item().update(() => null);
+                            await engine.products.holders.forceSyncOfflineApp();
+                        }} />
+                    </View>
+                </View>
+            </ScrollView>
         </View>
     );
 });

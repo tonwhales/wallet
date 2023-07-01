@@ -711,6 +711,7 @@ export type LocalizationSchema = {
         copySeedAlertTitle: string,
         copySeedAlertMessage: string,
         copySeedAlertAction: string,
+        holdersOfflineApp: string,
     }
 };
 

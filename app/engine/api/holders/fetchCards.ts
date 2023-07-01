@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as t from "io-ts";
-import { zenPayEndpoint } from "../../corp/ZenPayProduct";
+import { holdersEndpoint } from "../../holders/HoldersProduct";
 import { Address } from "ton";
 
 export const cardListPublicCodec = t.union([
@@ -14,6 +14,11 @@ export const cardListPublicCodec = t.union([
         balance: t.string,
         card: t.type({
           lastFourDigits: t.union([t.string, t.undefined, t.null]),
+          productId: t.string,
+          personalizationCode: t.string,
+          provider: t.string,
+          kind: t.string,
+          tzOffset: t.number
         }),
         contract: t.string
       })
@@ -27,7 +32,7 @@ export const cardListPublicCodec = t.union([
 
 export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
   let res = await axios.post(
-    'https://' + zenPayEndpoint + '/public/cards',
+    'https://' + holdersEndpoint + '/public/cards',
     {
       walletKind: 'tonhub',
       network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
@@ -107,7 +112,7 @@ export type CardsList = {
     state: string,
     balance: string,
     card: {
-      lastFourDigits: string | undefined,
+      lastFourDigits: string | undefined | null,
       productId: string,
       personalizationCode: string,
       provider: string,
@@ -137,7 +142,7 @@ export const cardsListCodec = t.type({
       state: t.string,
       balance: t.string,
       card: t.type({
-        lastFourDigits: t.union([t.string, t.undefined]),
+        lastFourDigits: t.union([t.string, t.undefined, t.null]),
         productId: t.string,
         personalizationCode: t.string,
         provider: t.string,
@@ -167,7 +172,7 @@ export const cardsListResCodec = t.intersection([
 
 export async function fetchCardsList(token: string) {
   let res = await axios.post(
-    'https://' + zenPayEndpoint + '/card/list',
+    'https://' + holdersEndpoint + '/card/list',
     { token },
     {
       headers: {

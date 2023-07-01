@@ -26,9 +26,9 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
-import { clearZenPay } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { clearHolders } from "./LogoutFragment";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -48,7 +48,7 @@ export const DeleteAccountFragment = fragment(() => {
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
 
-    const onDeletetAccount = React.useCallback(() => {
+    const onDeleteAccount = React.useCallback(() => {
         let ended = false;
 
         async function confirm(title: LocalizedResources) {
@@ -202,7 +202,7 @@ export const DeleteAccountFragment = fragment(() => {
                         ended = true;
                         setTimeout(() => {
                             storage.clearAll();
-                            clearZenPay(engine);
+                            clearHolders(engine);
                             mixpanelReset(AppConfig.isTestnet); // Clear super properties and generates a new random distinctId
                             trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
                             mixpanelFlush(AppConfig.isTestnet);
@@ -230,17 +230,17 @@ export const DeleteAccountFragment = fragment(() => {
                     destructiveButtonIndex: 1,
                     cancelButtonIndex: 0
                 },
-                (buttonIndex) => { if (buttonIndex === 1) onDeletetAccount(); }
+                (buttonIndex) => { if (buttonIndex === 1) onDeleteAccount(); }
             );
         } else {
             Alert.alert(
                 t('deleteAccount.confirm.title'),
                 t('deleteAccount.confirm.message'),
                 [{
-                    text: t('deleteAccount.action'), style: 'destructive', onPress: () => { onDeletetAccount() }
+                    text: t('deleteAccount.action'), style: 'destructive', onPress: () => { onDeleteAccount() }
                 }, { text: t('common.cancel') }])
         }
-    }, [onDeletetAccount]);
+    }, [onDeleteAccount]);
 
     return (
         <View style={{

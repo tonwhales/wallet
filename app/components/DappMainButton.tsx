@@ -134,7 +134,6 @@ export type MainButtonProps = {
 export const DappMainButton = React.memo((
     props: { style?: StyleProp<ViewStyle> } & Omit<MainButtonProps, 'isVisible'>
 ) => {
-    console.log({ props })
     const { Theme } = useAppConfig();
 
     return (

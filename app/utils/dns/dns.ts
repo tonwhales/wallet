@@ -7,9 +7,6 @@ export const DNS_CATEGORY_NEXT_RESOLVER = 'dns_next_resolver'; // Smart Contract
 export const DNS_CATEGORY_WALLET = 'wallet'; // Smart Contract address
 export const DNS_CATEGORY_SITE = 'site'; // ADNL address
 
-export const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
-// export const tonDnsRootAddress = Address.parse('EQC3dNlesgVD8YbAazcauIrXBPfiVhMMr5YYk2in0Mtsz0Bz'); // old root (TON DNS Collection Address)
-
 export async function categoryToBN(category: string | undefined) {
     if (!category) return new BN(0); // all categories
     const categoryHash = await sha256(Buffer.from(category, 'utf8'));
@@ -266,10 +263,11 @@ export async function resolveDomain(tonClient4: TonClient4, rootDnsAddress: Addr
     return dnsResolve(tonClient4, seqno, rootDnsAddress, domain, category, oneStep);
 }
 
-export function validateDomain(domain: string) {
-    if (domain.length < 4 || domain.length > 126) {
+function validateDomainSegment(domain: string) {
+    if (domain.length < 1 || domain.length > 126) {
         return false;
     }
+
     for (let i = 0; i < domain.length; i++) {
         const char = domain.charCodeAt(i);
         const isHyphen = (char === 45);
@@ -281,3 +279,24 @@ export function validateDomain(domain: string) {
     }
     return true;
 }
+
+export function validateDomain(domain: string) {
+    let segments = domain.split('.').reverse();
+
+    if (segments.length === 0) {
+        return false;
+    }
+
+    // This rule is only applied to segment after zone
+    if (segments[0].length < 4 || segments[0].length > 126) {
+        return false;
+    }
+
+    for (let segment of segments) {
+        if (!validateDomainSegment(segment)) {
+            return false;
+        }
+    }
+    return true;
+}
+

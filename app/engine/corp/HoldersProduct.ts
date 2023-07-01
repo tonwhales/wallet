@@ -86,6 +86,8 @@ export class HoldersProduct {
             }
         });
 
+        this.syncOfflineApp();
+
         if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
             this.cleanup();
         }
@@ -224,7 +226,6 @@ export class HoldersProduct {
 
     async doSync() {
         await this.#lock.inLock(async () => {
-            this.syncOfflineApp();
             let targetStatus = this.engine.persistence.holdersStatus.item(this.engine.address);
             let status: HoldersAccountStatus | null = targetStatus.value;
 
@@ -392,8 +393,7 @@ export class HoldersProduct {
                 }
                 return fetchedApp;
             });
-        } catch (e) {
-            warn(e);
+        } catch {
             warn('Failed to sync offline app');
             return;
         }
@@ -414,7 +414,7 @@ export class HoldersProduct {
                 }
                 return fetchedApp;
             });
-        } catch (e) {
+        } catch {
             warn('Failed to sync offline app');
             return;
         }

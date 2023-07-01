@@ -12,8 +12,6 @@ export const passcodeEncKey = 'ton-storage-passcode-enc-key-';
 export const biometricsEncKey = 'ton-biometrics-enc-key';
 export const biometricsStateKey = 'biometrics-state';
 
-export const androidKeyStoreMigrated = 'android-key-store-migrated';
-
 export enum BiometricsState {
     NotSet = 'not-set',
     DontUse = 'dont-use',
@@ -123,10 +121,9 @@ async function doEncrypt(key: Buffer, data: Buffer) {
 }
 
 export async function migrateAndroidKeyStore(passcode?: string) {
-    const isMigrated = storage.getBoolean(androidKeyStoreMigrated);
 
     // Pre-flight checks
-    if (isMigrated || Platform.OS !== 'android') {
+    if (Platform.OS !== 'android') {
         return;
     }
 
@@ -140,7 +137,6 @@ export async function migrateAndroidKeyStore(passcode?: string) {
     await SecureStore.setItemAsync(ref, appKey.toString('base64'), { requireAuthentication: true });
 
     storage.set('ton-storage-kind', 'secure-store');
-    storage.set(androidKeyStoreMigrated, true);
 }
 
 export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
@@ -165,8 +161,6 @@ export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
         requireAuthentication: true,
         keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
     });
-    // Handle Android (Keystore) migration tag
-    storage.set(androidKeyStoreMigrated, true);
 }
 
 export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {

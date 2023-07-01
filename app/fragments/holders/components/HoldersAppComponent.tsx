@@ -474,7 +474,7 @@ export const HoldersAppComponent = React.memo((
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
-                {mainButton && (
+                {mainButton && mainButton.isVisible && (
                     <KeyboardAvoidingView
                         style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
@@ -484,18 +484,16 @@ export const HoldersAppComponent = React.memo((
                             : undefined
                         }
                     >
-                        {mainButton.isVisible && (
-                            <Animated.View
-                                style={Platform.OS === 'android'
-                                    ? { marginHorizontal: 16, marginBottom: 16 }
-                                    : { marginBottom: 16 }
-                                }
-                                entering={FadeInDown}
-                                exiting={FadeOutDown}
-                            >
-                                <DappMainButton {...mainButton} />
-                            </Animated.View>
-                        )}
+                        <Animated.View
+                            style={Platform.OS === 'android'
+                                ? { marginHorizontal: 16, marginBottom: 16 }
+                                : { marginBottom: 16 }
+                            }
+                            entering={FadeInDown}
+                            exiting={FadeOutDown}
+                        >
+                            <DappMainButton {...mainButton} />
+                        </Animated.View>
                     </KeyboardAvoidingView>
                 )}
             </View>

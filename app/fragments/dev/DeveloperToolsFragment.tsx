@@ -14,7 +14,6 @@ import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
-import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';

@@ -35,7 +35,7 @@ import { CardsList as ZenPayCardsList, cardsListCodec } from "./api/zenpay/fetch
 
 export class Persistence {
 
-    readonly version: number = 16;
+    readonly version: number = 17;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -127,7 +127,7 @@ export class Persistence {
         this.knownAccountJettons = new PersistedCollection({ storage, namespace: 'knownAccountJettons', key: addressKey, codec: t.array(c.address(engine.isTestnet)), engine });
 
         // Configs
-        this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec, engine });
+        this.config = new PersistedCollection({ storage, namespace: 'config', key: voidKey, codec: configCodec(engine.isTestnet), engine });
         this.serverConfig = new PersistedCollection({ storage, namespace: 'serverConfig', key: voidKey, codec: serverConfigCodec, engine });
         this.walletConfig = new PersistedCollection({ storage, namespace: 'walletConfig', key: addressKey, codec: walletConfigCodec, engine });
 
@@ -297,7 +297,7 @@ const chainConfigCodec = t.type({
     })
 })
 
-const configCodec = t.type({
+const configCodec = (isTestnet: boolean) => t.type({
     storage: t.array(t.type({
         utime_since: c.bignum,
         bit_price_ps: c.bignum,
@@ -305,6 +305,7 @@ const configCodec = t.type({
         mc_bit_price_ps: c.bignum,
         mc_cell_price_ps: c.bignum
     })),
+    rootDnsAddress: c.address(isTestnet),
     workchain: chainConfigCodec,
     masterchain: chainConfigCodec
 });

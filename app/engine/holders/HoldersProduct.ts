@@ -11,7 +11,7 @@ import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
 import { HoldersOfflineApp, fetchAppFile, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
-import { watchHoldersAccountUpdates } from "./watchZenPayAccountUpdates";
+import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';

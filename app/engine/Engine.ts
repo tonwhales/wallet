@@ -19,7 +19,7 @@ import { Cloud } from './cloud/Cloud';
 import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
 import { KeysProduct } from './keys/KeysProduct';
-import { HoldersProduct } from './corp/HoldersProduct';
+import { HoldersProduct } from './holders/HoldersProduct';
 import { ConnectProduct } from './products/ConnectProduct';
 import { LedgerProduct } from './products/LedgerProduct';
 import { WalletsProduct } from './products/WalletsProduct';

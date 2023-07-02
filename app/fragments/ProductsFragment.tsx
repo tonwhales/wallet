@@ -8,7 +8,7 @@ import { useEngine } from "../engine/Engine";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useCallback, useMemo } from "react";
 import { extractDomain } from "../engine/utils/extractDomain";
-import { holdersUrl } from "../engine/corp/HoldersProduct";
+import { holdersUrl } from "../engine/holders/HoldersProduct";
 import { BN } from "bn.js";
 
 export const ProductsFragment = fragment(() => {

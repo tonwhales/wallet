@@ -32,21 +32,18 @@ export const DeveloperToolsFragment = fragment(() => {
     const engine = useEngine();
     const offlineApp = engine.products.holders.useOfflineApp();
 
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
+    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     const [offlineAppEnabled, setOfflineAppEnabled] = useState(storage.getBoolean('dev-tools:use-offline-app') ?? false);
 
     useEffect(() => {
         (async () => {
-            if (!offlineApp) {
+            if (!offlineAppEnabled) {
                 setOfflineAppReady(false);
-                return;
             }
-
             const ready = await engine.products.holders.checkOfflineApp();
-
             setOfflineAppReady(ready);
         })()
-    }, [offlineApp]);
+    }, [offlineApp, offlineAppEnabled]);
 
     const reboot = useReboot();
     const restart = useCallback(() => {

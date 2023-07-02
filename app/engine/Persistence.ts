@@ -21,7 +21,7 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
-import { HoldersAccountStatus, HoldersState } from "./corp/HoldersProduct";
+import { HoldersAccountStatus, HoldersState } from "./holders/HoldersProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";

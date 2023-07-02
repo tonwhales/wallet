@@ -28,7 +28,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { storage } from '../../../storage/storage';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { normalizePath } from '../../../engine/corp/HoldersProduct';
+import { normalizePath } from '../../../engine/holders/HoldersProduct';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -64,22 +64,16 @@ export const HoldersAppComponent = React.memo((
     );
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
-
+    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     useEffect(() => {
         (async () => {
-            if (!(storage.getBoolean('dev-tools:use-offline-app') ?? false)) {
-                return false;
+            if (!storage.getBoolean('dev-tools:use-offline-app')) {
+                setOfflineAppReady(false);
             }
-            if (!offlineApp) {
-                return false;
-            }
-
             const ready = await engine.products.holders.checkOfflineApp();
-
             setOfflineAppReady(ready);
         })();
-    }, [offlineApp]);
+    }, []);
 
     const source = useMemo(() => {
         let route = '';

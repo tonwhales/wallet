@@ -6,7 +6,7 @@ import { t } from "../../i18n/t";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
-import { holdersUrl } from "../../engine/corp/HoldersProduct";
+import { holdersUrl } from "../../engine/holders/HoldersProduct";
 import Animated, { FadeIn } from "react-native-reanimated";
 import Collapsible from "react-native-collapsible";
 import MCard from '../../../assets/ic-m-card.svg';

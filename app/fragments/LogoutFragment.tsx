@@ -6,7 +6,7 @@ import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../anal
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { holdersUrl } from "../engine/corp/HoldersProduct";
+import { holdersUrl } from "../engine/holders/HoldersProduct";
 import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";

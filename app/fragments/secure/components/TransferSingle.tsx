@@ -43,7 +43,7 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
-import { holdersUrl } from "../../../engine/corp/HoldersProduct";
+import { holdersUrl } from "../../../engine/holders/HoldersProduct";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 

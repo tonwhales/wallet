@@ -22,7 +22,7 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { storage } from '../../storage/storage';
-import { normalizePath } from '../../engine/corp/HoldersProduct';
+import { normalizePath } from '../../engine/holders/HoldersProduct';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -34,34 +34,16 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.products.holders.useOfflineApp();
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
+    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     useEffect(() => {
         (async () => {
-            if (!(storage.getBoolean('dev-tools:use-offline-app') ?? false)) {
-                return false;
+            if (!storage.getBoolean('dev-tools:use-offline-app')) {
+                setOfflineAppReady(false);
             }
-            if (!offlineApp) {
-                return false;
-            }
-
-            const filesCheck: Promise<boolean>[] = [];
-            offlineApp.resources.forEach((asset) => {
-                filesCheck.push((async () => {
-                    const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
-                    return info.exists;
-                })());
-            });
-
-            filesCheck.push((async () => {
-                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
-                return info.exists;
-            })());
-
-            const files = await Promise.all(filesCheck);
-            setOfflineAppReady(files.every((f) => f));
+            const ready = await engine.products.holders.checkOfflineApp();
+            setOfflineAppReady(ready);
         })();
-    }, [offlineApp]);
+    }, []);
 
     //
     // View
@@ -200,12 +182,12 @@ export const HoldersLandingFragment = fragment(() => {
                         flexGrow: 1,
                     }}
                 >
-                    {offlineAppReady && offlineApp && (
+                    {offlineAppReady && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
                                 ref={webRef}
-                                uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
-                                baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
+                                uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/index.html`}
+                                baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/`}
                                 initialRoute={`/about?lang=${lang}&currency=${currency}`}
                                 style={{
                                     backgroundColor: Theme.item,
@@ -241,7 +223,7 @@ export const HoldersLandingFragment = fragment(() => {
                             />
                         </Animated.View>
                     )}
-                    {!(offlineAppReady && offlineApp) && (
+                    {!offlineAppReady && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <WebView
                                 ref={webRef}

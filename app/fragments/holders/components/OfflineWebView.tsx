@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import WebView, { WebViewProps } from "react-native-webview";
 import * as FileSystem from 'expo-file-system';
 import { OfflineErrorComponent } from "./OfflineErrorComponent";
-import { normalizePath } from "../../../engine/corp/HoldersProduct";
+import { normalizePath } from "../../../engine/holders/HoldersProduct";
 
 export type AWebViewRef = {
     injectJavaScript: (script: string) => void;

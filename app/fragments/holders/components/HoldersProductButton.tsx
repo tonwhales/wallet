@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
-import { HoldersCard, holdersUrl } from "../../../engine/corp/HoldersProduct";
+import { HoldersCard, holdersUrl } from "../../../engine/holders/HoldersProduct";
 import { Engine } from "../../../engine/Engine";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";

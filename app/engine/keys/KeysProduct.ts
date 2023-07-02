@@ -9,7 +9,7 @@ import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { storage } from "../../storage/storage";
 import { extractDomain } from "../utils/extractDomain";
 import { CloudValue } from "../cloud/CloudValue";
-import { holdersUrl } from "../corp/HoldersProduct";
+import { holdersUrl } from "../holders/HoldersProduct";
 
 const currentVersion = 1;
 

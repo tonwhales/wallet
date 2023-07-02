@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { HoldersCard, holdersUrl } from "../../engine/corp/HoldersProduct";
+import { HoldersCard, holdersUrl } from "../../engine/holders/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
 import { holdersCardColorsMap } from "./HoldersProductButton";

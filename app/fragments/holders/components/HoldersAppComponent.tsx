@@ -23,7 +23,6 @@ import { useAppConfig } from '../../../utils/AppConfigContext';
 import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { storage } from '../../../storage/storage';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
 import { AnotherKeyboardAvoidingView } from 'react-native-another-keyboard-avoiding-view';
 import { HoldersAppParams } from '../HoldersAppFragment';
@@ -44,26 +43,17 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.products.holders.useOfflineApp();
 
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
+    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
 
     useEffect(() => {
         (async () => {
-            if (!(storage.getBoolean('dev-tools:use-offline-app') ?? false)) {
-                return false;
-            }
-            if (!offlineApp) {
-                return false;
-            }
-
             const ready = await engine.products.holders.checkOfflineApp();
-
             setOfflineAppReady(ready);
         })();
-    }, [offlineApp]);
+    }, []);
 
     const source = useMemo(() => {
         let route = '';
@@ -309,14 +299,14 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineAppReady && offlineApp && (
+                {offlineAppReady && (
                     <AnotherKeyboardAvoidingView
                         style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                     >
                         <OfflineWebView
                             ref={webRef}
-                            uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
-                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
+                            uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/index.html`}
+                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/`}
                             initialRoute={source.initialRoute}
                             style={{
                                 backgroundColor: Theme.item,
@@ -358,7 +348,7 @@ export const HoldersAppComponent = React.memo((
                         />
                     </AnotherKeyboardAvoidingView>
                 )}
-                {!(offlineAppReady && offlineApp) && (
+                {!offlineAppReady && (
                     <AnotherKeyboardAvoidingView
                         style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                     >

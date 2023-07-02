@@ -57,7 +57,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                 );
                 return;
             }
-            navigation.replace('Holders', account ? { type: 'card', id: account.id } : { type: 'account' });
+            navigation.navigate('Holders', account ? { type: 'card', id: account.id } : { type: 'account' });
         },
         [account, needsEnrolment],
     );

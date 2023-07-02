@@ -447,6 +447,10 @@ export class HoldersProduct {
         const files = await Promise.all(filesCheck);
         const ready = files.every((f) => f);
 
-        return ready;
+        if (ready) {
+            return { version: offlineApp.version };
+        }
+
+        return false;
     }
 }

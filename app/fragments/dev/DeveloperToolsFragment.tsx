@@ -24,31 +24,20 @@ import { useEffect, useState } from 'react';
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const authContext = useKeysAuth();
-    const acc = React.useMemo(() => getCurrentAddress(), []);
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const offlineApp = engine.products.holders.useOfflineApp();
 
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
-
+    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     useEffect(() => {
         (async () => {
-            if (!offlineApp) {
-                setOfflineAppReady(false);
-                return;
-            }
-
             const ready = await engine.products.holders.checkOfflineApp();
-
             setOfflineAppReady(ready);
-        })()
+        })();
     }, [offlineApp]);
 
     const reboot = useReboot();
-    const restart = React.useCallback(() => {
-        // TODO: Implement
-    }, [])
     const resetCache = React.useCallback(() => {
         storagePersistence.clearAll();
         clearHolders(engine);
@@ -136,9 +125,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
                     </View>
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>

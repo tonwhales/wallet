@@ -5,13 +5,13 @@ import { t } from "../../i18n/t";
 import { TransportProvider } from "./components/TransportContext";
 import { HardwareWalletFragment } from "./HardwareWalletFragment";
 import { LedgerAppFragment } from "./LedgerAppFragment";
-import { LedgerAssetsFragment } from "./LedgerAssetsFragment";
 import { LedgerBleFragment } from "./LedgerBleFragment";
 import { LedgerHIDFragment } from "./LedgerHIDFragment";
 import { LedgerSignTransferFragment } from "./LedgerSignTransferFragment";
 import { LedgerTransactionPreviewFragment } from "./LedgerTransactionPreviewFragment";
 import { LedgerTransferFragment } from "./LedgerTransferFragment";
 import { ReceiveFragment } from "../wallet/ReceiveFragment";
+import { AssetsFragment } from "../wallet/AssetsFragment";
 
 const Stack = createNativeStackNavigator();
 
@@ -46,7 +46,7 @@ const ledgerNavigation = [
     modalScreen('LedgerReceive', ReceiveFragment),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment),
     modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment),
-    modalScreen('LedgerAssets', LedgerAssetsFragment),
+    modalScreen('LedgerAssets', AssetsFragment),
 ]
 
 export const LedgerRoot = fragment(() => {

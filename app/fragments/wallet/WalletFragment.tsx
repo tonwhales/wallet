@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, Text, View } from 'react-native';
+import { Image, LayoutAnimation, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,18 +15,13 @@ import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { useBottomSheet } from '../../components/modal/BottomSheetModal';
-import { WalletSelector } from '../../components/wallet/WalletSelector';
-import { RoundButton } from '../../components/RoundButton';
-import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
-import { BlurView } from 'expo-blur';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -37,7 +32,6 @@ function WalletComponent(props: { wallet: WalletState }) {
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
-    const modal = useBottomSheet();
     const currentWalletIndex = getAppState().selected;
 
     const onQRCodeRead = (src: string) => {
@@ -59,30 +53,9 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [account]);
 
-    // Add new wallet account modal
-    const onAddNewAccount = React.useCallback(() => {
-        modal?.hide();
-        modal?.show(
-            <AdditionalWalletsActions navigation={navigation} />,
-            ['40%'],
-        );
-    }, [modal]);
-
-    // Wallet Account modal
-    const onAccountPress = useCallback(() => {
-        modal?.hide();
-        modal?.show(
-            <WalletSelector />,
-            ['50%', '80%'],
-            <BlurView intensity={30} style={{paddingBottom: safeArea.bottom, paddingHorizontal: 16}}>
-                <RoundButton
-                    style={{ marginVertical: 16 }}
-                    onPress={onAddNewAccount}
-                    title={t('wallets.addNewTitle')}
-                />
-            </BlurView>
-        );
-    }, [modal]);
+    // TODO: Implement
+    const selectAccountModal = useCallback(() => {
+    }, []);
 
     // ScrollView background color animation
     const scrollBackgroundColor = useSharedValue(1);
@@ -125,7 +98,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 opacity: pressed ? 0.5 : 1
                             }
                         }}
-                        onPress={onAccountPress}
+                        onPress={selectAccountModal}
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View style={{
@@ -243,7 +216,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             fontWeight: '400',
                             fontFamily: undefined
                         }}
-                        limitActions
+                        lockActions
                     />
                     <View
                         style={{

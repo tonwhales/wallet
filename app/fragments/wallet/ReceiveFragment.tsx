@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Platform, Text, Pressable, Share, LayoutAnimation } from "react-native";
+import { View, Platform, Text, Pressable, LayoutAnimation } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -18,6 +18,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useImage } from "@shopify/react-native-skia";
 import { getMostPrevalentColorFromBytes } from "../../utils/image/getMostPrevalentColorFromBytes";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
+import { captureRef } from 'react-native-view-shot';
 
 import Verified from '../../../assets/ic-verified.svg';
 import TonIcon from '../../../assets/ic_ton_account.svg';
@@ -27,8 +28,10 @@ export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const imageRef = useRef<View>(null);
     const engine = useEngine();
     const params = useParams<{ addr?: string, ledger?: boolean }>();
+    const [isSharing, setIsSharing] = useState(false);
     const address = React.useMemo(() => {
         if (params.addr) {
             return Address.parse(params.addr);
@@ -89,15 +92,19 @@ export const ReceiveFragment = fragment(() => {
 
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [mainColor]);
+    }, [isSharing]);
 
     return (
-        <View style={{
-            alignSelf: 'stretch', flexGrow: 1,
-            justifyContent: 'space-between', alignItems: 'center',
-            backgroundColor: mainColor,
-        }}>
+        <View
+            ref={imageRef}
+            style={{
+                alignSelf: 'stretch', flexGrow: 1,
+                justifyContent: 'space-between', alignItems: 'center',
+                backgroundColor: mainColor,
+            }}
+            collapsable={false}>
             <ScreenHeader
+                style={{ opacity: isSharing ? 0 : 1 }}
                 title={t('receive.title')}
                 onClosePressed={navigation.goBack}
                 textColor={isDark ? '#fff' : '#000'}
@@ -223,6 +230,7 @@ export const ReceiveFragment = fragment(() => {
                 backgroundColor: Theme.item,
                 borderTopEndRadius: 20,
                 borderTopStartRadius: 20,
+                opacity: isSharing ? 0 : 1,
             }}>
                 <CopyButton
                     style={{ marginRight: 8, backgroundColor: isDark ? '#F7F8F9' : '#808080', borderWidth: 0 }}
@@ -233,6 +241,26 @@ export const ReceiveFragment = fragment(() => {
                     style={{ marginRight: 8, backgroundColor: isDark ? '#F7F8F9' : '#808080', borderWidth: 0 }}
                     body={link}
                     textStyle={{ color: mainColor, fontSize: 17, fontWeight: '600', lineHeight: 24 }}
+                    onScreenCapture={() => {
+                        return new Promise((resolve, reject) => {
+                            setIsSharing(true);
+                            (async () => {
+                                setTimeout(async () => {
+                                    try {
+                                        const localUri = await captureRef(imageRef, {
+                                            height: 440,
+                                            quality: 1,
+                                        });
+                                        setIsSharing(false);
+                                        resolve({ uri: localUri });
+                                    } catch {
+                                        setIsSharing(false);
+                                        reject();
+                                    }
+                                }, 150);
+                            })();
+                        })
+                    }}
                 />
             </View>
         </View>

@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
-import { Pressable, StyleProp, View, ViewStyle, Text, Platform, Share, TextStyle } from "react-native";
+import { Pressable, StyleProp, View, ViewStyle, Text, Platform, TextStyle } from "react-native";
 import ShareIcon from '../../assets/ic_share_address.svg';
 import { t } from "../i18n/t";
 import { useAppConfig } from "../utils/AppConfigContext";
+import Share from 'react-native-share';
 
 const size = {
     height: 56,
@@ -24,7 +25,7 @@ export const ShareButton = React.memo(({
     disabled?: boolean,
     showIcon?: boolean,
     textStyle?: StyleProp<TextStyle>,
-    onScreenCapture?: () => { uri: string }
+    onScreenCapture?: () => Promise<{ uri: string }>
 }) => {
     const { Theme } = useAppConfig();
     const display = {
@@ -36,13 +37,17 @@ export const ShareButton = React.memo(({
         borderPressedColor: Theme.selector,
         textPressed: Theme.secondaryButtonText
     }
-    const onShare = useCallback(() => {
-
-        if (Platform.OS === 'ios') {
-            Share.share({ title: t('receive.share.title'), url: body });
-        } else {
-            Share.share({ title: t('receive.share.title'), message: body });
+    const onShare = useCallback(async () => {
+        let screenShot: { uri: string } | undefined;
+        if (onScreenCapture) {
+            screenShot = await onScreenCapture();
         }
+
+        Share.open({
+            title: t('receive.share.title'),
+            message: body,
+            url: screenShot?.uri,
+        });
     }, [body]);
 
     return (

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react"
-import { Platform, View, Text } from "react-native"
+import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
 import { useAppConfig } from "../utils/AppConfigContext";
@@ -10,12 +10,14 @@ import { CloseButton } from "./CloseButton";
 
 export const ScreenHeader = React.memo((
     {
+        style,
         title,
         textColor,
         tintColor,
         onBackPressed,
         onClosePressed
     }: {
+        style?: StyleProp<ViewStyle>,
         title?: string,
         textColor?: string,
         tintColor?: string,
@@ -27,7 +29,7 @@ export const ScreenHeader = React.memo((
     const { Theme } = useAppConfig();
 
     return (
-        <View style={{ flex: 1, width: '100%' }}>
+        <View style={[{ flex: 1, width: '100%' }, style]}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar
                 onBack={onBackPressed}

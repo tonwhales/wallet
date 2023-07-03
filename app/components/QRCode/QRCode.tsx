@@ -68,7 +68,7 @@ export const QRCode = React.memo((props: {
     icon?: ImagePreview | null
 }) => {
     const matrix = createQRMatrix(props.data, 'quartile');
-    const dotSize = Math.floor((props.size - 16) / matrix.size);
+    const dotSize = Math.floor((props.size) / matrix.size);
     const padding = Math.floor((props.size - dotSize * matrix.size) / 2);
 
     const items: JSX.Element[] = [];
@@ -84,20 +84,20 @@ export const QRCode = React.memo((props: {
                 let borderBottomRightRadius = 0;
 
                 if (!dot.top && !dot.left) {
-                    borderTopLeftRadius = dotSize / 3.5;
+                    borderTopLeftRadius = dotSize / 2;
                 }
                 if (!dot.top && !dot.right) {
-                    borderBottomLeftRadius = dotSize / 3.5;
+                    borderBottomLeftRadius = dotSize / 2;
                 }
                 if (!dot.bottom && !dot.left) {
-                    borderTopRightRadius = dotSize / 3.5;
+                    borderTopRightRadius = dotSize / 2;
                 }
                 if (!dot.right && !dot.bottom) {
-                    borderBottomRightRadius = dotSize / 3.5;
+                    borderBottomRightRadius = dotSize / 2;
                 }
 
                 const matrixCenter = Math.floor(matrix.size / 2);
-                const circleRadius = Math.floor(30 / dotSize);
+                const circleRadius = Math.floor(30 / (dotSize));
 
                 if (isPointInCircle(x, y, matrixCenter, matrixCenter, circleRadius)) {
                     continue;

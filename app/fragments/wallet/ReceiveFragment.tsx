@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Platform, Text, Pressable, LayoutAnimation } from "react-native";
+import { View, Platform, Text, Pressable, LayoutAnimation, useWindowDimensions } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -25,6 +25,8 @@ import TonIcon from '../../../assets/ic_ton_account.svg';
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 
 export const ReceiveFragment = fragment(() => {
+    const dimentions = useWindowDimensions();
+    const qrSize = Math.floor((dimentions.width - 80 - 64 + 16));
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -111,7 +113,6 @@ export const ReceiveFragment = fragment(() => {
                     justifyContent: 'center',
                     backgroundColor: Theme.item,
                     borderRadius: 20,
-                    minHeight: 358,
                     padding: 32,
                     paddingTop: 52,
                     marginBottom: 16
@@ -127,10 +128,10 @@ export const ReceiveFragment = fragment(() => {
 
                         </View>
                     </View>
-                    <View style={{ height: Platform.OS === 'ios' ? 260 : 240, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>
                         <QRCode
                             data={link}
-                            size={Platform.OS === 'ios' ? 260 : 240}
+                            size={qrSize}
                             icon={jetton?.data.image}
                             color={mainColor}
                         />

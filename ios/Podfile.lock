@@ -503,6 +503,8 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
+  - react-native-view-shot (3.7.0):
+    - React-Core
   - react-native-webview (11.26.0):
     - React-Core
   - React-perflogger (0.71.4)
@@ -637,6 +639,8 @@ PODS:
   - RNScreens (3.22.0):
     - React-Core
     - React-RCTImage
+  - RNShare (9.1.0):
+    - React-Core
   - RNSVG (13.4.0):
     - React-Core
   - SDWebImage (5.11.1):
@@ -738,6 +742,7 @@ DEPENDENCIES:
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
+  - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -762,6 +767,7 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - vision-camera-code-scanner (from `../node_modules/vision-camera-code-scanner`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
@@ -908,6 +914,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-skia:
     :path: "../node_modules/@shopify/react-native-skia"
+  react-native-view-shot:
+    :path: "../node_modules/react-native-view-shot"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-perflogger:
@@ -956,6 +964,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNShare:
+    :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   vision-camera-code-scanner:
@@ -1047,6 +1057,7 @@ SPEC CHECKSUMS:
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-skia: 9313b8213e95466ef784158190aac26ee6990b82
+  react-native-view-shot: f5507655f122e6b104888a11130f267a427f0d57
   react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
   React-perflogger: 0bb0522a12e058f6eb69d888bc16f40c16c4b907
   React-RCTActionSheet: bfd675a10f06a18728ea15d82082d48f228a213a
@@ -1071,6 +1082,7 @@ SPEC CHECKSUMS:
   RNPermissions: 215c54462104b3925b412b0fb3c9c497b21c358b
   RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
   RNScreens: 68fd1060f57dd1023880bf4c05d74784b5392789
+  RNShare: a9e83e3300d1bdc3b681a53507954ddb11118aa6
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d

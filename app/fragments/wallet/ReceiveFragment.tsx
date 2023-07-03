@@ -90,10 +90,6 @@ export const ReceiveFragment = fragment(() => {
         setMainColor('#0088CC');
     }, [image]);
 
-    useLayoutEffect(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [isSharing]);
-
     return (
         <View
             ref={imageRef}

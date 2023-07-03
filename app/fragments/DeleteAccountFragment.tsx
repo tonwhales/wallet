@@ -222,7 +222,7 @@ export const DeleteAccountFragment = fragment(() => {
                             }
 
                             // Clear all data for current sellected wallet & select next wallet
-                            clearHolders(engine, currentAddress);
+                            clearHolders(engine);
                             const newAddresses = appState.addresses.filter((address) => !address.address.equals(currentAddress));
                             appStateManager.updateAppState({
                                 addresses: newAddresses,

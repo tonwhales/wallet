@@ -254,16 +254,10 @@ export const DeleteAccountFragment = fragment(() => {
             destructiveButtonIndex,
             cancelButtonIndex,
         }, (selectedIndex?: number) => {
-            switch (selectedIndex) {
-                case 1:
-                    // Create new wallet
-                    onDeleteAccount();
-                    break;
-                case cancelButtonIndex:
-                // Canceled
-                default:
-                    break;
+            if (selectedIndex === undefined || selectedIndex === cancelButtonIndex) {
+                return;
             }
+            onDeleteAccount();
         });
     }, [onDeleteAccount]);
 

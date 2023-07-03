@@ -75,16 +75,10 @@ export const LogoutFragment = fragment(() => {
             destructiveButtonIndex,
             cancelButtonIndex,
         }, (selectedIndex?: number) => {
-            switch (selectedIndex) {
-                case 1:
-                    // Create new wallet
-                    onLogout();
-                    break;
-                case cancelButtonIndex:
-                // Canceled
-                default:
-                    break;
+            if (selectedIndex === undefined || selectedIndex === cancelButtonIndex) {
+                return;
             }
+            onLogout();
         });
     }, []);
 

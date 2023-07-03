@@ -214,6 +214,7 @@ export type LocalizationSchema = {
         check: string,
         keyStoreTitle: string,
         keyStoreSubtitle: string,
+        failed: string,
     },
     qr: {
         title: string,

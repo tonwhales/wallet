@@ -1,4 +1,4 @@
-import { View, Text, Image } from "react-native";
+import { View, Image, Alert } from "react-native";
 import { systemFragment } from "../../systemFragment";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { StatusBar } from "expo-status-bar";
@@ -22,14 +22,19 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
 
     const onStart = useCallback(async () => {
         setState('loading');
-        const passcodeSet = getPasscodeState() === PasscodeState.Set;
-        if (passcodeSet) {
-            const res = await authContext.authenticateWithPasscode();
-            await migrateAndroidKeyStore(res.passcode);
-        } else {
-            await migrateAndroidKeyStore();
+        try {
+            const passcodeSet = getPasscodeState() === PasscodeState.Set;
+            if (passcodeSet) {
+                const res = await authContext.authenticateWithPasscode();
+                await migrateAndroidKeyStore(res.passcode);
+            } else {
+                await migrateAndroidKeyStore();
+            }
+            reboot();
+        } catch {
+            Alert.alert(t('common.error'), t('migrate.failed'));
+            setState(undefined);
         }
-        reboot();
     }, []);
 
     return (

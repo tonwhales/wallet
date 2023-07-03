@@ -11,7 +11,7 @@ export class WalletsProduct {
     constructor(engine: Engine) {
         this.engine = engine;
         this.#walletSelector = selectorFamily<WalletV4State | null, string>({
-            key: 'settings/spam/deny-list',
+            key: 'wallets/v-4-state',
             get: (addr) => ({ get }) => {
                 let state = null;
                 try {

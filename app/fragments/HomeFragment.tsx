@@ -124,7 +124,7 @@ export const HomeFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
             <Tab.Navigator
-                initialRouteName={'Home'}
+                initialRouteName={'Wallet'}
                 tabBar={(props) => {
                     return (
                         <View
@@ -146,8 +146,8 @@ export const HomeFragment = fragment(() => {
                                 <Pressable
                                     style={tabButtonStyle}
                                     onPress={() => {
-                                        props.navigation.navigate('Home')
-                                        trackScreen('Home', undefined, AppConfig.isTestnet);
+                                        props.navigation.navigate('Wallet')
+                                        trackScreen('Wallet', undefined, AppConfig.isTestnet);
                                     }}
                                 >
                                     <Image
@@ -242,7 +242,7 @@ export const HomeFragment = fragment(() => {
                     header: undefined,
                 })}
             >
-                <Tab.Screen name={'Home'} component={WalletFragment} />
+                <Tab.Screen name={'Wallet'} component={WalletFragment} />
                 <Tab.Screen name={'Transactions'} component={TransactionsFragment} />
                 <Tab.Screen name={'Browser'} component={ConnectionsFragment} />
                 <Tab.Screen name={'More'} component={SettingsFragment} />

@@ -102,7 +102,7 @@ export const ReceiveFragment = fragment(() => {
             }}
             collapsable={false}>
             <ScreenHeader
-                style={{ opacity: isSharing ? 0 : 1 }}
+                style={{ opacity: isSharing ? 0 : 1, flex: 1 }}
                 title={t('receive.title')}
                 onClosePressed={navigation.goBack}
                 textColor={isDark ? '#fff' : '#000'}
@@ -146,10 +146,10 @@ export const ReceiveFragment = fragment(() => {
                         }}
                         onPress={() => {
                             if (params.ledger) {
-                                navigation.navigate('LedgerAssets', { callback: onAssetSelected });
+                                navigation.navigate('LedgerAssets', { callback: onAssetSelected, selectedJetton: jetton?.master });
                                 return;
                             }
-                            navigation.navigate('Assets', { callback: onAssetSelected });
+                            navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jetton?.master });
                         }}
                     >
                         <View style={{

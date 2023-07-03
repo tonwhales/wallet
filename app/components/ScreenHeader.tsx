@@ -29,7 +29,7 @@ export const ScreenHeader = React.memo((
     const { Theme } = useAppConfig();
 
     return (
-        <View style={[{ flex: 1, width: '100%' }, style]}>
+        <View style={[{ width: '100%' }, style]}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar
                 onBack={onBackPressed}

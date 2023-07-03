@@ -1,31 +1,68 @@
-import { StatusBar } from "expo-status-bar";
-import { useCallback } from "react";
-import { Platform, View, Text, ScrollView } from "react-native";
-import { FadeInUp, FadeOutDown } from "react-native-reanimated";
+import { useCallback, useMemo } from "react";
+import { View, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { CloseButton } from "../../components/CloseButton";
 import { useEngine } from "../../engine/Engine";
 import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AnimatedProductButton } from "../../components/products/AnimatedProductButton";
-import TonIcon from '../../../assets/ic_ton_account.svg';
-import BN from "bn.js";
 import { Address } from "ton";
-import { JettonProductItem } from "../../components/products/JettonProductItem";
+import { SelectableButton } from "../../components/SelectableButton";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { WImage } from "../../components/WImage";
+import { KnownJettonMasters } from "../../secure/KnownWallets";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useRoute } from "@react-navigation/native";
+import { useTransport } from "../ledger/components/TransportContext";
+
+import Verified from '../../../assets/ic-verified.svg';
+import TonIcon from '../../../assets/ic_ton_account.svg';
 
 export const AssetsFragment = fragment(() => {
-    const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
+    const { Theme, AppConfig } = useAppConfig();
+    const { target, callback, selectedJetton } = useParams<{
+        target: string,
+        callback?: (address?: Address) => void,
+        selectedJetton?: Address
+    }>();
+
+    const route = useRoute();
+    const isLedgerScreen = route.name === 'LedgerAssets';
+
+    const ledgerTransport = useTransport();
+    const address = useMemo(() => {
+        if (isLedgerScreen && !!ledgerTransport?.addr) {
+            return Address.parse(ledgerTransport.addr.address);
+        }
+    }, [ledgerTransport, isLedgerScreen]);
+
+    const ledgerJettons = engine.products.ledger.useJettons(address)?.jettons ?? [];
+    const ledgerAccount = engine.products.ledger.useAccount();
+
     const jettons = engine.products.main.useJettons();
     const account = engine.products.main.useAccount();
 
-    const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
+    const onJettonJettonSelected = useCallback((jetton: JettonState) => {
+        if (callback) {
+            onCallback(jetton.master);
+            return;
+        }
+        if (isLedgerScreen) {
+            navigation.replace('LedgerTransfer', {
+                amount: null,
+                target: target,
+                comment: null,
+                jetton: jetton.wallet,
+                stateInit: null,
+                job: null,
+                callback: null
+            });
+            return;
+        }
         navigation.navigateSimpleTransfer({
             amount: null,
             target: target,
@@ -36,6 +73,34 @@ export const AssetsFragment = fragment(() => {
             callback: null
         });
     }, []);
+
+    const onTonSelected = useCallback(() => {
+        if (callback) {
+            onCallback();
+            return;
+        }
+        if (isLedgerScreen) {
+            navigation.replace('LedgerTransfer', {
+                amount: null,
+                target: target,
+                stateInit: null,
+                job: null,
+                comment: null,
+                jetton: null,
+                callback: null
+            });
+            return;
+        }
+        navigation.navigateSimpleTransfer({
+            amount: null,
+            target: target,
+            stateInit: null,
+            job: null,
+            comment: null,
+            jetton: null,
+            callback: null
+        });
+    }, [isLedgerScreen, callback]);
 
     const onCallback = useCallback((address?: Address) => {
         if (callback) {
@@ -49,75 +114,75 @@ export const AssetsFragment = fragment(() => {
     return (
         <View style={{
             flexGrow: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            backgroundColor: Theme.item
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('products.accounts')} />
-            {Platform.OS === 'ios' && (
+            <ScreenHeader
+                onClosePressed={navigation.goBack}
+                title={t('products.accounts')}
+            />
+            <ScrollView
+                style={{ flexGrow: 1, marginTop: 16 }}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
+                contentInset={{ bottom: safeArea.bottom + 32 + 44 }}
+            >
                 <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('products.accounts')}
-                    </Text>
-                </View>
-            )}
-            <ScrollView style={{ flexGrow: 1 }}>
-                <View style={{
-                    marginTop: 17,
                     borderRadius: 14,
-                    flexShrink: 1,
                 }}>
-                    <AnimatedProductButton
-                        entering={FadeInUp}
-                        exiting={FadeOutDown}
+                    <SelectableButton
                         key={'assets-ton'}
-                        name={'TON'}
+                        title={'TON'}
                         subtitle={t('common.balance')}
-                        icon={TonIcon}
-                        value={account?.balance ?? new BN(0)}
-                        onPress={() => {
-                            if (callback) {
-                                onCallback();
-                                return;
-                            }
-                            navigation.navigateSimpleTransfer({
-                                amount: null,
-                                target: target,
-                                stateInit: null,
-                                job: null,
-                                comment: null,
-                                jetton: null,
-                                callback: null
-                            });
-                        }}
-                        extension={true}
-                        style={{ marginVertical: 4 }}
+                        onSelect={onTonSelected}
+                        icon={
+                            <View style={{ width: 46, height: 46 }}>
+                                <TonIcon width={46} height={46} />
+                                <Verified
+                                    height={16} width={16}
+                                    style={{
+                                        height: 16, width: 16,
+                                        position: 'absolute', right: -2, bottom: -2,
+                                    }}
+                                />
+                            </View>
+                        }
+                        selected={!selectedJetton}
+                        hideSelection={!callback}
                     />
-                    {jettons.map((j) => {
+                    {(isLedgerScreen ? ledgerJettons : jettons).map((j) => {
+                        const verified = KnownJettonMasters(AppConfig.isTestnet)[j.master.toString()];
+                        const selected = selectedJetton && j.master.equals(selectedJetton);
                         return (
-                            <JettonProductItem
+                            <SelectableButton
                                 key={'jt' + j.wallet.toFriendly()}
-                                jetton={j}
-                                engine={engine}
-                                onPress={() => {
-                                    if (callback) {
-                                        onCallback(j.master);
-                                        return;
-                                    }
-                                    navigateToJettonTransfer(j)
-                                }}
+                                title={j.name}
+                                subtitle={j.description}
+                                onSelect={() => onJettonJettonSelected(j)}
+                                icon={
+                                    <View style={{ width: 46, height: 46 }}>
+                                        <WImage
+                                            src={j.icon ? j.icon : undefined}
+                                            width={46}
+                                            heigh={46}
+                                            borderRadius={23}
+                                        />
+                                        {verified && (
+                                            <Verified
+                                                height={16} width={16}
+                                                style={{
+                                                    height: 16, width: 16,
+                                                    position: 'absolute', right: -2, bottom: -2,
+                                                }}
+                                            />
+                                        )}
+                                    </View>
+                                }
+                                hideSelection={!callback}
+                                selected={selected}
                             />
                         );
                     })}
                 </View>
-                <View style={{ height: safeArea.bottom }} />
             </ScrollView>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

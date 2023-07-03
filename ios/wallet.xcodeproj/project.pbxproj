@@ -176,7 +176,7 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = 6WGTUU3SQ7;
+						DevelopmentTeam = 4CFQ3FG324;
 						LastSwiftMigration = 1250;
 						ProvisioningStyle = Automatic;
 					};

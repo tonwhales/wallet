@@ -4,7 +4,11 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
 
-export const CloseButton = React.memo((props: { onPress?: () => void, style?: StyleProp<ViewStyle>, dark?: boolean }) => {
+export const CloseButton = React.memo((props: {
+    onPress?: () => void,
+    style?: StyleProp<ViewStyle>,
+    tintColor?: string,
+}) => {
     const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     if (Platform.OS !== 'ios') {
@@ -17,7 +21,7 @@ export const CloseButton = React.memo((props: { onPress?: () => void, style?: St
                 (props.onPress ?? navigation.goBack)();
             }}
         >
-            <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17, lineHeight: 24 }}>
+            <Text style={{ color: props.tintColor ?? Theme.accent, fontWeight: '500', fontSize: 17, lineHeight: 24 }}>
                 {t('common.close')}
             </Text>
         </Pressable>

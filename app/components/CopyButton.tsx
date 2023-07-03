@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Pressable, StyleProp, View, ViewStyle, Text, Platform } from "react-native";
+import { Pressable, StyleProp, View, ViewStyle, Text, Platform, TextStyle } from "react-native";
 import CopyIcon from '../../assets/ic_copy_address.svg';
 import CopyIconSuccess from '../../assets/ic_copy_address_success.svg';
 import { t } from "../i18n/t";
@@ -18,18 +18,22 @@ const size = {
 export const CopyButton = React.memo(({
     body,
     style,
-    disabled
+    disabled,
+    showIcon,
+    textStyle
 }: {
     body: string,
     style?: StyleProp<ViewStyle>,
-    disabled?: boolean
+    disabled?: boolean,
+    showIcon?: boolean,
+    textStyle?: StyleProp<TextStyle>
 }) => {
     const { Theme } = useAppConfig();
     const display = {
         backgroundColor: Theme.secondaryButton,
         borderColor: Theme.secondaryButton,
         textColor: Theme.textColor,
-    
+
         backgroundPressedColor: Theme.selector,
         borderPressedColor: Theme.selector,
         textPressed: Theme.secondaryButtonText
@@ -59,6 +63,7 @@ export const CopyButton = React.memo(({
             hitSlop={size.hitSlop}
             style={(p) => ([
                 {
+                    flex: 1,
                     borderWidth: 1,
                     borderRadius: 14,
                     backgroundColor: display.backgroundColor,
@@ -92,24 +97,25 @@ export const CopyButton = React.memo(({
                         alignItems: 'center',
                         flexGrow: 1,
                         paddingHorizontal: 16,
-                        backgroundColor: display.backgroundColor,
                     }}>
-                        <View style={{ marginRight: 10 }}>
-                            <CopyIcon
-                                width={18}
-                                height={20}
-                            />
-                        </View>
+                        {showIcon && (
+                            <View style={{ marginRight: 10 }}>
+                                <CopyIcon
+                                    width={18}
+                                    height={20}
+                                />
+                            </View>
+                        )}
                         <Text
                             style={[
-                                iOSUIKit.title3,
                                 {
                                     color: display.textColor,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,
                                     flexShrink: 1
-                                }
+                                },
+                                textStyle
                             ]}
                             numberOfLines={1}
                             ellipsizeMode='tail'
@@ -131,14 +137,14 @@ export const CopyButton = React.memo(({
                         alignItems: 'center',
                         flexGrow: 1,
                         paddingHorizontal: 16,
-                        backgroundColor: display.backgroundColor,
                     }}>
-                        <View style={{ marginRight: 10 }}>
-                            <CopyIconSuccess width={18} height={20} />
-                        </View>
+                        {showIcon && (
+                            <View style={{ marginRight: 10 }}>
+                                <CopyIconSuccess width={18} height={20} />
+                            </View>
+                        )}
                         <Text
                             style={[
-                                iOSUIKit.title3,
                                 {
                                     marginTop: size.pad,
                                     opacity: 1,
@@ -147,7 +153,8 @@ export const CopyButton = React.memo(({
                                     fontWeight: '600',
                                     includeFontPadding: false,
                                     flexShrink: 1
-                                }
+                                },
+                                textStyle
                             ]}
                             numberOfLines={1}
                             ellipsizeMode='tail'

@@ -98,5 +98,5 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
 };
 
 export function useTransport() {
-    return React.useContext(TransportContext)!;
+    return React.useContext(TransportContext);
 }

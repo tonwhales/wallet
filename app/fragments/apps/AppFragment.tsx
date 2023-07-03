@@ -25,15 +25,8 @@ export const AppFragment = fragment(() => {
     const key = engine.products.keys.getDomainKey(domain);
 
     // Should never happen
-    if (!appData) {
-        warn('No App Data');
-        navigation.goBack();
-        return null;
-    }
-
-    // Should never happen
-    if (!key) {
-        warn('No Domain Key');
+    if (!appData || !key) {
+        warn(!appData ? 'No App Data found' : 'No Domain Key found');
         navigation.goBack();
         return null;
     }

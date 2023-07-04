@@ -119,7 +119,7 @@ export const WalletCreatedFragment = systemFragment(() => {
             <View style={{
                 height: 64,
                 position: 'absolute',
-                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0),
+                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom === 0? 32 : safeArea.bottom) + 16 : 0),
                 left: 16, right: 16
             }}>
                 <RoundButton

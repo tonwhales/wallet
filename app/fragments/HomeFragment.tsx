@@ -129,7 +129,7 @@ export const HomeFragment = fragment(() => {
                     return (
                         <View
                             style={{
-                                height: 49 + safeArea.bottom, paddingHorizontal: 16,
+                                height: 49 + (safeArea.bottom === 0 ? 16 : safeArea.bottom), paddingHorizontal: 16,
                                 backgroundColor: 'white',
                                 borderTopEndRadius: 20, borderTopStartRadius: 20,
                                 shadowColor: 'rgba(0, 0, 0, 0.1)',

@@ -17,16 +17,16 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
-
-import Chart from '../../../assets/ic-chart.svg';
-import ChevronDown from '../../../assets/ic-chevron-down.svg';
-import Scanner from '../../../assets/ic-scanner.svg';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useBottomSheet } from '../../components/modal/BottomSheetModal';
 import { WalletSelector } from '../../components/wallet/WalletSelector';
 import { RoundButton } from '../../components/RoundButton';
 import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
 import { BlurView } from 'expo-blur';
+
+import Chart from '../../../assets/ic-chart.svg';
+import ChevronDown from '../../../assets/ic-chevron-down.svg';
+import Scanner from '../../../assets/ic-scanner.svg';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -74,7 +74,7 @@ function WalletComponent(props: { wallet: WalletState }) {
         modal?.show(
             <WalletSelector />,
             ['50%', '80%'],
-            <BlurView intensity={30} style={{paddingBottom: safeArea.bottom, paddingHorizontal: 16}}>
+            <BlurView intensity={30} style={{ paddingBottom: safeArea.bottom, paddingHorizontal: 16 }}>
                 <RoundButton
                     style={{ marginVertical: 16 }}
                     onPress={onAddNewAccount}

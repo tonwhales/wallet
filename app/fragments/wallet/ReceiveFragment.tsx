@@ -96,13 +96,14 @@ export const ReceiveFragment = fragment(() => {
         <View
             ref={imageRef}
             style={{
-                alignSelf: 'stretch', flexGrow: 1,
-                justifyContent: 'space-between', alignItems: 'center',
+                flexGrow: 1,
+                justifyContent: 'space-between', 
+                alignItems: 'center',
                 backgroundColor: mainColor,
             }}
             collapsable={false}>
             <ScreenHeader
-                style={{ opacity: isSharing ? 0 : 1, flex: 1 }}
+                style={{ opacity: isSharing ? 0 : 1, flex: 1, minHeight: safeArea.bottom === 0 ? 60 : undefined }}
                 title={t('receive.title')}
                 onClosePressed={navigation.goBack}
                 textColor={isDark ? '#fff' : '#000'}

@@ -351,13 +351,10 @@ export class HoldersProduct {
 
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                if (src) {
-                    // Cleanup prev to currently stored offline app version
-                    this.cleanupOldOfflineApp(src);
+            this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
+                if (prevState) {
+                    this.cleanupPrevOfflineApp(prevState);
                 }
-                // Add new offline app version to array of app version
-                this.storeOfflineVersion(fetchedApp.version);
                 return fetchedApp;
             });
         } catch {
@@ -375,13 +372,10 @@ export class HoldersProduct {
 
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                if (src) {
-                    // Cleanup prev to currently stored offline app version
-                    this.cleanupOldOfflineApp(src);
+            this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
+                if (prevState) {
+                    this.cleanupPrevOfflineApp(prevState);
                 }
-                // Add new offline app version to array of app version
-                this.storeOfflineVersion(fetchedApp.version);
                 return fetchedApp;
             });
         } catch {
@@ -390,35 +384,19 @@ export class HoldersProduct {
         }
     }
 
-    getVersionsArray() {
-        const versionsString = storage.getString('holders-versions');
-        if (!versionsString) {
-            return [];
-        }
-        const versions = JSON.parse(versionsString);
-        if (t.array(t.string).is(versions)) {
-            return versions;
-        }
-        return [];
+    getPrevOfflineVersion() {
+        return storage.getString('holders-prev-version');
     }
 
-    storeOfflineVersion(version: string) {
-        let versions = this.getVersionsArray();
-        versions.push(version);
-        storage.set('holders-versions', JSON.stringify(versions));
+    storePrevOfflineVersion(prev: string) {
+        storage.set('holders-prev-version', prev);
     }
 
-    getPrevOfflineVersion(version: string) {
-        const versions = this.getVersionsArray();
-        const index = versions.indexOf(version);
-        if (index > 0) {
-            return versions[index - 1];
-        }
-        return null;
-    }
+    async cleanupPrevOfflineApp(prevAppState: HoldersOfflineApp) {
+        const prevVersion = this.getPrevOfflineVersion();
+        
+        this.storePrevOfflineVersion(prevAppState.version);
 
-    async cleanupOldOfflineApp(app: HoldersOfflineApp) {
-        const prevVersion = this.getPrevOfflineVersion(app.version);
         if (!prevVersion) {
             return;
         }

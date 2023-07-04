@@ -206,7 +206,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
                                 const app = engine.persistence.holdersOfflineApp.item().value;
                                 if (app) {
-                                    engine.products.holders.cleanupOldOfflineApp(app);
+                                    engine.products.holders.cleanupPrevOfflineApp(app);
                                 }
                                 engine.persistence.holdersOfflineApp.item().update(() => null);
                                 await engine.products.holders.forceSyncOfflineApp();

@@ -109,7 +109,7 @@ export class TypedNavigation {
     }
 
     navigateHolders(params: HoldersAppParams) {
-        this.navigate('ZenPay', params);
+        this.navigate('Holders', params);
     }
 
     navigateConnectAuth(params: TonConnectAuthProps) {

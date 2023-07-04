@@ -49,7 +49,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
         () => {
             if (needsEnrolment) {
                 navigation.navigate(
-                    'ZenPayLanding',
+                    'HoldersLanding',
                     {
                         endpoint: holdersUrl,
                         onEnrollType: account ? { type: 'card', id: account.id } : { type: 'account' }

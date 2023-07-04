@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react"
-import { View, Pressable, Text } from "react-native";
+import { View, Pressable, Text, Image } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { ProductBanner } from "./ProductBanner";
 import { t } from "../../i18n/t";
@@ -11,15 +11,11 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import Collapsible from "react-native-collapsible";
 import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
-import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 
-export const holdersCardColorsMap: { [key: string]: string[] } = {
-    'minimal-1': ['#8689b5', '#9fa2d1'],
-    'minimal-2': ['#000000', '#333333'],
-    'minimal-3': ['#dca6c0', '#cda3b7'],
-    'minimal-4': ['#93c1a6', '#8da998'],
-    'default-1': ['#dec08e', '#b9a88b'],
-    'default-2': ['#792AF6', "#954CF9"], // Default
+export const holdersCardImageMap: { [key: string]: any } = {
+    'classic': require('../../../assets/classic.png'),
+    'black-pro': require('../../../assets/black-pro.png'),
+    'whales': require('../../../assets/whales.png'),
 }
 
 export const HoldersProductButton = React.memo(() => {
@@ -53,7 +49,7 @@ export const HoldersProductButton = React.memo(() => {
         () => {
             if (needsEnrolment) {
                 navigation.navigate(
-                    'ZenPayLanding',
+                    'HoldersLanding',
                     {
                         endpoint: holdersUrl,
                         onEnrollType: { type: 'account' }
@@ -121,15 +117,10 @@ export const HoldersProductButton = React.memo(() => {
                         overflow: 'hidden',
                         position: 'absolute', bottom: 18, left: 4, right: 4
                     }}>
-                        <Canvas style={{ width: 38, height: 25, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                            <Rect x={0} y={0} width={38} height={25}>
-                                <LinearGradient
-                                    start={vec(0, 0)}
-                                    end={vec(38, 25)}
-                                    colors={holdersCardColorsMap[accounts[2].card.personalizationCode] ?? holdersCardColorsMap['default-2']}
-                                />
-                            </Rect>
-                        </Canvas>
+                        <Image
+                            style={{ width: 42, height: 27, borderRadius: 7 }}
+                            source={holdersCardImageMap[accounts[2].card.personalizationCode] || holdersCardImageMap['classic']}
+                        />
                     </View>
                     <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 13, left: 2, right: 2 }} />
                     <View style={{
@@ -138,27 +129,17 @@ export const HoldersProductButton = React.memo(() => {
                         overflow: 'hidden',
                         position: 'absolute', bottom: 11, left: 2, right: 2
                     }}>
-                        <Canvas style={{ width: 42, height: 27, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                            <Rect x={0} y={0} width={42} height={27}>
-                                <LinearGradient
-                                    start={vec(0, 0)}
-                                    end={vec(42, 27)}
-                                    colors={holdersCardColorsMap[accounts[1].card.personalizationCode] ?? holdersCardColorsMap['default-2']}
-                                />
-                            </Rect>
-                        </Canvas>
+                        <Image
+                            style={{ width: 42, height: 27, borderRadius: 7 }}
+                            source={holdersCardImageMap[accounts[1].card.personalizationCode] || holdersCardImageMap['classic']}
+                        />
                     </View>
                     <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 2, left: 0, right: 0 }} />
                     <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, overflow: 'hidden', position: 'absolute', bottom: 0 }}>
-                        <Canvas style={{ width: 46, height: 30, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                            <Rect x={0} y={0} width={46} height={30}>
-                                <LinearGradient
-                                    start={vec(0, 0)}
-                                    end={vec(46, 30)}
-                                    colors={holdersCardColorsMap[accounts[0].card.personalizationCode] ?? holdersCardColorsMap['default-2']}
-                                />
-                            </Rect>
-                        </Canvas>
+                        <Image
+                            style={{ width: 46, height: 30, borderRadius: 7 }}
+                            source={holdersCardImageMap[accounts[0].card.personalizationCode] || holdersCardImageMap['classic']}
+                        />
                         {!!accounts[0].card.lastFourDigits && (
                             <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
                                 {accounts[0].card.lastFourDigits}

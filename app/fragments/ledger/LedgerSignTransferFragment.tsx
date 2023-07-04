@@ -27,7 +27,7 @@ import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain } from '../../utils/dns/dns';
+import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import TonSign from '../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Contact from '../../../assets/ic_transfer_contact.svg';
@@ -961,19 +961,37 @@ export const LedgerSignTransferFragment = fragment(() => {
 
             // Confirm domain-resolved wallet address
             if (order.domain) {
+                const tonDnsRootAddress = netConfig.rootDnsAddress;
                 try {
-                    const resolvedDomainAddress = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_NEXT_RESOLVER, true);
-
-                    if (!resolvedDomainAddress || !Address.isAddress(resolvedDomainAddress)) {
-                        throw Error('Error resolving domain address');
+                    const tonZoneMatch = order.domain.match(/\.ton$/);
+                    const tMeZoneMatch = order.domain.match(/\.t\.me$/);
+                    let zone = null;
+                    let domain = null;
+                    if (tonZoneMatch || tMeZoneMatch) {
+                        zone = tonZoneMatch ? '.ton' : '.t.me';
+                        domain = zone === '.ton'
+                            ? order.domain.slice(0, order.domain.length - 4)
+                            : order.domain.slice(0, order.domain.length - 5)
                     }
 
-                    const resolvedDomainWallet = await resolveDomain(engine.client4, resolvedDomainAddress, '.', DNS_CATEGORY_WALLET);
+                    if (!domain) {
+                        throw Error('Invalid domain');
+                    }
+
+                    const valid = validateDomain(domain);
+                    if (!valid) {
+                        throw Error('Invalid domain');
+                    }
+
+                    const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
+                    if (!resolvedDomainWallet) {
+                        throw Error('Error resolving domain wallet');
+                    }
 
                     if (
                         !resolvedDomainWallet
                         || !Address.isAddress(resolvedDomainWallet)
-                        || !resolvedDomainWallet.equals(target.address)
+                        || !resolvedDomainWallet.equals(target!.address)
                     ) {
                         throw Error('Error resolving wallet address');
                     }

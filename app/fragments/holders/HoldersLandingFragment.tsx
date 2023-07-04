@@ -20,7 +20,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 
 export const HoldersLandingFragment = fragment(() => {

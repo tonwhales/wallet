@@ -12,6 +12,7 @@ import { warn } from "../../utils/log";
 import { HoldersOfflineApp, fetchHoldersResourceMap, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
 import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
+import * as t from 'io-ts';
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
@@ -352,8 +353,11 @@ export class HoldersProduct {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((src) => {
                 if (src) {
+                    // Cleanup prev to currently stored offline app version
                     this.cleanupOldOfflineApp(src);
                 }
+                // Add new offline app version to array of app version
+                this.storeOfflineVersion(fetchedApp.version);
                 return fetchedApp;
             });
         } catch {
@@ -373,8 +377,11 @@ export class HoldersProduct {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((src) => {
                 if (src) {
+                    // Cleanup prev to currently stored offline app version
                     this.cleanupOldOfflineApp(src);
                 }
+                // Add new offline app version to array of app version
+                this.storeOfflineVersion(fetchedApp.version);
                 return fetchedApp;
             });
         } catch {
@@ -383,8 +390,39 @@ export class HoldersProduct {
         }
     }
 
+    getVersionsArray() {
+        const versionsString = storage.getString('holders-versions');
+        if (!versionsString) {
+            return [];
+        }
+        const versions = JSON.parse(versionsString);
+        if (t.array(t.string).is(versions)) {
+            return versions;
+        }
+        return [];
+    }
+
+    storeOfflineVersion(version: string) {
+        let versions = this.getVersionsArray();
+        versions.push(version);
+        storage.set('holders-versions', JSON.stringify(versions));
+    }
+
+    getPrevOfflineVersion(version: string) {
+        const versions = this.getVersionsArray();
+        const index = versions.indexOf(version);
+        if (index > 0) {
+            return versions[index - 1];
+        }
+        return null;
+    }
+
     async cleanupOldOfflineApp(app: HoldersOfflineApp) {
-        const appDir = FileSystem.documentDirectory + `holders${normalizePath(app.version)}`;
+        const prevVersion = this.getPrevOfflineVersion(app.version);
+        if (!prevVersion) {
+            return;
+        }
+        const appDir = FileSystem.documentDirectory + `holders${normalizePath(prevVersion)}`;
         const hasAppDirectory = await FileSystem.getInfoAsync(appDir);
         if (hasAppDirectory.exists) {
             await FileSystem.deleteAsync(appDir, { idempotent: true });

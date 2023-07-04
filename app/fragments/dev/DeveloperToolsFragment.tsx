@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -27,12 +27,14 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const offlineApp = engine.products.holders.useOfflineApp();
+    const [offlineAppVersions, setOfflineAppVersions] = useState<string[]>([]);
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     useEffect(() => {
         (async () => {
             const ready = await engine.products.holders.checkOfflineApp();
             setOfflineAppReady(ready);
+            setOfflineAppVersions(engine.products.holders.getVersionsArray());
         })();
     }, [offlineApp]);
 
@@ -152,6 +154,16 @@ export const DeveloperToolsFragment = fragment(() => {
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
+                    </View>
+                    <View style={{ paddingHorizontal: 16, width: '100%' }}>
+                        <Text style={{
+                            marginLeft: 13,
+                            lineHeight: 24, fontSize: 17,
+                            textAlignVertical: 'center',
+                            color: Theme.textSecondary,
+                        }}>
+                            {`${t('transactions.history')}: ${offlineAppVersions.join(', ')}`}
+                        </Text>
                     </View>
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>

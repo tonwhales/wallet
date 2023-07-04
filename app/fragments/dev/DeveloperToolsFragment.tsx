@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -27,12 +27,14 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const offlineApp = engine.products.holders.useOfflineApp();
-
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
+    const [prevOfflineAppVersion, setPrevOfflineAppVersion] = useState<string>();
+
     useEffect(() => {
         (async () => {
             const ready = await engine.products.holders.checkOfflineApp();
             setOfflineAppReady(ready);
+            setPrevOfflineAppVersion(engine.products.holders.getPrevOfflineVersion());
         })();
     }, [offlineApp]);
 
@@ -151,7 +153,18 @@ export const DeveloperToolsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
+                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp?.version ?? 'N/A'} />
+                    </View>
+                    <View style={{ paddingHorizontal: 16, width: '100%' }}>
+                        <Text style={{
+                            marginLeft: 13,
+                            lineHeight: 24, fontSize: 17,
+                            textAlignVertical: 'center',
+                            textAlign: 'right',
+                            color: Theme.textSecondary,
+                        }}>
+                            {`${t('transactions.history')}: ${prevOfflineAppVersion ?? 'N/A'}`}
+                        </Text>
                     </View>
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
@@ -162,7 +175,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
                             const app = engine.persistence.holdersOfflineApp.item().value;
                             if (app) {
-                                engine.products.holders.cleanupOldOfflineApp(app);
+                                engine.products.holders.cleanupPrevOfflineApp(app);
                             }
                             engine.persistence.holdersOfflineApp.item().update(() => null);
                             await engine.products.holders.forceSyncOfflineApp();

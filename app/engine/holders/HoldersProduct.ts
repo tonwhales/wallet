@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { selector, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AccountState, fetchAccountState } from "../api/holders/fetchAccountState";
 import { fetchAccountToken } from "../api/holders/fetchAccountToken";
@@ -9,9 +9,10 @@ import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
-import { HoldersOfflineApp, fetchAppFile, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
+import { HoldersOfflineApp, fetchHoldersResourceMap, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
 import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
+import * as t from 'io-ts';
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
@@ -46,40 +47,11 @@ export type HoldersState = {
 
 export class HoldersProduct {
     readonly engine: Engine;
-    readonly #status;
-    readonly #accountsState;
-    readonly #offlineApp;
     readonly #lock = new AsyncLock();
     watcher: null | (() => void) = null;
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.#status = selector<HoldersAccountStatus>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',
-            get: ({ get }) => {
-                // Check status
-                let status: HoldersAccountStatus = get(this.engine.persistence.holdersStatus.item(engine.address).atom) || { state: 'need-enrolment' };
-
-                return status;
-            }
-        });
-        this.#accountsState = selector<HoldersState>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/state',
-            get: ({ get }) => {
-                // Get state
-                let state: HoldersState = get(this.engine.persistence.holdersState.item(engine.address).atom) || { accounts: [] };
-                return state;
-            }
-        });
-
-        this.#offlineApp = selector<HoldersOfflineApp | null>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/offline',
-            get: ({ get }) => {
-                // Get state
-                let state: HoldersOfflineApp | null = get(this.engine.persistence.holdersOfflineApp.item().atom);
-                return state;
-            }
-        });
 
         this.syncOfflineApp();
 
@@ -104,7 +76,7 @@ export class HoldersProduct {
             // Check holders token cloud value
             // 
 
-            let existing = await this.engine.cloud.readKey('zenpay-jwt');
+            let existing = storage.getString('holders-jwt');
             if (existing && existing.toString().length > 0) {
                 return true;
             } else {
@@ -122,7 +94,7 @@ export class HoldersProduct {
                     signature: signed.signature,
                     subkey: signed.subkey
                 }, this.engine.isTestnet);
-                await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(token));
+                storage.set('holders-jwt', token);
             }
 
             return true;
@@ -135,15 +107,15 @@ export class HoldersProduct {
     }
 
     useStatus() {
-        return useRecoilValue(this.#status);
+        return useRecoilValue(this.engine.persistence.holdersStatus.item(this.engine.address).atom) || { state: 'need-enrolment' };
     }
 
     useCards() {
-        return useRecoilValue(this.#accountsState).accounts;
+        return useRecoilValue(this.engine.persistence.holdersState.item(this.engine.address).atom)?.accounts || [];
     }
 
     useOfflineApp() {
-        return useRecoilValue(this.#offlineApp);
+        return useRecoilValue(this.engine.persistence.holdersOfflineApp.item().atom);
     }
 
     // Update accounts
@@ -211,7 +183,7 @@ export class HoldersProduct {
     }
 
     async cleanup() {
-        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+        storage.delete('holders-jwt');
         this.stopWatching();
         this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
             return null;
@@ -226,7 +198,7 @@ export class HoldersProduct {
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
-                const existingToken = await this.engine.cloud.readKey('zenpay-jwt');
+                const existingToken = storage.getString('holders-jwt');
                 if (existingToken && existingToken.toString().length > 0) {
                     let state = await fetchAccountState(existingToken.toString());
                     targetStatus.update((src) => {
@@ -263,7 +235,7 @@ export class HoldersProduct {
 
                     // Clear token if no-ref
                     if (account.state === 'no-ref') {
-                        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+                        storage.delete('holders-jwt');
                         this.stopWatching();
                         this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
                             return null;
@@ -276,7 +248,6 @@ export class HoldersProduct {
                         }
                         if (account?.state === 'need-phone') {
                             if (src?.state !== 'need-phone') {
-                                return { ...account, token: token };
                             }
                         }
                         if (account?.state === 'need-kyc') {
@@ -337,10 +308,7 @@ export class HoldersProduct {
         }
 
         let uri = null;
-        if (true
-            && app.routes.length > 0
-            && app.routes[0].fileName === 'index.html'
-        ) {
+        if (app.routes.length > 0 && app.routes[0].fileName === 'index.html') {
             uri = FileSystem.documentDirectory + `holders${normalizedVersion}/index.html`;
             const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;
@@ -368,7 +336,7 @@ export class HoldersProduct {
             storage.set('holders-offline-app-codec-v', holdersAppCodecVersion);
         }
 
-        const fetchedApp = await fetchAppFile(holdersUrl);
+        const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {
             return;
@@ -382,9 +350,9 @@ export class HoldersProduct {
 
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                if (src) {
-                    this.cleanupOldOfflineApp(src);
+            this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
+                if (prevState) {
+                    this.cleanupPrevOfflineApp(prevState);
                 }
                 return fetchedApp;
             });
@@ -395,7 +363,7 @@ export class HoldersProduct {
     }
 
     async forceSyncOfflineApp() {
-        const fetchedApp = await fetchAppFile(holdersUrl);
+        const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {
             return;
@@ -403,9 +371,9 @@ export class HoldersProduct {
 
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                if (src) {
-                    this.cleanupOldOfflineApp(src);
+            this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
+                if (prevState) {
+                    this.cleanupPrevOfflineApp(prevState);
                 }
                 return fetchedApp;
             });
@@ -415,8 +383,23 @@ export class HoldersProduct {
         }
     }
 
-    async cleanupOldOfflineApp(app: HoldersOfflineApp) {
-        const appDir = FileSystem.documentDirectory + `holders${normalizePath(app.version)}`;
+    getPrevOfflineVersion() {
+        return storage.getString('holders-prev-version');
+    }
+
+    storePrevOfflineVersion(prev: string) {
+        storage.set('holders-prev-version', prev);
+    }
+
+    async cleanupPrevOfflineApp(prevAppState: HoldersOfflineApp) {
+        const prevVersion = this.getPrevOfflineVersion();
+        
+        this.storePrevOfflineVersion(prevAppState.version);
+
+        if (!prevVersion) {
+            return;
+        }
+        const appDir = FileSystem.documentDirectory + `holders${normalizePath(prevVersion)}`;
         const hasAppDirectory = await FileSystem.getInfoAsync(appDir);
         if (hasAppDirectory.exists) {
             await FileSystem.deleteAsync(appDir, { idempotent: true });

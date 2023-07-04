@@ -46,7 +46,7 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.products.holders.useOfflineApp();
+    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 
     const [mainButton, dispatchMainButton] = useReducer(
@@ -64,16 +64,6 @@ export const HoldersAppComponent = React.memo((
     );
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
-    useEffect(() => {
-        (async () => {
-            if (!storage.getBoolean('dev-tools:use-offline-app')) {
-                setOfflineAppReady(false);
-            }
-            const ready = await engine.products.holders.checkOfflineApp();
-            setOfflineAppReady(ready);
-        })();
-    }, []);
 
     const source = useMemo(() => {
         let route = '';
@@ -331,7 +321,7 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineAppReady && offlineApp && (
+                {offlineApp && (
                     <OfflineWebView
                         ref={webRef}
                         uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
@@ -376,7 +366,7 @@ export const HoldersAppComponent = React.memo((
                         startInLoadingState={true}
                     />
                 )}
-                {!(offlineAppReady && offlineApp) && (
+                {!offlineApp && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
@@ -423,7 +413,7 @@ export const HoldersAppComponent = React.memo((
                         />
                     </Animated.View>
                 )}
-                {offlineAppReady && (
+                {offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -444,7 +434,7 @@ export const HoldersAppComponent = React.memo((
                         )}
                     </Animated.View>
                 )}
-                {!offlineAppReady && (
+                {!offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

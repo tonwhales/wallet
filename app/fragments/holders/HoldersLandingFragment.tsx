@@ -34,16 +34,7 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
-    useEffect(() => {
-        (async () => {
-            if (!storage.getBoolean('dev-tools:use-offline-app')) {
-                setOfflineAppReady(false);
-            }
-            const ready = await engine.products.holders.checkOfflineApp();
-            setOfflineAppReady(ready);
-        })();
-    }, []);
+    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
 
     //
     // View
@@ -108,8 +99,7 @@ export const HoldersLandingFragment = fragment(() => {
             }
 
             // Navigate to continue
-            navigation.goBack();
-            navigation.navigateHolders(onEnrollType);
+            navigation.replace('Holders', onEnrollType);
 
             authOpacity.value = 0;
             setAuth(false);
@@ -175,97 +165,89 @@ export const HoldersLandingFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={{
-                        backgroundColor: Theme.item,
-                        flexGrow: 1,
-                    }}
-                >
-                    {offlineAppReady && (
-                        <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                            <OfflineWebView
-                                ref={webRef}
-                                uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/index.html`}
-                                baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/`}
-                                initialRoute={`/about?lang=${lang}&currency=${currency}`}
-                                style={{
-                                    backgroundColor: Theme.item,
-                                    flexGrow: 1, flexBasis: 0, height: '100%',
-                                    alignSelf: 'stretch',
-                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                }}
-                                onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
-                                }}
-                                onLoadProgress={(event) => {
-                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                        // Searching for supported query
-                                        onNavigation(event.nativeEvent.url);
-                                    }
-                                }}
-                                onNavigationStateChange={(event: WebViewNavigation) => {
+                {offlineApp && (
+                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                        <OfflineWebView
+                            ref={webRef}
+                            uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
+                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
+                            initialRoute={`/about?lang=${lang}&currency=${currency}`}
+                            style={{
+                                backgroundColor: Theme.item,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onLoadEnd={() => {
+                                setLoaded(true);
+                                opacity.value = 0;
+                            }}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query
-                                    onNavigation(event.url);
-                                }}
-                                // Locking scroll, it's handled within the Web App
-                                scrollEnabled={false}
-                                contentInset={{ top: 0, bottom: 0 }}
-                                autoManageStatusBarEnabled={false}
-                                decelerationRate="normal"
-                                allowsInlineMediaPlayback={true}
-                                onMessage={handleWebViewMessage}
-                                keyboardDisplayRequiresUserAction={false}
-                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                bounces={false}
-                                startInLoadingState={true}
-                            />
-                        </Animated.View>
-                    )}
-                    {!offlineAppReady && (
-                        <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                            <WebView
-                                ref={webRef}
-                                source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
-                                startInLoadingState={true}
-                                style={{
-                                    backgroundColor: Theme.item,
-                                    flexGrow: 1, flexBasis: 0, height: '100%',
-                                    alignSelf: 'stretch',
-                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                }}
-                                onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
-                                }}
-                                onLoadProgress={(event) => {
-                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                        // Searching for supported query
-                                        onNavigation(event.nativeEvent.url);
-                                    }
-                                }}
-                                onNavigationStateChange={(event: WebViewNavigation) => {
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
+                                // Searching for supported query
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={false}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            bounces={false}
+                            startInLoadingState={true}
+                        />
+                    </Animated.View>
+                )}
+                {!offlineApp && (
+                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                        <WebView
+                            ref={webRef}
+                            source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
+                            startInLoadingState={true}
+                            style={{
+                                backgroundColor: Theme.item,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onLoadEnd={() => {
+                                setLoaded(true);
+                                opacity.value = 0;
+                            }}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query
-                                    onNavigation(event.url);
-                                }}
-                                // Locking scroll, it's handled within the Web App
-                                scrollEnabled={false}
-                                contentInset={{ top: 0, bottom: 0 }}
-                                autoManageStatusBarEnabled={false}
-                                allowFileAccessFromFileURLs={false}
-                                allowUniversalAccessFromFileURLs={false}
-                                decelerationRate="normal"
-                                allowsInlineMediaPlayback={true}
-                                onMessage={handleWebViewMessage}
-                                keyboardDisplayRequiresUserAction={false}
-                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                bounces={false}
-                            />
-                        </Animated.View>
-                    )}
-                </KeyboardAvoidingView>
-                {!offlineAppReady && (
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
+                                // Searching for supported query
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={false}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            allowFileAccessFromFileURLs={false}
+                            allowUniversalAccessFromFileURLs={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            bounces={false}
+                        />
+                    </Animated.View>
+                )}
+                {!offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -287,7 +269,7 @@ export const HoldersLandingFragment = fragment(() => {
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
-                {offlineAppReady && (
+                {offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

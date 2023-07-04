@@ -46,14 +46,7 @@ export const HoldersAppComponent = React.memo((
 
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
-
-    useEffect(() => {
-        (async () => {
-            const ready = await engine.products.holders.checkOfflineApp();
-            setOfflineAppReady(ready);
-        })();
-    }, []);
+    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
 
     const source = useMemo(() => {
         let route = '';
@@ -299,14 +292,14 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineAppReady && (
+                {offlineApp && (
                     <AnotherKeyboardAvoidingView
                         style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                     >
                         <OfflineWebView
                             ref={webRef}
-                            uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/index.html`}
-                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineAppReady.version)}/`}
+                            uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
+                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
                             initialRoute={source.initialRoute}
                             style={{
                                 backgroundColor: Theme.item,
@@ -348,7 +341,7 @@ export const HoldersAppComponent = React.memo((
                         />
                     </AnotherKeyboardAvoidingView>
                 )}
-                {!offlineAppReady && (
+                {!offlineApp && (
                     <AnotherKeyboardAvoidingView
                         style={{ backgroundColor: Theme.item, flexGrow: 1 }}
                     >
@@ -399,7 +392,7 @@ export const HoldersAppComponent = React.memo((
                         </Animated.View>
                     </AnotherKeyboardAvoidingView>
                 )}
-                {offlineAppReady && (
+                {offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -420,7 +413,7 @@ export const HoldersAppComponent = React.memo((
                         )}
                     </Animated.View>
                 )}
-                {!offlineAppReady && (
+                {!offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

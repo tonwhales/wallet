@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Text, View, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
+import { ActivityIndicator, Platform, Text, View, Alert, Pressable } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,8 +20,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { storage } from '../../storage/storage';
+import { useCallback, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 
 export const HoldersLandingFragment = fragment(() => {

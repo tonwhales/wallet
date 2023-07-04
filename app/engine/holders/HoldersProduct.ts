@@ -9,7 +9,7 @@ import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
-import { HoldersOfflineApp, fetchAppFile, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
+import { HoldersOfflineApp, fetchHoldersResourceMap, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
 import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
 
@@ -368,7 +368,7 @@ export class HoldersProduct {
             storage.set('holders-offline-app-codec-v', holdersAppCodecVersion);
         }
 
-        const fetchedApp = await fetchAppFile(holdersUrl);
+        const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {
             return;
@@ -395,7 +395,7 @@ export class HoldersProduct {
     }
 
     async forceSyncOfflineApp() {
-        const fetchedApp = await fetchAppFile(holdersUrl);
+        const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {
             return;

@@ -45,6 +45,8 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     };
 
+    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
+
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const openGraph = useCallback(() => {
@@ -139,7 +141,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </Pressable>
                         <Pressable
                             style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                            onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
+                            onPress={openScanner}
                         >
                             <Scanner
                                 style={{

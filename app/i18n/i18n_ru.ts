@@ -217,9 +217,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         blockchainFee: 'Комиссия сети'
     },
     qr: {
-        title: 'Отсканируйте QR-код',
+        title: 'Наведите камеру на QR-код',
         requestingPermission: 'Запрашиваем доступ к камере...',
-        noPermission: 'Нет доступа к камере',
+        noPermission: 'Разрешите доступ к камере, чтобы сканировать QR-коды',
         requestPermission: 'Открыть настройки',
     },
     products: {

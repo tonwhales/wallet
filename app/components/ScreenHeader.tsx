@@ -43,7 +43,6 @@ export const ScreenHeader = React.memo((
                     flexDirection: 'row', alignItems: 'center',
                     height: 44,
                     marginTop: 14,
-                    paddingHorizontal: 16
                 }}>
                     <View style={{
                         position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
@@ -72,6 +71,7 @@ export const ScreenHeader = React.memo((
                             <CloseButton
                                 onPress={onClosePressed}
                                 tintColor={tintColor}
+                                style={{ marginRight: 16 }}
                             />
                         </>
                     )}

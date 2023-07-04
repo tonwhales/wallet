@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { AppState } from "react-native";
-import { Cell, configParse18, configParseGasLimitsPrices, configParseMsgPrices, parseDictRefs } from "ton";
+import { Address, Cell, Slice, configParse18, configParseGasLimitsPrices, configParseMsgPrices, parseDictRefs } from "ton";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 
@@ -25,6 +25,7 @@ export type ConfigState = {
             firstFrac: BN;
         }
     },
+    rootDnsAddress: Address,
     workchain: {
         gas: {
             flatLimit: BN,
@@ -40,12 +41,21 @@ export type ConfigState = {
     }
 };
 
+function configParseDnsAddress(slice: Slice | undefined) {
+    // Fallback to hardocoded address
+    if (!slice) {
+        return Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
+    }
+    let address = new Address(-1, slice.readBuffer(32));
+    return address;
+}
+
 export function startConfigSync(engine: Engine) {
 
     // Sync
     let sync = createEngineSync('config', engine, async () => {
         let block = await engine.client4.getLastBlock();
-        let configRaw = await engine.client4.getConfig(block.last.seqno, [18, 20, 21, 24, 25]);
+        let configRaw = await engine.client4.getConfig(block.last.seqno, [4, 18, 20, 21, 24, 25]);
         let config = parseDictRefs(Cell.fromBoc(Buffer.from(configRaw.config.cell, 'base64'))[0].beginParse(), 32);
 
         // Config values
@@ -58,9 +68,11 @@ export function startConfigSync(engine: Engine) {
             masterchain: configParseMsgPrices(config.get('24')),
             workchain: configParseMsgPrices(config.get('25')),
         };
+        let rootDnsAddress = configParseDnsAddress(config.get('4'));
 
         let newState: ConfigState = {
             storage: storagePrices,
+            rootDnsAddress,
             workchain: {
                 gas: {
                     flatLimit: gasPrices.workchain.flatLimit,

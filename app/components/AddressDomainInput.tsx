@@ -10,10 +10,12 @@ import { Address } from "ton"
 import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from "../utils/dns/dns"
+import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns/dns"
 import { useEngine } from "../engine/Engine"
 import { AddressContact } from "../engine/products/SettingsProduct"
 import { useAppConfig } from "../utils/AppConfigContext"
+
+const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
 export const AddressDomainInput = React.memo(React.forwardRef(({
     style,
@@ -80,19 +82,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
 
             setResolving(true);
             try {
-                const resolvedCollectionAddress = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_NEXT_RESOLVER, true);
-                if (!resolvedCollectionAddress) {
-                    throw Error('Error resolving collection address');
-                }
-                const collectionAddress = Address.parseRaw(resolvedCollectionAddress.toString());
-
-                const resolvedDomainAddress = await resolveDomain(engine.client4, collectionAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
-                if (!resolvedDomainAddress) {
-                    throw Error('Error resolving domain address');
-                }
-                const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
-
-                const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
+                const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_WALLET);
                 if (!resolvedDomainWallet) {
                     throw Error('Error resolving domain wallet');
                 }

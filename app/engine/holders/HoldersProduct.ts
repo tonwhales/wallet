@@ -308,10 +308,7 @@ export class HoldersProduct {
         }
 
         let uri = null;
-        if (true
-            && app.routes.length > 0
-            && app.routes[0].fileName === 'index.html'
-        ) {
+        if (app.routes.length > 0 && app.routes[0].fileName === 'index.html') {
             uri = FileSystem.documentDirectory + `holders${normalizedVersion}/index.html`;
             const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;

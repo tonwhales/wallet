@@ -173,14 +173,20 @@ export const ScannerFragment = systemFragment(() => {
             }}>
                 <DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={'rgba(0,0,0,0.5)'} />
             </Canvas>
-            <Text style={{
-                fontWeight: '500',
-                fontSize: 17,
-                color: 'white',
-                textAlign: 'center'
+            <View style={{
+                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                justifyContent: 'center', alignItems: 'center',
+                paddingTop: rectSize / 2 + 16 + safeArea.top + safeArea.bottom,
             }}>
-                {t('qr.title')}
-            </Text>
+                <Text style={{
+                    fontWeight: '500',
+                    fontSize: 17,
+                    color: 'white',
+                    textAlign: 'center',
+                }}>
+                    {t('qr.title')}
+                </Text>
+            </View>
             <View style={{ flexGrow: 1 }} />
             <View style={{
                 flexDirection: 'row',

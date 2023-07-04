@@ -168,8 +168,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
-    modalScreen('ZenPayLanding', HoldersLandingFragment, safeArea),
-    lockedModalScreen('ZenPay', HoldersAppFragment, safeArea),
+    modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
+    lockedModalScreen('Holders', HoldersAppFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}

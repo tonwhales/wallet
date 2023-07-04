@@ -34,34 +34,7 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.products.holders.useOfflineApp();
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
-    useEffect(() => {
-        (async () => {
-            if (!(storage.getBoolean('dev-tools:use-offline-app') ?? false)) {
-                return false;
-            }
-            if (!offlineApp) {
-                return false;
-            }
-
-            const filesCheck: Promise<boolean>[] = [];
-            offlineApp.resources.forEach((asset) => {
-                filesCheck.push((async () => {
-                    const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
-                    return info.exists;
-                })());
-            });
-
-            filesCheck.push((async () => {
-                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
-                return info.exists;
-            })());
-
-            const files = await Promise.all(filesCheck);
-            setOfflineAppReady(files.every((f) => f));
-        })();
-    }, [offlineApp]);
+    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
 
     //
     // View
@@ -126,8 +99,7 @@ export const HoldersLandingFragment = fragment(() => {
             }
 
             // Navigate to continue
-            navigation.goBack();
-            navigation.navigateHolders(onEnrollType);
+            navigation.replace('Holders', onEnrollType);
 
             authOpacity.value = 0;
             setAuth(false);
@@ -200,7 +172,7 @@ export const HoldersLandingFragment = fragment(() => {
                         flexGrow: 1,
                     }}
                 >
-                    {offlineAppReady && offlineApp && (
+                    {offlineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
                                 ref={webRef}
@@ -241,7 +213,7 @@ export const HoldersLandingFragment = fragment(() => {
                             />
                         </Animated.View>
                     )}
-                    {!(offlineAppReady && offlineApp) && (
+                    {!offlineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <WebView
                                 ref={webRef}
@@ -283,7 +255,7 @@ export const HoldersLandingFragment = fragment(() => {
                         </Animated.View>
                     )}
                 </KeyboardAvoidingView>
-                {!offlineAppReady && (
+                {!offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -305,7 +277,7 @@ export const HoldersLandingFragment = fragment(() => {
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
-                {offlineAppReady && (
+                {offlineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

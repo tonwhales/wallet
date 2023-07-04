@@ -23,7 +23,7 @@ export type HoldersOfflineApp = {
     resources: string[]
 }
 
-export async function fetchAppFile(endpoint: string) {
+export async function fetchHoldersResourceMap(endpoint: string) {
     const holdersAppFile = (await axios.get(`${endpoint}/app-cache/info.json`)).data;
 
     if (holdersOfflineAppCodec.is(holdersAppFile)) {

@@ -64,22 +64,7 @@ export const HoldersAppComponent = React.memo((
     );
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
-
-    useEffect(() => {
-        (async () => {
-            if (!(storage.getBoolean('dev-tools:use-offline-app') ?? false)) {
-                return false;
-            }
-            if (!offlineApp) {
-                return false;
-            }
-
-            const ready = await engine.products.holders.checkOfflineApp();
-
-            setOfflineAppReady(ready);
-        })();
-    }, [offlineApp]);
+    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
 
     const source = useMemo(() => {
         let route = '';

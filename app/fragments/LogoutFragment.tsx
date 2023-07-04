@@ -25,7 +25,7 @@ export function clearHolders(engine: Engine, address?: Address) {
         null
     );
     engine.persistence.holdersState.setValue(address ?? engine.address, null);
-    engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+    storage.delete('holders-jwt');
 }
 
 export const LogoutFragment = fragment(() => {

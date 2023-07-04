@@ -76,7 +76,7 @@ export class HoldersProduct {
             // Check holders token cloud value
             // 
 
-            let existing = await this.engine.cloud.readKey('zenpay-jwt');
+            let existing = storage.getString('holders-jwt');
             if (existing && existing.toString().length > 0) {
                 return true;
             } else {
@@ -94,7 +94,7 @@ export class HoldersProduct {
                     signature: signed.signature,
                     subkey: signed.subkey
                 }, this.engine.isTestnet);
-                await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(token));
+                storage.set('holders-jwt', token);
             }
 
             return true;
@@ -183,7 +183,7 @@ export class HoldersProduct {
     }
 
     async cleanup() {
-        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+        storage.delete('holders-jwt');
         this.stopWatching();
         this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
             return null;
@@ -198,7 +198,7 @@ export class HoldersProduct {
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
-                const existingToken = await this.engine.cloud.readKey('zenpay-jwt');
+                const existingToken = storage.getString('holders-jwt');
                 if (existingToken && existingToken.toString().length > 0) {
                     let state = await fetchAccountState(existingToken.toString());
                     targetStatus.update((src) => {
@@ -235,7 +235,7 @@ export class HoldersProduct {
 
                     // Clear token if no-ref
                     if (account.state === 'no-ref') {
-                        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+                        storage.delete('holders-jwt');
                         this.stopWatching();
                         this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
                             return null;
@@ -248,7 +248,6 @@ export class HoldersProduct {
                         }
                         if (account?.state === 'need-phone') {
                             if (src?.state !== 'need-phone') {
-                                return { ...account, token: token };
                             }
                         }
                         if (account?.state === 'need-kyc') {

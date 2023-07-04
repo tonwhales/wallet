@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { selector, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AccountState, fetchAccountState } from "../api/holders/fetchAccountState";
 import { fetchAccountToken } from "../api/holders/fetchAccountToken";
@@ -46,40 +46,11 @@ export type HoldersState = {
 
 export class HoldersProduct {
     readonly engine: Engine;
-    readonly #status;
-    readonly #accountsState;
-    readonly #offlineApp;
     readonly #lock = new AsyncLock();
     watcher: null | (() => void) = null;
 
     constructor(engine: Engine) {
         this.engine = engine;
-        this.#status = selector<HoldersAccountStatus>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',
-            get: ({ get }) => {
-                // Check status
-                let status: HoldersAccountStatus = get(this.engine.persistence.holdersStatus.item(engine.address).atom) || { state: 'need-enrolment' };
-
-                return status;
-            }
-        });
-        this.#accountsState = selector<HoldersState>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/state',
-            get: ({ get }) => {
-                // Get state
-                let state: HoldersState = get(this.engine.persistence.holdersState.item(engine.address).atom) || { accounts: [] };
-                return state;
-            }
-        });
-
-        this.#offlineApp = selector<HoldersOfflineApp | null>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/offline',
-            get: ({ get }) => {
-                // Get state
-                let state: HoldersOfflineApp | null = get(this.engine.persistence.holdersOfflineApp.item().atom);
-                return state;
-            }
-        });
 
         this.syncOfflineApp();
 
@@ -135,15 +106,15 @@ export class HoldersProduct {
     }
 
     useStatus() {
-        return useRecoilValue(this.#status);
+        return useRecoilValue(this.engine.persistence.holdersStatus.item(this.engine.address).atom) || { state: 'need-enrolment' };
     }
 
     useCards() {
-        return useRecoilValue(this.#accountsState).accounts;
+        return useRecoilValue(this.engine.persistence.holdersState.item(this.engine.address).atom)?.accounts || [];
     }
 
     useOfflineApp() {
-        return useRecoilValue(this.#offlineApp);
+        return useRecoilValue(this.engine.persistence.holdersOfflineApp.item().atom);
     }
 
     // Update accounts

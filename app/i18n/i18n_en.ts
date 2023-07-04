@@ -218,9 +218,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         check: 'Checking address {{address}}'
     },
     qr: {
-        title: 'Scan QR code',
+        title: 'Point camera at QR code',
         requestingPermission: 'Requesting for camera permission...',
-        noPermission: 'No access to camera',
+        noPermission: 'Allow camera access to scan QR codes',
         requestPermission: 'Open settings',
     },
     products: {

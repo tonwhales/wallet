@@ -34,7 +34,7 @@ export const DeveloperToolsFragment = fragment(() => {
     }, [])
     const resetCache = React.useCallback(() => {
         storagePersistence.clearAll();
-        clearHolders(engine);
+        clearHolders(engine, acc.address);
         reboot();
     }, []);
 

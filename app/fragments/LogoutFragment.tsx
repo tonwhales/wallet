@@ -47,12 +47,12 @@ export const LogoutFragment = fragment(() => {
 
         if (appState.addresses.length === 1) {
             storage.clearAll();
-            clearHolders(engine);
+            clearHolders(engine, acc.address);
             reboot();
             return;
         }
 
-        clearHolders(engine);
+        clearHolders(engine, acc.address);
 
         const newAddresses = appState.addresses.filter((address) => !address.address.equals(currentAddress));
 

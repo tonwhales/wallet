@@ -434,8 +434,22 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         titleDev: 'Ton Sandbox Wallet',
         subtitle: 'Simple and secure TON wallet',
         subtitleDev: 'Wallet for developers',
-        createWallet: 'Create wallet',
-        importWallet: 'Import existing wallet'
+        createWallet: 'Get a new wallet',
+        importWallet: 'I already have one',
+        slogan: 'This is new Tonhub',
+        sloganDev: 'This is Ton Sandbox',
+        slide_1: {
+            title: 'Protected',
+            subtitle: 'Reliable smart contract, Touch/Face ID with Passcode and all transactions on a decentralized blockchain',
+        },
+        slide_2: {
+            title: 'With a cool cryptocard',
+            subtitle: 'Order a card now. Internal transfers and purchases in minutes. All this is a unique Tonhub card',
+        },
+        slide_3: {
+            title: 'Fast',
+            subtitle: 'Thanks to the unique TON architecture, transactions take place in seconds',
+        },
     },
     legal: {
         title: 'Legal',

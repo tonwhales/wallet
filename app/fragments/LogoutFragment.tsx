@@ -25,7 +25,7 @@ export function clearHolders(engine: Engine, address?: Address) {
         null
     );
     engine.persistence.holdersState.setValue(address ?? engine.address, null);
-    storage.delete('holders-jwt');
+    engine.products.holders.deleteToken();
 }
 
 export const LogoutFragment = fragment(() => {

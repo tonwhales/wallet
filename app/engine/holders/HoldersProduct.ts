@@ -55,14 +55,23 @@ export class HoldersProduct {
         if (devUseOffline === undefined) {
             storage.set('dev-tools:use-offline-app', true);
         }
+        
+        
         this.engine = engine;
-
-        this.syncOfflineApp();
-
+        
         if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
             this.cleanup();
         }
         storage.set('zenpay-token-version', currentTokenVersion);
+        
+        //TODO: REMOVE THIS, DEV DEMO ONLY
+        const migratedOfflineAppRes = storage.getBoolean('dev-tools:migrated-offline-app');
+        if (migratedOfflineAppRes === undefined) {
+            this.forceSyncOfflineApp();
+            storage.set('dev-tools:migrated-offline-app', true);
+        } else {
+            this.syncOfflineApp();
+        }
     }
 
     async enroll(domain: string, authContext: AuthWalletKeysType) {

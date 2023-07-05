@@ -14,7 +14,6 @@ import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
 export const WelcomeFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const dimensions = useDimensions();
     const navigation = useTypedNavigation();
     const onImportPressed = React.useCallback(() => {
         if (isTermsAccepted()) {
@@ -24,11 +23,7 @@ export const WelcomeFragment = systemFragment(() => {
         }
     }, []);
     const onCreatePressed = React.useCallback(() => {
-        if (isTermsAccepted()) {
-            navigation.navigate('WalletCreate');
-        } else {
-            navigation.navigate('LegalCreate');
-        }
+        navigation.navigate('LegalCreate');
     }, []);
 
     return (

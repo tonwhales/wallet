@@ -46,7 +46,6 @@ export const Slide = React.memo((
                     textAlign: 'center',
                     fontSize: 17, lineHeight: 24,
                     fontWeight: '400',
-                    marginTop: 14,
                     flexShrink: 1,
                     color: Theme.darkGrey,
                     marginBottom: 32

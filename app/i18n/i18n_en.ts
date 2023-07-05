@@ -405,7 +405,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 pin: 'Change PIN',
             },
             card: {
-                cards : '{{count}} Cards',
+                cards: '{{count}} Cards',
                 title: 'Tonhub Card *{{cardNumber}}',
                 defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
                 defaultTitle: 'Tonhub Bank Card',
@@ -453,7 +453,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     legal: {
         title: 'Legal',
-        subtitle: 'Please review and accept our',
+        subtitle: 'By clicking Continue you\'re accepting our',
+        create: 'Create a backup',
+        createSubtitle: 'Write down the secret key, keep it in a safe place and never share it with anyone. This is the only way to regain access to your wallet if you lose your device',
         privacyPolicy: 'Privacy Policy',
         termsOfService: 'Terms of Service'
     },

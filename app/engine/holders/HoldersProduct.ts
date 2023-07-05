@@ -55,15 +55,15 @@ export class HoldersProduct {
         if (devUseOffline === undefined) {
             storage.set('dev-tools:use-offline-app', true);
         }
-        
-        
+
+
         this.engine = engine;
-        
+
         if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
             this.cleanup();
         }
         storage.set('zenpay-token-version', currentTokenVersion);
-        
+
         //TODO: REMOVE THIS, DEV DEMO ONLY
         const migratedOfflineAppRes = storage.getBoolean('dev-tools:migrated-offline-app');
         if (migratedOfflineAppRes === undefined) {
@@ -89,7 +89,7 @@ export class HoldersProduct {
             // Check holders token cloud value
             // 
 
-            let existing = storage.getString('holders-jwt');
+            let existing = this.getToken();
             if (existing && existing.toString().length > 0) {
                 return true;
             } else {
@@ -107,7 +107,8 @@ export class HoldersProduct {
                     signature: signed.signature,
                     subkey: signed.subkey
                 }, this.engine.isTestnet);
-                storage.set('holders-jwt', token);
+
+                this.setToken(token);
             }
 
             return true;
@@ -195,8 +196,20 @@ export class HoldersProduct {
         });
     }
 
+    deleteToken() {
+        storage.delete(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`);
+    }
+
+    setToken(token: string) {
+        storage.set(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`, token);
+    }
+
+    getToken() {
+        return storage.getString(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`);
+    }
+
     async cleanup() {
-        storage.delete('holders-jwt');
+        this.deleteToken();
         this.stopWatching();
         this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
             return null;
@@ -211,7 +224,7 @@ export class HoldersProduct {
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
-                const existingToken = storage.getString('holders-jwt');
+                const existingToken = this.getToken();
                 if (existingToken && existingToken.toString().length > 0) {
                     let state = await fetchAccountState(existingToken.toString());
                     targetStatus.update((src) => {
@@ -248,7 +261,7 @@ export class HoldersProduct {
 
                     // Clear token if no-ref
                     if (account.state === 'no-ref') {
-                        storage.delete('holders-jwt');
+                        this.deleteToken();
                         this.stopWatching();
                         this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
                             return null;

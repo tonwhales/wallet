@@ -59,8 +59,6 @@ export class HoldersProduct {
 
         this.syncOfflineApp();
 
-        this.syncOfflineApp();
-
         if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
             this.cleanup();
         }

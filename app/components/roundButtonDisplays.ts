@@ -30,13 +30,13 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             textPressed: theme.item,
         },
         secondary: {
-            backgroundColor: theme.secondaryButton,
-            borderColor: theme.secondaryButton,
-            textColor: theme.secondaryButtonText,
+            backgroundColor: theme.lightGrey,
+            borderColor: theme.lightGrey,
+            textColor: theme.accent,
 
-            backgroundPressedColor: theme.selector,
-            borderPressedColor: theme.selector,
-            textPressed: theme.secondaryButtonText,
+            backgroundPressedColor: theme.lightGrey,
+            borderPressedColor: theme.lightGrey,
+            textPressed: theme.accent,
         },
         secondary_contrast: {
             backgroundColor: theme.secondaryButton,
@@ -86,7 +86,7 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         text: {
             backgroundColor: theme.transparent,
             borderColor: theme.transparent,
-            textColor: theme.accentText,
+            textColor: theme.accent,
 
             backgroundPressedColor: theme.divider,
             borderPressedColor: theme.divider,

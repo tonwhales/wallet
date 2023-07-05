@@ -439,11 +439,27 @@ export type LocalizationSchema = {
         subtitle: string,
         subtitleDev: string,
         createWallet: string,
-        importWallet: string
+        importWallet: string,
+        slogan: string,
+        sloganDev: string,
+        slide_1: {
+            title: string,
+            subtitle: string,
+        },
+        slide_2: {
+            title: string,
+            subtitle: string,
+        },
+        slide_3: {
+            title: string,
+            subtitle: string,
+        },
     },
     legal: {
         title: string,
         subtitle: string,
+        create: string,
+        createSubtitle: string,
         privacyPolicy: string,
         termsOfService: string
     },

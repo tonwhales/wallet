@@ -461,7 +461,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Условиями использования'
     },
     create: {
-        inProgress: 'Создаем...'
+        inProgress: 'Создаем...',
+        backupTitle: 'Ваш секретный ключ',
+        backupSubtitle: 'Запишите эти слова в том же порядке и сохраните их в надежном месте',
+        okSaved: 'Ок, всё записано',
+        copy: 'Скопировать в буфер обмена',
     },
     import: {
         title: '24 Секретных слова',
@@ -712,7 +716,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         confirm: {
             add: 'Вы уверены, что хотите добавить это приложение?',
-            remove: 'Вы уверены что хотите удалить это приложение?'   
+            remove: 'Вы уверены что хотите удалить это приложение?'
         },
         errors: {
             noDevice: 'Устройство не найдено',

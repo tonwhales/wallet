@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Platform, Text, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
@@ -12,6 +12,7 @@ import { systemFragment } from "../../systemFragment";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useDimensions } from "@react-native-community/hooks";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
+import { mnemonicNew } from "ton-crypto";
 
 export const LegalFragment = systemFragment(() => {
     const { Theme } = useAppConfig();
@@ -20,13 +21,40 @@ export const LegalFragment = systemFragment(() => {
     const navigation = useTypedNavigation();
     const route = useRoute();
     const isCreate = route.name === 'LegalCreate';
-    const onAccept = React.useCallback(() => {
+
+    const [state, setState] = useState<{ mnemonics: string } | null>(null);
+    const [accepted, setAccepted] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        (async () => {
+            const mnemonics = await mnemonicNew();
+            setState({ mnemonics: mnemonics.join(' ') });
+        })()
+    }, []);
+
+    const onAccept = useCallback(() => {
         if (isCreate) {
-            navigation.replace('WalletCreate');
+            if (state) {
+                navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
+                return;
+            }
+            setAccepted(true);
             return;
         }
         navigation.replace('WalletImport');
-    }, []);
+    }, [state]);
+
+    useEffect(() => {
+        if (accepted) {
+            if (state) {
+                navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
+                return;
+            }
+            setLoading(true);
+        }
+    }, [accepted, state]);
+
     return (
         <View style={{
             flexGrow: 1,
@@ -154,7 +182,7 @@ export const LegalFragment = systemFragment(() => {
                 marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom,
                 alignSelf: 'stretch'
             }}>
-                <RoundButton title={t('common.continue')} onPress={onAccept} />
+                <RoundButton loading={loading} title={t('common.continue')} onPress={onAccept} />
             </View>
         </View >
     );

@@ -135,7 +135,7 @@ export const WalletSecureComponent = React.memo((props: {
                             <Text style={{
                                 fontSize: 17,
                                 fontWeight: '600',
-                                color: Theme.accentText
+                                color: Theme.accent
                             }}>
                                 {t('common.later')}
                             </Text>

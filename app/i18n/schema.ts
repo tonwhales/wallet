@@ -462,7 +462,11 @@ export type LocalizationSchema = {
         termsOfService: string
     },
     create: {
-        inProgress: string
+        inProgress: string,
+        backupTitle: string,
+        backupSubtitle: string,
+        okSaved: string,
+        copy: string
     },
     import: {
         title: string,

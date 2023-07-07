@@ -339,15 +339,6 @@ export class HoldersProduct {
     }
 
     async syncOfflineApp() {
-        const currentCodecVersion = storage.getNumber('holders-offline-app-codec-v');
-
-        if (currentCodecVersion === null || currentCodecVersion !== holdersAppCodecVersion) {
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                return null;
-            });
-            storage.set('holders-offline-app-codec-v', holdersAppCodecVersion);
-        }
-
         const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {

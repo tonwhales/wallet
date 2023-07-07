@@ -5,6 +5,7 @@ import * as t from "io-ts";
 import { useAppConfig } from '../utils/AppConfigContext';
 import { warn } from '../utils/log';
 import WebView from "react-native-webview";
+import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 
 export function processMainButtonMessage(
     parsed: any,
@@ -136,13 +137,29 @@ export const DappMainButton = React.memo((
 ) => {
     const { Theme } = useAppConfig();
 
+    const bgColor = useDerivedValue(() => {
+        return withTiming(props.isProgressVisible ? Theme.disabled : (props.isActive ? props.color : (props.disabledColor ?? Theme.disabled)));
+    }, [props.color, props.disabledColor, props.isActive]);
+
+    const textColor = useDerivedValue(() => {
+        return withTiming(props.isProgressVisible ? Theme.disabled : props.textColor);
+    }, [props.textColor]);
+
+    const animatedBgStyle = useAnimatedStyle(() => {
+        return { backgroundColor: bgColor.value, }
+    });
+
+    const animatedTextColorStyle = useAnimatedStyle(() => {
+        return { color: textColor.value, }
+    });
+
     return (
         <Pressable
             disabled={!props.isActive}
             style={(p) => ([
                 {
                     borderRadius: 14,
-                    backgroundColor: props.isActive ? props.color : (props.disabledColor ?? Theme.disabled),
+                    overflow: 'hidden',
                 },
                 p.pressed && {
                     opacity: 0.55
@@ -151,7 +168,16 @@ export const DappMainButton = React.memo((
             onPress={props.onPress}
         >
             {(p) => (
-                <View style={{ height: 56 - 2, alignItems: 'center', justifyContent: 'center', minWidth: 64, paddingHorizontal: 16, }}>
+                <Animated.View style={[
+                    {
+                        height: 56 - 2,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 64,
+                        paddingHorizontal: 16,
+                    },
+                    animatedBgStyle,
+                ]}>
                     {props.isProgressVisible && (
                         <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, top: 0, alignItems: 'center', justifyContent: 'center' }}>
                             <ActivityIndicator color={props.textColor} size='small' />
@@ -163,16 +189,26 @@ export const DappMainButton = React.memo((
                         alignItems: 'center'
                     }}>
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text
-                                style={[iOSUIKit.title3, { marginTop: Platform.OS === 'ios' ? 0 : -1, opacity: (props.isProgressVisible ? 0 : 1) * (p.pressed ? 0.55 : 1), color: props.textColor, fontSize: 17, fontWeight: '600', includeFontPadding: false }]}
+                            <Animated.Text
+                                style={[
+                                    iOSUIKit.title3,
+                                    {
+                                        marginTop: Platform.OS === 'ios' ? 0 : -1,
+                                        opacity: (props.isProgressVisible ? 0 : 1) * (p.pressed ? 0.55 : 1),
+                                        fontSize: 17,
+                                        fontWeight: '600',
+                                        includeFontPadding: false
+                                    },
+                                    animatedTextColorStyle
+                                ]}
                                 numberOfLines={1}
                                 ellipsizeMode='tail'
                             >
                                 {props.text}
-                            </Text>
+                            </Animated.Text>
                         </View>
                     </View>
-                </View>
+                </Animated.View>
             )}
         </Pressable>
     )

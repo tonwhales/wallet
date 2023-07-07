@@ -120,6 +120,7 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
                                 height: undefined
                             }}
                             textStyle={{ color: '#838D99', fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                            currencyCode={'EUR'}
                         />
                     </View>
                 )}

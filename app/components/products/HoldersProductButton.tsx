@@ -11,7 +11,6 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import Collapsible from "react-native-collapsible";
 import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
-import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import BN from "bn.js";
 
 export const holdersCardImageMap: { [key: string]: any } = {

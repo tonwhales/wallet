@@ -10,7 +10,7 @@ import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
-import { HoldersOfflineApp, fetchHoldersResourceMap, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
+import { HoldersOfflineApp, fetchHoldersResourceMap } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
@@ -358,15 +358,6 @@ export class HoldersProduct {
     }
 
     async syncOfflineApp() {
-        const currentCodecVersion = storage.getNumber('holders-offline-app-codec-v');
-
-        if (currentCodecVersion === null || currentCodecVersion !== holdersAppCodecVersion) {
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                return null;
-            });
-            storage.set('holders-offline-app-codec-v', holdersAppCodecVersion);
-        }
-
         const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {

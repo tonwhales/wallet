@@ -4,7 +4,6 @@ import { LayoutAnimation, Pressable, Text, View } from "react-native"
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../assets/ic_transaction.svg';
-import { JettonProductItem } from "./JettonProductItem"
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { HoldersProductButton } from "./HoldersProductButton"

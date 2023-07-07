@@ -14,9 +14,7 @@ import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { StatusBar } from "expo-status-bar";
 import { TabHeader } from "../../components/topbar/TabHeader";
-import { Suspense } from "../../Suspense";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -28,7 +26,6 @@ const WalletTransactions = React.memo((props: {
     frameArea: Rect,
     onLoadMore: () => void,
 }) => {
-    const safeArea = useSafeAreaInsets();
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
@@ -96,11 +93,7 @@ const WalletTransactions = React.memo((props: {
 
     return (
         <ScrollView
-            contentContainerStyle={{
-                // marginBottom: 49 + safeArea.bottom
-            }}
-            // contentInset={{ top: 0, bottom: 52 }}
-            // contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
+            contentContainerStyle={{}}
             onScroll={onScroll}
             scrollEventThrottle={26}
             removeClippedSubviews={true}

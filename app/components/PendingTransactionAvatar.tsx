@@ -7,16 +7,22 @@ import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
 import { useAppConfig } from "../utils/AppConfigContext";
 
+import IcPending from '../../assets/ic-tx-pending.svg';
+import IcIn from '../../assets//ic-tx-in.svg';
+import IcOut from '../../assets//ic-tx-out.svg';
+
 const Color = require('color');
 
 export const PendingTransactionAvatar = React.memo(({
     style,
     avatarId,
-    address
+    address,
+    kind
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
-    address?: string
+    address?: string,
+    kind: 'in' | 'out'
 }) => {
     const { Theme, AppConfig } = useAppConfig();
     const ref = useRef<CircularProgress>(null);
@@ -61,8 +67,8 @@ export const PendingTransactionAvatar = React.memo(({
     }, [progressParams]);
 
     return (
-        <View style={{ flex: 1, height: 42, width: 42, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: 39, height: 39, borderRadius: 39, backgroundColor: color }} />
+        <View style={[{ flex: 1, height: 46, width: 46, justifyContent: 'center', alignItems: 'center' }, style]}>
+            <View style={{ width: 43, height: 43, borderRadius: 43, backgroundColor: Theme.lightGrey }} />
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0,
@@ -70,11 +76,11 @@ export const PendingTransactionAvatar = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                {!known && (<Img
-                    width={size}
-                    height={size}
-                    color="white"
-                />)}
+                {!known && (
+                    kind === 'in'
+                        ? (<IcIn height={32} width={32} style={{ width: 32, height: 32 }} />)
+                        : (<IcOut height={32} width={32} style={{ width: 32, height: 32 }} />)
+                )}
                 {known && <KnownAvatar size={42} wallet={known} />}
             </View>
             <CircularProgress
@@ -88,13 +94,17 @@ export const PendingTransactionAvatar = React.memo(({
                 progress={100}
                 animateFromValue={0}
                 duration={defaultDuration}
-                size={42}
+                size={46}
                 width={3}
                 color={progressParams.tintColor}
-                backgroundColor={progressParams.backgroundColor}
+                backgroundColor={Theme.lightGrey}
                 fullColor={null}
                 loop={true}
                 containerColor={Theme.transparent}
+            />
+            <IcPending
+                height={16} width={16}
+                style={{ position: 'absolute', bottom: -2, right: -2, height: 16, width: 16 }}
             />
         </View>
     )

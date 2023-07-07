@@ -1,8 +1,6 @@
 import axios from 'axios';
 import * as t from 'io-ts';
 
-export const holdersAppCodecVersion = 1;
-
 export const holdersOfflineAppCodec = t.type({
     version: t.string,
     routes: t.array(t.type({

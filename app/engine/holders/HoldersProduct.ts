@@ -9,7 +9,7 @@ import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
-import { HoldersOfflineApp, fetchHoldersResourceMap, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
+import { HoldersOfflineApp, fetchHoldersResourceMap } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
 import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
 import * as t from 'io-ts';

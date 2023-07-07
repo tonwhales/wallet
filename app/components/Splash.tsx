@@ -2,6 +2,7 @@ import React from "react";
 import { View, Image } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import Animated, { EasingNode } from "react-native-reanimated";
+import { StatusBar } from "expo-status-bar";
 
 export const Splash = React.memo(({ hide }: { hide: boolean }) => {
     const [visible, setVisible] = React.useState(true);
@@ -44,13 +45,14 @@ export const Splash = React.memo(({ hide }: { hide: boolean }) => {
             }}
             pointerEvents={'none'}
         >
+            <StatusBar style={'dark'} />
             <View style={{
-                width: 256, height: 416,
+                width: 147, height: 175,
                 alignItems: 'center'
             }}>
                 <Image
-                    style={{ width: 256, height: 256 }}
-                    source={require('../../assets/splash_icon.png')}
+                    style={{ width: 147, height: 175 }}
+                    source={require('../../assets/ic-splash.png')}
                 />
             </View>
         </Animated.View>

@@ -407,7 +407,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 pin: 'Change PIN',
             },
             card: {
-                cards : '{{count}} Cards',
+                cards: '{{count}} Cards',
                 title: 'Tonhub Card *{{cardNumber}}',
                 defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
                 defaultTitle: 'Tonhub Bank Card',
@@ -436,17 +436,37 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         titleDev: 'Ton Sandbox Wallet',
         subtitle: 'Simple and secure TON wallet',
         subtitleDev: 'Wallet for developers',
-        createWallet: 'Create wallet',
-        importWallet: 'Import existing wallet'
+        createWallet: 'Get a new wallet',
+        importWallet: 'I already have one',
+        slogan: 'This is new Tonhub',
+        sloganDev: 'This is Ton Sandbox',
+        slide_1: {
+            title: 'Protected',
+            subtitle: 'Reliable smart contract, Touch/Face ID with Passcode and all transactions on a decentralized blockchain',
+        },
+        slide_2: {
+            title: 'With a cool cryptocard',
+            subtitle: 'Order a card now. Internal transfers and purchases in minutes. All this is a unique Tonhub card',
+        },
+        slide_3: {
+            title: 'Fast',
+            subtitle: 'Thanks to the unique TON architecture, transactions take place in seconds',
+        },
     },
     legal: {
         title: 'Legal',
-        subtitle: 'Please review and accept our',
+        subtitle: 'By clicking Continue you\'re accepting our',
+        create: 'Create a backup',
+        createSubtitle: 'Write down the secret key, keep it in a safe place and never share it with anyone. This is the only way to regain access to your wallet if you lose your device',
         privacyPolicy: 'Privacy Policy',
         termsOfService: 'Terms of Service'
     },
     create: {
-        inProgress: 'Creating...'
+        inProgress: 'Creating...',
+        backupTitle: 'Your Backup Key',
+        backupSubtitle: 'Write down this words in exactly the same order and save them in a secret place',
+        okSaved: 'OK, I saved it',
+        copy: 'Copy to clipboard',
     },
     import: {
         title: '24 Secret Words',

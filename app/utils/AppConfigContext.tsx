@@ -55,7 +55,12 @@ export type ThemeType = {
 
     unchecked: string,
     contactIcon: string,
-    operationIcon: string
+    operationIcon: string,
+
+    // new colors
+    lightGrey: string,
+    darkGrey: string,
+    mediumGrey: string,
 };
 
 const initialTheme = {
@@ -106,6 +111,11 @@ const initialTheme = {
     unchecked: '#B6B6BF',
     contactIcon: '#EDA652',
     operationIcon: '#60C75E',
+
+    // new colors
+    lightGrey: '#F7F8F9',
+    darkGrey: '#838D99',
+    mediumGrey: '#E4E6EA',
 }
 
 export const initialNavigationTheme: NavigationThemeType = {
@@ -165,7 +175,7 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
         colors: {
             ...DefaultTheme.colors,
             primary: Theme.accent,
-            background: Theme.background,
+            background: 'white',
             card: Theme.background
         }
     }

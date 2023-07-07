@@ -8,6 +8,8 @@ import { isTermsAccepted } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useDimensions } from '@react-native-community/hooks';
+import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
 
 export const WelcomeFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -21,72 +23,33 @@ export const WelcomeFragment = systemFragment(() => {
         }
     }, []);
     const onCreatePressed = React.useCallback(() => {
-        if (isTermsAccepted()) {
-            navigation.navigate('WalletCreate');
-        } else {
-            navigation.navigate('LegalCreate');
-        }
+        navigation.navigate('LegalCreate');
     }, []);
 
     return (
         <View style={{
-            alignItems: 'center', justifyContent: 'center',
-            flexGrow: 1,
-            backgroundColor: Theme.item
+            flex: 1,
+            backgroundColor: Theme.item,
         }}>
             <StatusBar style='dark' />
+            <WelcomeSlider style={{ paddingTop: safeArea.top }} />
             <View style={{
-                height: 416,
-                alignItems: 'center',
+                height: 160, width: '100%',
+                justifyContent: 'space-between',
+                padding: 16,
+                marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
             }}>
-                <View style={{
-                    width: 256, height: 256,
-                    justifyContent: 'center', alignItems: 'center',
-                }}>
-                    <Image source={
-                        AppConfig.isTestnet
-                            ? require('../../../assets/ic_diamond_test.png')
-                            : require('../../../assets/ic_diamond.png')}
-                    />
-                </View>
-                <Text style={{
-                    fontSize: 30, fontWeight: '700',
-                    marginTop: -42,
-                    textAlign: 'center',
-                }}>
-                    {AppConfig.isTestnet ? t('welcome.titleDev') : t('welcome.title')}
-                </Text>
-                <Text style={{
-                    textAlign: 'center',
-                    fontSize: 18,
-                    marginTop: 14,
-                    flexShrink: 1,
-                }}>
-                    {AppConfig.isTestnet ? t('welcome.subtitleDev') : t('welcome.subtitle')}
-                </Text>
-            </View>
-            <View style={{ height: 128, position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
-                <RoundButton title={t('welcome.createWallet')} onPress={onCreatePressed} />
-                <Pressable
+                <RoundButton
+                    title={t('welcome.createWallet')}
+                    onPress={onCreatePressed}
+                    style={{ height: 56 }}
+                />
+                <RoundButton
+                    title={t('welcome.importWallet')}
                     onPress={onImportPressed}
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1,
-                            alignSelf: 'center',
-                            marginTop: 26,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }
-                    }}
-                >
-                    <Text style={{
-                        fontSize: 17,
-                        fontWeight: '600',
-                        color: Theme.accentText
-                    }}>
-                        {t('welcome.importWallet')}
-                    </Text>
-                </Pressable>
+                    style={{ height: 56 }}
+                    display={'secondary'}
+                />
             </View>
         </View>
     );

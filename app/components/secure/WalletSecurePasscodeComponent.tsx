@@ -156,7 +156,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                 if (props.import) {
                                     onAfterImport();
                                 } else {
-                                    navigation.navigate('WalletCreated')
+                                    const account = getCurrentAddress();
+                                    markAddressSecured(account.address, AppConfig.isTestnet);
+                                    reboot();
                                 }
                             }
                         }}
@@ -164,7 +166,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             if (props.import) {
                                 onAfterImport();
                             } else {
-                                navigation.navigate('WalletCreated')
+                                const account = getCurrentAddress();
+                                markAddressSecured(account.address, AppConfig.isTestnet);
+                                reboot();
                             }
                         }}
                     />

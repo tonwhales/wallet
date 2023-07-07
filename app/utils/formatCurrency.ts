@@ -17,7 +17,7 @@ export function formatCurrency(amount: string, currency: string, neg?: boolean):
     }
 
     if (!symbols.end) {
-        return `${neg ? '-' : ''}${symbols.symbol}${toLocaleNumber(amount)}`;
+        return `${neg ? '-' : ''}${symbols.symbol} ${toLocaleNumber(amount)}`;
     }
-    return `${neg ? '-' : ''}${toLocaleNumber(amount)}${symbols.symbol}`;
+    return `${neg ? '-' : ''}${toLocaleNumber(amount)} ${symbols.symbol}`;
 }

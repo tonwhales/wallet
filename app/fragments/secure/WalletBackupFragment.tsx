@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Text, View, useWindowDimensions, ScrollView } from 'react-native';
+import { ActivityIndicator, Platform, Text, View, useWindowDimensions, ScrollView, Alert, ToastAndroid } from 'react-native';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +15,9 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useReboot } from '../../utils/RebootContext';
 import { warn } from '../../utils/log';
+import { MnemonicsView } from '../../components/MnemonicsView';
+import Clipboard from '@react-native-clipboard/clipboard';
+import * as Haptics from 'expo-haptics';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -98,41 +101,67 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+                backgroundColor: Theme.item,
+                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) : 0,
             }}
             exiting={FadeIn}
             key={"content"}
         >
             <AndroidToolbar />
-            <ScrollView alwaysBounceVertical={false} style={{ width: '100%' }}>
-                <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 17 }}>{t('backup.title')}</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: Theme.priceSecondary }}>
-                    {t('backup.subtitle')}
-                </Text>
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginHorizontal: 35,
-                    marginTop: 35,
-                    alignSelf: 'stretch',
-                    paddingHorizontal: 10
+            <ScrollView
+                alwaysBounceVertical={false}
+                showsVerticalScrollIndicator={false}
+                style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
+            >
+                <Text style={{
+                    fontSize: 32, lineHeight: 38,
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    color: Theme.textColor,
+                    marginBottom: 12, marginTop: 16
                 }}>
-                    <View>
-                        {words1}
-                    </View>
-                    <View>
-                        {words2}
-                    </View>
-                </View>
-                <View style={{ height: 64 + 16 + safeArea.bottom }} />
+                    {t('create.backupTitle')}
+                </Text>
+                <Text style={{
+                    textAlign: 'center',
+                    fontSize: 17, lineHeight: 24,
+                    fontWeight: '400',
+                    flexShrink: 1,
+                    color: Theme.darkGrey,
+                    marginBottom: 16
+                }}>
+                    {t('create.backupSubtitle')}
+                </Text>
+                <MnemonicsView mnemonics={mnemonics.join(' ')} />
+                {AppConfig.isTestnet && (
+                    <RoundButton
+                        display={'text'}
+                        title={t('create.copy')}
+                        style={{ marginTop: 20 }}
+                        onPress={() => {
+                            try {
+                                if (Platform.OS === 'android') {
+                                    Clipboard.setString(mnemonics.join(' '));
+                                    ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
+                                    return;
+                                }
+                                Clipboard.setString(mnemonics.join(' '));
+                                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                            } catch {
+                                warn('Failed to copy words');
+                                Alert.alert(t('common.error'), t('errors.unknown'));
+                                return;
+                            }
+                        }}
+                    />
+                )}
             </ScrollView>
             <View style={{
-                height: 64,
-                marginTop: 33,
                 alignSelf: 'stretch',
-                position: 'absolute',
-                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom === 0? 32 : safeArea.bottom) + 16 : 0),
-                left: 16, right: 16
+                paddingHorizontal: 16,
+                paddingVertical: 16,
+                marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
             }}>
                 <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />
             </View>

@@ -155,7 +155,7 @@ export const ProductsComponent = React.memo(() => {
                 }}>
                     {t('common.products')}
                 </Text>
-                {!(cards.length === 0 && totalStaked.lte(new BN(0))) && (
+                {!(cards.length === 0 || totalStaked.lte(new BN(0))) && (
                     <Pressable
                         style={({ pressed }) => {
                             return {

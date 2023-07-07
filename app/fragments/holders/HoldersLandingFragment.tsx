@@ -34,6 +34,7 @@ export const HoldersLandingFragment = fragment(() => {
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.persistence.holdersOfflineApp.item().value;
+    const useOfflineApp = engine.products.holders.devUseOffline && !!offlineApp;
 
     //
     // View
@@ -164,7 +165,7 @@ export const HoldersLandingFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineApp && (
+                {useOfflineApp && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <OfflineWebView
                             ref={webRef}
@@ -205,7 +206,7 @@ export const HoldersLandingFragment = fragment(() => {
                         />
                     </Animated.View>
                 )}
-                {!offlineApp && (
+                {!useOfflineApp && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
@@ -246,7 +247,7 @@ export const HoldersLandingFragment = fragment(() => {
                         />
                     </Animated.View>
                 )}
-                {!offlineApp && (
+                {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -268,7 +269,7 @@ export const HoldersLandingFragment = fragment(() => {
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
-                {offlineApp && (
+                {useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

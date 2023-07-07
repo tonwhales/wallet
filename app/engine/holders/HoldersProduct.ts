@@ -48,12 +48,16 @@ export class HoldersProduct {
     readonly engine: Engine;
     readonly #lock = new AsyncLock();
     watcher: null | (() => void) = null;
+    
+    //TODO: REMOVE THIS, DEV DEMO ONLY
+    devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
 
     constructor(engine: Engine) {
         //TODO: REMOVE THIS, DEV DEMO ONLY
-        const devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
-        if (devUseOffline === undefined) {
+        this.devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+        if (this.devUseOffline === undefined) {
             storage.set('dev-tools:use-offline-app', true);
+            this.devUseOffline = true;
         }
 
 

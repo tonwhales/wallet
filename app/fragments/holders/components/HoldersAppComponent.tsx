@@ -47,6 +47,7 @@ export const HoldersAppComponent = React.memo((
     const currency = engine.products.price.usePrimaryCurrency();
     const offlineApp = engine.persistence.holdersOfflineApp.item().value;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
+    const useOfflineApp = engine.products.holders.devUseOffline && !!offlineApp;
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -320,7 +321,7 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineApp && (
+                {useOfflineApp && (
                     <OfflineWebView
                         ref={webRef}
                         uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
@@ -365,7 +366,7 @@ export const HoldersAppComponent = React.memo((
                         startInLoadingState={true}
                     />
                 )}
-                {!offlineApp && (
+                {!useOfflineApp && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
@@ -412,7 +413,7 @@ export const HoldersAppComponent = React.memo((
                         />
                     </Animated.View>
                 )}
-                {offlineApp && (
+                {useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -433,7 +434,7 @@ export const HoldersAppComponent = React.memo((
                         )}
                     </Animated.View>
                 )}
-                {!offlineApp && (
+                {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

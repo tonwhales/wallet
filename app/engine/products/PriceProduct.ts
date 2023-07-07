@@ -22,7 +22,7 @@ export const PrimaryCurrency: { [key: string]: string } = {
 
 export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean } } = {
     [PrimaryCurrency.Usd]: { symbol: '$' },
-    [PrimaryCurrency.Eur]: { symbol: '€' },
+    [PrimaryCurrency.Eur]: { symbol: '€', end: true },
     [PrimaryCurrency.Rub]: { symbol: '₽', end: true },
     [PrimaryCurrency.Gbp]: { symbol: '£' },
     [PrimaryCurrency.Chf]: { symbol: '₣' },

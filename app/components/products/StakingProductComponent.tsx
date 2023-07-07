@@ -45,6 +45,7 @@ export const StakingProductComponent = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const staking = engine.products.whalesStakingPools.useStaking();
+    const cards = engine.products.holders.useCards();
     const showJoin = staking.total.eq(new BN(0));
 
     const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
@@ -54,58 +55,64 @@ export const StakingProductComponent = React.memo(() => {
         }
     }, [apy]);
 
-    if (!showJoin) return (
-        <TouchableHighlight
-            onPress={() => navigation.navigate('StakingPools')}
-            underlayColor={Theme.selector}
-            style={style}
-        >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
-                <View style={icStyle}>
-                    <View style={{ backgroundColor: Theme.success, ...icStyleInner }}>
-                        <StakingIcon width={32} height={32} color={'white'} />
+    if (!showJoin) {
+        return (
+            <TouchableHighlight
+                onPress={() => navigation.navigate('StakingPools')}
+                underlayColor={Theme.selector}
+                style={style}
+            >
+                <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
+                    <View style={icStyle}>
+                        <View style={{ backgroundColor: Theme.success, ...icStyleInner }}>
+                            <StakingIcon width={32} height={32} color={'white'} />
+                        </View>
                     </View>
-                </View>
-                <View style={{
-                    flexDirection: 'row',
-                    flexGrow: 1, flexShrink: 1, alignItems: 'center',
-                    justifyContent: 'space-between',
-                    overflow: 'hidden'
-                }}>
-                    <View style={{ flexGrow: 1, flexShrink: 1 }}>
-                        <Text
-                            style={{ color: Theme.textColor, ...titleStyle }}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
-                        >
-                            {t('products.staking.title')}
-                        </Text>
-                        <Text style={{ color: '#838D99', ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
-                            {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
-                        </Text>
-                    </View>
-                    <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={{ color: Theme.textColor, ...titleStyle }}>
-                            <ValueComponent
-                                value={staking.total}
+                    <View style={{
+                        flexDirection: 'row',
+                        flexGrow: 1, flexShrink: 1, alignItems: 'center',
+                        justifyContent: 'space-between',
+                        overflow: 'hidden'
+                    }}>
+                        <View style={{ flexGrow: 1, flexShrink: 1 }}>
+                            <Text
+                                style={{ color: Theme.textColor, ...titleStyle }}
+                                ellipsizeMode={'tail'}
+                                numberOfLines={1}
+                            >
+                                {t('products.staking.title')}
+                            </Text>
+                            <Text style={{ color: '#838D99', ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                                {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
+                            </Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={{ color: Theme.textColor, ...titleStyle }}>
+                                <ValueComponent
+                                    value={staking.total}
+                                />
+                                {' TON'}
+                            </Text>
+                            <PriceComponent
+                                amount={staking.total}
+                                style={{
+                                    backgroundColor: Theme.transparent,
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    height: undefined
+                                }}
+                                textStyle={{ color: '#838D99', ...subtitleStyle }}
                             />
-                            {' TON'}
-                        </Text>
-                        <PriceComponent
-                            amount={staking.total}
-                            style={{
-                                backgroundColor: Theme.transparent,
-                                paddingHorizontal: 0, paddingVertical: 0,
-                                alignSelf: 'flex-end',
-                                height: undefined
-                            }}
-                            textStyle={{ color: '#838D99', ...subtitleStyle }}
-                        />
+                        </View>
                     </View>
                 </View>
-            </View>
-        </TouchableHighlight>
-    );
+            </TouchableHighlight>
+        );
+    }
+
+    if (cards.length > 0) {
+        return null;
+    }
 
     return (
         <ProductBanner

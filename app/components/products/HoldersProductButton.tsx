@@ -12,6 +12,7 @@ import Collapsible from "react-native-collapsible";
 import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
+import BN from "bn.js";
 
 export const holdersCardColorsMap: { [key: string]: string[] } = {
     'minimal-1': ['#8689b5', '#9fa2d1'],
@@ -27,6 +28,7 @@ export const HoldersProductButton = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const accounts = engine.products.holders.useCards();
+    const staking = engine.products.whalesStakingPools.useStaking();
     const status = engine.products.holders.useStatus();
     const [collapsed, setCollapsed] = useState(true);
 
@@ -72,6 +74,9 @@ export const HoldersProductButton = React.memo(() => {
 
 
     if (accounts.length === 0) {
+        if (staking.total.lte(new BN(0))) {
+            return null;
+        }
         return (
             <ProductBanner
                 title={t('products.zenPay.card.defaultTitle')}
@@ -89,7 +94,13 @@ export const HoldersProductButton = React.memo(() => {
                 backgroundColor: '#F7F8F9',
             }}>
                 {accounts.map((card, index) => {
-                    return (<HoldersCardItem account={card} last={index === accounts.length - 1} />)
+                    return (
+                        <HoldersCardItem
+                            key={`card-${index}`}
+                            account={card}
+                            last={index === accounts.length - 1}
+                        />
+                    )
                 })}
             </View>
         );
@@ -225,7 +236,13 @@ export const HoldersProductButton = React.memo(() => {
             <Collapsible renderChildrenCollapsed={true} collapsed={collapsed}>
                 <View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />
                 {accounts.map((card, index) => {
-                    return (<HoldersCardItem account={card} last={index === accounts.length - 1} />)
+                    return (
+                        <HoldersCardItem
+                            key={`card-${index}`}
+                            account={card}
+                            last={index === accounts.length - 1}
+                        />
+                    )
                 })}
             </Collapsible>
         </View>

@@ -587,7 +587,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 44;
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
+				DEVELOPMENT_TEAM = 6WGTUU3SQ7;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -603,7 +603,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.testnet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.testnet.vz;
 				PRODUCT_NAME = "Sandbox [d]";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "wallet/wallet-Bridging-Header.h";

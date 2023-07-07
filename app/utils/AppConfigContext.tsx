@@ -60,6 +60,7 @@ export type ThemeType = {
     lightGrey: string,
     darkGrey: string,
     mediumGrey: string,
+    green: string,
 };
 
 const initialTheme = {
@@ -115,6 +116,7 @@ const initialTheme = {
     lightGrey: '#F7F8F9',
     darkGrey: '#838D99',
     mediumGrey: '#E4E6EA',
+    green: '#00BE80'
 }
 
 export const initialNavigationTheme: NavigationThemeType = {

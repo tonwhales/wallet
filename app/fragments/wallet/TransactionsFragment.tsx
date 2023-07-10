@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -15,6 +15,9 @@ import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TabHeader } from "../../components/topbar/TabHeader";
+import { HorizontalScrollableSelector } from "../../components/HorizontalScrollableSelector";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -106,7 +109,6 @@ const WalletTransactions = React.memo((props: {
 function TransactionsComponent(props: { wallet: WalletState }) {
     const engine = useEngine();
     const holdersCards = engine.products.holders.useCards();
-    console.log({ cards: holdersCards })
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
@@ -114,6 +116,8 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const account = props.wallet;
     const animRef = React.useRef<LottieView>(null);
+
+    const [tab, setTab] = useState(0);
 
     const onReachedEnd = React.useMemo(() => {
         let prev = account.next;
@@ -132,54 +136,23 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <TabHeader title={t('transactions.history')} />
-            <ScrollView
-                style={{ height: 28, width: '100%', marginLeft: 16 }}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-            >
-                <View style={{
-                    backgroundColor: Theme.lightGrey,
-                    marginRight: 8,
-                    paddingHorizontal: 17, paddingVertical: 4,
-                    borderRadius: 20
-                }}>
-                    <Text style={{
-                        fontWeight: '400',
-                        fontSize: 15, lineHeight: 20,
-                        textAlign: 'center', textAlignVertical: 'center'
-                    }}>
-                        {'Main wallet'}
-                    </Text>
+            {holdersCards.length > 0 && (
+                <View>
+                    <HorizontalScrollableSelector
+                        items={[
+                            { title: 'Main wallet' },
+                            ...holdersCards.map((account) => {
+                                return { title: `Tonhub card ${account.card.lastFourDigits}` };
+                            })
+                        ]}
+                        current={tab}
+                        onSeleted={(index) => {
+                            setTab(index);
+                        }}
+                    />
                 </View>
-                {holdersCards.map((account, i) => {
-                    if (!account.card.lastFourDigits) return null;
-                    return (
-                        <View
-                            key={`card-txs-${i}`}
-                            style={{
-                                backgroundColor: Theme.lightGrey,
-                                marginRight: 8,
-                                paddingHorizontal: 17, paddingVertical: 4,
-                                borderRadius: 20
-                            }}
-                        >
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 15, lineHeight: 20,
-                                textAlign: 'center', textAlignVertical: 'center'
-                            }}>
-                                {`Tonhub card ${account.card.lastFourDigits}`}
-                            </Text>
-                        </View>
-                    )
-                })}
-                <View style={{ width: 16 }}>
-                    <Text>
-                        {'Main wallet'}
-                    </Text>
-                </View>
-            </ScrollView>
-            {account.transactions.length === 0 && (
+            )}
+            {account.transactions.length === 0 && tab === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                     <Pressable
                         onPress={() => {
@@ -205,19 +178,26 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     />
                 </View>
             )}
-            {account.transactions.length > 0 && (
-                <WalletTransactions
-                    txs={account.transactions}
-                    next={account.next}
-                    address={address}
-                    engine={engine}
-                    navigation={navigation}
-                    safeArea={safeArea}
-                    onLoadMore={onReachedEnd}
-                    frameArea={frameArea}
-                />
+            {account.transactions.length > 0 && tab === 0 && (
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    <WalletTransactions
+                        txs={account.transactions}
+                        next={account.next}
+                        address={address}
+                        engine={engine}
+                        navigation={navigation}
+                        safeArea={safeArea}
+                        onLoadMore={onReachedEnd}
+                        frameArea={frameArea}
+                    />
+                </Animated.View>
             )}
-        </View >
+            {tab > 0 && (
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    <HoldersCardTransactions id={holdersCards[tab - 1].id} />
+                </Animated.View>
+            )}
+        </View>
     );
 }
 

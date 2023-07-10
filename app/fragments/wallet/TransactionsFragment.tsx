@@ -132,53 +132,6 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <TabHeader title={t('transactions.history')} />
-            <ScrollView
-                style={{ height: 28, width: '100%', marginLeft: 16 }}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-            >
-                <View style={{
-                    backgroundColor: Theme.lightGrey,
-                    marginRight: 8,
-                    paddingHorizontal: 17, paddingVertical: 4,
-                    borderRadius: 20
-                }}>
-                    <Text style={{
-                        fontWeight: '400',
-                        fontSize: 15, lineHeight: 20,
-                        textAlign: 'center', textAlignVertical: 'center'
-                    }}>
-                        {'Main wallet'}
-                    </Text>
-                </View>
-                {holdersCards.map((account, i) => {
-                    if (!account.card.lastFourDigits) return null;
-                    return (
-                        <View
-                            key={`card-txs-${i}`}
-                            style={{
-                                backgroundColor: Theme.lightGrey,
-                                marginRight: 8,
-                                paddingHorizontal: 17, paddingVertical: 4,
-                                borderRadius: 20
-                            }}
-                        >
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 15, lineHeight: 20,
-                                textAlign: 'center', textAlignVertical: 'center'
-                            }}>
-                                {`Tonhub card ${account.card.lastFourDigits}`}
-                            </Text>
-                        </View>
-                    )
-                })}
-                <View style={{ width: 16 }}>
-                    <Text>
-                        {'Main wallet'}
-                    </Text>
-                </View>
-            </ScrollView>
             {account.transactions.length === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                     <Pressable

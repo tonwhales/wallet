@@ -70,7 +70,7 @@ export const HoldersProductButton = React.memo(() => {
 
 
     if (accounts.length === 0) {
-        if (staking.total.lte(new BN(0))) {
+        if (staking.total.gt(new BN(0))) {
             return null;
         }
         return (

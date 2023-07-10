@@ -15,6 +15,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
     props: Omit<WebViewProps, "source"> & { uri: string, baseUrl: string, initialRoute?: string },
     ref: React.ForwardedRef<AWebViewRef>
 ) => {
+    const [iOSRelaoded, setiOSRelaoded] = useState(false);
     const tref = React.useRef<WebView>(null);
     React.useImperativeHandle(ref, () => ({
         injectJavaScript: (script: string) => {
@@ -89,9 +90,17 @@ export const OfflineWebView = React.memo(React.forwardRef((
                         baseUrl: props.baseUrl,
                     }}
                     onLoad={(e) => {
-                        setRenderedOnce(true);
                         if (props.onLoad) {
                             props.onLoad(e);
+                        }
+                    }}
+                    onLoadEnd={(e) => { // This might fix the iOS blank screen bug
+                        if (!iOSRelaoded) {
+                            setiOSRelaoded(true);
+                            tref.current!.reload();
+                        }
+                        if (props.onLoadEnd) {
+                            props.onLoadEnd(e);
                         }
                     }}
                     allowFileAccess={true}

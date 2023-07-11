@@ -72,17 +72,18 @@ export const ProductsFragment = fragment(() => {
                     <ProductBanner
                         title={t('products.zenPay.card.defaultTitle')}
                         subtitle={t('products.zenPay.card.defaultSubtitle')}
+                        reverse
                         onPress={onHolders}
-                        illustration={require('../../assets/banner-cards.png')}
+                        illustration={require('../../assets/banner-generic.png')}
                     />
                 )}
-                <View style={{ marginTop: AppConfig.isTestnet ? 8 : 0 }}>
+                <View style={{ marginTop: AppConfig.isTestnet ? 16 : 0 }}>
                     <ProductBanner
                         onPress={() => navigation.replace('StakingPools')}
                         reverse
                         title={t('products.staking.title')}
                         subtitle={AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-                        illustration={require('../../assets/banner-staking.png')}
+                        illustration={require('../../assets/banner-generic.png')}
                     />
                 </View>
             </ScrollView>

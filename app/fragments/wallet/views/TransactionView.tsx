@@ -274,7 +274,7 @@ export function TransactionView(props: {
                             {' • ' + formatTime(parsed.time)}
                         </Text>
                     </View>
-                    <View style={{}}>
+                    <View>
                         {parsed.status === 'failed' ? (
                             <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
                                 {t('tx.failed')}

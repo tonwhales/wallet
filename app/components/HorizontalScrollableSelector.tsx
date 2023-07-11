@@ -18,7 +18,7 @@ export const HorizontalScrollableSelector = React.memo(({ items, current, onSele
             style={{ width: '100%', height: 28 }}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ alignItems: 'center', paddingLeft: 16, }}
+            contentContainerStyle={{ alignItems: 'center', paddingLeft: 16 }}
         >
             {items.map((item, index) => {
                 return (

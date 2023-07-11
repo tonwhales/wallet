@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, ViewStyle, StyleProp, Insets, PointProp } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { Engine, useEngine } from "../../engine/Engine";
@@ -28,6 +28,10 @@ const WalletTransactions = React.memo((props: {
     safeArea: EdgeInsets,
     frameArea: Rect,
     onLoadMore: () => void,
+    style?: StyleProp<ViewStyle>,
+    contentContainerStyle?: StyleProp<ViewStyle>,
+    contentInset?: Insets,
+    contentOffset?: PointProp
 }) => {
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
@@ -80,7 +84,7 @@ const WalletTransactions = React.memo((props: {
         );
     } else {
         components.push(
-            <View key="footer" style={{ height: 64 }} />
+            <View key="footer" style={{ height: 16 }} />
         );
     }
 
@@ -96,10 +100,13 @@ const WalletTransactions = React.memo((props: {
 
     return (
         <ScrollView
-            contentContainerStyle={{}}
+            style={props.style}
+            contentContainerStyle={props.contentContainerStyle}
             onScroll={onScroll}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
+            contentInset={props.contentInset}
+            contentOffset={props.contentOffset}
         >
             {components}
         </ScrollView>
@@ -137,7 +144,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <TabHeader title={t('transactions.history')} />
             {holdersCards.length > 0 && (
-                <View>
+                <View style={{ paddingVertical: 8 }}>
                     <HorizontalScrollableSelector
                         items={[
                             { title: 'Main wallet' },
@@ -179,7 +186,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                 </View>
             )}
             {account.transactions.length > 0 && tab === 0 && (
-                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 104 }}>
                     <WalletTransactions
                         txs={account.transactions}
                         next={account.next}
@@ -193,7 +200,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                 </Animated.View>
             )}
             {tab > 0 && (
-                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 104 }}>
                     <HoldersCardTransactions id={holdersCards[tab - 1].id} />
                 </Animated.View>
             )}

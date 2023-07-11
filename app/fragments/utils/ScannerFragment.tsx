@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, StyleSheet, Pressable, Platform, Linking } from 'react-native';
+import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
@@ -15,7 +15,9 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useDimensions } from '@react-native-community/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { Canvas, Path, Paint, rrect, rect, DiffRect, RoundedRect } from '@shopify/react-native-skia';
+import { Canvas, rrect, rect, DiffRect } from '@shopify/react-native-skia';
+import * as RNImagePicker from 'expo-image-picker';
+import * as BarCodeScanner from 'expo-barcode-scanner';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
@@ -37,6 +39,29 @@ export const ScannerFragment = systemFragment(() => {
     const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
 
     const onReadFromMedia = useCallback(async () => {
+        try {
+            const { status } = await RNImagePicker.requestMediaLibraryPermissionsAsync()
+            if (status === 'granted') {
+                const result = await RNImagePicker.launchImageLibraryAsync({
+                    allowsMultipleSelection: false,
+                    mediaTypes: RNImagePicker.MediaTypeOptions.Images,
+                })
+                if (!result.canceled) {
+                    const resourceUri = result.assets[0].uri;
+                    const results = await BarCodeScanner.scanFromURLAsync(resourceUri);
+                    if (results.length > 0) {
+                        const res = results[0];
+                        setActive(false);
+                        setTimeout(() => {
+                            navigation.goBack();
+                            (route as any).callback(res.data);
+                        }, 10);
+                    }
+                }
+            }
+        } catch {
+            Alert.alert(t('qr.title'), t('qr.failedToReadFromImage'));
+        }
     }, []);
 
     useEffect(() => {

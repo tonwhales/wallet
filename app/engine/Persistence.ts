@@ -32,7 +32,8 @@ import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
 import { accountStateCodec } from "./api/holders/fetchAccountState";
 import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fetchCards";
-import { HoldersOfflineResMap, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
+import { HoldersOfflineApp, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
+import { CardNotification } from "./api/holders/fetchCardsTransactions";
 
 export class Persistence {
 
@@ -84,7 +85,8 @@ export class Persistence {
     readonly holdersStatus: PersistedCollection<Address, HoldersAccountStatus>;
     readonly holdersState: PersistedCollection<Address, HoldersState>;
     readonly holdersCards: PersistedCollection<Address, HoldersCardsList>;
-    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineResMap>;
+    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineApp>;
+    readonly holdersCardTransactions: PersistedCollection<string, CardNotification[]>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -154,6 +156,7 @@ export class Persistence {
         this.holdersState = new PersistedCollection({ storage, namespace: 'holdersState', key: addressKey, codec: holdersStateCodec, engine });
         this.holdersCards = new PersistedCollection({ storage, namespace: 'holdersAccount', key: addressKey, codec: cardsListCodec, engine });
         this.holdersOfflineApp = new PersistedCollection({ storage, namespace: 'holdersOfflineApp', key: voidKey, codec: holdersOfflineAppCodec, engine });
+        this.holdersCardTransactions = new PersistedCollection({ storage, namespace: 'holdersCardTransactions', key: stringKey, codec: holdersCardTransactionsCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -348,6 +351,8 @@ const holdersStateCodec = t.type({
         }),
     })),
 });
+
+const holdersCardTransactionsCodec = t.array(t.any);
 
 const apyCodec = t.type({
     apy: t.number

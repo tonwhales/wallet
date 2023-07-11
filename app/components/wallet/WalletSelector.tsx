@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useAppStateManager } from "../../engine/AppStateManager";
 import { t } from "../../i18n/t";
@@ -9,6 +9,7 @@ import { Address } from "ton";
 import { shortAddress } from "../../utils/shortAddress";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { Avatar } from "../Avatar";
 
 export const WalletSelector = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -70,7 +71,16 @@ export const WalletSelector = React.memo(() => {
                             }}
                             onPress={() => onSelectAccount(index === appStateManager.current.selected, wallet.address)}
                         >
-                            <View style={{ height: 42.2, width: 42.2, backgroundColor: Theme.accent, borderRadius: 22, marginRight: 12 }} />
+                            <View style={{
+                                height: 46, width: 46,
+                                backgroundColor: Theme.accent,
+                                borderRadius: 23,
+                                marginRight: 12,
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}>
+                                <Avatar backgroundColor={Theme.accent} id={wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })} size={46} />
+                            </View>
                             <View style={{ justifyContent: 'center', flexGrow: 1 }}>
                                 <Text style={{ fontSize: 17, lineHeight: 24, fontWeight: '600', color: Theme.textColor, marginBottom: 2 }}>
                                     {t('common.wallet')} {index + 1}

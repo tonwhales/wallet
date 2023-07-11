@@ -62,6 +62,7 @@ export type ThemeType = {
     darkGrey: string,
     mediumGrey: string,
     green: string,
+    mainViolet: string
 };
 
 const initialTheme = {
@@ -117,7 +118,8 @@ const initialTheme = {
     lightGrey: '#F7F8F9',
     darkGrey: '#838D99',
     mediumGrey: '#E4E6EA',
-    green: '#00BE80'
+    green: '#00BE80',
+    mainViolet: '#564CE2'
 }
 
 export const initialNavigationTheme: NavigationThemeType = {
@@ -167,7 +169,7 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
 
     const Theme = {
         ...initialTheme,
-        accent: AppConfig.isTestnet ? '#F3A203' : '#564CE2',
+        accent: AppConfig.isTestnet ? '#564CE2' : '#564CE2',
         accentDark: AppConfig.isTestnet ? '#F3A203' : '#288FD8',
         accentText: AppConfig.isTestnet ? '#E99A02' : '#1C8FE3',
     };

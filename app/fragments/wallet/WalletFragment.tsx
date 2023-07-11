@@ -22,6 +22,7 @@ import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { Avatar } from '../../components/Avatar';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -106,6 +107,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 backgroundColor: Theme.accent,
                                 borderRadius: 12
                             }}>
+                                <Avatar id={address.toFriendly({ testOnly: AppConfig.isTestnet })} size={24} backgroundColor={Theme.accent} />
                             </View>
                             <Text style={{ marginLeft: 12, fontWeight: '500', fontSize: 17, color: '#AAB4BF' }}>
                                 {`${t('common.wallet')} ${currentWalletIndex + 1}`}

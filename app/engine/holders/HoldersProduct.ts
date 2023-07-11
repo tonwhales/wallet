@@ -12,6 +12,7 @@ import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
 import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
+import * as Application from 'expo-application';
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
@@ -369,7 +370,7 @@ export class HoldersProduct {
                 }
                 return fetchedApp;
             });
-            this.stableOfflineVersion = fetchedApp.version;
+            return fetchedApp;
         } catch {
             warn('Failed to sync offline app');
             return;
@@ -470,6 +471,9 @@ export class HoldersProduct {
         if (ready) {
             this.stableOfflineVersion = ready.version;
         }
-        this.syncOfflineApp();
+        const resMap = await this.syncOfflineApp();
+        if (resMap) {
+            this.stableOfflineVersion = resMap.version;
+        }
     }
 }

@@ -389,11 +389,12 @@ export class HoldersProduct {
 
     async forceSyncOfflineApp() {
         const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
-
+        
         if (!fetchedApp) {
             return;
         }
-
+        
+        this.stableOfflineVersion = null;
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
@@ -476,6 +477,16 @@ export class HoldersProduct {
         return false;
     }
 
+    wasNativeAppUpdated() {
+        return storage.getString('app-last-offline-sync-app-version') !== Application.nativeApplicationVersion;
+    }
+
+    setLastOfflineResSyncAppVersion(appVersion: string | null) {
+        if (appVersion) {
+            storage.set('app-last-offline-sync-app-version', appVersion);
+        }
+    }
+
     async offlinePreFlight() {
         const ready = await this.checkCurrentOfflineVersion();
         if (ready) {
@@ -484,6 +495,11 @@ export class HoldersProduct {
         const resMap = await this.syncOfflineApp();
         if (resMap) {
             this.stableOfflineVersion = resMap.version;
+        }
+
+        if (this.wasNativeAppUpdated()) {
+            await this.forceSyncOfflineApp();
+            this.setLastOfflineResSyncAppVersion(Application.nativeApplicationVersion);
         }
     }
 }

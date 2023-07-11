@@ -222,6 +222,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         requestingPermission: 'Requesting for camera permission...',
         noPermission: 'Allow camera access to scan QR codes',
         requestPermission: 'Open settings',
+        failedToReadFromImage: 'Failed to read QR code from image',
     },
     products: {
         addNew: 'Add new product',

@@ -22,6 +22,11 @@ import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { useBottomSheet } from '../../components/modal/BottomSheetModal';
+import { WalletSelector } from '../../components/wallet/WalletSelector';
+import { RoundButton } from '../../components/RoundButton';
+import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
+import { BlurView } from 'expo-blur';
 import { Avatar } from '../../components/Avatar';
 
 function WalletComponent(props: { wallet: WalletState }) {

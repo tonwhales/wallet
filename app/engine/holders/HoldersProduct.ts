@@ -12,6 +12,7 @@ import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
 import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
+import * as Application from 'expo-application';
 import { fetchCardsTransactions } from "../api/holders/fetchCardsTransactions";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
@@ -219,9 +220,14 @@ export class HoldersProduct {
     }
 
     watch(token: string) {
-        this.watcher = watchHoldersAccountUpdates(token, () => {
-            this.syncAccounts();
-            this.syncCardsTransactions();
+        this.watcher = watchHoldersAccountUpdates(token, (event) => {
+            if (event.type === 'error' && event.message === 'invalid_token') {
+                this.doSync();
+            }
+            if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
+                this.syncAccounts();
+                this.syncCardsTransactions();
+            }
         });
     }
 

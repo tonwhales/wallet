@@ -32,7 +32,7 @@ import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
 import { accountStateCodec } from "./api/holders/fetchAccountState";
 import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fetchCards";
-import { HoldersOfflineApp, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
+import { HoldersOfflineResMap, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
 import { CardNotification } from "./api/holders/fetchCardsTransactions";
 
 export class Persistence {
@@ -85,7 +85,7 @@ export class Persistence {
     readonly holdersStatus: PersistedCollection<Address, HoldersAccountStatus>;
     readonly holdersState: PersistedCollection<Address, HoldersState>;
     readonly holdersCards: PersistedCollection<Address, HoldersCardsList>;
-    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineApp>;
+    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineResMap>;
     readonly holdersCardTransactions: PersistedCollection<string, CardNotification[]>;
 
     constructor(storage: MMKV, engine: Engine) {

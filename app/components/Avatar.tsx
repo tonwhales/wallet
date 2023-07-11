@@ -278,6 +278,7 @@ export const Avatar = React.memo((props: {
     markContact?: boolean,
     verified?: boolean,
     dontShowVerified?: boolean,
+    backgroundColor?: string
 }) => {
     const { AppConfig } = useAppConfig();
 
@@ -302,7 +303,7 @@ export const Avatar = React.memo((props: {
     }
 
     return (
-        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: (!known || !known.ic) ? color : undefined, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: (!known || !known.ic) ? (props.backgroundColor || color) : undefined, alignItems: 'center', justifyContent: 'center' }}>
             {img}
             <View style={{
                 width: props.size, height: props.size,

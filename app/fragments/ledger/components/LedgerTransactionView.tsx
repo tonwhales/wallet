@@ -232,7 +232,7 @@ export function LedgerTransactionView(props: {
                             />
                         )}
                         {parsed.status === 'pending' && (
-                            <PendingTransactionAvatar address={friendlyAddress} avatarId={avatarId} />
+                            <PendingTransactionAvatar kind={parsed.kind} address={friendlyAddress} avatarId={avatarId} />
                         )}
                     </View>
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>

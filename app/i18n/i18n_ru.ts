@@ -416,6 +416,42 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 type: {
                     physical: 'Физическая карта',
                     virtual: 'Виртуальная',
+                },
+                notifications: {
+                    type: {
+                        card_ready: 'Карта активирована',
+                        deposit: 'Пополнение карты',
+                        charge: 'Оплата',
+                        charge_failed: 'Оплата',
+                        limits_change: {
+                            pending: 'Изменение лимитов',
+                            completed: 'Лимиты изменены',
+                        },
+                        card_withdraw: 'Перевод на кошелек',
+                        contract_closed: 'Контракт закрыт',
+                        card_block: 'Карта заблокирована',
+                        card_freeze: 'Карта заморожена',
+                        card_unfreeze: 'Карта разморожена',
+                        card_paid: 'Выпуск банковской карты',
+                    },
+                    category: {
+                        deposit: 'Пополнение',
+                        charge: 'Покупки',
+                        charge_failed: 'Покупки',
+                        card_withdraw: 'Перевод',
+                        other: 'Другое',
+                    },
+                    status: {
+                        charge_failed: {
+                            limit: {
+                                onetime: 'Неудачно (превышен лимит на одну транзакцию)',
+                                daily: 'Неудачно (превышен дневной лимит)',
+                                monthly: 'Неудачно (превышен месячный лимит)',
+                            },
+                            failed: 'Неудачно',
+                        },
+                        completed: 'Завершено',
+                    }
                 }
             },
             confirm: {

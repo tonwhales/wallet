@@ -189,8 +189,13 @@ export class HoldersProduct {
     }
 
     watch(token: string) {
-        this.watcher = watchHoldersAccountUpdates(token, () => {
-            this.syncAccounts();
+        this.watcher = watchHoldersAccountUpdates(token, (event) => {
+            if (event.type === 'error' && event.message === 'invalid_token') {
+                this.doSync();
+            }
+            if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
+                this.syncAccounts();
+            }
         });
     }
 

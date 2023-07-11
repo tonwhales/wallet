@@ -33,6 +33,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const offlineApp = engine.products.holders.useOfflineApp();
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
+    const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
     const [offlineAppEnabled, setOfflineAppEnabled] = useState(storage.getBoolean('dev-tools:use-offline-app') ?? false);
 
     useEffect(() => {
@@ -40,8 +41,12 @@ export const DeveloperToolsFragment = fragment(() => {
             if (!offlineAppEnabled) {
                 setOfflineAppReady(false);
             }
-            const ready = await engine.products.holders.checkOfflineApp();
+            const ready = await engine.products.holders.checkCurrentOfflineVersion();
             setOfflineAppReady(ready);
+            const prev = await engine.products.holders.getPrevOfflineVersion();
+            if (prev) {
+                const prevReady = await engine.products.holders.isOfflineAppReady(prev);
+            }
         })()
     }, [offlineApp, offlineAppEnabled]);
 
@@ -199,14 +204,18 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={'Offline integrity check:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                            <ItemButton title={'Offline integrity:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                        </View>
+
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
                         </View>
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
                                 const app = engine.persistence.holdersOfflineApp.item().value;
                                 if (app) {
-                                    engine.products.holders.cleanupPrevOfflineApp(app);
+                                    engine.products.holders.cleanupPrevOfflineRes(app);
                                 }
                                 engine.persistence.holdersOfflineApp.item().update(() => null);
                                 await engine.products.holders.forceSyncOfflineApp();

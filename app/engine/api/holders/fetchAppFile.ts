@@ -11,21 +11,13 @@ export const holdersOfflineAppCodec = t.type({
     resources: t.array(t.string)
 });
 
-export type HoldersOfflineApp = {
-    version: string
-    routes: {
-        fileName: string
-        path: string
-        source: string
-    }[]
-    resources: string[]
-}
+export type HoldersOfflineResMap = t.TypeOf<typeof holdersOfflineAppCodec>;
 
 export async function fetchHoldersResourceMap(endpoint: string) {
     const holdersAppFile = (await axios.get(`${endpoint}/app-cache/info.json`)).data;
 
     if (holdersOfflineAppCodec.is(holdersAppFile)) {
-        return holdersAppFile as HoldersOfflineApp;
+        return holdersAppFile as HoldersOfflineResMap;
     }
 
     return null;

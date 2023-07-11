@@ -33,8 +33,8 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
-    const useOfflineApp = engine.products.holders.devUseOffline && !!offlineApp;
+    const stableOfflineVersion = engine.products.holders.stableOfflineVersion;
+    const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineVersion;
 
     //
     // View
@@ -169,8 +169,8 @@ export const HoldersLandingFragment = fragment(() => {
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <OfflineWebView
                             ref={webRef}
-                            uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
-                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
+                            uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/index.html`}
+                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/`}
                             initialRoute={`/about?lang=${lang}&currency=${currency}`}
                             style={{
                                 backgroundColor: Theme.item,

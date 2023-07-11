@@ -45,9 +45,9 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
+    const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
-    const useOfflineApp = engine.products.holders.devUseOffline && !!offlineApp;
+    const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineV;
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -324,8 +324,8 @@ export const HoldersAppComponent = React.memo((
                 {useOfflineApp && (
                     <OfflineWebView
                         ref={webRef}
-                        uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
-                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
+                        uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/`}
                         initialRoute={source.initialRoute}
                         style={{
                             backgroundColor: Theme.item,

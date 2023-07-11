@@ -10,7 +10,7 @@ import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
-import { HoldersOfflineApp, fetchHoldersResourceMap } from "../api/holders/fetchAppFile";
+import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
@@ -48,7 +48,8 @@ export class HoldersProduct {
     readonly engine: Engine;
     readonly #lock = new AsyncLock();
     watcher: null | (() => void) = null;
-    
+    stableOfflineVersion: string | null = null;
+
     //TODO: REMOVE THIS, DEV DEMO ONLY
     devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
 
@@ -60,7 +61,6 @@ export class HoldersProduct {
             this.devUseOffline = true;
         }
 
-
         this.engine = engine;
 
         if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
@@ -68,14 +68,7 @@ export class HoldersProduct {
         }
         storage.set('zenpay-token-version', currentTokenVersion);
 
-        //TODO: REMOVE THIS, DEV DEMO ONLY
-        const migratedOfflineAppRes = storage.getBoolean('dev-tools:migrated-offline-app');
-        if (migratedOfflineAppRes === undefined) {
-            this.forceSyncOfflineApp();
-            storage.set('dev-tools:migrated-offline-app', true);
-        } else {
-            this.syncOfflineApp();
-        }
+        this.offlinePreFlight();
     }
 
     async enroll(domain: string, authContext: AuthWalletKeysType) {
@@ -215,9 +208,7 @@ export class HoldersProduct {
     async cleanup() {
         this.deleteToken();
         this.stopWatching();
-        this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
-            return null;
-        });
+        this.engine.persistence.holdersState.item(this.engine.address).update((src) => null);
         this.engine.persistence.holdersStatus.item(this.engine.address).update((src) => null);
     }
 
@@ -331,15 +322,15 @@ export class HoldersProduct {
         return fsPath;
     }
 
-    async syncOfflineRes(endpoint: string, app: HoldersOfflineApp) {
-        const normalizedVersion = normalizePath(app.version);
+    async syncOfflineRes(endpoint: string, resMap: HoldersOfflineResMap) {
+        const normalizedVersion = normalizePath(resMap.version);
         const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`);
         if (!hasAppDirectory.exists) {
             await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`, { intermediates: true });
         }
 
         let uri = null;
-        if (app.routes.length > 0 && app.routes[0].fileName === 'index.html') {
+        if (resMap.routes.length > 0 && resMap.routes[0].fileName === 'index.html') {
             uri = FileSystem.documentDirectory + `holders${normalizedVersion}/index.html`;
             const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;
@@ -351,7 +342,7 @@ export class HoldersProduct {
             await FileSystem.writeAsStringAsync(uri, file);
         }
 
-        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset, normalizedVersion));
+        const assets = resMap.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset, normalizedVersion));
         const downloadedAssets = await Promise.all(assets);
 
         return { uri, assets: downloadedAssets };
@@ -374,10 +365,11 @@ export class HoldersProduct {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
                 if (prevState) {
-                    this.cleanupPrevOfflineApp(prevState);
+                    this.cleanupPrevOfflineRes(prevState);
                 }
                 return fetchedApp;
             });
+            this.stableOfflineVersion = fetchedApp.version;
         } catch {
             warn('Failed to sync offline app');
             return;
@@ -395,10 +387,11 @@ export class HoldersProduct {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
                 if (prevState) {
-                    this.cleanupPrevOfflineApp(prevState);
+                    this.cleanupPrevOfflineRes(prevState);
                 }
                 return fetchedApp;
             });
+            this.stableOfflineVersion = fetchedApp.version;
         } catch {
             warn('Failed to sync offline app');
             return;
@@ -406,38 +399,51 @@ export class HoldersProduct {
     }
 
     getPrevOfflineVersion() {
-        return storage.getString('holders-prev-version');
+        const stored = storage.getString('holders-prev-resource-map');
+        if (!stored) {
+            return null;
+        }
+        const parsed = JSON.parse(stored);
+        if (!holdersOfflineAppCodec.is(parsed)) {
+            return null;
+        }
+        return parsed;
     }
 
-    storePrevOfflineVersion(prev: string) {
-        storage.set('holders-prev-version', prev);
+    storePrevOfflineVersion(prev: HoldersOfflineResMap) {
+        storage.set('holders-prev-resource-map', JSON.stringify(prev));
     }
 
-    async cleanupPrevOfflineApp(prevAppState: HoldersOfflineApp) {
-        const prevVersion = this.getPrevOfflineVersion();
+    async cleanupPrevOfflineRes(prevResMap: HoldersOfflineResMap) {
+        const stored = this.getPrevOfflineVersion();
 
-        this.storePrevOfflineVersion(prevAppState.version);
+        this.storePrevOfflineVersion(prevResMap);
 
-        if (!prevVersion) {
+        if (!stored) {
             return;
         }
-        const appDir = FileSystem.documentDirectory + `holders${normalizePath(prevVersion)}`;
+
+        const appDir = FileSystem.documentDirectory + `holders${normalizePath(stored.version)}`;
         const hasAppDirectory = await FileSystem.getInfoAsync(appDir);
         if (hasAppDirectory.exists) {
             await FileSystem.deleteAsync(appDir, { idempotent: true });
         }
     }
 
-    async checkOfflineApp() {
-        const offlineApp = this.engine.persistence.holdersOfflineApp.item().value;
-
-        if (!offlineApp) {
+    async checkCurrentOfflineVersion() {
+        const stored = this.engine.persistence.holdersOfflineApp.item().value;
+        if (!stored) {
             return false;
         }
-        const normalizedPath = normalizePath(offlineApp.version);
+
+        return this.isOfflineAppReady(stored);
+    }
+
+    async isOfflineAppReady(resMap: HoldersOfflineResMap) {
+        const normalizedPath = normalizePath(resMap.version);
 
         const filesCheck: Promise<boolean>[] = [];
-        offlineApp.resources.forEach((asset) => {
+        resMap.resources.forEach((asset) => {
             filesCheck.push((async () => {
                 const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/${asset}`);
                 return info.exists;
@@ -453,9 +459,17 @@ export class HoldersProduct {
         const ready = files.every((f) => f);
 
         if (ready) {
-            return { version: offlineApp.version };
+            return { version: resMap.version };
         }
 
         return false;
+    }
+
+    async offlinePreFlight() {
+        const ready = await this.checkCurrentOfflineVersion();
+        if (ready) {
+            this.stableOfflineVersion = ready.version;
+        }
+        this.syncOfflineApp();
     }
 }

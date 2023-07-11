@@ -23,6 +23,7 @@ import { WalletSelector } from '../../components/wallet/WalletSelector';
 import { RoundButton } from '../../components/RoundButton';
 import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
 import { BlurView } from 'expo-blur';
+import { Avatar } from '../../components/Avatar';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
@@ -135,6 +136,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 backgroundColor: Theme.accent,
                                 borderRadius: 12
                             }}>
+                                <Avatar id={address.toFriendly({ testOnly: AppConfig.isTestnet })} size={24} backgroundColor={Theme.accent} />
                             </View>
                             <Text style={{ marginLeft: 12, fontWeight: '500', fontSize: 17, color: '#AAB4BF' }}>
                                 {`${t('common.wallet')} ${currentWalletIndex + 1}`}

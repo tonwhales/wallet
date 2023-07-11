@@ -166,45 +166,43 @@ export const HoldersLandingFragment = fragment(() => {
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 {useOfflineApp && (
-                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                        <OfflineWebView
-                            ref={webRef}
-                            uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/index.html`}
-                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/`}
-                            initialRoute={`/about?lang=${lang}&currency=${currency}`}
-                            style={{
-                                backgroundColor: Theme.item,
-                                flexGrow: 1, flexBasis: 0, height: '100%',
-                                alignSelf: 'stretch',
-                                marginTop: Platform.OS === 'ios' ? 0 : 8,
-                            }}
-                            onLoadEnd={() => {
-                                setLoaded(true);
-                                opacity.value = 0;
-                            }}
-                            onLoadProgress={(event) => {
-                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                    // Searching for supported query
-                                    onNavigation(event.nativeEvent.url);
-                                }
-                            }}
-                            onNavigationStateChange={(event: WebViewNavigation) => {
+                    <OfflineWebView
+                        ref={webRef}
+                        uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/index.html`}
+                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/`}
+                        initialRoute={`/about?lang=${lang}&currency=${currency}`}
+                        style={{
+                            backgroundColor: Theme.item,
+                            flexGrow: 1, flexBasis: 0, height: '100%',
+                            alignSelf: 'stretch',
+                            marginTop: Platform.OS === 'ios' ? 0 : 8,
+                        }}
+                        onLoadEnd={() => {
+                            setLoaded(true);
+                            opacity.value = 0;
+                        }}
+                        onLoadProgress={(event) => {
+                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
-                                onNavigation(event.url);
-                            }}
-                            // Locking scroll, it's handled within the Web App
-                            scrollEnabled={false}
-                            contentInset={{ top: 0, bottom: 0 }}
-                            autoManageStatusBarEnabled={false}
-                            decelerationRate="normal"
-                            allowsInlineMediaPlayback={true}
-                            onMessage={handleWebViewMessage}
-                            keyboardDisplayRequiresUserAction={false}
-                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                            bounces={false}
-                            startInLoadingState={true}
-                        />
-                    </Animated.View>
+                                onNavigation(event.nativeEvent.url);
+                            }
+                        }}
+                        onNavigationStateChange={(event: WebViewNavigation) => {
+                            // Searching for supported query
+                            onNavigation(event.url);
+                        }}
+                        // Locking scroll, it's handled within the Web App
+                        scrollEnabled={false}
+                        contentInset={{ top: 0, bottom: 0 }}
+                        autoManageStatusBarEnabled={false}
+                        decelerationRate="normal"
+                        allowsInlineMediaPlayback={true}
+                        onMessage={handleWebViewMessage}
+                        keyboardDisplayRequiresUserAction={false}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        bounces={false}
+                        startInLoadingState={true}
+                    />
                 )}
                 {!useOfflineApp && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
@@ -267,27 +265,6 @@ export const HoldersLandingFragment = fragment(() => {
                             </Pressable>
                         )}
                         <ActivityIndicator size="small" color={'#564CE2'} />
-                    </Animated.View>
-                )}
-                {useOfflineApp && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
                     </Animated.View>
                 )}
                 <Animated.View

@@ -413,6 +413,42 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 type: {
                     physical: 'Physical Card',
                     virtual: 'Virtual',
+                },
+                notifications: {
+                    type: {
+                        card_ready: 'Card activated',
+                        deposit: 'Card Top Up',
+                        charge: 'Payment',
+                        charge_failed: 'Payment',
+                        limits_change: {
+                            pending: 'Limits changing',
+                            completed: 'Limits changed',
+                        },
+                        card_withdraw: 'Transfer to wallet',
+                        contract_closed: 'Contract closed',
+                        card_block: 'Card blocked',
+                        card_freeze: 'Card frozen',
+                        card_unfreeze: 'Card unfrozen',
+                        card_paid: 'Bank card issue',
+                    },
+                    category: {
+                        deposit: 'Top Up',
+                        card_withdraw: 'Transfer',
+                        charge: 'Purchases',
+                        charge_failed: 'Purchases',
+                        other: 'Other',
+                    },
+                    status: {
+                        charge_failed: {
+                            limit: {
+                                onetime: 'Failed (over onetime limit)',
+                                daily: 'Failed (over daily limit)',
+                                monthly: 'Failed (over monthly limit)',
+                            },
+                            failed: 'Failed',
+                        },
+                        completed: 'Completed',
+                    }
                 }
             },
             confirm: {

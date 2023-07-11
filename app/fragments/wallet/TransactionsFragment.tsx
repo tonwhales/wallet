@@ -142,7 +142,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         items={[
                             { title: 'Main wallet' },
                             ...holdersCards.map((account) => {
-                                return { title: `Tonhub card ${account.card.lastFourDigits}` };
+                                return { title: `Tonhub card${account.card.lastFourDigits ? ' ' + account.card.lastFourDigits : ''}` };
                             })
                         ]}
                         current={tab}

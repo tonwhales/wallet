@@ -415,6 +415,42 @@ export type LocalizationSchema = {
                 type: {
                     physical: string,
                     virtual: string,
+                },
+                notifications: {
+                    type: {
+                        card_ready: string,
+                        deposit: string,
+                        charge: string,
+                        charge_failed: string,
+                        limits_change: {
+                            pending: string,
+                            completed: string,
+                        },
+                        card_withdraw: string,
+                        contract_closed: string,
+                        card_block: string,
+                        card_freeze: string,
+                        card_unfreeze: string,
+                        card_paid: string,
+                    },
+                    category: {
+                        deposit: string,
+                        charge: string,
+                        charge_failed: string,
+                        card_withdraw: string,
+                        other: string,
+                    },
+                    status: {
+                        charge_failed: {
+                            limit: {
+                                onetime: string,
+                                daily: string,
+                                monthly: string,
+                            },
+                            failed: string,
+                        },
+                        completed: string,
+                    }
                 }
             },
             confirm: {

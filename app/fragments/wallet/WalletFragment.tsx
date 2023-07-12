@@ -31,10 +31,6 @@ import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 
-import Chart from '../../../assets/ic-chart.svg';
-import ChevronDown from '../../../assets/ic-chevron-down.svg';
-import Scanner from '../../../assets/ic-scanner.svg';
-
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();

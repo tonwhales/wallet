@@ -13,12 +13,17 @@ import IcPay from '../../../../assets/ic-pay.svg';
 import IcSetup from '../../../../assets/ic-setup.svg';
 import IcUnfreeze from '../../../../assets/ic-unfreeze.svg';
 import IcWithdrawal from '../../../../assets/ic-withdrawal.svg';
+import IcTime from '../../../../assets/ic-time.svg';
+import IcFailed from '../../../../assets/ic-failed.svg';
 
 
 export const HoldersNotificationIcon = memo(({ notification }: { notification: CardNotification }) => {
     const { Theme } = useAppConfig();
+    const isPending =
+        (notification.type === 'deposit' || notification.type === 'limits_change') && notification.data.pending;
 
     let Icon: any;
+    let imageUrl: any;
 
     switch (notification.type) {
         case 'card_ready':
@@ -30,7 +35,7 @@ export const HoldersNotificationIcon = memo(({ notification }: { notification: C
         case 'charge':
         case 'charge_failed':
             if (notification.data?.merchantInfo?.logoUrl) {
-                Icon = <Image source={{ uri: notification.data.merchantInfo.logoUrl }} />;
+                imageUrl = notification.data.merchantInfo.logoUrl;
             } else {
                 Icon = IcPay;
             }
@@ -60,17 +65,38 @@ export const HoldersNotificationIcon = memo(({ notification }: { notification: C
             Icon = IcSetup;
     }
 
+    console.log({ imageUrl });
 
     return (
         <View style={{
             width: 46, height: 46,
             borderRadius: 23,
-            overflow: 'hidden',
             borderWidth: 0, marginRight: 10,
             justifyContent: 'center', alignItems: 'center',
             backgroundColor: Theme.lightGrey
         }}>
-            <Icon style={{ width: 32, height: 32 }} />
+            {!!imageUrl && <Image source={{ uri: imageUrl }} style={{ height: 46, width: 46 }} />}
+            {!!Icon && <Icon style={{ width: 32, height: 32 }} />}
+            {notification.type === 'charge_failed' && (
+                <IcFailed
+                    style={{
+                        position: 'absolute',
+                        bottom: -2, right: -2,
+                        height: 16, width: 16,
+                        borderRadius: 8, borderWidth: 1, borderColor: 'white',
+                    }}
+                />
+            )}
+            {isPending && (
+                <IcTime
+                    style={{
+                        position: 'absolute',
+                        bottom: -2, right: -2,
+                        height: 16, width: 16,
+                        borderRadius: 8, borderWidth: 1, borderColor: 'white',
+                    }}
+                />
+            )}
         </View>
     );
 });

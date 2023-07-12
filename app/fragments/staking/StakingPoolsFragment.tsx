@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useLayoutEffect, useMemo } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Engine, useEngine } from "../../engine/Engine";
@@ -64,7 +64,7 @@ function PoolComponent(props: {
     restricted?: boolean,
     engine: Engine
 }) {
-    const { AppConfig } = useAppConfig();
+    const { AppConfig, Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const addr = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
     const pool = props.engine.products.whalesStakingPools.usePool(props.address);
@@ -107,7 +107,7 @@ function PoolComponent(props: {
                     }
                     navigation.navigate('Staking', { backToHome: false, pool: addr })
                 }}
-                style={{ marginVertical: 4 }}
+                style={{ marginVertical: 4, backgroundColor: Theme.lightGrey }}
             />
         </>
     );
@@ -162,8 +162,8 @@ function Header(props: {
 
 export const StakingPoolsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
-    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const staking = engine.products.whalesStakingPools.useStaking();
     const pools = staking.pools;
@@ -367,16 +367,21 @@ export const StakingPoolsFragment = fragment(() => {
         }
     }
 
+    useLayoutEffect(() => {
+        navigation.base.setOptions({
+            headerShown: true,
+            headerTitle: t('products.staking.title'),
+        })
+    }, []);
+
     return (
         <View style={{ flexGrow: 1, flex: 1 }}>
             <StatusBar style={'dark'} />
-            <TopBar title={t('products.staking.title')} showBack />
             <ScrollView
                 alwaysBounceVertical={false}
                 style={{
                     flexShrink: 1,
                     flexGrow: 1,
-                    backgroundColor: Theme.background,
                 }}
                 contentContainerStyle={{
                     paddingTop: 8

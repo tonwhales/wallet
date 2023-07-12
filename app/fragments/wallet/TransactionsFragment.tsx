@@ -17,6 +17,7 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { StatusBar } from "expo-status-bar";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { Suspense } from "../../Suspense";
+import { useTrackScreen } from "../../analytics/mixpanel";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -182,6 +183,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 export const TransactionsFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
+    useTrackScreen('History', engine.isTestnet);
     if (!account) {
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>

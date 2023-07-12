@@ -7,7 +7,6 @@ import { mnemonicValidate } from 'ton-crypto';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat } from 'react-native-reanimated';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
@@ -221,15 +220,6 @@ export const WalletImportFragment = systemFragment(() => {
         deviceEncryption: DeviceEncryption
     } | null>(null);
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
-
-    React.useLayoutEffect(() => {
-        if (!state) {
-            navigation.setOptions({ headerStyle: { backgroundColor: Theme.background } });
-        } else {
-            navigation.setOptions({ headerStyle: { backgroundColor: Theme.item } });
-        }
-    }, [navigation, state]);
 
     return (
         <View
@@ -243,12 +233,11 @@ export const WalletImportFragment = systemFragment(() => {
                     style={{
                         alignItems: 'center', justifyContent: 'center', flexGrow: 1,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
-                        backgroundColor: Platform.OS === 'android' ? Theme.background : undefined
                     }}
                     key="loading"
                     exiting={FadeOutDown}
                 >
-                    <AndroidToolbar style={{ backgroundColor: Theme.background }} />
+                    <AndroidToolbar />
                     <WalletWordsComponent onComplete={setState} />
                 </Animated.View>
             )}

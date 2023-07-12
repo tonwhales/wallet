@@ -62,7 +62,6 @@ export type ThemeType = {
     darkGrey: string,
     mediumGrey: string,
     green: string,
-    mainViolet: string,
     accentRed: string
 };
 
@@ -120,7 +119,6 @@ const initialTheme = {
     darkGrey: '#838D99',
     mediumGrey: '#E4E6EA',
     green: '#00BE80',
-    mainViolet: '#564CE2',
     accentRed: '#ff415c'
 }
 

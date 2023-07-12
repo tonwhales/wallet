@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Image, Pressable, StyleProp, Text, TextStyle, View, ViewStyle } from 'react-native';
+import { Image, View } from 'react-native';
 import { fragment } from "../fragment";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WalletFragment } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
 import { CachedLinking } from '../utils/CachedLinking';
@@ -14,28 +13,14 @@ import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
-import { trackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ConnectionsFragment } from './connections/ConnectionsFragment';
-import { StatusBar } from 'expo-status-bar';
 
 const Tab = createBottomTabNavigator();
 
-const tabButtonStyle: StyleProp<ViewStyle> = {
-    height: 49, flexGrow: 1, flexBasis: 0,
-    alignItems: 'center', justifyContent: 'center'
-}
-
-const tabButtonTextStyle: StyleProp<TextStyle> = {
-    fontSize: 10, lineHeight: 12,
-    fontWeight: '500',
-    marginTop: 5,
-}
-
 export const HomeFragment = fragment(() => {
-    const safeArea = useSafeAreaInsets();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
@@ -125,127 +110,53 @@ export const HomeFragment = fragment(() => {
         <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
             <Tab.Navigator
                 initialRouteName={'Wallet'}
-                tabBar={(props) => {
-                    return (
-                        <View
-                            style={{
-                                height: 49 + (safeArea.bottom === 0 ? 16 : safeArea.bottom), paddingHorizontal: 16,
-                                backgroundColor: 'white',
-                                borderTopEndRadius: 20, borderTopStartRadius: 20,
-                                shadowColor: 'rgba(0, 0, 0, 0.1)',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowRadius: 14,
-                                shadowOpacity: 1,
-                            }}
-                        >
-                            <StatusBar style={props.state.index === 0 ? 'light' : 'dark'} />
-                            <View style={{
-                                flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                                paddingBottom: 2, paddingTop: 9
-                            }}>
-                                <Pressable
-                                    style={tabButtonStyle}
-                                    onPress={() => {
-                                        props.navigation.navigate('Wallet')
-                                        trackScreen('Wallet', undefined, AppConfig.isTestnet);
-                                    }}
-                                >
-                                    <Image
-                                        source={require('../../assets/ic-home.png')}
-                                        style={{
-                                            tintColor: props.state.index === 0 ? Theme.accent : Theme.textSecondary,
-                                            height: 24, width: 24
-                                        }}
-                                    />
-                                    <Text style={{
-                                        color: props.state.index === 0 ? Theme.accent : Theme.textSecondary,
-                                        ...tabButtonTextStyle
-                                    }}>
-                                        {t('home.home')}
-                                    </Text>
-                                </Pressable>
-                                <Pressable
-                                    style={tabButtonStyle}
-                                    onPress={() => {
-                                        props.navigation.navigate('Transactions');
-                                        trackScreen('Transactions', undefined, AppConfig.isTestnet);
-                                    }}
-                                >
-                                    <Image
-                                        source={require('../../assets/ic-history.png')}
-                                        style={{
-                                            tintColor: props.state.index === 1 ? Theme.accent : Theme.textSecondary,
-                                            height: 24, width: 24
-                                        }}
-                                    />
-                                    <Text
-                                        style={{
-                                            color: props.state.index === 1 ? Theme.accent : Theme.textSecondary,
-                                            ...tabButtonTextStyle
-                                        }}
-                                    >
-                                        {t('home.history')}
-                                    </Text>
-                                </Pressable>
-                                <Pressable
-                                    style={tabButtonStyle}
-                                    onPress={() => {
-                                        props.navigation.navigate('Browser');
-                                        trackScreen('Browser', undefined, AppConfig.isTestnet)
-                                    }}
-                                >
-                                    <Image
-                                        source={require('../../assets/ic-services.png')}
-                                        style={{
-                                            tintColor: props.state.index === 2 ? Theme.accent : Theme.textSecondary,
-                                            height: 24, width: 24
-                                        }}
-                                    />
-                                    <Text
-                                        style={{
-                                            color: props.state.index === 2 ? Theme.accent : Theme.textSecondary,
-                                            ...tabButtonTextStyle
-                                        }}
-                                    >
-                                        {t('home.browser')}
-                                    </Text>
-                                </Pressable>
-                                <Pressable
-                                    style={tabButtonStyle}
-                                    onPress={() => {
-                                        props.navigation.navigate('More');
-                                        trackScreen('More', undefined, AppConfig.isTestnet);
-                                    }}
-                                >
-                                    <Image
-                                        source={props.state.index === 3 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                        style={{
-                                            tintColor: props.state.index === 3 ? Theme.accent : Theme.textSecondary,
-                                            height: 24, width: 24
-                                        }}
-                                    />
-                                    <Text
-                                        style={{
-                                            color: props.state.index === 3 ? Theme.accent : Theme.textSecondary,
-                                            ...tabButtonTextStyle
-                                        }}
-                                    >
-                                        {t('home.more')}
-                                    </Text>
-                                </Pressable>
-                            </View>
-                        </View>
-                    )
-                }}
                 screenOptions={({ route }) => ({
                     headerShown: false,
                     header: undefined,
+                    unmountOnBlur: true,
+                    tabBarIcon: ({ focused, color, size }) => {
+                        let source = require('../../assets/ic-home.png');
+                        if (route.name === 'Transactions') {
+                            source = require('../../assets/ic-history.png');
+                        }
+                        if (route.name === 'Browser') {
+                            source = require('../../assets/ic-services.png');
+                        }
+                        if (route.name === 'More') {
+                            source = require('../../assets/ic_settings.png');
+                        }
+                        return (
+                            <Image
+                                source={source}
+                                style={{
+                                    tintColor: focused ? Theme.accent : Theme.textSecondary,
+                                    height: 24, width: 24
+                                }}
+                            />
+                        )
+                    }
                 })}
             >
-                <Tab.Screen name={'Wallet'} component={WalletFragment} />
-                <Tab.Screen name={'Transactions'} component={TransactionsFragment} />
-                <Tab.Screen name={'Browser'} component={ConnectionsFragment} />
-                <Tab.Screen name={'More'} component={SettingsFragment} />
+                <Tab.Screen
+                    options={{ title: t('home.home') }}
+                    name={'Wallet'}
+                    component={WalletFragment}
+                />
+                <Tab.Screen
+                    options={{ title: t('home.history') }}
+                    name={'Transactions'}
+                    component={TransactionsFragment}
+                />
+                <Tab.Screen
+                    options={{ title: t('home.browser') }}
+                    name={'Browser'}
+                    component={ConnectionsFragment}
+                />
+                <Tab.Screen
+                    options={{ title: t('home.more') }}
+                    name={'More'}
+                    component={SettingsFragment}
+                />
             </Tab.Navigator>
         </View>
     );

@@ -15,9 +15,8 @@ import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TabHeader } from "../../components/topbar/TabHeader";
-import { HorizontalScrollableSelector } from "../../components/HorizontalScrollableSelector";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
+import { Suspense } from "../../Suspense";
+import { useTrackScreen } from "../../analytics/mixpanel";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -211,6 +210,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 export const TransactionsFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
+    useTrackScreen('History', engine.isTestnet);
     if (!account) {
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>

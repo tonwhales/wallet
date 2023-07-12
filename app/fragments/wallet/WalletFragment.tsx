@@ -18,13 +18,18 @@ import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { useCallback, useLayoutEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { Avatar } from '../../components/Avatar';
 import { StatusBar } from 'expo-status-bar';
+import { useBottomSheet } from '../../components/modal/BottomSheetModal';
+import { WalletSelector } from '../../components/wallet/WalletSelector';
+import { RoundButton } from '../../components/RoundButton';
+import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
+import { BlurView } from 'expo-blur';
+import { Avatar } from '../../components/Avatar';
+import { useTrackScreen } from '../../analytics/mixpanel';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
-import { useTrackScreen } from '../../analytics/mixpanel';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();

@@ -1,12 +1,9 @@
 import axios from 'axios';
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { useLayoutEffect, useRef } from 'react';
 import { Alert, Platform, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { CloseButton } from '../../components/CloseButton';
 import { ConnectedAppButton } from '../../components/ConnectedAppButton';
 import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
@@ -19,6 +16,7 @@ import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductButton } from '../../components/products/ProductButton';
 import { TabHeader } from '../../components/topbar/TabHeader';
+import { useTrackScreen } from '../../analytics/mixpanel';
 
 type Item = {
     key: string;
@@ -146,6 +144,8 @@ export const ConnectionsFragment = fragment(() => {
             }, 300);
         }
     }, []);
+
+    useTrackScreen('Browser', engine.isTestnet);
 
     return (
         <View style={{ flex: 1 }}>

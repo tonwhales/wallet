@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, LayoutAnimation, Platform, Pressable, Text, View } from 'react-native';
 import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,14 +15,16 @@ import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
+import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { Avatar } from '../../components/Avatar';
+import { StatusBar } from 'expo-status-bar';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
-import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { Avatar } from '../../components/Avatar';
+import { useTrackScreen } from '../../analytics/mixpanel';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -79,6 +81,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
+            <StatusBar style={'light'} />
             <View
                 style={{
                     backgroundColor: '#131928',
@@ -303,9 +306,11 @@ function WalletComponent(props: { wallet: WalletState }) {
 export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
+    useTrackScreen('Wallet', engine.isTestnet);
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <StatusBar style={'light'} />
                 <LoadingIndicator />
             </View>
         );

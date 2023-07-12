@@ -1,18 +1,17 @@
 import * as React from 'react';
-import { View, Text, Platform, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
-import { BlurView } from 'expo-blur';
 import { t } from '../i18n/t';
 import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
 import { useAppConfig } from '../utils/AppConfigContext';
-import { StatusBar } from 'expo-status-bar';
 import { TabHeader } from '../components/topbar/TabHeader';
+import { useTrackScreen } from '../analytics/mixpanel';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -40,6 +39,8 @@ export const SettingsFragment = fragment(() => {
             }
         };
     }, []);
+
+    useTrackScreen('More', engine.isTestnet);
 
     return (
         <View style={{ flexGrow: 1 }}>

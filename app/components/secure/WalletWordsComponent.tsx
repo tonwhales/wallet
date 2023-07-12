@@ -207,9 +207,9 @@ export const WalletWordsComponent = React.memo((props: {
             <StatusBar style='dark' />
             <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }} ref={containerRef} collapsable={false}>
                 <Animated.ScrollView
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - 8) : safeArea.bottom /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                     contentInsetAdjustmentBehavior="never"
                     keyboardShouldPersistTaps="always"
                     keyboardDismissMode="none"
@@ -232,7 +232,7 @@ export const WalletWordsComponent = React.memo((props: {
                         {t('import.subtitle')}
                     </Text>
                     <View style={{
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.lightGrey,
                         borderRadius: 14,
                         width: '100%',
                     }}>

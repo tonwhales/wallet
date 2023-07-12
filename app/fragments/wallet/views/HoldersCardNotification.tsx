@@ -7,7 +7,6 @@ import { notificationCategoryFormatter, notificationTypeFormatter } from "../../
 import { HoldersNotificationIcon } from "./HoldersNotificationIcon";
 import { ValueComponent } from "../../../components/ValueComponent";
 import BN from "bn.js";
-import { fromNano, toNano } from "ton";
 import { PriceComponent } from "../../../components/PriceComponent";
 
 export const HoldersCardNotification = memo(({ notification }: { notification: CardNotification }) => {
@@ -15,8 +14,10 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
 
     return (
         <Pressable
-            style={{ paddingHorizontal: 16, paddingVertical: 20 }}
-            onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
+            style={{
+                paddingHorizontal: 16,
+                paddingVertical: 20
+            }}
         >
             <View style={{
                 alignSelf: 'stretch',
@@ -51,8 +52,8 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                             <Text
                                 style={{
                                     color: notification.type === 'deposit'
-                                        ? Theme.textColor
-                                        : Theme.green,
+                                        ? Theme.green
+                                        : notification.type === 'charge_failed' ? Theme.accentRed : Theme.textColor,
                                     fontWeight: '600',
                                     lineHeight: 24,
                                     fontSize: 17,

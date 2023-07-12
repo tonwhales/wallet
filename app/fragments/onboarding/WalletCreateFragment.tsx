@@ -44,7 +44,8 @@ export const WalletCreateFragment = systemFragment(() => {
         <View
             style={{
                 flexGrow: 1,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) : 0,
+                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) : 0
             }}
         >
             {!state && (
@@ -68,54 +69,61 @@ export const WalletCreateFragment = systemFragment(() => {
                 </Animated.View>
             )}
             {state && !state?.saved && (
-                <ScrollView alwaysBounceVertical={false} style={{ paddingHorizontal: 16, flexGrow: 1 }}>
-                    <Text style={{
-                        fontSize: 32, lineHeight: 38,
-                        fontWeight: '600',
-                        textAlign: 'center',
-                        color: Theme.textColor,
-                        marginBottom: 12, marginTop: 16
-                    }}>
-                        {t('create.backupTitle')}
-                    </Text>
-                    <Text style={{
-                        textAlign: 'center',
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '400',
-                        flexShrink: 1,
-                        color: Theme.darkGrey,
-                        marginBottom: 16
-                    }}>
-                        {t('create.backupSubtitle')}
-                    </Text>
-                    <MnemonicsView mnemonics={state.mnemonics} />
-                    {AppConfig.isTestnet && (
-                        <RoundButton
-                            display={'text'}
-                            title={t('create.copy')}
-                            style={{ marginTop: 20 }}
-                            onPress={() => {
-                                try {
-                                    if (Platform.OS === 'android') {
+                <>
+                    <ScrollView
+                        alwaysBounceVertical={false}
+                        style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
+                    >
+                        <Text style={{
+                            fontSize: 32, lineHeight: 38,
+                            fontWeight: '600',
+                            textAlign: 'center',
+                            color: Theme.textColor,
+                            marginBottom: 12, marginTop: 16
+                        }}>
+                            {t('create.backupTitle')}
+                        </Text>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '400',
+                            flexShrink: 1,
+                            color: Theme.darkGrey,
+                            marginBottom: 16
+                        }}>
+                            {t('create.backupSubtitle')}
+                        </Text>
+                        <MnemonicsView mnemonics={state.mnemonics} />
+                        {AppConfig.isTestnet && (
+                            <RoundButton
+                                display={'text'}
+                                title={t('create.copy')}
+                                style={{ marginTop: 20 }}
+                                onPress={() => {
+                                    try {
+                                        if (Platform.OS === 'android') {
+                                            Clipboard.setString(state.mnemonics);
+                                            ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
+                                            return;
+                                        }
                                         Clipboard.setString(state.mnemonics);
-                                        ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
+                                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                    } catch {
+                                        warn('Failed to copy words');
+                                        Alert.alert(t('common.error'), t('errors.unknown'));
                                         return;
                                     }
-                                    Clipboard.setString(state.mnemonics);
-                                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                                } catch {
-                                    warn('Failed to copy words');
-                                    Alert.alert(t('common.error'), t('errors.unknown'));
-                                    return;
-                                }
-                            }}
-                        />
-                    )}
+                                }}
+                            />
+                        )}
+                    </ScrollView>
                     <View style={{
                         flexGrow: 1,
+                        alignSelf: 'stretch',
                         justifyContent: 'flex-end',
                         width: '100%',
                         paddingVertical: 16,
+                        paddingHorizontal: 16,
                         marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
                     }}>
                         <RoundButton
@@ -126,7 +134,7 @@ export const WalletCreateFragment = systemFragment(() => {
                             style={{ height: 56 }}
                         />
                     </View>
-                </ScrollView>
+                </>
             )}
             {state?.saved && (
                 <Animated.View

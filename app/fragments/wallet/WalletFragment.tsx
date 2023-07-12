@@ -15,15 +15,21 @@ import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { useCallback, useLayoutEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { StatusBar } from 'expo-status-bar';
 import { useBottomSheet } from '../../components/modal/BottomSheetModal';
 import { WalletSelector } from '../../components/wallet/WalletSelector';
 import { RoundButton } from '../../components/RoundButton';
 import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
 import { BlurView } from 'expo-blur';
 import { Avatar } from '../../components/Avatar';
+import { useTrackScreen } from '../../analytics/mixpanel';
+
+import Chart from '../../../assets/ic-chart.svg';
+import ChevronDown from '../../../assets/ic-chevron-down.svg';
+import Scanner from '../../../assets/ic-scanner.svg';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
@@ -89,6 +95,8 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     // ScrollView background color animation
     const scrollBackgroundColor = useSharedValue(1);
+    // Views border radius animation on scroll
+    const scrollBorderRadius = useSharedValue(24);
 
     const onScroll = useAnimatedScrollHandler((event) => {
         if ((event.contentOffset.y) >= 0) { // Overscrolled to top
@@ -96,10 +104,23 @@ function WalletComponent(props: { wallet: WalletState }) {
         } else { // Overscrolled to bottom
             scrollBackgroundColor.value = 0;
         }
+        if (event.contentOffset.y <= -(safeArea.top - 290)) {
+            scrollBorderRadius.value = 24;
+        } else {
+            const diffRadius = (safeArea.top - 290) + event.contentOffset.y;
+            scrollBorderRadius.value = 24 - diffRadius
+        }
     }, []);
 
     const scrollStyle = useAnimatedStyle(() => {
         return { backgroundColor: scrollBackgroundColor.value === 0 ? '#131928' : 'white', };
+    });
+
+    const viewCardStyle = useAnimatedStyle(() => {
+        return {
+            borderBottomEndRadius: scrollBorderRadius.value,
+            borderBottomStartRadius: scrollBorderRadius.value,
+        }
     });
 
     useLayoutEffect(() => {
@@ -108,6 +129,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
+            <StatusBar style={'light'} />
             <View
                 style={{
                     backgroundColor: '#131928',
@@ -195,15 +217,12 @@ function WalletComponent(props: { wallet: WalletState }) {
                 decelerationRate={'fast'}
                 alwaysBounceVertical={false}
             >
-                <View
-                    style={{
+                <Animated.View
+                    style={[{
                         backgroundColor: '#131928',
                         paddingHorizontal: 16,
-                        borderBottomEndRadius: 24,
-                        borderBottomStartRadius: 24,
-                        paddingBottom: 20,
-                        paddingTop: 20,
-                    }}
+                        paddingVertical: 20,
+                    }, viewCardStyle]}
                     collapsable={false}
                 >
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -212,11 +231,12 @@ function WalletComponent(props: { wallet: WalletState }) {
                             color: 'white',
                             marginRight: 8,
                             fontWeight: '500',
+                            lineHeight: 38,
                         }}>
-
                             <ValueComponent precision={6} value={account.balance} />
                             <Text style={{
                                 fontSize: 17,
+                                lineHeight: 24,
                                 color: '#838D99',
                                 marginRight: 8,
                                 fontWeight: '500',
@@ -242,6 +262,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         }}
                         textStyle={{
                             fontSize: 13,
+                            lineHeight: 18,
                             textAlign: 'left',
                             color: '#838D99',
                             fontWeight: '400',
@@ -277,7 +298,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                             }}>
                                                 <Image source={require('../../../assets/ic_buy.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6 }}>{t('wallet.actions.buy')}</Text>
+                                            <Text style={{ fontSize: 15, lineHeight: 20, color: Theme.item, marginTop: 6 }}>{t('wallet.actions.buy')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
@@ -322,7 +343,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             </TouchableHighlight>
                         </View>
                     </View>
-                </View>
+                </Animated.View>
                 <ProductsComponent />
             </Animated.ScrollView>
         </View>
@@ -332,9 +353,11 @@ function WalletComponent(props: { wallet: WalletState }) {
 export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
+    useTrackScreen('Wallet', engine.isTestnet);
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <StatusBar style={'light'} />
                 <LoadingIndicator />
             </View>
         );

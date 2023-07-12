@@ -90,15 +90,6 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                             </TouchableNativeFeedback>
                         </View>
                     )}
-                    <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: Theme.headerDivider,
-                        opacity: 0.08
-                    }} />
                 </View>
             )}
         </>

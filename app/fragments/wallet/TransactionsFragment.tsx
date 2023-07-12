@@ -186,7 +186,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                 </View>
             )}
             {account.transactions.length > 0 && tab === 0 && (
-                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 104 }}>
+                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 56 }}>
                     <WalletTransactions
                         txs={account.transactions}
                         next={account.next}
@@ -200,7 +200,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                 </Animated.View>
             )}
             {tab > 0 && (
-                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 104 }}>
+                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 56 }}>
                     <HoldersCardTransactions id={holdersCards[tab - 1].id} />
                 </Animated.View>
             )}

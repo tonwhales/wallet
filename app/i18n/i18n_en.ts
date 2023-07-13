@@ -481,7 +481,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         slide_2: {
             title: 'With a cool cryptocard',
-            subtitle: 'Order a card now. Internal transfers and purchases in minutes. All this is a unique Tonhub card',
+            subtitle: 'Order a card now. Internal transfers and purchases in minutes.\nAll this is a unique Tonhub card',
         },
         slide_3: {
             title: 'Fast',

@@ -32,8 +32,6 @@ export const SelectableButton = React.memo((
                     padding: 20,
                     marginBottom: 16,
                     borderRadius: 20,
-                    borderWidth: (selected && !hideSelection) ? 2 : 0,
-                    borderColor: Theme.accent,
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between'

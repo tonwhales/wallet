@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { HoldersCard, holdersUrl } from "../../engine/corp/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
@@ -11,6 +11,7 @@ import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { useEngine } from "../../engine/Engine";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 
 export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?: boolean }) => {
     const { Theme } = useAppConfig();
@@ -56,17 +57,28 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
         [props.account, needsEnrolment],
     );
 
+    const animatedValue = useSharedValue(1);
+
+    const onPressIn = useCallback(() => {
+        animatedValue.value = withTiming(0.98, { duration: 100 });
+    }, [animatedValue]);
+
+    const onPressOut = useCallback(() => {
+        animatedValue.value = withTiming(1, { duration: 100 });
+    }, [animatedValue]);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return { transform: [{ scale: animatedValue.value }], };
+    });
+
     return (
         <Pressable
-            style={({ pressed }) => {
-                return {
-                    flex: 1,
-                    opacity: pressed ? 0.5 : 1,
-                }
-            }}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            style={{ flex: 1 }}
             onPress={onPress}
         >
-            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20, }}>
+            <Animated.View style={[{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20 }, animatedStyle]}>
                 <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>
                     <Canvas style={{ width: 46, height: 30, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                         <Rect x={0} y={0} width={46} height={30}>
@@ -132,7 +144,7 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
                         />
                     </View>
                 )}
-            </View>
+            </Animated.View>
             {!props.last && (<View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />)}
         </Pressable>
     );

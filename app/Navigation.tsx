@@ -82,15 +82,15 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
             name={name}
             component={component}
             options={{
-                headerShown: Platform.OS === 'ios',
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+                headerShown: hideHeader ? false : Platform.OS === 'ios',
+                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) }
             }}
         />
     );
@@ -152,7 +152,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
-    lockedModalScreen('Scanner', ScannerFragment, safeArea),
+    genericScreen('Scanner', ScannerFragment, safeArea, true, 0),
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),

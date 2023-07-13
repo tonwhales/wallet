@@ -93,6 +93,7 @@ export const ScannerFragment = systemFragment(() => {
     if (hasPermission === null) {
         return (
             <View style={styles.container}>
+                <ScreenHeader onBackPressed={navigation.goBack} />
                 <View style={{
                     alignSelf: 'center',
                     width: 170,
@@ -119,7 +120,7 @@ export const ScannerFragment = systemFragment(() => {
     if (hasPermission === false) {
         return (
             <View style={[styles.container, { backgroundColor: 'white', alignItems: 'center' }]}>
-                <ScreenHeader onBackPressed={navigation.goBack} />
+                <ScreenHeader tintColor={'white'} onBackPressed={navigation.goBack} />
                 <View style={{
                     flexGrow: 1
                 }} />
@@ -191,7 +192,6 @@ export const ScannerFragment = systemFragment(() => {
 
             <Canvas style={{
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                borderRadius: 16,
                 justifyContent: 'center', alignItems: 'center',
                 paddingHorizontal: 17,
 
@@ -254,7 +254,16 @@ export const ScannerFragment = systemFragment(() => {
 
                 </Pressable>
             </View>
-            <ScreenHeader style={{ position: 'absolute', top: 0, left: 0, right: 0 }} onBackPressed={navigation.goBack} />
+            <ScreenHeader
+                tintColor={'white'}
+                style={{ position: 'absolute', top: safeArea.top, left: 0, right: 0 }}
+                onBackPressed={() => {
+                    setActive(false);
+                    setTimeout(() => {
+                        navigation.goBack();
+                    }, 10);
+                }}
+            />
         </View>
     );
 });

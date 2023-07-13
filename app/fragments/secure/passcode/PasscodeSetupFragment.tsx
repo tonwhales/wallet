@@ -88,7 +88,9 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 }
                 showSuccess={!init}
             />
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
+            {(init && !isLocalAuth) && (
+                <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
+            )}
         </View>
     );
 });

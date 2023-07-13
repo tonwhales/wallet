@@ -86,16 +86,16 @@ export const WalletSelector = React.memo(() => {
                                     {ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet }))}
                                 </Text>
                             </View>
-                            {index === appStateManager.current.selected && (
                                 <View style={{
                                     justifyContent: 'center', alignItems: 'center',
                                     height: 24, width: 24,
-                                    backgroundColor: Theme.accent,
+                                    backgroundColor: index === appStateManager.current.selected? Theme.accent : Theme.mediumGrey,
                                     borderRadius: 12
                                 }}>
-                                    <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
+                                    {index === appStateManager.current.selected && (
+                                        <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
+                                    )}
                                 </View>
-                            )}
                         </Pressable>
                     )
                 })}

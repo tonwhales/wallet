@@ -10,28 +10,21 @@ const slides = (isTestnet: boolean) => [
         upperNote: isTestnet ? t('welcome.sloganDev') : t('welcome.slogan'),
         title: t('welcome.slide_1.title'),
         subtitle: t('welcome.slide_1.subtitle'),
-        illustration: isTestnet
-            ? require('../../../assets/ic_diamond_test.png')
-            : require('../../../assets/ic_diamond.png')
+        illustration: require('../../../assets/slide_protected.png')
     },
-    {
-        upperNote: isTestnet ? t('welcome.sloganDev') : t('welcome.slogan'),
-        title: t('welcome.slide_3.title'),
-        subtitle: t('welcome.slide_3.subtitle'),
-        illustration: isTestnet
-            ? require('../../../assets/ic_diamond_test.png')
-            : require('../../../assets/ic_diamond.png')
-    },
-    // adding slide_2 slide if isTestnet
     ...(isTestnet ?
         [{
             upperNote: isTestnet ? t('welcome.sloganDev') : t('welcome.slogan'),
             title: t('welcome.slide_2.title'),
             subtitle: t('welcome.slide_2.subtitle'),
-            illustration: isTestnet
-                ? require('../../../assets/ic_diamond_test.png')
-                : require('../../../assets/ic_diamond.png')
+            illustration: require('../../../assets/slide_card.png')
         }] : []),
+    {
+        upperNote: isTestnet ? t('welcome.sloganDev') : t('welcome.slogan'),
+        title: t('welcome.slide_3.title'),
+        subtitle: t('welcome.slide_3.subtitle'),
+        illustration: require('../../../assets/slide_fast.png')
+    },
 ];
 
 export const WelcomeSlider = React.memo(({ style }: { style?: StyleProp<ViewStyle> }) => {

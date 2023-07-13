@@ -638,6 +638,7 @@ export type LocalizationSchema = {
             enterCurrent: string,
             enterPrevious: string,
             enterNewDescription: string,
+            changeLength: string,
         }
     },
     report: {

@@ -62,7 +62,8 @@ export type ThemeType = {
     mediumGrey: string,
     greyForIcon: string,
     green: string,
-    accentRed: string
+    accentRed: string,
+    red: string,
 };
 
 const initialTheme = {
@@ -120,7 +121,8 @@ const initialTheme = {
     mediumGrey: '#E4E6EA',
     greyForIcon: '#AAB4BF',
     green: '#00BE80',
-    accentRed: '#ff415c'
+    accentRed: '#ff415c',
+    red: '#FF415C'
 }
 
 export const initialNavigationTheme: NavigationThemeType = {

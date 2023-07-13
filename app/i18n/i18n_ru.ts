@@ -637,6 +637,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             enterCurrent: 'Введите текущий код',
             enterPrevious: 'Введите предыдущий код',
             enterNewDescription: 'Установка пароля обеспечивает дополнительную защиту при работе с приложением',
+            changeLength: 'Использовать {{length}}-значный код доступа' 
         }
     },
     report: {

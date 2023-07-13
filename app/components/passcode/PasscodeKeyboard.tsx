@@ -1,6 +1,7 @@
 import React, { } from "react"
 import { View, Pressable } from "react-native"
 import { PasscodeKey, PasscodeKeyButton } from "./PasscodeKeyButton";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const PasscodeKeyboard = React.memo(({
     onKeyPress,
@@ -9,6 +10,7 @@ export const PasscodeKeyboard = React.memo(({
     onKeyPress: (key: PasscodeKey) => void,
     leftIcon?: any,
 }) => {
+    const { Theme } = useAppConfig();
 
     return (
         <View style={{ flex: 1 }}>
@@ -68,7 +70,11 @@ export const PasscodeKeyboard = React.memo(({
                     <Pressable
                         onPress={() => onKeyPress(PasscodeKey.LeftActionKey)}
                         style={({ pressed }) => {
-                            return { opacity: pressed ? 0.5 : 1, height: 60, width: 100, justifyContent: 'center', alignItems: 'center' }
+                            return {
+                                height: 60, width: 100,
+                                justifyContent: 'center', alignItems: 'center',
+                                backgroundColor: pressed ? Theme.lightGrey : undefined,
+                            }
                         }}
                     >
                         {leftIcon}

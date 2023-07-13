@@ -4,16 +4,18 @@ import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
-import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState } from '../../storage/secureStorage';
+import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, passcodeLengthKey } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { storage } from '../../storage/storage';
 
 export type AuthParams = {
     backgroundColor?: string,
     cancelable?: boolean,
     useBiometrics?: boolean,
+    passcodeLength?: number,
 }
 
 export type AuthProps =
@@ -54,6 +56,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         const passcodeState = getPasscodeState();
         const biometricsState = getBiometricsState();
         const useBiometrics = (biometricsState === BiometricsState.InUse);
+        const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
 
         if (useBiometrics) {
             try {
@@ -65,7 +68,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 // Retry with passcode
                 if (passcodeState === PasscodeState.Set) {
                     return new Promise<WalletKeys>((resolve, reject) => {
-                        setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style } });
+                        setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
                     });
                 }
             }
@@ -73,7 +76,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
         if (passcodeState === PasscodeState.Set) {
             return new Promise<WalletKeys>((resolve, reject) => {
-                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { ...style, useBiometrics: false } });
+                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { ...style, useBiometrics: false, passcodeLength } });
             });
         }
 
@@ -88,15 +91,18 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
             auth.promise.reject();
         }
 
+        
         // Clear previous auth
         setAuth(null);
+
+        const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
 
         return new Promise<{ keys: WalletKeys, passcode: string }>((resolve, reject) => {
             const passcodeState = getPasscodeState();
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
-            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { ...style, useBiometrics: false } });
+            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { ...style, useBiometrics: false, passcodeLength } });
         });
     }, [auth]);
 
@@ -142,6 +148,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             // Remove auth view
                             setAuth(null);
                         }}
+                        passcodeLength={auth.params?.passcodeLength}
                         onRetryBiometrics={
                             (auth.params?.useBiometrics && auth.returns === 'keysOnly')
                                 ? async () => {

@@ -11,6 +11,7 @@ import ImgKey7 from '../../../assets/letter_7.svg';
 import ImgKey8 from '../../../assets/letter_8.svg';
 import ImgKey9 from '../../../assets/letter_9.svg';
 import ImgKeyBackspace from '../../../assets/letter_backspace.svg';
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export enum PasscodeKey {
     One = '1',
@@ -49,6 +50,7 @@ export const PasscodeKeyButton = React.memo((
         passcodeKey: PasscodeKey,
         onPress: () => void,
     }) => {
+    const { Theme } = useAppConfig();
 
     const Img = keyImages[passcodeKey];
 
@@ -58,10 +60,10 @@ export const PasscodeKeyButton = React.memo((
             onPress={onPress}
             style={({ pressed }) => {
                 return {
-                    opacity: pressed ? 0.5 : 1,
                     height: 60, width: 100,
                     justifyContent: 'center', alignItems: 'center',
-                    marginHorizontal: 10
+                    marginHorizontal: 10, borderRadius: 10,
+                    backgroundColor: pressed ? Theme.lightGrey : undefined,
                 }
             }}
         >

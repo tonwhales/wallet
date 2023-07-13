@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useReducer } from "react";
-import { Platform, View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
+import React, { useEffect, useReducer } from "react";
+import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
@@ -10,11 +10,12 @@ import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
 import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
 
-type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
+type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' } | { type: 'passcode-length', length: number };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
 type ScreenState = {
     step: Step,
     input: string,
+    passcodeLength: number,
 };
 
 const SetupLoader = React.memo((props: {
@@ -50,22 +51,32 @@ function reduceSteps() {
             case 're-enter':
                 return {
                     step: 're-enter',
-                    input: action.input
+                    input: action.input,
+                    passcodeLength: state.passcodeLength
                 };
             case 'input':
                 return {
                     step: 'input',
-                    input: ''
+                    input: '',
+                    passcodeLength: 6
                 };
             case 'loading':
                 return {
                     step: 'loading',
-                    input: state.input
+                    input: state.input,
+                    passcodeLength: state.passcodeLength
                 };
             case 'success':
                 return {
                     step: 'success',
-                    input: state.input
+                    input: state.input,
+                    passcodeLength: state.passcodeLength
+                };
+            case 'passcode-length':
+                return {
+                    step: state.step,
+                    input: state.input,
+                    passcodeLength: action.length
                 };
             default:
                 return state;
@@ -92,7 +103,7 @@ export const PasscodeSetup = React.memo((
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
 
-    const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
+    const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '', passcodeLength: 6 });
 
     return (
         <View style={[{ width: '100%', height: '100%', }, style]}>
@@ -107,6 +118,8 @@ export const PasscodeSetup = React.memo((
                             }
                             dispatch({ type: 're-enter', input: pass });
                         }}
+                        passcodeLength={state.passcodeLength}
+                        onPasscodeLengthChange={(length) => dispatch({ type: 'passcode-length', length })}
                     />
                     {!!onLater && (
                         <Pressable
@@ -140,6 +153,7 @@ export const PasscodeSetup = React.memo((
                             }
                             dispatch({ type: 'loading' });
                         }}
+                        passcodeLength={state.passcodeLength}
                     />
                     {!!initial && (
                         <Pressable

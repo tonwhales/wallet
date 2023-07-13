@@ -8,6 +8,7 @@ import * as KeyStore from './modules/KeyStore';
 export const passcodeStateKey = 'passcode-state';
 export const passcodeSaltKey = 'ton-storage-passcode-nacl';
 export const passcodeEncKey = 'ton-storage-passcode-enc-key-';
+export const passcodeLengthKey = 'passcode-length';
 
 export const biometricsEncKey = 'ton-biometrics-enc-key';
 export const biometricsStateKey = 'biometrics-state';
@@ -191,6 +192,7 @@ export async function generateNewKeyAndEncryptWithPasscode(data: Buffer, passcod
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncPrivateKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(passcodeLengthKey, passcode.length);
 
         // Encrypt data with new key
         return doEncrypt(privateKey, data);

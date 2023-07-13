@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleProp, View, ViewStyle, Text, Image, Platform, ImageSourcePropType } from "react-native";
+import { StyleProp, View, ViewStyle, Text, Platform, Pressable } from "react-native";
 import { PasscodeSteps } from "./PasscodeSteps";
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
@@ -20,12 +20,16 @@ export const PasscodeInput = React.memo((
         style,
         onRetryBiometrics,
         onEntered,
+        passcodeLength = 6,
+        onPasscodeLengthChange
     }: {
         title?: string,
         description?: string,
         style?: StyleProp<ViewStyle>,
         onRetryBiometrics?: () => void,
         onEntered: (passcode: string | null) => Promise<void> | void,
+        passcodeLength?: number,
+        onPasscodeLengthChange?: (length: number) => void,
     }
 ) => {
     const { Theme } = useAppConfig();
@@ -52,18 +56,18 @@ export const PasscodeInput = React.memo((
         }
         if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
-        } else if (/\d/.test(key) && passcode.length < 6) {
+        } else if (/\d/.test(key) && passcode.length < passcodeLength) {
             setPasscode((prevPasscode) => {
-                if (prevPasscode.length < 6) {
+                if (prevPasscode.length < passcodeLength) {
                     return prevPasscode + key;
                 }
                 return prevPasscode;
             });
         }
-    }, []);
+    }, [passcodeLength]);
 
     useEffect(() => {
-        if (passcode.length === 6) {
+        if (passcode.length === passcodeLength) {
             (async () => {
                 try {
                     await onEntered(passcode);
@@ -76,7 +80,7 @@ export const PasscodeInput = React.memo((
                 }, 1500);
             })();
         }
-    }, [passcode]);
+    }, [passcode, passcodeLength]);
 
     useEffect(() => {
         if (isWrong) {
@@ -94,7 +98,6 @@ export const PasscodeInput = React.memo((
     }, []);
 
     const deviceEncryptionIcon = React.useMemo(() => {
-        let iconImage: ImageSourcePropType | undefined;
         let icon: any | undefined;
         switch (deviceEncryption) {
             case 'face':
@@ -111,11 +114,14 @@ export const PasscodeInput = React.memo((
             case 'passcode':
             case 'device-passcode':
             case 'secret':
-                icon = <Ionicons
-                    name="keypad"
-                    size={24}
-                    color={'#000'}
-                />;
+                icon = <View style={{ width: 100, height: 60, justifyContent: 'center', alignItems: 'center', paddingRight: 16, paddingBottom: 4 }}>
+                    <Ionicons
+                        name={'keypad'}
+                        size={24}
+                        style={{ width: 24, height: 24 }}
+                        color={'#000'}
+                    />
+                </View>;
                 break;
             case 'device-biometrics':
             case 'none':
@@ -124,11 +130,7 @@ export const PasscodeInput = React.memo((
                 break;
         }
 
-        if (iconImage) {
-            return <Image source={iconImage} style={{ width: 20, height: 20 }} />;
-        } else {
-            return icon;
-        }
+        return icon;
     }, [deviceEncryption]);
 
     return (
@@ -149,6 +151,7 @@ export const PasscodeInput = React.memo((
                             passLen: passcode.length,
                             error: isWrong,
                         }}
+                        passcodeLength={passcodeLength}
                     />
                     {description && !isWrong && (
                         <Animated.View
@@ -162,11 +165,39 @@ export const PasscodeInput = React.memo((
                             exiting={FadeOut}
                         >
                             <Text style={{
-                                fontSize: 15,
+                                fontSize: 15, lineHeight: 20,
                                 color: Theme.textSecondary, textAlign: 'center'
                             }}>
                                 {description}
                             </Text>
+                        </Animated.View>
+                    )}
+                    {!!onPasscodeLengthChange && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                top: description && !isWrong ? 54 + 40 : 54, left: 0, right: 0,
+                                justifyContent: 'center', alignItems: 'center',
+                                paddingHorizontal: 16,
+                            }}
+                            entering={FadeIn}
+                            exiting={FadeOut}
+                        >
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1,
+                                    }
+                                }}
+                                onPress={() => onPasscodeLengthChange(passcodeLength === 6 ? 4 : 6)}
+                            >
+                                <Text style={{
+                                    fontSize: 15, lineHeight: 20, fontWeight: '500',
+                                    color: Theme.accent, textAlign: 'center'
+                                }}>
+                                    {t('security.passcodeSettings.changeLength', { length: passcodeLength === 6 ? 4 : 6 })}
+                                </Text>
+                            </Pressable>
                         </Animated.View>
                     )}
                     {isWrong && (
@@ -180,7 +211,7 @@ export const PasscodeInput = React.memo((
                             exiting={FadeOut}
                         >
                             <Text style={{
-                                fontSize: 15,
+                                fontSize: 15, lineHeight: 20,
                                 color: Theme.dangerZone
                             }}>
                                 {t('security.passcodeSettings.error')}

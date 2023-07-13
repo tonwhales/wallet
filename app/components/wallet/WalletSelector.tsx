@@ -63,8 +63,6 @@ export const WalletSelector = React.memo(() => {
                                 padding: 20,
                                 marginBottom: 16,
                                 borderRadius: 20,
-                                borderWidth: index === appStateManager.current.selected ? 2 : 0,
-                                borderColor: Theme.accent,
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 justifyContent: 'space-between'

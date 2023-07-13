@@ -42,14 +42,19 @@ export const Slide = React.memo((
                 }}>
                     {title}
                 </Text>
-                <Text style={{
-                    textAlign: 'center',
-                    fontSize: 17, lineHeight: 24,
-                    fontWeight: '400',
-                    flexShrink: 1,
-                    color: Theme.darkGrey,
-                    marginBottom: 32
-                }}>
+                <Text
+                    style={{
+                        textAlign: 'center',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '400',
+                        flexShrink: 1,
+                        color: Theme.darkGrey,
+                        marginBottom: 32,
+                        minHeight: 72
+                    }}
+                    numberOfLines={3}
+                    lineBreakMode={'tail'}
+                >
                     {subtitle}
                 </Text>
             </View>

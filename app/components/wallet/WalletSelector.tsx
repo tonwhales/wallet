@@ -6,7 +6,6 @@ import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../WalletAddress";
 import IcCheck from "../../../assets/ic-check.svg";
 import { Address } from "ton";
-import { shortAddress } from "../../utils/shortAddress";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Avatar } from "../Avatar";

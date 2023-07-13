@@ -780,7 +780,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holdersOfflineApp: 'Holders Offline App',
     },
     wallets: {
-        switchToAlertTitle: 'Switching to {{wallet}} wallet',
+        switchToAlertTitle: 'Switching to {{wallet}}',
         switchToAlertMessage: 'Are you sure you want to switch wallets?',
         switchToAlertAction: 'Switch',
         addNewTitle: 'Add wallet',

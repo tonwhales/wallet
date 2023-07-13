@@ -20,7 +20,7 @@ export const WalletSelector = React.memo(() => {
         if (selected) return;
         const index = appStateManager.current.addresses.findIndex((a) => a.address.toFriendly() === address.toFriendly());
         Alert.alert(
-            t('wallets.switchToAlertTitle', { wallet: shortAddress({ address, isTestnet: AppConfig.isTestnet }) }),
+            t('wallets.switchToAlertTitle', { wallet: `${t('common.wallet')} ${index + 1}` }),
             t('wallets.switchToAlertMessage'),
             [
                 {
@@ -87,14 +87,16 @@ export const WalletSelector = React.memo(() => {
                                     {ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet }))}
                                 </Text>
                             </View>
-                            <View style={{
-                                justifyContent: 'center', alignItems: 'center',
-                                height: 24, width: 24,
-                                backgroundColor: index === appStateManager.current.selected ? Theme.accent : '#E4E6EA',
-                                borderRadius: 12
-                            }}>
-                                <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
-                            </View>
+                            {index === appStateManager.current.selected && (
+                                <View style={{
+                                    justifyContent: 'center', alignItems: 'center',
+                                    height: 24, width: 24,
+                                    backgroundColor: Theme.accent,
+                                    borderRadius: 12
+                                }}>
+                                    <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
+                                </View>
+                            )}
                         </Pressable>
                     )
                 })}

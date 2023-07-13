@@ -781,7 +781,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         holdersOfflineApp: 'Holders Offline App',
     },
     wallets: {
-        switchToAlertTitle: 'Переключить на {{wallet}} кошелек',
+        switchToAlertTitle: 'Переключить на {{wallet}}',
         switchToAlertMessage: 'Вы уверены что хотите переключить кошелек?',
         switchToAlertAction: 'Переключить',
         addNewTitle: 'Добавить кошелек',

@@ -60,6 +60,7 @@ export type ThemeType = {
     lightGrey: string,
     darkGrey: string,
     mediumGrey: string,
+    greyForIcon: string,
     green: string,
     accentRed: string
 };
@@ -117,6 +118,7 @@ const initialTheme = {
     lightGrey: '#F7F8F9',
     darkGrey: '#838D99',
     mediumGrey: '#E4E6EA',
+    greyForIcon: '#AAB4BF',
     green: '#00BE80',
     accentRed: '#ff415c'
 }

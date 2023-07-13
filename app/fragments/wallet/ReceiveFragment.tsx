@@ -23,6 +23,7 @@ import { captureRef } from 'react-native-view-shot';
 import Verified from '../../../assets/ic-verified.svg';
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import Chevron from '../../../assets/ic_chevron_forward.svg';
+import { Avatar } from "../../components/Avatar";
 
 export const ReceiveFragment = fragment(() => {
     const dimentions = useWindowDimensions();
@@ -116,18 +117,21 @@ export const ReceiveFragment = fragment(() => {
                     borderRadius: 20,
                     padding: 32,
                     paddingTop: 52,
+                    marginTop: 81,
                     marginBottom: 16
                 }}>
                     <View style={{
-                        height: 62, width: 62, borderRadius: 32,
-                        position: 'absolute', top: -28,
+                        height: 87, width: 87, borderRadius: 44,
+                        position: 'absolute', top: -49,
                         alignSelf: 'center',
                         backgroundColor: Theme.item,
                         justifyContent: 'center', alignItems: 'center',
                     }}>
-                        <View style={{ backgroundColor: Theme.accent, height: 58, width: 58, borderRadius: 30 }}>
-
-                        </View>
+                        <Avatar
+                            id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            size={84}
+                            backgroundColor={Theme.accent}
+                        />
                     </View>
                     <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>
                         <QRCode
@@ -223,7 +227,7 @@ export const ReceiveFragment = fragment(() => {
                 flexDirection: 'row',
                 justifyContent: 'space-evenly',
                 paddingBottom: 16 + safeArea.bottom,
-                paddingTop: 20,
+                paddingTop: 20 + 16,
                 paddingHorizontal: 16,
                 backgroundColor: Theme.item,
                 borderTopEndRadius: 20,
@@ -231,14 +235,30 @@ export const ReceiveFragment = fragment(() => {
                 opacity: isSharing ? 0 : 1,
             }}>
                 <CopyButton
-                    style={{ marginRight: 8, backgroundColor: isDark ? '#F7F8F9' : '#808080', borderWidth: 0 }}
+                    style={{
+                        marginRight: 16,
+                        backgroundColor: mainColor,
+                        borderWidth: 0
+                    }}
                     body={link}
-                    textStyle={{ color: mainColor, fontSize: 17, fontWeight: '600', lineHeight: 24 }}
+                    textStyle={{
+                        color: isDark ? '#F7F8F9' : '#808080',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '600',
+                    }}
                 />
                 <ShareButton
-                    style={{ marginRight: 8, backgroundColor: isDark ? '#F7F8F9' : '#808080', borderWidth: 0 }}
+                    style={{
+                        marginRight: 8,
+                        backgroundColor: mainColor,
+                        borderWidth: 0
+                    }}
                     body={link}
-                    textStyle={{ color: mainColor, fontSize: 17, fontWeight: '600', lineHeight: 24 }}
+                    textStyle={{
+                        color: isDark ? '#F7F8F9' : '#808080',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '600',
+                    }}
                     onScreenCapture={() => {
                         return new Promise((resolve, reject) => {
                             setIsSharing(true);

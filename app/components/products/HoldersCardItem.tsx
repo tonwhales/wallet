@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo, useRef } from "react";
-import { HoldersCard, holdersUrl } from "../../engine/corp/HoldersProduct";
+import React, { useCallback, useMemo } from "react";
+import { HoldersCard, holdersUrl } from "../../engine/holders/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
 import { holdersCardImageMap } from "./HoldersProductButton";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import MCard from '../../../assets/ic-m-card.svg';
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";

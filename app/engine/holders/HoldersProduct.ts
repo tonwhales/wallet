@@ -107,7 +107,7 @@ export class HoldersProduct {
                         signature: signed.signature,
                         subkey: signed.subkey
                     }, this.engine.isTestnet);
-    
+
                     this.setToken(token);
                 } catch {
                     this.deleteToken();
@@ -221,7 +221,11 @@ export class HoldersProduct {
 
     watch(token: string) {
         this.watcher = watchHoldersAccountUpdates(token, (event) => {
-            if (event.type === 'error' && event.message === 'invalid_token') {
+            if (
+                event.type === 'error'
+                && event.message === 'invalid_token'
+                || event.message === 'state_change'
+            ) {
                 this.doSync();
             }
             if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
@@ -417,11 +421,11 @@ export class HoldersProduct {
 
     async forceSyncOfflineApp() {
         const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
-        
+
         if (!fetchedApp) {
             return;
         }
-        
+
         this.stableOfflineVersion = null;
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);

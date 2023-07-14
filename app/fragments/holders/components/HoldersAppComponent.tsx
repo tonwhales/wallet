@@ -152,12 +152,15 @@ export const HoldersAppComponent = React.memo((
                         status: {
                             state: accountState.state,
                             kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
+                            suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
                         }
                     }
                 }
                 : {},
             ...cardsState ? { cardsList: cardsState.accounts } : {},
         }
+
+        console.log('initialState', initialState);
 
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};

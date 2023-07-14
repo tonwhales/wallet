@@ -93,11 +93,6 @@ export const OfflineWebView = React.memo(React.forwardRef((
                             props.onLoad(e);
                         }
                     }}
-                    onLoadEnd={(e) => {
-                        if (props.onLoadEnd) {
-                            props.onLoadEnd(e);
-                        }
-                    }}
                     allowFileAccess={true}
                     allowFileAccessFromFileURLs={true}
                     allowUniversalAccessFromFileURLs={true}

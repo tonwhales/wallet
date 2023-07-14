@@ -319,6 +319,18 @@ export const HoldersAppComponent = React.memo((
         webRef.current?.reload();
     }, []);
 
+    const [renderedOnce, setRenderedOnce] = useState(false);
+
+    const onLoadEnd = useCallback(() => {
+        if (renderedOnce) {
+            return;
+        }
+        setRenderedOnce(true);
+        opacity.value = 0;
+        setLoaded(true);
+        webRef.current?.reload();
+    }, [renderedOnce]);
+
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -334,10 +346,7 @@ export const HoldersAppComponent = React.memo((
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={() => {
-                            setLoaded(true);
-                            opacity.value = 0;
-                        }}
+                        onLoadEnd={onLoadEnd}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -379,10 +388,7 @@ export const HoldersAppComponent = React.memo((
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
                             }}
-                            onLoadEnd={() => {
-                                setLoaded(true);
-                                opacity.value = 0;
-                            }}
+                            onLoadEnd={onLoadEnd}
                             onLoadProgress={(event) => {
                                 if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query

@@ -136,6 +136,7 @@ export type LocalizationSchema = {
         scanQR: string,
         sendTo: string,
         fee: string,
+        feeEmpty: string,
         feeTitle: string,
         feeTotalTitle: string,
         purpose: string,

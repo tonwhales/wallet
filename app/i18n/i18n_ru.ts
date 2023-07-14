@@ -101,7 +101,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         }
     },
     transfer: {
-        title: 'Отправить {{symbol}}',
+        title: 'Отправить',
         titleAction: 'Действие',
         confirm: 'Вы уверены что хотите продолжить?',
         error: {
@@ -118,10 +118,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             addressIsNotActiveDescription: 'Это означает, что с данного адреса кошелька не было совершено ни одной транзакции',
             invalidTransaction: 'Неверная транзакция',
         },
-        sendAll: 'отправить все',
+        sendAll: 'Отправить все',
         scanQR: 'считать QR код',
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
+        feeEmpty: 'Комиссия будет рассчитана позже',
         feeTitle: 'Комиссия сети',
         feeTotalTitle: 'Полная комиссия сети',
         purpose: 'Цель транзакции',

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable } from "react-native"
+import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
 import { ATextInput, ATextInputRef } from "./ATextInput"
@@ -19,6 +19,7 @@ const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-
 
 export const AddressDomainInput = React.memo(React.forwardRef(({
     style,
+    inputStyle,
     onFocus,
     onBlur,
     onSubmit,
@@ -30,10 +31,12 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     isKnown,
     index,
     contact,
+    labelStyle,
     labelText,
     showToMainAddress
 }: {
     style?: StyleProp<ViewStyle>,
+    inputStyle?: StyleProp<TextStyle>,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
@@ -45,6 +48,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     isKnown?: boolean,
     index: number,
     contact?: AddressContact,
+    labelStyle?: StyleProp<ViewStyle>,
     labelText?: string,
     showToMainAddress?: boolean,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
@@ -118,27 +122,20 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             ref={tref}
             onFocus={onFocus}
             onValueChange={onInputChange}
-            placeholder={AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
+            placeholder={(AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')) + '*'}
             keyboardType={'ascii-capable'}
             autoCapitalize={'none'}
             preventDefaultHeight
+            preventDefaultLineHeight
             label={
-                <View style={{
+                <View style={[{
                     flexDirection: 'row',
                     width: '100%',
                     alignItems: showToMainAddress ? 'flex-start' : 'center',
                     justifyContent: 'space-between',
                     overflow: 'hidden',
                     minHeight: showToMainAddress ? 24 : 0,
-                }}>
-                    <Text style={{
-                        fontWeight: '500',
-                        fontSize: 12,
-                        color: Theme.label,
-                        alignSelf: 'flex-start',
-                    }}>
-                        {labelText ? labelText : t('transfer.sendTo')}
-                    </Text>
+                }, labelStyle]}>
                     {(isKnown && target && !resolvedAddress && !resolving) && (
                         <Animated.View
                             style={{
@@ -288,6 +285,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             blurOnSubmit={false}
             editable={!resolving}
             enabled={!resolving}
+            inputStyle={inputStyle}
         />
     )
 }));

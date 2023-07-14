@@ -113,7 +113,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     transfer: {
-        title: 'Send {{symbol}}',
+        title: 'Send',
         titleAction: 'Action',
         confirm: 'Are you sure want to proceed?',
         error: {
@@ -130,10 +130,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
             invalidTransaction: 'Invalid transaction',
         },
-        sendAll: 'send all',
+        sendAll: 'Submit All',
         scanQR: 'scan qr code',
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',
+        feeEmpty: 'Fees will be calculated later',
         feeTitle: 'Blockchain fees',
         feeTotalTitle: 'Total blockchain fees',
         purpose: 'Purpose of transaction',

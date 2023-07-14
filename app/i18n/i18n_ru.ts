@@ -500,6 +500,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Условиями использования'
     },
     create: {
+        addNew: 'Создать новый кошелек',
         inProgress: 'Создаем...',
         backupTitle: 'Ваш секретный ключ',
         backupSubtitle: 'Запишите эти слова в том же порядке и сохраните их в надежном месте',

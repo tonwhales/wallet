@@ -499,6 +499,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms of Service'
     },
     create: {
+        addNew: 'Add new wallet',
         inProgress: 'Creating...',
         backupTitle: 'Your Backup Key',
         backupSubtitle: 'Write down this words in exactly the same order and save them in a secret place',

@@ -501,6 +501,7 @@ export type LocalizationSchema = {
         termsOfService: string
     },
     create: {
+        addNew: string,
         inProgress: string,
         backupTitle: string,
         backupSubtitle: string,

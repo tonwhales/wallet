@@ -30,11 +30,13 @@ import { useTrackScreen } from '../../analytics/mixpanel';
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const { showActionSheetWithOptions } = useActionSheet();
     const address = useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const balanceChart = engine.products.main.useAccountBalanceChart();
@@ -66,11 +68,30 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     // Add new wallet account modal
     const onAddNewAccount = React.useCallback(() => {
-        modal?.hide();
-        modal?.show(
-            <AdditionalWalletsActions navigation={navigation} />,
-            ['40%'],
-        );
+        const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            options,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    modal?.hide();
+                    navigation.navigate('WalletCreate', { additionalWallet: true });
+                    break;
+                case 2:
+                    modal?.hide();
+                    navigation.navigate('WalletImport', { additionalWallet: true });
+                    break;
+                case 3:
+                    modal?.hide();
+                    navigation.navigate('Ledger');
+                    break;
+                default:
+                    break;
+            }
+        });
     }, [modal]);
 
     // Wallet Account modal
@@ -78,7 +99,7 @@ function WalletComponent(props: { wallet: WalletState }) {
         modal?.hide();
         modal?.show(
             <WalletSelector />,
-            ['50%', '80%'],
+            ['60%', '80%'],
             <BlurView intensity={30} style={{ paddingBottom: safeArea.bottom, paddingHorizontal: 16 }}>
                 <RoundButton
                     style={{ marginVertical: 16 }}

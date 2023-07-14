@@ -160,8 +160,6 @@ export const HoldersAppComponent = React.memo((
             ...cardsState ? { cardsList: cardsState.accounts } : {},
         }
 
-        console.log('initialState', initialState);
-
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};
         `;

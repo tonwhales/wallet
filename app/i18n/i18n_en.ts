@@ -592,7 +592,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'token',
-        productButtonTitle: '{{COUNT}} Tokens',
+        productButtonTitle: '{{count}} Tokens',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
     },
     connections: {

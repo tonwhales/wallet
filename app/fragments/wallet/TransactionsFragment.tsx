@@ -16,7 +16,7 @@ import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { HorizontalScrollableSelector } from "../../components/HorizontalScrollableSelector";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInLeft, FadeInRight, FadeOut, FadeOutLeft, FadeOutRight } from "react-native-reanimated";
 import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { useTrackScreen } from "../../analytics/mixpanel";
 
@@ -117,6 +117,7 @@ const WalletTransactions = React.memo((props: {
 function TransactionsComponent(props: { wallet: WalletState }) {
     const engine = useEngine();
     const holdersCards = engine.products.holders.useCards();
+    const holdersStatus = engine.products.holders.useStatus();
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
@@ -125,7 +126,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     const account = props.wallet;
     const animRef = React.useRef<LottieView>(null);
 
-    const [tab, setTab] = useState(0);
+    const [tab, setTab] = useState<{ prev?: number, current: number }>({ current: 0 });
 
     const onReachedEnd = React.useMemo(() => {
         let prev = account.next;
@@ -144,23 +145,27 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <TabHeader title={t('transactions.history')} />
-            {holdersCards.length > 0 && (
+            {holdersCards.length > 0 && holdersStatus.state === 'ok' && (
                 <View style={{ paddingVertical: 8 }}>
                     <HorizontalScrollableSelector
                         items={[
                             { title: 'Main wallet' },
                             ...holdersCards.map((account) => {
+                                const cards = engine.products.holders.useCardsTransactions(account.id);
+                                if (!cards || cards.length === 0) {
+                                    return null;
+                                }
                                 return { title: `Tonhub card${account.card.lastFourDigits ? ' ' + account.card.lastFourDigits : ''}` };
-                            })
+                            }).filter((x) => !!x) as any[]
                         ]}
-                        current={tab}
+                        current={tab.current}
                         onSeleted={(index) => {
-                            setTab(index);
+                            setTab({ prev: tab.current, current: index });
                         }}
                     />
                 </View>
             )}
-            {account.transactions.length === 0 && tab === 0 && (
+            {account.transactions.length === 0 && tab.current === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                     <Pressable
                         onPress={() => {
@@ -186,8 +191,12 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     />
                 </View>
             )}
-            {account.transactions.length > 0 && tab === 0 && (
-                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 56 }}>
+            {account.transactions.length > 0 && tab.current === 0 && (
+                <Animated.View
+                    entering={(tab.prev || 0) < tab.current ? FadeInRight : FadeInLeft}
+                    exiting={(tab.prev || 0) < tab.current ? FadeOutRight : FadeOutLeft}
+                    style={{ paddingBottom: safeArea.bottom + 56 }}
+                >
                     <WalletTransactions
                         txs={account.transactions}
                         next={account.next}
@@ -200,9 +209,13 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     />
                 </Animated.View>
             )}
-            {tab > 0 && (
-                <Animated.View entering={FadeIn} exiting={FadeOut} style={{ paddingBottom: safeArea.bottom + 56 }}>
-                    <HoldersCardTransactions id={holdersCards[tab - 1].id} />
+            {tab.current > 0 && (
+                <Animated.View
+                    key={`card-notifications-${tab.current}`}
+                    entering={(tab.prev || 0) < tab.current ? FadeInRight : FadeInLeft}
+                    exiting={(tab.prev || 0) < tab.current ? FadeOutRight : FadeOutLeft}
+                    style={{ paddingBottom: safeArea.bottom + 56 }}>
+                    <HoldersCardTransactions id={holdersCards[tab.current - 1].id} />
                 </Animated.View>
             )}
         </View>

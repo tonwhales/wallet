@@ -7,6 +7,7 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import Tokens from '../../../assets/ic-one.svg';
 import Collapsible from "react-native-collapsible";
 import { t } from "../../i18n/t";
+import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 
 export const JettonsProductComponent = React.memo(() => {
     const engine = useEngine();
@@ -142,9 +143,10 @@ export const JettonsProductComponent = React.memo(() => {
                     )}
                 </View>
             </Pressable>
-            <Collapsible renderChildrenCollapsed={true} collapsed={collapsed}>
-                <View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />
-                {jettons.map((j, index) => {
+            <AnimatedChildrenCollapsible
+                collapsed={collapsed}
+                items={jettons}
+                renderItem={(j, index) => {
                     return (
                         <JettonProductItem
                             key={'jt' + j.wallet.toFriendly()}
@@ -152,9 +154,9 @@ export const JettonsProductComponent = React.memo(() => {
                             engine={engine}
                             last={index === jettons.length - 1}
                         />
-                    );
-                })}
-            </Collapsible>
+                    )
+                }}
+            />
         </View>
     );
 });

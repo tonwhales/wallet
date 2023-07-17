@@ -1,12 +1,12 @@
 import { memo, useEffect, useState } from "react"
 import { View } from "react-native";
-import Animated, { FadeInDown, FadeInUp, FadeOutUp, measure, runOnUI, useAnimatedRef, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { Easing, FadeInUp, FadeOutUp, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 export const AnimatedChildrenCollapsible = memo(({
     collapsed,
     items,
     renderItem,
-    itemHeight = 76,
+    itemHeight = 82,
 }: {
     collapsed: boolean,
     items: any[],
@@ -14,27 +14,15 @@ export const AnimatedChildrenCollapsible = memo(({
     itemHeight?: number,
 }) => {
     const [itemsToRender, setItemsToRender] = useState<any[]>([]);
-    const sharedHeight = useSharedValue(0);
-
+    const sharedHeight = useSharedValue(collapsed ? 0 : items.length * itemHeight);
     const animStyle = useAnimatedStyle(() => {
-        return {
-            height: withTiming(sharedHeight.value)
-        }
+        return { height: withTiming(sharedHeight.value, { duration: 250 }) };
     });
 
     useEffect(() => {
-        if (collapsed) {
-            setItemsToRender([]);
-            sharedHeight.value = 0;
-        } else {
-            let height = 0;
-            for (let i = 0; i < items.length; i++) {
-                height += itemHeight;
-                sharedHeight.value = height;
-            }
-            setItemsToRender(items);
-        }
-    }, [collapsed]);
+        setItemsToRender(collapsed ? [] : items);
+        sharedHeight.value = collapsed ? 0 : items.length * itemHeight;
+    }, [collapsed, items]);
 
     return (
         <Animated.View style={[
@@ -45,16 +33,12 @@ export const AnimatedChildrenCollapsible = memo(({
                 return (
                     <Animated.View
                         key={`collapsible-item-${index}`}
-                        entering={FadeInUp}
-                        exiting={FadeOutUp}
+                        entering={FadeInUp.delay(20 * index).easing(Easing.cubic)}
+                        exiting={FadeOutUp.delay(20 * (itemsToRender.length - index)).easing(Easing.cubic)}
                         style={{ height: itemHeight }}
                     >
                         {index === 0 && (
-                            <Animated.View
-                                entering={FadeInDown}
-                                exiting={FadeOutUp}
-                                style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }}
-                            />
+                            <View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />
                         )}
                         {renderItem(item, index)}
                     </Animated.View>

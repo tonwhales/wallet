@@ -7,7 +7,7 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { holdersUrl } from "../../engine/holders/HoldersProduct";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
 import BN from "bn.js";

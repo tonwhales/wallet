@@ -28,6 +28,20 @@ export const HoldersProductButton = React.memo(() => {
     const status = engine.products.holders.useStatus();
     const [collapsed, setCollapsed] = useState(true);
 
+    const animatedValue = useSharedValue(1);
+
+    const onPressIn = useCallback(() => {
+        animatedValue.value = withTiming(0.98, { duration: 100 });
+    }, [animatedValue]);
+
+    const onPressOut = useCallback(() => {
+        animatedValue.value = withTiming(1, { duration: 100 });
+    }, [animatedValue]);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return { transform: [{ scale: animatedValue.value }] };
+    });
+
     const needsEnrolment = useMemo(() => {
         try {
             let domain = extractDomain(holdersUrl);
@@ -101,20 +115,6 @@ export const HoldersProductButton = React.memo(() => {
             </View>
         );
     }
-
-    const animatedValue = useSharedValue(1);
-
-    const onPressIn = useCallback(() => {
-        animatedValue.value = withTiming(0.98, { duration: 100 });
-    }, [animatedValue]);
-
-    const onPressOut = useCallback(() => {
-        animatedValue.value = withTiming(1, { duration: 100 });
-    }, [animatedValue]);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return { transform: [{ scale: animatedValue.value }], };
-    });
 
     return (
         <View style={{

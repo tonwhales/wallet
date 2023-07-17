@@ -1,5 +1,6 @@
-import { memo, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import { Pressable, StyleProp, ViewStyle, Text, TextStyle } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 export const PressableChip = memo(({
     onPress,
@@ -12,33 +13,46 @@ export const PressableChip = memo(({
     text: string,
     textStyle?: StyleProp<TextStyle>
 }) => {
-    const [pressedIn, setPressedIn] = useState(false);
+    const animatedValue = useSharedValue(1);
+
+    const onPressIn = useCallback(() => {
+        animatedValue.value = withTiming(0.98, { duration: 100 });
+    }, [animatedValue]);
+
+    const onPressOut = useCallback(() => {
+        animatedValue.value = withTiming(1, { duration: 100 });
+    }, [animatedValue]);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return { transform: [{ scale: animatedValue.value }], };
+    });
     return (
         <Pressable
-            onPressIn={() => setPressedIn(true)}
-            onPressOut={() => setPressedIn(false)}
-            style={[
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            onPress={onPress}
+        >
+            <Animated.View style={[
                 {
                     marginRight: 8,
                     paddingHorizontal: 17, paddingVertical: 4,
                     borderRadius: 20,
                     height: 28,
-                    transform: [{ scale: pressedIn ? 0.97 : 1 }]
                 },
                 style,
-            ]}
-            onPress={onPress}
-        >
-            <Text style={[
-                {
-                    fontWeight: '400',
-                    fontSize: 15, lineHeight: 20,
-                    textAlign: 'center', textAlignVertical: 'center',
-                },
-                textStyle
+                animatedStyle
             ]}>
-                {text}
-            </Text>
+                <Text style={[
+                    {
+                        fontWeight: '400',
+                        fontSize: 15, lineHeight: 20,
+                        textAlign: 'center', textAlignVertical: 'center',
+                    },
+                    textStyle
+                ]}>
+                    {text}
+                </Text>
+            </Animated.View>
         </Pressable>
     )
 })

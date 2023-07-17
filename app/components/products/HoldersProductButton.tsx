@@ -8,10 +8,10 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { holdersUrl } from "../../engine/holders/HoldersProduct";
 import Animated, { FadeIn } from "react-native-reanimated";
-import Collapsible from "react-native-collapsible";
 import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
 import BN from "bn.js";
+import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 
 export const holdersCardImageMap: { [key: string]: any } = {
     'classic': require('../../../assets/classic.png'),
@@ -214,18 +214,19 @@ export const HoldersProductButton = React.memo(() => {
                     )}
                 </View>
             </Pressable>
-            <Collapsible renderChildrenCollapsed={true} collapsed={collapsed}>
-                <View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />
-                {accounts.map((card, index) => {
+            <AnimatedChildrenCollapsible
+                collapsed={collapsed}
+                items={accounts}
+                renderItem={(item, index) => {
                     return (
                         <HoldersCardItem
                             key={`card-${index}`}
-                            account={card}
+                            account={item}
                             last={index === accounts.length - 1}
                         />
                     )
-                })}
-            </Collapsible>
+                }}
+            />
         </View>
     );
 })

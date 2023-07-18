@@ -138,7 +138,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         feeTitle: 'Blockchain fees',
         feeTotalTitle: 'Total blockchain fees',
         purpose: 'Purpose of transaction',
-        comment: 'Optional message',
+        comment: 'Message (optional)',
         commentRequired: 'Сomment required',
         commentLabel: 'Message',
         checkComment: 'Check before sending',

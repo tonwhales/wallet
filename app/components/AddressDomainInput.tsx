@@ -3,8 +3,6 @@ import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyl
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
 import { ATextInput, ATextInputRef } from "./ATextInput"
-import VerifiedIcon from '../../assets/ic_verified.svg';
-import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from "../secure/KnownWallets"
 import { Address } from "ton"
 import { warn } from "../utils/log"
@@ -14,6 +12,12 @@ import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns
 import { useEngine } from "../engine/Engine"
 import { AddressContact } from "../engine/products/SettingsProduct"
 import { useAppConfig } from "../utils/AppConfigContext"
+import { Camera } from 'react-native-vision-camera';
+import { useTypedNavigation } from "../utils/useTypedNavigation"
+
+import VerifiedIcon from '../../assets/ic_verified.svg';
+import ContactIcon from '../../assets/ic_contacts.svg';
+import Scanner from '../../assets/ic-scanner-accent.svg';
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
@@ -33,7 +37,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     contact,
     labelStyle,
     labelText,
-    showToMainAddress
+    showToMainAddress,
+    onQRCodeRead
 }: {
     style?: StyleProp<ViewStyle>,
     inputStyle?: StyleProp<TextStyle>,
@@ -51,11 +56,25 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     labelStyle?: StyleProp<ViewStyle>,
     labelText?: string,
     showToMainAddress?: boolean,
+    onQRCodeRead?: (value: string) => void,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
+    const navigation = useTypedNavigation();
     const { Theme, AppConfig } = useAppConfig();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
+
+    const openScanner = useCallback(() => {
+        if (!onQRCodeRead) {
+            return;
+        }
+        
+        (async () => {
+            await Camera.requestCameraPermission();
+            navigation.popToTop();
+            navigation.navigateScanner({ callback: onQRCodeRead });
+        })();
+    }, [onQRCodeRead]);
 
     const tref = React.useRef<TextInput>(null);
     React.useImperativeHandle(ref, () => ({
@@ -122,7 +141,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             ref={tref}
             onFocus={onFocus}
             onValueChange={onInputChange}
-            placeholder={(AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')) + '*'}
+            placeholder={(AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress'))}
             keyboardType={'ascii-capable'}
             autoCapitalize={'none'}
             preventDefaultHeight
@@ -286,6 +305,18 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             editable={!resolving}
             enabled={!resolving}
             inputStyle={inputStyle}
+            actionButtonRight={
+                !!onQRCodeRead
+                    ? (
+                        <Pressable 
+                        onPress={openScanner}
+                            style={{ height: 24, width: 24 }}
+                            >
+                            <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
+                        </Pressable>
+                    )
+                    : undefined
+            }
         />
     )
 }));

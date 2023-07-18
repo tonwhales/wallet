@@ -22,15 +22,14 @@ import { StatusBar } from 'expo-status-bar';
 import { useBottomSheet } from '../../components/modal/BottomSheetModal';
 import { WalletSelector } from '../../components/wallet/WalletSelector';
 import { RoundButton } from '../../components/RoundButton';
-import { AdditionalWalletsActions } from '../../components/wallet/AdditionalWalletsActions';
 import { BlurView } from 'expo-blur';
 import { Avatar } from '../../components/Avatar';
 import { useTrackScreen } from '../../analytics/mixpanel';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
-import { useActionSheet } from '@expo/react-native-action-sheet';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();

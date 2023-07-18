@@ -117,7 +117,7 @@ export class TypedNavigation {
         this.navigate('TonConnectAuthenticate', params);
     }
 
-    navigateScanner(params: { callback: (src: string) => void }) {
+    navigateScanner(params: { callback: (src: string) => void }, modal?: boolean) {
         (async () => {
             await Camera.requestCameraPermission();
             this.navigate('Scanner', params);

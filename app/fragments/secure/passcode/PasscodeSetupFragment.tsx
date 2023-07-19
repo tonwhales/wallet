@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
@@ -24,14 +24,20 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const navigation = useTypedNavigation();
     const storageType = loadKeyStorageType();
     const isLocalAuth = storageType === 'local-authentication';
+    const [showLater, setShowLater] = useState(init && !isLocalAuth);
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
             await encryptAndStoreAppKeyWithPasscode(passcode);
+        } catch {
+            setShowLater(true);
+            warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
+            throw Error('Failed to load wallet keys');
+        }
 
+        try {
             if (!!settings) {
                 settings.setPasscodeState(PasscodeState.Set);
-
 
                 if (isLocalAuth) {
                     const ref = loadKeyStorageRef();
@@ -45,11 +51,10 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 // Set only if there is are biometrics to use
                 settings.setBiometricsState(BiometricsState.InUse);
             }
-
-
-        } catch (e) {
-            warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
-            throw Error('Failed to load wallet keys');
+        } catch {
+            setShowLater(true);
+            warn(`Failed to set passcode state on PasscodeSetup ${init ? 'init' : 'change'}`);
+            throw Error('Failed to set passcode state');
         }
 
         if (init) {
@@ -75,7 +80,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 onReady={onPasscodeConfirmed}
                 initial={init}
                 onLater={
-                    (init && !isLocalAuth) // Lock migation to passcode from local auth
+                    showLater // Lock migation to passcode from local auth
                         ? () => {
                             storage.set(wasPasscodeSetupShownKey, true)
                             if (engine && !engine.ready) {

@@ -68,7 +68,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         if (!onQRCodeRead) {
             return;
         }
-        
+
         (async () => {
             await BarCodeScanner.requestPermissionsAsync();
             navigation.popToTop();
@@ -308,10 +308,10 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             actionButtonRight={
                 !!onQRCodeRead
                     ? (
-                        <Pressable 
-                        onPress={openScanner}
-                            style={{ height: 24, width: 24 }}
-                            >
+                        <Pressable
+                            onPress={openScanner}
+                            style={{ height: 24, width: 24, marginLeft: 8 }}
+                        >
                             <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
                         </Pressable>
                     )

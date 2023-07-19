@@ -437,10 +437,6 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const onSubmit = useCallback((index: number) => {
-        // let next = refs[index + 1].current;
-        // if (next) {
-        //     next.focus();
-        // }
         setSelectedInput(null);
     }, []);
 
@@ -468,8 +464,6 @@ export const SimpleTransferFragment = fragment(() => {
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom - 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior="never"
-                // keyboardShouldPersistTaps="always"
-                // keyboardDismissMode="none"
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 scrollEventThrottle={16}
@@ -479,10 +473,13 @@ export const SimpleTransferFragment = fragment(() => {
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
                     {selectedInput === null && (
-                        <Animated.View layout={Layout.duration(300)} style={{
-                            backgroundColor: Theme.lightGrey,
-                            borderRadius: 20, padding: 20, marginTop: 16
-                        }}>
+                        <Animated.View
+                            layout={Layout.duration(300)}
+                            style={{
+                                backgroundColor: Theme.lightGrey,
+                                borderRadius: 20, padding: 20, marginTop: 16
+                            }}
+                        >
                             <Pressable
                                 style={({ pressed }) => {
                                     return { opacity: pressed ? 0.5 : 1 }
@@ -552,14 +549,17 @@ export const SimpleTransferFragment = fragment(() => {
                         </Animated.View>
                     )}
                     {(selectedInput === null || selectedInput === 0) && (
-                        <Animated.View layout={Layout.duration(300)} style={{
-                            marginTop: 20,
-                            marginBottom: 16,
-                            backgroundColor: Theme.lightGrey,
-                            borderRadius: 20,
-                            justifyContent: 'center',
-                            padding: 20
-                        }}>
+                        <Animated.View
+                            layout={Layout.duration(300)}
+                            style={{
+                                marginTop: selectedInput === 0 ? 16 : 20,
+                                marginBottom: 16,
+                                backgroundColor: Theme.lightGrey,
+                                borderRadius: 20,
+                                justifyContent: 'center',
+                                padding: 20
+                            }}
+                        >
                             <View style={{
                                 flexDirection: 'row',
                                 marginBottom: 12,
@@ -623,7 +623,12 @@ export const SimpleTransferFragment = fragment(() => {
                         </Animated.View>
                     )}
                     {(selectedInput === null || selectedInput === 1) && (
-                        <Animated.View layout={Layout.duration(300)}>
+                        <Animated.View
+                            layout={Layout.duration(300)}
+                            style={{
+                                marginTop: selectedInput === 1 ? 16 : 0
+                            }}
+                        >
                             <AddressDomainInput
                                 input={addressDomainInput}
                                 onInputChange={setAddressDomainInput}
@@ -635,14 +640,16 @@ export const SimpleTransferFragment = fragment(() => {
                                 onDomainChange={setDomain}
                                 style={{
                                     margin: 0, padding: 20, paddingTop: 10,
+                                    paddingHorizontal: 20,
                                     backgroundColor: Theme.lightGrey,
                                 }}
                                 inputStyle={{
-                                    marginHorizontal: 0,
-                                    marginVertical: 0,
-                                    paddingBottom: 0, paddingTop: 0,
-                                    fontSize: 17,
+                                    flexShrink: 1,
+                                    marginHorizontal: 0, marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                    fontSize: 17, lineHeight: 20,
                                     fontWeight: '400', color: Theme.textColor,
+                                    textAlignVertical: 'center',
                                 }}
                                 isKnown={isKnown}
                                 onSubmit={onSubmit}

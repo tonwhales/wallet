@@ -12,7 +12,7 @@ const MnemonicWord = React.memo(({ word, index }: { word: string, index: number 
     const { Theme } = useAppConfig();
 
     return (
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', marginBottom: (index !== 11 && index !== 23) ? 8 : 0 }}>
             <Text style={[
                 wordStyle,
                 {

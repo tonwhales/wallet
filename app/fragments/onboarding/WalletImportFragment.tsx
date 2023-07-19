@@ -161,7 +161,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                         tref.current?.focus();
                     }}
                 >
-                    {(props.index + 1)}.
+                    {(props.index + 1)}:
                 </Text>
                 {Platform.OS === 'android' && (
                     <TouchableOpacity onPress={tref.current?.focus} activeOpacity={1} >

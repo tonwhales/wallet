@@ -18,11 +18,12 @@ import { warn } from '../../utils/log';
 import { MnemonicsView } from '../../components/MnemonicsView';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { Avatar } from '../../components/Avatar';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const { Theme, AppConfig } = useAppConfig();
-    const { height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
     const init = route.name === 'WalletBackupInit';
@@ -54,7 +55,7 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: !init });
                 setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
@@ -92,32 +93,59 @@ export const WalletBackupFragment = systemFragment(() => {
             exiting={FadeIn}
             key={"content"}
         >
-            <AndroidToolbar />
+            {!init && (
+                <ScreenHeader
+                    title={t('create.backupTitle')}
+                    onBackPressed={navigation.goBack}
+                />
+            )}
             <ScrollView
                 alwaysBounceVertical={false}
                 showsVerticalScrollIndicator={false}
                 style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
             >
-                <Text style={{
-                    fontSize: 32, lineHeight: 38,
-                    fontWeight: '600',
-                    textAlign: 'center',
-                    color: Theme.textColor,
-                    marginBottom: 12, marginTop: 16
-                }}>
-                    {t('create.backupTitle')}
-                </Text>
-                <Text style={{
-                    textAlign: 'center',
-                    fontSize: 17, lineHeight: 24,
-                    fontWeight: '400',
-                    flexShrink: 1,
-                    color: Theme.darkGrey,
-                    marginBottom: 16
-                }}>
-                    {t('create.backupSubtitle')}
-                </Text>
-                <MnemonicsView mnemonics={mnemonics.join(' ')} />
+                {init && (
+                    <>
+                        <Text style={{
+                            fontSize: 32, lineHeight: 38,
+                            fontWeight: '600',
+                            textAlign: 'center',
+                            color: Theme.textColor,
+                            marginBottom: 12, marginTop: 16
+                        }}>
+                            {t('create.backupTitle')}
+                        </Text>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '400',
+                            flexShrink: 1,
+                            color: Theme.darkGrey,
+                            marginBottom: 16
+                        }}>
+                            {t('create.backupSubtitle')}
+                        </Text>
+                    </>
+                )}
+                <View style={{ marginTop: init ? 0 : 40 }}>
+                    <MnemonicsView
+                        mnemonics={mnemonics.join(' ')}
+                        style={{
+                            paddingTop: init ? 0 : 46,
+                        }}
+                    />
+                    {!init && (
+                        <View style={{
+                            borderRadius: 34,
+                            height: 68, width: 68,
+                            backgroundColor: Theme.lightGrey,
+                            justifyContent: 'center', alignItems: 'center',
+                            position: 'absolute', top: -34, alignSelf: 'center'
+                        }}>
+                            <Avatar id={address.address.toFriendly({ testOnly: AppConfig.isTestnet })} size={65} />
+                        </View>
+                    )}
+                </View>
                 {AppConfig.isTestnet && (
                     <RoundButton
                         display={'text'}
@@ -140,14 +168,26 @@ export const WalletBackupFragment = systemFragment(() => {
                         }}
                     />
                 )}
+                {!init && (
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '400',
+                        flexShrink: 1,
+                        color: Theme.darkGrey,
+                        marginTop: 24
+                    }}>
+                        {t('create.backupSubtitle')}
+                    </Text>
+                )}
             </ScrollView>
             <View style={{
                 alignSelf: 'stretch',
                 paddingHorizontal: 16,
                 paddingVertical: 16,
-                marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
+                marginBottom: init ? safeArea.bottom === 0 ? 16 : safeArea.bottom : 0
             }}>
-                <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />
+                <RoundButton title={back ? t('common.done') : t('common.continue')} onPress={onComplete} />
             </View>
         </Animated.View>
     );

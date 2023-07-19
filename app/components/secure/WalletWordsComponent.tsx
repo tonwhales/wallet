@@ -49,7 +49,7 @@ export const WalletWordsComponent = React.memo((props: {
         return (w.length > 0)
             ? wordsTrie.find(w)
             : wordsTrie.find(randomEngLetter());
-    }, [words[selectedWord]]);
+    }, [selectedWord, words[selectedWord]]);
 
     // Submit Callback (does not re-create during re-render)
     const wordsRef = React.useRef(words);

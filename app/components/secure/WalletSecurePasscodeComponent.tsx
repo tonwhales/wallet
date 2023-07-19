@@ -145,7 +145,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             {state && (
                 <Animated.View
                     style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
-                    key="content"
+                    key={'content'}
                     entering={FadeIn}
                 >
                     <WalletSecureComponent

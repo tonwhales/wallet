@@ -53,7 +53,10 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         const acc = getCurrentAddress();
         const passcodeState = getPasscodeState();
         const biometricsState = getBiometricsState();
-        const useBiometrics = (biometricsState === BiometricsState.InUse);
+        const useBiometrics = (
+            biometricsState === BiometricsState.InUse
+            || !biometricsState // Fallback for old versions without biometrics state set
+        );
 
         if (useBiometrics) {
             try {
@@ -75,14 +78,6 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
             return new Promise<WalletKeys>((resolve, reject) => {
                 setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { ...style, useBiometrics: false } });
             });
-        }
-
-        // For users who skipped passcode setup and did not get to store biometrics state as inUse
-        try {
-            const keys = await loadWalletKeys(acc.secretKeyEnc);
-            return keys;
-        } catch {
-            warn('Failed to load wallet keys with biometrics');
         }
 
         throw Error('Failed to load keys');

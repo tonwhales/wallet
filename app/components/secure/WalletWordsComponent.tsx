@@ -141,6 +141,9 @@ export const WalletWordsComponent = React.memo((props: {
         if (value.split(' ').length === 24) {
             wordsRef.current = value.split(' ');
             setWords(value.split(' '));
+            runOnUI(scrollToInput)(23);
+            setSelectedWord(23);
+            refs[23].current?.focus();
             return;
         }
         let r = [...wordsRef.current];

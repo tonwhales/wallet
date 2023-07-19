@@ -33,6 +33,11 @@ export type ResolvedUrl = {
     query: ConnectQrQuery
 }
 
+export function isUrl(str: string): boolean {
+    const pattern = /^(?:\w+:)?\/\/([^\s.]+\.\S{2}|localhost[\:?\d]*)\S*$/;
+    return pattern.test(str);
+  }
+
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
 

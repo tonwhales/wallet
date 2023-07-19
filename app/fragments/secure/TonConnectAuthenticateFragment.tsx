@@ -30,6 +30,8 @@ import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse'
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/utils';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { extractDomain } from '../../engine/utils/extractDomain';
+import { isUrl } from '../../utils/resolveUrl';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -47,7 +49,8 @@ type SignState = { type: 'loading' }
         protocolVersion: number,
         request: ConnectRequest,
         clientSessionId?: string,
-        returnStrategy?: ReturnStrategy
+        returnStrategy?: ReturnStrategy,
+        domain: string
     }
     | { type: 'completed', returnStrategy?: ReturnStrategy }
     | { type: 'authorized', returnStrategy?: ReturnStrategy }
@@ -71,6 +74,8 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                         verifyConnectRequest(handled.request);
 
                         if (handled.manifest) {
+                            const domain = isUrl(handled.manifest.url) ? extractDomain(handled.manifest.url) : handled.manifest.url;
+
                             setState({
                                 type: 'initing',
                                 name: handled.manifest.name,
@@ -79,7 +84,8 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                                 protocolVersion: handled.protocolVersion,
                                 request: handled.request,
                                 clientSessionId: handled.clientSessionId,
-                                returnStrategy: handled.returnStrategy
+                                returnStrategy: handled.returnStrategy,
+                                domain: domain
                             });
                             return;
                         }
@@ -99,13 +105,16 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             const manifest = await engine.products.tonConnect.getConnectAppManifest(connectProps.request.manifestUrl);
 
             if (manifest) {
+                const domain = isUrl(manifest.url) ? extractDomain(manifest.url) : manifest.url;
+
                 setState({
                     type: 'initing',
                     name: manifest.name,
                     url: manifest.url,
                     app: manifest,
                     protocolVersion: connectProps.protocolVersion,
-                    request: connectProps.request
+                    request: connectProps.request,
+                    domain: domain
                 });
                 return;
             }
@@ -399,7 +408,6 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         );
     }
 
-
     return (
         <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
             <View style={{ flexGrow: 1 }} />
@@ -467,12 +475,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {
-                            (state.type === 'initing' && state.app
-                                ? new URL(state.app.url).host
-                                : new URL(state.url).host
-                            )
-                        }
+                        {state.domain}
                     </Text>
                 </View>
                 <View style={{

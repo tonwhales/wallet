@@ -14,9 +14,11 @@ import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
 import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
 import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
+import { useReboot } from "../../../utils/RebootContext";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const engine = useEngine();
+    const reboot = useReboot();
     const settings = engine?.products?.settings;
     const route = useRoute();
     const init = route.name === 'PasscodeSetupInit';
@@ -32,32 +34,24 @@ export const PasscodeSetupFragment = systemFragment(() => {
             if (!!settings) {
                 settings.setPasscodeState(PasscodeState.Set);
 
-
                 if (isLocalAuth) {
                     const ref = loadKeyStorageRef();
                     let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
 
                     // Remove old unencrypted key
                     storage.delete(key);
-                    return;
+                } else {
+                    // Set only if there are biometrics to use
+                    settings.setBiometricsState(BiometricsState.InUse);
                 }
-
-                // Set only if there is are biometrics to use
-                settings.setBiometricsState(BiometricsState.InUse);
             }
-
-
         } catch (e) {
             warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
             throw Error('Failed to load wallet keys');
         }
 
         if (init) {
-            if (engine && !engine.ready) {
-                navigation.navigateAndReplaceAll('Sync');
-            } else {
-                navigation.navigateAndReplaceAll('Home');
-            }
+            reboot();
         }
     }, []);
 
@@ -75,15 +69,11 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 onReady={onPasscodeConfirmed}
                 initial={init}
                 onLater={
-                    (init && !isLocalAuth) // Lock migation to passcode from local auth
+                    (init) // Lock migation to passcode from local auth
                         ? () => {
                             storeBiometricsState(BiometricsState.InUse);
                             storage.set(wasPasscodeSetupShownKey, true)
-                            if (engine && !engine.ready) {
-                                navigation.navigateAndReplaceAll('Sync');
-                            } else {
-                                navigation.navigateAndReplaceAll('Home');
-                            }
+                            reboot();
                         }
                         : undefined
                 }

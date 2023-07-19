@@ -229,8 +229,6 @@ export const Navigation = React.memo(() => {
             return 'WalletCreated';
         } else if (onboarding === 'home') {
             return 'Home';
-        } else if (onboarding === 'sync') {
-            return 'Sync';
         } else if (onboarding === 'welcome') {
             return 'Welcome';
         } else if (onboarding === 'upgrade-store') {

@@ -7,7 +7,7 @@ import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
-import { Camera } from 'react-native-vision-camera';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -117,9 +117,9 @@ export class TypedNavigation {
         this.navigate('TonConnectAuthenticate', params);
     }
 
-    navigateScanner(params: { callback: (src: string) => void }) {
+    navigateScanner(params: { callback: (src: string) => void }, modal?: boolean) {
         (async () => {
-            await Camera.requestCameraPermission();
+            await BarCodeScanner.requestPermissionsAsync();
             this.navigate('Scanner', params);
         })();
     }

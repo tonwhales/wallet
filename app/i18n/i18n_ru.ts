@@ -126,7 +126,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         feeTitle: 'Комиссия сети',
         feeTotalTitle: 'Полная комиссия сети',
         purpose: 'Цель транзакции',
-        comment: 'Необязательное сообщение',
+        comment: 'Cообщение (необязательное)',
         commentRequired: 'Обязательный комментарий',
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',

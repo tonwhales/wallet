@@ -680,7 +680,7 @@ export const SimpleTransferFragment = fragment(() => {
                             />
                         </Animated.View>
                     )}
-                    {selectedInput === null &&
+                    {selectedInput === null && (
                         <Animated.View layout={Layout.duration(300)}>
                             <Text
                                 style={{

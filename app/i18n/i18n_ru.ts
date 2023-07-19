@@ -49,6 +49,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         later: 'Позже',
         showAll: 'Показать все',
         hideAll: 'Скрыть все',
+        done: 'Готово',
     },
     syncStatus: {
         connecting: 'Идет подключение',

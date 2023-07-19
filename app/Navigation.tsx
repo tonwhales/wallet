@@ -137,7 +137,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletCreate', WalletCreateFragment, safeArea),
     genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
-    genericScreen('WalletBackup', WalletBackupFragment, safeArea),
+    modalScreen('WalletBackup', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     genericScreen('Settings', SettingsFragment, safeArea),
     genericScreen('Privacy', PrivacyFragment, safeArea),

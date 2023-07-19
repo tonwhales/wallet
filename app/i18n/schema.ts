@@ -50,6 +50,7 @@ export type LocalizationSchema = {
         later: string,
         showAll: string,
         hideAll: string,
+        done: string
     },
     syncStatus: {
         connecting: string,

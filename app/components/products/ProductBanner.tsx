@@ -21,14 +21,14 @@ export const ProductBanner = React.memo((props: {
                 borderRadius: 20,
             }}
         >
-            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingLeft: 20 }}>
                 {(!!props.illustration && props.reverse) && (
-                    <View style={{ height: 70, width: 96, backgroundColor: 'white', borderRadius: 10, marginLeft: 19 }}>
-                        <Image source={props.illustration} style={{ height: 70, width: 96 }} />
+                    <View style={{ height: 74, width: 96, justifyContent: 'center', alignItems: 'center' }}>
+                        <Image source={props.illustration} style={{ height: 74, width: 96 }} />
                     </View>
                 )}
                 <View style={{
-                    justifyContent: 'space-between', padding: 20, paddingRight: 15,
+                    justifyContent: 'space-between', padding: 20,
                     flexGrow: 1, flexShrink: 1
                 }}>
                     <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, lineHeight: 24 }}
@@ -52,8 +52,8 @@ export const ProductBanner = React.memo((props: {
                     )}
                 </View>
                 {(!!props.illustration && !props.reverse) && (
-                    <View style={{ height: 106, width: 106 }}>
-                        <Image source={props.illustration} style={{ height: 106, width: 106 }} />
+                    <View style={{ height: 74, width: 96, justifyContent: 'center', alignItems: 'center' }}>
+                        <Image source={props.illustration} style={{ height: 74, width: 96 }} />
                     </View>
                 )}
             </View>

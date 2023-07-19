@@ -138,6 +138,11 @@ export const WalletWordsComponent = React.memo((props: {
     }, []);
 
     const onSetValue = React.useCallback((index: number, value: string) => {
+        if (value.split(' ').length === 24) {
+            wordsRef.current = value.split(' ');
+            setWords(value.split(' '));
+            return;
+        }
         let r = [...wordsRef.current];
         r[index] = value;
         wordsRef.current = r;

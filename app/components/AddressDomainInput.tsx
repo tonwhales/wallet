@@ -12,8 +12,8 @@ import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns
 import { useEngine } from "../engine/Engine"
 import { AddressContact } from "../engine/products/SettingsProduct"
 import { useAppConfig } from "../utils/AppConfigContext"
-import { Camera } from 'react-native-vision-camera';
 import { useTypedNavigation } from "../utils/useTypedNavigation"
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import ContactIcon from '../../assets/ic_contacts.svg';
@@ -70,7 +70,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         }
         
         (async () => {
-            await Camera.requestCameraPermission();
+            await BarCodeScanner.requestPermissionsAsync();
             navigation.popToTop();
             navigation.navigateScanner({ callback: onQRCodeRead });
         })();

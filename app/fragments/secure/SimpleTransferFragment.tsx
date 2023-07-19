@@ -1,10 +1,10 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
@@ -30,8 +30,6 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { WImage } from '../../components/WImage';
-import { JettonWalletState } from '../../engine/sync/startJettonWalletSync';
-import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 
 import Verified from '../../../assets/ic-verified.svg';
 import TonIcon from '../../../assets/ic_ton_account.svg';
@@ -392,7 +390,7 @@ export const SimpleTransferFragment = fragment(() => {
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = useState(0);
+    const [selectedInput, setSelectedInput] = useState<number | null>(null);
 
     const refs = useMemo(() => {
         let r: RefObject<ATextInputRef>[] = [];
@@ -428,7 +426,7 @@ export const SimpleTransferFragment = fragment(() => {
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
     useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
-        if (keyboard.keyboardShown) {
+        if (keyboard.keyboardShown && selectedInput !== null) {
             runOnUI(scrollToInput)(selectedInput);
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
@@ -439,10 +437,15 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const onSubmit = useCallback((index: number) => {
-        let next = refs[index + 1].current;
-        if (next) {
-            next.focus();
-        }
+        // let next = refs[index + 1].current;
+        // if (next) {
+        //     next.focus();
+        // }
+        setSelectedInput(null);
+    }, []);
+
+    const onBlur = useCallback((index: number) => {
+        setSelectedInput(null);
     }, []);
 
     const onAssetSelected = useCallback((address?: Address) => {
@@ -457,7 +460,7 @@ export const SimpleTransferFragment = fragment(() => {
     const contact = engine.products.settings.useContact(target);
 
     return (
-        <>
+        <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader title={t('transfer.title')} onClosePressed={navigation.goBack} />
             <Animated.ScrollView
@@ -465,8 +468,8 @@ export const SimpleTransferFragment = fragment(() => {
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom - 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior="never"
-                keyboardShouldPersistTaps="always"
-                keyboardDismissMode="none"
+                // keyboardShouldPersistTaps="always"
+                // keyboardDismissMode="none"
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 scrollEventThrottle={16}
@@ -475,201 +478,220 @@ export const SimpleTransferFragment = fragment(() => {
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-                    <View style={{
-                        backgroundColor: Theme.lightGrey,
-                        borderRadius: 20, padding: 20, marginTop: 16
-                    }}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return { opacity: pressed ? 0.5 : 1 }
-                            }}
-                            onPress={() => {
-                                navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jettonState?.master });
-                            }}
-                        >
-                            <View style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                            }}>
-                                <View style={{
-                                    flexDirection: 'row',
-                                }}>
-                                    <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                                        {!!jettonState && (
-                                            <WImage
-                                                src={jettonState.master.image?.preview256}
-                                                blurhash={jettonState.master.image?.blurhash}
-                                                width={46}
-                                                heigh={46}
-                                                borderRadius={23}
-                                                lockLoading
-                                            />
-                                        )}
-                                        {!jettonState && (
-                                            <TonIcon width={46} height={46} />
-                                        )}
-                                        {isVerified && (
-                                            <Verified
-                                                height={16} width={16}
-                                                style={{
-                                                    height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: -2,
-                                                }}
-                                            />
-                                        )}
-                                    </View>
-                                    <View style={{ justifyContent: 'space-between' }}>
-                                        <Text style={{
-                                            fontSize: 17,
-                                            color: Theme.textColor,
-                                            fontWeight: '600',
-                                            lineHeight: 24
-                                        }}>
-                                            {`${jettonState?.master.symbol ?? 'TON'}`}
-                                        </Text>
-                                        <Text
-                                            style={{
-                                                fontSize: 15,
-                                                fontWeight: '400',
-                                                lineHeight: 20,
-                                                color: Theme.price,
-                                            }}
-                                            selectable={false}
-                                            ellipsizeMode={'middle'}
-                                        >
-                                            {`${jettonState?.master.description ?? 'The Open Network'}`}
-                                        </Text>
-                                    </View>
-                                </View>
-                                <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
-                            </View>
-                        </Pressable>
-                    </View>
-                    <View style={{
-                        marginTop: 20,
-                        marginBottom: 16,
-                        backgroundColor: Theme.lightGrey,
-                        borderRadius: 20,
-                        justifyContent: 'center',
-                        padding: 20
-                    }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            marginBottom: 12,
-                            justifyContent: 'space-between'
+                    {selectedInput === null && (
+                        <Animated.View layout={Layout.duration(300)} style={{
+                            backgroundColor: Theme.lightGrey,
+                            borderRadius: 20, padding: 20, marginTop: 16
                         }}>
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 15, lineHeight: 20,
-                                color: Theme.darkGrey,
-                            }}>
-                                {`${t('common.balance')}: ` + (jettonState
-                                    ? fromBNWithDecimals(balance, jettonState.master.decimals) + ` ${jettonState.master.symbol}`
-                                    : fromNano(balance) + ' TON')
-                                }
-                            </Text>
                             <Pressable
                                 style={({ pressed }) => {
-                                    return {
-                                        opacity: pressed ? 0.5 : 1
-                                    }
+                                    return { opacity: pressed ? 0.5 : 1 }
                                 }}
-                                onPress={onAddAll}
+                                onPress={() => {
+                                    navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jettonState?.master });
+                                }}
                             >
-                                <Text style={{
-                                    fontWeight: '500',
-                                    fontSize: 15, lineHeight: 20,
-                                    color: Theme.mainViolet,
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
                                 }}>
-                                    {t('transfer.sendAll')}
-                                </Text>
+                                    <View style={{
+                                        flexDirection: 'row',
+                                    }}>
+                                        <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                                            {!!jettonState && (
+                                                <WImage
+                                                    src={jettonState.master.image?.preview256}
+                                                    blurhash={jettonState.master.image?.blurhash}
+                                                    width={46}
+                                                    heigh={46}
+                                                    borderRadius={23}
+                                                    lockLoading
+                                                />
+                                            )}
+                                            {!jettonState && (
+                                                <TonIcon width={46} height={46} />
+                                            )}
+                                            {isVerified && (
+                                                <Verified
+                                                    height={16} width={16}
+                                                    style={{
+                                                        height: 16, width: 16,
+                                                        position: 'absolute', right: -2, bottom: -2,
+                                                    }}
+                                                />
+                                            )}
+                                        </View>
+                                        <View style={{ justifyContent: 'space-between' }}>
+                                            <Text style={{
+                                                fontSize: 17,
+                                                color: Theme.textColor,
+                                                fontWeight: '600',
+                                                lineHeight: 24
+                                            }}>
+                                                {`${jettonState?.master.symbol ?? 'TON'}`}
+                                            </Text>
+                                            <Text
+                                                style={{
+                                                    fontSize: 15,
+                                                    fontWeight: '400',
+                                                    lineHeight: 20,
+                                                    color: Theme.price,
+                                                }}
+                                                selectable={false}
+                                                ellipsizeMode={'middle'}
+                                            >
+                                                {`${jettonState?.master.description ?? 'The Open Network'}`}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
+                                </View>
                             </Pressable>
-                        </View>
-                        <ATextInput
-                            index={0}
-                            ref={refs[0]}
-                            onFocus={onFocus}
-                            value={amount}
-                            onValueChange={setAmount}
-                            placeholder={jettonState ? jettonState.master.symbol ?? 'TON' : 'TON'}
-                            keyboardType={'numeric'}
-                            style={{
-                                backgroundColor: 'white',
-                                justifyContent: 'center', alignItems: 'center',
-                                paddingHorizontal: 16, paddingVertical: 14,
-                                borderRadius: 16,
-                            }}
-                            inputStyle={{
-                                height: undefined,
-                                fontSize: 17,
-                                fontWeight: '400',
-                                paddingTop: 0, paddingBottom: 0,
-                                color: Theme.textColor,
-                                flexShrink: 1
-                            }}
-                            preventDefaultHeight
-                            preventDefaultLineHeight
-                            preventDefaultValuePadding
-                            blurOnSubmit={false}
-                        />
-                    </View>
-                    <AddressDomainInput
-                        input={addressDomainInput}
-                        onInputChange={setAddressDomainInput}
-                        target={target}
-                        index={1}
-                        ref={refs[1]}
-                        onFocus={onFocus}
-                        onTargetChange={setTarget}
-                        onDomainChange={setDomain}
-                        style={{
-                            margin: 0, padding: 20, paddingTop: 10,
+                        </Animated.View>
+                    )}
+                    {(selectedInput === null || selectedInput === 0) && (
+                        <Animated.View layout={Layout.duration(300)} style={{
+                            marginTop: 20,
+                            marginBottom: 16,
                             backgroundColor: Theme.lightGrey,
-                        }}
-                        inputStyle={{
-                            marginHorizontal: 0,
-                            marginVertical: 0,
-                            paddingBottom: 0, paddingTop: 0,
-                            fontSize: 17,
-                            fontWeight: '400', color: Theme.textColor,
-                        }}
-                        isKnown={isKnown}
-                        onSubmit={onSubmit}
-                        contact={contact}
-                        onQRCodeRead={onQRCodeRead}
-                    />
-                    <ATextInput
-                        value={comment}
-                        index={2}
-                        ref={refs[2]}
-                        onFocus={onFocus}
-                        onValueChange={setComment}
-                        placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
-                        keyboardType={'default'}
-                        autoCapitalize={'sentences'}
-                        style={{
-                            backgroundColor: Theme.lightGrey,
-                            padding: 20, marginTop: 20
-                        }}
-                        inputStyle={{
-                            marginHorizontal: 0,
-                            marginVertical: 0,
-                            paddingBottom: 0, paddingTop: 0,
-                            fontSize: 17,
-                            fontWeight: '400', color: Theme.textColor,
-                        }}
-                        preventDefaultHeight
-                        multiline
-                    />
-                    <Text
-                        style={{
-                            color: Theme.darkGrey,
-                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                            marginTop: 16,
+                            borderRadius: 20,
+                            justifyContent: 'center',
+                            padding: 20
                         }}>
-                        {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
-                    </Text>
+                            <View style={{
+                                flexDirection: 'row',
+                                marginBottom: 12,
+                                justifyContent: 'space-between'
+                            }}>
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 15, lineHeight: 20,
+                                    color: Theme.darkGrey,
+                                }}>
+                                    {`${t('common.balance')}: ` + (jettonState
+                                        ? fromBNWithDecimals(balance, jettonState.master.decimals) + ` ${jettonState.master.symbol}`
+                                        : fromNano(balance) + ' TON')
+                                    }
+                                </Text>
+                                <Pressable
+                                    style={({ pressed }) => {
+                                        return {
+                                            opacity: pressed ? 0.5 : 1
+                                        }
+                                    }}
+                                    onPress={onAddAll}
+                                >
+                                    <Text style={{
+                                        fontWeight: '500',
+                                        fontSize: 15, lineHeight: 20,
+                                        color: Theme.mainViolet,
+                                    }}>
+                                        {t('transfer.sendAll')}
+                                    </Text>
+                                </Pressable>
+                            </View>
+                            <ATextInput
+                                index={0}
+                                ref={refs[0]}
+                                onFocus={onFocus}
+                                value={amount}
+                                onValueChange={setAmount}
+                                placeholder={jettonState ? jettonState.master.symbol ?? 'TON' : 'TON'}
+                                keyboardType={'numeric'}
+                                style={{
+                                    backgroundColor: 'white',
+                                    justifyContent: 'center', alignItems: 'center',
+                                    paddingHorizontal: 16, paddingVertical: 14,
+                                    borderRadius: 16,
+                                }}
+                                inputStyle={{
+                                    height: undefined,
+                                    fontSize: 17,
+                                    fontWeight: '400',
+                                    paddingTop: 0, paddingBottom: 0,
+                                    color: Theme.textColor,
+                                    flexShrink: 1
+                                }}
+                                preventDefaultHeight
+                                preventDefaultLineHeight
+                                preventDefaultValuePadding
+                                // blurOnSubmit={false}
+                                onBlur={onBlur}
+                            />
+                        </Animated.View>
+                    )}
+                    {(selectedInput === null || selectedInput === 1) && (
+                        <Animated.View layout={Layout.duration(300)}>
+                            <AddressDomainInput
+                                input={addressDomainInput}
+                                onInputChange={setAddressDomainInput}
+                                target={target}
+                                index={1}
+                                ref={refs[1]}
+                                onFocus={onFocus}
+                                onTargetChange={setTarget}
+                                onDomainChange={setDomain}
+                                style={{
+                                    margin: 0, padding: 20, paddingTop: 10,
+                                    backgroundColor: Theme.lightGrey,
+                                }}
+                                inputStyle={{
+                                    marginHorizontal: 0,
+                                    marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0,
+                                    fontSize: 17,
+                                    fontWeight: '400', color: Theme.textColor,
+                                }}
+                                isKnown={isKnown}
+                                onSubmit={onSubmit}
+                                contact={contact}
+                                onQRCodeRead={onQRCodeRead}
+                                onBlur={onBlur}
+                            />
+                        </Animated.View>
+                    )}
+                    {(selectedInput === null || selectedInput === 2) && (
+                        <Animated.View layout={Layout.duration(300)}>
+                            <ATextInput
+                                value={comment}
+                                index={2}
+                                ref={refs[2]}
+                                onFocus={onFocus}
+                                onValueChange={setComment}
+                                placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                keyboardType={'default'}
+                                autoCapitalize={'sentences'}
+                                style={{
+                                    backgroundColor: Theme.lightGrey,
+                                    padding: 20, marginTop: 20
+                                }}
+                                inputStyle={{
+                                    marginHorizontal: 0,
+                                    marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0,
+                                    fontSize: 17,
+                                    fontWeight: '400', color: Theme.textColor,
+                                }}
+                                preventDefaultHeight
+                                multiline
+                                onBlur={onBlur}
+                            />
+                        </Animated.View>
+                    )}
+                    {selectedInput === null &&
+                        <Animated.View layout={Layout.duration(300)}>
+                            <Text
+                                style={{
+                                    color: Theme.darkGrey,
+                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                    marginTop: 16,
+                                }}>
+                                {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
+                            </Text>
+                        </Animated.View>
+                    )}
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView
@@ -683,9 +705,9 @@ export const SimpleTransferFragment = fragment(() => {
                 <RoundButton
                     disabled={!order}
                     title={t('common.continue')}
-                    action={doSend}
+                    action={selectedInput ? async () => onSubmit(selectedInput) : doSend}
                 />
             </KeyboardAvoidingView>
-        </>
+        </Animated.View>
     );
 });

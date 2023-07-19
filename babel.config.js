@@ -3,15 +3,15 @@ module.exports = function (api) {
   api.cache(true);
 
   const plugins = [
+    ["@babel/plugin-proposal-private-methods", {
+      "loose": true
+    }],
     [
       'react-native-reanimated/plugin',
       {
         globals: ['__scanCodes'],
       },
-    ],
-    ["@babel/plugin-proposal-private-methods", {
-      "loose": true
-    }]
+    ]
   ];
 
   if (babelEnv !== 'development') {

@@ -206,7 +206,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             <Text style={{
                                 fontSize: 17,
                                 lineHeight: 24,
-                                color: '#838D99',
+                                color: Theme.darkGrey,
                                 marginRight: 8,
                                 fontWeight: '500',
                             }}>{' TON'}</Text>
@@ -233,7 +233,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             fontSize: 13,
                             lineHeight: 18,
                             textAlign: 'left',
-                            color: '#838D99',
+                            color: Theme.darkGrey,
                             fontWeight: '400',
                             fontFamily: undefined
                         }}

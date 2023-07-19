@@ -91,7 +91,7 @@ export const HoldersProductButton = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: '#F7F8F9',
+                backgroundColor: Theme.lightGrey,
             }}>
                 {accounts.map((card, index) => {
                     return (
@@ -109,7 +109,7 @@ export const HoldersProductButton = React.memo(() => {
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: '#F7F8F9',
+            backgroundColor: Theme.lightGrey,
         }}>
             <Pressable
                 style={({ pressed }) => {
@@ -142,7 +142,7 @@ export const HoldersProductButton = React.memo(() => {
                             </Rect>
                         </Canvas>
                     </View>
-                    <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 13, left: 2, right: 2 }} />
+                    <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 13, left: 2, right: 2 }} />
                     <View style={{
                         width: 42, height: 27,
                         borderRadius: 7, borderWidth: 0,
@@ -159,7 +159,7 @@ export const HoldersProductButton = React.memo(() => {
                             </Rect>
                         </Canvas>
                     </View>
-                    <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 2, left: 0, right: 0 }} />
+                    <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 2, left: 0, right: 0 }} />
                     <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, overflow: 'hidden', position: 'absolute', bottom: 0 }}>
                         <Canvas style={{ width: 46, height: 30, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                             <Rect x={0} y={0} width={46} height={30}>
@@ -193,7 +193,7 @@ export const HoldersProductButton = React.memo(() => {
                         fontWeight: '400',
                         fontSize: 15,
                         lineHeight: 20,
-                        color: '#838D99'
+                        color: Theme.darkGrey
                     }}>
                         {t('products.zenPay.card.eurSubtitle')}
                     </Text>

@@ -113,7 +113,7 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
                                 : t('products.zenPay.card.defaultTitle')
                         )}
                     </Text>
-                    <Text style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: '#838D99' }}>
+                    <Text style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.darkGrey }}>
                         {!!props.account && (
                             <Text style={{ flexShrink: 1 }}>
                                 {t(`products.zenPay.card.type.${props.account.type}`) + `${props.account?.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
@@ -139,13 +139,13 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
                                 alignSelf: 'flex-end',
                                 height: undefined
                             }}
-                            textStyle={{ color: '#838D99', fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                            textStyle={{ color: Theme.darkGrey, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                             currencyCode={'EUR'}
                         />
                     </View>
                 )}
             </Animated.View>
-            {!props.last && (<View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />)}
+            {!props.last && (<View style={{ backgroundColor: Theme.mediumGrey, height: 1, marginHorizontal: 20 }} />)}
         </Pressable>
     );
 });

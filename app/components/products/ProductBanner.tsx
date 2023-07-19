@@ -17,7 +17,7 @@ export const ProductBanner = React.memo((props: {
             underlayColor={Theme.selector}
             style={{
                 height: 106,
-                backgroundColor: '#F7F8F9',
+                backgroundColor: Theme.lightGrey,
                 borderRadius: 20,
             }}
         >
@@ -40,7 +40,7 @@ export const ProductBanner = React.memo((props: {
                     {!!props.subtitle && (
                         <Text
                             style={{
-                                color: '#838D99',
+                                color: Theme.darkGrey,
                                 fontSize: 15,
                                 lineHeight: 20,
                                 flex: 1, flexShrink: 1

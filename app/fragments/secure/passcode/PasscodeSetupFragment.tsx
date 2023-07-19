@@ -30,14 +30,18 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
             await encryptAndStoreAppKeyWithPasscode(passcode);
-
+        } catch (e) {
+            warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
+            throw Error('Failed to load wallet keys');
+        }
+        try {
             if (!!settings) {
                 settings.setPasscodeState(PasscodeState.Set);
-
+    
                 if (isLocalAuth) {
                     const ref = loadKeyStorageRef();
                     let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
-
+    
                     // Remove old unencrypted key
                     storage.delete(key);
                 } else {
@@ -45,9 +49,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
                     settings.setBiometricsState(BiometricsState.InUse);
                 }
             }
-        } catch (e) {
-            warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
-            throw Error('Failed to load wallet keys');
+        } catch {
+            warn(`Failed to set passcode state on PasscodeSetup ${init ? 'init' : 'change'}`);
         }
 
         if (init) {

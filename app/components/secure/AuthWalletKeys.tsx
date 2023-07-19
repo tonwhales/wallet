@@ -77,6 +77,14 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
             });
         }
 
+        // For users who skipped passcode setup and did not get to store biometrics state as inUse
+        try {
+            const keys = await loadWalletKeys(acc.secretKeyEnc);
+            return keys;
+        } catch {
+            warn('Failed to load wallet keys with biometrics');
+        }
+
         throw Error('Failed to load keys');
     }, [auth]);
 

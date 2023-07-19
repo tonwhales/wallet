@@ -4,13 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { StatusBar } from 'expo-status-bar';
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
-// import { Camera } from 'react-native-vision-camera';
-// import { useScanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { RoundButton } from '../../components/RoundButton';
-import { CameraComponent } from '../../components/CameraComponent';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useDimensions } from '@react-native-community/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -18,6 +15,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Canvas, rrect, rect, DiffRect } from '@shopify/react-native-skia';
 import * as RNImagePicker from 'expo-image-picker';
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
+import { Camera, FlashMode } from 'expo-camera';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
@@ -33,10 +31,6 @@ export const ScannerFragment = systemFragment(() => {
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
-
-    const isFocused = useIsFocused();
-
-    // const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE]);
 
     const onReadFromMedia = useCallback(async () => {
         try {
@@ -87,7 +81,8 @@ export const ScannerFragment = systemFragment(() => {
     if (hasPermission === null) {
         return (
             <View style={styles.container}>
-                <ScreenHeader onBackPressed={navigation.goBack} />
+                <ScreenHeader tintColor={'white'} onBackPressed={navigation.goBack} />
+                <View style={{ flexGrow: 1 }} />
                 <View style={{
                     alignSelf: 'center',
                     width: 170,
@@ -115,9 +110,7 @@ export const ScannerFragment = systemFragment(() => {
         return (
             <View style={[styles.container, { backgroundColor: 'white', alignItems: 'center' }]}>
                 <ScreenHeader tintColor={'white'} onBackPressed={navigation.goBack} />
-                <View style={{
-                    flexGrow: 1
-                }} />
+                <View style={{ flexGrow: 1 }} />
                 <View style={{
                     width: dimentions.window.width - 32,
                     aspectRatio: 1,
@@ -176,16 +169,11 @@ export const ScannerFragment = systemFragment(() => {
             <StatusBar style='light' />
 
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                <BarCodeScanner
+                <Camera
                     onBarCodeScanned={!isActive ? undefined : onScanned}
-                    style={StyleSheet.absoluteFillObject}
+                    style={StyleSheet.absoluteFill}
+                    flashMode={flashOn ? FlashMode.torch : FlashMode.off}
                 />
-                {/* <CameraComponent
-                    isActive={isActive && isFocused}
-                    frameProcessor={frameProcessor}
-                    frameProcessorFps={2}
-                    torch={flashOn}
-                /> */}
             </View>
 
             <Canvas style={{

@@ -1865,6 +1865,13 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@koale/useworker@^4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@koale/useworker/-/useworker-4.0.2.tgz#cb540a2581cd6025307c3ca6685bc60748773e58"
+  integrity sha512-xPIPADtom8/3/4FLNj7MvNcBM/Z2FleH85Fdx2O869eoKW8+PoEgtSVvoxWjCWMA46Sm9A5/R1TyzNGc+yM0wg==
+  dependencies:
+    dequal "^1.0.0"
+
 "@ledgerhq/devices@^7.0.3":
   version "7.0.7"
   resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-7.0.7.tgz#3499304a1c9d3aa7399de2ad390719bef5d1e89c"
@@ -4063,6 +4070,11 @@ deprecated-react-native-prop-types@^3.0.1:
     invariant "*"
     prop-types "*"
 
+dequal@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/dequal/-/dequal-1.0.1.tgz#dbbf9795ec626e9da8bd68782f4add1d23700d8b"
+  integrity sha512-Fx8jxibzkJX2aJgyfSdLhr9tlRoTnHKrRJuu2XHlAgKioN2j19/Bcbe0d4mFXYZ3+wpE2KVobUVTfDutcD17xQ==
+
 destroy@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/destroy/-/destroy-1.2.0.tgz#4803735509ad8be552934c67df614f94e66fa015"
@@ -4400,6 +4412,14 @@ expo-blur@~12.2.2:
   version "12.2.2"
   resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-12.2.2.tgz#b7f94499255afbd3468302d02f3c4e39a0e562d5"
   integrity sha512-SvGbEZbB0VFNGqCW7FcqzWOEb3lrRgBnQKGrsKo49KwhMyHTYjYVYWnmrk9l8Tr7lIaNnd55QD6dPAzcXjZYMg==
+
+expo-camera@^13.4.2:
+  version "13.4.2"
+  resolved "https://registry.yarnpkg.com/expo-camera/-/expo-camera-13.4.2.tgz#858de25720e5de4b21c43107fa5c926a021a2f0f"
+  integrity sha512-3G4ahx0pF56PyYixFlU39jrZof6I9XtBzizGObKN6ZKjSgCqqL0tjsrlDrCn44ZwSY4SngsMJmWR9JQDkKx2WA==
+  dependencies:
+    "@koale/useworker" "^4.0.2"
+    invariant "^2.2.4"
 
 expo-constants@~14.2.0, expo-constants@~14.2.1:
   version "14.2.1"

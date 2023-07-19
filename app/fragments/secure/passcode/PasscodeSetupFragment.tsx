@@ -4,7 +4,7 @@ import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
-import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType } from "../../../storage/secureStorage";
+import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useEngine } from "../../../engine/Engine";
 import { warn } from "../../../utils/log";
@@ -77,6 +77,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 onLater={
                     (init && !isLocalAuth) // Lock migation to passcode from local auth
                         ? () => {
+                            storeBiometricsState(BiometricsState.InUse);
                             storage.set(wasPasscodeSetupShownKey, true)
                             if (engine && !engine.ready) {
                                 navigation.navigateAndReplaceAll('Sync');

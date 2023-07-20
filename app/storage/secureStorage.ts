@@ -120,6 +120,25 @@ async function doEncrypt(key: Buffer, data: Buffer) {
     return Buffer.concat([nonce, sealed]);
 }
 
+export async function migrateAndroidKeyStore(passcode?: string) {
+
+    // Pre-flight checks
+    if (Platform.OS !== 'android') {
+        return;
+    }
+
+    const appKey = await getApplicationKey(passcode);
+    const ref = storage.getString('ton-storage-ref');
+
+    if (!ref) {
+        throw Error('Invalid ref');
+    }
+
+    await SecureStore.setItemAsync(ref, appKey.toString('base64'), { requireAuthentication: true });
+
+    storage.set('ton-storage-kind', 'secure-store');
+}
+
 export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
     // Load existing app key with passcode
     const appKey = await getApplicationKey(passcode);
@@ -129,26 +148,19 @@ export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
         throw Error('Invalid ref');
     }
 
-    // Handle iOS
-    if (Platform.OS === 'ios') {
-        storage.set('ton-storage-kind', 'secure-store');
-        storage.set('ton-storage-ref', ref);
-        try {
-            await SecureStore.deleteItemAsync(ref);
-        } catch (e) {
-            // Ignore
-        }
-        await SecureStore.setItemAsync(ref, appKey.toString('base64'), {
-            requireAuthentication: true,
-            keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
-        });
-    } else if (Platform.OS === 'android') {
-        storage.set('ton-storage-ref', ref);
-        storage.set('ton-storage-kind', 'key-store');
-        await KeyStore.setItemAsync(ref, appKey.toString('base64'));
-    } else {
-        throw Error('Unsupported platform')
+    // Set storage kind and ref
+    storage.set('ton-storage-kind', 'secure-store');
+    storage.set('ton-storage-ref', ref);
+    try {
+        // Delete prev existing key
+        await SecureStore.deleteItemAsync(ref);
+    } catch (e) {
+        // Ignore
     }
+    await SecureStore.setItemAsync(ref, appKey.toString('base64'), {
+        requireAuthentication: true,
+        keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY
+    });
 }
 
 export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {

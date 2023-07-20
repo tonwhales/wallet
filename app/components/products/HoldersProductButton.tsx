@@ -78,7 +78,7 @@ export const HoldersProductButton = React.memo(() => {
                 title={t('products.zenPay.card.defaultTitle')}
                 subtitle={t('products.zenPay.card.defaultSubtitle')}
                 onPress={onPress}
-                illustration={require('../../../assets/banner-cards.png')}
+                illustration={require('../../../assets/banner-holders.png')}
             />
         );
     }
@@ -87,7 +87,7 @@ export const HoldersProductButton = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: '#F7F8F9',
+                backgroundColor: Theme.lightGrey,
             }}>
                 {accounts.map((card, index) => {
                     return (
@@ -105,7 +105,7 @@ export const HoldersProductButton = React.memo(() => {
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: '#F7F8F9',
+            backgroundColor: Theme.lightGrey,
         }}>
             <Pressable
                 style={({ pressed }) => {
@@ -133,7 +133,7 @@ export const HoldersProductButton = React.memo(() => {
                             source={holdersCardImageMap[accounts[2].card.personalizationCode] || holdersCardImageMap['classic']}
                         />
                     </View>
-                    <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 13, left: 2, right: 2 }} />
+                    <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 13, left: 2, right: 2 }} />
                     <View style={{
                         width: 42, height: 27,
                         borderRadius: 7, borderWidth: 0,
@@ -145,7 +145,7 @@ export const HoldersProductButton = React.memo(() => {
                             source={holdersCardImageMap[accounts[1].card.personalizationCode] || holdersCardImageMap['classic']}
                         />
                     </View>
-                    <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 2, left: 0, right: 0 }} />
+                    <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 2, left: 0, right: 0 }} />
                     <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, overflow: 'hidden', position: 'absolute', bottom: 0 }}>
                         <Image
                             style={{ width: 46, height: 30, borderRadius: 7 }}
@@ -174,7 +174,7 @@ export const HoldersProductButton = React.memo(() => {
                         fontWeight: '400',
                         fontSize: 15,
                         lineHeight: 20,
-                        color: '#838D99'
+                        color: Theme.darkGrey
                     }}>
                         {t('products.zenPay.card.eurSubtitle')}
                     </Text>

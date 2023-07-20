@@ -51,7 +51,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         select: 'Выбрать',
         showAll: 'Показать все',
         hideAll: 'Скрыть все',
-        done: 'Готово',
         mainWallet: 'Основной',
     },
     syncStatus: {

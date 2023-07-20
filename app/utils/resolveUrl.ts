@@ -34,9 +34,13 @@ export type ResolvedUrl = {
 }
 
 export function isUrl(str: string): boolean {
-    const pattern = /^(?:\w+:)?\/\/([^\s.]+\.\S{2}|localhost[\:?\d]*)\S*$/;
-    return pattern.test(str);
-  }
+    try {
+        new URL(str);
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 

@@ -1,5 +1,5 @@
 import { Address } from "ton";
-import { resolveUrl } from "./resolveUrl";
+import { resolveUrl, isUrl } from "./resolveUrl";
 
 describe('resolveUrl', () => {
     it('should handle plain address', () => {
@@ -114,5 +114,20 @@ describe('resolveUrl', () => {
         expect(res.customImage).toBeNull();
         expect(res.customTitle).toEqual('TON Mining');
         expect(res.url).toEqual('https://tonwhales.com/mining');
+    });
+});
+
+describe('isUrl', () => {
+    it('should check urls', () => {
+        expect(isUrl('https://google.com')).toBe(true);
+        expect(isUrl('https://google.com/')).toBe(true);
+        expect(isUrl('http://google.com')).toBe(true);
+        expect(isUrl('https://tonwhales.com')).toBe(true);
+        expect(isUrl('https://apps.tonhub.com')).toBe(true);
+        expect(isUrl('google.com')).toBe(false);
+        expect(isUrl('skldfkj_,e.az1.xom')).toBe(false);
+        expect(isUrl('//app.aaaaaa.com')).toBe(false);
+        expect(isUrl('app.evaa.finance')).toBe(false);
+        expect(isUrl('https://app.evaa.finance')).toBe(true);
     });
 });

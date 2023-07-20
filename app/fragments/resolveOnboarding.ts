@@ -29,11 +29,7 @@ export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): On
             if (!wasPasscodeSetupShown && !passcodeSet) {
                 return 'passcode-setup';
             }
-            if (engine && !engine.ready) {
-                return 'sync';
-            } else {
-                return 'home';
-            }
+            return 'home';
         } else {
             return 'backup';
         }

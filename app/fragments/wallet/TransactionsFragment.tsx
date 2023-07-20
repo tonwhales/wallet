@@ -15,8 +15,6 @@ import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TabHeader } from "../../components/topbar/TabHeader";
-import { HorizontalScrollableSelector } from "../../components/HorizontalScrollableSelector";
-import Animated, { FadeIn, FadeInLeft, FadeInRight, FadeOut, FadeOutLeft, FadeOutRight } from "react-native-reanimated";
 import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { useTrackScreen } from "../../analytics/mixpanel";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
@@ -154,41 +152,23 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <TabHeader title={t('transactions.history')} />
-            {/* {holdersCards.length > 0 && holdersStatus.state === 'ok' && (
-                <View style={{ paddingVertical: 8 }}>
-                    <HorizontalScrollableSelector
-                        items={[
-                            { title: 'Main wallet' },
-                            ...holdersCards.map((account) => {
-                                const cards = engine.products.holders.useCardsTransactions(account.id);
-                                if (!cards || cards.length === 0) {
-                                    return null;
-                                }
-                                return { title: `Tonhub card${account.card.lastFourDigits ? ' ' + account.card.lastFourDigits : ''}` };
-                            }).filter((x) => !!x) as any[]
-                        ]}
-                        current={tab.current}
-                        onSeleted={(index) => {
-                            setTab({ prev: tab.current, current: index });
-                        }}
-                    />
-                </View>
-            )} */}
             <TabView
                 tabBarPosition={'top'}
                 renderTabBar={(props) => {
                     return (
                         <TabBar
                             {...props}
-                            style={{ backgroundColor: 'transparent' }}
+                            scrollEnabled={true}
+                            style={{ backgroundColor: 'transparent', paddingLeft: 8, paddingVertical: 8 }}
                             indicatorStyle={{ backgroundColor: 'transparent' }}
-                            renderTabBarItem={(props) => {
+                            renderTabBarItem={(tabItemProps) => {
+                                const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
                                 return <PressableChip
-                                    key={`selector-item-${props.route.key}`}
-                                    onPress={() => props.onPress(props.route.key)}
-                                    style={{ backgroundColor: props.focused ? Theme.accent : Theme.lightGrey, }}
-                                    // textStyle={{ color: current === index ? 'white' : Theme.textColor, }}
-                                    text={props.route.title}
+                                    key={`selector-item-${tabItemProps.route.key}`}
+                                    onPress={tabItemProps.onPress}
+                                    style={{ backgroundColor: focused ? Theme.accent : Theme.lightGrey, }}
+                                    textStyle={{ color: focused ? 'white' : Theme.textColor, }}
+                                    text={tabItemProps.route.title}
                                 />
                             }}
                         />

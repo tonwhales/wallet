@@ -159,7 +159,8 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         <TabBar
                             {...props}
                             scrollEnabled={true}
-                            style={{ backgroundColor: 'transparent', paddingLeft: 8, paddingVertical: 8 }}
+                            style={{ backgroundColor: 'transparent', paddingVertical: 8 }}
+                            contentContainerStyle={{ marginLeft: 8 }}
                             indicatorStyle={{ backgroundColor: 'transparent' }}
                             renderTabBarItem={(tabItemProps) => {
                                 const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;

@@ -145,7 +145,7 @@ export const HoldersProductButton = React.memo(() => {
                                 source={holdersCardImageMap[accounts[2].card.personalizationCode] || holdersCardImageMap['classic']}
                             />
                         </View>
-                        <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 13, left: 2, right: 2 }} />
+                        <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 13, left: 2, right: 2 }} />
                         <View style={{
                             width: 42, height: 27,
                             borderRadius: 7, borderWidth: 0,
@@ -157,7 +157,7 @@ export const HoldersProductButton = React.memo(() => {
                                 source={holdersCardImageMap[accounts[1].card.personalizationCode] || holdersCardImageMap['classic']}
                             />
                         </View>
-                        <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: '#F7F8F9', position: 'absolute', bottom: 2, left: 0, right: 0 }} />
+                        <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 2, left: 0, right: 0 }} />
                         <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, overflow: 'hidden', position: 'absolute', bottom: 0 }}>
                             <Image
                                 style={{ width: 46, height: 30, borderRadius: 7 }}
@@ -186,12 +186,11 @@ export const HoldersProductButton = React.memo(() => {
                             fontWeight: '400',
                             fontSize: 15,
                             lineHeight: 20,
-                            color: '#838D99'
+                            color: Theme.darkGrey
                         }}>
                             {t('products.zenPay.card.eurSubtitle')}
                         </Text>
                     </View>
-                    <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 13, left: 2, right: 2 }} />
                     <View style={{
                         backgroundColor: Theme.accent,
                         borderRadius: 16,
@@ -199,21 +198,18 @@ export const HoldersProductButton = React.memo(() => {
                         paddingHorizontal: 10,
                         paddingVertical: 4,
                     }}>
-                        <Image
-                            style={{ width: 42, height: 27, borderRadius: 7 }}
-                            source={holdersCardImageMap[accounts[1].card.personalizationCode] || holdersCardImageMap['classic']}
-                        />
-                    </View>
-                    <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 2, left: 0, right: 0 }} />
-                    <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, overflow: 'hidden', position: 'absolute', bottom: 0 }}>
-                        <Image
-                            style={{ width: 46, height: 30, borderRadius: 7 }}
-                            source={holdersCardImageMap[accounts[0].card.personalizationCode] || holdersCardImageMap['classic']}
-                        />
-                        {!!accounts[0].card.lastFourDigits && (
-                            <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
-                                {accounts[0].card.lastFourDigits}
-                            </Text>
+                        {collapsed && (
+                            <Animated.Text
+                                style={{
+                                    color: 'white',
+                                    fontWeight: '500',
+                                    fontSize: 15,
+                                    lineHeight: 20,
+                                }}
+                                entering={FadeIn}
+                            >
+                                {collapsed ? t('common.showAll') : t('common.hideAll')}
+                            </Animated.Text>
                         )}
                         {!collapsed && (
                             <Animated.Text
@@ -229,59 +225,7 @@ export const HoldersProductButton = React.memo(() => {
                             </Animated.Text>
                         )}
                     </View>
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 17,
-                        lineHeight: 24,
-                        color: Theme.textColor,
-                    }}>
-                        {t('products.zenPay.card.cards', { count: accounts.length })}
-                    </Text>
-                    <Text style={{
-                        fontWeight: '400',
-                        fontSize: 15,
-                        lineHeight: 20,
-                        color: Theme.darkGrey
-                    }}>
-                        {t('products.zenPay.card.eurSubtitle')}
-                    </Text>
-                </View>
-                <View style={{
-                    backgroundColor: Theme.accent,
-                    borderRadius: 16,
-                    alignSelf: 'center',
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                }}>
-                    {collapsed && (
-                        <Animated.Text
-                            style={{
-                                color: 'white',
-                                fontWeight: '500',
-                                fontSize: 15,
-                                lineHeight: 20,
-                            }}
-                            entering={FadeIn}
-                        >
-                            {collapsed ? t('common.showAll') : t('common.hideAll')}
-                        </Animated.Text>
-                    )}
-                    {!collapsed && (
-                        <Animated.Text
-                            style={{
-                                color: 'white',
-                                fontWeight: '500',
-                                fontSize: 15,
-                                lineHeight: 20,
-                            }}
-                            entering={FadeIn}
-                        >
-                            {t('common.hideAll')}
-                        </Animated.Text>
-                    )}
-                </View>
+                </Animated.View>
             </Pressable>
             <AnimatedChildrenCollapsible
                 collapsed={collapsed}

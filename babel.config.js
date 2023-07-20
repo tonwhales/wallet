@@ -5,6 +5,7 @@ module.exports = function (api) {
   const plugins = [
     ["@babel/plugin-transform-flow-strip-types", { "loose": true }],
     ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    ["@babel/plugin-proposal-private-methods", { "loose": true }],
     [
       'react-native-reanimated/plugin',
       {

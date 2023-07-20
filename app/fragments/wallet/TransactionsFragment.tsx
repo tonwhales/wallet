@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, ViewStyle, StyleProp, Insets, PointProp } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -19,6 +19,8 @@ import { HorizontalScrollableSelector } from "../../components/HorizontalScrolla
 import Animated, { FadeIn, FadeInLeft, FadeInRight, FadeOut, FadeOutLeft, FadeOutRight } from "react-native-reanimated";
 import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { useTrackScreen } from "../../analytics/mixpanel";
+import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
+import { PressableChip } from "../../PressableChip";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -34,6 +36,8 @@ const WalletTransactions = React.memo((props: {
     contentInset?: Insets,
     contentOffset?: PointProp
 }) => {
+    const [loading, setLoading] = useState(false);
+
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
@@ -69,10 +73,10 @@ const WalletTransactions = React.memo((props: {
     }
 
     // Last
-    if (props.next) {
+    if (loading) {
         components.push(
             <View
-                key="prev-loader"
+                key={'prev-loader'}
                 style={{
                     height: 64,
                     alignSelf: 'stretch',
@@ -85,7 +89,7 @@ const WalletTransactions = React.memo((props: {
         );
     } else {
         components.push(
-            <View key="footer" style={{ height: 16 }} />
+            <View key={'footer'} style={{ height: 16 }} />
         );
     }
 
@@ -96,8 +100,13 @@ const WalletTransactions = React.memo((props: {
 
         if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000) {
             props.onLoadMore();
+            setLoading(true);
         }
     }, [props.onLoadMore]);
+
+    useEffect(() => {
+        setLoading(false);
+    }, [props.txs]);
 
     return (
         <ScrollView
@@ -145,7 +154,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <TabHeader title={t('transactions.history')} />
-            {holdersCards.length > 0 && holdersStatus.state === 'ok' && (
+            {/* {holdersCards.length > 0 && holdersStatus.state === 'ok' && (
                 <View style={{ paddingVertical: 8 }}>
                     <HorizontalScrollableSelector
                         items={[
@@ -164,60 +173,92 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         }}
                     />
                 </View>
-            )}
-            {account.transactions.length === 0 && tab.current === 0 && (
-                <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                    <Pressable
-                        onPress={() => {
-                            animRef.current?.play();
-                        }}>
-                        <LottieView
-                            ref={animRef}
-                            source={require('../../../assets/animations/duck.json')}
-                            autoPlay={true}
-                            loop={false}
-                            progress={0.2}
-                            style={{ width: 192, height: 192 }}
+            )} */}
+            <TabView
+                tabBarPosition={'top'}
+                renderTabBar={(props) => {
+                    return (
+                        <TabBar
+                            {...props}
+                            style={{ backgroundColor: 'transparent' }}
+                            indicatorStyle={{ backgroundColor: 'transparent' }}
+                            renderTabBarItem={(props) => {
+                                return <PressableChip
+                                    key={`selector-item-${props.route.key}`}
+                                    onPress={() => props.onPress(props.route.key)}
+                                    style={{ backgroundColor: props.focused ? Theme.accent : Theme.lightGrey, }}
+                                    // textStyle={{ color: current === index ? 'white' : Theme.textColor, }}
+                                    text={props.route.title}
+                                />
+                            }}
                         />
-                    </Pressable>
-                    <Text style={{ fontSize: 16, color: Theme.label }}>
-                        {t('wallet.empty.message')}
-                    </Text>
-                    <RoundButton
-                        title={t('wallet.empty.receive')}
-                        size="normal"
-                        display="text"
-                        onPress={() => navigation.navigate('Receive')}
-                    />
-                </View>
-            )}
-            {account.transactions.length > 0 && tab.current === 0 && (
-                <Animated.View
-                    entering={(tab.prev || 0) < tab.current ? FadeInRight : FadeInLeft}
-                    exiting={(tab.prev || 0) < tab.current ? FadeOutRight : FadeOutLeft}
-                    style={{ paddingBottom: safeArea.bottom + 56 }}
-                >
-                    <WalletTransactions
-                        txs={account.transactions}
-                        next={account.next}
-                        address={address}
-                        engine={engine}
-                        navigation={navigation}
-                        safeArea={safeArea}
-                        onLoadMore={onReachedEnd}
-                        frameArea={frameArea}
-                    />
-                </Animated.View>
-            )}
-            {tab.current > 0 && (
-                <Animated.View
-                    key={`card-notifications-${tab.current}`}
-                    entering={(tab.prev || 0) < tab.current ? FadeInRight : FadeInLeft}
-                    exiting={(tab.prev || 0) < tab.current ? FadeOutRight : FadeOutLeft}
-                    style={{ paddingBottom: safeArea.bottom + 56 }}>
-                    <HoldersCardTransactions id={holdersCards[tab.current - 1].id} />
-                </Animated.View>
-            )}
+                    )
+                }}
+                onIndexChange={(index: number) => {
+                    setTab({ prev: tab.current, current: index });
+                }}
+                navigationState={{
+                    index: tab.current,
+                    routes: [
+                        { key: 'main', title: t('common.mainWallet') },
+                        ...holdersCards.map((account) => {
+                            const cards = engine.products.holders.useCardsTransactions(account.id);
+                            if (!cards || cards.length === 0) {
+                                return null;
+                            }
+                            return { key: account.id, title: `Tonhub card${account.card.lastFourDigits ? ' ' + account.card.lastFourDigits : ''}` };
+                        }).filter((x) => !!x) as { key: string; title: string; }[]
+                    ]
+                }}
+                renderScene={(props: SceneRendererProps & { route: { key: string; title: string; } }) => {
+                    if (props.route.key === 'main') {
+                        return (
+                            <>
+                                {account.transactions.length === 0 && (
+                                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                                        <Pressable
+                                            onPress={() => {
+                                                animRef.current?.play();
+                                            }}>
+                                            <LottieView
+                                                ref={animRef}
+                                                source={require('../../../assets/animations/duck.json')}
+                                                autoPlay={true}
+                                                loop={false}
+                                                progress={0.2}
+                                                style={{ width: 192, height: 192 }}
+                                            />
+                                        </Pressable>
+                                        <Text style={{ fontSize: 16, color: Theme.label }}>
+                                            {t('wallet.empty.message')}
+                                        </Text>
+                                        <RoundButton
+                                            title={t('wallet.empty.receive')}
+                                            size="normal"
+                                            display="text"
+                                            onPress={() => navigation.navigate('Receive')}
+                                        />
+                                    </View>
+                                )}
+                                {account.transactions.length > 0 && (
+                                    <WalletTransactions
+                                        txs={account.transactions}
+                                        next={account.next}
+                                        address={address}
+                                        engine={engine}
+                                        navigation={navigation}
+                                        safeArea={safeArea}
+                                        onLoadMore={onReachedEnd}
+                                        frameArea={frameArea}
+                                    />
+                                )}
+                            </>
+                        )
+                    } else {
+                        return <HoldersCardTransactions id={props.route.key} />
+                    }
+                }}
+            />
         </View>
     );
 }

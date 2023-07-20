@@ -72,7 +72,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 onReady={onPasscodeConfirmed}
                 initial={init}
                 onLater={
-                    init // Allow to skip passcode setup only on init
+                    (init && !isLocalAuth) //Don't Allow to skip passcode setup on init and if local auth is enabled
                         ? () => {
                             storeBiometricsState(BiometricsState.InUse);
                             storage.set(wasPasscodeSetupShownKey, true)

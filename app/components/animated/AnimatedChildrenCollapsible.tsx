@@ -1,6 +1,7 @@
 import { memo, useEffect, useState } from "react"
 import { View } from "react-native";
 import Animated, { Easing, FadeInUp, FadeOutUp, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const AnimatedChildrenCollapsible = memo(({
     collapsed,
@@ -13,6 +14,7 @@ export const AnimatedChildrenCollapsible = memo(({
     renderItem: (item: any, index: number) => any,
     itemHeight?: number,
 }) => {
+    const { Theme } = useAppConfig();
     const [itemsToRender, setItemsToRender] = useState<any[]>([]);
     const sharedHeight = useSharedValue(collapsed ? 0 : items.length * itemHeight);
     const animStyle = useAnimatedStyle(() => {
@@ -38,7 +40,7 @@ export const AnimatedChildrenCollapsible = memo(({
                         style={{ height: itemHeight }}
                     >
                         {index === 0 && (
-                            <View style={{ backgroundColor: '#E4E6EA', height: 1, marginHorizontal: 20 }} />
+                            <View style={{ backgroundColor: Theme.mediumGrey, height: 1, marginHorizontal: 20 }} />
                         )}
                         {renderItem(item, index)}
                     </Animated.View>

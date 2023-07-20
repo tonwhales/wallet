@@ -16,7 +16,6 @@ import IcWithdrawal from '../../../../assets/ic-withdrawal.svg';
 import IcTime from '../../../../assets/ic-time.svg';
 import IcFailed from '../../../../assets/ic-failed.svg';
 
-
 export const HoldersNotificationIcon = memo(({ notification }: { notification: CardNotification }) => {
     const { Theme } = useAppConfig();
     const isPending =
@@ -64,8 +63,6 @@ export const HoldersNotificationIcon = memo(({ notification }: { notification: C
         default:
             Icon = IcSetup;
     }
-
-    console.log({ imageUrl });
 
     return (
         <View style={{

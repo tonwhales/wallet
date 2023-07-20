@@ -24,7 +24,7 @@ export const JettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: '#F7F8F9',
+                backgroundColor: Theme.lightGrey,
             }}>
                 {jettons.map((j, index) => {
                     return (
@@ -43,7 +43,7 @@ export const JettonsProductComponent = React.memo(() => {
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: '#F7F8F9',
+            backgroundColor: Theme.lightGrey,
         }}>
             <Pressable
                 style={({ pressed }) => {
@@ -103,7 +103,7 @@ export const JettonsProductComponent = React.memo(() => {
                         fontWeight: '400',
                         fontSize: 15,
                         lineHeight: 20,
-                        color: '#838D99'
+                        color: Theme.darkGrey
                     }}>
                         {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })}
                     </Text>

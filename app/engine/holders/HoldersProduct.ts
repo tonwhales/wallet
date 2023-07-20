@@ -70,6 +70,7 @@ export class HoldersProduct {
         }
         storage.set('zenpay-token-version', currentTokenVersion);
 
+        this.doSync();
         this.offlinePreFlight();
     }
 

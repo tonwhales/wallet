@@ -1,6 +1,7 @@
-import { memo, useCallback, useState } from "react"
+import { memo } from "react"
 import { Pressable, StyleProp, ViewStyle, Text, TextStyle } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
+import { useAnimatedPressedInOut } from "./utils/useAnimatedPressedInOut";
 
 export const PressableChip = memo(({
     onPress,
@@ -13,19 +14,8 @@ export const PressableChip = memo(({
     text: string,
     textStyle?: StyleProp<TextStyle>
 }) => {
-    const animatedValue = useSharedValue(1);
+    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
-    const onPressIn = useCallback(() => {
-        animatedValue.value = withTiming(0.98, { duration: 100 });
-    }, [animatedValue]);
-
-    const onPressOut = useCallback(() => {
-        animatedValue.value = withTiming(1, { duration: 100 });
-    }, [animatedValue]);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return { transform: [{ scale: animatedValue.value }], };
-    });
     return (
         <Pressable
             onPressIn={onPressIn}

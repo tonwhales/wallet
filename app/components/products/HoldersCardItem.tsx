@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo } from "react";
 import { HoldersCard, holdersUrl } from "../../engine/corp/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
@@ -11,7 +11,8 @@ import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { useEngine } from "../../engine/Engine";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
+import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 
 export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?: boolean }) => {
     const { Theme } = useAppConfig();
@@ -57,19 +58,7 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
         [props.account, needsEnrolment],
     );
 
-    const animatedValue = useSharedValue(1);
-
-    const onPressIn = useCallback(() => {
-        animatedValue.value = withTiming(0.98, { duration: 100 });
-    }, [animatedValue]);
-
-    const onPressOut = useCallback(() => {
-        animatedValue.value = withTiming(1, { duration: 100 });
-    }, [animatedValue]);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return { transform: [{ scale: animatedValue.value }], };
-    });
+    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     return (
         <Pressable

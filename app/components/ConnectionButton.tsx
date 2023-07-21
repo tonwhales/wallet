@@ -10,6 +10,7 @@ import { useAppConfig } from "../utils/AppConfigContext";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import Star from '../../assets/ic-rating-star.svg';
 import { isUrl } from "../utils/resolveUrl";
+import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
 
 type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
@@ -50,19 +51,7 @@ export const ConnectionButton = React.memo((
 
     }, [appData, appManifest, stats, url]);
 
-    const animatedValue = useSharedValue(1);
-
-    const onPressIn = useCallback(() => {
-        animatedValue.value = withTiming(0.98, { duration: 100 });
-    }, [animatedValue]);
-
-    const onPressOut = useCallback(() => {
-        animatedValue.value = withTiming(1, { duration: 100 });
-    }, [animatedValue]);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return { transform: [{ scale: animatedValue.value }], };
-    });
+    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     let app: AppInfo = useMemo(() => {
         if (appData) {

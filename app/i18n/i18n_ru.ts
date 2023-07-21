@@ -62,7 +62,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         more: 'Еще',
     },
     settings: {
-        title: 'Настройки',
+        title: 'Ещё',
         backupKeys: 'Сохранить секретные ключи',
         migrateOldWallets: 'Перенос старых кошельков',
         termsOfService: 'Условия использования',

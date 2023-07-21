@@ -3,9 +3,15 @@ import { StyleProp, View, ViewStyle, Text } from "react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export const TabHeader = React.memo((
-    { title, style }: { title: string, style?: StyleProp<ViewStyle> }
-) => {
+export const TabHeader = React.memo(({
+    title,
+    style,
+    rightAction
+}: {
+    title: string,
+    style?: StyleProp<ViewStyle>,
+    rightAction?: any
+}) => {
     const safeArea = useSafeAreaInsets();
     const { Theme } = useAppConfig();
 
@@ -14,19 +20,30 @@ export const TabHeader = React.memo((
             {
                 height: 44,
                 justifyContent: 'center',
+                alignItems: 'center',
                 marginTop: safeArea.top,
+                flexDirection: 'row'
             }, style
         ]}>
             <Text
                 numberOfLines={1}
                 style={{
                     color: Theme.textColor,
-                    textAlign: 'center',
+                    textAlign: 'center', alignSelf: 'center',
                     fontWeight: '600', fontSize: 17, lineHeight: 24,
                 }}
             >
                 {title}
             </Text>
+            {!!rightAction && (
+                <View style={{
+                    position: 'absolute', top: 0, bottom: 0, right: 16,
+                    justifyContent: 'center', alignItems: 'center',
+                    alignSelf: 'flex-end'
+                }}>
+                    {rightAction}
+                </View>
+            )}
         </View >
     );
 });

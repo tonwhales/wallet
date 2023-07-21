@@ -57,14 +57,6 @@ export const WImage = React.memo((props: {
                         />
                     </Animated.View>
                 )}
-                <View style={{
-                    borderWidth: props.borderWidth ?? 0.5,
-                    borderColor: 'black',
-                    backgroundColor: Theme.transparent,
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: props.borderOpacity ?? 0.06,
-                    borderRadius: props.borderRadius
-                }} />
             </View>
         );
     }
@@ -101,14 +93,6 @@ export const WImage = React.memo((props: {
                         />
                     </Animated.View>
                 )}
-                <View style={{
-                    borderWidth: props.borderWidth ?? 0.5,
-                    borderColor: 'black',
-                    backgroundColor: Theme.transparent,
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: props.borderOpacity ?? 0.06,
-                    borderRadius: props.borderRadius
-                }} />
             </View>
         );
     }
@@ -126,14 +110,6 @@ export const WImage = React.memo((props: {
                     style={{ width: props.width, height: props.heigh }}
                     resizeMode={'cover'}
                 />
-                <View style={{
-                    borderWidth: props.borderWidth ?? 0.5,
-                    borderColor: 'black',
-                    backgroundColor: Theme.transparent,
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: props.borderOpacity ?? 0.06,
-                    borderRadius: props.borderRadius
-                }} />
             </View>
         );
     }
@@ -150,14 +126,6 @@ export const WImage = React.memo((props: {
                 style={{ width: props.width, height: props.heigh }}
                 resizeMode={'cover'}
             />
-            <View style={{
-                borderWidth: props.borderWidth ?? 0.5,
-                borderColor: 'black',
-                backgroundColor: Theme.transparent,
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                opacity: props.borderOpacity ?? 0.06,
-                borderRadius: props.borderRadius
-            }} />
         </View>
     );
 });

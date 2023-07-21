@@ -50,8 +50,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         select: 'Select',
         showAll: 'Show all',
         hideAll: 'Hide all',
-        done: 'Done',
-        mainWallet: 'Main wallet',
+        walletName: 'Wallet name',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -89,6 +88,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             receive: 'Receive TON'
         },
         pendingTransactions: 'Pending transactions',
+        changeAvatar: 'Change avatar'
     },
     transactions: {
         title: 'Transactions',

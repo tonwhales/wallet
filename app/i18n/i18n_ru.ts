@@ -86,6 +86,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             receive: 'Получить TON'
         },
         pendingTransactions: 'Ожидают подтверждения',
+        changeAvatar: 'Изменить аватар',
     },
     transactions: {
         title: 'Транзакции',

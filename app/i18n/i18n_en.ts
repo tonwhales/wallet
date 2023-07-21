@@ -85,6 +85,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             receive: 'Receive TON'
         },
         pendingTransactions: 'Pending transactions',
+        changeAvatar: 'Change avatar'
     },
     transactions: {
         title: 'Transactions',

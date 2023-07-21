@@ -86,7 +86,8 @@ export type LocalizationSchema = {
             message: string,
             receive: string
         },
-        pendingTransactions: string
+        pendingTransactions: string,
+        changeAvatar: string
     },
     transactions: {
         title: string,

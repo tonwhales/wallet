@@ -116,14 +116,17 @@ export const HomeFragment = fragment(() => {
                     headerShown: false,
                     header: undefined,
                     unmountOnBlur: true,
-                    tabBarIcon: ({ focused, color, size }) => {
+                    tabBarIcon: ({ focused }) => {
                         let source = require('../../assets/ic-home.png');
+
                         if (route.name === 'Transactions') {
                             source = require('../../assets/ic-history.png');
                         }
+
                         if (route.name === 'Browser') {
                             source = require('../../assets/ic-services.png');
                         }
+
                         if (route.name === 'More') {
                             return (
                                 <View style={{
@@ -145,9 +148,9 @@ export const HomeFragment = fragment(() => {
                                         backgroundColor={Theme.accent}
                                     />
                                 </View>
-                            )
-                            // source = require('../../assets/ic_settings.png');
+                            );
                         }
+
                         return (
                             <Image
                                 source={source}

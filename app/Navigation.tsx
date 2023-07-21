@@ -21,23 +21,19 @@ import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext } from './engine/Engine';
-import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useEngine } from './engine/Engine';
 import { backoff } from './utils/time';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
-import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
-import { createEngine } from './engine/createEngine';
-import { useRecoilCallback } from 'recoil';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -63,12 +59,13 @@ import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetup
 import { SecurityFragment } from './fragments/SecurityFragment';
 import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
-import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { ProductsFragment } from './fragments/ProductsFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
-import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragment';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { BottomSheetProvider } from './components/modal/BottomSheetModal';
 
 const Stack = createNativeStackNavigator();
 
@@ -106,7 +103,7 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
             options={{
                 presentation: 'modal',
                 headerShown: false,
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : undefined }
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16 : undefined }
             }}
         />
     );
@@ -143,7 +140,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('Settings', SettingsFragment, safeArea),
     genericScreen('Privacy', PrivacyFragment, safeArea),
     genericScreen('Terms', TermsFragment, safeArea),
-    // modalScreen('Connections', ConnectionsFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
@@ -172,8 +168,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
-    modalScreen('ZenPayLanding', HoldersLandingFragment, safeArea),
-    lockedModalScreen('ZenPay', HoldersAppFragment, safeArea),
+    modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
+    lockedModalScreen('Holders', HoldersAppFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
@@ -199,30 +195,7 @@ const navigation = (safeArea: EdgeInsets) => [
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
     const { AppConfig, NavigationTheme } = useAppConfig();
-
-    const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
-
-    const engine = React.useMemo(() => {
-        let state = getAppState();
-        if (0 <= state.selected && state.selected < state.addresses.length) {
-            const ex = state.addresses[state.selected];
-
-            // Identify user profile by address
-            mixpanelIdentify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            mixpanelFlush(AppConfig.isTestnet);
-
-            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater, isTestnet: AppConfig.isTestnet });
-        } else {
-            return null;
-        }
-    }, []);
-    React.useEffect(() => {
-        return () => {
-            if (engine) {
-                engine.destroy();
-            }
-        }
-    }, []);
+    const engine = useEngine();
 
     const initial = React.useMemo(() => {
         const onboarding = resolveOnboarding(engine, AppConfig.isTestnet);
@@ -256,6 +229,7 @@ export const Navigation = React.memo(() => {
     }, [hideSplash]);
 
     // Register token
+    // TODO: register many tokens to subscribe to an array of addresses for pushes
     React.useEffect(() => {
         const state = getAppState();
         let ended = false;
@@ -318,8 +292,8 @@ export const Navigation = React.memo(() => {
     }, []);
 
     return (
-        <EngineContext.Provider value={engine}>
-            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+        <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+            <BottomSheetProvider>
                 <NavigationContainer
                     theme={NavigationTheme}
                     onReady={onMounted}
@@ -338,8 +312,7 @@ export const Navigation = React.memo(() => {
                     </Stack.Navigator>
                 </NavigationContainer>
                 <Splash hide={hideSplash} />
-            </View>
-        </EngineContext.Provider>
+            </BottomSheetProvider>
+        </View>
     );
 });
-

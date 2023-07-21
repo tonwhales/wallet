@@ -1,10 +1,9 @@
 import React, { useCallback, useMemo } from "react";
-import { HoldersCard, holdersUrl } from "../../engine/corp/HoldersProduct";
+import { HoldersCard, holdersUrl } from "../../engine/holders/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { holdersCardColorsMap } from "./HoldersProductButton";
+import { holdersCardImageMap } from "./HoldersProductButton";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import MCard from '../../../assets/ic-m-card.svg';
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
@@ -16,7 +15,7 @@ import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 
 export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?: boolean }) => {
     const { Theme } = useAppConfig();
-    const colors = props.account ? (holdersCardColorsMap[props.account.card.personalizationCode] ?? holdersCardColorsMap['default-2']) : ['#333A5A', "#A7AFD3"];
+    const image = holdersCardImageMap[props.account?.card.personalizationCode || 'classic'] || holdersCardImageMap['classic'];
 
     const engine = useEngine();
     const navigation = useTypedNavigation();
@@ -45,7 +44,7 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
         () => {
             if (needsEnrolment) {
                 navigation.navigate(
-                    'ZenPayLanding',
+                    'HoldersLanding',
                     {
                         endpoint: holdersUrl,
                         onEnrollType: props.account ? { type: 'card', id: props.account.id } : { type: 'account' }
@@ -69,15 +68,7 @@ export const HoldersCardItem = React.memo((props: { account?: HoldersCard, last?
         >
             <Animated.View style={[{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20 }, animatedStyle]}>
                 <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>
-                    <Canvas style={{ width: 46, height: 30, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                        <Rect x={0} y={0} width={46} height={30}>
-                            <LinearGradient
-                                start={vec(0, 0)}
-                                end={vec(46, 30)}
-                                colors={colors}
-                            />
-                        </Rect>
-                    </Canvas>
+                    <Image source={image} style={{ width: 46, height: 30, borderRadius: 6 }} />
                     {!!props.account?.card.lastFourDigits && (
                         <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
                             {props.account.card.lastFourDigits}

@@ -35,8 +35,8 @@ export const AnimatedChildrenCollapsible = memo(({
                 return (
                     <Animated.View
                         key={`collapsible-item-${index}`}
-                        entering={FadeInUp.delay(20 * index).easing(Easing.cubic)}
-                        exiting={FadeOutUp.delay(20 * (itemsToRender.length - index)).easing(Easing.cubic)}
+                        entering={FadeInUp.delay(20 * index).easing(Easing.cubic).duration(100)}
+                        exiting={FadeOutUp.delay(20 * (itemsToRender.length - index)).easing(Easing.cubic).duration(100)}
                         style={{ height: itemHeight }}
                     >
                         {index === 0 && (

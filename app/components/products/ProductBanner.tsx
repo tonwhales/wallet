@@ -21,7 +21,7 @@ export const ProductBanner = React.memo((props: {
                 borderRadius: 20,
             }}
         >
-            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingLeft: 20 }}>
+            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingLeft: props.reverse ? 20 : 0, paddingRight: props.reverse ? 0 : 20 }}>
                 {(!!props.illustration && props.reverse) && (
                     <View style={{ height: 74, width: 96, justifyContent: 'center', alignItems: 'center' }}>
                         <Image source={props.illustration} style={{ height: 74, width: 96 }} />

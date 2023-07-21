@@ -12,6 +12,7 @@ import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
 import BN from "bn.js";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
+import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 
 export const holdersCardImageMap: { [key: string]: any } = {
     'classic': require('../../../assets/classic.png'),
@@ -28,20 +29,8 @@ export const HoldersProductButton = React.memo(() => {
     const status = engine.products.holders.useStatus();
     const [collapsed, setCollapsed] = useState(true);
 
-    const animatedValue = useSharedValue(1);
-
-    const onPressIn = useCallback(() => {
-        animatedValue.value = withTiming(0.98, { duration: 100 });
-    }, [animatedValue]);
-
-    const onPressOut = useCallback(() => {
-        animatedValue.value = withTiming(1, { duration: 100 });
-    }, [animatedValue]);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return { transform: [{ scale: animatedValue.value }] };
-    });
-
+    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
+    
     const needsEnrolment = useMemo(() => {
         try {
             let domain = extractDomain(holdersUrl);
@@ -124,7 +113,7 @@ export const HoldersProductButton = React.memo(() => {
             <Pressable
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                onPress={() => {setCollapsed(!collapsed)}}
+                onPress={() => { setCollapsed(!collapsed) }}
             >
                 <Animated.View style={[{
                     flexDirection: 'row',

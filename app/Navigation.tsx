@@ -63,8 +63,8 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { ProductsFragment } from './fragments/ProductsFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
+import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragment';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { BottomSheetProvider } from './components/modal/BottomSheetModal';
 
 const Stack = createNativeStackNavigator();

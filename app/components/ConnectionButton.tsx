@@ -9,6 +9,7 @@ import { WImage } from "./WImage";
 import { useAppConfig } from "../utils/AppConfigContext";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import Star from '../../assets/ic-rating-star.svg';
+import { isUrl } from "../utils/resolveUrl";
 
 type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
@@ -39,11 +40,13 @@ export const ConnectionButton = React.memo((
         if (!!appData?.description) {
             return appData.description;
         }
-        if (stats?.metadata?.description) {
+        if (!!stats?.metadata?.description) {
             return stats.metadata.description;
         }
 
-        return url || appManifest?.url;
+        return isUrl(appManifest?.url || url)
+            ? extractDomain(appManifest?.url || url)
+            : (appManifest?.url || url);
 
     }, [appData, appManifest, stats, url]);
 

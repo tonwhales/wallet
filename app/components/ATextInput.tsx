@@ -10,6 +10,7 @@ export type ATextInputRef = {
 export interface ATextInputProps {
     style?: StyleProp<ViewStyle>;
     inputStyle?: StyleProp<TextStyle>;
+    innerStyle?: StyleProp<ViewStyle>;
     placeholder?: string;
     autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
     autoCorrect?: boolean;
@@ -156,12 +157,12 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                         width: '100%',
                         overflow: 'hidden',
                         position: 'relative',
-                        marginTop: 10
+                        marginBottom: 2
                     }}>
                         {props.label}
                     </View>
                 )}
-                <View style={{ flex: 1, flexDirection: 'row' }} ref={props.innerRef} >
+                <View style={[{ flex: 1, flexDirection: 'row' }, props.innerStyle]} ref={props.innerRef} >
                     {props.prefix && (
                         <Text
                             numberOfLines={1}

@@ -52,6 +52,7 @@ export type LocalizationSchema = {
         select: string,
         showAll: string,
         hideAll: string,
+        walletName: string,
     },
     syncStatus: {
         connecting: string,

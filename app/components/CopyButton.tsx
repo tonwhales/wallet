@@ -4,8 +4,7 @@ import CopyIcon from '../../assets/ic_copy_address.svg';
 import CopyIconSuccess from '../../assets/ic_copy_address_success.svg';
 import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
-import { iOSUIKit } from 'react-native-typography';
-import Animated, { EasingNode } from "react-native-reanimated";
+import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../utils/AppConfigContext";
 
 const size = {
@@ -38,24 +37,32 @@ export const CopyButton = React.memo(({
         borderPressedColor: Theme.selector,
         textPressed: Theme.secondaryButtonText
     }
-    const doneOpacity = React.useMemo(() => new Animated.Value<number>(0), []);
+
+    const doneShared = useSharedValue(0);
 
     const onCopy = useCallback(() => {
         copyText(body);
-        Animated.timing(doneOpacity, {
-            toValue: 1,
-            duration: 350,
-            easing: EasingNode.bezier(0.25, 0.1, 0.25, 1),
-        }).start(() => {
-            setTimeout(() => {
-                Animated.timing(doneOpacity, {
-                    toValue: 0,
-                    duration: 350,
-                    easing: EasingNode.bezier(0.25, 0.1, 0.25, 1),
-                }).start();
-            }, 1500);
-        });
+
+
+
+        doneShared.value = withTiming(
+            1,
+            { duration: 350, easing: Easing.bezier(0.25, 0.1, 0.25, 1) },
+            (finished, _) => {
+                if (finished) {
+                    doneShared.value = withDelay(1500, withTiming(0, { duration: 350, easing: Easing.bezier(0.25, 0.1, 0.25, 1) }));
+                }
+            }
+        );
     }, [body]);
+
+    const doneStyle = useAnimatedStyle(() => {
+        return { opacity: doneShared.value };
+    });
+
+    const planeStyle = useAnimatedStyle(() => {
+        return { opacity: interpolate(doneShared.value, [0, 1], [1, 0]) };
+    });
 
     return (
         <Pressable
@@ -82,15 +89,14 @@ export const CopyButton = React.memo(({
                 justifyContent: 'center', alignItems: 'center',
                 minWidth: 64,
             }}>
-                <Animated.View style={[{
-                    opacity: doneOpacity.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 0]
-                    }),
-                    position: 'absolute',
-                    left: 0, right: 0, bottom: 0, top: 0,
-                    flexGrow: 1
-                }]}>
+                <Animated.View style={[
+                    {
+                        position: 'absolute',
+                        left: 0, right: 0, bottom: 0, top: 0,
+                        flexGrow: 1
+                    },
+                    planeStyle
+                ]}>
                     <View style={{
                         flexDirection: 'row',
                         justifyContent: 'center',
@@ -125,12 +131,14 @@ export const CopyButton = React.memo(({
                     </View>
                 </Animated.View>
 
-                <Animated.View style={[{
-                    position: 'absolute',
-                    left: 0, right: 0, bottom: 0, top: 0,
-                    flexGrow: 1,
-                    opacity: doneOpacity,
-                }]}>
+                <Animated.View style={[
+                    {
+                        position: 'absolute',
+                        left: 0, right: 0, bottom: 0, top: 0,
+                        flexGrow: 1,
+                    },
+                    doneStyle
+                ]}>
                     <View style={{
                         flexDirection: 'row',
                         justifyContent: 'center',

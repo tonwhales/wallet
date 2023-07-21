@@ -23,6 +23,7 @@ export const ProfileComponent = memo(() => {
         <Pressable
             onPressIn={onPressIn}
             onPressOut={onPressOut}
+            onPress={() => navigation.navigate('WalletSettings')}
         >
             <Animated.View style={[
                 {

@@ -15,14 +15,18 @@ export const ScreenHeader = React.memo((
         textColor,
         tintColor,
         onBackPressed,
-        onClosePressed
+        onClosePressed,
+        leftButton,
+        rightButton
     }: {
         style?: StyleProp<ViewStyle>,
         title?: string,
         textColor?: string,
         tintColor?: string,
         onBackPressed?: () => void,
-        onClosePressed?: () => void
+        onClosePressed?: () => void,
+        rightButton?: React.ReactNode,
+        leftButton?: React.ReactNode,
     }
 ) => {
     const safeArea = useSafeAreaInsets();
@@ -53,11 +57,14 @@ export const ScreenHeader = React.memo((
                             fontWeight: '600',
                             fontSize: 17,
                             lineHeight: 24,
-                        }}>
+                            maxWidth: 120
+                        }}
+                            ellipsizeMode={'tail'}
+                        >
                             {title}
                         </Text>
                     </View>
-                    {!!onBackPressed && (
+                    {!!onBackPressed && !leftButton && (
                         <HeaderBackButton
                             label={t('common.back')}
                             labelVisible
@@ -65,14 +72,11 @@ export const ScreenHeader = React.memo((
                             tintColor={tintColor ?? Theme.accent}
                         />
                     )}
-                    {!!onClosePressed && (
+                    {!onBackPressed && !!leftButton && (leftButton)}
+                    {!onClosePressed && !!rightButton && (
                         <>
                             <View style={{ flexGrow: 1 }} />
-                            <CloseButton
-                                onPress={onClosePressed}
-                                tintColor={tintColor}
-                                style={{ marginRight: 16 }}
-                            />
+                            {rightButton}
                         </>
                     )}
                 </View>

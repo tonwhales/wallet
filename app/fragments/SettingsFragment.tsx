@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -13,9 +12,16 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import { TabHeader } from '../components/topbar/TabHeader';
 import { useTrackScreen } from '../analytics/mixpanel';
 
+import Security from '../../assets/ic-security.svg';
+import Spam from '../../assets/ic-spam.svg';
+import Contacts from '../../assets/ic-contacts.svg';
+import Currency from '../../assets/ic-currency.svg';
+import Accounts from '../../assets/ic-accounts.svg';
+import Terms from '../../assets/ic-terms.svg';
+import Privacy from '../../assets/ic-privacy.svg';
+
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
-    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
@@ -49,148 +55,146 @@ export const SettingsFragment = fragment(() => {
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
                     flexGrow: 1,
-                    backgroundColor: Theme.background,
+                    backgroundColor: 'white',
                     paddingHorizontal: 16,
                     flexBasis: 0,
                 }}
             >
-                {__DEV__ && (
-                    <ProfileComponent address={engine.address} />
-                )}
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                    {oldWalletsBalance.gt(new BN(0)) && (
-                        <>
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton leftIcon={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
-                            </View>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                        </>
-                    )}
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_accounts.png')} title={t('products.accounts')} onPress={() => navigation.navigate('Accounts')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_filter.png')} title={t('settings.spamFilter')} onPress={() => navigation.navigate('SpamFilter')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_contacts.png')} title={t('contacts.title')} onPress={() => navigation.navigate('Contacts')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_security.png')} title={t('security.title')} onPress={() => navigation.navigate('Security')} />
-                    </View>
-                </View>
-
-                {!AppConfig.isTestnet && (
-                    <View style={{
-                        marginBottom: 16, marginTop: 16,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton leftIcon={require('../../assets/ic_ton_symbol.png')} title={t('settings.primaryCurrency')} onPress={() => navigation.navigate('Currency')} />
-                        </View>
-                    </View>
-                )}
+                <ProfileComponent />
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t('auth.name')} onPress={() => navigation.navigate('Connections')} />
-                    </View>
-                </View>
-
-                <View style={{
-                    marginBottom: 16, marginTop: 16,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t('settings.termsOfService')} onPress={() => navigation.navigate('Terms')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_privacy.png')} title={t('settings.privacyPolicy')} onPress={() => navigation.navigate('Privacy')} />
-                    </View>
-                </View>
-
-                {__DEV__ && (
-                    <View style={{
-                        marginBottom: 16, marginTop: 16,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title='Dev Tools' onPress={() => navigation.navigate('DeveloperTools')} />
-                        </View>
-                    </View>
-                )}
-                <View style={{
-                    marginBottom: 4, marginTop: 8,
-                    backgroundColor: Theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={() => navigation.navigate('Logout')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_delete.png')} dangerZone title={t('deleteAccount.title')} onPress={() => navigation.navigate('DeleteAccount')} />
-                    </View>
-                </View>
-                <View style={{ height: 52 + 8 + safeArea.bottom }} />
-            </ScrollView>
-            <Pressable
-                onPress={onVersionTap}
-                style={{
-                    position: 'absolute',
-                    bottom: 14,
-                    flexShrink: 1,
-                    alignSelf: 'center',
+                    backgroundColor: Theme.lightGrey,
                     borderRadius: 20,
-                    overflow: 'hidden',
-                    paddingHorizontal: 6,
-                    paddingVertical: 2,
-                }}
-            >
-                <View style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: Theme.background,
-                    opacity: 0.8
-                }} />
-
-                <Text style={{
-                    color: Theme.textSecondary,
-                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}>
-                    Tonhub v{AppConfig.version}
-                </Text>
-            </Pressable>
+                    <ItemButton
+                        leftIconComponent={<Security width={24} height={24} />}
+                        title={t('security.title')}
+                        onPress={() => navigation.navigate('Security')}
+                    />
+                    {oldWalletsBalance.gt(new BN(0)) && (
+                        <ItemButton
+                            leftIcon={require('../../assets/ic_wallet_2.png')}
+                            title={t('settings.migrateOldWallets')}
+                            onPress={() => navigation.navigate('Migration')}
+                        />
+                    )}
+                    <ItemButton
+                        leftIconComponent={<Spam width={24} height={24} />}
+                        title={t('settings.spamFilter')}
+                        onPress={() => navigation.navigate('SpamFilter')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<Contacts width={24} height={24} />}
+                        title={t('contacts.title')}
+                        onPress={() => navigation.navigate('Contacts')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<Currency width={24} height={24} />}
+                        title={t('settings.primaryCurrency')}
+                        onPress={() => navigation.navigate('Currency')}
+                    />
+                </View>
+
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: Theme.lightGrey,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<Accounts width={24} height={24} />}
+                        title={t('products.accounts')}
+                        onPress={() => navigation.navigate('Accounts')}
+                    />
+                </View>
+
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: Theme.lightGrey,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<Terms width={24} height={24} />}
+                        title={t('settings.termsOfService')}
+                        onPress={() => navigation.navigate('Terms')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<Privacy width={24} height={24} />}
+                        title={t('settings.privacyPolicy')}
+                        onPress={() => navigation.navigate('Privacy')}
+                    />
+                </View>
+
+                {__DEV__ && (
+                    <View style={{
+                        marginBottom: 16,
+                        backgroundColor: Theme.lightGrey,
+                        borderRadius: 20,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <ItemButton
+                            title={'Dev Tools'}
+                            onPress={() => navigation.navigate('DeveloperTools')}
+                        />
+                    </View>
+                )}
+                <View style={{
+                    marginBottom: 4,
+                    backgroundColor: Theme.lightGrey,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <ItemButton
+                        dangerZone
+                        title={t('common.logout')}
+                        onPress={() => navigation.navigate('Logout')}
+                    />
+                    <ItemButton
+                        dangerZone
+                        title={t('deleteAccount.title')}
+                        onPress={() => navigation.navigate('DeleteAccount')}
+                    />
+                </View>
+                <Pressable
+                    onPress={onVersionTap}
+                    style={{
+                        bottom: 14,
+                        flexShrink: 1,
+                        alignSelf: 'center',
+                        borderRadius: 20,
+                        overflow: 'hidden',
+                        marginTop: 36, marginBottom: 32,
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                    }}
+                >
+                    <Image
+                        style={{
+                            height: 48
+                        }}
+                        resizeMode={'contain'}
+                        source={require('../../assets/ic-splash.png')}
+                    />
+                    <Text
+                        style={{
+                            color: Theme.darkGrey,
+                            fontSize: 13,
+                            lineHeight: 18,
+                            fontWeight: '400',
+                            alignSelf: 'center',
+                        }}
+                    >
+                        v{AppConfig.version}
+                    </Text>
+                </Pressable>
+            </ScrollView>
         </View>
     );
 }, true);

@@ -6,6 +6,7 @@ import { CloudValue } from "../cloud/CloudValue";
 import { AppState } from "react-native";
 import { sha256_sync } from "ton-crypto";
 import { toUrlSafe } from "../../utils/toUrlSafe";
+import { fetchExtensionStats } from "../api/reviews";
 
 export type Extension = {
     key: string;
@@ -18,6 +19,8 @@ export type Extension = {
     } | null;
     description: string | null;
 }
+
+
 
 export type DomainSubkey = {
     time: number,
@@ -108,6 +111,18 @@ export class ExtensionsProduct {
         return useRecoilValue(this.engine.persistence.dApps.item(url).atom);
     }
 
+    
+    async requestExtensionStatsUpdate(url: string) {
+        const item = this.engine.persistence.dAppsStats.item(url);
+        const fetched = await fetchExtensionStats(url);
+        item.update(() => fetched);
+    }
+    
+    useExtensionStats(url: string) {
+        this.requestExtensionStatsUpdate(url);
+        return useRecoilValue(this.engine.persistence.dAppsStats.item(url).atom);
+    }
+    
     async getAppData(url: string) {
         const persisted = this.engine.persistence.dApps.item(url).value;
         // fetch and add if does not exist

@@ -34,6 +34,7 @@ import { accountStateCodec } from "./api/holders/fetchAccountState";
 import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fetchCards";
 import { HoldersOfflineResMap, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
 import { CardNotification } from "./api/holders/fetchCardsTransactions";
+import { ExtensionStats, extensionStatsCodec } from "./api/reviews";
 
 export class Persistence {
 
@@ -70,6 +71,7 @@ export class Persistence {
     readonly config: PersistedCollection<void, ConfigState>;
 
     readonly dApps: PersistedCollection<string, AppData>;
+    readonly dAppsStats: PersistedCollection<string, ExtensionStats>;
     readonly domainKeys: PersistedCollection<string, DomainSubkey>;
 
     // tonconnect
@@ -137,6 +139,7 @@ export class Persistence {
 
         // dApps
         this.dApps = new PersistedCollection({ storage, namespace: 'dApps', key: stringKey, codec: appDataCodec, engine });
+        this.dAppsStats = new PersistedCollection({ storage, namespace: 'dAppsStats', key: stringKey, codec: extensionStatsCodec, engine });
         this.domainKeys = new PersistedCollection({ storage, namespace: 'domainKeys', key: stringKey, codec: domainKeyCodec, engine });
 
         // tonconnect

@@ -12,11 +12,12 @@ import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
-import { getConnectionReferences } from '../storage/appState';
+import { getConnectionReferences, getCurrentAddress } from '../storage/appState';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ConnectionsFragment } from './connections/ConnectionsFragment';
+import { Avatar } from '../components/Avatar';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,6 +26,7 @@ export const HomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const engine = useEngine();
+    const address = getCurrentAddress().address;
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
 
     // Subscribe for links
@@ -114,17 +116,41 @@ export const HomeFragment = fragment(() => {
                     headerShown: false,
                     header: undefined,
                     unmountOnBlur: true,
-                    tabBarIcon: ({ focused, color, size }) => {
+                    tabBarIcon: ({ focused }) => {
                         let source = require('../../assets/ic-home.png');
+
                         if (route.name === 'Transactions') {
                             source = require('../../assets/ic-history.png');
                         }
+
                         if (route.name === 'Browser') {
                             source = require('../../assets/ic-services.png');
                         }
+
                         if (route.name === 'More') {
-                            source = require('../../assets/ic_settings.png');
+                            return (
+                                <View style={{
+                                    height: 24, width: 24,
+                                    backgroundColor: focused ? Theme.accent : Theme.greyForIcon,
+                                    borderRadius: 12,
+                                    justifyContent: 'center', alignItems: 'center'
+                                }}>
+                                    <View
+                                        style={{
+                                            position: 'absolute', top: 1, left: 1, right: 1, bottom: 1,
+                                            borderRadius: 11,
+                                            backgroundColor: 'white'
+                                        }}
+                                    />
+                                    <Avatar
+                                        size={20}
+                                        id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                        backgroundColor={Theme.accent}
+                                    />
+                                </View>
+                            );
                         }
+
                         return (
                             <Image
                                 source={source}

@@ -1,22 +1,25 @@
 import axios from 'axios';
 import * as React from 'react';
-import { useLayoutEffect, useRef } from 'react';
-import { Alert, Platform, Text, View } from 'react-native';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { Alert, Platform, Pressable, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ConnectedAppButton } from '../../components/ConnectedAppButton';
+import { ConnectionButton } from '../../components/ConnectionButton';
 import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
 import { backoff } from '../../utils/time';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import LottieView from 'lottie-react-native';
-import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { ProductButton } from '../../components/products/ProductButton';
 import { TabHeader } from '../../components/topbar/TabHeader';
 import { useTrackScreen } from '../../analytics/mixpanel';
+import LottieView from 'lottie-react-native';
+import { resolveUrl } from '../../utils/resolveUrl';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { useLinkNavigator } from '../../useLinkNavigator';
+
+import Scanner from '../../../assets/ic-scanner-accent.svg';
+import { extractDomain } from '../../engine/utils/extractDomain';
 
 type Item = {
     key: string;
@@ -49,16 +52,29 @@ function groupItems(items: Item[]): GroupedItems[] {
 }
 
 export const ConnectionsFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
     const engine = useEngine();
+    const navigation = useTypedNavigation();
     const extensions = engine.products.extensions.useExtensions();
     const tonconnectApps = engine.products.tonConnect.useExtensions();
-    const ledger = engine.products.settings.useLedger();
-    let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    let [apps, setApps] = useState(groupItems(getConnectionReferences()));
 
-    let disconnectApp = React.useCallback((url: string) => {
+    const openExtension = React.useCallback((url: string) => {
+        let domain = extractDomain(url);
+        if (!domain) {
+            return; // Shouldn't happen
+        }
+        let k = engine.persistence.domainKeys.getValue(domain);
+        if (!k) {
+            navigation.navigate('Install', { url });
+        } else {
+            navigation.navigate('App', { url });
+        }
+    }, []);
+
+    const disconnectApp = useCallback((url: string) => {
         let refs = getConnectionReferences();
         let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
         if (toRemove.length === 0) {
@@ -82,7 +98,7 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
 
-    let removeExtension = React.useCallback((key: string) => {
+    const removeExtension = useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
@@ -92,7 +108,7 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
 
-    let disconnectConnectApp = React.useCallback((key: string) => {
+    let disconnectConnectApp = useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
@@ -101,37 +117,6 @@ export const ConnectionsFragment = fragment(() => {
             }
         }]);
     }, []);
-
-    const toggleLedger = React.useCallback(() => {
-        if (!ledger) {
-            Alert.alert(
-                t('hardwareWallet.ledger'),
-                t('hardwareWallet.confirm.add'),
-                [
-                    {
-                        text: t('common.cancel')
-                    }, {
-                        text: t('common.add'),
-                        onPress: () => engine.products.settings.setLedger(true)
-                    }
-                ]
-            );
-            return;
-        }
-        Alert.alert(
-            t('hardwareWallet.ledger'),
-            t('hardwareWallet.confirm.remove'),
-            [
-                {
-                    text: t('common.cancel')
-                }, {
-                    text: t('common.delete'),
-                    style: 'destructive',
-                    onPress: () => engine.products.settings.setLedger(false)
-                }
-            ]
-        );
-    }, [ledger]);
 
     // 
     // Lottie animation
@@ -145,16 +130,47 @@ export const ConnectionsFragment = fragment(() => {
         }
     }, []);
 
+    const onQRCodeRead = (src: string) => {
+        try {
+            let res = resolveUrl(src, AppConfig.isTestnet);
+            if (res) {
+                linkNavigator(res);
+            }
+        } catch {
+            // Ignore
+        }
+    };
+
+    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
+
     useTrackScreen('Browser', engine.isTestnet);
 
     return (
         <View style={{ flex: 1 }}>
-            <TabHeader title={t('home.browser')} />
+            <TabHeader
+                title={t('home.browser')}
+                rightAction={
+                    <Pressable
+                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                        onPress={openScanner}
+                    >
+                        <Scanner
+                            style={{
+                                height: 24,
+                                width: 24,
+                                marginLeft: 14
+                            }}
+                            height={24}
+                            width={24}
+                            color={'#AAB4BF'}
+                        />
+                    </Pressable>
+                }
+            />
             {(
                 apps.length === 0
                 && extensions.length === 0
                 && tonconnectApps.length === 0
-                && !ledger
             ) && (
                     <View style={{
                         alignItems: 'center',
@@ -186,34 +202,12 @@ export const ConnectionsFragment = fragment(() => {
                         }}>
                             {t('auth.apps.description')}
                         </Text>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: safeArea.bottom + 16, left: 0, right: 0
-                        }}>
-                            <View style={{ marginTop: 8 }} collapsable={false}>
-                                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
-                                    {t('settings.experimental')}
-                                </Text>
-                            </View>
-                            <ProductButton
-                                name={t('hardwareWallet.title')}
-                                subtitle={t('hardwareWallet.description')}
-                                icon={HardwareWalletIcon}
-                                iconProps={{ width: 32, height: 32, color: 'black' }}
-                                iconViewStyle={{
-                                    backgroundColor: 'transparent'
-                                }}
-                                value={null}
-                                onPress={toggleLedger}
-                            />
-                        </View>
                     </View>
                 )}
             {!(
                 apps.length === 0
                 && extensions.length === 0
                 && tonconnectApps.length === 0
-                && !ledger
             ) && (
                     <ScrollView style={{ flexGrow: 1 }}>
                         <View style={{
@@ -224,12 +218,6 @@ export const ConnectionsFragment = fragment(() => {
                             alignItems: 'center',
                             flexShrink: 1,
                         }}>
-                            <Text style={{
-                                fontSize: 16,
-                                color: Theme.textSubtitle,
-                            }}>
-                                {t('auth.apps.description')}
-                            </Text>
                             {extensions.length > 0 && (
                                 <View style={{ marginTop: 8, alignSelf: 'flex-start' }} collapsable={false}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
@@ -237,8 +225,9 @@ export const ConnectionsFragment = fragment(() => {
                             )}
                             {extensions.map((app) => (
                                 <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
-                                    <ConnectedAppButton
-                                        onRevoke={() => removeExtension(app.key)}
+                                    <ConnectionButton
+                                        onPress={() => openExtension(app.url)}
+                                        onLongPress={() => removeExtension(app.key)}
                                         url={app.url}
                                         name={app.name}
                                     />
@@ -251,7 +240,7 @@ export const ConnectionsFragment = fragment(() => {
                             )}
                             {apps.map((app) => (
                                 <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
-                                    <ConnectedAppButton
+                                    <ConnectionButton
                                         onRevoke={() => disconnectApp(app.url)}
                                         url={app.url}
                                         name={app.name}
@@ -260,7 +249,7 @@ export const ConnectionsFragment = fragment(() => {
                             ))}
                             {tonconnectApps.map((app) => (
                                 <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
-                                    <ConnectedAppButton
+                                    <ConnectionButton
                                         onRevoke={() => disconnectConnectApp(app.url)}
                                         url={app.url}
                                         name={app.name}
@@ -268,31 +257,6 @@ export const ConnectionsFragment = fragment(() => {
                                     />
                                 </View>
                             ))}
-                        </View>
-                        <View style={{ width: '100%' }}>
-                            <View style={{ marginTop: 8 }} collapsable={false}>
-                                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
-                                    {t('settings.experimental')}
-                                </Text>
-                            </View>
-                            <ProductButton
-                                name={t('hardwareWallet.title')}
-                                subtitle={t('hardwareWallet.description')}
-                                icon={HardwareWalletIcon}
-                                iconProps={{ width: 32, height: 32, color: 'black' }}
-                                iconViewStyle={{
-                                    backgroundColor: 'transparent'
-                                }}
-                                value={null}
-                                onPress={() => {
-                                    if (!ledger) {
-                                        toggleLedger();
-                                        return;
-                                    }
-                                    navigation.navigate('Ledger')
-                                }}
-                                onLongPress={toggleLedger}
-                            />
                         </View>
                         <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
                     </ScrollView>

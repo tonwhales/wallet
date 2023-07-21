@@ -4,7 +4,7 @@ import CopyIcon from '../../assets/ic_copy_address.svg';
 import CopyIconSuccess from '../../assets/ic_copy_address_success.svg';
 import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
-import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
+import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../utils/AppConfigContext";
 
 const size = {

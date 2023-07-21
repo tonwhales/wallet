@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { holdersEndpoint } from '../../corp/HoldersProduct';
+import { holdersEndpoint } from '../../holders/HoldersProduct';
 import * as t from "io-ts";
 
 export type AccountState = t.TypeOf<typeof accountStateCodec>;
@@ -26,6 +26,7 @@ export const accountStateCodec = t.union([
         notificationSettings: t.type({
             enabled: t.boolean,
         }),
+        suspended: t.boolean,
     }),
     t.type({
         state: t.union([
@@ -36,6 +37,7 @@ export const accountStateCodec = t.union([
         notificationSettings: t.type({
             enabled: t.boolean,
         }),
+        suspended: t.boolean,
     }),
 ]);
 

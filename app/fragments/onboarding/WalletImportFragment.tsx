@@ -225,7 +225,7 @@ export const WalletImportFragment = systemFragment(() => {
         <View
             style={{
                 flexGrow: 1,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
             }}
         >
             {!state && (

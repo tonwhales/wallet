@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as t from "io-ts";
-import { holdersEndpoint } from "../../corp/HoldersProduct";
+import { holdersEndpoint } from "../../holders/HoldersProduct";
 import { Address } from "ton";
 
 export const cardListPublicCodec = t.union([
@@ -105,34 +105,7 @@ export const cardDeliveryCodec = t.type({
   deliveryMethod: t.string
 });
 
-export type CardsList = {
-  accounts: {
-    id: string,
-    address: string,
-    state: string,
-    balance: string,
-    card: {
-      lastFourDigits: string | undefined | null,
-      productId: string,
-      personalizationCode: string,
-      provider: string,
-      kind: string,
-      tzOffset: number
-    },
-    contract: string,
-    limits: {
-      tzOffset: number,
-      onetime: string,
-      daily: string,
-      dailySpent: string,
-      monthly: string,
-      monthlySpent: string,
-      dailyDeadline: number,
-      monthlyDeadline: number
-    },
-    delivery: CardDelivery | null
-  }[]
-}
+export type CardsList = t.TypeOf<typeof cardsListCodec>
 
 export const cardsListCodec = t.type({
   accounts: t.array(

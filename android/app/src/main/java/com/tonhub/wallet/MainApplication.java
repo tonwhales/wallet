@@ -15,6 +15,8 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import android.content.Context;
+import android.webkit.WebView;
+
 import com.facebook.react.ReactInstanceManager;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -71,6 +73,7 @@ public class MainApplication extends Application implements ReactApplication {
             DefaultNewArchitectureEntryPoint.load();
         }
         ApplicationLifecycleDispatcher.onApplicationCreate(this);
+        WebView.setWebContentsDebuggingEnabled(true);
     }
 
     @Override

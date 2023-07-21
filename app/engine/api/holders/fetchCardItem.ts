@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as t from "io-ts";
-import { holdersEndpoint } from "../../corp/HoldersProduct";
+import { holdersEndpoint } from "../../holders/HoldersProduct";
 
 export const cardItemCodec = t.type({
   ok: t.boolean,

@@ -45,7 +45,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',
+        wallets: 'Wallets',
         later: 'Later',
+        select: 'Select',
         showAll: 'Show all',
         hideAll: 'Hide all'
     },
@@ -112,7 +114,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     transfer: {
-        title: 'Send {{symbol}}',
+        title: 'Send',
         titleAction: 'Action',
         confirm: 'Are you sure want to proceed?',
         error: {
@@ -129,14 +131,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
             invalidTransaction: 'Invalid transaction',
         },
-        sendAll: 'send all',
+        sendAll: 'Submit All',
         scanQR: 'scan qr code',
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',
+        feeEmpty: 'Fees will be calculated later',
         feeTitle: 'Blockchain fees',
         feeTotalTitle: 'Total blockchain fees',
         purpose: 'Purpose of transaction',
-        comment: 'Optional message',
+        comment: 'Message (optional)',
         commentRequired: 'Сomment required',
         commentLabel: 'Message',
         checkComment: 'Check before sending',
@@ -498,6 +501,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms of Service'
     },
     create: {
+        addNew: 'Add new wallet',
         inProgress: 'Creating...',
         backupTitle: 'Your Backup Key',
         backupSubtitle: 'Write down this words in exactly the same order and save them in a secret place',
@@ -779,6 +783,17 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         copySeedAlertAction: 'Copy',
         holdersOfflineApp: 'Holders Offline App',
     },
+    wallets: {
+        switchToAlertTitle: 'Switching to {{wallet}}',
+        switchToAlertMessage: 'Are you sure you want to switch wallets?',
+        switchToAlertAction: 'Switch',
+        addNewTitle: 'Add wallet',
+        addNewAlertTitle: 'Adding new wallet',
+        addNewAlertMessage: 'Are you sure you want to add new wallet?',
+        addNewAlertAction: 'Add',
+        alreadyExistsAlertTitle: 'Wallet already exists',
+        alreadyExistsAlertMessage: 'Wallet with this address already exists',
+    }
 };
 
 export default schema;

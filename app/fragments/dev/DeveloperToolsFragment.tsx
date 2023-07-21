@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ToastAndroid, View, KeyboardAvoidingView } from "react-native";
+import { Alert, Platform, ToastAndroid, View, Text, KeyboardAvoidingView } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -13,13 +13,14 @@ import { clearHolders } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { warn } from '../../utils/log';
+import { RoundButton } from '../../components/RoundButton';
+import { ATextInput } from '../../components/ATextInput';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useState } from 'react';
 import { ItemSwitch } from '../../components/Item';
 
@@ -31,34 +32,23 @@ export const DeveloperToolsFragment = fragment(() => {
     const engine = useEngine();
     const offlineApp = engine.products.holders.useOfflineApp();
 
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
+    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
+    const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
     const [offlineAppEnabled, setOfflineAppEnabled] = useState(storage.getBoolean('dev-tools:use-offline-app') ?? false);
 
     useEffect(() => {
         (async () => {
-            if (!offlineApp) {
+            if (!offlineAppEnabled) {
                 setOfflineAppReady(false);
-                return;
             }
-
-            const filesCheck: Promise<boolean>[] = [];
-            offlineApp.resources.forEach((asset) => {
-                filesCheck.push((async () => {
-                    const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
-                    return info.exists;
-                })());
-            });
-
-            filesCheck.push((async () => {
-                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
-                return info.exists;
-            })());
-
-            const files = await Promise.all(filesCheck);
-
-            setOfflineAppReady(files.every((file) => file));
+            const ready = await engine.products.holders.checkCurrentOfflineVersion();
+            setOfflineAppReady(ready);
+            const prev = await engine.products.holders.getPrevOfflineVersion();
+            if (prev) {
+                const prevReady = await engine.products.holders.isOfflineAppReady(prev);
+            }
         })()
-    }, [offlineApp]);
+    }, [offlineApp, offlineAppEnabled]);
 
     const reboot = useReboot();
     const restart = useCallback(() => {
@@ -89,6 +79,19 @@ export const DeveloperToolsFragment = fragment(() => {
         },
         [AppConfig.isTestnet],
     );
+
+    const [holdersAppUrl, setHoldersAppUrl] = useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
+
+    const onUrlSet = useCallback((link: string) => {
+        let url: URL
+        try {
+            url = new URL(link);
+            setHoldersAppUrl(url.toString());
+        } catch (e) {
+            warn(e)
+            setHoldersAppUrl('');
+        }
+    }, []);
 
     const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
@@ -201,11 +204,19 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={'Offline integrity check:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                            <ItemButton title={'Offline integrity:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                        </View>
+
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
                         </View>
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
+                                const app = engine.persistence.holdersOfflineApp.item().value;
+                                if (app) {
+                                    engine.products.holders.cleanupPrevOfflineRes(app);
+                                }
                                 engine.persistence.holdersOfflineApp.item().update(() => null);
                                 await engine.products.holders.forceSyncOfflineApp();
                             }} />
@@ -229,6 +240,54 @@ export const DeveloperToolsFragment = fragment(() => {
                                         storage.set('dev-tools:use-offline-app', newValue);
                                         setOfflineAppEnabled(newValue);
                                     }}
+                                />
+                            </View>
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ATextInput
+                                    blurOnSubmit={false}
+                                    value={holdersAppUrl}
+                                    onValueChange={onUrlSet}
+                                    placeholder={'Holders App URL'}
+                                    keyboardType={'default'}
+                                    preventDefaultHeight
+                                    editable={true}
+                                    enabled={true}
+                                    label={
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            width: '100%',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            overflow: 'hidden',
+                                        }}>
+                                            <Text style={{
+                                                fontWeight: '500',
+                                                fontSize: 12,
+                                                color: Theme.label,
+                                                alignSelf: 'flex-start',
+                                            }}>
+                                                {'Holders App URL'}
+                                            </Text>
+                                        </View>
+                                    }
+                                    multiline
+                                    autoCorrect={false}
+                                    autoComplete={'off'}
+                                    style={{
+                                        backgroundColor: Theme.transparent,
+                                        paddingHorizontal: 0,
+                                        minHeight: 72,
+                                        marginHorizontal: 16,
+                                    }}
+                                />
+                                <RoundButton
+                                    title={'Apply URL'}
+                                    onPress={() => {
+                                        storage.set('zenpay-app-url', holdersAppUrl);
+                                        Alert.alert('Success', 'Holders App URL has been updated, now restart the app to apply changes.');
+                                    }}
+                                    display={'default'}
+                                    style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
                                 />
                             </View>
                         </View>

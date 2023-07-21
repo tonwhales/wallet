@@ -46,7 +46,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         gotIt: 'Понятно',
         error: 'Ошибка',
         wallet: 'Кошелек',
+        wallets: 'Кошельки',
         later: 'Позже',
+        select: 'Выбрать',
         showAll: 'Показать все',
         hideAll: 'Скрыть все',
     },
@@ -100,7 +102,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         }
     },
     transfer: {
-        title: 'Отправить {{symbol}}',
+        title: 'Отправить',
         titleAction: 'Действие',
         confirm: 'Вы уверены что хотите продолжить?',
         error: {
@@ -117,14 +119,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             addressIsNotActiveDescription: 'Это означает, что с данного адреса кошелька не было совершено ни одной транзакции',
             invalidTransaction: 'Неверная транзакция',
         },
-        sendAll: 'отправить все',
+        sendAll: 'Отправить все',
         scanQR: 'считать QR код',
         sendTo: 'Получатель',
         fee: 'Комиссия сети: {{fee}}',
+        feeEmpty: 'Комиссия будет рассчитана позже',
         feeTitle: 'Комиссия сети',
         feeTotalTitle: 'Полная комиссия сети',
         purpose: 'Цель транзакции',
-        comment: 'Необязательное сообщение',
+        comment: 'Cообщение (необязательное)',
         commentRequired: 'Обязательный комментарий',
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',
@@ -499,6 +502,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Условиями использования'
     },
     create: {
+        addNew: 'Создать новый кошелек',
         inProgress: 'Создаем...',
         backupTitle: 'Ваш секретный ключ',
         backupSubtitle: 'Запишите эти слова в том же порядке и сохраните их в надежном месте',
@@ -780,6 +784,17 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copySeedAlertAction: 'Скопировать',
         holdersOfflineApp: 'Holders Offline App',
     },
+    wallets: {
+        switchToAlertTitle: 'Переключить на {{wallet}}',
+        switchToAlertMessage: 'Вы уверены что хотите переключить кошелек?',
+        switchToAlertAction: 'Переключить',
+        addNewTitle: 'Добавить кошелек',
+        addNewAlertTitle: 'Добавить новый кошелек',
+        addNewAlertMessage: 'Вы уверены что хотите добавить новый кошелек?',
+        addNewAlertAction: 'Добавить',
+        alreadyExistsAlertTitle: 'Кошелек уже существует',
+        alreadyExistsAlertMessage: 'Кошелек с таким адресом уже существует',
+    }
 };
 
 export default schema;

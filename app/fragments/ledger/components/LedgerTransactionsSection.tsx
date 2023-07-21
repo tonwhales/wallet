@@ -19,7 +19,7 @@ export const LedgerTransactionsSection = React.memo(({
 }) => {
     const { Theme } = useAppConfig();
     const openTransactionFragment = React.useCallback((transaction: string) => {
-        navigation.navigate('LedgerTransactionPreview', {transaction });
+        navigation.navigate('LedgerTransactionPreview', { transaction });
     }, [navigation]);
     return (
         <View>

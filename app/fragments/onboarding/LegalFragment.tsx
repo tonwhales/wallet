@@ -61,7 +61,7 @@ export const LegalFragment = systemFragment(() => {
             alignSelf: 'stretch', alignItems: 'center',
             backgroundColor: 'white',
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
-            paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0,
+            paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
         }}>
             <AndroidToolbar pageTitle={t('legal.title')} />
             {!isCreate && (

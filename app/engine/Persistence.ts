@@ -21,7 +21,7 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
-import { HoldersAccountStatus, HoldersState } from "./corp/HoldersProduct";
+import { HoldersAccountStatus, HoldersState } from "./holders/HoldersProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
@@ -32,7 +32,7 @@ import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
 import { accountStateCodec } from "./api/holders/fetchAccountState";
 import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fetchCards";
-import { HoldersOfflineApp, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
+import { HoldersOfflineResMap, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
 import { CardNotification } from "./api/holders/fetchCardsTransactions";
 import { ExtensionStats, extensionStatsCodec } from "./api/reviews";
 
@@ -87,7 +87,7 @@ export class Persistence {
     readonly holdersStatus: PersistedCollection<Address, HoldersAccountStatus>;
     readonly holdersState: PersistedCollection<Address, HoldersState>;
     readonly holdersCards: PersistedCollection<Address, HoldersCardsList>;
-    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineApp>;
+    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineResMap>;
     readonly holdersCardTransactions: PersistedCollection<string, CardNotification[]>;
 
     constructor(storage: MMKV, engine: Engine) {

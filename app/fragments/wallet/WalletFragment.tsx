@@ -18,23 +18,30 @@ import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { useCallback, useLayoutEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { Avatar } from '../../components/Avatar';
 import { StatusBar } from 'expo-status-bar';
+import { useBottomSheet } from '../../components/modal/BottomSheetModal';
+import { WalletSelector } from '../../components/wallet/WalletSelector';
+import { RoundButton } from '../../components/RoundButton';
+import { BlurView } from 'expo-blur';
+import { Avatar } from '../../components/Avatar';
+import { useTrackScreen } from '../../analytics/mixpanel';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
-import { useTrackScreen } from '../../analytics/mixpanel';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const { showActionSheetWithOptions } = useActionSheet();
     const address = useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const modal = useBottomSheet();
     const currentWalletIndex = getAppState().selected;
 
     const onQRCodeRead = (src: string) => {
@@ -58,9 +65,49 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     }, [account]);
 
-    // TODO: Implement
-    const selectAccountModal = useCallback(() => {
-    }, []);
+    // Add new wallet account modal
+    const onAddNewAccount = React.useCallback(() => {
+        const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            options,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    modal?.hide();
+                    navigation.navigate('WalletCreate', { additionalWallet: true });
+                    break;
+                case 2:
+                    modal?.hide();
+                    navigation.navigate('WalletImport', { additionalWallet: true });
+                    break;
+                case 3:
+                    modal?.hide();
+                    navigation.navigate('Ledger');
+                    break;
+                default:
+                    break;
+            }
+        });
+    }, [modal]);
+
+    // Wallet Account modal
+    const onAccountPress = useCallback(() => {
+        modal?.hide();
+        modal?.show(
+            <WalletSelector />,
+            ['60%', '80%'],
+            <BlurView intensity={30} style={{ paddingBottom: safeArea.bottom, paddingHorizontal: 16 }}>
+                <RoundButton
+                    style={{ marginVertical: 16 }}
+                    onPress={onAddNewAccount}
+                    title={t('wallets.addNewTitle')}
+                />
+            </BlurView>
+        );
+    }, [modal]);
 
     // ScrollView background color animation
     const scrollBackgroundColor = useSharedValue(1);
@@ -119,7 +166,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 opacity: pressed ? 0.5 : 1
                             }
                         }}
-                        onPress={selectAccountModal}
+                        onPress={onAccountPress}
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View style={{
@@ -237,7 +284,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             fontWeight: '400',
                             fontFamily: undefined
                         }}
-                        lockActions
+                        limitActions
                     />
                     <View
                         style={{

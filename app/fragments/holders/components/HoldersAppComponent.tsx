@@ -25,10 +25,9 @@ import { useAppConfig } from '../../../utils/AppConfigContext';
 import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { storage } from '../../../storage/storage';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useKeyboard } from '@react-native-community/hooks';
+import { normalizePath } from '../../../engine/holders/HoldersProduct';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -39,7 +38,6 @@ export const HoldersAppComponent = React.memo((
     }
 ) => {
     const safeArea = useSafeAreaInsets();
-    const keyboard = useKeyboard();
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const status = engine.products.holders.useStatus();
@@ -47,7 +45,9 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.products.holders.useOfflineApp();
+    const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
+    const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineV;
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -64,40 +64,6 @@ export const HoldersAppComponent = React.memo((
     );
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const [offlineAppReady, setOfflineAppReady] = useState(false);
-
-    useEffect(() => {
-        (async () => {
-            if (!(storage.getBoolean('dev-tools:use-offline-app') ?? false)) {
-                return false;
-            }
-            if (!offlineApp) {
-                return false;
-            }
-
-            const filesCheck: Promise<boolean>[] = [];
-            offlineApp.resources.forEach((asset) => {
-                filesCheck.push((async () => {
-                    const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/${asset}`);
-                    return info.exists;
-                })());
-            });
-
-            filesCheck.push((async () => {
-                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders/index.html`);
-                return info.exists;
-            })());
-
-            const files = await Promise.all(filesCheck);
-            const ready = files.every((f) => f);
-
-            if (!ready) {
-                engine.products.holders.forceSyncOfflineApp();
-            }
-
-            setOfflineAppReady(ready);
-        })();
-    }, [offlineApp]);
 
     const source = useMemo(() => {
         let route = '';
@@ -186,6 +152,7 @@ export const HoldersAppComponent = React.memo((
                         status: {
                             state: accountState.state,
                             kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
+                            suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
                         }
                     }
                 }
@@ -352,13 +319,26 @@ export const HoldersAppComponent = React.memo((
         webRef.current?.reload();
     }, []);
 
+    const [renderedOnce, setRenderedOnce] = useState(false);
+
+    const onLoadEnd = useCallback(() => {
+        if (renderedOnce) {
+            return;
+        }
+        setRenderedOnce(true);
+        opacity.value = 0;
+        setLoaded(true);
+        webRef.current?.reload();
+    }, [renderedOnce]);
+
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineAppReady && (
+                {useOfflineApp && (
                     <OfflineWebView
                         ref={webRef}
-                        uri={`${FileSystem.documentDirectory}holders/index.html`}
+                        uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/`}
                         initialRoute={source.initialRoute}
                         style={{
                             backgroundColor: Theme.item,
@@ -366,10 +346,7 @@ export const HoldersAppComponent = React.memo((
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={() => {
-                            setLoaded(true);
-                            opacity.value = 0;
-                        }}
+                        onLoadEnd={onLoadEnd}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -399,7 +376,7 @@ export const HoldersAppComponent = React.memo((
                         startInLoadingState={true}
                     />
                 )}
-                {!offlineAppReady && (
+                {!useOfflineApp && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
@@ -411,10 +388,7 @@ export const HoldersAppComponent = React.memo((
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
                             }}
-                            onLoadEnd={() => {
-                                setLoaded(true);
-                                opacity.value = 0;
-                            }}
+                            onLoadEnd={onLoadEnd}
                             onLoadProgress={(event) => {
                                 if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query
@@ -446,28 +420,7 @@ export const HoldersAppComponent = React.memo((
                         />
                     </Animated.View>
                 )}
-                {offlineAppReady && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar tintColor={'#564CE2'} onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
-                    </Animated.View>
-                )}
-                {!offlineAppReady && (
+                {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -489,27 +442,26 @@ export const HoldersAppComponent = React.memo((
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
-                {mainButton && (
+                {mainButton && mainButton.isVisible && (
                     <KeyboardAvoidingView
+                        style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        contentContainerStyle={{ marginHorizontal: 16 }}
+                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: (safeArea.bottom === 0 ? 16 : safeArea.bottom) }}
                         keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? safeArea.bottom + (keyboard.keyboardShown ? 64 : 32)
+                            ? bottomMargin
                             : undefined
                         }
                     >
-                        {mainButton.isVisible && (
-                            <Animated.View
-                                style={Platform.OS === 'android'
-                                    ? { marginHorizontal: 16, marginBottom: 16 }
-                                    : undefined
-                                }
-                                entering={FadeInDown}
-                                exiting={FadeOutDown}
-                            >
-                                <DappMainButton {...mainButton} />
-                            </Animated.View>
-                        )}
+                        <Animated.View
+                            style={Platform.OS === 'android'
+                                ? { marginHorizontal: 16, marginBottom: 16 }
+                                : { marginBottom: 16 }
+                            }
+                            entering={FadeInDown}
+                            exiting={FadeOutDown}
+                        >
+                            <DappMainButton {...mainButton} />
+                        </Animated.View>
                     </KeyboardAvoidingView>
                 )}
             </View>

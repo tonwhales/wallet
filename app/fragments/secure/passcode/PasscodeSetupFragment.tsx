@@ -77,7 +77,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 onLater={
                     (init && !isLocalAuth) // Lock migation to passcode from local auth
                         ? () => {
-                            storage.set(wasPasscodeSetupShownKey, true)
+                            storage.set(wasPasscodeSetupShownKey, true);
                             if (engine && !engine.ready) {
                                 navigation.navigateAndReplaceAll('Sync');
                             } else {

@@ -206,12 +206,12 @@ export function startSync(engine: Engine) {
     tracer.label('app metadata');
     
     //
-    // ZenPay Sync
+    // Holders Sync
     //
     
     if (engine.isTestnet) {
         startHoldersSync(engine);
-        tracer.label('zen pay');
+        tracer.label('holders');
     }
 
     tracer.report();

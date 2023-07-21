@@ -47,7 +47,9 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
+        wallets: string,
         later: string,
+        select: string,
         showAll: string,
         hideAll: string,
     },
@@ -135,6 +137,7 @@ export type LocalizationSchema = {
         scanQR: string,
         sendTo: string,
         fee: string,
+        feeEmpty: string,
         feeTitle: string,
         feeTotalTitle: string,
         purpose: string,
@@ -500,6 +503,7 @@ export type LocalizationSchema = {
         termsOfService: string
     },
     create: {
+        addNew: string,
         inProgress: string,
         backupTitle: string,
         backupSubtitle: string,
@@ -781,6 +785,17 @@ export type LocalizationSchema = {
         copySeedAlertAction: string,
         holdersOfflineApp: string,
     },
+    wallets: {
+        switchToAlertTitle: string,
+        switchToAlertMessage: string,
+        switchToAlertAction: string,
+        addNewTitle: string,
+        addNewAlertTitle: string,
+        addNewAlertMessage: string,
+        addNewAlertAction: string,
+        alreadyExistsAlertTitle: string,
+        alreadyExistsAlertMessage: string,
+    }
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

@@ -23,6 +23,9 @@ export const AppFragment = fragment(() => {
     if (!appData) {
         throw Error('No App Data');
     }
+    if (!key) {
+        throw Error('No Domain Key');
+    }
     return (
         <View style={{
             flex: 1,

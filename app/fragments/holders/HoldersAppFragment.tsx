@@ -9,7 +9,7 @@ import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { holdersUrl } from '../../engine/corp/HoldersProduct';
+import { holdersUrl } from '../../engine/holders/HoldersProduct';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useAppConfig } from '../../utils/AppConfigContext';
 

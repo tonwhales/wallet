@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { selector, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { AsyncLock } from "teslabot";
 import { AccountState, fetchAccountState } from "../api/holders/fetchAccountState";
 import { fetchAccountToken } from "../api/holders/fetchAccountToken";
@@ -10,16 +10,21 @@ import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
-import { HoldersOfflineApp, fetchAppFile, holdersAppCodecVersion } from "../api/holders/fetchAppFile";
+import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
+import * as Application from 'expo-application';
 import { fetchCardsTransactions } from "../api/holders/fetchCardsTransactions";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
-export const holdersUrl = 'https://stage.zenpay.org';
+export const holdersUrl = storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org';
 const currentTokenVersion = 1;
 
 export type HoldersAccountStatus = { state: 'need-enrolment' } | (AccountState & { token: string })
+
+export function normalizePath(path: string) {
+    return path.replaceAll('.', '_');
+}
 
 export type HoldersCard = {
     id: string,
@@ -43,51 +48,29 @@ export type HoldersState = {
 
 export class HoldersProduct {
     readonly engine: Engine;
-    readonly #status;
-    readonly #accountsState;
-    readonly #offlineApp;
     readonly #lock = new AsyncLock();
     watcher: null | (() => void) = null;
+    stableOfflineVersion: string | null = null;
+
+    //TODO: REMOVE THIS, DEV DEMO ONLY
+    devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
 
     constructor(engine: Engine) {
         //TODO: REMOVE THIS, DEV DEMO ONLY
-        const devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
-        if (devUseOffline === undefined) {
+        this.devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+        if (this.devUseOffline === undefined) {
             storage.set('dev-tools:use-offline-app', true);
+            this.devUseOffline = true;
         }
+
         this.engine = engine;
-        this.#status = selector<HoldersAccountStatus>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',
-            get: ({ get }) => {
-                // Check status
-                let status: HoldersAccountStatus = get(this.engine.persistence.holdersStatus.item(engine.address).atom) || { state: 'need-enrolment' };
-
-                return status;
-            }
-        });
-        this.#accountsState = selector<HoldersState>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/state',
-            get: ({ get }) => {
-                // Get state
-                let state: HoldersState = get(this.engine.persistence.holdersState.item(engine.address).atom) || { accounts: [] };
-                return state;
-            }
-        });
-
-        this.#offlineApp = selector<HoldersOfflineApp | null>({
-            key: 'holders/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/offline',
-            get: ({ get }) => {
-                // Get state
-                let state: HoldersOfflineApp | null = get(this.engine.persistence.holdersOfflineApp.item().atom);
-                return state;
-            }
-        });
 
         if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
             this.cleanup();
         }
         storage.set('zenpay-token-version', currentTokenVersion);
-        this.forceSyncOfflineApp();
+
+        this.offlinePreFlight();
     }
 
     async enroll(domain: string, authContext: AuthWalletKeysType) {
@@ -105,25 +88,31 @@ export class HoldersProduct {
             // Check holders token cloud value
             // 
 
-            let existing = await this.engine.cloud.readKey('zenpay-jwt');
+            let existing = this.getToken();
             if (existing && existing.toString().length > 0) {
                 return true;
             } else {
                 //
-                // Create sign
+                // Create signnature and fetch token
                 //
 
-                let contract = contractFromPublicKey(this.engine.publicKey);
-                let signed = this.engine.products.keys.createDomainSignature(domain);
-                let token = await fetchAccountToken({
-                    address: contract.address.toFriendly({ testOnly: this.engine.isTestnet }),
-                    walletConfig: contract.source.backup(),
-                    walletType: contract.source.type,
-                    time: signed.time,
-                    signature: signed.signature,
-                    subkey: signed.subkey
-                }, this.engine.isTestnet);
-                await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(token));
+                try {
+                    let contract = contractFromPublicKey(this.engine.publicKey);
+                    let signed = this.engine.products.keys.createDomainSignature(domain);
+                    let token = await fetchAccountToken({
+                        address: contract.address.toFriendly({ testOnly: this.engine.isTestnet }),
+                        walletConfig: contract.source.backup(),
+                        walletType: contract.source.type,
+                        time: signed.time,
+                        signature: signed.signature,
+                        subkey: signed.subkey
+                    }, this.engine.isTestnet);
+
+                    this.setToken(token);
+                } catch {
+                    this.deleteToken();
+                    throw Error('Failed to create signature and fetch token');
+                }
             }
 
             return true;
@@ -136,15 +125,15 @@ export class HoldersProduct {
     }
 
     useStatus() {
-        return useRecoilValue(this.#status);
+        return useRecoilValue(this.engine.persistence.holdersStatus.item(this.engine.address).atom) || { state: 'need-enrolment' };
     }
 
     useCards() {
-        return useRecoilValue(this.#accountsState).accounts;
+        return useRecoilValue(this.engine.persistence.holdersState.item(this.engine.address).atom)?.accounts || [];
     }
 
     useOfflineApp() {
-        return useRecoilValue(this.#offlineApp);
+        return useRecoilValue(this.engine.persistence.holdersOfflineApp.item().atom);
     }
 
     // Update accounts
@@ -231,30 +220,48 @@ export class HoldersProduct {
     }
 
     watch(token: string) {
-        this.watcher = watchHoldersAccountUpdates(token, () => {
-            this.syncAccounts();
-            this.syncCardsTransactions();
+        this.watcher = watchHoldersAccountUpdates(token, (event) => {
+            if (
+                event.type === 'error'
+                && event.message === 'invalid_token'
+                || event.message === 'state_change'
+            ) {
+                this.doSync();
+            }
+            if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
+                this.syncAccounts();
+                this.syncCardsTransactions();
+            }
         });
     }
 
+    deleteToken() {
+        storage.delete(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`);
+    }
+
+    setToken(token: string) {
+        storage.set(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`, token);
+    }
+
+    getToken() {
+        return storage.getString(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`);
+    }
+
     async cleanup() {
-        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+        this.deleteToken();
         this.stopWatching();
-        this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
-            return null;
-        });
+        this.engine.persistence.holdersState.item(this.engine.address).update((src) => null);
         this.engine.persistence.holdersStatus.item(this.engine.address).update((src) => null);
     }
 
     async doSync() {
         await this.#lock.inLock(async () => {
-            this.syncOfflineApp();
             let targetStatus = this.engine.persistence.holdersStatus.item(this.engine.address);
             let status: HoldersAccountStatus | null = targetStatus.value;
 
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
-                const existingToken = await this.engine.cloud.readKey('zenpay-jwt');
+                const existingToken = this.getToken();
                 if (existingToken && existingToken.toString().length > 0) {
                     let state = await fetchAccountState(existingToken.toString());
                     targetStatus.update((src) => {
@@ -291,7 +298,7 @@ export class HoldersProduct {
 
                     // Clear token if no-ref
                     if (account.state === 'no-ref') {
-                        await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+                        this.deleteToken();
                         this.stopWatching();
                         this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
                             return null;
@@ -337,8 +344,8 @@ export class HoldersProduct {
         });
     }
 
-    async downloadAsset(endpoint: string, asset: string): Promise<string> {
-        let fsPath = FileSystem.documentDirectory + 'holders/' + asset;
+    async downloadAsset(endpoint: string, asset: string, version: string): Promise<string> {
+        let fsPath = FileSystem.documentDirectory + `holders${version}/` + asset;
         let netPath = endpoint + '/' + asset;
 
         FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
@@ -351,52 +358,41 @@ export class HoldersProduct {
         let file = await FileSystem.readAsStringAsync(stored.uri);
         file = file.replaceAll(
             '{{APP_PUBLIC_URL}}',
-            FileSystem.documentDirectory + 'holders/'
+            FileSystem.documentDirectory + `holders${version}/`
         );
         await FileSystem.writeAsStringAsync(stored.uri, file);
 
         return fsPath;
     }
 
-    async syncOfflineRes(endpoint: string, app: HoldersOfflineApp) {
-        const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'holders');
+    async syncOfflineRes(endpoint: string, resMap: HoldersOfflineResMap) {
+        const normalizedVersion = normalizePath(resMap.version);
+        const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`);
         if (!hasAppDirectory.exists) {
-            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'holders');
+            await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`, { intermediates: true });
         }
 
         let uri = null;
-        if (true
-            && app.routes.length > 0
-            && app.routes[0].fileName === 'index.html'
-        ) {
-            uri = FileSystem.documentDirectory + 'holders/index.html';
+        if (resMap.routes.length > 0 && resMap.routes[0].fileName === 'index.html') {
+            uri = FileSystem.documentDirectory + `holders${normalizedVersion}/index.html`;
             const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;
             let file = await FileSystem.readAsStringAsync(uri);
             file = file.replaceAll(
                 '{{APP_PUBLIC_URL}}',
-                FileSystem.documentDirectory + 'holders/'
+                FileSystem.documentDirectory + `holders${normalizedVersion}/`
             );
             await FileSystem.writeAsStringAsync(uri, file);
         }
 
-        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset));
+        const assets = resMap.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset, normalizedVersion));
         const downloadedAssets = await Promise.all(assets);
 
         return { uri, assets: downloadedAssets };
     }
 
     async syncOfflineApp() {
-        const currentCodecVersion = storage.getNumber('holders-offline-app-codec-v');
-
-        if (currentCodecVersion === null || currentCodecVersion !== holdersAppCodecVersion) {
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
-                return null;
-            });
-            storage.set('holders-offline-app-codec-v', holdersAppCodecVersion);
-        }
-
-        const fetchedApp = await fetchAppFile(holdersUrl);
+        const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {
             return;
@@ -410,30 +406,132 @@ export class HoldersProduct {
 
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
+            this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
+                if (prevState) {
+                    this.cleanupPrevOfflineRes(prevState);
+                }
                 return fetchedApp;
             });
-        } catch (e) {
+            return fetchedApp;
+        } catch {
             warn('Failed to sync offline app');
             return;
         }
     }
 
     async forceSyncOfflineApp() {
-        const fetchedApp = await fetchAppFile(holdersUrl);
+        const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
 
         if (!fetchedApp) {
             return;
         }
 
+        this.stableOfflineVersion = null;
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
-            this.engine.persistence.holdersOfflineApp.item().update((src) => {
+            this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
+                if (prevState) {
+                    this.cleanupPrevOfflineRes(prevState);
+                }
                 return fetchedApp;
             });
-        } catch (e) {
+            this.stableOfflineVersion = fetchedApp.version;
+        } catch {
             warn('Failed to sync offline app');
             return;
+        }
+    }
+
+    getPrevOfflineVersion() {
+        const stored = storage.getString('holders-prev-resource-map');
+        if (!stored) {
+            return null;
+        }
+        const parsed = JSON.parse(stored);
+        if (!holdersOfflineAppCodec.is(parsed)) {
+            return null;
+        }
+        return parsed;
+    }
+
+    storePrevOfflineVersion(prev: HoldersOfflineResMap) {
+        storage.set('holders-prev-resource-map', JSON.stringify(prev));
+    }
+
+    async cleanupPrevOfflineRes(prevResMap: HoldersOfflineResMap) {
+        const stored = this.getPrevOfflineVersion();
+
+        this.storePrevOfflineVersion(prevResMap);
+
+        if (!stored) {
+            return;
+        }
+
+        const appDir = FileSystem.documentDirectory + `holders${normalizePath(stored.version)}`;
+        const hasAppDirectory = await FileSystem.getInfoAsync(appDir);
+        if (hasAppDirectory.exists) {
+            await FileSystem.deleteAsync(appDir, { idempotent: true });
+        }
+    }
+
+    async checkCurrentOfflineVersion() {
+        const stored = this.engine.persistence.holdersOfflineApp.item().value;
+        if (!stored) {
+            return false;
+        }
+
+        return this.isOfflineAppReady(stored);
+    }
+
+    async isOfflineAppReady(resMap: HoldersOfflineResMap) {
+        const normalizedPath = normalizePath(resMap.version);
+
+        const filesCheck: Promise<boolean>[] = [];
+        resMap.resources.forEach((asset) => {
+            filesCheck.push((async () => {
+                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/${asset}`);
+                return info.exists;
+            })());
+        });
+
+        filesCheck.push((async () => {
+            const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/index.html`);
+            return info.exists;
+        })());
+
+        const files = await Promise.all(filesCheck);
+        const ready = files.every((f) => f);
+
+        if (ready) {
+            return { version: resMap.version };
+        }
+
+        return false;
+    }
+
+    wasNativeAppUpdated() {
+        return storage.getString('app-last-offline-sync-app-version') !== Application.nativeApplicationVersion;
+    }
+
+    setLastOfflineResSyncAppVersion(appVersion: string | null) {
+        if (appVersion) {
+            storage.set('app-last-offline-sync-app-version', appVersion);
+        }
+    }
+
+    async offlinePreFlight() {
+        const ready = await this.checkCurrentOfflineVersion();
+        if (ready) {
+            this.stableOfflineVersion = ready.version;
+        }
+        const resMap = await this.syncOfflineApp();
+        if (resMap) {
+            this.stableOfflineVersion = resMap.version;
+        }
+
+        if (this.wasNativeAppUpdated()) {
+            await this.forceSyncOfflineApp();
+            this.setLastOfflineResSyncAppVersion(Application.nativeApplicationVersion);
         }
     }
 }

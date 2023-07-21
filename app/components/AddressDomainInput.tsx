@@ -1,22 +1,29 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable } from "react-native"
+import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
 import { ATextInput, ATextInputRef } from "./ATextInput"
-import VerifiedIcon from '../../assets/ic_verified.svg';
-import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from "../secure/KnownWallets"
 import { Address } from "ton"
 import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, tonDnsRootAddress, validateDomain } from "../utils/dns/dns"
+import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns/dns"
 import { useEngine } from "../engine/Engine"
 import { AddressContact } from "../engine/products/SettingsProduct"
 import { useAppConfig } from "../utils/AppConfigContext"
+import { useTypedNavigation } from "../utils/useTypedNavigation"
+import { BarCodeScanner } from 'expo-barcode-scanner';
+
+import VerifiedIcon from '../../assets/ic_verified.svg';
+import ContactIcon from '../../assets/ic_contacts.svg';
+import Scanner from '../../assets/ic-scanner-accent.svg';
+
+const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
 export const AddressDomainInput = React.memo(React.forwardRef(({
     style,
+    inputStyle,
     onFocus,
     onBlur,
     onSubmit,
@@ -28,10 +35,13 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     isKnown,
     index,
     contact,
+    labelStyle,
     labelText,
-    showToMainAddress
+    showToMainAddress,
+    onQRCodeRead
 }: {
     style?: StyleProp<ViewStyle>,
+    inputStyle?: StyleProp<TextStyle>,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
@@ -43,13 +53,28 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     isKnown?: boolean,
     index: number,
     contact?: AddressContact,
+    labelStyle?: StyleProp<ViewStyle>,
     labelText?: string,
     showToMainAddress?: boolean,
+    onQRCodeRead?: (value: string) => void,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
+    const navigation = useTypedNavigation();
     const { Theme, AppConfig } = useAppConfig();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
+
+    const openScanner = useCallback(() => {
+        if (!onQRCodeRead) {
+            return;
+        }
+
+        (async () => {
+            await BarCodeScanner.requestPermissionsAsync();
+            navigation.popToTop();
+            navigation.navigateScanner({ callback: onQRCodeRead });
+        })();
+    }, [onQRCodeRead]);
 
     const tref = React.useRef<TextInput>(null);
     React.useImperativeHandle(ref, () => ({
@@ -80,19 +105,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
 
             setResolving(true);
             try {
-                const resolvedCollectionAddress = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_NEXT_RESOLVER, true);
-                if (!resolvedCollectionAddress) {
-                    throw Error('Error resolving collection address');
-                }
-                const collectionAddress = Address.parseRaw(resolvedCollectionAddress.toString());
-
-                const resolvedDomainAddress = await resolveDomain(engine.client4, collectionAddress, domain, DNS_CATEGORY_NEXT_RESOLVER, true);
-                if (!resolvedDomainAddress) {
-                    throw Error('Error resolving domain address');
-                }
-                const domaindAddress = Address.parseRaw(resolvedDomainAddress.toString());
-
-                const resolvedDomainWallet = await resolveDomain(engine.client4, domaindAddress, '.', DNS_CATEGORY_WALLET);
+                const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_WALLET);
                 if (!resolvedDomainWallet) {
                     throw Error('Error resolving domain wallet');
                 }
@@ -128,27 +141,20 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             ref={tref}
             onFocus={onFocus}
             onValueChange={onInputChange}
-            placeholder={AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
+            placeholder={(AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress'))}
             keyboardType={'ascii-capable'}
             autoCapitalize={'none'}
             preventDefaultHeight
+            preventDefaultLineHeight
             label={
-                <View style={{
+                <View style={[{
                     flexDirection: 'row',
                     width: '100%',
                     alignItems: showToMainAddress ? 'flex-start' : 'center',
                     justifyContent: 'space-between',
                     overflow: 'hidden',
                     minHeight: showToMainAddress ? 24 : 0,
-                }}>
-                    <Text style={{
-                        fontWeight: '500',
-                        fontSize: 12,
-                        color: Theme.label,
-                        alignSelf: 'flex-start',
-                    }}>
-                        {labelText ? labelText : t('transfer.sendTo')}
-                    </Text>
+                }, labelStyle]}>
                     {(isKnown && target && !resolvedAddress && !resolving) && (
                         <Animated.View
                             style={{
@@ -298,6 +304,19 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             blurOnSubmit={false}
             editable={!resolving}
             enabled={!resolving}
+            inputStyle={inputStyle}
+            actionButtonRight={
+                !!onQRCodeRead
+                    ? (
+                        <Pressable
+                            onPress={openScanner}
+                            style={{ height: 24, width: 24, marginLeft: 8 }}
+                        >
+                            <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
+                        </Pressable>
+                    )
+                    : undefined
+            }
         />
     )
 }));

@@ -4,6 +4,7 @@ import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { getCurrentAddress, markAddressSecured } from '../storage/appState';
+import { useEffect } from 'react';
 
 export const isTestnetKey = 'isTestnet';
 
@@ -62,6 +63,7 @@ export type ThemeType = {
     mediumGrey: string,
     greyForIcon: string,
     green: string,
+    mainViolet: string,
     accentRed: string,
     red: string,
 };
@@ -121,6 +123,7 @@ const initialTheme = {
     mediumGrey: '#E4E6EA',
     greyForIcon: '#AAB4BF',
     green: '#00BE80',
+    mainViolet: '#564CE2',
     accentRed: '#ff415c',
     red: '#FF415C'
 }
@@ -142,6 +145,8 @@ export const initialAppConfig = {
         Application.applicationId === 'com.tonhub.app.debug.testnet' ||
         Application.applicationId === 'com.tonhub.wallet.testnet' ||
         Application.applicationId === 'com.tonhub.wallet.testnet.debug' ||
+        Application.applicationId === 'com.sandbox.app.zenpay.demo' ||
+        Application.applicationId === 'com.sandbox.app.zenpay.demo.debug' ||
         storage.getBoolean(isTestnetKey) === true
     ),
 };
@@ -170,7 +175,7 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
 
     const Theme = {
         ...initialTheme,
-        accent: AppConfig.isTestnet ? '#F3A203' : '#564CE2',
+        accent: AppConfig.isTestnet ? '#564CE2' : '#564CE2',
         accentDark: AppConfig.isTestnet ? '#F3A203' : '#288FD8',
         accentText: AppConfig.isTestnet ? '#E99A02' : '#1C8FE3',
     };

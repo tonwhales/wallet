@@ -8,6 +8,7 @@ import { t } from "../i18n/t";
 import { WImage } from "./WImage";
 import { useAppConfig } from "../utils/AppConfigContext";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Star from '../../assets/ic-rating-star.svg';
 
 type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
@@ -32,6 +33,19 @@ export const ConnectionButton = React.memo((
     const engine = useEngine();
     const appData = engine.products.extensions.useAppData(url);
     const appManifest = engine.products.tonConnect.useAppManifest(url);
+    const stats = engine.products.extensions.useExtensionStats(url);
+
+    const description = useMemo(() => {
+        if (!!appData?.description) {
+            return appData.description;
+        }
+        if (stats?.metadata?.description) {
+            return stats.metadata.description;
+        }
+
+        return url || appManifest?.url;
+
+    }, [appData, appManifest, stats, url]);
 
     const animatedValue = useSharedValue(1);
 
@@ -70,7 +84,7 @@ export const ConnectionButton = React.memo((
                     backgroundColor: Theme.lightGrey, flexDirection: 'row',
                     alignItems: 'center', justifyContent: 'center',
                     paddingHorizontal: 20,
-                    paddingVertical: 20
+                    paddingVertical: 20, flex: 1
                 },
                 animatedStyle
             ]}>
@@ -85,7 +99,7 @@ export const ConnectionButton = React.memo((
                 <View
                     style={{
                         flexDirection: 'column',
-                        flexGrow: 1,
+                        flexGrow: 1, flexShrink: 1,
                         justifyContent: 'center'
                     }}
                 >
@@ -101,17 +115,33 @@ export const ConnectionButton = React.memo((
                             {name}
                         </Text>
                     )}
-                    {!!url && (
-                        <Text style={{
-                            fontSize: 15, lineHeight: 20,
-                            fontWeight: '400',
-                            color: Theme.darkGrey,
-                        }}
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                        >
-                            {extractDomain(url)}
-                        </Text>
+                    <Text style={{
+                        fontSize: 15, lineHeight: 20,
+                        fontWeight: '400',
+                        color: Theme.darkGrey,
+                        flexShrink: 1
+                    }}
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                    >
+                        {description}
+                    </Text>
+                    {!!stats && (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Star
+                                height={13}
+                                width={13}
+                                style={{ height: 13, width: 13 }}
+                            />
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20,
+                                fontWeight: '400',
+                                color: Theme.textColor,
+                                marginLeft: 4
+                            }}>
+                                {stats.rating}
+                            </Text>
+                        </View>
                     )}
                 </View>
                 {!!onRevoke && (

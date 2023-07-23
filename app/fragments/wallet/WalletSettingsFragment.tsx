@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform } from "react-native";
+import { Pressable, View, Text, Platform, TextInput } from "react-native";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getAppState, getCurrentAddress } from "../../storage/appState";
@@ -63,34 +63,40 @@ export const WalletSettingsFragment = fragment(() => {
                         {t('wallet.changeAvatar')}
                     </Text>
                 </Pressable>
-                <ATextInput
-                    value={name}
-                    onValueChange={setName}
-                    placeholder={t('common.walletName')}
-                    keyboardType={'default'}
-                    autoCapitalize={'sentences'}
-                    multiline={false}
-                    style={{
-                        flex: 1, flexShrink: 1,
-                        backgroundColor: Theme.lightGrey,
-                        paddingHorizontal: 16, marginTop: 20,
-                        paddingVertical: 10
-                    }}
-                    
-                    inputStyle={{
-                        marginHorizontal: 0, marginVertical: 0,
-                        paddingBottom: 0, paddingTop: 0,
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '400', color: Theme.textColor,
-                        height: 24
-                    }}
-                    label={
+                <View style={{
+                    backgroundColor: Theme.lightGrey,
+                    paddingHorizontal: 20, marginTop: 20,
+                    paddingVertical: 10,
+                    width: '100%', borderRadius: 20
+                }}>
+                    <View style={{
+                        width: '100%',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        marginBottom: 2
+                    }}>
                         <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                             {t('common.walletName')}
                         </Text>
-                    }
-                    preventDefaultHeight
-                />
+                    </View>
+                    <TextInput
+                        style={[
+                            {
+                                paddingHorizontal: 0,
+                                textAlignVertical: 'top',
+                                fontSize: 17, lineHeight: 24,
+                                fontWeight: '400', color: Theme.textColor
+                            }
+                        ]}
+                        placeholder={t('common.walletName')}
+                        placeholderTextColor={Theme.placeholder}
+                        multiline={true}
+                        blurOnSubmit={true}
+                        editable={true}
+                        value={name}
+                        onChangeText={setName}
+                    />
+                </View>
                 <View style={{
                     backgroundColor: Theme.lightGrey,
                     padding: 20, marginTop: 20,
@@ -105,7 +111,7 @@ export const WalletSettingsFragment = fragment(() => {
                         {address.toFriendly({ testOnly: AppConfig.isTestnet })}
                     </Text>
                 </View>
-                <View style={{ flexGrow: 1 }} />
+                <View style={{ flexGrow: 1, backgroundColor: 'red' }} />
             </View>
         </View>
     )

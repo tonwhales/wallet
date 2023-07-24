@@ -90,8 +90,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             message: 'У вас нет транзакций',
             receive: 'Получить TON'
         },
-        pendingTransactions: 'Ожидают подтверждения',
-        changeAvatar: 'Изменить аватар',
+        pendingTransactions: 'Ожидают подтверждения'
     },
     transactions: {
         title: 'Транзакции',
@@ -797,6 +796,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         addNewAlertAction: 'Добавить',
         alreadyExistsAlertTitle: 'Кошелек уже существует',
         alreadyExistsAlertMessage: 'Кошелек с таким адресом уже существует',
+        settings: {
+            changeAvatar: 'Изменить аватар',
+        }
     }
 };
 

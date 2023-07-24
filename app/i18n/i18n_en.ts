@@ -89,8 +89,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             message: 'You have no transactions',
             receive: 'Receive TON'
         },
-        pendingTransactions: 'Pending transactions',
-        changeAvatar: 'Change avatar'
+        pendingTransactions: 'Pending transactions'
     },
     transactions: {
         title: 'Transactions',
@@ -796,6 +795,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addNewAlertAction: 'Add',
         alreadyExistsAlertTitle: 'Wallet already exists',
         alreadyExistsAlertMessage: 'Wallet with this address already exists',
+        settings: {
+            changeAvatar: 'Change avatar',
+        }
     }
 };
 

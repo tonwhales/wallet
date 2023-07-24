@@ -5,31 +5,62 @@ import { getAppState, getCurrentAddress } from "../../storage/appState";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { Avatar } from "../../components/Avatar";
-import { ATextInput } from "../../components/ATextInput";
-import { useState } from "react";
+import { avatarHash } from "../../utils/avatarHash";
+import { Avatar, avatarImages } from "../../components/Avatar";
+import { useCallback, useMemo, useState } from "react";
+import { useEngine } from "../../engine/Engine";
 
 export const WalletSettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
+    const engine = useEngine();
     const appState = getAppState();
     const navigation = useTypedNavigation();
     const address = getCurrentAddress().address;
-    const [name, setName] = useState(`${t('common.wallet')} ${appState.selected + 1}`);
+    const walletSettings = engine.products.wallets.useWalletSettings(address);
+    const initHash = (walletSettings?.avatar !== null && walletSettings?.avatar !== undefined)
+        ? walletSettings.avatar
+        : avatarHash(address.toFriendly({ testOnly: engine.isTestnet }), avatarImages.length);
+
+    const [name, setName] = useState(walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`);
+    const [avatar, setAvatar] = useState(initHash);
+
+    const hasChanges = useMemo(() => {
+        return name !== walletSettings?.name || avatar !== initHash;
+    }, [name, avatar, walletSettings]);
+
+    const onSave = useCallback(() => {
+        if (name !== walletSettings?.name || avatar !== initHash) {
+            engine.products.wallets.setWalletSettings(address, { name, avatar });
+        }
+    }, [name, avatar, walletSettings]);
+
+    const onChangeAvatar = useCallback(() => {
+        const callback = (hash: number) => setAvatar(hash);
+        navigation.navigate('ChooseAvatar', { callback, hash: avatar });
+    }, []);
 
     return (
         <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 onBackPressed={() => navigation.goBack()}
-                title={`${t('common.wallet')} ${appState.selected + 1}`}
+                title={name}
                 rightButton={
                     <Pressable
-                        hitSlop={Platform.select({
-                            ios: undefined,
-                            default: { top: 16, right: 16, bottom: 16, left: 16 },
-                        })}
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                            }
+                        }}
+                        onPress={onSave}
+                        hitSlop={
+                            Platform.select({
+                                ios: undefined,
+                                default: { top: 16, right: 16, bottom: 16, left: 16 },
+                            })
+                        }
                     >
                         <Text style={{
-                            color: Theme.accent,
+                            color: hasChanges ? Theme.accent : Theme.darkGrey,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '500',
                             marginRight: 16,
@@ -44,23 +75,28 @@ export const WalletSettingsFragment = fragment(() => {
                 alignItems: 'center',
                 paddingHorizontal: 16, flexGrow: 1
             }}>
-                <Avatar
-                    size={100}
-                    backgroundColor={Theme.accent}
-                    id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                />
-                <Pressable style={({ pressed }) => {
-                    return {
-                        opacity: pressed ? 0.5 : 1,
-                    }
-                }}>
+                <Pressable
+                    style={({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.5 : 1,
+                            justifyContent: 'center', alignItems: 'center'
+                        }
+                    }}
+                    onPress={onChangeAvatar}
+                >
+                    <Avatar
+                        size={100}
+                        backgroundColor={Theme.accent}
+                        id={''}
+                        hash={avatar}
+                    />
                     <Text style={{
                         color: Theme.accent,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
                         marginTop: 12,
                     }}>
-                        {t('wallet.changeAvatar')}
+                        {t('wallets.settings.changeAvatar')}
                     </Text>
                 </Pressable>
                 <View style={{
@@ -88,6 +124,7 @@ export const WalletSettingsFragment = fragment(() => {
                                 fontWeight: '400', color: Theme.textColor
                             }
                         ]}
+                        maxLength={64}
                         placeholder={t('common.walletName')}
                         placeholderTextColor={Theme.placeholder}
                         multiline={true}

@@ -66,6 +66,7 @@ import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragment';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetProvider } from './components/modal/BottomSheetModal';
+import { ChooseAvatarFragment } from './fragments/wallet/ChooseAvatarFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -190,6 +191,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Products', ProductsFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
+    modalScreen('ChooseAvatar', ChooseAvatarFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

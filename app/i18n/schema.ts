@@ -91,8 +91,7 @@ export type LocalizationSchema = {
             message: string,
             receive: string
         },
-        pendingTransactions: string,
-        changeAvatar: string
+        pendingTransactions: string
     },
     transactions: {
         title: string,
@@ -798,6 +797,9 @@ export type LocalizationSchema = {
         addNewAlertAction: string,
         alreadyExistsAlertTitle: string,
         alreadyExistsAlertMessage: string,
+        settings: {
+            changeAvatar: string
+        }
     }
 };
 

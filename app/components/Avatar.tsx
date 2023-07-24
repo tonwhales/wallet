@@ -272,6 +272,7 @@ export const avatarColors = [
 export const Avatar = React.memo((props: {
     size: number,
     id: string,
+    hash?: number,
     address?: string,
     image?: string,
     spam?: boolean,
@@ -286,8 +287,8 @@ export const Avatar = React.memo((props: {
     let size = Math.floor(props.size * 0.6);
     let verifiedSize = Math.floor(props.size * 0.35);
 
-    let Img = avatarImages[avatarHash(props.id, avatarImages.length)];
-    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
+    let Img = avatarImages[props.hash || avatarHash(props.id, avatarImages.length)];
+    let color = avatarColors[props.hash || avatarHash(props.id, avatarColors.length)];
     let img: any;
 
     if (!props.spam) {

@@ -28,6 +28,7 @@ export const HomeFragment = fragment(() => {
     const engine = useEngine();
     const address = getCurrentAddress().address;
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const walletSettings = engine.products.wallets.useWalletSettings(address);
 
     // Subscribe for links
     React.useEffect(() => {
@@ -145,6 +146,7 @@ export const HomeFragment = fragment(() => {
                                     <Avatar
                                         size={20}
                                         id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                        hash={walletSettings?.avatar}
                                         backgroundColor={Theme.accent}
                                     />
                                 </View>

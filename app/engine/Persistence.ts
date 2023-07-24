@@ -35,7 +35,6 @@ import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fet
 import { HoldersOfflineResMap, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
 import { CardNotification } from "./api/holders/fetchCardsTransactions";
 import { ExtensionStats, extensionStatsCodec } from "./api/reviews";
-import { WalletSettings } from "./products/WalletsProduct";
 
 export class Persistence {
 
@@ -45,7 +44,6 @@ export class Persistence {
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
     readonly parsedTransactions: PersistedCollection<{ address: Address, lt: BN }, Transaction>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
-    readonly walletSettings: PersistedCollection<Address, WalletSettings>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, PriceState>;
     readonly apps: PersistedCollection<Address, string>;
@@ -110,7 +108,6 @@ export class Persistence {
         this.liteAccounts = new PersistedCollection({ storage, namespace: 'liteAccounts', key: addressKey, codec: liteAccountCodec, engine });
         this.fullAccounts = new PersistedCollection({ storage, namespace: 'fullAccounts', key: addressKey, codec: fullAccountCodec, engine });
         this.wallets = new PersistedCollection({ storage, namespace: 'wallets', key: addressKey, codec: walletCodec(engine.isTestnet), engine });
-        this.walletSettings = new PersistedCollection({ storage, namespace: 'walletSettings', key: addressKey, codec: t.type({ name: nullableString, avatar: nullableNumber }), engine });
         this.parsedTransactions = new PersistedCollection({ storage, namespace: 'parsedTransactions', key: transactionKey, codec: walletTransactionCodec(engine.isTestnet), engine });
         this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
@@ -171,8 +168,6 @@ export class Persistence {
 }
 
 // Codecs
-const nullableString = t.union([t.string, t.null]);
-const nullableNumber = t.union([t.number, t.null]);
 const liteAccountCodec = t.type({
     balance: c.bignum,
     block: t.number,

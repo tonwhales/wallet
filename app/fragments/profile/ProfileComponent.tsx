@@ -9,14 +9,17 @@ import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
+import { useEngine } from '../../engine/Engine';
 
 import Chevron from '../../../assets/ic-chevron-down.svg';
 
 export const ProfileComponent = memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
+    const engine = useEngine();
     const appState = getAppState();
     const address = appState.addresses[appState.selected].address;
+    const walletSettings = engine.products.wallets.useWalletSettings(address);
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     return (
@@ -39,6 +42,7 @@ export const ProfileComponent = memo(() => {
                     <Avatar
                         size={46}
                         id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        hash={walletSettings?.avatar}
                         backgroundColor={Theme.accent}
                     />
                     <View style={{ paddingLeft: 12, alignSelf: 'stretch', justifyContent: 'center' }}>
@@ -49,7 +53,7 @@ export const ProfileComponent = memo(() => {
                                 fontWeight: '600',
                             }}
                         >
-                            {`${t('common.wallet')} ${appState.selected + 1}`}
+                            {walletSettings?.name || `${t('common.wallet')} ${appState.selected + 1}`}
                         </Text>
                         <WalletAddress
                             value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
@@ -63,7 +67,7 @@ export const ProfileComponent = memo(() => {
                                 color: Theme.darkGrey,
                                 fontFamily: undefined
                             }}
-                            lockActions
+                            limitActions
                         />
                     </View>
                 </View>

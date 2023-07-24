@@ -33,15 +33,16 @@ import Scanner from '../../../assets/ic-scanner.svg';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
+    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const modal = useBottomSheet();
     const { showActionSheetWithOptions } = useActionSheet();
     const address = useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
+    const walletSettings = engine.products.wallets.useWalletSettings(address);
     const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
-    const modal = useBottomSheet();
     const currentWalletIndex = getAppState().selected;
 
     const onQRCodeRead = (src: string) => {
@@ -56,7 +57,6 @@ function WalletComponent(props: { wallet: WalletState }) {
     };
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
-
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const openGraph = useCallback(() => {
@@ -64,9 +64,8 @@ function WalletComponent(props: { wallet: WalletState }) {
             navigation.navigate('AccountBalanceGraph');
         }
     }, [account]);
-
     // Add new wallet account modal
-    const onAddNewAccount = React.useCallback(() => {
+    const onAddNewAccount = useCallback(() => {
         const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
         const cancelButtonIndex = 0;
 
@@ -92,7 +91,6 @@ function WalletComponent(props: { wallet: WalletState }) {
             }
         });
     }, [modal]);
-
     // Wallet Account modal
     const onAccountPress = useCallback(() => {
         modal?.hide();
@@ -139,10 +137,6 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     });
 
-    useLayoutEffect(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [account.pending.length]);
-
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
             <StatusBar style={'light'} />
@@ -174,10 +168,23 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 backgroundColor: Theme.accent,
                                 borderRadius: 12
                             }}>
-                                <Avatar id={address.toFriendly({ testOnly: AppConfig.isTestnet })} size={24} backgroundColor={Theme.accent} />
+                                <Avatar
+                                    id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                    size={24}
+                                    backgroundColor={Theme.accent}
+                                    hash={walletSettings?.avatar}
+                                />
                             </View>
-                            <Text style={{ marginLeft: 12, fontWeight: '500', fontSize: 17, color: '#AAB4BF' }}>
-                                {`${t('common.wallet')} ${currentWalletIndex + 1}`}
+                            <Text
+                                style={{
+                                    marginLeft: 12, fontWeight: '500',
+                                    fontSize: 17,
+                                    color: Theme.greyForIcon, maxWidth: '70%'
+                                }}
+                                ellipsizeMode='tail'
+                                numberOfLines={1}
+                            >
+                                {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
                             </Text>
                             <ChevronDown
                                 style={{

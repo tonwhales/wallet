@@ -23,6 +23,7 @@ import { HoldersProduct } from './holders/HoldersProduct';
 import { ConnectProduct } from './products/ConnectProduct';
 import { LedgerProduct } from './products/LedgerProduct';
 import { WalletsProduct } from './products/WalletsProduct';
+import { SharedPersistence } from './SharedPersistence';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -36,6 +37,7 @@ export class Engine {
 
     // Storage
     readonly persistence: Persistence;
+    readonly sharedPersistence: SharedPersistence;
     readonly cloud: Cloud
 
     // Connector
@@ -71,6 +73,7 @@ export class Engine {
         publicKey: Buffer,
         utilityKey: Buffer,
         persistence: MMKV,
+        sharedPersistence: MMKV,
         client4Endpoint: string,
         connector: Connector,
         recoil: RecoilInterface,
@@ -78,6 +81,7 @@ export class Engine {
     ) {
         this.recoil = recoil;
         this.persistence = new Persistence(persistence, this);
+        this.sharedPersistence = new SharedPersistence(sharedPersistence, this);
         this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
         this.address = address;
         this.publicKey = publicKey;

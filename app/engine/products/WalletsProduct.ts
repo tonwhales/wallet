@@ -23,11 +23,11 @@ export class WalletsProduct {
     }
 
     useWalletSettings(address: Address): WalletSettings | null {
-        return useRecoilValue(this.engine.persistence.walletSettings.item(address).atom);
+        return useRecoilValue(this.engine.sharedPersistence.walletSettings.item(address).atom);
     }
 
     setWalletSettings(address: Address, settings: WalletSettings): void {
-        this.engine.persistence.walletSettings.item(address).update((src) => settings);
+        this.engine.sharedPersistence.walletSettings.item(address).update((src) => settings);
     }
 
     getAvatar(address: Address, settings: WalletSettings | null): React.FC<SvgProps> {

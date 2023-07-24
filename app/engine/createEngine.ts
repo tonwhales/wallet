@@ -1,5 +1,5 @@
 import { Address } from "ton";
-import { storagePersistence } from "../storage/storage";
+import { sharedStoragePersistence, storagePersistence } from "../storage/storage";
 import { log } from "../utils/log";
 import { createSimpleConnector } from "./api/Connector";
 import { Engine } from "./Engine";
@@ -12,6 +12,7 @@ export function createEngine(args: { address: Address, publicKey: Buffer, utilit
         args.publicKey,
         args.utilityKey,
         storagePersistence,
+        sharedStoragePersistence,
         args.isTestnet ? 'testnet-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com',
         createSimpleConnector(!args.isTestnet ? {
             main: 'https://mainnet.tonhubapi.com',

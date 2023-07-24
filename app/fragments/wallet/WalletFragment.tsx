@@ -253,7 +253,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             <Text style={{
                                 fontSize: 17,
                                 lineHeight: 24,
-                                color: '#838D99',
+                                color: Theme.darkGrey,
                                 marginRight: 8,
                                 fontWeight: '500',
                             }}>{' TON'}</Text>
@@ -280,7 +280,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             fontSize: 13,
                             lineHeight: 18,
                             textAlign: 'left',
-                            color: '#838D99',
+                            color: Theme.darkGrey,
                             fontWeight: '400',
                             fontFamily: undefined
                         }}
@@ -292,14 +292,13 @@ function WalletComponent(props: { wallet: WalletState }) {
                             marginHorizontal: 16,
                             backgroundColor: '#1F283E',
                             borderRadius: 20,
-                            paddingVertical: 20,
                             marginTop: 24
                         }}
                         collapsable={false}
                     >
                         {
                             (!AppConfig.isTestnet && Platform.OS === 'android') && (
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14 }}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
                                     <TouchableHighlight
                                         onPress={onOpenBuy}
                                         underlayColor={Theme.selector}
@@ -320,7 +319,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 </View>
                             )
                         }
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
                             <TouchableHighlight
                                 onPress={() => navigation.navigate('Receive')}
                                 underlayColor={Theme.selector}
@@ -339,7 +338,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 </View>
                             </TouchableHighlight>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
                             <TouchableHighlight
                                 onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
                                 underlayColor={Theme.selector}

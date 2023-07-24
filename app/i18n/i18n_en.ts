@@ -50,6 +50,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         select: 'Select',
         showAll: 'Show all',
         hideAll: 'Hide all',
+        done: 'Done',
+        mainWallet: 'Main wallet',
         walletName: 'Wallet name',
     },
     syncStatus: {
@@ -510,8 +512,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         copy: 'Copy to clipboard',
     },
     import: {
-        title: '24 Secret Words',
-        subtitle: 'Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet.',
+        title: 'Enter backup key',
+        subtitle: 'Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet',
         fullSeedPlaceholder: 'Enter 24 secret words',
         fullSeedPaste: 'Or you can paste full seed phrase where each word is separated by a space',
     },

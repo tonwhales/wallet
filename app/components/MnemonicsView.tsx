@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextStyle } from "react-native"
+import { View, Text, TextStyle, ViewStyle, StyleProp } from "react-native"
 import { useAppConfig } from "../utils/AppConfigContext";
 
 const wordStyle: TextStyle = {
@@ -12,7 +12,7 @@ const MnemonicWord = React.memo(({ word, index }: { word: string, index: number 
     const { Theme } = useAppConfig();
 
     return (
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', marginBottom: (index !== 11 && index !== 23) ? 8 : 0 }}>
             <Text style={[
                 wordStyle,
                 {
@@ -31,20 +31,23 @@ const MnemonicWord = React.memo(({ word, index }: { word: string, index: number 
     );
 })
 
-export const MnemonicsView = React.memo(({ mnemonics }: { mnemonics: string }) => {
+export const MnemonicsView = React.memo(({ mnemonics, style }: { mnemonics: string, style?: StyleProp<ViewStyle> }) => {
     const { Theme } = useAppConfig();
     const words = mnemonics.split(' ');
     const wordsCol1 = words.slice(0, 12);
     const wordsCol2 = words.slice(12, 24);
 
     return (
-        <View style={{
-            padding: 20,
-            borderRadius: 20,
-            backgroundColor: Theme.lightGrey,
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-        }}>
+        <View style={[
+            {
+                padding: 20,
+                borderRadius: 20,
+                backgroundColor: Theme.lightGrey,
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+            },
+            style
+        ]}>
             <View style={{ alignItems: 'flex-start', flexGrow: 1, }}>
                 {wordsCol1.map((word, index) => {
                     return (<MnemonicWord key={index} word={word} index={index} />);

@@ -47,7 +47,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
     // Shake
     // 
     const translate = useSharedValue(0);
-    const style = useAnimatedStyle(() => {
+    const animtedStyle = useAnimatedStyle(() => {
         return {
             transform: [{ translateX: translate.value }],
         };
@@ -136,13 +136,24 @@ export const WordInput = React.memo(React.forwardRef((props: {
     }, [props.index, props.setValue]);
 
     return (
-        <Animated.View style={style}>
-            <View ref={props.innerRef} style={{ flexDirection: 'row' }} collapsable={false}>
+        <Animated.View style={animtedStyle}>
+            <View
+                ref={props.innerRef}
+                style={{
+                    flexDirection: 'row',
+                    backgroundColor: Theme.lightGrey,
+                    borderRadius: 16,
+                    marginVertical: 8
+                }}
+                collapsable={false}
+            >
                 <Text
                     style={{
                         alignSelf: 'center',
-                        fontSize: 16, width: 40,
-                        paddingVertical: 16,
+                        fontSize: 17, fontWeight: '500',
+                        lineHeight: 24,
+                        width: 40,
+                        paddingVertical: 14,
                         textAlign: 'right',
                         color: !isWrong ? Theme.textSubtitle : '#FF274E',
                     }}
@@ -150,7 +161,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                         tref.current?.focus();
                     }}
                 >
-                    {(props.index + 1)}.
+                    {(props.index + 1)}:
                 </Text>
                 {Platform.OS === 'android' && (
                     <TouchableOpacity onPress={tref.current?.focus} activeOpacity={1} >
@@ -162,7 +173,9 @@ export const WordInput = React.memo(React.forwardRef((props: {
                                 paddingLeft: 26,
                                 paddingRight: 48,
                                 flexGrow: 1,
-                                fontSize: 16,
+                                fontSize: 17,
+                                lineHeight: 24,
+                                fontWeight: '400',
                                 color: !isWrong ? '#000' : '#FF274E'
                             }}
                             value={props.value}
@@ -214,7 +227,6 @@ export const WordInput = React.memo(React.forwardRef((props: {
 }));
 
 export const WalletImportFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
@@ -234,7 +246,7 @@ export const WalletImportFragment = systemFragment(() => {
                         alignItems: 'center', justifyContent: 'center', flexGrow: 1,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
-                    key="loading"
+                    key={'loading'}
                     exiting={FadeOutDown}
                 >
                     <AndroidToolbar />
@@ -244,7 +256,7 @@ export const WalletImportFragment = systemFragment(() => {
             {state && (
                 <Animated.View
                     style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
-                    key="content"
+                    key={'content'}
                     entering={FadeIn}
                 >
                     <WalletSecurePasscodeComponent

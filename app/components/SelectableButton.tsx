@@ -28,7 +28,7 @@ export const SelectableButton = React.memo((
         <Animated.View entering={FadeIn} exiting={FadeOut}>
             <Pressable
                 style={{
-                    backgroundColor: '#F7F8F9',
+                    backgroundColor: Theme.lightGrey,
                     padding: 20,
                     marginBottom: 16,
                     borderRadius: 20,
@@ -57,7 +57,7 @@ export const SelectableButton = React.memo((
                         style={{
                             flexShrink: 1,
                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                            color: '#838D99',
+                            color: Theme.darkGrey,
                         }}
                     >
                         {subtitle}
@@ -67,7 +67,7 @@ export const SelectableButton = React.memo((
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 24, width: 24,
-                        backgroundColor: selected ? Theme.accent : '#E4E6EA',
+                        backgroundColor: selected ? Theme.accent : Theme.mediumGrey,
                         borderRadius: 12
                     }}>
                         {selected && (

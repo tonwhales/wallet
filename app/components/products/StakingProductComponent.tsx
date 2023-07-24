@@ -15,7 +15,6 @@ const style: StyleProp<ViewStyle> = {
     height: 84,
     borderRadius: 20,
     marginVertical: 4,
-    backgroundColor: '#F7F8F9',
     padding: 20
 }
 
@@ -60,7 +59,7 @@ export const StakingProductComponent = React.memo(() => {
             <TouchableHighlight
                 onPress={() => navigation.navigate('StakingPools')}
                 underlayColor={Theme.selector}
-                style={style}
+                style={[style, { backgroundColor: Theme.lightGrey }]}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={icStyle}>
@@ -82,7 +81,7 @@ export const StakingProductComponent = React.memo(() => {
                             >
                                 {t('products.staking.title')}
                             </Text>
-                            <Text style={{ color: '#838D99', ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                            <Text style={{ color: Theme.darkGrey, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
                                 {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                             </Text>
                         </View>
@@ -101,7 +100,7 @@ export const StakingProductComponent = React.memo(() => {
                                     alignSelf: 'flex-end',
                                     height: undefined
                                 }}
-                                textStyle={{ color: '#838D99', ...subtitleStyle }}
+                                textStyle={{ color: Theme.darkGrey, ...subtitleStyle }}
                             />
                         </View>
                     </View>

@@ -242,7 +242,7 @@ export const ReceiveFragment = fragment(() => {
                     }}
                     body={link}
                     textStyle={{
-                        color: isDark ? '#F7F8F9' : '#808080',
+                        color: isDark ? 'white' : '#808080',
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
                     }}
@@ -255,7 +255,7 @@ export const ReceiveFragment = fragment(() => {
                     }}
                     body={link}
                     textStyle={{
-                        color: isDark ? '#F7F8F9' : '#808080',
+                        color: isDark ? 'white' : '#808080',
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
                     }}

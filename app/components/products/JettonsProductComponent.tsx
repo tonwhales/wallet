@@ -8,10 +8,12 @@ import Tokens from '../../../assets/ic-one.svg';
 import Collapsible from "react-native-collapsible";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
+import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 
 export const JettonsProductComponent = React.memo(() => {
     const engine = useEngine();
     const { Theme } = useAppConfig();
+    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const [collapsed, setCollapsed] = useState(true);
@@ -24,7 +26,7 @@ export const JettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: '#F7F8F9',
+                backgroundColor: Theme.lightGrey,
             }}>
                 {jettons.map((j, index) => {
                     return (
@@ -43,105 +45,108 @@ export const JettonsProductComponent = React.memo(() => {
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: '#F7F8F9',
+            backgroundColor: Theme.lightGrey,
         }}>
             <Pressable
-                style={({ pressed }) => {
-                    return {
-                        opacity: pressed ? 0.3 : 1,
+                onPress={() => {
+                    setCollapsed(!collapsed)
+                }}
+                onPressIn={onPressIn}
+                onPressOut={onPressOut}
+            >
+                <Animated.View style={[
+                    {
                         flexDirection: 'row',
                         justifyContent: 'center',
                         overflow: 'hidden',
                         padding: 20,
-                    }
-                }}
-                onPress={() => {
-                    setCollapsed(!collapsed)
-                }}
-            >
-                <View style={{
-                    height: 46, width: 46,
-                    borderRadius: 23,
-                    marginRight: 12,
-                    justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: Theme.accent
-                }}>
-                    <View style={{ height: 32, width: 32 }}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
-                            <View style={{
-                                height: 17, width: 17,
-                                position: 'absolute',
-                                top: 3, right: 3,
-                                backgroundColor: 'white',
-                                borderRadius: 9
-                            }} />
-                            <View style={{
-                                height: 24, width: 24,
-                                position: 'absolute',
-                                bottom: 3, left: 3,
-                                backgroundColor: Theme.accent,
-                                borderRadius: 12
-                            }} />
-                            <Tokens
-                                height={20} width={20}
-                                style={{ height: 20, width: 20, position: 'absolute', bottom: 3, left: 3 }}
-                                color={'white'}
-                            />
+                    },
+                    animatedStyle
+                ]}>
+                    <View style={{
+                        height: 46, width: 46,
+                        borderRadius: 23,
+                        marginRight: 12,
+                        justifyContent: 'center', alignItems: 'center',
+                        backgroundColor: Theme.accent
+                    }}>
+                        <View style={{ height: 32, width: 32 }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
+                                <View style={{
+                                    height: 17, width: 17,
+                                    position: 'absolute',
+                                    top: 3, right: 3,
+                                    backgroundColor: 'white',
+                                    borderRadius: 9
+                                }} />
+                                <View style={{
+                                    height: 24, width: 24,
+                                    position: 'absolute',
+                                    bottom: 3, left: 3,
+                                    backgroundColor: Theme.accent,
+                                    borderRadius: 12
+                                }} />
+                                <Tokens
+                                    height={20} width={20}
+                                    style={{ height: 20, width: 20, position: 'absolute', bottom: 3, left: 3 }}
+                                    color={'white'}
+                                />
+                            </View>
                         </View>
                     </View>
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 17,
-                        lineHeight: 24,
-                        color: Theme.textColor,
+                    <View style={{ flex: 1 }}>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 17,
+                            lineHeight: 24,
+                            color: Theme.textColor,
+                        }}>
+                            {t('jetton.productButtonTitle', { count: jettons.length })}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 15,
+                            lineHeight: 20,
+                            color: Theme.darkGrey
+                        }}>
+                            {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })}
+                        </Text>
+                    </View>
+                    <View style={{
+                        backgroundColor: Theme.accent,
+                        borderRadius: 16,
+                        alignSelf: 'center',
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
                     }}>
-                        {t('jetton.productButtonTitle', { count: jettons.length })}
-                    </Text>
-                    <Text style={{
-                        fontWeight: '400',
-                        fontSize: 15,
-                        lineHeight: 20,
-                        color: '#838D99'
-                    }}>
-                        {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })}
-                    </Text>
-                </View>
-                <View style={{
-                    backgroundColor: Theme.accent,
-                    borderRadius: 16,
-                    alignSelf: 'center',
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                }}>
-                    {collapsed && (
-                        <Animated.Text
-                            style={{
-                                color: 'white',
-                                fontWeight: '500',
-                                fontSize: 15,
-                                lineHeight: 20,
-                            }}
-                            entering={FadeIn}
-                        >
-                            {collapsed ? t('common.showAll') : t('common.hideAll')}
-                        </Animated.Text>
-                    )}
-                    {!collapsed && (
-                        <Animated.Text
-                            style={{
-                                color: 'white',
-                                fontWeight: '500',
-                                fontSize: 15,
-                                lineHeight: 20,
-                            }}
-                            entering={FadeIn}
-                        >
-                            {t('common.hideAll')}
-                        </Animated.Text>
-                    )}
-                </View>
+                        {collapsed && (
+                            <Animated.Text
+                                style={{
+                                    color: 'white',
+                                    fontWeight: '500',
+                                    fontSize: 15,
+                                    lineHeight: 20,
+                                }}
+                                entering={FadeIn}
+                            >
+                                {collapsed ? t('common.showAll') : t('common.hideAll')}
+                            </Animated.Text>
+                        )}
+                        {!collapsed && (
+                            <Animated.Text
+                                style={{
+                                    color: 'white',
+                                    fontWeight: '500',
+                                    fontSize: 15,
+                                    lineHeight: 20,
+                                }}
+                                entering={FadeIn}
+                            >
+                                {t('common.hideAll')}
+                            </Animated.Text>
+                        )}
+                    </View>
+                </Animated.View>
             </Pressable>
             <AnimatedChildrenCollapsible
                 collapsed={collapsed}
@@ -157,6 +162,6 @@ export const JettonsProductComponent = React.memo(() => {
                     )
                 }}
             />
-        </View>
+        </View >
     );
 });

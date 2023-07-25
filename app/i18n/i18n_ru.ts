@@ -730,7 +730,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         ledger: 'Ledger',
         title: 'Подключить Ledger',
         description: 'Ваш аппаратный Ledger кошелёк',
-        // If this is your first time, then you can read
         installation: 'Если это ваш первый раз, то вы можете прочитать',
         installationGuide: 'Руководство по подключению TON Ledger',
         connectionDescriptionAndroid: 'Подключите ваш Ledger через USB или Bluetooth',
@@ -744,7 +743,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         bluetoothScanDescription_3_and: '3. Нажмите \"Начать поиск\" для поиска доступных устройств (нам потребуется доступ к данным о местоположении устройства и разрешение на поиск устройств рядом)',
         bluetoothScanDescription_4_and: '4. Далее выберите подходящий Ledger Nano X',
         openAppVerifyAddress: 'Проверьте адрес счета, который вы выбрали, а затем подтвердите адрес с помощью приложения Ton App на Ledger, когда появится запрос',
-        devices: 'Устройства',
+        devices: 'Ваши устройства',
         actions: {
             connect: 'Подключить Ledger',
             selectAccount: 'Выбрать аккаунт',

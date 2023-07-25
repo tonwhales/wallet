@@ -742,7 +742,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bluetoothScanDescription_3_and: '3. Press \"Scan\" to search for available devices (we will need access to device location data and permission to search for nearby devices)',
         bluetoothScanDescription_4_and: '4. Then select suitable Ledger Nano X',
         openAppVerifyAddress: 'Check the account address that you have selected and then verify the address with the Ledger Ton App when prompted',
-        devices: 'Devices',
+        devices: 'Your devices',
         actions: {
             connect: 'Connect Ledger',
             selectAccount: 'Select account',

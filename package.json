@@ -53,7 +53,7 @@
     "expo-asset": "~8.9.1",
     "expo-barcode-scanner": "^12.5.3",
     "expo-blur": "~12.2.2",
-    "expo-camera": "13.2.0",
+    "expo-camera": "^13.4.2",
     "expo-constants": "~14.2.1",
     "expo-crypto": "^12.2.1",
     "expo-device": "~5.2.1",

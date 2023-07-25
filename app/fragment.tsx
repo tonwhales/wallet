@@ -7,7 +7,6 @@ import { useRoute } from '@react-navigation/native';
 import { useTrackScreen } from './analytics/mixpanel';
 import { useAppConfig } from './utils/AppConfigContext';
 import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
-import { LedgerTransportProvider } from './fragments/ledger/components/LedgerTransportProvider';
 
 export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?: boolean): React.ComponentType<T> {
     return React.memo((props) => {
@@ -24,11 +23,9 @@ export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?:
             return (
                 <GlobalLoaderProvider>
                     <AuthWalletKeysContextProvider>
-                        <LedgerTransportProvider>
-                            <PriceLoader>
-                                <Component {...props} />
-                            </PriceLoader>
-                        </LedgerTransportProvider>
+                        <PriceLoader>
+                            <Component {...props} />
+                        </PriceLoader>
                     </AuthWalletKeysContextProvider>
                 </GlobalLoaderProvider>
             );

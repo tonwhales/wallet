@@ -6,6 +6,7 @@ import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
 import { AppConfigContextProvider } from './utils/AppConfigContext';
 import { AppStateManagerLoader } from './engine/AppStateManager';
+import { LedgerTransportProvider } from './fragments/ledger/components/LedgerTransportProvider';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);
@@ -23,7 +24,9 @@ export const Root = React.memo(() => {
                 <AppConfigContextProvider>
                     <RecoilRoot>
                         <AppStateManagerLoader>
-                            <Navigation />
+                            <LedgerTransportProvider>
+                                <Navigation />
+                            </LedgerTransportProvider>
                         </AppStateManagerLoader>
                     </RecoilRoot>
                 </AppConfigContextProvider>

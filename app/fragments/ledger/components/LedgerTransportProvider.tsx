@@ -24,14 +24,15 @@ export type BLESearchState =
     | null;
 
 type BleSearchAction =
-    | { type: 'ongoing' }
     | { type: 'add', device: any }
     | { type: 'error' }
     | { type: 'complete' }
     | { type: 'start' }
     | { type: 'permissions-failed' }
+    | { type: 'reset'}
 
 const bleSearchStateReducer = (state: BLESearchState, action: BleSearchAction): BLESearchState => {
+    console.log(action);
     switch (action.type) {
         case 'start':
             return {
@@ -63,7 +64,7 @@ const bleSearchStateReducer = (state: BLESearchState, action: BleSearchAction): 
     }
 }
 
-export const TransportContext = React.createContext<
+const TransportContext = React.createContext<
     {
         ledgerConnection: TypedTransport | null,
         setLedgerConnection: (transport: TypedTransport | null) => void,
@@ -78,7 +79,6 @@ export const TransportContext = React.createContext<
 >(null);
 
 export const LedgerTransportProvider = ({ children }: { children: React.ReactNode }) => {
-    const navigation = useTypedNavigation();
     const engine = useEngine();
     const [ledgerConnection, setLedgerConnection] = useState<TypedTransport | null>(null);
     const [tonTransport, setTonTransport] = useState<TonTransport | null>(null);
@@ -90,6 +90,8 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
         setLedgerConnection(null);
         setTonTransport(null);
         setAddr(null);
+        setSearch(0);
+        dispatchBleState({ type: 'reset'});
     }, []);
 
     const onSetLedgerConnecton = useCallback((connection: TypedTransport | null) => {
@@ -100,7 +102,7 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
         Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
             text: t('common.back'),
             onPress: () => {
-                navigation.popToTop();
+                reset();
             }
         }]);
     }, []);
@@ -122,10 +124,12 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
     }, []);
 
     const startBleSearch = useCallback(async () => {
+        console.log('new search');
         setSearch(bleSearch + 1);
     }, [bleSearch]);
 
     useEffect(() => {
+        if (!bleSearch) return;
         let powerSub: Subscription;
         let sub: Subscription;
         const scan = async () => {
@@ -255,6 +259,6 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
     );
 };
 
-export function useTransport() {
+export function useLedgerTransport() {
     return React.useContext(TransportContext);
 }

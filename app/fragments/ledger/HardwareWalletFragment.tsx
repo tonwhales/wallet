@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Platform, View, Text, Pressable, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,39 +9,42 @@ import { RoundButton } from "../../components/RoundButton";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useDimensions } from "@react-native-community/hooks";
-import { useTransport } from "./components/LedgerTransportProvider";
-import TransportHID from "@ledgerhq/react-native-hid";
-
-type BLEState = { type: 'ongoing' } | { type: 'completed', success: boolean } | { type: 'permissions-failed' }
+import { useLedgerTransport } from "./components/LedgerTransportProvider";
 
 export const HardwareWalletFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const dimentions = useDimensions().window;
+    const ledgerContext = useLedgerTransport();
 
     const [searching, setSearching] = useState(false);
 
-    const ledgerContext = useTransport();
-
     const searchHID = useCallback(async () => {
-        try {
+        setSearching(true);
+        await ledgerContext?.startHIDSearch();
+        setSearching(false);
+    }, [ledgerContext]);
+
+    const searchBLE = useCallback(() => {
+        ledgerContext?.startBleSearch();
+    }, [ledgerContext]);
+
+    useEffect(() => {
+        if (ledgerContext?.bleSearchState?.type === 'ongoing') {
             setSearching(true);
-            let hid = await TransportHID.create();
-            ledgerContext?.setLedgerConnection({ type: 'hid', transport: hid });
+            if (ledgerContext.bleSearchState.devices.length > 0) {
+                navigation.navigate('LedgerDeviceSelection');
+                setSearching(false);
+            }
+        } else if (ledgerContext?.bleSearchState?.type === 'completed' && ledgerContext.bleSearchState.success) {
+            navigation.navigate('LedgerDeviceSelection');
             setSearching(false);
-        } catch (e) {
+        } else {
             setSearching(false);
         }
-    }, [ledgerContext]);
+    }, [ledgerContext?.bleSearchState]);
 
-    const [scan, setScan] = useState<BLEState>();
-    const [devices, setDevices] = useState([]);
-
-    const searchBLE = useCallback(async () => {
-        setScan({ type: 'ongoing' });
-    }, [ledgerContext]);
+    console.log(ledgerContext?.bleSearchState, searching);
 
     return (
         <View style={{
@@ -110,35 +113,24 @@ export const HardwareWalletFragment = fragment(() => {
                 </View>
                 <View style={{ flexGrow: 1 }} />
                 {Platform.OS === 'android' && (
-                    <>
-                        <RoundButton
-                            title={t('hardwareWallet.actions.connectHid')}
-                            action={searchHID}
-                            style={{
-                                width: '100%',
-                                marginVertical: 4
-                            }}
-                        />
-                        <RoundButton
-                            title={t('hardwareWallet.actions.connectBluetooth')}
-                            onPress={() => navigation.navigate('LedgerBle')}
-                            style={{
-                                width: '100%',
-                                marginVertical: 4
-                            }}
-                        />
-                    </>
-                )}
-                {Platform.OS === 'ios' && (
                     <RoundButton
-                        title={t('hardwareWallet.actions.connect')}
-                        onPress={() => navigation.navigate('LedgerBle')}
+                        title={t('hardwareWallet.actions.connectHid')}
+                        action={searchHID}
                         style={{
                             width: '100%',
                             marginVertical: 4
                         }}
                     />
                 )}
+                <RoundButton
+                    title={Platform.OS === 'android' ? t('hardwareWallet.actions.connectBluetooth') : t('hardwareWallet.actions.connect')}
+                    onPress={searchBLE}
+                    loading={searching}
+                    style={{
+                        width: '100%',
+                        marginVertical: 4
+                    }}
+                />
             </View>
         </View>
     );

@@ -74,6 +74,8 @@ import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 import { LedgerTransactionPreviewFragment } from './fragments/ledger/LedgerTransactionPreviewFragment';
+import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSelectionFragment';
+import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -202,10 +204,10 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Ledger
     modalScreen('HardwareWallet', HardwareWalletFragment, safeArea),
-    lockedModalScreen('LedgerHID', LedgerHIDFragment, safeArea),
-    lockedModalScreen('LedgerBle', LedgerBleFragment, safeArea),
+    lockedModalScreen('LedgerDeviceSelection', LedgerDeviceSelectionFragment, safeArea),
+    lockedModalScreen('LedgerSelectAccount', LedgerSelectAccountFragment, safeArea),
     lockedModalScreen('LedgerApp', LedgerAppFragment,safeArea),
-    modalScreen('LedgerTransfer', LedgerTransferFragment,safeArea ),
+    modalScreen('LedgerTransfer', LedgerTransferFragment,safeArea),
     modalScreen('LedgerReceive', ReceiveFragment,safeArea),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment, safeArea),

@@ -26,6 +26,7 @@ export const accountStateCodec = t.union([
         notificationSettings: t.type({
             enabled: t.boolean,
         }),
+        suspended: t.boolean,
     }),
     t.type({
         state: t.union([
@@ -36,6 +37,7 @@ export const accountStateCodec = t.union([
         notificationSettings: t.type({
             enabled: t.boolean,
         }),
+        suspended: t.boolean,
     }),
 ]);
 

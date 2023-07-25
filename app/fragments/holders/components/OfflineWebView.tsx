@@ -89,7 +89,6 @@ export const OfflineWebView = React.memo(React.forwardRef((
                         baseUrl: props.baseUrl,
                     }}
                     onLoad={(e) => {
-                        setRenderedOnce(true);
                         if (props.onLoad) {
                             props.onLoad(e);
                         }

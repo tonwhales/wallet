@@ -5,14 +5,15 @@ import { AccountState, fetchAccountState } from "../api/holders/fetchAccountStat
 import { fetchAccountToken } from "../api/holders/fetchAccountToken";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
+import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
 import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
-import { HoldersOfflineApp, fetchHoldersResourceMap } from "../api/holders/fetchAppFile";
+import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
-import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
-import * as t from 'io-ts';
+import * as Application from 'expo-application';
+import { fetchCardsTransactions } from "../api/holders/fetchCardsTransactions";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
@@ -49,16 +50,21 @@ export class HoldersProduct {
     readonly engine: Engine;
     readonly #lock = new AsyncLock();
     watcher: null | (() => void) = null;
+    stableOfflineVersion: string | null = null;
+
+    //TODO: REMOVE THIS, DEV DEMO ONLY
+    devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
 
     constructor(engine: Engine) {
         this.engine = engine;
-
-        this.syncOfflineApp();
 
         if (storage.getNumber('zenpay-token-version') !== currentTokenVersion) {
             this.cleanup();
         }
         storage.set('zenpay-token-version', currentTokenVersion);
+
+        this.doSync();
+        this.offlinePreFlight();
     }
 
     async enroll(domain: string, authContext: AuthWalletKeysType) {
@@ -81,20 +87,26 @@ export class HoldersProduct {
                 return true;
             } else {
                 //
-                // Create sign
+                // Create signnature and fetch token
                 //
 
-                let contract = contractFromPublicKey(this.engine.publicKey);
-                let signed = this.engine.products.keys.createDomainSignature(domain);
-                let token = await fetchAccountToken({
-                    address: contract.address.toFriendly({ testOnly: this.engine.isTestnet }),
-                    walletConfig: contract.source.backup(),
-                    walletType: contract.source.type,
-                    time: signed.time,
-                    signature: signed.signature,
-                    subkey: signed.subkey
-                }, this.engine.isTestnet);
-                this.setToken(token);
+                try {
+                    let contract = contractFromPublicKey(this.engine.publicKey);
+                    let signed = this.engine.products.keys.createDomainSignature(domain);
+                    let token = await fetchAccountToken({
+                        address: contract.address.toFriendly({ testOnly: this.engine.isTestnet }),
+                        walletConfig: contract.source.backup(),
+                        walletType: contract.source.type,
+                        time: signed.time,
+                        signature: signed.signature,
+                        subkey: signed.subkey
+                    }, this.engine.isTestnet);
+
+                    this.setToken(token);
+                } catch {
+                    this.deleteToken();
+                    throw Error('Failed to create signature and fetch token');
+                }
             }
 
             return true;
@@ -169,6 +181,31 @@ export class HoldersProduct {
         }
     }
 
+    useCardsTransactions(id: string) {
+        return useRecoilValue(this.engine.persistence.holdersCardTransactions.item(id).atom);
+    }
+
+    async syncCardsTransactions() {
+        const status = this.engine.persistence.holdersStatus.item(this.engine.address).value;
+        if (!status || status.state !== 'ok') {
+            return;
+        }
+        const cards = this.engine.persistence.holdersCards.item(this.engine.address).value?.accounts;
+        if (!cards) {
+            return;
+        }
+
+        const token = status.token;
+        await Promise.all(cards.map(async (card) => {
+            const cardRes = await fetchCardsTransactions(token, card.id);
+            if (cardRes) {
+                this.engine.persistence.holdersCardTransactions.item(card.id).update((src) => {
+                    return cardRes;
+                });
+            }
+        }));
+    }
+
     stopWatching() {
         if (this.watcher) {
             this.watcher();
@@ -177,18 +214,19 @@ export class HoldersProduct {
     }
 
     watch(token: string) {
-        this.watcher = watchHoldersAccountUpdates(token, () => {
-            this.syncAccounts();
+        this.watcher = watchHoldersAccountUpdates(token, (event) => {
+            if (
+                event.type === 'error'
+                && event.message === 'invalid_token'
+                || event.message === 'state_change'
+            ) {
+                this.doSync();
+            }
+            if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
+                this.syncAccounts();
+                this.syncCardsTransactions();
+            }
         });
-    }
-
-    async cleanup() {
-        this.deleteToken();
-        this.stopWatching();
-        this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
-            return null;
-        });
-        this.engine.persistence.holdersStatus.item(this.engine.address).update((src) => null);
     }
 
     deleteToken() {
@@ -201,6 +239,13 @@ export class HoldersProduct {
 
     getToken() {
         return storage.getString(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`);
+    }
+
+    async cleanup() {
+        this.deleteToken();
+        this.stopWatching();
+        this.engine.persistence.holdersState.item(this.engine.address).update((src) => null);
+        this.engine.persistence.holdersStatus.item(this.engine.address).update((src) => null);
     }
 
     async doSync() {
@@ -260,6 +305,7 @@ export class HoldersProduct {
                         }
                         if (account?.state === 'need-phone') {
                             if (src?.state !== 'need-phone') {
+                                return { ...account, token: token };
                             }
                         }
                         if (account?.state === 'need-kyc') {
@@ -283,6 +329,7 @@ export class HoldersProduct {
 
             // Initial sync
             await this.syncAccounts();
+            await this.syncCardsTransactions();
 
             // Start watcher if ready
             if (targetStatus.value?.state === 'ok' && !this.watcher) {
@@ -312,15 +359,15 @@ export class HoldersProduct {
         return fsPath;
     }
 
-    async syncOfflineRes(endpoint: string, app: HoldersOfflineApp) {
-        const normalizedVersion = normalizePath(app.version);
+    async syncOfflineRes(endpoint: string, resMap: HoldersOfflineResMap) {
+        const normalizedVersion = normalizePath(resMap.version);
         const hasAppDirectory = await FileSystem.getInfoAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`);
         if (!hasAppDirectory.exists) {
             await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + `holders${normalizedVersion}`, { intermediates: true });
         }
 
         let uri = null;
-        if (app.routes.length > 0 && app.routes[0].fileName === 'index.html') {
+        if (resMap.routes.length > 0 && resMap.routes[0].fileName === 'index.html') {
             uri = FileSystem.documentDirectory + `holders${normalizedVersion}/index.html`;
             const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
             uri = stored.uri;
@@ -332,7 +379,7 @@ export class HoldersProduct {
             await FileSystem.writeAsStringAsync(uri, file);
         }
 
-        const assets = app.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset, normalizedVersion));
+        const assets = resMap.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset, normalizedVersion));
         const downloadedAssets = await Promise.all(assets);
 
         return { uri, assets: downloadedAssets };
@@ -355,10 +402,11 @@ export class HoldersProduct {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
                 if (prevState) {
-                    this.cleanupPrevOfflineApp(prevState);
+                    this.cleanupPrevOfflineRes(prevState);
                 }
                 return fetchedApp;
             });
+            return fetchedApp;
         } catch {
             warn('Failed to sync offline app');
             return;
@@ -372,14 +420,16 @@ export class HoldersProduct {
             return;
         }
 
+        this.stableOfflineVersion = null;
         try {
             await this.syncOfflineRes(holdersUrl, fetchedApp);
             this.engine.persistence.holdersOfflineApp.item().update((prevState) => {
                 if (prevState) {
-                    this.cleanupPrevOfflineApp(prevState);
+                    this.cleanupPrevOfflineRes(prevState);
                 }
                 return fetchedApp;
             });
+            this.stableOfflineVersion = fetchedApp.version;
         } catch {
             warn('Failed to sync offline app');
             return;
@@ -387,38 +437,51 @@ export class HoldersProduct {
     }
 
     getPrevOfflineVersion() {
-        return storage.getString('holders-prev-version');
+        const stored = storage.getString('holders-prev-resource-map');
+        if (!stored) {
+            return null;
+        }
+        const parsed = JSON.parse(stored);
+        if (!holdersOfflineAppCodec.is(parsed)) {
+            return null;
+        }
+        return parsed;
     }
 
-    storePrevOfflineVersion(prev: string) {
-        storage.set('holders-prev-version', prev);
+    storePrevOfflineVersion(prev: HoldersOfflineResMap) {
+        storage.set('holders-prev-resource-map', JSON.stringify(prev));
     }
 
-    async cleanupPrevOfflineApp(prevAppState: HoldersOfflineApp) {
-        const prevVersion = this.getPrevOfflineVersion();
+    async cleanupPrevOfflineRes(prevResMap: HoldersOfflineResMap) {
+        const stored = this.getPrevOfflineVersion();
 
-        this.storePrevOfflineVersion(prevAppState.version);
+        this.storePrevOfflineVersion(prevResMap);
 
-        if (!prevVersion) {
+        if (!stored) {
             return;
         }
-        const appDir = FileSystem.documentDirectory + `holders${normalizePath(prevVersion)}`;
+
+        const appDir = FileSystem.documentDirectory + `holders${normalizePath(stored.version)}`;
         const hasAppDirectory = await FileSystem.getInfoAsync(appDir);
         if (hasAppDirectory.exists) {
             await FileSystem.deleteAsync(appDir, { idempotent: true });
         }
     }
 
-    async checkOfflineApp() {
-        const offlineApp = this.engine.persistence.holdersOfflineApp.item().value;
-
-        if (!offlineApp) {
+    async checkCurrentOfflineVersion() {
+        const stored = this.engine.persistence.holdersOfflineApp.item().value;
+        if (!stored) {
             return false;
         }
-        const normalizedPath = normalizePath(offlineApp.version);
+
+        return this.isOfflineAppReady(stored);
+    }
+
+    async isOfflineAppReady(resMap: HoldersOfflineResMap) {
+        const normalizedPath = normalizePath(resMap.version);
 
         const filesCheck: Promise<boolean>[] = [];
-        offlineApp.resources.forEach((asset) => {
+        resMap.resources.forEach((asset) => {
             filesCheck.push((async () => {
                 const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/${asset}`);
                 return info.exists;
@@ -434,9 +497,35 @@ export class HoldersProduct {
         const ready = files.every((f) => f);
 
         if (ready) {
-            return { version: offlineApp.version };
+            return { version: resMap.version };
         }
 
         return false;
+    }
+
+    wasNativeAppUpdated() {
+        return storage.getString('app-last-offline-sync-app-version') !== Application.nativeApplicationVersion;
+    }
+
+    setLastOfflineResSyncAppVersion(appVersion: string | null) {
+        if (appVersion) {
+            storage.set('app-last-offline-sync-app-version', appVersion);
+        }
+    }
+
+    async offlinePreFlight() {
+        const ready = await this.checkCurrentOfflineVersion();
+        if (ready) {
+            this.stableOfflineVersion = ready.version;
+        }
+        const resMap = await this.syncOfflineApp();
+        if (resMap) {
+            this.stableOfflineVersion = resMap.version;
+        }
+
+        if (this.wasNativeAppUpdated()) {
+            await this.forceSyncOfflineApp();
+            this.setLastOfflineResSyncAppVersion(Application.nativeApplicationVersion);
+        }
     }
 }

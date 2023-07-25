@@ -27,15 +27,20 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const offlineApp = engine.products.holders.useOfflineApp();
+
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
-    const [prevOfflineAppVersion, setPrevOfflineAppVersion] = useState<string>();
+    const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
 
     useEffect(() => {
         (async () => {
-            const ready = await engine.products.holders.checkOfflineApp();
+            const ready = await engine.products.holders.checkCurrentOfflineVersion();
             setOfflineAppReady(ready);
-            setPrevOfflineAppVersion(engine.products.holders.getPrevOfflineVersion());
-        })();
+            const prev = await engine.products.holders.getPrevOfflineVersion();
+            if (prev) {
+                const prevReady = await engine.products.holders.isOfflineAppReady(prev);
+                setPrevOfflineVersion(prevReady ? prev : false);
+            }
+        })()
     }, [offlineApp]);
 
     const reboot = useReboot();
@@ -153,29 +158,22 @@ export const DeveloperToolsFragment = fragment(() => {
                     flexShrink: 1,
                 }}>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp?.version ?? 'N/A'} />
-                    </View>
-                    <View style={{ paddingHorizontal: 16, width: '100%' }}>
-                        <Text style={{
-                            marginLeft: 13,
-                            lineHeight: 24, fontSize: 17,
-                            textAlignVertical: 'center',
-                            textAlign: 'right',
-                            color: Theme.textSecondary,
-                        }}>
-                            {`${t('transactions.history')}: ${prevOfflineAppVersion ?? 'N/A'}`}
-                        </Text>
+                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
                     </View>
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={'Offline integrity check:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                        <ItemButton title={'Offline integrity:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
                     </View>
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
                             const app = engine.persistence.holdersOfflineApp.item().value;
                             if (app) {
-                                engine.products.holders.cleanupPrevOfflineApp(app);
+                                engine.products.holders.cleanupPrevOfflineRes(app);
                             }
                             engine.persistence.holdersOfflineApp.item().update(() => null);
                             await engine.products.holders.forceSyncOfflineApp();

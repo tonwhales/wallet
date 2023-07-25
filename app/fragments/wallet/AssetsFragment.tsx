@@ -14,7 +14,7 @@ import { WImage } from "../../components/WImage";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useTransport } from "../ledger/components/LedgerTransportProvider";
+import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 
 import Verified from '../../../assets/ic-verified.svg';
 import TonIcon from '../../../assets/ic_ton_account.svg';
@@ -33,7 +33,7 @@ export const AssetsFragment = fragment(() => {
     const route = useRoute();
     const isLedgerScreen = route.name === 'LedgerAssets';
 
-    const ledgerTransport = useTransport();
+    const ledgerTransport = useLedgerTransport();
     const address = useMemo(() => {
         if (isLedgerScreen && !!ledgerTransport?.addr) {
             return Address.parse(ledgerTransport.addr.address);

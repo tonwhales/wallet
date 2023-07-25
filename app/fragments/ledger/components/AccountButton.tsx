@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable, View, Text, ActivityIndicator } from "react-native";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { t } from "../../../i18n/t";
-import { LedgerAccount } from "./LedgerSelectAccount";
+import { LedgerAccount } from "../LedgerSelectAccountFragment";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: LedgerAccount, onSelect: (acc: LedgerAccount) => Promise<any>, loadingAcc?: number }) => {

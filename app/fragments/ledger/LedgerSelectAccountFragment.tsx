@@ -4,24 +4,25 @@ import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { useEngine } from "../../../engine/Engine";
-import { t } from "../../../i18n/t";
-import { warn } from "../../../utils/log";
-import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { AccountButton } from "./AccountButton";
-import { useTransport } from "./LedgerTransportProvider";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { LoadingIndicator } from "../../components/LoadingIndicator";
+import { useEngine } from "../../engine/Engine";
+import { t } from "../../i18n/t";
+import { warn } from "../../utils/log";
+import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { AccountButton } from "./components/AccountButton";
+import { useLedgerTransport } from "./components/LedgerTransportProvider";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { fragment } from "../../fragment";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
-export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => void }) => {
+export const LedgerSelectAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
-    const { tonTransport, setAddr, addr } = useTransport();
+    const { tonTransport, setAddr, addr } = useLedgerTransport();
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, Image } from "react-native";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 
@@ -37,10 +37,11 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    backgroundColor: Theme.item
+                    backgroundColor: Theme.lightGrey
                 }
             }}
         >
+            <Image source={require('../../../../assets/ledger_device.png')} />
             <Text style={{
                 fontSize: 18,
                 fontWeight: '600'

@@ -28,7 +28,7 @@ import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { TransactionDescription } from "../../engine/products/WalletProduct";
-import { useTransport } from "./components/LedgerTransportProvider";
+import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
@@ -524,7 +524,7 @@ export const LedgerTransactionPreviewFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const engine = useEngine();
     const params = useParams<{ transaction: string }>();
-    const { addr } = useTransport();
+    const { addr } = useLedgerTransport();
     const address = React.useMemo(() => {
         return Address.parse(addr!.address);
     }, []);

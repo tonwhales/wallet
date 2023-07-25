@@ -77,10 +77,9 @@ export const LedgerSelectAccountFragment = fragment(() => {
     );
 
     useEffect(() => {
-        // if (!!addr) {
-        //     navigation.goBack();
-        //     navigation.navigateLedgerApp();
-        // }
+        if (!!ledgerContext?.addr) {
+            navigation.navigateLedgerApp();
+        }
     }, [ledgerContext?.addr]);
 
     return (

@@ -106,7 +106,7 @@ export class TypedNavigation {
     }
 
     navigateLedgerApp() {
-        this.navigate('LedgerApp');
+        this.navigateAndReplaceAll('LedgerApp');
     }
 
     navigateHolders(params: HoldersAppParams) {

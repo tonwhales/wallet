@@ -17,14 +17,14 @@ export type LedgerAppParams = {
 export const LedgerAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const { tonTransport, addr, setAddr } = useLedgerTransport();
+    const ledgerContext = useLedgerTransport();
 
-    useEffect(() => {
-        return () => {
-            setAddr(null);
-        }
-    }, []);
-
+    if (!ledgerContext?.tonTransport
+        || !ledgerContext.addr
+    ) {
+        navigation.navigateAndReplaceAll('Home')
+        return null;
+    }
 
     return (
         <View style={{
@@ -46,13 +46,11 @@ export const LedgerAppFragment = fragment(() => {
                     </Text>
                 </View>
             )}
-            {addr && tonTransport && (
-                <LedgerApp
-                    transport={tonTransport}
-                    account={addr.acc}
-                    address={addr}
-                />
-            )}
+            <LedgerApp
+                transport={ledgerContext.tonTransport}
+                account={ledgerContext.addr.acc}
+                address={ledgerContext.addr}
+            />
             <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );

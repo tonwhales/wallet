@@ -89,8 +89,6 @@ export const SimpleTransferFragment = fragment(() => {
             });
         }
 
-        console.log({ wallet, master });
-
         if (!master || !wallet) {
             return null;
         }

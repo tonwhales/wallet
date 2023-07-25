@@ -50,7 +50,6 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
@@ -68,8 +67,6 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetProvider } from './components/modal/BottomSheetModal';
 import { ChooseAvatarFragment } from './fragments/wallet/ChooseAvatarFragment';
 import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
-import { LedgerHIDFragment } from './fragments/ledger/LedgerHIDFragment';
-import { LedgerBleFragment } from './fragments/ledger/LedgerBleFragment';
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
@@ -176,7 +173,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Logout', LogoutFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
-    modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
     lockedModalScreen('Holders', HoldersAppFragment, safeArea),
@@ -203,7 +199,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('ChooseAvatar', ChooseAvatarFragment, safeArea),
 
     // Ledger
-    modalScreen('HardwareWallet', HardwareWalletFragment, safeArea),
+    modalScreen('Ledger', HardwareWalletFragment, safeArea),
     lockedModalScreen('LedgerDeviceSelection', LedgerDeviceSelectionFragment, safeArea),
     lockedModalScreen('LedgerSelectAccount', LedgerSelectAccountFragment, safeArea),
     lockedModalScreen('LedgerApp', LedgerAppFragment,safeArea),

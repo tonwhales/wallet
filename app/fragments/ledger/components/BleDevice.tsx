@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from "react";
-import { Pressable, Text, Image } from "react-native";
+import { Pressable, Text, Image, View } from "react-native";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import Chevron from '../../../../assets/ic-chevron-down.svg';
 
 export type LedgerDevice = {
     id: string,
@@ -29,19 +30,24 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
             style={({ pressed }) => {
                 return {
                     opacity: pressed ? 0.3 : 1,
-                    paddingVertical: 16,
-                    paddingHorizontal: 32,
+                    padding: 20,
                     marginVertical: 8,
                     marginHorizontal: 16,
                     borderRadius: 16,
                     flexDirection: "row",
                     alignItems: "center",
-                    justifyContent: "space-between",
                     backgroundColor: Theme.lightGrey
                 }
             }}
         >
-            <Image source={require('../../../../assets/ledger_device.png')} />
+            <Image
+                style={{
+                    width: 44,
+                    height: 44,
+                    marginRight: 12,
+                }}
+                source={require('../../../../assets/ledger_device.png')}
+            />
             <Text style={{
                 fontSize: 18,
                 fontWeight: '600'
@@ -49,7 +55,16 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
             >
                 {device.name}
             </Text>
-            {pending ? <LoadingIndicator simple /> : null}
+            <View style={{ flexGrow: 1 }} />
+            {pending ? <LoadingIndicator simple /> : (
+                <Chevron
+                    height={16} width={16}
+                    style={{
+                        height: 16, width: 16,
+                        transform: [{ rotate: '-90deg' }],
+                    }}
+                />
+            )}
         </Pressable>
     );
 });

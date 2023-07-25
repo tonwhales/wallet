@@ -14,6 +14,7 @@ import { AccountButton } from "./components/AccountButton";
 import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { fragment } from "../../fragment";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
@@ -22,14 +23,14 @@ export const LedgerSelectAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
-    const { tonTransport, setAddr, addr } = useLedgerTransport();
+    const ledgerContext = useLedgerTransport();
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
 
     useEffect(() => {
         (async () => {
-            if (!tonTransport) {
+            if (!ledgerContext?.tonTransport) {
                 return;
             }
             const proms: Promise<LedgerAccount>[] = [];
@@ -37,7 +38,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
                     const path = pathFromAccountNumber(i, AppConfig.isTestnet);
-                    const addr = await tonTransport.getAddress(path, { testOnly: AppConfig.isTestnet });
+                    const addr = await ledgerContext.tonTransport!.getAddress(path, { testOnly: AppConfig.isTestnet });
                     try {
                         const address = Address.parse(addr.address);
                         const liteAcc = await engine.client4.getAccountLite(seqno, address);
@@ -51,47 +52,58 @@ export const LedgerSelectAccountFragment = fragment(() => {
             setAccounts(res);
             setLoading(false);
         })();
-    }, [tonTransport]);
+    }, [ledgerContext?.tonTransport]);
 
     const onLoadAccount = React.useCallback(
         (async (acc: LedgerAccount) => {
-            if (!tonTransport) {
+            if (!ledgerContext?.tonTransport) {
                 Alert.alert(t('hardwareWallet.errors.noDevice'));
-                onReset();
+                ledgerContext?.setLedgerConnection(null);
                 return;
             }
             setSelected(acc.i);
             let path = pathFromAccountNumber(acc.i, AppConfig.isTestnet);
             try {
-                await tonTransport.validateAddress(path, { testOnly: AppConfig.isTestnet });
-                setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
+                await ledgerContext.tonTransport.validateAddress(path, { testOnly: AppConfig.isTestnet });
+                ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
                 setSelected(undefined);
             } catch (e) {
                 warn(e);
-                onReset();
+                // onReset();
                 setSelected(undefined);
             }
         }),
-        [tonTransport],
+        [ledgerContext?.tonTransport],
     );
 
     useEffect(() => {
-        if (!!addr) {
-            navigation.goBack();
-            navigation.navigateLedgerApp();
-        }
-    }, [addr]);
+        // if (!!addr) {
+        //     navigation.goBack();
+        //     navigation.navigateLedgerApp();
+        // }
+    }, [ledgerContext?.addr]);
 
     return (
         <View style={{
             flex: 1,
         }}>
+            <ScreenHeader
+                title={t('hardwareWallet.title')}
+                onBackPressed={navigation.goBack}
+            />
             <Text style={{
-                fontWeight: '600',
-                fontSize: 18,
                 color: Theme.textColor,
+                fontWeight: '600',
+                fontSize: 32, lineHeight: 38,
+                marginVertical: 16, marginHorizontal: 16
+            }}>
+                {ledgerContext?.tonTransport?.transport.deviceModel?.productName}
+            </Text>
+            <Text style={{
+                fontWeight: '400',
+                fontSize: 17, lineHeight: 24,
+                color: Theme.darkGrey,
                 marginBottom: 16,
-                textAlign: 'center',
                 marginHorizontal: 16
             }}>
                 {t('hardwareWallet.chooseAccountDescription')}
@@ -101,7 +113,61 @@ export const LedgerSelectAccountFragment = fragment(() => {
                 contentOffset={{ y: 16 + safeArea.top, x: 0 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
             >
-                {loading && (<LoadingIndicator simple />)}
+                {loading && (
+                    <>
+                        <View style={{
+                            height: 86,
+                            borderRadius: 20,
+                            backgroundColor: Theme.lightGrey,
+                            justifyContent: 'center', padding: 20,
+                            marginBottom: 16
+                        }}>
+                            <View style={{
+                                backgroundColor: 'white',
+                                borderRadius: 16, height: 16, width: '45%'
+                            }} />
+                            <View style={{
+                                backgroundColor: 'white',
+                                marginTop: 8,
+                                borderRadius: 16, height: 24, width: '60%'
+                            }} />
+                        </View>
+                        <View style={{
+                            height: 86,
+                            borderRadius: 20,
+                            backgroundColor: Theme.lightGrey,
+                            justifyContent: 'center', padding: 20,
+                            marginBottom: 16
+                        }}>
+                            <View style={{
+                                backgroundColor: 'white',
+                                borderRadius: 16, height: 16, width: '45%'
+                            }} />
+                            <View style={{
+                                backgroundColor: 'white',
+                                marginTop: 8,
+                                borderRadius: 16, height: 24, width: '60%'
+                            }} />
+                        </View>
+                        <View style={{
+                            height: 86,
+                            borderRadius: 20,
+                            backgroundColor: Theme.lightGrey,
+                            justifyContent: 'center', padding: 20,
+                            marginBottom: 16
+                        }}>
+                            <View style={{
+                                backgroundColor: 'white',
+                                borderRadius: 16, height: 16, width: '45%'
+                            }} />
+                            <View style={{
+                                backgroundColor: 'white',
+                                marginTop: 8,
+                                borderRadius: 16, height: 24, width: '60%'
+                            }} />
+                        </View>
+                    </>
+                )}
                 {accounts.map((acc) => <AccountButton key={acc.i} loadingAcc={selected} onSelect={onLoadAccount} acc={acc} />)}
                 <View style={{ height: 56 }} />
             </ScrollView>

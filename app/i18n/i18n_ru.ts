@@ -736,7 +736,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         connectionDescriptionIOS: 'Подключите ваш Ledger через Bluetooth',
         connectionHIDDescription_1: '1. Включите устройство и разблокируйте его',
         connectionHIDDescription_2: '2. Нажмите \"Продолжить\"',
-        chooseAccountDescription: 'Откройте приложение Ton App на вашем Ledger, затем выберите аккаунт, который вы хотите использовать',
+        chooseAccountDescription: 'Откройте приложение на вашем Ledger и выберите аккаунт, который вы хотите использовать',
         bluetoothScanDescription_1: '1. Включите устройство и разблокируйте его',
         bluetoothScanDescription_2: '2. Убедитесь, что bluetooth включен',
         bluetoothScanDescription_3: '3. Нажмите \"Начать поиск\" для поиска доступных устройств и выберите подходящий Ledger Nano X',

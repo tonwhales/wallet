@@ -44,8 +44,6 @@ export const HardwareWalletFragment = fragment(() => {
         }
     }, [ledgerContext?.bleSearchState]);
 
-    console.log(ledgerContext?.bleSearchState, searching);
-
     return (
         <View style={{
             flex: 1,

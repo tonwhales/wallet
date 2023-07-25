@@ -1,7 +1,7 @@
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/react-native-hid";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { memo, useCallback, useEffect, useReducer, useState } from "react";
 import { TonTransport } from "ton-ledger";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert, Platform } from "react-native";
@@ -13,9 +13,8 @@ import { warn } from "../../../utils/log";
 import { useEngine } from "../../../engine/Engine";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 
-export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
+export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
-
 export type BLESearchState =
     | { type: 'ongoing', devices: any[] }
     | { type: 'completed', success: true, devices: any[] }
@@ -29,10 +28,9 @@ type BleSearchAction =
     | { type: 'complete' }
     | { type: 'start' }
     | { type: 'permissions-failed' }
-    | { type: 'reset'}
+    | { type: 'reset' }
 
 const bleSearchStateReducer = (state: BLESearchState, action: BleSearchAction): BLESearchState => {
-    console.log(action);
     switch (action.type) {
         case 'start':
             return {
@@ -59,8 +57,8 @@ const bleSearchStateReducer = (state: BLESearchState, action: BleSearchAction): 
             return {
                 type: 'permissions-failed',
             }
-        default:
-            return state;
+        case 'reset':
+            return null;
     }
 }
 
@@ -78,7 +76,7 @@ const TransportContext = React.createContext<
     | null
 >(null);
 
-export const LedgerTransportProvider = ({ children }: { children: React.ReactNode }) => {
+export const LedgerTransportProvider = memo(({ children }: { children: React.ReactNode }) => {
     const engine = useEngine();
     const [ledgerConnection, setLedgerConnection] = useState<TypedTransport | null>(null);
     const [tonTransport, setTonTransport] = useState<TonTransport | null>(null);
@@ -91,7 +89,7 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
         setTonTransport(null);
         setAddr(null);
         setSearch(0);
-        dispatchBleState({ type: 'reset'});
+        dispatchBleState({ type: 'reset' });
     }, []);
 
     const onSetLedgerConnecton = useCallback((connection: TypedTransport | null) => {
@@ -120,16 +118,14 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
 
     const startHIDSearch = useCallback(async () => {
         let hid = await TransportHID.create();
-        setLedgerConnection({ type: 'hid', transport: hid });
+        setLedgerConnection({ type: 'hid', transport: hid, device: null });
     }, []);
 
     const startBleSearch = useCallback(async () => {
-        console.log('new search');
         setSearch(bleSearch + 1);
     }, [bleSearch]);
 
     useEffect(() => {
-        if (!bleSearch) return;
         let powerSub: Subscription;
         let sub: Subscription;
         const scan = async () => {
@@ -151,6 +147,7 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
             });
         }
         (async () => {
+            if (!bleSearch) return;
             if (Platform.OS === "android" && Platform.Version >= 23) {
                 const checkCoarse = await checkMultiple([
                     PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
@@ -257,7 +254,7 @@ export const LedgerTransportProvider = ({ children }: { children: React.ReactNod
             {children}
         </TransportContext.Provider>
     );
-};
+});
 
 export function useLedgerTransport() {
     return React.useContext(TransportContext);

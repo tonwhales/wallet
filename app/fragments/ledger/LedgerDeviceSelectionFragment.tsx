@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { View, Text, ScrollView } from "react-native";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import { t } from "../../i18n/t";
@@ -26,17 +26,30 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     const onDeviceSelect = useCallback(async (device: any) => {
         const transport = await TransportBLE.open(device.id);
-        ledgerContext?.setLedgerConnection({ type: 'ble', transport });
+        ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
     }, [ledgerContext]);
 
     const newScan = useCallback(() => {
-        console.log('new scan');
         ledgerContext?.startBleSearch();
     }, [ledgerContext]);
 
+    useEffect(() => {
+        newScan();
+    }, []);
+
+    useEffect(() => {
+        if (ledgerContext?.ledgerConnection?.type === 'ble') {
+            navigation.navigate('LedgerSelectAccount');
+        }
+    }, [ledgerContext?.ledgerConnection]);
+
     if (ledgerContext?.bleSearchState?.type === 'permissions-failed') {
         return (
-            <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+            <View style={{ flexGrow: 1 }}>
+                <ScreenHeader
+                    title={t('hardwareWallet.title')}
+                    onBackPressed={navigation.goBack}
+                />
                 <Text style={{
                     fontSize: 18,
                     fontWeight: '600',
@@ -104,8 +117,6 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
         );
     }
 
-    console.log({ devices, bleSearchState: ledgerContext?.bleSearchState });
-
     return (
         <View style={{ flexGrow: 1 }}>
             <ScreenHeader
@@ -116,9 +127,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 color: Theme.textColor,
                 fontWeight: '600',
                 fontSize: 32, lineHeight: 38,
-                marginBottom: 16,
-                marginHorizontal: 8,
-                textAlign: 'center'
+                marginVertical: 16, marginHorizontal: 16
             }}>
                 {t('hardwareWallet.devices')}
             </Text>
@@ -126,9 +135,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 flexGrow: 1
             }}>
                 {devices.map((device: any) => {
-                    return (
-                        <BleDevice key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />
-                    );
+                    return (<BleDevice key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />);
                 })}
             </ScrollView>
             <View style={{
@@ -136,15 +143,14 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 position: 'absolute',
                 bottom: safeArea.bottom + 16,
                 left: 0, right: 0,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: Theme.background,
+                alignItems: 'center', justifyContent: 'center',
+                paddingHorizontal: 8
             }}>
                 <RoundButton
                     title={t('hardwareWallet.actions.scanBluetooth')}
                     display={'secondary'}
-                    size={'normal'}
-                    style={{ paddingHorizontal: 8 }}
+                    size={'large'}
+                    style={{ width: '100%' }}
                     onPress={newScan}
                 />
             </View>

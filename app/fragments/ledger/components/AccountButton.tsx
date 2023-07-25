@@ -34,13 +34,12 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 12,
+                padding: 20,
                 backgroundColor: Theme.lightGrey,
-                marginVertical: 5,
-                borderRadius: 14,
+                marginVertical: 8,
+                borderRadius: 20,
             }}>
-                {loadingAcc === acc.i && (
+                {loading && (
                     <View>
                         <Text style={{
                             fontWeight: '600',
@@ -58,7 +57,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         </Text>
                     </View>
                 )}
-                {loadingAcc !== acc.i && (
+                {!loading && (
                     <View>
                         <Text style={{
                             fontWeight: '600',
@@ -82,22 +81,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 )}
                 <View style={{ flexGrow: 1 }} />
                 {loading ? (
-                    <View style={{
-                        position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
-                        alignItems: 'center', justifyContent: 'center',
-                        flexDirection: 'row',
-                        backgroundColor: Theme.item, borderRadius: 14
-                    }}>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 16,
-                            color: Theme.accent,
-                            marginRight: 8
-                        }}>
-                            {t('hardwareWallet.actions.confirmOnLedger')}
-                        </Text>
-                        <ActivityIndicator color={Theme.accent} size='small' />
-                    </View>
+                    <ActivityIndicator color={Theme.accent} size='small' />
                 ) : (
                     <Chevron
                         height={16} width={16}

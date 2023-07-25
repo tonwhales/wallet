@@ -4,6 +4,8 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { t } from "../../../i18n/t";
 import { LedgerAccount } from "../LedgerSelectAccountFragment";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import Chevron from '../../../../assets/ic-chevron-down.svg';
+
 
 export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: LedgerAccount, onSelect: (acc: LedgerAccount) => Promise<any>, loadingAcc?: number }) => {
     const { Theme } = useAppConfig();
@@ -25,7 +27,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
     return (
         <Pressable onPress={doAction} style={({ pressed }) => {
             return {
-                opacity: (pressed && loadingAcc === undefined) || (loadingAcc !== undefined && loadingAcc !== acc.i) ? 0.3 : 1
+                opacity: (pressed && loadingAcc === undefined) || (loadingAcc !== undefined && loadingAcc !== acc.i) ? 0.5 : 1
             };
         }}>
             <View style={{
@@ -34,7 +36,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 alignItems: 'center',
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                backgroundColor: Theme.item,
+                backgroundColor: Theme.lightGrey,
                 marginVertical: 5,
                 borderRadius: 14,
             }}>
@@ -66,7 +68,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 }}>
                     {t('common.connect')}
                 </Text>
-                {loading && (
+                {loading ? (
                     <View style={{
                         position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
                         alignItems: 'center', justifyContent: 'center',
@@ -83,6 +85,14 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         </Text>
                         <ActivityIndicator color={Theme.accent} size='small' />
                     </View>
+                ) : (
+                    <Chevron
+                    height={16} width={16}
+                    style={{
+                        height: 16, width: 16,
+                        transform: [{ rotate: '-90deg' }],
+                    }}
+                />
                 )}
             </View>
         </Pressable>

@@ -4,8 +4,6 @@ import android.app.Application;
 import android.content.res.Configuration;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
-import expo.modules.camera.CameraPackage;
-
 import androidx.annotation.NonNull;
 
 import com.facebook.react.PackageList;
@@ -40,7 +38,6 @@ public class MainApplication extends Application implements ReactApplication {
                     List<ReactPackage> packages = new PackageList(this).getPackages();
                     packages.add(new KeyStorePackage());
                     packages.add(new NavigationBarColorPackage());
-                    packages.add(new CameraPackage());
                     return packages;
                 }
 

@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { TransportProvider } from "./components/TransportContext";
+import { LedgerTransportProvider } from "./components/LedgerTransportProvider";
 import { HardwareWalletFragment } from "./HardwareWalletFragment";
 import { LedgerAppFragment } from "./LedgerAppFragment";
 import { LedgerBleFragment } from "./LedgerBleFragment";
@@ -52,13 +52,13 @@ const ledgerNavigation = [
 export const LedgerRoot = fragment(() => {
 
     return (
-        <TransportProvider>
+        <LedgerTransportProvider>
             <Stack.Navigator
                 initialRouteName={'HardwareWallet'}
                 screenOptions={{ headerBackTitle: t('common.back'), title: '', headerShadowVisible: false, headerTransparent: false, headerStyle: { backgroundColor: 'white' } }}
             >
                 {ledgerNavigation}
             </Stack.Navigator>
-        </TransportProvider>
+        </LedgerTransportProvider>
     );
 })

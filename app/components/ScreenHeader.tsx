@@ -57,7 +57,7 @@ export const ScreenHeader = React.memo((
                             fontWeight: '600',
                             fontSize: 17,
                             lineHeight: 24,
-                            maxWidth: 120
+                            maxWidth: '70%'
                         }}
                             ellipsizeMode={'tail'}
                         >

@@ -1,21 +1,47 @@
-import React from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Platform, View, Text, Pressable } from "react-native";
+import { Platform, View, Text, Pressable, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../../components/RoundButton";
-import LedgerIcon from '../../../assets/ic_ledger.svg';
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useDimensions } from "@react-native-community/hooks";
+import { useTransport } from "./components/LedgerTransportProvider";
+import TransportHID from "@ledgerhq/react-native-hid";
+
+type BLEState = { type: 'ongoing' } | { type: 'completed', success: boolean } | { type: 'permissions-failed' }
 
 export const HardwareWalletFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const dimentions = useDimensions().window;
+
+    const [searching, setSearching] = useState(false);
+
+    const ledgerContext = useTransport();
+
+    const searchHID = useCallback(async () => {
+        try {
+            setSearching(true);
+            let hid = await TransportHID.create();
+            ledgerContext?.setLedgerConnection({ type: 'hid', transport: hid });
+            setSearching(false);
+        } catch (e) {
+            setSearching(false);
+        }
+    }, [ledgerContext]);
+
+    const [scan, setScan] = useState<BLEState>();
+    const [devices, setDevices] = useState([]);
+
+    const searchBLE = useCallback(async () => {
+        setScan({ type: 'ongoing' });
+    }, [ledgerContext]);
 
     return (
         <View style={{
@@ -23,20 +49,17 @@ export const HardwareWalletFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('hardwareWallet.title')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('hardwareWallet.title')}
-                    </Text>
-                </View>
-            )}
+            <ScreenHeader
+                title={t('hardwareWallet.title')}
+                onBackPressed={navigation.goBack}
+            />
+            <Image
+                source={require('../../../assets/ic_ledger_x.png')}
+                style={{
+                    width: dimentions.width,
+                    height: dimentions.width,
+                }}
+            />
             <View style={{
                 marginHorizontal: 16,
                 marginBottom: safeArea.bottom + 16,
@@ -45,19 +68,10 @@ export const HardwareWalletFragment = fragment(() => {
                 alignItems: 'center',
                 flexGrow: 1,
             }}>
-                <View style={{ flexGrow: 1 }} />
-                <LedgerIcon
-                    color={'black'}
-                    width={64}
-                    height={64}
-                    style={{
-                        margin: 16
-                    }}
-                />
                 <Text style={{
                     color: Theme.textColor,
                     fontWeight: '600',
-                    fontSize: 18,
+                    fontSize: 32, lineHeight: 38,
                     marginBottom: 16,
                     marginHorizontal: 8,
                     textAlign: 'center'
@@ -65,29 +79,27 @@ export const HardwareWalletFragment = fragment(() => {
                     {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
                     {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')}
                 </Text>
-                <View style={{ paddingHorizontal: 36, alignItems: 'center' }}>
+                <View style={{ alignItems: 'center' }}>
                     <Text style={{
-                        color: Theme.textColor,
+                        color: Theme.darkGrey,
                         fontWeight: '400',
-                        fontSize: 16,
+                        fontSize: 17, lineHeight: 24,
                         textAlign: 'center'
                     }}>
-                        {Platform.OS === 'android' && t('hardwareWallet.installationAndroid')}
-                        {Platform.OS === 'ios' && t('hardwareWallet.installationIOS')}
+                        {t('hardwareWallet.installation')}
                     </Text>
                     <Pressable
                         style={({ pressed }) => {
                             return {
                                 opacity: pressed ? 0.3 : 1,
-                                marginTop: 14
                             }
                         }}
                         onPress={() => openWithInApp('https://tonwhales.com/ledger')}
                     >
                         <Text style={{
                             color: Theme.accent,
-                            fontWeight: '600',
-                            fontSize: 16,
+                            fontWeight: '500',
+                            fontSize: 17, lineHeight: 24,
                         }}>
                             {t('hardwareWallet.installationGuide')}
                         </Text>
@@ -95,25 +107,36 @@ export const HardwareWalletFragment = fragment(() => {
                 </View>
                 <View style={{ flexGrow: 1 }} />
                 {Platform.OS === 'android' && (
+                    <>
+                        <RoundButton
+                            title={t('hardwareWallet.actions.connectHid')}
+                            action={searchHID}
+                            style={{
+                                width: '100%',
+                                marginVertical: 4
+                            }}
+                        />
+                        <RoundButton
+                            title={t('hardwareWallet.actions.connectBluetooth')}
+                            onPress={() => navigation.navigate('LedgerBle')}
+                            style={{
+                                width: '100%',
+                                marginVertical: 4
+                            }}
+                        />
+                    </>
+                )}
+                {Platform.OS === 'ios' && (
                     <RoundButton
-                        title={t('hardwareWallet.actions.connectHid')}
-                        onPress={() => navigation.navigate('LedgerHID')}
+                        title={t('hardwareWallet.actions.connect')}
+                        onPress={() => navigation.navigate('LedgerBle')}
                         style={{
                             width: '100%',
                             marginVertical: 4
                         }}
                     />
                 )}
-                <RoundButton
-                    title={t('hardwareWallet.actions.connectBluetooth')}
-                    onPress={() => navigation.navigate('LedgerBle')}
-                    style={{
-                        width: '100%',
-                        marginVertical: 4
-                    }}
-                />
             </View>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

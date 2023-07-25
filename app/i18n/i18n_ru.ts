@@ -728,11 +728,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     hardwareWallet: {
         ledger: 'Ledger',
-        title: 'Аппаратный кошелёк',
+        title: 'Подключить Ledger',
         description: 'Ваш аппаратный Ledger кошелёк',
-        installationIOS: 'Вам понадобится Ledger с bluetooth (модель Nano X) и установленное на устройстве приложение Ton App',
-        installationAndroid: 'Вам понадобится модель Ledger Nano X (для подключения через Bluetooth и USB) или модель Nano S (только USB) и установленное на устройстве приложение Ton App',
-        installationGuide: 'Руководство по установке приложения Ton App',
+        // If this is your first time, then you can read
+        installation: 'Если это ваш первый раз, то вы можете прочитать',
+        installationGuide: 'Руководство по подключению TON Ledger',
         connectionDescriptionAndroid: 'Подключите ваш Ledger через USB или Bluetooth',
         connectionDescriptionIOS: 'Подключите ваш Ledger через Bluetooth',
         connectionHIDDescription_1: '1. Включите устройство и разблокируйте его',

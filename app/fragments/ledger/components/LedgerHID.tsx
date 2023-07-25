@@ -4,7 +4,7 @@ import TransportHID from "@ledgerhq/react-native-hid";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
-import { useTransport } from "./TransportContext";
+import { useTransport } from "./LedgerTransportProvider";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export const LedgerHID = React.memo(() => {

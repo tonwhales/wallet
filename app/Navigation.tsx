@@ -67,6 +67,13 @@ import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragmen
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetProvider } from './components/modal/BottomSheetModal';
 import { ChooseAvatarFragment } from './fragments/wallet/ChooseAvatarFragment';
+import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
+import { LedgerHIDFragment } from './fragments/ledger/LedgerHIDFragment';
+import { LedgerBleFragment } from './fragments/ledger/LedgerBleFragment';
+import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
+import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
+import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
+import { LedgerTransactionPreviewFragment } from './fragments/ledger/LedgerTransactionPreviewFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -192,6 +199,17 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('ChooseAvatar', ChooseAvatarFragment, safeArea),
+
+    // Ledger
+    modalScreen('HardwareWallet', HardwareWalletFragment, safeArea),
+    lockedModalScreen('LedgerHID', LedgerHIDFragment, safeArea),
+    lockedModalScreen('LedgerBle', LedgerBleFragment, safeArea),
+    lockedModalScreen('LedgerApp', LedgerAppFragment,safeArea),
+    modalScreen('LedgerTransfer', LedgerTransferFragment,safeArea ),
+    modalScreen('LedgerReceive', ReceiveFragment,safeArea),
+    lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
+    modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment, safeArea),
+    modalScreen('LedgerAssets', AssetsFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

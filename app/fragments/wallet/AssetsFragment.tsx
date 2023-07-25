@@ -14,7 +14,7 @@ import { WImage } from "../../components/WImage";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useTransport } from "../ledger/components/TransportContext";
+import { useTransport } from "../ledger/components/LedgerTransportProvider";
 
 import Verified from '../../../assets/ic-verified.svg';
 import TonIcon from '../../../assets/ic_ton_account.svg';

@@ -7,7 +7,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerApp } from "./components/LedgerApp";
-import { useTransport } from "./components/TransportContext";
+import { useTransport } from "./components/LedgerTransportProvider";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export type LedgerAppParams = {

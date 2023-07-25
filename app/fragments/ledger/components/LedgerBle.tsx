@@ -7,7 +7,7 @@ import { t } from "../../../i18n/t";
 import { LedgerDeviceSelection } from "./LedgerDeviceSelection";
 import { LedgerDevice } from "./BleDevice";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
-import { useTransport } from "./TransportContext";
+import { useTransport } from "./LedgerTransportProvider";
 import { LedgerBleDescription } from "./LedgerBleDescription";
 
 type StepScreen = 'scan' | 'select-account' | 'description';

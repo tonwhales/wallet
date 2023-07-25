@@ -11,7 +11,7 @@ import { warn } from "../../../utils/log";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
-import { useTransport } from "./TransportContext";
+import { useTransport } from "./LedgerTransportProvider";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };

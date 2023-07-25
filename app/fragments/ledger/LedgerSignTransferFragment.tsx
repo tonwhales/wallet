@@ -52,7 +52,7 @@ import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
-import { useTransport } from './components/TransportContext';
+import { useTransport } from './components/LedgerTransportProvider';
 import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppConfig } from '../../utils/AppConfigContext';

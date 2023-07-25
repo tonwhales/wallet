@@ -22,7 +22,7 @@ import MessageIcon from '../../../assets/ic_message.svg';
 import { estimateFees } from "../../engine/estimate/estimateFees";
 import { createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
-import { useTransport } from "./components/TransportContext";
+import { useTransport } from "./components/LedgerTransportProvider";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { useItem } from "../../engine/persistence/PersistedItem";

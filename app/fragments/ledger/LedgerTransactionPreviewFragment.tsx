@@ -28,7 +28,7 @@ import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { TransactionDescription } from "../../engine/products/WalletProduct";
-import { useTransport } from "./components/TransportContext";
+import { useTransport } from "./components/LedgerTransportProvider";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";

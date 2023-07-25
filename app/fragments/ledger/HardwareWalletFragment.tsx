@@ -53,13 +53,16 @@ export const HardwareWalletFragment = fragment(() => {
                 title={t('hardwareWallet.title')}
                 onBackPressed={navigation.goBack}
             />
-            <Image
-                source={require('../../../assets/ic_ledger_x.png')}
-                style={{
-                    width: dimentions.width,
-                    height: dimentions.width,
-                }}
-            />
+            {Platform.OS === 'ios' && (
+                <View style={{ paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', marginTop: 41, marginBottom: 33 }}>
+                    <Image source={require('../../../assets/ledger_ios.png')} />
+                </View>
+            )}
+            {Platform.OS === 'android' && (
+                <View style={{ paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', marginTop: 41, marginBottom: 33 }}>
+                    <Image source={require('../../../assets/and_ledger.png')} />
+                </View>
+            )}
             <View style={{
                 marginHorizontal: 16,
                 marginBottom: safeArea.bottom + 16,

@@ -4413,10 +4413,10 @@ expo-blur@~12.2.2:
   resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-12.2.2.tgz#b7f94499255afbd3468302d02f3c4e39a0e562d5"
   integrity sha512-SvGbEZbB0VFNGqCW7FcqzWOEb3lrRgBnQKGrsKo49KwhMyHTYjYVYWnmrk9l8Tr7lIaNnd55QD6dPAzcXjZYMg==
 
-expo-camera@^13.4.2:
-  version "13.4.2"
-  resolved "https://registry.yarnpkg.com/expo-camera/-/expo-camera-13.4.2.tgz#858de25720e5de4b21c43107fa5c926a021a2f0f"
-  integrity sha512-3G4ahx0pF56PyYixFlU39jrZof6I9XtBzizGObKN6ZKjSgCqqL0tjsrlDrCn44ZwSY4SngsMJmWR9JQDkKx2WA==
+expo-camera@13.2.0:
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/expo-camera/-/expo-camera-13.2.0.tgz#a2521c6c5398fbe658ca6d0bd186a2b0529c9a1b"
+  integrity sha512-AwmIhs0h5n6sMBxZQq76yiBiiK731vwUtNdOCza6/dEVxNumnMu62oGaB8KFGfMNh6YrR/aHJSWkV8OInmaLpQ==
   dependencies:
     "@koale/useworker" "^4.0.2"
     invariant "^2.2.4"

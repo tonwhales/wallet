@@ -744,6 +744,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         bluetoothScanDescription_4_and: '4. Далее выберите подходящий Ledger Nano X',
         openAppVerifyAddress: 'Проверьте адрес счета, который вы выбрали, а затем подтвердите адрес с помощью приложения Ton App на Ledger, когда появится запрос',
         devices: 'Ваши устройства',
+        connection: 'Подключение',
         actions: {
             connect: 'Подключить Ledger',
             selectAccount: 'Выбрать аккаунт',

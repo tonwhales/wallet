@@ -745,6 +745,7 @@ export type LocalizationSchema = {
         chooseAccountDescription: string,
         openAppVerifyAddress: string,
         devices: string,
+        connection: string,
         actions: {
             connect: string,
             selectAccount: string,

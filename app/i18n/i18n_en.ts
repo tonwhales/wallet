@@ -743,6 +743,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bluetoothScanDescription_4_and: '4. Then select suitable Ledger Nano X',
         openAppVerifyAddress: 'Check the account address that you have selected and then verify the address with the Ledger Ton App when prompted',
         devices: 'Your devices',
+        connection: 'Connection',
         actions: {
             connect: 'Connect Ledger',
             selectAccount: 'Select account',
@@ -751,7 +752,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             connectHid: 'Connect Ledger via USB',
             connectBluetooth: 'Connect Ledger via Bluetooth',
             scanBluetooth: 'Scan again',
-            confirmOnLedger: 'Confirm via Ledger',
+            confirmOnLedger: 'Verify on Ledger',
             sending: 'Awaiting transaction',
             sent: 'Transaction sent',
             mainAddress: 'Main address',

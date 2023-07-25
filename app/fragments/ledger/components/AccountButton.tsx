@@ -40,34 +40,47 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 marginVertical: 5,
                 borderRadius: 14,
             }}>
-                <View>
-                    <Text style={{
-                        fontWeight: '700',
-                        fontSize: 16,
-                        color: Theme.textColor,
-                        marginBottom: 8
-                    }}>
-                        <ValueComponent
-                            value={acc.balance}
-                            precision={3}
-                        />
-                        {' TON'}
-                    </Text>
-                    <Text style={{
-                        fontWeight: '400',
-                        fontSize: 16,
-                        color: Theme.textColor,
-                    }}>
-                        {acc.addr.address.slice(0, 6) + '...' + acc.addr.address.slice(acc.addr.address.length - 6)}
-                    </Text>
-                </View>
-                <Text style={{
-                    fontWeight: '400',
-                    fontSize: 16,
-                    color: Theme.accent,
-                }}>
-                    {t('common.connect')}
-                </Text>
+                {loadingAcc === acc.i && (
+                    <View>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 17, lineHeight: 24,
+                            color: Theme.textColor
+                        }}>
+                            {t('hardwareWallet.actions.confirmOnLedger')}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 15, lineHeight: 20,
+                            color: Theme.darkGrey,
+                        }}>
+                            {t('hardwareWallet.connection')}
+                        </Text>
+                    </View>
+                )}
+                {loadingAcc !== acc.i && (
+                    <View>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 17, lineHeight: 24,
+                            color: Theme.textColor
+                        }}>
+                            <ValueComponent
+                                value={acc.balance}
+                                precision={3}
+                            />
+                            {' TON'}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 15, lineHeight: 20,
+                            color: Theme.darkGrey,
+                        }}>
+                            {acc.addr.address.slice(0, 6) + '...' + acc.addr.address.slice(acc.addr.address.length - 6)}
+                        </Text>
+                    </View>
+                )}
+                <View style={{ flexGrow: 1 }} />
                 {loading ? (
                     <View style={{
                         position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
@@ -87,12 +100,12 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                     </View>
                 ) : (
                     <Chevron
-                    height={16} width={16}
-                    style={{
-                        height: 16, width: 16,
-                        transform: [{ rotate: '-90deg' }],
-                    }}
-                />
+                        height={16} width={16}
+                        style={{
+                            height: 16, width: 16,
+                            transform: [{ rotate: '-90deg' }],
+                        }}
+                    />
                 )}
             </View>
         </Pressable>

@@ -35,7 +35,7 @@ export const ItemButton = React.memo((props: {
                 <View style={{
                     alignItems: 'center', justifyContent: 'center',
                     flexDirection: 'row', flexGrow: 1, flexBasis: 0,
-                    padding: 20,
+                    padding: 20
                 }}>
                     <View style={{ flexGrow: 1, flexShrink: 1, flexDirection: 'row', alignItems: 'center' }}>
                         {props.leftIcon && (<Image style={{ height: 24, width: 24 }} source={props.leftIcon} />)}

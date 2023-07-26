@@ -142,7 +142,11 @@ export const WalletBackupFragment = systemFragment(() => {
                             justifyContent: 'center', alignItems: 'center',
                             position: 'absolute', top: -34, alignSelf: 'center'
                         }}>
-                            <Avatar id={address.address.toFriendly({ testOnly: AppConfig.isTestnet })} size={65} />
+                            <Avatar
+                                id={address.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                size={65}
+                                backgroundColor={Theme.accent}
+                            />
                         </View>
                     )}
                 </View>

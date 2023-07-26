@@ -25,7 +25,7 @@ export const HoldersProductButton = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const accounts = engine.products.holders.useCards();
-    const staking = engine.products.whalesStakingPools.useStaking();
+    const staking = engine.products.whalesStakingPools.useStakingCurrent();
     const status = engine.products.holders.useStatus();
     const [collapsed, setCollapsed] = useState(true);
 

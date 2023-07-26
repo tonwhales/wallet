@@ -1,59 +1,71 @@
-import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Platform, View, Text } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CloseButton } from "../../components/CloseButton";
+import { View, Image } from "react-native";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { LedgerApp } from "./components/LedgerApp";
-import { useTransport } from "./components/TransportContext";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useLedgerTransport } from "./components/LedgerTransportProvider";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { LedgerHomeFragment } from "./LedgerHomeFragment";
+import { LedgerTransactionsFragment } from "./LedgerTransactionsFragment";
 
-export type LedgerAppParams = {
-    address: { address: string, publicKey: Buffer },
-};
+const Tab = createBottomTabNavigator();
 
 export const LedgerAppFragment = fragment(() => {
+    const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
-    const safeArea = useSafeAreaInsets();
-    const { tonTransport, addr, setAddr } = useTransport();
+    const ledgerContext = useLedgerTransport();
 
     useEffect(() => {
+        ledgerContext?.setFocused(true);
         return () => {
-            setAddr(null);
+            ledgerContext?.setFocused(false);
         }
     }, []);
 
+    if (
+        !ledgerContext?.tonTransport
+        || !ledgerContext.addr
+    ) {
+        navigation.navigateAndReplaceAll('Home')
+        return null;
+    }
 
     return (
-        <View style={{
-            flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-        }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('hardwareWallet.title')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('hardwareWallet.title')}
-                    </Text>
-                </View>
-            )}
-            {addr && tonTransport && (
-                <LedgerApp
-                    transport={tonTransport}
-                    account={addr.acc}
-                    address={addr}
+        <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
+            <Tab.Navigator
+                initialRouteName={'Wallet'}
+                screenOptions={({ route }) => ({
+                    headerShown: false,
+                    header: undefined,
+                    unmountOnBlur: true,
+                    tabBarIcon: ({ focused }) => {
+                        let source = require('../../../assets/ic-home.png');
+
+                        if (route.name === 'LedgerTransactions') {
+                            source = require('../../../assets/ic-history.png');
+                        }
+
+                        return (
+                            <Image
+                                source={source}
+                                style={{ tintColor: focused ? Theme.accent : Theme.greyForIcon, height: 24, width: 24 }}
+                            />
+                        )
+                    }
+                })}
+            >
+                <Tab.Screen
+                    options={{ title: t('home.home') }}
+                    name={'LedgerHome'}
+                    component={LedgerHomeFragment}
                 />
-            )}
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
+                <Tab.Screen
+                    options={{ title: t('home.history') }}
+                    name={'LedgerTransactions'}
+                    component={LedgerTransactionsFragment}
+                />
+            </Tab.Navigator>
         </View>
     );
 })

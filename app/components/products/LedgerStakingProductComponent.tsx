@@ -7,9 +7,11 @@ import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { ProductBanner } from "./ProductBanner";
+import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
+import { Address } from "ton";
 
 import StakingIcon from '../../../assets/ic-staking.svg';
-import { ProductBanner } from "./ProductBanner";
 
 const style: StyleProp<ViewStyle> = {
     height: 84,
@@ -39,13 +41,22 @@ const subtitleStyle: StyleProp<TextStyle> = {
     lineHeight: 20
 }
 
-export const StakingProductComponent = React.memo(() => {
+export const LedgerStakingProductComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const staking = engine.products.whalesStakingPools.useStakingCurrent();
-    const cards = engine.products.holders.useCards();
-    const showJoin = staking.total.eq(new BN(0));
+    const ledgerContext = useLedgerTransport();
+    const address = useMemo(() => {
+        if (!ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch {
+            return;
+        }
+    }, [ledgerContext?.addr?.address]);
+
+    const staking = engine.products.whalesStakingPools.useStaking(address);
+    const showJoin = !staking || staking.total.eq(new BN(0));
 
     const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
@@ -57,7 +68,7 @@ export const StakingProductComponent = React.memo(() => {
     if (!showJoin) {
         return (
             <TouchableHighlight
-                onPress={() => navigation.navigate('StakingPools')}
+                onPress={() => navigation.navigate('LedgerStakingPools')}
                 underlayColor={Theme.selector}
                 style={[style, { backgroundColor: Theme.lightGrey }]}
             >
@@ -109,13 +120,9 @@ export const StakingProductComponent = React.memo(() => {
         );
     }
 
-    if (cards.length > 0) {
-        return null;
-    }
-
     return (
         <ProductBanner
-            onPress={() => navigation.navigate('StakingPools')}
+            onPress={() => navigation.navigate('LedgerStakingPools')}
             title={t('products.staking.title')}
             subtitle={AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
             illustration={require('../../../assets/banner-staking.png')}

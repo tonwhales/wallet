@@ -316,6 +316,7 @@ export type LocalizationSchema = {
                 restrictedMessage: string,
                 notEnoughCoinsFee: string,
                 notEnoughCoins: string,
+                ledgerSignText: string
             },
             join: {
                 title: string,
@@ -731,8 +732,7 @@ export type LocalizationSchema = {
         ledger: string,
         title: string,
         description: string,
-        installationIOS: string,
-        installationAndroid: string,
+        installation: string,
         installationGuide: string,
         connectionDescriptionAndroid: string,
         connectionDescriptionIOS: string,
@@ -746,6 +746,7 @@ export type LocalizationSchema = {
         chooseAccountDescription: string,
         openAppVerifyAddress: string,
         devices: string,
+        connection: string,
         actions: {
             connect: string,
             selectAccount: string,

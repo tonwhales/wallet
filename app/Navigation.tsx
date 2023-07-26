@@ -50,7 +50,6 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
@@ -67,6 +66,13 @@ import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragmen
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetProvider } from './components/modal/BottomSheetModal';
 import { ChooseAvatarFragment } from './fragments/wallet/ChooseAvatarFragment';
+import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
+import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
+import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
+import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
+import { LedgerTransactionPreviewFragment } from './fragments/ledger/LedgerTransactionPreviewFragment';
+import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSelectionFragment';
+import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -167,7 +173,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Logout', LogoutFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
-    modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
     lockedModalScreen('Holders', HoldersAppFragment, safeArea),
@@ -192,6 +197,20 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('ChooseAvatar', ChooseAvatarFragment, safeArea),
+
+    // Ledger
+    modalScreen('Ledger', HardwareWalletFragment, safeArea),
+    lockedModalScreen('LedgerDeviceSelection', LedgerDeviceSelectionFragment, safeArea),
+    lockedModalScreen('LedgerSelectAccount', LedgerSelectAccountFragment, safeArea),
+    fullScreen('LedgerApp', LedgerAppFragment),
+    modalScreen('LedgerTransfer', LedgerTransferFragment, safeArea),
+    modalScreen('LedgerReceive', ReceiveFragment, safeArea),
+    lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
+    modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment, safeArea),
+    modalScreen('LedgerAssets', AssetsFragment, safeArea),
+    modalScreen('LedgerStakingPools', StakingPoolsFragment, safeArea),
+    modalScreen('LedgerStaking', StakingFragment, safeArea),
+    modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {
@@ -295,11 +314,11 @@ export const Navigation = React.memo(() => {
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-            <BottomSheetProvider>
-                <NavigationContainer
-                    theme={NavigationTheme}
-                    onReady={onMounted}
-                >
+            <NavigationContainer
+                theme={NavigationTheme}
+                onReady={onMounted}
+            >
+                <BottomSheetProvider>
                     <Stack.Navigator
                         initialRouteName={initial}
                         screenOptions={{
@@ -312,9 +331,9 @@ export const Navigation = React.memo(() => {
                     >
                         {navigation(safeArea)}
                     </Stack.Navigator>
-                </NavigationContainer>
-                <Splash hide={hideSplash} />
-            </BottomSheetProvider>
+                </BottomSheetProvider>
+            </NavigationContainer>
+            <Splash hide={hideSplash} />
         </View>
     );
 });

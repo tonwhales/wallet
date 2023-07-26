@@ -1,69 +1,136 @@
-import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, Text, View } from 'react-native';
-import { getAppState, getCurrentAddress } from '../../storage/appState';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ValueComponent } from '../../components/ValueComponent';
-import { resolveUrl } from '../../utils/resolveUrl';
-import { TouchableHighlight } from 'react-native-gesture-handler';
-import { t } from '../../i18n/t';
-import { PriceComponent } from '../../components/PriceComponent';
-import { fragment } from '../../fragment';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useEngine } from '../../engine/Engine';
-import { WalletState } from '../../engine/products/WalletProduct';
-import { useLinkNavigator } from "../../useLinkNavigator";
-import { useAppConfig } from '../../utils/AppConfigContext';
-import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useLayoutEffect, useMemo } from 'react';
-import { WalletAddress } from '../../components/WalletAddress';
-import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import { StatusBar } from 'expo-status-bar';
-import { useBottomSheet } from '../../components/modal/BottomSheetModal';
-import { WalletSelector } from '../../components/wallet/WalletSelector';
-import { RoundButton } from '../../components/RoundButton';
-import { BlurView } from 'expo-blur';
-import { Avatar } from '../../components/Avatar';
-import { useTrackScreen } from '../../analytics/mixpanel';
-import { useActionSheet } from '@expo/react-native-action-sheet';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { fragment } from "../../fragment";
+import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useLedgerTransport } from "./components/LedgerTransportProvider";
+import { useEngine } from "../../engine/Engine";
+import { useCallback, useEffect, useMemo } from "react";
+import { Address, CellMessage } from "ton";
+import { useBottomSheet } from "../../components/modal/BottomSheetModal";
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { t } from "../../i18n/t";
+import { WalletSelector } from "../../components/wallet/WalletSelector";
+import { BlurView } from "expo-blur";
+import { RoundButton } from "../../components/RoundButton";
+import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { startWalletV4Sync } from "../../engine/sync/startWalletV4Sync";
+import { warn } from "../../utils/log";
+import { Pressable, View, Image , Text, TouchableHighlight} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { ValueComponent } from "../../components/ValueComponent";
+import { PriceComponent } from "../../components/PriceComponent";
+import BN from "bn.js";
+import { WalletAddress } from "../../components/WalletAddress";
+import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
+import { resolveUrl } from "../../utils/resolveUrl";
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
+import { startWalletConfigSync } from "../../engine/sync/startWalletConfigSync";
 
-function WalletComponent(props: { wallet: WalletState }) {
+export const LedgerHomeFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
-    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const modal = useBottomSheet();
-    const { showActionSheetWithOptions } = useActionSheet();
-    const address = useMemo(() => getCurrentAddress().address, []);
+    const safeArea = useSafeAreaInsets();
+    const ledgerContext = useLedgerTransport();
     const engine = useEngine();
-    const walletSettings = engine.products.wallets.useWalletSettings(address);
-    const balanceChart = engine.products.main.useAccountBalanceChart();
-    const account = props.wallet;
-    const currentWalletIndex = getAppState().selected;
+    const address = useMemo(() => {
+        if (!ledgerContext?.addr) {
+            return null;
+        }
+        try {
+            const address = Address.parse(ledgerContext.addr.address);
+            engine.products.ledger.startSync(address);
+            return address;
+        } catch (e) {
+            return null;
+        }
+    }, [ledgerContext?.addr?.address]);
+    const modal = useBottomSheet();
+    const account = engine.products.ledger.useAccount();
+    const { showActionSheetWithOptions } = useActionSheet();
+
 
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src, AppConfig.isTestnet);
-            if (res) {
-                linkNavigator(res);
+            if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
+                if (res.type === 'transaction') {
+                    if (res.payload) {
+                        navigation.navigateLedgerSignTransfer({
+                            order: {
+                                target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                amount: res.amount || new BN(0),
+                                amountAll: false,
+                                stateInit: res.stateInit,
+                                payload: {
+                                    type: 'unsafe',
+                                    message: new CellMessage(res.payload),
+                                },
+                            },
+                            text: res.comment
+                        });
+                    } else {
+                        navigation.navigateLedgerTransfer({
+                            target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            comment: res.comment,
+                            amount: res.amount,
+                            stateInit: res.stateInit,
+                            job: null,
+                            jetton: null,
+                            callback: null
+                        });
+                    }
+                    return;
+                }
+                navigation.navigateLedgerTransfer({
+                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    comment: res.comment,
+                    amount: res.amount,
+                    stateInit: null,
+                    job: null,
+                    jetton: res.jettonMaster,
+                    callback: null
+                });
             }
-        } catch (error) {
+        } catch {
             // Ignore
         }
     };
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
-    const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    const openGraph = useCallback(() => {
-        if (balanceChart && balanceChart.chart.length > 0) {
-            navigation.navigate('AccountBalanceGraph');
+    // const openGraph = useCallback(() => {
+    //     if (balanceChart && balanceChart.chart.length > 0) {
+    //         navigation.navigate('AccountBalanceGraph');
+    //     }
+    // }, []);
+    const navigateTransfer = useCallback(() => {
+        navigation.navigate('LedgerTransfer', {
+            amount: null,
+            target: null,
+            comment: null,
+            jetton: null,
+            stateInit: null,
+            job: null,
+            callback: null
+        });
+    }, []);
+
+    const navigateReceive = useCallback(() => {
+        if (!ledgerContext?.addr) {
+            return;
         }
-    }, [account]);
+        navigation.navigate(
+            'LedgerReceive',
+            {
+                addr: ledgerContext.addr.address,
+                ledger: true
+            }
+        );
+    }, []);
+
     // Add new wallet account modal
     const onAddNewAccount = useCallback(() => {
         const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
@@ -137,6 +204,33 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     });
 
+    useEffect(() => {
+        if (!address) {
+            return;
+        }
+        try {
+            engine.products.ledger.startSync(address);
+        } catch {
+            warn('Failed to parse Ledger address');
+        }
+    }, [address])
+
+    useEffect(() => {
+        ledgerContext?.setFocused(true);
+        return () => {
+            ledgerContext?.setFocused(false);
+        }
+    }, []);
+
+    if (
+        !ledgerContext?.tonTransport
+        || !ledgerContext.addr
+    ) {
+        navigation.navigateAndReplaceAll('Home')
+        return null;
+    }
+
+
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
             <StatusBar style={'light'} />
@@ -168,11 +262,12 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 backgroundColor: Theme.accent,
                                 borderRadius: 12
                             }}>
-                                <Avatar
-                                    id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                    size={24}
-                                    backgroundColor={Theme.accent}
-                                    hash={walletSettings?.avatar}
+                                <Image
+                                    style={{
+                                        width: 24,
+                                        height: 24,
+                                    }}
+                                    source={require('../../../assets/ledger_device.png')}
                                 />
                             </View>
                             <Text
@@ -184,7 +279,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 ellipsizeMode='tail'
                                 numberOfLines={1}
                             >
-                                {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
+                                {t('hardwareWallet.ledger')}
                             </Text>
                             <ChevronDown
                                 style={{
@@ -199,7 +294,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </View>
                     </Pressable>
                     <View style={{ flexDirection: 'row' }}>
-                        <Pressable
+                        {/* <Pressable
                             style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
                             onPress={openGraph}
                         >
@@ -212,7 +307,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 width={24}
                                 color={Theme.greyForIcon}
                             />
-                        </Pressable>
+                        </Pressable> */}
                         <Pressable
                             style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
                             onPress={openScanner}
@@ -256,7 +351,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             fontWeight: '500',
                             lineHeight: 38,
                         }}>
-                            <ValueComponent precision={6} value={account.balance} />
+                            <ValueComponent precision={6} value={account?.balance ?? new BN(0)} />
                             <Text style={{
                                 fontSize: 17,
                                 lineHeight: 24,
@@ -271,13 +366,13 @@ function WalletComponent(props: { wallet: WalletState }) {
                         marginTop: 8
                     }}>
                         <Pressable onPress={navigateToCurrencySettings}>
-                            <PriceComponent amount={account.balance} />
+                            <PriceComponent amount={account?.balance ?? new BN(0)} />
                         </Pressable>
                     </View>
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={address}
+                        value={ledgerContext.addr.address}
+                        address={Address.parse(ledgerContext.addr.address)}
                         elipsise
                         style={{
                             marginTop: 12,
@@ -303,32 +398,9 @@ function WalletComponent(props: { wallet: WalletState }) {
                         }}
                         collapsable={false}
                     >
-                        {
-                            (!AppConfig.isTestnet && Platform.OS === 'android') && (
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
-                                    <TouchableHighlight
-                                        onPress={onOpenBuy}
-                                        underlayColor={Theme.selector}
-                                        style={{ borderRadius: 14 }}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                            <View style={{
-                                                backgroundColor: Theme.accent,
-                                                width: 32, height: 32,
-                                                borderRadius: 16,
-                                                alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                <Image source={require('../../../assets/ic_buy.png')} />
-                                            </View>
-                                            <Text style={{ fontSize: 15, lineHeight: 20, color: Theme.item, marginTop: 6 }}>{t('wallet.actions.buy')}</Text>
-                                        </View>
-                                    </TouchableHighlight>
-                                </View>
-                            )
-                        }
                         <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
                             <TouchableHighlight
-                                onPress={() => navigation.navigate('Receive')}
+                                onPress={navigateReceive}
                                 underlayColor={Theme.selector}
                                 style={{ borderRadius: 14 }}
                             >
@@ -347,7 +419,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </View>
                         <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
                             <TouchableHighlight
-                                onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
+                                onPress={navigateTransfer}
                                 underlayColor={Theme.selector}
                                 style={{ borderRadius: 14 }}
                             >
@@ -366,24 +438,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </View>
                     </View>
                 </Animated.View>
-                <ProductsComponent />
+                <LedgerProductsComponent />
             </Animated.ScrollView>
         </View>
     );
-}
-
-export const WalletFragment = fragment(() => {
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
-    useTrackScreen('Wallet', engine.isTestnet);
-    if (!account) {
-        return (
-            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <StatusBar style={'light'} />
-                <LoadingIndicator />
-            </View>
-        );
-    } else {
-        return <WalletComponent wallet={account} />
-    }
-}, true);
+})

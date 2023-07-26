@@ -6,8 +6,10 @@ import { useEngine } from "../../engine/Engine";
 import { Avatar } from "../Avatar";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../WalletAddress";
-import IcCheck from "../../../assets/ic-check.svg";
 import { useAppStateManager } from "../../engine/AppStateManager";
+
+import IcCheck from "../../../assets/ic-check.svg";
+import { useBottomSheet } from "../modal/BottomSheetModal";
 
 export const WalletItem = memo((
     {
@@ -23,8 +25,8 @@ export const WalletItem = memo((
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const walletSettings = engine.products.wallets.useWalletSettings(address);
-
     const appStateManager = useAppStateManager();
+    const modal = useBottomSheet();
 
     const onSelectAccount = useCallback(() => {
         if (selected) return;
@@ -43,6 +45,7 @@ export const WalletItem = memo((
                 {
                     text: t('wallets.switchToAlertAction'),
                     onPress: () => {
+                        modal?.hide();
                         appStateManager.updateAppState({
                             ...appStateManager.current,
                             selected: index
@@ -51,8 +54,7 @@ export const WalletItem = memo((
                 }
             ]
         );
-    }, [walletSettings, selected, address]);
-
+    }, [walletSettings, selected, address, modal]);
 
     return (
         <Pressable

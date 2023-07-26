@@ -16,6 +16,8 @@ import { resolveOperation } from "../transactions/resolveOperation";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { startHintsTxSync } from "../sync/startHintsTxSync";
 import { startJettonWalletSync } from "../sync/startJettonWalletSync";
+import { startWalletV4Sync } from "../sync/startWalletV4Sync";
+import { startWalletConfigSync } from "../sync/startWalletConfigSync";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
@@ -138,6 +140,9 @@ export class LedgerProduct {
     }
 
     startSync(address: Address) {
+        startWalletV4Sync(address, this.engine);
+        startWalletConfigSync(this.engine, address);
+        
         this.#atom = atom<WalletState | null>({
             key: 'wallet/' + address.toFriendly({ testOnly: this.engine.isTestnet }),
             default: null,

@@ -15,7 +15,7 @@ export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { AppConfig } = useAppConfig();
     const engine = useEngine();
-    const totalStaked = engine.products.whalesStakingPools.useStaking().total;
+    const totalStaked = engine.products.whalesStakingPools.useStakingCurrent().total;
     const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy) {

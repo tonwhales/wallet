@@ -52,7 +52,7 @@ import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
-import { useTransport } from './components/TransportContext';
+import { useLedgerTransport } from './components/LedgerTransportProvider';
 import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppConfig } from '../../utils/AppConfigContext';
@@ -924,14 +924,14 @@ export const LedgerSignTransferFragment = fragment(() => {
         text: string | null,
     } = useRoute().params! as any;
 
-    const { ledgerConnection, tonTransport, addr } = useTransport();
+    const ledgerContext = useLedgerTransport();
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
     // Memmoize all parameters just in case
-    const from = React.useMemo(() => addr, []);
+    const from = React.useMemo(() => ledgerContext?.addr, []);
     const target = React.useMemo(() => Address.parseFriendly(params.order.target), []);
     const order = React.useMemo(() => params.order, []);
     const text = React.useMemo(() => params.text, []);
@@ -947,13 +947,13 @@ export const LedgerSignTransferFragment = fragment(() => {
             return;
         }
 
-        if (!ledgerConnection || !tonTransport || !addr) {
-            return;
-        }
-
+        
         let exited = false;
-
+        
         backoff('transfer', async () => {
+            if (!ledgerContext || !ledgerContext.ledgerConnection || !ledgerContext.tonTransport || !ledgerContext.addr) {
+                return;
+            }
 
             if (!from) {
                 return;
@@ -1088,8 +1088,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                 jettonMaster,
                 fees,
                 metadata,
-                addr: addr,
-                transport: tonTransport,
+                addr: ledgerContext.addr,
+                transport: ledgerContext.tonTransport,
                 text
             });
         });

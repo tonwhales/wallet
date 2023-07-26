@@ -25,7 +25,7 @@ export const ProductsComponent = React.memo(() => {
     const currentJob = engine.products.apps.useState();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const cards = engine.products.holders.useCards();
-    const totalStaked = engine.products.whalesStakingPools.useStaking().total;
+    const totalStaked = engine.products.whalesStakingPools.useStakingCurrent().total;
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];

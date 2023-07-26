@@ -194,7 +194,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 }}
                                 height={16}
                                 width={16}
-                                color={'#AAB4BF'}
+                                color={Theme.greyForIcon}
                             />
                         </View>
                     </Pressable>
@@ -210,7 +210,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 }}
                                 height={24}
                                 width={24}
-                                color={'#AAB4BF'}
+                                color={Theme.greyForIcon}
                             />
                         </Pressable>
                         <Pressable
@@ -225,7 +225,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 }}
                                 height={24}
                                 width={24}
-                                color={'#AAB4BF'}
+                                color={Theme.greyForIcon}
                             />
                         </Pressable>
                     </View>

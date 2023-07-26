@@ -28,7 +28,7 @@ import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 
 export const LedgerHomeFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
@@ -244,7 +244,7 @@ export const LedgerHomeFragment = fragment(() => {
                                 }}
                                 height={16}
                                 width={16}
-                                color={'#AAB4BF'}
+                                color={Theme.greyForIcon}
                             />
                         </View>
                     </Pressable>
@@ -260,7 +260,7 @@ export const LedgerHomeFragment = fragment(() => {
                                 }}
                                 height={24}
                                 width={24}
-                                color={'#AAB4BF'}
+                                color={Theme.greyForIcon}
                             />
                         </Pressable>
                         <Pressable
@@ -275,7 +275,7 @@ export const LedgerHomeFragment = fragment(() => {
                                 }}
                                 height={24}
                                 width={24}
-                                color={'#AAB4BF'}
+                                color={Theme.greyForIcon}
                             />
                         </Pressable>
                     </View>

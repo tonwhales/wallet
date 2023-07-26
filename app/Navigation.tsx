@@ -311,11 +311,11 @@ export const Navigation = React.memo(() => {
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-            <BottomSheetProvider>
-                <NavigationContainer
-                    theme={NavigationTheme}
-                    onReady={onMounted}
-                >
+            <NavigationContainer
+                theme={NavigationTheme}
+                onReady={onMounted}
+            >
+                <BottomSheetProvider>
                     <Stack.Navigator
                         initialRouteName={initial}
                         screenOptions={{
@@ -328,9 +328,9 @@ export const Navigation = React.memo(() => {
                     >
                         {navigation(safeArea)}
                     </Stack.Navigator>
-                </NavigationContainer>
-                <Splash hide={hideSplash} />
-            </BottomSheetProvider>
+                </BottomSheetProvider>
+            </NavigationContainer>
+            <Splash hide={hideSplash} />
         </View>
     );
 });

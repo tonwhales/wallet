@@ -3,7 +3,6 @@ import TransportHID from "@ledgerhq/react-native-hid";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
 import React, { memo, useCallback, useEffect, useReducer, useState } from "react";
 import { TonTransport } from "ton-ledger";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert, Platform } from "react-native";
 import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
@@ -72,17 +71,19 @@ const TransportContext = React.createContext<
         bleSearchState: BLESearchState,
         startHIDSearch: () => Promise<void>,
         startBleSearch: () => void,
+        focused: boolean,
+        setFocused: (focused: boolean) => void,
     }
     | null
 >(null);
 
 export const LedgerTransportProvider = memo(({ children }: { children: React.ReactNode }) => {
-    const engine = useEngine();
     const [ledgerConnection, setLedgerConnection] = useState<TypedTransport | null>(null);
     const [tonTransport, setTonTransport] = useState<TonTransport | null>(null);
     const [addr, setAddr] = useState<LedgerAddress | null>(null);
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
     const [bleSearch, setSearch] = useState(0);
+    const [focused, setFocused] = useState(false);
 
     const reset = useCallback(() => {
         setLedgerConnection(null);
@@ -103,17 +104,6 @@ export const LedgerTransportProvider = memo(({ children }: { children: React.Rea
                 reset();
             }
         }]);
-    }, []);
-
-    const onSetAddress = useCallback((selected: LedgerAddress | null) => {
-        setAddr(selected);
-        try {
-            const parsed = Address.parse(selected!.address);
-            startWalletV4Sync(parsed, engine);
-            engine.products.ledger.startSync(parsed);
-        } catch (e) {
-            warn('Failed to parse address');
-        }
     }, []);
 
     const startHIDSearch = useCallback(async () => {
@@ -242,14 +232,13 @@ export const LedgerTransportProvider = memo(({ children }: { children: React.Rea
     return (
         <TransportContext.Provider
             value={{
-                ledgerConnection,
-                setLedgerConnection: onSetLedgerConnecton,
                 tonTransport,
-                addr,
-                setAddr: onSetAddress,
+                ledgerConnection, setLedgerConnection: onSetLedgerConnecton,
+                addr, setAddr,
                 startHIDSearch,
                 startBleSearch,
                 bleSearchState: bleState,
+                focused, setFocused,
             }}>
             {children}
         </TransportContext.Provider>

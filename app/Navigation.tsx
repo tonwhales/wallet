@@ -210,6 +210,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerAssets', AssetsFragment, safeArea),
     modalScreen('LedgerStakingPools', StakingPoolsFragment, safeArea),
     modalScreen('LedgerStaking', StakingFragment, safeArea),
+    modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

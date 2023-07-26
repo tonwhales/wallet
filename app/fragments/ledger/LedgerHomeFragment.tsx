@@ -107,7 +107,7 @@ export const LedgerHomeFragment = fragment(() => {
     //     }
     // }, []);
     const navigateTransfer = useCallback(() => {
-        navigation.replace('LedgerTransfer', {
+        navigation.navigate('LedgerTransfer', {
             amount: null,
             target: null,
             comment: null,

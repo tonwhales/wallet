@@ -316,6 +316,7 @@ export type LocalizationSchema = {
                 restrictedMessage: string,
                 notEnoughCoinsFee: string,
                 notEnoughCoins: string,
+                ledgerSignText: string
             },
             join: {
                 title: string,

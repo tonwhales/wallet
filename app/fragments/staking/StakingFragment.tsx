@@ -154,6 +154,16 @@ export const StakingFragment = fragment(() => {
     }, []);
 
     const onTopUp = useCallback(() => {
+        if (isLedger) {
+            navigation.navigate('LedgerStakingTransfer', {
+                target: targetPool,
+                amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
+                lockAddress: true,
+                lockComment: true,
+                action: 'top_up' as TransferAction,
+            });
+            return;
+        }
         navigation.navigateStaking({
             target: targetPool,
             amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
@@ -164,6 +174,15 @@ export const StakingFragment = fragment(() => {
     }, [targetPool, pool]);
 
     const onUnstake = useCallback(() => {
+        if (isLedger) {
+            navigation.navigate('LedgerStakingTransfer', {
+                target: targetPool,
+                lockAddress: true,
+                lockComment: true,
+                action: 'withdraw' as TransferAction,
+            });
+            return;
+        }
         navigation.navigateStaking({
             target: targetPool,
             lockAddress: true,

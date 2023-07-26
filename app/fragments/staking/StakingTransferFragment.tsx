@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keybo
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, fromNano, toNano } from 'ton';
+import { Address, Cell, CellMessage, fromNano, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -26,6 +26,9 @@ import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useRoute } from '@react-navigation/native';
+import { useLedgerTransport } from '../ledger/components/LedgerTransportProvider';
+import { useMemo } from 'react';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -68,16 +71,32 @@ export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
     const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerStakingTransfer';
+
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = useMemo(() => {
+        if (!isLedger || !ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch {
+            return;
+        }
+    }, [ledgerContext?.addr?.address]);
+
+    const currentAccount = useItem(engine.model.wallet(engine.address));
+    const ledgerAccount = engine.products.ledger.useAccount();
+    const account = isLedger ? ledgerAccount : currentAccount;
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.whalesStakingPools.usePool(params.target);
+    const pool = engine.products.whalesStakingPools.usePool(params.target, ledgerAddress);
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
 
-    let balance = account.balance || new BN(0);
+    let balance = account?.balance || new BN(0);
     if (params?.action === 'withdraw') {
         balance = member
             ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)
@@ -154,7 +173,7 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if ((transferAmount.eq(account.balance) || account.balance.lt(transferAmount))) {
+        if ((transferAmount.eq(account?.balance ?? new BN(0)) || account?.balance.lt(transferAmount))) {
             setMinAmountWarn(
                 (params.action === 'withdraw' || params.action === 'withdraw_ready')
                     ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
@@ -171,6 +190,30 @@ export const StakingTransferFragment = fragment(() => {
         // Dismiss keyboard for iOS
         if (Platform.OS === 'ios') {
             Keyboard.dismiss();
+        }
+
+        if (isLedger) {
+            let actionText = t('transfer.title');
+            if (params.action === 'withdraw') {
+                actionText = t('products.staking.transfer.withdrawStakeTitle');
+            } else if (params.action === 'top_up') {
+                actionText = t('products.staking.transfer.topUpTitle');
+            } else if (params.action === 'withdraw_ready') {
+                actionText = t('products.staking.transfer.confirmWithdrawReady');
+            }
+
+            const text = t('products.staking.transfer.ledgerSignText', { action: actionText });
+            navigation.navigateLedgerSignTransfer({
+                order: {
+                    target: params.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    payload: { type: 'unsafe', message: new CellMessage(payload) },
+                    amount: transferAmount,
+                    amountAll: false,
+                    stateInit: null,
+                },
+                text: text,
+            });
+            return;
         }
 
         // Navigate to TransferFragment

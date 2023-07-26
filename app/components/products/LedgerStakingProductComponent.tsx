@@ -122,7 +122,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
 
     return (
         <ProductBanner
-            onPress={() => navigation.navigate('StakingPools')}
+            onPress={() => navigation.navigate('LedgerStakingPools')}
             title={t('products.staking.title')}
             subtitle={AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
             illustration={require('../../../assets/banner-staking.png')}

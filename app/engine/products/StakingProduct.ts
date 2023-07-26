@@ -122,11 +122,11 @@ export class StakingPoolsProduct {
         return useRecoilValue(this.apyAtom);
     }
 
-    usePool(pool?: Address) {
+    usePool(pool?: Address, member?: Address) {
         if (!pool) {
             return null;
         }
-        return useOptItem(this.engine.persistence.staking.item({ address: pool, target: this.engine.address }));
+        return useOptItem(this.engine.persistence.staking.item({ address: pool, target: member || this.engine.address }));
     }
 
     useStakingChart(pool?: Address) {

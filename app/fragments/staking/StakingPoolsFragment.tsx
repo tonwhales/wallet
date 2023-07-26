@@ -64,7 +64,8 @@ function PoolComponent(props: {
     address: Address,
     balance: BN,
     restricted?: boolean,
-    engine: Engine
+    engine: Engine,
+    isLedger?: boolean
 }) {
     const { AppConfig, Theme } = useAppConfig();
     const navigation = useTypedNavigation();
@@ -107,7 +108,7 @@ function PoolComponent(props: {
                         restrictedAlert(navigation, addr);
                         return;
                     }
-                    navigation.navigate('Staking', { backToHome: false, pool: addr })
+                    navigation.navigate(props.isLedger ? 'LedgerStaking' : 'Staking', { backToHome: false, pool: addr })
                 }}
                 style={{ marginVertical: 4, backgroundColor: Theme.lightGrey }}
             />
@@ -179,7 +180,7 @@ export const StakingPoolsFragment = fragment(() => {
             return;
         }
     }, [ledgerContext?.addr?.address]);
-    
+
     const stakingMain = engine.products.whalesStakingPools.useStakingCurrent();
     const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
     const staking = isLedger ? ledgerStaking : stakingMain;
@@ -219,6 +220,7 @@ export const StakingPoolsFragment = fragment(() => {
                     address={p.address}
                     balance={p.balance}
                     engine={engine}
+                    isLedger={isLedger}
                 />
             );
             processed.add(p.address.toFriendly({ testOnly: AppConfig.isTestnet }));
@@ -241,6 +243,7 @@ export const StakingPoolsFragment = fragment(() => {
                 address={recommended.address}
                 balance={recommended.balance}
                 engine={engine}
+                isLedger={isLedger}
             />
         );
     }
@@ -271,6 +274,7 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    isLedger={isLedger}
                 />
             );
         }
@@ -291,6 +295,7 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    isLedger={isLedger}
                 />
             );
         }
@@ -315,6 +320,7 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    isLedger={isLedger}
                 />
             );
         }
@@ -335,6 +341,7 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    isLedger={isLedger}
                 />
             );
         }
@@ -359,6 +366,7 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    isLedger={isLedger}
                 />
             );
         }
@@ -379,6 +387,7 @@ export const StakingPoolsFragment = fragment(() => {
                     address={pool.address}
                     balance={pool.balance}
                     engine={engine}
+                    isLedger={isLedger}
                 />
             );
         }

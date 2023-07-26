@@ -1,6 +1,6 @@
 import { HeaderBackButton } from "@react-navigation/elements";
 import { BlurView } from "expo-blur";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useLayoutEffect, useMemo } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
@@ -11,7 +11,6 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
-import { getCurrentAddress } from "../../storage/appState";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
@@ -29,20 +28,36 @@ import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { StakingPoolType } from "./StakingPoolsFragment";
+import { useRoute } from "@react-navigation/native";
+import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 
 export const StakingFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();
+    const route = useRoute();
     const engine = useEngine();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
-    const target = Address.parse(params.pool);
-    const pool = engine.products.whalesStakingPools.usePool(target);
+    const isLedger = route.name === 'LedgerStaking';
+
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = useMemo(() => {
+        if (!isLedger || !ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch {
+            return;
+        }
+    }, [ledgerContext?.addr?.address]);
+
+    const targetPool = Address.parse(params.pool);
+    const pool = engine.products.whalesStakingPools.usePool(targetPool, ledgerAddress);
     const poolParams = pool?.params;
     const member = pool?.member;
-    const staking = engine.products.whalesStakingPools.useStakingCurrent();
-    const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
+    const stakingCurrent = engine.products.whalesStakingPools.useStakingCurrent();
+    const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
+    const staking = isLedger ? ledgerStaking : stakingCurrent;
+    const stakingChart = engine.products.whalesStakingPools.useStakingChart(targetPool);
 
     let type: StakingPoolType = useMemo(() => {
         if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
@@ -58,8 +73,8 @@ export const StakingFragment = fragment(() => {
         if (AppConfig.isTestnet) {
             return true;
         }
-        return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
-    }, [staking, target]);
+        return !!staking?.config!.pools.find((v2) => Address.parse(v2).equals(targetPool))
+    }, [staking, targetPool]);
 
     let canWithdraw = useMemo(() => {
         return member?.balance.add(member.withdraw).gt(new BN(0));
@@ -140,22 +155,22 @@ export const StakingFragment = fragment(() => {
 
     const onTopUp = useCallback(() => {
         navigation.navigateStaking({
-            target: target,
+            target: targetPool,
             amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
             lockAddress: true,
             lockComment: true,
             action: 'top_up' as TransferAction,
         });
-    }, [target, pool]);
+    }, [targetPool, pool]);
 
     const onUnstake = useCallback(() => {
         navigation.navigateStaking({
-            target: target,
+            target: targetPool,
             lockAddress: true,
             lockComment: true,
             action: 'withdraw' as TransferAction,
         });
-    }, [target]);
+    }, [targetPool]);
 
     const openMoreInfo = useCallback(
         () => {
@@ -166,9 +181,10 @@ export const StakingFragment = fragment(() => {
 
     const openGraph = useCallback(() => {
         if (!!stakingChart) {
-            navigation.navigate('StakingGraph', { pool: target.toFriendly({ testOnly: AppConfig.isTestnet }) });
+            navigation.navigate('StakingGraph', { pool: targetPool.toFriendly({ testOnly: AppConfig.isTestnet }) });
         }
     }, [member]);
+
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -179,12 +195,12 @@ export const StakingFragment = fragment(() => {
                         ? safeArea.top + 44
                         : undefined,
                 }}
-                contentInset={{ top: 44, bottom: 52 }}
-                contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
+                contentInset={{ top: isLedger ? 44 + 16 : 44, bottom: 52 }}
+                contentOffset={{ y: -(44 + (isLedger ? 0 : safeArea.top)), x: 0 }}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
             >
-                {Platform.OS === 'ios' && (<View style={{ height: safeArea.top }} />)}
+                {Platform.OS === 'ios' && (<View style={{ height: isLedger ? 8 : safeArea.top }} />)}
                 <Animated.View
                     style={[
                         { ...cardOpacityStyle },
@@ -215,31 +231,33 @@ export const StakingFragment = fragment(() => {
                     >
                         {t('products.staking.balance')}
                     </Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed && stakingChart ? 0.3 : 1,
-                                    marginLeft: 22,
-                                    flexDirection: 'row', alignItems: 'center'
-                                };
-                            }}
-                            onPress={openGraph}
-                        >
-                            <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
-                                <ValueComponent
-                                    value={member?.balance || toNano('0')}
-                                    centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                                />
-                            </Text>
-                            {!!stakingChart && <GraphIcon />}
-                        </Pressable>
-                    </View>
+                    {!isLedger && (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed && stakingChart ? 0.3 : 1,
+                                        marginLeft: 22,
+                                        flexDirection: 'row', alignItems: 'center'
+                                    };
+                                }}
+                                onPress={openGraph}
+                            >
+                                <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
+                                    <ValueComponent
+                                        value={member?.balance || toNano('0')}
+                                        centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
+                                    />
+                                </Text>
+                                {!!stakingChart && <GraphIcon />}
+                            </Pressable>
+                        </View>
+                    )}
                     <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={target}
+                        value={targetPool.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        address={targetPool}
                         elipsise
                         style={{
                             marginLeft: 22,
@@ -256,7 +274,7 @@ export const StakingFragment = fragment(() => {
                     />
                 </Animated.View>
                 <StakingPendingComponent
-                    target={target}
+                    target={targetPool}
                     style={{ marginHorizontal: 16 }}
                     params={poolParams}
                     member={member}
@@ -271,7 +289,7 @@ export const StakingFragment = fragment(() => {
                         }}
                     />
                 )}
-                {!AppConfig.isTestnet && <CalculatorButton target={target} style={{ marginHorizontal: 16 }} />}
+                {!AppConfig.isTestnet && <CalculatorButton target={targetPool} style={{ marginHorizontal: 16 }} />}
                 {type !== 'nominators' && !available && (
                     <RestrictedPoolBanner type={type} />
                 )}
@@ -282,13 +300,14 @@ export const StakingFragment = fragment(() => {
                     <View style={{
                         position: 'absolute',
                         top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
+                        height: isLedger ? 44 + 16 : safeArea.top + 44,
                     }}>
                         <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
                         <BlurView style={{
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: safeArea.top,
+                            paddingTop: isLedger ? 8 : safeArea.top,
+                            paddingBottom: isLedger ? 8 : 0,
                             flexDirection: 'row',
                             overflow: 'hidden'
                         }}>
@@ -370,7 +389,7 @@ export const StakingFragment = fragment(() => {
 
                                         </View>
                                         <Text style={{ color: 'white', marginLeft: 22, marginBottom: 16, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
-                                            <AddressComponent address={target} />
+                                            <AddressComponent address={targetPool} />
                                         </Text>
                                     </View>
                                 </Animated.View>
@@ -501,7 +520,7 @@ export const StakingFragment = fragment(() => {
                                         style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }}
                                         numberOfLines={1}
                                     >
-                                        <AddressComponent address={target} />
+                                        <AddressComponent address={targetPool} />
                                     </Text>
                                 </View>
                             </Animated.View>

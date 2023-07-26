@@ -5,7 +5,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { useEngine } from "../../engine/Engine";
 import { useCallback, useEffect, useMemo } from "react";
-import { Address } from "ton";
+import { Address, CellMessage } from "ton";
 import { useBottomSheet } from "../../components/modal/BottomSheetModal";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../i18n/t";
@@ -22,13 +22,14 @@ import { PriceComponent } from "../../components/PriceComponent";
 import BN from "bn.js";
 import { WalletAddress } from "../../components/WalletAddress";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
+import { resolveUrl } from "../../utils/resolveUrl";
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
 
 export const LedgerHomeFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
@@ -51,15 +52,59 @@ export const LedgerHomeFragment = fragment(() => {
 
 
     const onQRCodeRead = (src: string) => {
+        try {
+            let res = resolveUrl(src, AppConfig.isTestnet);
+            if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
+                if (res.type === 'transaction') {
+                    if (res.payload) {
+                        navigation.navigateLedgerSignTransfer({
+                            order: {
+                                target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                amount: res.amount || new BN(0),
+                                amountAll: false,
+                                stateInit: res.stateInit,
+                                payload: {
+                                    type: 'unsafe',
+                                    message: new CellMessage(res.payload),
+                                },
+                            },
+                            text: res.comment
+                        });
+                    } else {
+                        navigation.navigateLedgerTransfer({
+                            target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            comment: res.comment,
+                            amount: res.amount,
+                            stateInit: res.stateInit,
+                            job: null,
+                            jetton: null,
+                            callback: null
+                        });
+                    }
+                    return;
+                }
+                navigation.navigateLedgerTransfer({
+                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    comment: res.comment,
+                    amount: res.amount,
+                    stateInit: null,
+                    job: null,
+                    jetton: res.jettonMaster,
+                    callback: null
+                });
+            }
+        } catch {
+            // Ignore
+        }
     };
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    const openGraph = useCallback(() => {
-        // if (balanceChart && balanceChart.chart.length > 0) {
-        //     navigation.navigate('AccountBalanceGraph');
-        // }
-    }, []);
+    // const openGraph = useCallback(() => {
+    //     if (balanceChart && balanceChart.chart.length > 0) {
+    //         navigation.navigate('AccountBalanceGraph');
+    //     }
+    // }, []);
     const navigateTransfer = useCallback(() => {
         navigation.replace('LedgerTransfer', {
             amount: null,
@@ -249,7 +294,7 @@ export const LedgerHomeFragment = fragment(() => {
                         </View>
                     </Pressable>
                     <View style={{ flexDirection: 'row' }}>
-                        <Pressable
+                        {/* <Pressable
                             style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
                             onPress={openGraph}
                         >
@@ -262,7 +307,7 @@ export const LedgerHomeFragment = fragment(() => {
                                 width={24}
                                 color={Theme.greyForIcon}
                             />
-                        </Pressable>
+                        </Pressable> */}
                         <Pressable
                             style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
                             onPress={openScanner}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ImageSourcePropType, Pressable, Text, View, Image } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { useAppConfig } from '../utils/AppConfigContext';
 
@@ -17,13 +17,37 @@ export const Item = React.memo((props: { title?: string, hint?: string, onPress?
     )
 });
 
-export const ItemSwitch = React.memo((props: { title?: string, value: boolean, onChange: (value: boolean) => void }) => {
+export const ItemSwitch = React.memo((props: {
+    title?: string,
+    value: boolean,
+    onChange: (value: boolean) => void,
+    leftIcon?: ImageSourcePropType,
+    leftIconComponent?: any,
+}) => {
     const { Theme } = useAppConfig();
     return (
-        <View style={{ height: 44, paddingHorizontal: 16, backgroundColor: Theme.item, alignItems: 'center', flexDirection: 'row' }}>
-            <Text style={{ fontSize: 18, color: Theme.textColor, flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
+        <View style={{ flexGrow: 1, alignItems: 'center', flexDirection: 'row', padding: 20, justifyContent: 'space-between' }}>
+            {props.leftIcon && (<Image style={{ height: 24, width: 24 }} source={props.leftIcon} />)}
+            {!!props.leftIconComponent && (
+                <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center' }}>
+                    {props.leftIconComponent}
+                </View>
+            )}
+            <Text
+                style={{
+                    fontSize: 17, lineHeight: 24,
+                    fontWeight: '600',
+                    textAlignVertical: 'center',
+                    flexShrink: 1
+                }}
+            >
+                {props.title}
+            </Text>
             <Switch
-                // trackColor={Theme.accent}
+                trackColor={{
+                    false: Theme.mediumGrey,
+                    true: Theme.accent,
+                }}
                 value={props.value}
                 onValueChange={props.onChange}
             />

@@ -527,7 +527,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         protectFaceID: 'Protect with Face ID',
         protectTouchID: 'Protect with Touch ID',
         protectBiometrics: 'Protect with biometrics',
-        protectPasscode: 'Protect with Passcode',
+        protectPasscode: 'Protect with device passcode',
         upgradeTitle: 'Upgrade needed',
         upgradeMessage: 'Please, allow the app access to wallet keys for an upgrade. No funds would be transferred during this upgrade. Please, make sure that you backed up your keys.',
         allowUpgrade: 'Allow upgrade',

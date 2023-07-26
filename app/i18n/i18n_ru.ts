@@ -528,7 +528,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         protectFaceID: 'Защитить с Face ID',
         protectTouchID: 'Защитить с Touch ID',
         protectBiometrics: 'Защитить с биометрией',
-        protectPasscode: 'Защитить паролем',
+        protectPasscode: 'Защитить паролем устройства',
         upgradeTitle: 'Требуется обновление',
         upgradeMessage: 'Пожалуйста, разрешите приложению доступ к ключам для обновления. Никакие средства не будут переведены во время обновления. Пожалуйста, убедитесь что ваши секретные слова надежно сохранены.',
         allowUpgrade: 'Разрешить обновление',

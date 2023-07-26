@@ -42,8 +42,8 @@ export const BiometricsSetupFragment = systemFragment(() => {
         switch (deviceEncryption) {
             case 'face':
                 icon = Platform.OS === 'ios'
-                    ? <FaceIos width={20} height={20} color={'#fff'} />
-                    : <TouchAndroid width={20} height={20} color={'#fff'} />
+                    ? <FaceIos width={20} height={20} color={'white'} />
+                    : <TouchAndroid width={20} height={20} color={'white'} />
                 buttonText = Platform.OS === 'ios'
                     ? t('secure.protectFaceID')
                     : t('secure.protectBiometrics');
@@ -51,8 +51,8 @@ export const BiometricsSetupFragment = systemFragment(() => {
             case 'biometric':
             case 'fingerprint':
                 icon = Platform.OS === 'ios'
-                    ? <TouchIos width={20} height={20} color={'#fff'} />
-                    : <TouchAndroid width={20} height={20} color={'#fff'} />
+                    ? <TouchIos width={20} height={20} color={'white'} />
+                    : <TouchAndroid width={20} height={20} color={'white'} />
                 buttonText = Platform.OS === 'ios'
                     ? t('secure.protectTouchID')
                     : t('secure.protectBiometrics');
@@ -62,7 +62,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
                 icon = <Ionicons
                     name={'keypad'}
                     size={20}
-                    color={'#000'}
+                    color={'white'}
                 />;
                 buttonText = t('secure.protectPasscode');
                 break;
@@ -97,7 +97,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
             setLoading(true);
             try {
                 try {
-                    const authRes = await authContext.authenticateWithPasscode();
+                    const authRes = await authContext.authenticateWithPasscode({ cancelable: true });
                     await encryptAndStoreAppKeyWithBiometrics(authRes.passcode);
 
                     settings.setBiometricsState(BiometricsState.InUse);

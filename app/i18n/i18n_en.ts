@@ -76,6 +76,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         logoutDescription: 'This action will disconnect the wallet from this app and delete all of your data from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.',
         primaryCurrency: 'Primary currency',
         experimental: 'Experimental',
+        support: {
+            title: 'Support',
+            telegram: 'Telegram',
+            form: 'Support form',
+        },
+        telegram: 'Telegram',
+        rateApp: 'Rate app',
     },
     wallet: {
         sync: 'Downloading wallet data',

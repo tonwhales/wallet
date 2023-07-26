@@ -11,6 +11,10 @@ import BN from 'bn.js';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { TabHeader } from '../components/topbar/TabHeader';
 import { useTrackScreen } from '../analytics/mixpanel';
+import { openWithInApp } from '../utils/openWithInApp';
+import { useCallback } from 'react';
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import * as StoreReview from 'expo-store-review';
 
 import Security from '../../assets/ic-security.svg';
 import Spam from '../../assets/ic-spam.svg';
@@ -19,12 +23,16 @@ import Currency from '../../assets/ic-currency.svg';
 import Accounts from '../../assets/ic-accounts.svg';
 import Terms from '../../assets/ic-terms.svg';
 import Privacy from '../../assets/ic-privacy.svg';
+import Support from '../../assets/ic-support.svg';
+import Telegram from '../../assets/ic-tg.svg';
+import RateApp from '../../assets/ic-rate-app.svg';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
+    const { showActionSheetWithOptions } = useActionSheet();
 
     const onVersionTap = React.useMemo(() => {
         let count = 0;
@@ -44,6 +52,34 @@ export const SettingsFragment = fragment(() => {
                 }, 1000);
             }
         };
+    }, []);
+
+    const onRateApp = useCallback(async () => {
+        if (await StoreReview.hasAction()) {
+            StoreReview.requestReview();
+          }
+    }, []);
+
+    const onSupport = useCallback(() => {
+        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            options,
+            title: t('settings.support.title'),
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    openWithInApp('https://t.me/WhalesSupportBot');
+                    break;
+                case 2:
+                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                    break;
+                default:
+                    break;
+            }
+        });
     }, []);
 
     useTrackScreen('More', engine.isTestnet);
@@ -108,6 +144,30 @@ export const SettingsFragment = fragment(() => {
                         leftIconComponent={<Accounts width={24} height={24} />}
                         title={t('products.accounts')}
                         onPress={() => navigation.navigate('Accounts')}
+                    />
+                </View>
+
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: Theme.lightGrey,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<Support width={24} height={24} />}
+                        title={t('settings.support.title')}
+                        onPress={onSupport}
+                    />
+                    <ItemButton
+                        leftIconComponent={<Telegram width={24} height={24} />}
+                        title={t('settings.telegram')}
+                        onPress={() => openWithInApp('https://t.me/tonhub')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<RateApp width={24} height={24} />}
+                        title={t('settings.rateApp')}
+                        onPress={onRateApp}
                     />
                 </View>
 

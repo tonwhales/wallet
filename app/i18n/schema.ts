@@ -77,7 +77,14 @@ export type LocalizationSchema = {
         spamFilter: string,
         logoutDescription: string,
         primaryCurrency: string,
-        experimental: string
+        experimental: string,
+        support: {
+            title: string,
+            telegram: string,
+            form: string
+        },
+        telegram: string,
+        rateApp: string
     },
     wallet: {
         sync: string,
